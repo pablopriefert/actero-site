@@ -13,6 +13,8 @@ import {
 import { DemoHeroGeometric } from '../components/blocks/demo-hero';
 import { HeroBackground } from '../components/ui/shape-landing-hero';
 import { ButtonColorful } from '../components/ui/button-colorful';
+import { Futuristic3DBackground } from '../components/ui/futuristic-3d-background';
+import { FadeInUp, SlideInRight, SlideInLeft, StaggerContainer, StaggerItem, ScaleIn } from '../components/ui/scroll-animations';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -2351,6 +2353,7 @@ const LandingPage = ({ onNavigate }) => {
   };
   return (
     <div className="relative min-h-screen bg-transparent font-sans text-white selection:bg-emerald-500/20 selection:text-white">
+      <Futuristic3DBackground />
       <HeroBackground />
       {/* NAVBAR */}
       <nav className="fixed top-0 w-full z-50 bg-[#030303]/70 backdrop-blur-2xl border-b border-white/10/50 shadow-sm transition-all duration-300">
@@ -2391,29 +2394,29 @@ const LandingPage = ({ onNavigate }) => {
 
         {/* 2. SECTION STORYTELLING - LE PROBLÈME */}
         <section className="py-24 md:py-32 bg-transparent px-6 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
+          <FadeInUp className="max-w-5xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white mb-6">Vous perdez déjà de l'argent.</h2>
             <p className="text-xl md:text-2xl text-gray-400 font-medium max-w-3xl mx-auto leading-relaxed mb-20">
               Panier abandonné. Support saturé. Données inexploitées.<br className="hidden md:block" />
               Chaque jour sans automatisation vous coûte.
             </p>
 
-            <div className="grid md:grid-cols-3 gap-12 lg:gap-16 text-center">
+            <StaggerContainer className="grid md:grid-cols-3 gap-12 lg:gap-16 text-center">
               {[
                 { icon: <TrendingDown className="w-8 h-8 text-gray-400" />, title: "Perte de conversion", desc: "Des relances génériques qui ne convertissent plus." },
                 { icon: <Clock className="w-8 h-8 text-gray-400" />, title: "Temps humain gaspillé", desc: "Des heures perdues sur des tâches répétitives." },
                 { icon: <BarChart2 className="w-8 h-8 text-gray-400" />, title: "Décisions sans data", desc: "Navigation à vue au lieu d'itérer sur la data." }
               ].map((block, i) => (
-                <div key={i} className="flex flex-col items-center group">
+                <StaggerItem key={i} className="flex flex-col items-center group">
                   <div className="mb-6 opacity-60 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300">
                     {block.icon}
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">{block.title}</h3>
                   <p className="text-base text-gray-400 font-medium leading-relaxed">{block.desc}</p>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
-          </div>
+            </StaggerContainer>
+          </FadeInUp>
         </section>
 
         {/* 3. SECTION TRANSITION - LE SHIFT */}
@@ -2422,9 +2425,9 @@ const LandingPage = ({ onNavigate }) => {
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#0a0a0a] rounded-full blur-3xl opacity-50 -mr-40 -mt-40 pointer-events-none"></div>
 
           <div className="max-w-4xl mx-auto relative z-10">
-            <div className="text-center mb-24">
+            <FadeInUp className="text-center mb-24">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white mb-6">Et si votre boutique devenait autonome ?</h2>
-            </div>
+            </FadeInUp>
 
             <div className="flex flex-col gap-12 relative">
               {/* Connecting vertical line */}
@@ -2435,7 +2438,7 @@ const LandingPage = ({ onNavigate }) => {
                 { step: "02", title: "Recommandation IA", desc: "L'intelligence artificielle identifie le workflow exact qui augmentera vos marges.", align: "right" },
                 { step: "03", title: "Exécution instantanée", desc: "Validez en un clic. L'architecture technique se déploie sans aucun code.", align: "left" }
               ].map((item, i) => (
-                <div key={i} className={`flex flex-col md:flex-row items-center gap-8 ${item.align === 'right' ? 'md:flex-row-reverse' : ''} animate-fade-in-up`} style={{ animationDelay: `${i * 200}ms` }}>
+                <FadeInUp key={i} delay={i * 0.15} className={`flex flex-col md:flex-row items-center gap-8 ${item.align === 'right' ? 'md:flex-row-reverse' : ''}`}>
                   <div className={`flex-1 w-full flex ${item.align === 'right' ? 'md:justify-start' : 'md:justify-end'}`}>
                     <div className="bg-[#0a0a0a] rounded-[32px] p-8 md:p-10 border border-white/5 shadow-[0_10px_40px_rgba(0,0,0,0.03)] w-full max-w-sm hover:-translate-y-1 transition-transform duration-500 ease-out">
                       <p className="text-sm font-bold text-indigo-500 mb-4 tracking-widest uppercase">Étape {item.step}</p>
@@ -2450,7 +2453,7 @@ const LandingPage = ({ onNavigate }) => {
                   </div>
 
                   <div className="flex-1 w-full"></div>
-                </div>
+                </FadeInUp>
               ))}
             </div>
           </div>
@@ -2461,7 +2464,7 @@ const LandingPage = ({ onNavigate }) => {
           <div className="max-w-6xl mx-auto">
 
             {/* XXL Metrics */}
-            <div className="text-center mb-16">
+            <FadeInUp className="text-center mb-16">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 max-w-4xl mx-auto">
                 <div className="flex flex-col items-center justify-center py-6 md:border-r border-white/5">
                   <span className="text-6xl lg:text-[5rem] font-bold tracking-tighter text-white mb-2 leading-none">+120h</span>
@@ -2477,10 +2480,10 @@ const LandingPage = ({ onNavigate }) => {
                 </div>
               </div>
               <p className="text-sm font-semibold text-gray-400 mt-12 uppercase tracking-wide">Résultats moyens observés chez nos clients E-commerce.</p>
-            </div>
+            </FadeInUp>
 
             {/* Premium Case Study Card */}
-            <div className="max-w-4xl mx-auto">
+            <ScaleIn className="max-w-4xl mx-auto">
               <div className="bg-[#030303] rounded-[32px] p-8 md:p-12 border border-white/10 shadow-xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50 rounded-full blur-3xl opacity-50 -mr-40 -mt-40 transition-transform duration-700 group-hover:scale-110"></div>
 
@@ -2516,7 +2519,7 @@ const LandingPage = ({ onNavigate }) => {
                   </div>
                 </div>
               </div>
-            </div>
+            </ScaleIn>
 
           </div>
         </section>
@@ -2524,11 +2527,11 @@ const LandingPage = ({ onNavigate }) => {
         {/* 5. SECTION COMPARAISON (POSITIONNEMENT) */}
         <section className="py-24 bg-transparent border-t border-white/10 px-6 relative z-10">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
+            <FadeInUp className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6 leading-tight">Ce n'est pas un outil.<br />C'est une <span className="text-indigo-600">infrastructure.</span></h2>
-            </div>
+            </FadeInUp>
 
-            <div className="bg-[#0a0a0a] rounded-[32px] border border-white/10 overflow-hidden shadow-sm">
+            <SlideInLeft className="bg-[#0a0a0a] rounded-[32px] border border-white/10 overflow-hidden shadow-sm">
               <div className="grid grid-cols-2 md:grid-cols-2 border-b border-white/5 bg-white/5/50">
                 <div className="p-6 md:p-8 border-r border-white/5">
                   <p className="text-lg font-bold tracking-tight text-gray-400 line-through decoration-gray-300">Make / Zapier</p>
@@ -2555,7 +2558,7 @@ const LandingPage = ({ onNavigate }) => {
                   </div>
                 ))}
               </div>
-            </div>
+            </SlideInLeft>
           </div>
         </section>
 
@@ -2563,12 +2566,12 @@ const LandingPage = ({ onNavigate }) => {
         {/* === AI ROI SIMULATOR (RESTORED) START === */}
         <section id="roi" className="py-24 bg-transparent border-y border-white/10 px-6 relative z-10">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
+            <FadeInUp className="text-center mb-16">
               <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-6">Calculez votre ROI en temps réel.</h2>
               <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto">Notre intelligence artificielle analyse votre cas d'usage et génère instantanément l'architecture cible et l'impact estimé.</p>
-            </div>
+            </FadeInUp>
 
-            <div className="bg-[#0a0a0a] rounded-[32px] border border-white/10 shadow-2xl p-6 md:p-10">
+            <FadeInUp className="bg-[#0a0a0a] rounded-[32px] border border-white/10 shadow-2xl p-6 md:p-10" delay={0.2}>
               <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
 
                 {/* Form Elements */}
@@ -2690,7 +2693,7 @@ const LandingPage = ({ onNavigate }) => {
                   ) : null}
                 </div>
               </div>
-            </div>
+            </FadeInUp>
           </div>
         </section>
         {/* === AI ROI SIMULATOR (RESTORED) END === */}
@@ -2838,59 +2841,61 @@ const LandingPage = ({ onNavigate }) => {
       </div>
 
       {/* Modal Lead IA */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onClick={!isSubmitting ? closeModal : undefined}></div>
-          <div className="relative bg-[#0a0a0a] rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fade-in-up z-10 border border-white/5">
-            <button onClick={closeModal} disabled={isSubmitting} className="absolute top-6 right-6 text-gray-400 hover:text-gray-400 transition-colors disabled:opacity-50">
-              <X className="w-5 h-5" />
-            </button>
-            <h3 className="text-2xl font-semibold text-white mb-2 tracking-tight">Dernière étape</h3>
-            <p className="text-gray-400 font-medium text-sm mb-6">Laissez-nous vos coordonnées pour générer votre architecture cible personnalisée.</p>
+      {
+        isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onClick={!isSubmitting ? closeModal : undefined}></div>
+            <div className="relative bg-[#0a0a0a] rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fade-in-up z-10 border border-white/5">
+              <button onClick={closeModal} disabled={isSubmitting} className="absolute top-6 right-6 text-gray-400 hover:text-gray-400 transition-colors disabled:opacity-50">
+                <X className="w-5 h-5" />
+              </button>
+              <h3 className="text-2xl font-semibold text-white mb-2 tracking-tight">Dernière étape</h3>
+              <p className="text-gray-400 font-medium text-sm mb-6">Laissez-nous vos coordonnées pour générer votre architecture cible personnalisée.</p>
 
-            <form onSubmit={handleModalSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Nom de l'entreprise <span className="text-emerald-500">*</span></label>
-                <input
-                  required
-                  minLength={2}
-                  value={brandName}
-                  onChange={e => setBrandName(e.target.value)}
-                  disabled={isSubmitting}
-                  type="text"
-                  className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white placeholder:text-gray-400"
-                  placeholder="Ex: Actero"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-white mb-2">Email professionnel <span className="text-emerald-500">*</span></label>
-                <input
-                  required
-                  pattern="^\S+@\S+\.\S+$"
-                  value={contactEmail}
-                  onChange={e => setContactEmail(e.target.value)}
-                  disabled={isSubmitting}
-                  type="email"
-                  className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white placeholder:text-gray-400"
-                  placeholder="nom@entreprise.com"
-                />
-              </div>
-              <div className="pt-2 flex items-center justify-end gap-3">
-                <button type="button" onClick={closeModal} disabled={isSubmitting} className="px-5 py-3 rounded-xl font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50">
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting || brandName.trim().length < 2 || !/^\S+@\S+\.\S+$/.test(contactEmail)}
-                  className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-sm inline-flex items-center justify-center gap-2 min-w-[140px]"
-                >
-                  {isSubmitting ? <><svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Génération...</> : "Voir l'audit"}
-                </button>
-              </div>
-            </form>
+              <form onSubmit={handleModalSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Nom de l'entreprise <span className="text-emerald-500">*</span></label>
+                  <input
+                    required
+                    minLength={2}
+                    value={brandName}
+                    onChange={e => setBrandName(e.target.value)}
+                    disabled={isSubmitting}
+                    type="text"
+                    className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white placeholder:text-gray-400"
+                    placeholder="Ex: Actero"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Email professionnel <span className="text-emerald-500">*</span></label>
+                  <input
+                    required
+                    pattern="^\S+@\S+\.\S+$"
+                    value={contactEmail}
+                    onChange={e => setContactEmail(e.target.value)}
+                    disabled={isSubmitting}
+                    type="email"
+                    className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white placeholder:text-gray-400"
+                    placeholder="nom@entreprise.com"
+                  />
+                </div>
+                <div className="pt-2 flex items-center justify-end gap-3">
+                  <button type="button" onClick={closeModal} disabled={isSubmitting} className="px-5 py-3 rounded-xl font-semibold text-gray-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50">
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || brandName.trim().length < 2 || !/^\S+@\S+\.\S+$/.test(contactEmail)}
+                    className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-sm inline-flex items-center justify-center gap-2 min-w-[140px]"
+                  >
+                    {isSubmitting ? <><svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Génération...</> : "Voir l'audit"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* FOOTER */}
       <footer className="bg-[#0a0a0a] border-t border-white/5 py-16 px-6">
@@ -2916,7 +2921,7 @@ const LandingPage = ({ onNavigate }) => {
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   );
 };
 // === LANDING IOS26 END ===
