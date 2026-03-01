@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 // --- Configuration Supabase ---
-import { DemoHeroGeometric } from '@/components/blocks/demo-hero';
+import { DemoHeroGeometric } from '../components/blocks/demo-hero';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
