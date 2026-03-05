@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Play, Mic, ArrowUp } from 'lucide-react';
 import { FadeInUp, ScaleIn } from './scroll-animations';
+import { LeadCaptureModal } from './lead-capture-modal';
 
 export const GlassHero = ({ onNavigate }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleMockInteraction = (e) => {
+        if (e) e.preventDefault();
+        setIsModalOpen(true);
+    };
+
+    const handleModalSubmit = (data) => {
+        console.log("Lead captured from modal:", data);
+        setIsModalOpen(false);
+        // After capturing data, scroll to calendly as the "action" outcome
+        const el = document.getElementById('calendly');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    };
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center pt-24 pb-32 px-6 overflow-hidden">
 
@@ -103,19 +118,13 @@ export const GlassHero = ({ onNavigate }) => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button
-                                            onClick={() => {
-                                                const el = document.getElementById('calendly');
-                                                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                            }}
+                                            onClick={handleMockInteraction}
                                             className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                                         >
                                             <Mic className="w-4 h-4" />
                                         </button>
                                         <button
-                                            onClick={() => {
-                                                const el = document.getElementById('calendly');
-                                                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                            }}
+                                            onClick={handleMockInteraction}
                                             className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:bg-gray-200 transition-colors"
                                         >
                                             <ArrowUp className="w-4 h-4" />
@@ -127,18 +136,15 @@ export const GlassHero = ({ onNavigate }) => {
                             {/* Suggestions / Tags */}
                             <div className="w-full max-w-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <button onClick={() => { const el = document.getElementById('calendly'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="bg-white/10 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 cursor-pointer hover:bg-white/20 transition-colors">Service Client</button>
-                                    <button onClick={() => { const el = document.getElementById('calendly'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">E-commerce</button>
-                                    <button onClick={() => { const el = document.getElementById('calendly'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">CRM</button>
-                                    <button onClick={() => { const el = document.getElementById('calendly'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Rapports IA</button>
+                                    <button onClick={handleMockInteraction} className="bg-white/10 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 cursor-pointer hover:bg-white/20 transition-colors">Service Client</button>
+                                    <button onClick={handleMockInteraction} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">E-commerce</button>
+                                    <button onClick={handleMockInteraction} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">CRM</button>
+                                    <button onClick={handleMockInteraction} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Rapports IA</button>
                                 </div>
 
                                 <div className="flex flex-col gap-3 w-full md:w-auto">
                                     <button
-                                        onClick={() => {
-                                            const el = document.getElementById('calendly');
-                                            if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                        }}
+                                        onClick={handleMockInteraction}
                                         className="flex items-center justify-between gap-4 text-xs font-medium text-gray-400 cursor-pointer hover:text-white transition-colors group"
                                     >
                                         <span>Connecter Shopify à Klaviyo et un agent vocal OpenAI</span>
@@ -155,6 +161,13 @@ export const GlassHero = ({ onNavigate }) => {
                 </ScaleIn>
 
             </div>
+
+            {/* Lead Capture Modal */}
+            <LeadCaptureModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleModalSubmit}
+            />
         </div>
     );
 };
