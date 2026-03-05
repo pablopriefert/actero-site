@@ -88,7 +88,7 @@ const Logo = ({ className = "w-8 h-8", light = false }) => (
 const Badge = ({ children, variant = 'gray', className = '' }) => {
   const variants = {
     gray: 'bg-white/5 text-gray-400 border-white/10',
-    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    zinc: 'bg-zinc-800 text-zinc-400 border-zinc-600',
     emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     amber: 'bg-amber-50 text-amber-700 border-amber-200',
     red: 'bg-red-50 text-red-700 border-red-200',
@@ -100,9 +100,9 @@ const Badge = ({ children, variant = 'gray', className = '' }) => {
   );
 };
 
-const StatCard = ({ title, value, icon: Icon, color = 'indigo', subtitleItems = [], className = '' }) => {
+const StatCard = ({ title, value, icon: Icon, color = 'zinc', subtitleItems = [], className = '' }) => {
   const colors = {
-    indigo: { bg: 'bg-indigo-50', border: 'border-indigo-100', text: 'text-indigo-600', val: 'text-indigo-600', hover: 'group-hover:bg-indigo-500/10' },
+    zinc: { bg: 'bg-zinc-800', border: 'border-zinc-700', text: 'text-zinc-300', val: 'text-zinc-300', hover: 'group-hover:bg-zinc-400/10' },
     emerald: { bg: 'bg-emerald-50', border: 'border-emerald-100', text: 'text-emerald-600', val: 'text-emerald-600', hover: 'group-hover:bg-emerald-500/10' },
     amber: { bg: 'bg-amber-50', border: 'border-amber-100', text: 'text-amber-600', val: 'text-amber-600', hover: 'group-hover:bg-amber-500/10' },
     gray: { bg: 'bg-white/5', border: 'border-white/5', text: 'text-gray-400', val: 'text-white', hover: 'group-hover:bg-gray-500/10' }
@@ -139,7 +139,7 @@ const SectionHeader = ({ title, description, icon: Icon, action }) => (
   <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
       <div className="flex items-center gap-2 mb-1">
-        {Icon && <Icon className="w-5 h-5 text-indigo-600" />}
+        {Icon && <Icon className="w-5 h-5 text-zinc-300" />}
         <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
       </div>
       {description && <p className="text-sm text-gray-400 font-medium">{description}</p>}
@@ -390,7 +390,7 @@ const AdminOnboardingView = () => {
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Onboarding Client</h2>
         <p className="text-gray-400 font-normal mt-1 flex items-center gap-2">
-          <UserPlus className="w-5 h-5 text-indigo-500" />
+          <UserPlus className="w-5 h-5 text-zinc-400" />
           Créez un profil client et envoyez-lui un accès immédiat (SaaS fermé).
         </p>
       </div>
@@ -412,7 +412,7 @@ const AdminOnboardingView = () => {
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
                 placeholder="Ex: Koma"
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
+                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm"
                 required
               />
             </div>
@@ -423,7 +423,7 @@ const AdminOnboardingView = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Ex: contact@koma.com"
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
+                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm"
                 required
               />
             </div>
@@ -688,16 +688,16 @@ const AdminDashboard = ({ onNavigate, onLogout }) => {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div className="relative w-full sm:w-auto">
                   <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" placeholder="Rechercher un client..." className="pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm w-full sm:w-80 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-sm" />
+                  <input type="text" placeholder="Rechercher un client..." className="pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm w-full sm:w-80 focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 outline-none transition-all shadow-sm" />
                 </div>
-                <button onClick={handleAddClient} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-sm w-full sm:w-auto justify-center">
+                <button onClick={handleAddClient} className="bg-zinc-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-zinc-400 transition-colors shadow-sm w-full sm:w-auto justify-center">
                   <Plus className="w-4 h-4" /> Nouveau client
                 </button>
               </div>
 
               {dataLoading ? (
                 <div className="flex justify-center items-center py-20">
-                  <svg className="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  <svg className="animate-spin h-8 w-8 text-zinc-300" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 </div>
               ) : dataError ? (
                 <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center gap-2"><AlertCircle className="w-5 h-5 flex-shrink-0" />{dataError}</div>
@@ -708,7 +708,7 @@ const AdminDashboard = ({ onNavigate, onLogout }) => {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Aucun client pour le moment</h3>
                   <p className="text-gray-400 font-normal mb-6">Ajoutez votre premier client pour commencer à monitorer son infrastructure.</p>
-                  <button onClick={handleAddClient} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-sm">
+                  <button onClick={handleAddClient} className="bg-zinc-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-zinc-400 transition-colors shadow-sm">
                     <Plus className="w-4 h-4" /> Ajouter un client
                   </button>
                 </div>
@@ -754,12 +754,12 @@ const AdminDashboard = ({ onNavigate, onLogout }) => {
             <div className="max-w-6xl mx-auto animate-fade-in-up">
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">Leads Capturés</h2>
-                <p className="text-gray-400 font-normal mt-1 flex items-center gap-2"><Sparkles className="w-4 h-4 text-indigo-500" /> Contacts intéressés depuis le simulateur d'Architecture IA sur la landing page.</p>
+                <p className="text-gray-400 font-normal mt-1 flex items-center gap-2"><Sparkles className="w-4 h-4 text-zinc-400" /> Contacts intéressés depuis le simulateur d'Architecture IA sur la landing page.</p>
               </div>
 
               {dataLoading ? (
                 <div className="flex justify-center items-center py-20">
-                  <svg className="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  <svg className="animate-spin h-8 w-8 text-zinc-300" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 </div>
               ) : dataError ? (
                 <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center gap-2"><AlertCircle className="w-5 h-5 flex-shrink-0" />{dataError}</div>
@@ -786,7 +786,7 @@ const AdminDashboard = ({ onNavigate, onLogout }) => {
                       {leads.map(lead => (
                         <tr key={lead.id} className="hover:bg-white/5/50 transition-colors">
                           <td className="px-6 py-4 font-bold text-white">{lead.brand_name}</td>
-                          <td className="px-6 py-4 text-sm font-medium text-indigo-600"><a href={`mailto:${lead.email}`} className="hover:underline">{lead.email}</a></td>
+                          <td className="px-6 py-4 text-sm font-medium text-zinc-300"><a href={`mailto:${lead.email}`} className="hover:underline">{lead.email}</a></td>
                           <td className="px-6 py-4 text-sm"><Badge variant="gray">{lead.source === 'landing_architecture' ? 'Simulateur IA' : lead.source}</Badge></td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-400">
                             {new Date(lead.created_at).toLocaleDateString('fr-FR', {
@@ -815,7 +815,7 @@ const AdminDashboard = ({ onNavigate, onLogout }) => {
 
               {dataLoading ? (
                 <div className="flex justify-center items-center py-20">
-                  <svg className="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  <svg className="animate-spin h-8 w-8 text-zinc-300" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 </div>
               ) : dataError ? (
                 <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center gap-2"><AlertCircle className="w-5 h-5 flex-shrink-0" />{dataError}</div>
@@ -859,7 +859,7 @@ const AdminDashboard = ({ onNavigate, onLogout }) => {
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-2 items-start">
                               <span className="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-lg border border-amber-200">{req.status || "En attente"}</span>
-                              {req.priority && <span className="bg-purple-50 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded border border-purple-200 uppercase tracking-wider">{req.priority}</span>}
+                              {req.priority && <span className="bg-zinc-800 text-zinc-400 text-[10px] font-bold px-2 py-0.5 rounded border border-zinc-600 uppercase tracking-wider">{req.priority}</span>}
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-400">
@@ -1110,19 +1110,19 @@ const ActivityView = ({ supabase }) => {
           <Filter className="w-4 h-4 text-gray-400" />
           <span className="text-sm font-bold text-gray-400">Filtres :</span>
         </div>
-        <select value={period} onChange={e => setPeriod(e.target.value)} className="bg-[#0a0a0a] border border-white/10 text-gray-300 text-sm font-medium rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none shadow-sm cursor-pointer hover:bg-white/5 transition-colors">
+        <select value={period} onChange={e => setPeriod(e.target.value)} className="bg-[#0a0a0a] border border-white/10 text-gray-300 text-sm font-medium rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 outline-none shadow-sm cursor-pointer hover:bg-white/5 transition-colors">
           <option value="24h">Dernières 24h</option>
           <option value="7d">7 derniers jours</option>
           <option value="30d">30 derniers jours</option>
           <option value="all">Tout l'historique</option>
         </select>
 
-        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="bg-[#0a0a0a] border border-white/10 text-gray-300 text-sm font-medium rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none max-w-[200px] truncate shadow-sm cursor-pointer hover:bg-white/5 transition-colors">
+        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="bg-[#0a0a0a] border border-white/10 text-gray-300 text-sm font-medium rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 outline-none max-w-[200px] truncate shadow-sm cursor-pointer hover:bg-white/5 transition-colors">
           <option value="all">Toutes les catégories</option>
           {uniqueCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
         </select>
 
-        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="bg-[#0a0a0a] border border-white/10 text-gray-300 text-sm font-medium rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none max-w-[200px] truncate shadow-sm cursor-pointer hover:bg-white/5 transition-colors">
+        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="bg-[#0a0a0a] border border-white/10 text-gray-300 text-sm font-medium rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 outline-none max-w-[200px] truncate shadow-sm cursor-pointer hover:bg-white/5 transition-colors">
           <option value="all">Tous les types</option>
           {uniqueTypes.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
@@ -1164,7 +1164,7 @@ const ActivityView = ({ supabase }) => {
 
                 return (
                   <div key={log.id} onClick={() => setSelectedLog(log)} className="relative pl-6 md:pl-8 pr-6 md:pr-10 group cursor-pointer animate-fade-in-up">
-                    <div className="absolute left-[-5px] top-6 w-2.5 h-2.5 rounded-full bg-gray-200 ring-4 ring-white group-hover:bg-indigo-500 group-hover:ring-indigo-50 transition-all"></div>
+                    <div className="absolute left-[-5px] top-6 w-2.5 h-2.5 rounded-full bg-gray-200 ring-4 ring-white group-hover:bg-zinc-400 group-hover:ring-zinc-800 transition-all"></div>
                     <div className="bg-[#0a0a0a] border border-white/5 p-4 rounded-xl shadow-sm hover:shadow-md hover:border-white/10 transition-all flex items-start gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1.5">
@@ -1179,7 +1179,7 @@ const ActivityView = ({ supabase }) => {
                           {revenue && <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md"><DollarSign className="w-3.5 h-3.5" /> <span className="text-[10px] uppercase font-bold tracking-widest opacity-80">Impact:</span> {revenue}</span>}
                         </div>
                       </div>
-                      <div className="flex-shrink-0 text-gray-300 group-hover:text-indigo-600 transition-colors mt-2">
+                      <div className="flex-shrink-0 text-gray-300 group-hover:text-zinc-300 transition-colors mt-2">
                         <ArrowRight className="w-5 h-5" />
                       </div>
                     </div>
@@ -1289,7 +1289,7 @@ const ExecutionPlanDrawer = ({ reco, onClose, onImplement, supabase, onNavigateT
         {/* Header */}
         <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0a0a0a]/90 backdrop-blur z-10">
           <div className="flex items-center gap-3 text-white font-bold">
-            <Sparkles className="w-5 h-5 text-indigo-600" />
+            <Sparkles className="w-5 h-5 text-zinc-300" />
             <h2 className="text-xl tracking-tight">Plan d'exécution IA</h2>
           </div>
           <button onClick={onClose} className="p-2 bg-white/5 border border-white/10 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors shadow-sm">
@@ -1407,7 +1407,7 @@ const ExecutionPlanDrawer = ({ reco, onClose, onImplement, supabase, onNavigateT
             <button
               disabled={loading}
               onClick={handleImplementClick}
-              className="flex-1 bg-indigo-600 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 bg-zinc-300 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-zinc-400 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? <span className="animate-spin w-5 h-5 border-2 border-white/20 border-t-white rounded-full"></span> : <Bot className="w-5 h-5" />}
               Implémenter maintenant
@@ -1509,7 +1509,7 @@ const RecommendationCard = ({ reco, onAction, onOpenPlan }) => {
           <button
             disabled={loadingAction}
             onClick={() => handleAction('implemented')}
-            className="flex-1 lg:flex-none text-sm font-bold bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 lg:flex-none text-sm font-bold bg-zinc-300 text-white px-5 py-2.5 rounded-xl hover:bg-zinc-400 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loadingAction ? <span className="animate-spin w-4 h-4 border-2 border-white/20 border-t-white rounded-full"></span> : <CheckCircle className="w-4 h-4" />} Implémenter
           </button>
@@ -1973,13 +1973,13 @@ const ClientDashboard = ({ onNavigate, onLogout }) => {
                 <span className="text-xs font-bold text-white"><AnimatedCounter value={metrics?.estimated_roi || 0} />€ <span className="text-gray-400 font-medium font-normal">/mois</span></span>
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg">
-                <Activity className="w-3.5 h-3.5 text-indigo-600" />
+                <Activity className="w-3.5 h-3.5 text-zinc-300" />
                 <span className="text-xs font-bold text-white"><AnimatedCounter value={metrics?.active_automations || 0} /> <span className="text-gray-400 font-medium font-normal">actifs</span></span>
               </div>
             </div>
           </div>
 
-          <button onClick={() => setActiveTab('activity')} className="text-sm font-bold text-gray-400 hover:text-indigo-600 flex items-center gap-2 transition-colors">
+          <button onClick={() => setActiveTab('activity')} className="text-sm font-bold text-gray-400 hover:text-zinc-300 flex items-center gap-2 transition-colors">
             Voir l'activité <ArrowRight className="w-4 h-4" />
           </button>
         </header>
@@ -2051,7 +2051,7 @@ const ClientDashboard = ({ onNavigate, onLogout }) => {
                     title="Tâches automatisées"
                     value={<AnimatedCounter value={metrics.tasks_executed} />}
                     icon={TerminalSquare}
-                    color="indigo"
+                    color="zinc"
                     subtitleItems={["Actions réussies", "Ce mois-ci"]}
                   />
                 </div>
@@ -2086,7 +2086,7 @@ const ClientDashboard = ({ onNavigate, onLogout }) => {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Aucune demande pour l'instant</h3>
                   <p className="text-gray-400 font-normal mb-6">Soumettez votre premier projet à notre équipe d'architectes IA.</p>
-                  <button onClick={() => setActiveTab('architect')} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-sm">
+                  <button onClick={() => setActiveTab('architect')} className="bg-zinc-300 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-zinc-400 transition-colors shadow-sm">
                     <Plus className="w-4 h-4" /> Soumettre un projet
                   </button>
                 </div>
@@ -2107,7 +2107,7 @@ const ClientDashboard = ({ onNavigate, onLogout }) => {
                         <p className="text-base font-medium text-zinc-600 mb-6 pb-6 border-b border-white/5 leading-relaxed">{req.description || req.diagnosis}</p>
                         <div className="flex flex-wrap gap-2 mb-4">
                           {req.stack && <span className="bg-zinc-100 text-zinc-700 text-xs font-bold px-3 py-1 rounded-lg border border-white/10">Stack : {req.stack}</span>}
-                          {req.priority && <span className="bg-purple-50 text-purple-700 text-xs font-bold px-3 py-1 rounded-lg border border-purple-200">Priorité : {req.priority}</span>}
+                          {req.priority && <span className="bg-zinc-800 text-zinc-400 text-xs font-bold px-3 py-1 rounded-lg border border-zinc-600">Priorité : {req.priority}</span>}
                         </div>
                       </div>
                     </div>
@@ -2371,7 +2371,7 @@ const LandingPage = ({ onNavigate }) => {
         <nav className="fixed top-0 w-full z-50 bg-[#030303]/70 backdrop-blur-2xl border-b border-white/10/50 shadow-sm transition-all duration-300">
           <div className="max-w-6xl mx-auto px-6 h-16 md:h-20 flex justify-between items-center">
             <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.scrollTo(0, 0)}>
-              <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-xl bg-zinc-300 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
                 <Logo light={true} className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-xl tracking-tight text-white">Actero</span>
@@ -2451,7 +2451,7 @@ const LandingPage = ({ onNavigate }) => {
                   <FadeInUp key={i} delay={i * 0.15} className={`flex flex-col md:flex-row items-center gap-8 ${item.align === 'right' ? 'md:flex-row-reverse' : ''}`}>
                     <div className={`flex-1 w-full flex ${item.align === 'right' ? 'md:justify-start' : 'md:justify-end'}`}>
                       <div className="bg-[#0a0a0a] rounded-[32px] p-8 md:p-10 border border-white/5 shadow-[0_10px_40px_rgba(0,0,0,0.03)] w-full max-w-sm hover:-translate-y-1 transition-transform duration-500 ease-out">
-                        <p className="text-sm font-bold text-indigo-500 mb-4 tracking-widest uppercase">Étape {item.step}</p>
+                        <p className="text-sm font-bold text-zinc-400 mb-4 tracking-widest uppercase">Étape {item.step}</p>
                         <h3 className="text-2xl font-bold text-white mb-4">{item.title}</h3>
                         <p className="text-gray-400 font-medium leading-relaxed">{item.desc}</p>
                       </div>
@@ -2459,7 +2459,7 @@ const LandingPage = ({ onNavigate }) => {
 
                     {/* Center Node */}
                     <div className="hidden md:flex flex-shrink-0 w-16 h-16 rounded-full bg-[#0a0a0a] border-4 border-[#F6F7FB] shadow-sm items-center justify-center z-10">
-                      <div className="w-3 h-3 rounded-full bg-indigo-600"></div>
+                      <div className="w-3 h-3 rounded-full bg-zinc-300"></div>
                     </div>
 
                     <div className="flex-1 w-full"></div>
@@ -2481,7 +2481,7 @@ const LandingPage = ({ onNavigate }) => {
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Temps gagné / mois</span>
                   </div>
                   <div className="flex flex-col items-center justify-center py-6 md:border-r border-white/5">
-                    <span className="text-6xl lg:text-[5rem] font-bold tracking-tighter text-indigo-600 mb-2 leading-none">+18%</span>
+                    <span className="text-6xl lg:text-[5rem] font-bold tracking-tighter text-zinc-300 mb-2 leading-none">+18%</span>
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Hausse Conversion</span>
                   </div>
                   <div className="flex flex-col items-center justify-center py-6">
@@ -2495,11 +2495,11 @@ const LandingPage = ({ onNavigate }) => {
               {/* Premium Case Study Card */}
               <ScaleIn className="max-w-4xl mx-auto">
                 <div className="bg-[#030303] rounded-[32px] p-8 md:p-12 border border-white/10 shadow-xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50 rounded-full blur-3xl opacity-50 -mr-40 -mt-40 transition-transform duration-700 group-hover:scale-110"></div>
+                  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-zinc-800 rounded-full blur-3xl opacity-50 -mr-40 -mt-40 transition-transform duration-700 group-hover:scale-110"></div>
 
                   <div className="relative z-10">
                     <div className="flex items-center gap-3 mb-10">
-                      <div className="px-3 py-1 bg-[#0a0a0a] border border-white/5 rounded-full text-xs font-bold uppercase tracking-widest text-indigo-600 shadow-sm">Étude de Cas</div>
+                      <div className="px-3 py-1 bg-[#0a0a0a] border border-white/5 rounded-full text-xs font-bold uppercase tracking-widest text-zinc-300 shadow-sm">Étude de Cas</div>
                       <span className="text-white font-bold">Marque DNVB (Beauté)</span>
                     </div>
 
@@ -2515,7 +2515,7 @@ const LandingPage = ({ onNavigate }) => {
                             <p className="text-2xl font-bold text-gray-400 line-through">65 €</p>
                           </div>
                           <div>
-                            <p className="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-1">AOV Après</p>
+                            <p className="text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1">AOV Après</p>
                             <p className="text-3xl font-bold text-white tracking-tight">82 €</p>
                           </div>
                         </div>
@@ -2538,7 +2538,7 @@ const LandingPage = ({ onNavigate }) => {
           <section className="py-24 bg-transparent border-t border-white/10 px-6 relative z-10">
             <div className="max-w-4xl mx-auto">
               <FadeInUp className="text-center mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6 leading-tight">Ce n'est pas un outil.<br />C'est une <span className="text-indigo-600">infrastructure.</span></h2>
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6 leading-tight">Ce n'est pas un outil.<br />C'est une <span className="text-zinc-300">infrastructure.</span></h2>
               </FadeInUp>
 
               <SlideInLeft className="bg-[#0a0a0a] rounded-[32px] border border-white/10 overflow-hidden shadow-sm">
@@ -2547,7 +2547,7 @@ const LandingPage = ({ onNavigate }) => {
                     <p className="text-lg font-bold tracking-tight text-gray-400 line-through decoration-gray-300">Make / Zapier</p>
                   </div>
                   <div className="p-6 md:p-8">
-                    <p className="text-xl font-bold tracking-tight text-indigo-600 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>Actero</p>
+                    <p className="text-xl font-bold tracking-tight text-zinc-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-zinc-400 animate-pulse"></span>Actero</p>
                   </div>
                 </div>
 
@@ -2588,7 +2588,7 @@ const LandingPage = ({ onNavigate }) => {
                   <div className="space-y-8">
                     {/* Visual Stepper */}
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">1</div>
+                      <div className="w-8 h-8 rounded-full bg-zinc-300 text-white flex items-center justify-center font-bold text-sm">1</div>
                       <div className="h-px bg-gray-200 flex-1"></div>
                       <div className="w-8 h-8 rounded-full bg-white/10 text-gray-400 border border-white/10 flex items-center justify-center font-bold text-sm">2</div>
                       <div className="h-px bg-gray-200 flex-1"></div>
@@ -2603,7 +2603,7 @@ const LandingPage = ({ onNavigate }) => {
                           <select
                             value={platform}
                             onChange={(e) => setPlatform(e.target.value)}
-                            className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white"
+                            className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-300 transition-all font-medium text-white"
                           >
                             <option>Shopify</option>
                             <option>WooCommerce</option>
@@ -2616,7 +2616,7 @@ const LandingPage = ({ onNavigate }) => {
                           <select
                             value={objective}
                             onChange={(e) => setObjective(e.target.value)}
-                            className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white"
+                            className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-300 transition-all font-medium text-white"
                           >
                             <option>Conversion</option>
                             <option>Support Client</option>
@@ -2632,7 +2632,7 @@ const LandingPage = ({ onNavigate }) => {
                           value={aiInput}
                           onChange={(e) => setAiInput(e.target.value)}
                           placeholder="Ex: Mon équipe perd du temps à mettre à jour les statuts de commande dans notre ERP..."
-                          className="w-full h-32 bg-[#030303] border border-white/10 rounded-xl py-4 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white resize-none leading-relaxed"
+                          className="w-full h-32 bg-[#030303] border border-white/10 rounded-xl py-4 px-4 outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-300 transition-all font-medium text-white resize-none leading-relaxed"
                         />
                       </div>
                     </div>
@@ -2662,15 +2662,15 @@ const LandingPage = ({ onNavigate }) => {
                         <p className="text-gray-400 font-medium max-w-xs">Remplissez les informations à gauche pour découvrir votre plan d'action.</p>
                       </div>
                     ) : aiLoading ? (
-                      <div className="h-full bg-indigo-900/30 border border-indigo-500/20 rounded-2xl p-10 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                      <div className="h-full bg-zinc-800/30 border border-zinc-400/20 rounded-2xl p-10 flex flex-col items-center justify-center text-center relative overflow-hidden">
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                        <Cpu className="w-16 h-16 text-indigo-400 mb-6 animate-[bounce_2s_infinite]" />
+                        <Cpu className="w-16 h-16 text-zinc-300 mb-6 animate-[bounce_2s_infinite]" />
                         <p className="text-white font-bold text-lg relative z-10 mb-2">Modélisation en cours</p>
-                        <p className="text-indigo-300 font-medium max-w-xs relative z-10">Gemini analyse vos goulots d'étranglement pour concevoir le flux optimal...</p>
+                        <p className="text-zinc-400 font-medium max-w-xs relative z-10">Gemini analyse vos goulots d'étranglement pour concevoir le flux optimal...</p>
                       </div>
                     ) : aiResult ? (
                       <div className="h-full bg-[#030303] border border-white/10 rounded-2xl p-6 md:p-8 flex flex-col animate-fade-in-up shadow-inner relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-zinc-400/10 blur-3xl rounded-full pointer-events-none"></div>
 
                         <div className="flex items-center gap-2 mb-8">
                           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -2694,9 +2694,9 @@ const LandingPage = ({ onNavigate }) => {
                             <p className="text-[10px] font-bold text-emerald-400 uppercase mb-2">Gain de temps estimé</p>
                             <p className="text-emerald-300 font-bold text-2xl tracking-tighter">{aiResult.timeSaved}</p>
                           </div>
-                          <div className="bg-indigo-900/20 border border-indigo-500/20 rounded-xl p-4 transition-transform hover:scale-105 duration-300">
-                            <p className="text-[10px] font-bold text-indigo-400 uppercase mb-2">Impact ROI</p>
-                            <p className="text-indigo-300 font-bold text-2xl tracking-tighter">{aiResult.revenueImpact}</p>
+                          <div className="bg-zinc-800/20 border border-zinc-400/20 rounded-xl p-4 transition-transform hover:scale-105 duration-300">
+                            <p className="text-[10px] font-bold text-zinc-300 uppercase mb-2">Impact ROI</p>
+                            <p className="text-zinc-400 font-bold text-2xl tracking-tighter">{aiResult.revenueImpact}</p>
                           </div>
                         </div>
                       </div>
@@ -2713,8 +2713,8 @@ const LandingPage = ({ onNavigate }) => {
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">Ils ont transformé leur croissance.</h2>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-indigo-900/30 border border-indigo-500/30 shadow-sm text-xs font-bold text-indigo-300 uppercase tracking-widest">
-                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-800/30 border border-zinc-400/30 shadow-sm text-xs font-bold text-zinc-400 uppercase tracking-widest">
+                  <span className="w-2 h-2 rounded-full bg-zinc-300 animate-pulse"></span>
                   27 e-commerces automatisés ce mois-ci
                 </div>
               </div>
@@ -2728,11 +2728,11 @@ const LandingPage = ({ onNavigate }) => {
                   <div key={i} className="bg-[#030303] rounded-3xl border border-white/10 p-8 shadow-sm hover:-translate-y-1 transition-transform duration-300">
                     <div className="flex gap-1 mb-6 text-gray-300">
                       {/* Minimalist stars */}
-                      <svg className="w-4 h-4 text-indigo-500 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                      <svg className="w-4 h-4 text-indigo-500 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                      <svg className="w-4 h-4 text-indigo-500 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                      <svg className="w-4 h-4 text-indigo-500 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                      <svg className="w-4 h-4 text-indigo-500 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                      <svg className="w-4 h-4 text-zinc-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                      <svg className="w-4 h-4 text-zinc-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                      <svg className="w-4 h-4 text-zinc-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                      <svg className="w-4 h-4 text-zinc-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                      <svg className="w-4 h-4 text-zinc-400 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                     </div>
                     <p className="text-white font-medium text-[15px] mb-8 leading-relaxed">"{t.quote}"</p>
                     <div>
@@ -2764,7 +2764,7 @@ const LandingPage = ({ onNavigate }) => {
                       className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
                     >
                       <span className="font-bold text-white text-lg">{faq.q}</span>
-                      <div className={`w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 transition-transform duration-300 ${openFaqIndex === i ? 'bg-indigo-600 border-indigo-600 text-white rotate-180' : 'bg-[#0a0a0a] border-white/10 text-gray-400'}`}>
+                      <div className={`w-8 h-8 rounded-full border flex items-center justify-center flex-shrink-0 transition-transform duration-300 ${openFaqIndex === i ? 'bg-zinc-300 border-zinc-300 text-white rotate-180' : 'bg-[#0a0a0a] border-white/10 text-gray-400'}`}>
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                       </div>
                     </button>
@@ -2790,7 +2790,7 @@ const LandingPage = ({ onNavigate }) => {
                   </div>
 
                   <div className="bg-[#0a0a0a] rounded-[24px] border border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] p-8">
-                    <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-6">Pendant cet appel vous recevrez :</p>
+                    <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-6">Pendant cet appel vous recevrez :</p>
                     <ul className="space-y-4">
                       {[
                         "Estimation ROI personnalisée",
@@ -2814,7 +2814,7 @@ const LandingPage = ({ onNavigate }) => {
 
                 {/* Right Calendly */}
                 <div className="relative">
-                  <div className="absolute inset-0 bg-indigo-500/5 blur-3xl transform scale-110 rounded-full"></div>
+                  <div className="absolute inset-0 bg-zinc-400/5 blur-3xl transform scale-110 rounded-full"></div>
                   <div className="bg-[#0a0a0a] rounded-[32px] border border-white/10 shadow-2xl relative overflow-hidden h-[700px] flex justify-center w-full">
                     <iframe
                       src="https://calendly.com/jc6pablo2/30min?embed_domain=actero.io&embed_type=Inline"
@@ -2872,7 +2872,7 @@ const LandingPage = ({ onNavigate }) => {
                       onChange={e => setBrandName(e.target.value)}
                       disabled={isSubmitting}
                       type="text"
-                      className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white placeholder:text-gray-400"
+                      className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-300 transition-all font-medium text-white placeholder:text-gray-400"
                       placeholder="Ex: Actero"
                     />
                   </div>
@@ -2885,7 +2885,7 @@ const LandingPage = ({ onNavigate }) => {
                       onChange={e => setContactEmail(e.target.value)}
                       disabled={isSubmitting}
                       type="email"
-                      className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all font-medium text-white placeholder:text-gray-400"
+                      className="w-full bg-[#030303] border border-white/10 rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-300 transition-all font-medium text-white placeholder:text-gray-400"
                       placeholder="nom@entreprise.com"
                     />
                   </div>
@@ -2896,7 +2896,7 @@ const LandingPage = ({ onNavigate }) => {
                     <button
                       type="submit"
                       disabled={isSubmitting || brandName.trim().length < 2 || !/^\S+@\S+\.\S+$/.test(contactEmail)}
-                      className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 disabled:opacity-50 transition-colors shadow-sm inline-flex items-center justify-center gap-2 min-w-[140px]"
+                      className="bg-zinc-300 text-white px-6 py-3 rounded-xl font-semibold hover:bg-zinc-400 disabled:opacity-50 transition-colors shadow-sm inline-flex items-center justify-center gap-2 min-w-[140px]"
                     >
                       {isSubmitting ? <><svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Génération...</> : "Voir l'audit"}
                     </button>
@@ -2988,7 +2988,7 @@ function ResetPasswordPage({ onNavigate }) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
+                className="block w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
                 placeholder="••••••••"
                 required
               />
@@ -3000,7 +3000,7 @@ function ResetPasswordPage({ onNavigate }) {
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
+                className="block w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
                 placeholder="••••••••"
                 required
               />
@@ -3275,7 +3275,7 @@ function AuthCallbackPage({ onNavigate }) {
         <h2 className="text-2xl font-bold tracking-tight text-white mb-2">Lien invalide</h2>
         <p className="text-gray-400 font-medium max-w-sm mb-10 leading-relaxed">{errorMsg}</p>
         <div className="flex flex-col sm:flex-row gap-4">
-          <button onClick={() => onNavigate('/login')} className="bg-indigo-600 text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:bg-indigo-700 transition-colors">
+          <button onClick={() => onNavigate('/login')} className="bg-zinc-300 text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:bg-zinc-400 transition-colors">
             Revenir à la connexion
           </button>
           <button onClick={() => window.location.replace('/')} className="bg-[#0a0a0a] border border-white/10 text-gray-300 px-8 py-3.5 rounded-xl font-bold shadow-sm hover:bg-white/5 transition-colors">
@@ -3289,12 +3289,12 @@ function AuthCallbackPage({ onNavigate }) {
   return (
     <div className="min-h-screen bg-[#030303] flex flex-col justify-center items-center py-12 font-sans">
       <div className="relative mb-8">
-        <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full"></div>
+        <div className="absolute inset-0 bg-zinc-400/20 blur-xl rounded-full"></div>
         <div className="w-20 h-20 bg-[#0a0a0a] rounded-3xl border border-white/5 shadow-xl flex items-center justify-center relative z-10">
-          <ShieldCheck className="w-8 h-8 text-indigo-600" />
+          <ShieldCheck className="w-8 h-8 text-zinc-300" />
         </div>
       </div>
-      <Loader2 className="w-6 h-6 text-indigo-400 animate-spin mb-4" />
+      <Loader2 className="w-6 h-6 text-zinc-300 animate-spin mb-4" />
       <h2 className="text-xl font-bold tracking-tight text-white mb-1">Authentification sécurisée</h2>
       <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest animate-pulse">Validation du lien en cours...</p>
     </div>
