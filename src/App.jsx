@@ -1896,22 +1896,22 @@ const ClientDashboard = ({ onNavigate, onLogout }) => {
         <button className="md:hidden text-zinc-500" onClick={() => setIsMobileMenuOpen(false)}><X className="w-5 h-5" /></button>
       </div>
       <div className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto">
-        <p className="px-3 text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 mt-2">Pilotage</p>
-        <button onClick={() => { setActiveTab('overview'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'overview' ? 'bg-zinc-100 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}><LayoutDashboard className="w-4 h-4" /> Vue d'ensemble</button>
-        <button onClick={() => { setActiveTab('requests'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'requests' ? 'bg-zinc-100 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}>
-          <div className="flex items-center gap-3"><FileText className="w-4 h-4" /> Mes demandes</div>
+        <div className="px-3 text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 mt-2">Pilotage</div>
+        <button onClick={() => { setActiveTab('overview'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'overview' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><LayoutDashboard className="w-4 h-4" /> Vue d'ensemble</button>
+        <button onClick={() => { setActiveTab('requests'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'requests' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+          <div className="flex items-center gap-3"><ClipboardList className="w-4 h-4" /> Requêtes</div>
           {requests.length > 0 && <span className="bg-emerald-100 text-emerald-700 py-0.5 px-2 rounded-full text-xs font-bold">{requests.length}</span>}
         </button>
-        <button onClick={() => { setActiveTab('architect'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'architect' ? 'bg-zinc-100 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}><BrainCircuit className="w-4 h-4" /> Architecte IA</button>
+        <button onClick={() => { setActiveTab('architect'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'architect' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><BrainCircuit className="w-4 h-4" /> Architecte IA</button>
 
-        <p className="px-3 text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 mt-6">Infrastructure</p>
-        <button onClick={() => { setActiveTab('systems'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'systems' ? 'bg-zinc-100 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}><Database className="w-4 h-4" /> Mes Systèmes</button>
-        <button onClick={() => { setActiveTab('activity'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'activity' ? 'bg-zinc-100 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}><Activity className="w-4 h-4" /> Activité en direct</button>
-        <button onClick={() => { setActiveTab('intelligence'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'intelligence' ? 'bg-zinc-100 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}><Lightbulb className="w-4 h-4" /> Intelligence</button>
-        <button onClick={() => { setActiveTab('reports'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'reports' ? 'bg-zinc-100 text-white' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}><Download className="w-4 h-4" /> Rapports</button>
+        <div className="px-3 text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 mt-6">Infrastructure</div>
+        <button onClick={() => { setActiveTab('systems'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'systems' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><Database className="w-4 h-4" /> Mes Systèmes</button>
+        <button onClick={() => { setActiveTab('activity'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'activity' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><Activity className="w-4 h-4" /> Activité en direct</button>
+        <button onClick={() => { setActiveTab('intelligence'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'intelligence' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><Lightbulb className="w-4 h-4" /> Intelligence</button>
+        <button onClick={() => { setActiveTab('reports'); setIsMobileMenuOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'reports' ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}><Download className="w-4 h-4" /> Rapports</button>
       </div>
       <div className="p-4 border-t border-white/10">
-        <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-zinc-500 hover:bg-zinc-100 hover:text-white transition-colors"><LogOut className="w-4 h-4" /> Déconnexion</button>
+        <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-400 hover:bg-white/5 hover:text-white transition-colors"><LogOut className="w-4 h-4" /> Déconnexion</button>
       </div>
     </div>
   );
@@ -2063,7 +2063,7 @@ const ClientDashboard = ({ onNavigate, onLogout }) => {
                   <h3 className="text-2xl font-bold text-white mb-2">Un besoin d'évolution ?</h3>
                   <p className="text-zinc-500 font-medium">Vous souhaitez ajouter un nouveau processus à votre infrastructure ?</p>
                 </div>
-                <button onClick={() => setActiveTab('architect')} className="bg-[#0a0a0a] text-black px-6 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-zinc-200 transition-colors shadow-sm w-full md:w-auto">
+                <button onClick={() => setActiveTab('architect')} className="bg-white text-black px-6 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors shadow-sm w-full md:w-auto">
                   Consulter l'Architecte IA <ArrowUpRight className="w-5 h-5" />
                 </button>
               </div>

@@ -25,7 +25,7 @@ export const GlassHero = ({ onNavigate }) => {
                 <FadeInUp className="mb-8 relative group cursor-pointer inline-flex items-center">
                     <div className="absolute inset-0 bg-white/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div className="relative bg-white/10 backdrop-blur-md border border-white/20 text-gray-200 px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-white/15 transition-colors">
-                        New: Verified answers with sources
+                        Nouveau : Audit gratuit de votre infrastructure IA
                         <div className="bg-white/20 rounded-full p-1 flex items-center justify-center">
                             <ArrowRight className="w-3 h-3 text-white" />
                         </div>
@@ -35,12 +35,12 @@ export const GlassHero = ({ onNavigate }) => {
                 {/* Headlines */}
                 <FadeInUp delay={0.1} className="text-center max-w-4xl mb-6">
                     <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-white mb-6 leading-[1.05]">
-                        Solid AI agent that turns <br className="hidden md:block" />
-                        chats into outcomes
+                        L'agence IA qui transforme <br className="hidden md:block" />
+                        vos goulots en marges
                     </h1>
                     <p className="text-lg md:text-xl text-gray-300/80 font-medium max-w-xl mx-auto leading-relaxed">
-                        Ask anything, get verified answers, <br className="hidden md:block" />
-                        and trigger actions in seconds.
+                        Nous concevons et déployons des agents IA <br className="hidden md:block" />
+                        et automatisations sur mesure pour votre entreprise.
                     </p>
                 </FadeInUp>
 
@@ -53,7 +53,7 @@ export const GlassHero = ({ onNavigate }) => {
                         }}
                         className="bg-white text-black px-7 py-3.5 rounded-full text-[15px] font-semibold hover:bg-gray-100 hover:scale-105 transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.3)]"
                     >
-                        Join Waitlist
+                        Réserver un audit
                     </button>
                     <button className="bg-white/10 backdrop-blur-md border border-white/10 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/20 hover:scale-105 transition-all duration-300 group">
                         <Play className="w-4 h-4 text-white fill-white group-hover:scale-110 transition-transform" />
@@ -80,13 +80,13 @@ export const GlassHero = ({ onNavigate }) => {
 
                         {/* Chat Interface Mockup */}
                         <div className="flex flex-col items-center px-4 md:px-12 pb-12">
-                            <h3 className="text-2xl font-medium text-white mb-2 tracking-tight">Welcome back</h3>
-                            <p className="text-gray-400 text-[15px] mb-10">How can I help you today, Jackson?</p>
+                            <h3 className="text-2xl font-medium text-white mb-2 tracking-tight">Bonjour</h3>
+                            <p className="text-gray-400 text-[15px] mb-10">Comment puis-je optimiser vos processus aujourd'hui ?</p>
 
                             {/* Chat Input */}
                             <div className="w-full max-w-2xl bg-[#252525]/80 border border-white/5 rounded-2xl p-4 shadow-inner mb-6 transition-all hover:border-white/10 focus-within:border-white/20 focus-within:bg-[#2A2A2A]/90">
                                 <textarea
-                                    placeholder="Ask anything. Type @ for mentions and / for shortcuts."
+                                    placeholder="Décrivez un processus chronophage..."
                                     className="w-full bg-transparent text-white placeholder:text-gray-500 text-[15px] resize-none outline-none min-h-[60px]"
                                 ></textarea>
                                 <div className="flex justify-between items-center mt-2">
@@ -109,15 +109,15 @@ export const GlassHero = ({ onNavigate }) => {
                             {/* Suggestions / Tags */}
                             <div className="w-full max-w-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <span className="bg-white/10 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 cursor-pointer hover:bg-white/20 transition-colors">Research</span>
-                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Support Ops</span>
-                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Writing</span>
-                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Actions</span>
+                                    <span className="bg-white/10 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 cursor-pointer hover:bg-white/20 transition-colors">Service Client</span>
+                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">E-commerce</span>
+                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">CRM</span>
+                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Rapports IA</span>
                                 </div>
 
                                 <div className="flex flex-col gap-3 w-full md:w-auto">
                                     <div className="flex items-center justify-between gap-4 text-xs font-medium text-gray-400 cursor-pointer hover:text-white transition-colors group">
-                                        <span>Summarize our product in simple terms for new users</span>
+                                        <span>Connecter Shopify à Klaviyo et un agent vocal OpenAI</span>
                                         <ArrowRight className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                                     </div>
                                 </div>
