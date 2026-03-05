@@ -78,7 +78,6 @@ async function fetchWithRetry(url, options, retries = 5) {
 const Logo = ({ className = "w-8 h-8", light = false }) => (
   <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={`${className} ${light ? 'text-white' : 'text-white'}`}>
     <path d="M16 2L2 30H10L16 18L22 30H30L16 2Z" fill="currentColor" />
-    <circle cx="16" cy="23" r="3" className="fill-emerald-500" />
   </svg>
 );
 
@@ -2371,9 +2370,7 @@ const LandingPage = ({ onNavigate }) => {
         <nav className="fixed top-0 w-full z-50 bg-[#030303]/70 backdrop-blur-2xl border-b border-white/10/50 shadow-sm transition-all duration-300">
           <div className="max-w-6xl mx-auto px-6 h-16 md:h-20 flex justify-between items-center">
             <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.scrollTo(0, 0)}>
-              <div className="w-8 h-8 rounded-xl bg-zinc-300 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                <Logo light={true} className="w-5 h-5 text-white" />
-              </div>
+              <Logo light={true} className="w-7 h-7 text-white group-hover:scale-105 transition-transform" />
               <span className="font-bold text-xl tracking-tight text-white">Actero</span>
             </div>
 
