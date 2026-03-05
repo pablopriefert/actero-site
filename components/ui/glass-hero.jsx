@@ -44,15 +44,23 @@ export const GlassHero = ({ onNavigate }) => {
         // Simulate API thinking
         await new Promise(r => setTimeout(r, 2000));
 
-        let aiReply = "Super, nous pouvons totalement automatiser cela. ";
+        let aiReply = "";
 
-        if (prompt.toLowerCase().includes("client") || prompt.toLowerCase().includes("support")) {
-            aiReply = `Pour l'optimisation du service client chez ${brandData.brand}, je prépare un agent IA capable de traiter 80% des requêtes instantanément avec vos bases de connaissances. Vous voulez voir comment on s'y prend ?`;
-        } else if (prompt.toLowerCase().includes("commerce") || prompt.toLowerCase().includes("shopify")) {
-            aiReply = `Excellente idée. Actero peut synchroniser votre infrastructure e-commerce ${brandData.brand} avec vos outils (ex: Klaviyo) et intégrer un agent vocal pour augmenter la conversion et relancer les paniers abandonnés.`;
+        const p = prompt.toLowerCase();
+
+        if (p.includes("client") || p.includes("sav") || p.includes("support")) {
+            aiReply = `Exemple d'automatisation pour le SAV de **${brandData.brand}** : Nous connectons vos canaux (Zendesk/Intercom/Mail) à un agent IA entraîné sur vos données. Dès qu'un client vous contacte, l'IA analyse l'intention et résout instantanément 80% des demandes répétitives (suivi de commande, remboursements). Vos équipes ne gèrent plus que les cas à haute valeur ajoutée.`;
+        } else if (p.includes("commerce") || p.includes("shopify") || p.includes("produit") || p.includes("panier")) {
+            aiReply = `Exemple d'automatisation E-commerce pour **${brandData.brand}** : Nous déployons un Agent Vocal IA connecté à votre Shopify. Suite à un panier abandonné conséquent, l'IA téléphone automatiquement au client (avec voix ultra-réaliste) pour lever ses freins à l'achat et proposer une remise exclusive. Résultat : +15% de récupération.`;
+        } else if (p.includes("crm") || p.includes("lead") || p.includes("prospection") || p.includes("vente")) {
+            aiReply = `Exemple d'automatisation Sales pour **${brandData.brand}** : Nous synchronisons une IA avec votre CRM (Hubspot/Salesforce). Lorsqu'un nouveau lead qualifié entre, l'IA scrape son profil LinkedIn et le site de son entreprise, puis pré-rédige un e-mail d'approche ultra-personnalisé directement dans vos brouillons. Vos commerciaux n'ont plus qu'à valider.`;
+        } else if (p.includes("rapport") || p.includes("data") || p.includes("analyse")) {
+            aiReply = `Exemple d'automatisation Data pour **${brandData.brand}** : Oubliez la collecte manuelle. Nous créons un agent IA connecté à l'ensemble de vos outils de gestion. Chaque lundi matin, l'IA extrait, croise et synthétise les données pour générer un rapport PDF visuel complet, envoyé automatiquement sur Slack à votre comité de direction.`;
         } else {
-            aiReply = `D'accord, je génère un audit sur-mesure pour ce processus chez ${brandData.brand}. L'objectif sera de réduire les tâches manuelles de 70% tout en augmentant la vélocité.`;
+            aiReply = `Exemple d'automatisation de processus métier pour **${brandData.brand}** : Dès qu'une nouvelle demande (document complexe, facture, candidature) arrive par e-mail, une IA extrait les données clés, met à jour vos bases de données automatiquement et notifie le service concerné sur Slack avec une proposition d'action pré-configurée.`;
         }
+
+        aiReply += "\n\nDiscutons-en pour auditer vos process spécifiques :";
 
         // Update with actual response
         setMessages(prev => {
