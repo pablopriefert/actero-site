@@ -6,18 +6,66 @@ import { LeadCaptureModal } from './lead-capture-modal';
 
 export const GlassHero = ({ onNavigate }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [inputValue, setInputValue] = useState('');
+    const [pendingPrompt, setPendingPrompt] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [isGenerating, setIsGenerating] = useState(false);
 
-    const handleMockInteraction = (e) => {
-        if (e) e.preventDefault();
+    const handleMockInteraction = (promptTextOrEvent) => {
+        let text = '';
+        if (typeof promptTextOrEvent === 'string') {
+            text = promptTextOrEvent;
+        } else if (promptTextOrEvent && promptTextOrEvent.preventDefault) {
+            promptTextOrEvent.preventDefault();
+            text = inputValue;
+        }
+
+        if (!text.trim()) return;
+
+        setPendingPrompt(text);
         setIsModalOpen(true);
     };
 
-    const handleModalSubmit = (data) => {
-        console.log("Lead captured from modal:", data);
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleMockInteraction();
+        }
+    };
+
+    const generateAIResponse = async (prompt, brandData) => {
+        // Add user message
+        const userMsg = { role: 'user', content: prompt };
+        // Add loading assistant message
+        setMessages(prev => [...prev, userMsg, { role: 'assistant', content: '', isLoading: true }]);
+        setIsGenerating(true);
+        setInputValue('');
+
+        // Simulate API thinking
+        await new Promise(r => setTimeout(r, 2000));
+
+        let aiReply = "Super, nous pouvons totalement automatiser cela. ";
+
+        if (prompt.toLowerCase().includes("client") || prompt.toLowerCase().includes("support")) {
+            aiReply = `Pour l'optimisation du service client chez ${brandData.brand}, je prépare un agent IA capable de traiter 80% des requêtes instantanément avec vos bases de connaissances. Vous voulez voir comment on s'y prend ?`;
+        } else if (prompt.toLowerCase().includes("commerce") || prompt.toLowerCase().includes("shopify")) {
+            aiReply = `Excellente idée. Actero peut synchroniser votre infrastructure e-commerce ${brandData.brand} avec vos outils (ex: Klaviyo) et intégrer un agent vocal pour augmenter la conversion et relancer les paniers abandonnés.`;
+        } else {
+            aiReply = `D'accord, je génère un audit sur-mesure pour ce processus chez ${brandData.brand}. L'objectif sera de réduire les tâches manuelles de 70% tout en augmentant la vélocité.`;
+        }
+
+        // Update with actual response
+        setMessages(prev => {
+            const newMsgs = [...prev];
+            newMsgs[newMsgs.length - 1] = { role: 'assistant', content: aiReply, isLoading: false };
+            return newMsgs;
+        });
+        setIsGenerating(false);
+    };
+
+    const handleModalSubmit = async (data) => {
         setIsModalOpen(false);
-        // After capturing data, scroll to calendly as the "action" outcome
-        const el = document.getElementById('calendly');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        await generateAIResponse(pendingPrompt, data);
     };
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center pt-24 pb-32 px-6 overflow-hidden">
@@ -99,60 +147,108 @@ export const GlassHero = ({ onNavigate }) => {
                             </div>
                         </div>
 
-                        {/* Chat Interface Mockup */}
+                        {/* Chat Interface Dynamic */}
                         <div className="flex flex-col items-center px-4 md:px-12 pb-12">
-                            <h3 className="text-2xl font-medium text-white mb-2 tracking-tight">Bonjour</h3>
-                            <p className="text-gray-400 text-[15px] mb-10">Comment puis-je optimiser vos processus aujourd'hui ?</p>
+
+                            {messages.length === 0 ? (
+                                <>
+                                    <h3 className="text-2xl font-medium text-white mb-2 tracking-tight">Bonjour</h3>
+                                    <p className="text-gray-400 text-[15px] mb-10">Comment puis-je optimiser vos processus aujourd'hui ?</p>
+
+                                    {/* Suggestions / Tags (Empty State) */}
+                                    <div className="w-full max-w-2xl flex flex-wrap items-center justify-center gap-2 mb-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                                        <button onClick={() => handleMockInteraction("Service Client")} className="bg-white/10 text-gray-300 text-xs font-semibold px-4 py-2 rounded-full border border-white/5 hover:bg-white/20 hover:-translate-y-0.5 transition-all">Service Client</button>
+                                        <button onClick={() => handleMockInteraction("E-commerce")} className="bg-white/5 text-gray-400 text-xs font-semibold px-4 py-2 rounded-full border border-transparent hover:bg-white/10 hover:text-white transition-all">E-commerce</button>
+                                        <button onClick={() => handleMockInteraction("CRM")} className="bg-white/5 text-gray-400 text-xs font-semibold px-4 py-2 rounded-full border border-transparent hover:bg-white/10 hover:text-white transition-all">CRM</button>
+                                        <button onClick={() => handleMockInteraction("Rapports IA")} className="bg-white/5 text-gray-400 text-xs font-semibold px-4 py-2 rounded-full border border-transparent hover:bg-white/10 hover:text-white transition-all">Rapports IA</button>
+                                    </div>
+
+                                    <div className="w-full max-w-2xl flex flex-col items-center gap-3 mb-8">
+                                        <button
+                                            onClick={() => handleMockInteraction("Connecter Shopify à Klaviyo et un agent vocal OpenAI")}
+                                            className="flex items-center justify-between gap-4 text-sm font-medium text-gray-400 py-2 px-4 rounded-xl hover:bg-white/5 hover:text-white transition-colors group border border-transparent hover:border-white/10 w-full md:w-auto"
+                                        >
+                                            <span className="truncate">Connecter Shopify à Klaviyo et un agent vocal OpenAI</span>
+                                            <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="w-full max-w-2xl flex flex-col gap-6 mb-8 mt-4">
+                                    {messages.map((msg, idx) => (
+                                        <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`max-w-[85%] rounded-2xl p-4 ${msg.role === 'user' ? 'bg-white/10 text-white rounded-br-none border border-white/10' : 'bg-transparent text-gray-300'}`}>
+                                                {msg.role === 'assistant' && (
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                                                            <div className="w-2.5 h-2.5 bg-black rounded-sm rotate-45"></div>
+                                                        </div>
+                                                        <span className="text-sm font-bold text-white">Actero AI</span>
+                                                    </div>
+                                                )}
+
+                                                {msg.isLoading ? (
+                                                    <div className="flex gap-1 items-center h-6">
+                                                        <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                                        <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                                        <div className="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce"></div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-[15px] leading-relaxed">
+                                                        {msg.content}
+                                                    </div>
+                                                )}
+
+                                                {msg.role === 'assistant' && !msg.isLoading && (
+                                                    <button
+                                                        onClick={() => {
+                                                            const el = document.getElementById('calendly');
+                                                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                                        }}
+                                                        className="mt-4 bg-white text-black text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-gray-200 transition-colors inline-flex items-center gap-2"
+                                                    >
+                                                        Réserver un appel technique <ArrowRight className="w-3.5 h-3.5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
                             {/* Chat Input */}
-                            <div className="w-full max-w-2xl bg-[#252525]/80 border border-white/5 rounded-2xl p-4 shadow-inner mb-6 transition-all hover:border-white/10 focus-within:border-white/20 focus-within:bg-[#2A2A2A]/90">
+                            <div className="w-full max-w-2xl bg-[#252525]/80 border border-white/5 rounded-2xl p-4 shadow-inner mt-auto transition-all hover:border-white/10 focus-within:border-white/20 focus-within:bg-[#2A2A2A]/90 relative z-10">
                                 <textarea
-                                    placeholder="Décrivez un processus chronophage..."
-                                    className="w-full bg-transparent text-white placeholder:text-gray-500 text-[15px] resize-none outline-none min-h-[60px]"
+                                    disabled={isGenerating}
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder={isGenerating ? "Actero génère une réponse..." : "Décrivez un processus chronophage..."}
+                                    className="w-full bg-transparent text-white placeholder:text-gray-500 text-[15px] resize-none outline-none min-h-[60px] disabled:opacity-50"
                                 ></textarea>
-                                <div className="flex justify-between items-center mt-2">
+                                <div className="flex justify-between items-center mt-2 border-t border-white/5 pt-3">
                                     <div className="flex items-center gap-3 text-gray-500">
-                                        <button className="hover:text-white transition-colors"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg></button>
-                                        <button className="hover:text-white transition-colors"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg></button>
-                                        <button className="hover:text-white transition-colors"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg></button>
+                                        <button className="hover:text-white transition-colors" title="Joindre un fichier"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg></button>
+                                        <button className="hover:text-white transition-colors" title="Ajouter du contexte"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg></button>
+                                        <button className="hover:text-white transition-colors" title="Exécuter"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg></button>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button
-                                            onClick={handleMockInteraction}
-                                            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                                            disabled={isGenerating}
+                                            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-50"
                                         >
                                             <Mic className="w-4 h-4" />
                                         </button>
                                         <button
+                                            disabled={isGenerating || !inputValue.trim()}
                                             onClick={handleMockInteraction}
-                                            className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:bg-gray-200 transition-colors"
+                                            className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:bg-gray-600 disabled:text-gray-400"
                                         >
                                             <ArrowUp className="w-4 h-4" />
                                         </button>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Suggestions / Tags */}
-                            <div className="w-full max-w-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <button onClick={handleMockInteraction} className="bg-white/10 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 cursor-pointer hover:bg-white/20 transition-colors">Service Client</button>
-                                    <button onClick={handleMockInteraction} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">E-commerce</button>
-                                    <button onClick={handleMockInteraction} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">CRM</button>
-                                    <button onClick={handleMockInteraction} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Rapports IA</button>
-                                </div>
-
-                                <div className="flex flex-col gap-3 w-full md:w-auto">
-                                    <button
-                                        onClick={handleMockInteraction}
-                                        className="flex items-center justify-between gap-4 text-xs font-medium text-gray-400 cursor-pointer hover:text-white transition-colors group"
-                                    >
-                                        <span>Connecter Shopify à Klaviyo et un agent vocal OpenAI</span>
-                                        <ArrowRight className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
-                                    </button>
-                                </div>
-                            </div>
-
                         </div>
 
                         {/* Subtle sheen overlay */}
