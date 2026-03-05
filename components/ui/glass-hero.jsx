@@ -55,7 +55,13 @@ export const GlassHero = ({ onNavigate }) => {
                     >
                         Réserver un audit
                     </button>
-                    <button className="bg-white/10 backdrop-blur-md border border-white/10 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/20 hover:scale-105 transition-all duration-300 group">
+                    <button
+                        onClick={() => {
+                            const el = document.getElementById('calendly');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="bg-white/10 backdrop-blur-md border border-white/10 text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/20 hover:scale-105 transition-all duration-300 group"
+                    >
                         <Play className="w-4 h-4 text-white fill-white group-hover:scale-110 transition-transform" />
                     </button>
                 </FadeInUp>
@@ -96,10 +102,22 @@ export const GlassHero = ({ onNavigate }) => {
                                         <button className="hover:text-white transition-colors"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg></button>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <button className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                                        <button
+                                            onClick={() => {
+                                                const el = document.getElementById('calendly');
+                                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                            }}
+                                            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                                        >
                                             <Mic className="w-4 h-4" />
                                         </button>
-                                        <button className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                        <button
+                                            onClick={() => {
+                                                const el = document.getElementById('calendly');
+                                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                            }}
+                                            className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:bg-gray-200 transition-colors"
+                                        >
                                             <ArrowUp className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -109,17 +127,23 @@ export const GlassHero = ({ onNavigate }) => {
                             {/* Suggestions / Tags */}
                             <div className="w-full max-w-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <span className="bg-white/10 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 cursor-pointer hover:bg-white/20 transition-colors">Service Client</span>
-                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">E-commerce</span>
-                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">CRM</span>
-                                    <span className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Rapports IA</span>
+                                    <button onClick={() => { const el = document.getElementById('calendly'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="bg-white/10 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-white/5 cursor-pointer hover:bg-white/20 transition-colors">Service Client</button>
+                                    <button onClick={() => { const el = document.getElementById('calendly'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">E-commerce</button>
+                                    <button onClick={() => { const el = document.getElementById('calendly'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">CRM</button>
+                                    <button onClick={() => { const el = document.getElementById('calendly'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} className="text-gray-500 text-xs font-semibold px-3 py-1.5 cursor-pointer hover:text-gray-300 transition-colors">Rapports IA</button>
                                 </div>
 
                                 <div className="flex flex-col gap-3 w-full md:w-auto">
-                                    <div className="flex items-center justify-between gap-4 text-xs font-medium text-gray-400 cursor-pointer hover:text-white transition-colors group">
+                                    <button
+                                        onClick={() => {
+                                            const el = document.getElementById('calendly');
+                                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                        }}
+                                        className="flex items-center justify-between gap-4 text-xs font-medium text-gray-400 cursor-pointer hover:text-white transition-colors group"
+                                    >
                                         <span>Connecter Shopify à Klaviyo et un agent vocal OpenAI</span>
                                         <ArrowRight className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
 
