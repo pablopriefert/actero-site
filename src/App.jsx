@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { motion, useInView as useFmInView, useMotionValue, useTransform, animate } from 'framer-motion';
 import {
   ChevronRight, Play, UserX, Database, TrendingDown, ArrowRight, Activity,
   Clock, DollarSign, CheckCircle2, Cpu, BrainCircuit, Server, CreditCard,
@@ -80,6 +81,32 @@ const Logo = ({ className = "w-8 h-8", light = false }) => (
     <path d="M16 2L2 30H10L16 18L22 30H30L16 2Z" fill="currentColor" />
   </svg>
 );
+
+// Scroll-triggered animated counter
+const ScrollCounter = ({ value, prefix = '', suffix = '', className = '' }) => {
+  const ref = useRef(null);
+  const isInView = useFmInView(ref, { once: true, margin: '-100px' });
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, v => Math.round(v));
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (isInView) {
+      const controls = animate(count, value, {
+        duration: 2,
+        ease: [0.22, 1, 0.36, 1],
+      });
+      return controls.stop;
+    }
+  }, [isInView, value, count]);
+
+  useEffect(() => {
+    const unsubscribe = rounded.on('change', v => setDisplay(v));
+    return unsubscribe;
+  }, [rounded]);
+
+  return <span ref={ref} className={className}>{prefix}{display}{suffix}</span>;
+};
 
 // ==========================================
 // === DASHBOARD V2 DESIGN START ===
@@ -2429,42 +2456,113 @@ const LandingPage = ({ onNavigate }) => {
                 </FadeInUp>
               </section>
 
-              {/* 3. SECTION TRANSITION - LE SHIFT */}
+              {/* INFINITE LOGO MARQUEE */}
+              <section className="py-16 bg-transparent relative z-10 overflow-hidden">
+                <FadeInUp className="text-center mb-10">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em]">Intégrations compatibles</p>
+                </FadeInUp>
+                <div className="relative">
+                  {/* Gradient fade edges */}
+                  <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#030303] to-transparent z-10 pointer-events-none"></div>
+                  <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#030303] to-transparent z-10 pointer-events-none"></div>
+                  <div className="flex animate-marquee gap-16 items-center whitespace-nowrap">
+                    {[...Array(2)].map((_, setIdx) => (
+                      <React.Fragment key={setIdx}>
+                        {['Shopify', 'Stripe', 'Klaviyo', 'Make', 'n8n', 'HubSpot', 'Zendesk', 'Slack', 'OpenAI', 'Intercom', 'Salesforce', 'Zapier'].map((name, i) => (
+                          <span key={`${setIdx}-${i}`} className="text-xl md:text-2xl font-bold text-white/10 hover:text-white/30 transition-colors duration-500 select-none flex-shrink-0">{name}</span>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* 3. SECTION BENTO GRID - COMMENT ÇA MARCHE */}
               <section id="comment-ca-marche" className="py-32 bg-transparent px-6 relative overflow-hidden z-10">
-                {/* Subtle decoration */}
                 <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#0a0a0a] rounded-full blur-3xl opacity-50 -mr-40 -mt-40 pointer-events-none"></div>
 
-                <div className="max-w-4xl mx-auto relative z-10">
-                  <FadeInUp className="text-center mb-24">
+                <div className="max-w-6xl mx-auto relative z-10">
+                  <FadeInUp className="text-center mb-20">
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white mb-6">Et si votre boutique devenait autonome ?</h2>
+                    <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto">3 étapes. Zéro code. Résultat garanti.</p>
                   </FadeInUp>
 
-                  <div className="flex flex-col gap-12 relative">
-                    {/* Connecting vertical line */}
-                    <div className="absolute top-10 bottom-10 left-8 md:left-[50%] md:-ml-px w-0.5 bg-gradient-to-b from-transparent via-gray-300 to-transparent hidden md:block"></div>
+                  {/* Bento Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-6 gap-4 md:gap-5">
 
-                    {[
-                      { step: "01", title: "Analyse en continu", desc: "Actero se connecte à Shopify et surveille chaque interaction en temps réel.", align: "left" },
-                      { step: "02", title: "Recommandation IA", desc: "L'intelligence artificielle identifie le workflow exact qui augmentera vos marges.", align: "right" },
-                      { step: "03", title: "Exécution instantanée", desc: "Validez en un clic. L'architecture technique se déploie sans aucun code.", align: "left" }
-                    ].map((item, i) => (
-                      <FadeInUp key={i} delay={i * 0.15} className={`flex flex-col md:flex-row items-center gap-8 ${item.align === 'right' ? 'md:flex-row-reverse' : ''}`}>
-                        <div className={`flex-1 w-full flex ${item.align === 'right' ? 'md:justify-start' : 'md:justify-end'}`}>
-                          <div className="bg-[#0a0a0a] rounded-[32px] p-8 md:p-10 border border-white/5 shadow-[0_10px_40px_rgba(0,0,0,0.03)] w-full max-w-sm hover:-translate-y-1 transition-transform duration-500 ease-out">
-                            <p className="text-sm font-bold text-zinc-400 mb-4 tracking-widest uppercase">Étape {item.step}</p>
-                            <h3 className="text-2xl font-bold text-white mb-4">{item.title}</h3>
-                            <p className="text-gray-400 font-medium leading-relaxed">{item.desc}</p>
+                    {/* Card 1 - Large (spans 4 cols) */}
+                    <FadeInUp delay={0.1} className="md:col-span-4 group">
+                      <div className="relative bg-[#0a0a0a] rounded-[28px] p-8 md:p-10 border border-white/5 h-full overflow-hidden hover:border-white/15 transition-all duration-500">
+                        <div className="absolute -top-20 -right-20 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                        <div className="relative z-10">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                              <Activity className="w-5 h-5 text-emerald-400" />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Étape 01</span>
+                          </div>
+                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 tracking-tight">Analyse en continu</h3>
+                          <p className="text-gray-400 font-medium leading-relaxed max-w-md text-base">Actero se connecte à l'ensemble de votre stack (Shopify, CRM, Support) et surveille chaque interaction en temps réel. Aucune installation technique nécessaire.</p>
+                          <div className="mt-8 flex gap-3 flex-wrap">
+                            {['Shopify', 'Klaviyo', 'Zendesk', 'Hubspot'].map(tag => (
+                              <span key={tag} className="text-xs font-semibold bg-white/5 text-gray-400 border border-white/10 px-3 py-1.5 rounded-full">{tag}</span>
+                            ))}
                           </div>
                         </div>
+                      </div>
+                    </FadeInUp>
 
-                        {/* Center Node */}
-                        <div className="hidden md:flex flex-shrink-0 w-16 h-16 rounded-full bg-[#0a0a0a] border-4 border-[#F6F7FB] shadow-sm items-center justify-center z-10">
-                          <div className="w-3 h-3 rounded-full bg-zinc-300"></div>
+                    {/* Card 2 - Tall (spans 2 cols) */}
+                    <FadeInUp delay={0.2} className="md:col-span-2 group">
+                      <div className="relative bg-[#0a0a0a] rounded-[28px] p-8 border border-white/5 h-full overflow-hidden hover:border-white/15 transition-all duration-500">
+                        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-zinc-400/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                        <div className="relative z-10 flex flex-col h-full">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                              <BrainCircuit className="w-5 h-5 text-amber-400" />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Étape 02</span>
+                          </div>
+                          <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">Recommandation IA</h3>
+                          <p className="text-gray-400 font-medium leading-relaxed text-base flex-1">L'intelligence artificielle identifie le workflow exact qui augmentera vos marges et rédige le plan d'action.</p>
+                          <div className="mt-6 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                          <p className="mt-4 text-sm font-bold text-zinc-500 italic">"Gemini a analysé 1,247 flux pour cette recommandation."</p>
                         </div>
+                      </div>
+                    </FadeInUp>
 
-                        <div className="flex-1 w-full"></div>
-                      </FadeInUp>
-                    ))}
+                    {/* Card 3 - Wide (spans 3 cols) */}
+                    <FadeInUp delay={0.3} className="md:col-span-3 group">
+                      <div className="relative bg-[#0a0a0a] rounded-[28px] p-8 md:p-10 border border-white/5 h-full overflow-hidden hover:border-white/15 transition-all duration-500">
+                        <div className="absolute -top-20 -left-20 w-60 h-60 bg-sky-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                        <div className="relative z-10">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                              <Zap className="w-5 h-5 text-sky-400" />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Étape 03</span>
+                          </div>
+                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 tracking-tight">Exécution instantanée</h3>
+                          <p className="text-gray-400 font-medium leading-relaxed max-w-md text-base">Validez en un clic. L'architecture technique se déploie sans aucun code ni intervention de votre part.</p>
+                        </div>
+                      </div>
+                    </FadeInUp>
+
+                    {/* Card 4 - Accent (spans 3 cols) */}
+                    <FadeInUp delay={0.4} className="md:col-span-3 group">
+                      <div className="relative bg-gradient-to-br from-white/5 to-white/[0.02] rounded-[28px] p-8 md:p-10 border border-white/10 h-full overflow-hidden hover:border-white/20 transition-all duration-500">
+                        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
+                          <div className="flex-1">
+                            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Résultat</p>
+                            <p className="text-xl md:text-2xl font-bold text-white leading-snug">Un système autonome qui optimise vos marges <span className="text-zinc-400">24h/24</span>, pendant que vous dormez.</p>
+                          </div>
+                          <ButtonColorful onClick={() => scrollToId('calendly')} className="flex-shrink-0">
+                            Commencer <ArrowRight className="w-4 h-4" />
+                          </ButtonColorful>
+                        </div>
+                      </div>
+                    </FadeInUp>
+
                   </div>
                 </div>
               </section>
@@ -2476,18 +2574,16 @@ const LandingPage = ({ onNavigate }) => {
                   {/* XXL Metrics */}
                   <FadeInUp className="text-center mb-16">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 max-w-4xl mx-auto">
-                      <div className="flex flex-col items-center justify-center py-6 md:border-r border-white/5">
-                        <span className="text-6xl lg:text-[5rem] font-bold tracking-tighter text-white mb-2 leading-none">+120h</span>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Temps gagné / mois</span>
-                      </div>
-                      <div className="flex flex-col items-center justify-center py-6 md:border-r border-white/5">
-                        <span className="text-6xl lg:text-[5rem] font-bold tracking-tighter text-zinc-300 mb-2 leading-none">+18%</span>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Hausse Conversion</span>
-                      </div>
-                      <div className="flex flex-col items-center justify-center py-6">
-                        <span className="text-6xl lg:text-[5rem] font-bold tracking-tighter text-white mb-2 leading-none">100%</span>
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Autonome</span>
-                      </div>
+                      {[
+                        { value: 120, prefix: '+', suffix: 'h', label: 'Temps gagné / mois', color: 'text-white' },
+                        { value: 18, prefix: '+', suffix: '%', label: 'Hausse Conversion', color: 'text-zinc-300' },
+                        { value: 100, prefix: '', suffix: '%', label: 'Autonome', color: 'text-white' }
+                      ].map((stat, i) => (
+                        <div key={i} className={`flex flex-col items-center justify-center py-6 ${i < 2 ? 'md:border-r border-white/5' : ''}`}>
+                          <ScrollCounter value={stat.value} prefix={stat.prefix} suffix={stat.suffix} className={`text-6xl lg:text-[5rem] font-bold tracking-tighter ${stat.color} mb-2 leading-none`} />
+                          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{stat.label}</span>
+                        </div>
+                      ))}
                     </div>
                     <p className="text-sm font-semibold text-gray-400 mt-12 uppercase tracking-wide">Résultats moyens observés chez nos clients E-commerce.</p>
                   </FadeInUp>

@@ -223,16 +223,30 @@ export const GlassHero = ({ onNavigate }) => {
                     </div>
                 </FadeInUp>
 
-                {/* Headlines */}
+                {/* Headlines - Animated Word Reveal */}
                 <FadeInUp delay={0.1} className="text-center max-w-4xl mb-6">
                     <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold tracking-tight text-white mb-6 leading-[1.05]">
-                        L'agence IA qui transforme <br className="hidden md:block" />
-                        vos goulots en marges
+                        {"L'agence IA qui transforme vos goulots en marges".split(' ').map((word, i) => (
+                            <motion.span
+                                key={i}
+                                initial={{ opacity: 0, filter: 'blur(12px)', y: 10 }}
+                                animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+                                transition={{ duration: 0.6, delay: 0.3 + i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+                                className="inline-block mr-[0.3em]"
+                            >
+                                {word}
+                            </motion.span>
+                        ))}
                     </h1>
-                    <p className="text-lg md:text-xl text-gray-300/80 font-medium max-w-xl mx-auto leading-relaxed">
+                    <motion.p
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7, delay: 1.1, ease: 'easeOut' }}
+                        className="text-lg md:text-xl text-gray-300/80 font-medium max-w-xl mx-auto leading-relaxed"
+                    >
                         Nous concevons et déployons des agents IA <br className="hidden md:block" />
                         et automatisations sur mesure pour votre entreprise.
-                    </p>
+                    </motion.p>
                 </FadeInUp>
 
                 {/* Action Buttons */}
