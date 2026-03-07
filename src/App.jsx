@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { Analytics } from "@vercel/analytics/react";
 import { motion, useInView as useFmInView, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight, Play, UserX, Database, TrendingDown, ArrowRight, Activity,
@@ -4284,5 +4285,10 @@ export default function App() {
     );
   }
 
-  return <MainRouter />;
+  return (
+    <>
+      <MainRouter />
+      <Analytics />
+    </>
+  );
 }
