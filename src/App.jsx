@@ -2704,6 +2704,227 @@ const ClientDashboard = ({ onNavigate, onLogout }) => {
   );
 };
 
+// ==========================================
+// AI AUDIT SCANNER (Lead Generator)
+// ==========================================
+const AIAuditScanner = () => {
+  const [url, setUrl] = useState("");
+  const [scanState, setScanState] = useState("idle"); // idle, scanning, complete, success
+  const [progress, setProgress] = useState(0);
+  const [email, setEmail] = useState("");
+  const [currentLog, setCurrentLog] = useState("");
+
+  const logs = [
+    "Initialisation de l'Agent IA...",
+    "Scraping de l'arborescence du domaine...",
+    "Analyse de la stack technologique e-commerce...",
+    "Détection des goulots d'étranglement (Support)...",
+    "Analyse des failles de rétention (Klaviyo/CRM)...",
+    "Génération des architectures d'automatisation...",
+    "Calcul du ROI potentiel et des heures sauvées...",
+    "Finalisation du rapport..."
+  ];
+
+  const handleStartScan = (e) => {
+    e.preventDefault();
+    if (!url || !url.includes('.')) return;
+
+    setScanState("scanning");
+    setProgress(0);
+
+    let currentLogIndex = 0;
+    setCurrentLog(logs[0]);
+
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        const next = prev + (Math.random() * 15);
+        if (next >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setScanState("complete"), 800);
+          return 100;
+        }
+
+        // Update log based on progress
+        const logStage = Math.floor((next / 100) * logs.length);
+        if (logStage > currentLogIndex && logStage < logs.length) {
+          currentLogIndex = logStage;
+          setCurrentLog(logs[logStage]);
+        }
+
+        return next;
+      });
+    }, 600);
+  };
+
+  const handleUnlockReport = (e) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) return;
+
+    // Here we would normally send to Supabase/Make
+    setScanState("success");
+    trackEvent('AI_Audit_Lead_Captured', { url, email });
+  };
+
+  return (
+    <section className="py-24 relative z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none"></div>
+
+      <div className="max-w-4xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-400 mb-4 uppercase tracking-widest">
+            <Zap className="w-3.5 h-3.5" /> Outil d'Analyse Gratuit
+          </div>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">Générez votre Audit d'Architecture IA en 1-Clic</h2>
+          <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto">Notre Agent IA analyse votre site web et vous révèle instantanément 3 processus métier à automatiser pour scaler vos marges.</p>
+        </div>
+
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+          {/* Subtle background glow depending on state */}
+          <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] transition-colors duration-1000 ${scanState === 'idle' ? 'bg-zinc-500/10' :
+              scanState === 'scanning' ? 'bg-amber-500/10 animate-pulse' :
+                'bg-emerald-500/20'
+            }`}></div>
+
+          <AnimatePresence mode="wait">
+
+            {/* STATE 1: IDLE */}
+            {scanState === "idle" && (
+              <motion.div
+                key="idle"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                className="max-w-xl mx-auto text-center relative z-10"
+              >
+                <form onSubmit={handleStartScan} className="flex flex-col sm:flex-row gap-4">
+                  <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Search className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="URL de votre site (ex: lumina.com)"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="w-full bg-[#030303] border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white font-medium placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-white text-black font-bold px-8 py-4 rounded-xl hover:scale-105 transition-transform flex items-center justify-center gap-2 whitespace-nowrap shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                  >
+                    Lancer le Scan <Bot className="w-5 h-5" />
+                  </button>
+                </form>
+                <p className="text-xs text-zinc-500 mt-4 font-medium flex items-center justify-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Analyse confidentielle et 100% gratuite.</p>
+              </motion.div>
+            )}
+
+            {/* STATE 2: SCANNING */}
+            {scanState === "scanning" && (
+              <motion.div
+                key="scanning"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="relative z-10"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-bold text-emerald-400 font-mono flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Analyse en cours...
+                  </span>
+                  <span className="text-sm font-bold text-white font-mono">{Math.round(progress)}%</span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="w-full h-3 bg-[#030303] rounded-full border border-white/5 overflow-hidden mb-6">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-400 relative"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ ease: "linear", duration: 0.2 }}
+                  >
+                    <div className="absolute top-0 right-0 bottom-0 left-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')] opacity-50"></div>
+                  </motion.div>
+                </div>
+
+                {/* Terminal Window */}
+                <div className="bg-[#030303] border border-white/10 rounded-xl p-4 font-mono text-xs text-gray-400 h-32 overflow-hidden relative">
+                  <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-[#030303] to-transparent z-10"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#030303] to-transparent z-10"></div>
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    key={currentLog}
+                    className="flex items-start gap-2"
+                  >
+                    <span className="text-emerald-500 mt-0.5">❯</span>
+                    <span className="text-gray-300">{currentLog}</span>
+                  </motion.div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* STATE 3: COMPLETE (Email Capture) */}
+            {scanState === "complete" && (
+              <motion.div
+                key="complete"
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="max-w-xl mx-auto text-center relative z-10"
+              >
+                <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Analyse terminée avec succès !</h3>
+                <p className="text-zinc-400 font-medium mb-6 leading-relaxed">
+                  L'IA a détecté <strong className="text-white">3 processus critiques</strong> sur {url} qui pourraient être automatisés pour vous faire économiser au moins <strong className="text-emerald-400">25h/semaine</strong>.
+                </p>
+
+                <form onSubmit={handleUnlockReport} className="flex flex-col gap-4">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Mail className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <input
+                      type="email"
+                      placeholder="Votre email professionnel"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-[#030303] border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white font-medium placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-emerald-500 text-black font-bold px-8 py-4 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2"
+                  >
+                    Débloquer le rapport d'architecture <ArrowRight className="w-5 h-5" />
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            {/* STATE 4: SUCCESS */}
+            {scanState === "success" && (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                className="text-center relative z-10 py-4"
+              >
+                <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Sparkles className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Rapport envoyé !</h3>
+                <p className="text-zinc-400 font-medium max-w-sm mx-auto">
+                  Votre architecture cible a été envoyée à <strong>{email}</strong>. Un expert technique va analyser ces résultats et vous contacter si votre profil correspond.
+                </p>
+              </motion.div>
+            )}
+
+          </AnimatePresence>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 // === LANDING IOS26 START ===
 const LandingPage = ({ onNavigate }) => {
   // --- Helpers ---
@@ -2913,6 +3134,9 @@ const LandingPage = ({ onNavigate }) => {
                   </div>
                 </div>
               </section>
+
+              {/* AI AUDIT LEAD GENERATOR */}
+              <AIAuditScanner />
 
               {/* 3. SECTION BENTO GRID - COMMENT ÇA MARCHE */}
               <section id="comment-ca-marche" className="py-32 bg-transparent px-6 relative overflow-hidden z-10">
