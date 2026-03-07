@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Mic, ArrowUp } from 'lucide-react';
+import { ArrowRight, Play, Mic, ArrowUp, Zap } from 'lucide-react';
 import { FadeInUp, ScaleIn } from './scroll-animations';
 import { LeadCaptureModal } from './lead-capture-modal';
 import { ButtonColorful } from './button-colorful';
 import { trackEvent } from '../../src/lib/analytics';
 
-export const GlassHero = ({ onNavigate }) => {
+export const GlassHero = ({ onNavigate, onOpenAuditScanner }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [pendingPrompt, setPendingPrompt] = useState('');
@@ -310,6 +310,15 @@ export const GlassHero = ({ onNavigate }) => {
                                     </div>
 
                                     <div className="w-full max-w-2xl flex flex-col items-center gap-3 mb-8">
+                                        {onOpenAuditScanner && (
+                                            <button
+                                                onClick={onOpenAuditScanner}
+                                                className="flex items-center justify-between gap-4 text-sm font-bold text-emerald-400 bg-emerald-500/10 py-3 px-6 rounded-xl hover:bg-emerald-500/20 transition-all border border-emerald-500/30 w-full shadow-[0_0_15px_rgba(16,185,129,0.15)] mb-2"
+                                            >
+                                                <span className="truncate flex items-center gap-2"><Zap className="w-4 h-4 fill-emerald-400" /> Scanner mon site web (Audit IA Gratuit)</span>
+                                                <ArrowRight className="w-4 h-4 transition-transform translate-x-0 flex-shrink-0" />
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => handleTagClick("Connecter Shopify à Klaviyo et un agent vocal OpenAI")}
                                             className="flex items-center justify-between gap-4 text-sm font-medium text-gray-400 py-2 px-4 rounded-xl hover:bg-white/5 hover:text-white transition-colors group border border-transparent hover:border-white/10 w-full md:w-auto"

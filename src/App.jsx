@@ -2705,13 +2705,12 @@ const ClientDashboard = ({ onNavigate, onLogout }) => {
 };
 
 // ==========================================
-// AI AUDIT SCANNER (Lead Generator)
+// AI AUDIT SCANNER (Free Modal version)
 // ==========================================
-const AIAuditScanner = () => {
+const AIAuditScannerModal = ({ isOpen, onClose }) => {
   const [url, setUrl] = useState("");
-  const [scanState, setScanState] = useState("idle"); // idle, scanning, complete, success
+  const [scanState, setScanState] = useState("idle"); // idle, scanning, complete
   const [progress, setProgress] = useState(0);
-  const [email, setEmail] = useState("");
   const [currentLog, setCurrentLog] = useState("");
 
   const logs = [
@@ -2756,33 +2755,46 @@ const AIAuditScanner = () => {
     }, 600);
   };
 
-  const handleUnlockReport = (e) => {
-    e.preventDefault();
-    if (!email || !email.includes('@')) return;
-
-    // Here we would normally send to Supabase/Make
-    setScanState("success");
-    trackEvent('AI_Audit_Lead_Captured', { url, email });
+  const handleApplyAutomations = () => {
+    onClose();
+    const el = document.getElementById('calendly');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  return (
-    <section className="py-24 relative z-10 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none"></div>
+  if (!isOpen) return null;
 
-      <div className="max-w-4xl mx-auto px-6 relative z-10">
-        <div className="text-center mb-12">
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+        onClick={scanState !== 'scanning' ? onClose : undefined}
+      ></div>
+
+      <div className="relative w-full max-w-4xl max-h-[95vh] overflow-y-auto hide-scrollbar z-10 animate-fade-in-up">
+        {/* Close button */}
+        {scanState !== 'scanning' && (
+          <button
+            onClick={onClose}
+            className="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-50 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        )}
+
+        <div className="mb-8 text-center mt-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-400 mb-4 uppercase tracking-widest">
-            <Zap className="w-3.5 h-3.5" /> Outil d'Analyse Gratuit
+            <Zap className="w-3.5 h-3.5" /> IA Gratuite
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">Générez votre Audit d'Architecture IA en 1-Clic</h2>
-          <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto">Notre Agent IA analyse votre site web et vous révèle instantanément 3 processus métier à automatiser pour scaler vos marges.</p>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-2">Audit Express d'Architecture</h2>
+          <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto">Notre Agent IA analyse votre site et extrait les meilleures opportunités d'automatisation.</p>
         </div>
 
         <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
           {/* Subtle background glow depending on state */}
-          <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] transition-colors duration-1000 ${scanState === 'idle' ? 'bg-zinc-500/10' :
-              scanState === 'scanning' ? 'bg-amber-500/10 animate-pulse' :
-                'bg-emerald-500/20'
+          <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] transition-colors duration-1000 pointer-events-none ${scanState === 'idle' ? 'bg-zinc-500/10' :
+            scanState === 'scanning' ? 'bg-amber-500/10 animate-pulse' :
+              'bg-emerald-500/20'
             }`}></div>
 
           <AnimatePresence mode="wait">
@@ -2862,66 +2874,66 @@ const AIAuditScanner = () => {
               </motion.div>
             )}
 
-            {/* STATE 3: COMPLETE (Email Capture) */}
+            {/* STATE 3: COMPLETE (Free Results) */}
             {scanState === "complete" && (
               <motion.div
                 key="complete"
                 initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                className="max-w-xl mx-auto text-center relative z-10"
+                className="max-w-2xl mx-auto text-center relative z-10"
               >
                 <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                   <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Analyse terminée avec succès !</h3>
-                <p className="text-zinc-400 font-medium mb-6 leading-relaxed">
-                  L'IA a détecté <strong className="text-white">3 processus critiques</strong> sur {url} qui pourraient être automatisés pour vous faire économiser au moins <strong className="text-emerald-400">25h/semaine</strong>.
+                <p className="text-zinc-400 font-medium mb-10 leading-relaxed">
+                  L'IA a détecté <strong className="text-white">3 goulots d'étranglement majeurs</strong> sur <span className="text-emerald-400 font-mono">{url}</span>. La résolution de ces processus vous ferait économiser <strong className="text-white bg-white/10 px-2 py-0.5 rounded">25h+ / semaine</strong>.
                 </p>
 
-                <form onSubmit={handleUnlockReport} className="flex flex-col gap-4">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Mail className="w-5 h-5 text-gray-500" />
+                <div className="text-left space-y-4 mb-10">
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:border-white/20 transition-all">
+                    <div className="mt-1"><Bot className="w-5 h-5 text-emerald-400" /></div>
+                    <div>
+                      <h4 className="text-white font-bold mb-1">Support de niveau 1 saturé</h4>
+                      <p className="text-sm text-gray-400">Déploiement d'un agent IA multilingue connecté à votre base de données pour absorber 80% des tickets en temps réel.</p>
                     </div>
-                    <input
-                      type="email"
-                      placeholder="Votre email professionnel"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[#030303] border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white font-medium placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
-                      required
-                    />
                   </div>
-                  <button
-                    type="submit"
-                    className="bg-emerald-500 text-black font-bold px-8 py-4 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2"
-                  >
-                    Débloquer le rapport d'architecture <ArrowRight className="w-5 h-5" />
-                  </button>
-                </form>
-              </motion.div>
-            )}
-
-            {/* STATE 4: SUCCESS */}
-            {scanState === "success" && (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                className="text-center relative z-10 py-4"
-              >
-                <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Sparkles className="w-10 h-10 text-white" />
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:border-white/20 transition-all">
+                    <div className="mt-1"><RefreshCw className="w-5 h-5 text-amber-400" /></div>
+                    <div>
+                      <h4 className="text-white font-bold mb-1">Abandon de panier inexploité</h4>
+                      <p className="text-sm text-gray-400">Automatisation d'un Voice Agent IA qui rappelle instantanément les paniers premium avec une offre personnalisée.</p>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:border-white/20 transition-all">
+                    <div className="mt-1"><Database className="w-5 h-5 text-blue-400" /></div>
+                    <div>
+                      <h4 className="text-white font-bold mb-1">Saisie manuelle CRM / Facturation</h4>
+                      <p className="text-sm text-gray-400">Synchronisation Make instantanée entre vos paiements (Stripe) et votre comptabilité ou votre CRM de vente.</p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Rapport envoyé !</h3>
-                <p className="text-zinc-400 font-medium max-w-sm mx-auto">
-                  Votre architecture cible a été envoyée à <strong>{email}</strong>. Un expert technique va analyser ces résultats et vous contacter si votre profil correspond.
-                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-4 text-gray-400 font-bold hover:text-white transition-colors"
+                  >
+                    Fermer
+                  </button>
+                  <button
+                    onClick={handleApplyAutomations}
+                    className="bg-emerald-500 text-black font-bold px-8 py-4 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.2)] flex items-center gap-2"
+                  >
+                    Auditer mon business complet <ArrowRight className="w-5 h-5" />
+                  </button>
+                </div>
               </motion.div>
             )}
 
           </AnimatePresence>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
@@ -2949,8 +2961,9 @@ const LandingPage = ({ onNavigate }) => {
   const [contactEmail, setContactEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- États UI (FAQ) ---
+  // --- États UI (FAQ & Modals) ---
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [isAuditScannerOpen, setIsAuditScannerOpen] = useState(false);
 
   // --- Initialiser Amplitude ---
   useEffect(() => {
@@ -3081,7 +3094,7 @@ const LandingPage = ({ onNavigate }) => {
 
         <main>
           {/* 1. HERO SECTION (New Redesign) */}
-          <GlassHero onNavigate={onNavigate} />
+          <GlassHero onNavigate={onNavigate} onOpenAuditScanner={() => setIsAuditScannerOpen(true)} />
 
           {/* BACKGROUND WRAPPER FOR ALL SECTIONS BELOW HERO */}
           <div className="relative w-full z-10">
@@ -3134,9 +3147,6 @@ const LandingPage = ({ onNavigate }) => {
                   </div>
                 </div>
               </section>
-
-              {/* AI AUDIT LEAD GENERATOR */}
-              <AIAuditScanner />
 
               {/* 3. SECTION BENTO GRID - COMMENT ÇA MARCHE */}
               <section id="comment-ca-marche" className="py-32 bg-transparent px-6 relative overflow-hidden z-10">
@@ -3528,6 +3538,12 @@ const LandingPage = ({ onNavigate }) => {
             </div>
           </div>
         </footer>
+
+        {/* --- AIAuditScannerModal --- */}
+        <AIAuditScannerModal
+          isOpen={isAuditScannerOpen}
+          onClose={() => setIsAuditScannerOpen(false)}
+        />
       </div>
     </div>
   );
