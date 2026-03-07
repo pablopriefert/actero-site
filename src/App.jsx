@@ -2837,7 +2837,7 @@ const LandingPage = ({ onNavigate }) => {
 
             <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               <button onClick={() => scrollToId('comment-ca-marche')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Produit</button>
-              <button onClick={() => scrollToId('proof')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Cas d'usage</button>
+              <button onClick={() => onNavigate('/cas-client')} className="text-sm font-semibold text-emerald-400/80 hover:text-emerald-400 transition-colors flex items-center gap-1"><Database className="w-3.5 h-3.5" /> Cas Clients</button>
               <button onClick={() => scrollToId('faq')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">FAQ</button>
             </div>
 
@@ -3291,6 +3291,7 @@ const LandingPage = ({ onNavigate }) => {
             </div>
 
             <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-400">
+              <button onClick={() => onNavigate('/cas-client')} className="hover:text-emerald-400 transition-colors flex items-center gap-1"><Database className="w-3.5 h-3.5" /> Cas Clients</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Contact</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Mentions légales</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Confidentialité</button>
@@ -3673,6 +3674,188 @@ function AuthCallbackPage({ onNavigate }) {
   );
 }
 
+// ==========================================
+// 8. CASE STUDIES PAGE
+// ==========================================
+const CaseStudiesPage = ({ onNavigate }) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
+
+      {/* Navigation Bar */}
+      <nav className="fixed w-full z-50 transition-all duration-300 backdrop-blur-md bg-[#0a0a0a]/80 border-b border-white/5 py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14">
+            <div className="flex items-center gap-12">
+              <div
+                className="flex items-center gap-2 cursor-pointer group"
+                onClick={() => onNavigate('/')}
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-300">
+                  <Logo light className="w-6 h-6 text-white" />
+                </div>
+                <span className="font-bold text-xl tracking-tight hidden sm:block group-hover:text-gray-300 transition-colors">Actero</span>
+              </div>
+              <div className="hidden md:flex gap-8">
+                <button onClick={() => onNavigate('/')} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Accueil</button>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button onClick={() => onNavigate('/login')} className="hidden sm:block text-sm font-medium text-gray-300 hover:text-white px-4 py-2 transition-colors">
+                Connexion
+              </button>
+              <button onClick={() => onNavigate('/login')} className="text-sm font-bold bg-white text-black px-5 py-2.5 rounded-xl hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                Espace Client
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="pt-32 pb-20 px-6 max-w-5xl mx-auto">
+
+        {/* Hero Section */}
+        <div className="text-center mb-24 animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-bold text-gray-300 mb-6">
+            <Database className="w-4 h-4 text-emerald-400" /> Cas Client
+          </div>
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter mb-6">
+            Maison Lumina
+          </h1>
+          <p className="text-xl md:text-2xl text-zinc-400 font-medium max-w-3xl mx-auto leading-relaxed">
+            Comment une marque DNVB a automatisé 98% de son support de niveau 1 et augmenté son taux de réachat de 18% avec Actero OS.
+          </p>
+        </div>
+
+        {/* Key Metrics Dashboard Snapshot */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24">
+          <StatCard
+            title="Temps sauvé / mois"
+            value={<AnimatedNumber end={42} suffix="h" />}
+            icon={Clock}
+            color="emerald"
+            subtitleItems={["Support technique", "Saisie manuelle"]}
+          />
+          <StatCard
+            title="Requêtes automatisées"
+            value={<AnimatedNumber end={98} suffix="%" />}
+            icon={CheckCircle}
+            color="amber"
+            subtitleItems={["Résolution < 2min", "Sans humain"]}
+          />
+          <StatCard
+            title="Taux de réachat"
+            value={<><span className="text-zinc-500 mr-1">+</span><AnimatedNumber end={18} suffix="%" /></>}
+            icon={TrendingUp}
+            color="zinc"
+            subtitleItems={["Segmentation dynamique", "Klaviyo"]}
+          />
+        </div>
+
+        {/* the Story */}
+        <div className="grid md:grid-cols-2 gap-16 mb-24">
+
+          {/* Le Problème */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                <Target className="w-6 h-6 text-red-400" />
+              </div>
+              <h2 className="text-3xl font-bold tracking-tight">Le défi</h2>
+            </div>
+
+            <p className="text-lg text-zinc-400 leading-relaxed font-medium">
+              L'équipe support de Maison Lumina (3 personnes) était noyée sous un volume massif de tickets redondants, principalement : <strong className="text-white">"Où est ma commande ?"</strong> et la gestion des retours produits.
+            </p>
+            <p className="text-lg text-zinc-400 leading-relaxed font-medium">
+              En parallèle, les commerciaux perdaient près de 15h par semaine à extraire manuellement les données de Shopify pour segmenter les clients "VIP" dans Klaviyo, freinant l'efficacité des campagnes de rétention.
+            </p>
+          </div>
+
+          {/* La Solution */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <BrainCircuit className="w-6 h-6 text-emerald-400" />
+              </div>
+              <h2 className="text-3xl font-bold tracking-tight">L'Architecture Actero</h2>
+            </div>
+
+            <div className="bg-[#0a0a0a] border border-white/10 p-6 rounded-2xl space-y-4 shadow-xl">
+              <div className="flex items-start gap-4">
+                <div className="mt-1"><Bot className="w-5 h-5 text-zinc-300" /></div>
+                <div>
+                  <h4 className="font-bold text-white mb-1">Agent Support Niveau 1</h4>
+                  <p className="text-sm text-zinc-400">Connecté par API à Shopify et aux transporteurs, l'IA lit l'historique de commande et répond en temps réel aux clients avec le ton de la marque.</p>
+                </div>
+              </div>
+              <div className="w-full h-px bg-white/5"></div>
+              <div className="flex items-start gap-4">
+                <div className="mt-1"><Repeat className="w-5 h-5 text-emerald-400" /></div>
+                <div>
+                  <h4 className="font-bold text-white mb-1">Enrichissement CRM (Make)</h4>
+                  <p className="text-sm text-zinc-400">Chaque nouvel achat déclenche un workflow qui analyse le profil de l'acheteur (panier moyen, fréquence) et applique dynamiquement les tags VIP dans Klaviyo.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Integration Stack */}
+        <div className="text-center mb-24">
+          <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">Infrastructures connectées</p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <span className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 font-bold text-white flex items-center gap-2"><ShoppingCart className="w-5 h-5" /> Shopify</span>
+            <span className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 font-bold text-white flex items-center gap-2"><RefreshCw className="w-5 h-5" /> Make</span>
+            <span className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 font-bold text-white flex items-center gap-2"><Mail className="w-5 h-5" /> Klaviyo</span>
+            <span className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 font-bold text-white flex items-center gap-2"><MessageSquare className="w-5 h-5" /> Gorgias</span>
+          </div>
+        </div>
+
+        {/* Call to Action */}
+        <div className="mt-20 text-center bg-gradient-to-b from-[#0a0a0a] to-[#030303] border border-white/10 rounded-3xl p-12 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px]"></div>
+          <h2 className="text-3xl font-bold tracking-tight mb-4 relative z-10">Passez vous aussi à l'infrastructure autonome</h2>
+          <p className="text-zinc-500 font-medium mb-8 max-w-lg mx-auto relative z-10">Réservez un audit stratégique gratuit pour identifier les goulots d'étranglement de vos opérations.</p>
+          <button onClick={() => onNavigate('/')} className="bg-white text-black px-8 py-4 rounded-xl font-bold hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.1)] relative z-10">
+            Réserver mon audit
+          </button>
+        </div>
+
+      </main>
+
+      {/* FOOTER */}
+      <footer className="bg-[#0a0a0a] border-t border-white/5 py-16 px-6 relative z-10 w-full mt-auto">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <div className="flex items-center gap-2">
+              <Logo light={false} className="w-6 h-6" />
+              <span className="font-bold tracking-tight text-white text-lg">Actero</span>
+            </div>
+            <p className="text-sm font-medium text-gray-400">L'infrastructure autopilotée des E-commerçants.</p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-400">
+            <button onClick={() => onNavigate('/cas-client')} className="hover:text-emerald-400 transition-colors flex items-center gap-1"><Database className="w-3.5 h-3.5" /> Cas Clients</button>
+            <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Contact</button>
+            <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Mentions légales</button>
+            <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Confidentialité</button>
+          </div>
+
+          <div className="text-center md:text-right">
+            <p className="text-xs font-semibold text-gray-400">
+              © {new Date().getFullYear()} Actero. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
 function MainRouter() {
   const [currentRoute, setCurrentRoute] = useState('/');
   const [isRouting, setIsRouting] = useState(true);
@@ -3724,6 +3907,10 @@ function MainRouter() {
 
   if (currentRoute === '/auth/callback') {
     return <AuthCallbackPage onNavigate={setCurrentRoute} />;
+  }
+
+  if (currentRoute === '/cas-client') {
+    return <CaseStudiesPage onNavigate={setCurrentRoute} />;
   }
 
   if (currentRoute === '/app' || currentRoute === '/admin') {
