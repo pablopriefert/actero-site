@@ -4,6 +4,7 @@ import { ArrowRight, Play, Mic, ArrowUp } from 'lucide-react';
 import { FadeInUp, ScaleIn } from './scroll-animations';
 import { LeadCaptureModal } from './lead-capture-modal';
 import { ButtonColorful } from './button-colorful';
+import { trackEvent } from '../../src/lib/analytics';
 
 export const GlassHero = ({ onNavigate }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,6 +44,7 @@ export const GlassHero = ({ onNavigate }) => {
 
         recognition.onstart = () => {
             setIsRecording(true);
+            trackEvent('Hero_Chat_Voice_Started');
         };
 
         recognition.onresult = (event) => {
@@ -73,11 +75,17 @@ export const GlassHero = ({ onNavigate }) => {
 
         if (!text.trim()) return;
 
+        trackEvent('Hero_Chat_Message_Sent', {
+            messageLength: text.length,
+            usedVoice: isRecording
+        });
+
         setPendingPrompt(text);
         setIsModalOpen(true);
     };
 
     const handleTagClick = (tag) => {
+        trackEvent('Hero_Chat_Tag_Clicked', { tag });
         setPendingPrompt(tag);
         generateAIResponse(tag, null);
     };

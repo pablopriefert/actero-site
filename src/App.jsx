@@ -17,6 +17,7 @@ import { ButtonColorful } from '../components/ui/button-colorful';
 import { Futuristic3DBackground } from '../components/ui/futuristic-3d-background';
 import { GlassHero } from '../components/ui/glass-hero';
 import { FadeInUp, SlideInRight, SlideInLeft, StaggerContainer, StaggerItem, ScaleIn } from '../components/ui/scroll-animations';
+import { initAmplitude, trackEvent } from './lib/analytics';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -2303,6 +2304,12 @@ const LandingPage = ({ onNavigate }) => {
   // --- États UI (FAQ) ---
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
+  // --- Initialiser Amplitude ---
+  useEffect(() => {
+    initAmplitude();
+    trackEvent('Landing_Page_Viewed');
+  }, []);
+
   const handleOpenModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -2414,7 +2421,10 @@ const LandingPage = ({ onNavigate }) => {
               >
                 Connexion
               </button>
-              <ButtonColorful onClick={() => scrollToId('calendly')}>
+              <ButtonColorful onClick={() => {
+                trackEvent('Header_CTA_Clicked', { location: 'navbar' });
+                scrollToId('calendly');
+              }}>
                 Demander un audit
               </ButtonColorful>
             </div>
@@ -2556,7 +2566,10 @@ const LandingPage = ({ onNavigate }) => {
                             <p className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Résultat</p>
                             <p className="text-xl md:text-2xl font-bold text-white leading-snug">Un système autonome qui optimise vos marges <span className="text-zinc-400">24h/24</span>, pendant que vous dormez.</p>
                           </div>
-                          <ButtonColorful onClick={() => scrollToId('calendly')} className="flex-shrink-0">
+                          <ButtonColorful onClick={() => {
+                            trackEvent('Bento_CTA_Clicked', { location: 'comment_ca_marche' });
+                            scrollToId('calendly');
+                          }} className="flex-shrink-0">
                             Commencer <ArrowRight className="w-4 h-4" />
                           </ButtonColorful>
                         </div>
@@ -2758,12 +2771,14 @@ const LandingPage = ({ onNavigate }) => {
             </div> {/* Close relative z-10 w-full content wrapper */}
           </div> {/* Close relative w-full z-10 dotted surface wrapper */}
         </main>
-
         {/* STICKY CTA */}
         <div className="fixed bottom-0 left-0 right-0 p-4 z-50 pointer-events-none flex justify-center md:hidden">
           <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10/80 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] p-2 rounded-2xl w-full max-w-md pointer-events-auto flex items-center justify-between gap-4">
             <span className="text-[13px] font-bold text-white ml-2">Prêt à automatiser<br />votre croissance ?</span>
-            <ButtonColorful onClick={() => scrollToId('calendly')}>
+            <ButtonColorful onClick={() => {
+              trackEvent('StickyFooter_CTA_Clicked', { location: 'mobile_footer' });
+              scrollToId('calendly');
+            }}>
               Réserver un audit
             </ButtonColorful>
           </div>
@@ -2771,7 +2786,10 @@ const LandingPage = ({ onNavigate }) => {
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none hidden md:flex">
           <div className="bg-[#0a0a0a]/95 backdrop-blur-2xl border border-white/10/50 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] rounded-full px-4 py-3 pointer-events-auto flex items-center gap-6 hover:-translate-y-1 transition-transform duration-300">
             <span className="text-sm font-bold text-white pl-2">Prêt à automatiser votre croissance ?</span>
-            <ButtonColorful onClick={() => scrollToId('calendly')}>
+            <ButtonColorful onClick={() => {
+              trackEvent('StickyFooter_CTA_Clicked', { location: 'desktop_footer' });
+              scrollToId('calendly');
+            }}>
               Réserver mon audit stratégique
             </ButtonColorful>
           </div>
