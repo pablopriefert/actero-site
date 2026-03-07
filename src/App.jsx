@@ -3205,8 +3205,9 @@ const LandingPage = ({ onNavigate }) => {
                   </AnimatePresence>
                 </div>
                 {/* === END MEGA MENU === */}
-                <button onClick={() => onNavigate('/cas-client')} className="text-sm font-semibold text-emerald-400/80 hover:text-emerald-400 transition-colors flex items-center gap-1"><Database className="w-3.5 h-3.5" /> Cas Clients</button>
-                <button onClick={() => scrollToId('faq')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">FAQ</button>
+                <button onClick={() => scrollToId('tarifs')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Tarification</button>
+                <button onClick={() => scrollToId('a-propos')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Entreprise</button>
+                <button onClick={() => onNavigate('/cas-client')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Cas Clients</button>
               </div>
 
               <div className="flex items-center gap-3">
