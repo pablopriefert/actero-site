@@ -2838,6 +2838,7 @@ const LandingPage = ({ onNavigate }) => {
             <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               <button onClick={() => scrollToId('comment-ca-marche')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Produit</button>
               <button onClick={() => scrollToId('proof')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Cas d'usage</button>
+              <button onClick={() => onNavigate('/roadmap')} className="text-sm font-semibold text-amber-400/80 hover:text-amber-400 transition-colors flex items-center gap-1"><Sparkles className="w-3.5 h-3.5" /> Roadmap</button>
               <button onClick={() => scrollToId('faq')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">FAQ</button>
             </div>
 
@@ -3291,6 +3292,7 @@ const LandingPage = ({ onNavigate }) => {
             </div>
 
             <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-400">
+              <button onClick={() => onNavigate('/roadmap')} className="hover:text-amber-400 transition-colors flex items-center gap-1"><Sparkles className="w-3.5 h-3.5" /> Roadmap</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Contact</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Mentions légales</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Confidentialité</button>
@@ -3673,6 +3675,157 @@ function AuthCallbackPage({ onNavigate }) {
   );
 }
 
+// ==========================================
+// 8. ROADMAP PAGE
+// ==========================================
+const RoadmapPage = ({ onNavigate }) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const features = [
+    {
+      quarter: "Q1 2026",
+      title: "Actero Voice Agents",
+      description: "Agents téléphoniques IA capables d'appeler vos clients, de qualifier des prospects et de faire du suivi de service client avec une voix ultra-réaliste en temps réel.",
+      status: "En développement",
+      statusColor: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+      icon: <Users className="w-6 h-6 text-amber-400" />
+    },
+    {
+      quarter: "Q2 2026",
+      title: "Predictive Churn Analysis",
+      description: "Algorithme de machine learning connecté à votre CRM qui détecte les clients sur le point de se désabonner avant même qu'ils ne le fassent.",
+      status: "Planifié",
+      statusColor: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+      icon: <Activity className="w-6 h-6 text-blue-400" />
+    },
+    {
+      quarter: "Q3 2026",
+      title: "Actero iOS Native App",
+      description: "Suivez les performances de votre infrastructure IA, recevez des alertes push et interagissez avec l'Architecte IA directement depuis votre iPhone.",
+      status: "À l'étude",
+      statusColor: "bg-zinc-800 text-zinc-400 border-zinc-700",
+      icon: <LayoutDashboard className="w-6 h-6 text-zinc-400" />
+    },
+    {
+      quarter: "Q4 2026",
+      title: "Actionneurs Cognitifs Autonomes",
+      description: "Essaims d'agents IA capables de naviguer sur le web pour rechercher des leads, qualifier des bases de données et enrichir votre CRM en totale autonomie (sans Make/Zapier).",
+      status: "Concept",
+      statusColor: "bg-zinc-800/50 text-zinc-500 border-zinc-800",
+      icon: <BrainCircuit className="w-6 h-6 text-zinc-500" />
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
+
+      {/* Navigation Bar (Simplified from Landing Page) */}
+      <nav className="fixed w-full z-50 transition-all duration-300 backdrop-blur-md bg-[#0a0a0a]/80 border-b border-white/5 py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14">
+            <div className="flex items-center gap-12">
+              <div
+                className="flex items-center gap-2 cursor-pointer group"
+                onClick={() => onNavigate('/')}
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform duration-300">
+                  <Logo light className="w-6 h-6 text-white" />
+                </div>
+                <span className="font-bold text-xl tracking-tight hidden sm:block group-hover:text-gray-300 transition-colors">Actero</span>
+              </div>
+              <div className="hidden md:flex gap-8">
+                <button onClick={() => onNavigate('/')} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Accueil</button>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button onClick={() => onNavigate('/login')} className="hidden sm:block text-sm font-medium text-gray-300 hover:text-white px-4 py-2 transition-colors">
+                Connexion
+              </button>
+              <button onClick={() => onNavigate('/login')} className="text-sm font-bold bg-white text-black px-5 py-2.5 rounded-xl hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                Espace Client
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <main className="pt-32 pb-20 px-6 max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-20 animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm font-bold text-gray-300 mb-6">
+            <Sparkles className="w-4 h-4 text-white" /> Vision & Innovation
+          </div>
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
+            La feuille de route Actero
+          </h1>
+          <p className="text-xl text-zinc-500 font-medium max-w-2xl mx-auto leading-relaxed">
+            Découvrez les prochaines fonctionnalités majeures qui transformeront votre écosystème en une infrastructure autonome de pointe.
+          </p>
+        </div>
+
+        {/* Timeline */}
+        <div className="relative border-l-2 border-white/5 ml-4 md:ml-8 space-y-16">
+          {features.map((feature, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ delay: idx * 0.1, duration: 0.5 }}
+              className="relative pl-8 md:pl-16"
+            >
+              {/* Timeline Dot */}
+              <div className="absolute left-[-9px] top-6 w-4 h-4 rounded-full bg-[#0a0a0a] border-2 border-white/20 ring-4 ring-[#030303] z-10">
+                {idx === 0 && (
+                  <div className="absolute inset-0 rounded-full bg-white animate-ping opacity-20"></div>
+                )}
+              </div>
+
+              {/* Glowing Line connector to the dot */}
+              <div className="absolute left-0 top-8 w-8 md:w-16 h-px bg-gradient-to-r from-white/10 to-transparent"></div>
+
+              {/* Card */}
+              <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-8 hover:bg-white/[0.02] transition-colors group">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white/5 border border-white/5 rounded-2xl group-hover:scale-110 transition-transform">
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold tracking-tight">{feature.title}</h3>
+                      <p className="font-mono text-sm text-zinc-500 mt-1 uppercase tracking-widest font-bold">{feature.quarter}</p>
+                    </div>
+                  </div>
+                  <span className={`px-4 py-1.5 rounded-full text-xs font-bold border uppercase tracking-widest ${feature.statusColor} self-start sm:self-center`}>
+                    {feature.status}
+                  </span>
+                </div>
+                <p className="text-zinc-400 font-medium leading-relaxed text-lg">
+                  {feature.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Call to Action */}
+        <div className="mt-32 text-center bg-[#0a0a0a] border border-white/10 rounded-3xl p-12">
+          <h2 className="text-3xl font-bold tracking-tight mb-4">Prêt à anticiper le futur ?</h2>
+          <p className="text-zinc-500 font-medium mb-8 max-w-lg mx-auto">Rejoignez les entreprises qui préparent déjà l'avenir de leur industrie avec l'écosystème Actero OS.</p>
+          <button onClick={() => onNavigate('/')} className="bg-white text-black px-8 py-4 rounded-xl font-bold hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+            Découvrir Actero OS
+          </button>
+        </div>
+
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
 function MainRouter() {
   const [currentRoute, setCurrentRoute] = useState('/');
   const [isRouting, setIsRouting] = useState(true);
@@ -3724,6 +3877,10 @@ function MainRouter() {
 
   if (currentRoute === '/auth/callback') {
     return <AuthCallbackPage onNavigate={setCurrentRoute} />;
+  }
+
+  if (currentRoute === '/roadmap') {
+    return <RoadmapPage onNavigate={setCurrentRoute} />;
   }
 
   if (currentRoute === '/app' || currentRoute === '/admin') {
