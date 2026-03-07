@@ -2712,6 +2712,8 @@ const AIAuditScannerModal = ({ isOpen, onClose }) => {
   const [scanState, setScanState] = useState("idle"); // idle, scanning, complete
   const [progress, setProgress] = useState(0);
   const [currentLog, setCurrentLog] = useState("");
+  const [auditData, setAuditData] = useState(null);
+  const [isRealScanDone, setIsRealScanDone] = useState(false);
 
   const logs = [
     "Initialisation de l'Agent IA...",
@@ -2724,23 +2726,101 @@ const AIAuditScannerModal = ({ isOpen, onClose }) => {
     "Finalisation du rapport..."
   ];
 
+  // Reset state when opening/closing
+  useEffect(() => {
+    if (!isOpen) {
+      setScanState("idle");
+      setProgress(0);
+      setUrl("");
+      setCurrentLog("");
+      setAuditData(null);
+      setIsRealScanDone(false);
+    }
+  }, [isOpen]);
+
+  // Handle the progress snapping to 100 once real scan is done
+  useEffect(() => {
+    if (progress >= 95 && isRealScanDone && scanState === 'scanning') {
+      setProgress(100);
+      setTimeout(() => setScanState("complete"), 600);
+    }
+  }, [progress, isRealScanDone, scanState]);
+
+  const fetchRealAudit = async (targetUrl) => {
+    const defaultFallback = {
+      timeSaved: "25h+ / semaine",
+      bottlenecks: [
+        { title: "Support de niveau 1 saturé", description: "Déploiement d'un agent IA multilingue connecté à votre base de données pour absorber 80% des tickets en temps réel.", icon: "bot" },
+        { title: "Abandon de panier inexploité", description: "Automatisation d'un Voice Agent IA qui rappelle instantanément les paniers premium avec une offre personnalisée.", icon: "refresh" },
+        { title: "Saisie manuelle CRM / Facturation", description: "Synchronisation Make instantanée entre vos paiements (Stripe) et votre comptabilité ou votre CRM de vente.", icon: "database" }
+      ]
+    };
+
+    try {
+      // 1. Scrape with Jina
+      const jinaUrl = targetUrl.startsWith('http') ? targetUrl : `https://${targetUrl}`;
+      const scrapeRes = await fetch(`https://r.jina.ai/${jinaUrl}`);
+      if (!scrapeRes.ok) throw new Error("Scraping failed");
+      const pageText = await scrapeRes.text();
+      const contentExcerpt = pageText.substring(0, 5000); // Take first 5k chars to be safe
+
+      // 2. Analyze with Gemini
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) throw new Error("No Gemini API key");
+
+      const prompt = `Tu es un architecte système expert en IA. Voici le contenu textuel extrait du site web d'un prospect : \n\n"${contentExcerpt}"\n\nAnalyse son activité et propose 3 goulots d'étranglement ou automatisations IA très ciblées (ex: prospection métier, support spécifique, devis, etc.). Retourne UNIQUEMENT un JSON valide respectant cette structure exacte : {"timeSaved": "estimation réaliste", "bottlenecks": [ {"title": "Titre court", "description": "L'opportunité d'automatisation IA", "icon": "bot" | "refresh" | "database" } ] }`;
+
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json" }
+      };
+
+      const aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!aiRes.ok) throw new Error("Gemini API error");
+
+      const result = await aiRes.json();
+      const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (jsonText) {
+        setAuditData(JSON.parse(jsonText));
+      } else {
+        throw new Error("No valid JSON from Gemini");
+      }
+    } catch (err) {
+      console.error("Real Audit Failed, using fallback:", err);
+      // Fallback
+      setAuditData(defaultFallback);
+    } finally {
+      setIsRealScanDone(true);
+    }
+  };
+
   const handleStartScan = (e) => {
     e.preventDefault();
     if (!url || !url.includes('.')) return;
 
     setScanState("scanning");
     setProgress(0);
+    setIsRealScanDone(false);
 
     let currentLogIndex = 0;
     setCurrentLog(logs[0]);
 
+    // Start background fetch
+    fetchRealAudit(url);
+
     const interval = setInterval(() => {
       setProgress(prev => {
-        const next = prev + (Math.random() * 15);
-        if (next >= 100) {
+        const next = prev + (Math.random() * 12);
+
+        // If scan isn't done, cap at 95%
+        if (next >= 95) {
           clearInterval(interval);
-          setTimeout(() => setScanState("complete"), 800);
-          return 100;
+          return 95;
         }
 
         // Update log based on progress
@@ -2886,31 +2966,23 @@ const AIAuditScannerModal = ({ isOpen, onClose }) => {
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Analyse terminée avec succès !</h3>
                 <p className="text-zinc-400 font-medium mb-10 leading-relaxed">
-                  L'IA a détecté <strong className="text-white">3 goulots d'étranglement majeurs</strong> sur <span className="text-emerald-400 font-mono">{url}</span>. La résolution de ces processus vous ferait économiser <strong className="text-white bg-white/10 px-2 py-0.5 rounded">25h+ / semaine</strong>.
+                  L'IA a détecté <strong className="text-white">3 goulots d'étranglement majeurs</strong> sur <span className="text-emerald-400 font-mono">{url}</span>. La résolution de ces processus vous ferait économiser <strong className="text-white bg-white/10 px-2 py-0.5 rounded">{auditData?.timeSaved || "25h+ / semaine"}</strong>.
                 </p>
 
                 <div className="text-left space-y-4 mb-10">
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:border-white/20 transition-all">
-                    <div className="mt-1"><Bot className="w-5 h-5 text-emerald-400" /></div>
-                    <div>
-                      <h4 className="text-white font-bold mb-1">Support de niveau 1 saturé</h4>
-                      <p className="text-sm text-gray-400">Déploiement d'un agent IA multilingue connecté à votre base de données pour absorber 80% des tickets en temps réel.</p>
+                  {auditData?.bottlenecks?.map((neck, idx) => (
+                    <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:border-white/20 transition-all">
+                      <div className="mt-1">
+                        {neck.icon === 'refresh' ? <RefreshCw className="w-5 h-5 text-amber-400" /> :
+                          neck.icon === 'database' ? <Database className="w-5 h-5 text-blue-400" /> :
+                            <Bot className="w-5 h-5 text-emerald-400" />}
+                      </div>
+                      <div>
+                        <h4 className="text-white font-bold mb-1">{neck.title}</h4>
+                        <p className="text-sm text-gray-400">{neck.description}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:border-white/20 transition-all">
-                    <div className="mt-1"><RefreshCw className="w-5 h-5 text-amber-400" /></div>
-                    <div>
-                      <h4 className="text-white font-bold mb-1">Abandon de panier inexploité</h4>
-                      <p className="text-sm text-gray-400">Automatisation d'un Voice Agent IA qui rappelle instantanément les paniers premium avec une offre personnalisée.</p>
-                    </div>
-                  </div>
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:border-white/20 transition-all">
-                    <div className="mt-1"><Database className="w-5 h-5 text-blue-400" /></div>
-                    <div>
-                      <h4 className="text-white font-bold mb-1">Saisie manuelle CRM / Facturation</h4>
-                      <p className="text-sm text-gray-400">Synchronisation Make instantanée entre vos paiements (Stripe) et votre comptabilité ou votre CRM de vente.</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
