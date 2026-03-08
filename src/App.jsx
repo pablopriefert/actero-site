@@ -3206,7 +3206,7 @@ const LandingPage = ({ onNavigate }) => {
                 {/* === END MEGA MENU === */}
                 <button onClick={() => onNavigate('/tarifs')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Tarification</button>
                 <button onClick={() => onNavigate('/entreprise')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Entreprise</button>
-                <button onClick={() => onNavigate('/cas-client')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Cas Clients</button>
+                <button onClick={() => onNavigate('/faq')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">FAQ</button>
               </div>
 
               <div className="flex items-center gap-3">
@@ -3248,7 +3248,7 @@ const LandingPage = ({ onNavigate }) => {
                   { label: "Produits", action: () => { setIsMobileMenuOpen(false); scrollToId('comment-ca-marche'); } },
                   { label: "Tarification", action: () => { setIsMobileMenuOpen(false); onNavigate('/tarifs'); } },
                   { label: "Entreprise", action: () => { setIsMobileMenuOpen(false); onNavigate('/entreprise'); } },
-                  { label: "Cas Clients", action: () => { setIsMobileMenuOpen(false); onNavigate('/cas-client'); } },
+                  { label: "FAQ", action: () => { setIsMobileMenuOpen(false); onNavigate('/faq'); } },
                   { label: "Connexion", action: () => { setIsMobileMenuOpen(false); onNavigate('/login'); } },
                 ].map((item, i) => (
                   <button
@@ -3684,7 +3684,7 @@ const LandingPage = ({ onNavigate }) => {
             </div>
 
             <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-400">
-              <button onClick={() => onNavigate('/cas-client')} className="hover:text-emerald-400 transition-colors flex items-center gap-1"><Database className="w-3.5 h-3.5" /> Cas Clients</button>
+              <button onClick={() => onNavigate('/faq')} className="hover:text-emerald-400 transition-colors flex items-center gap-1"><HelpCircle className="w-3.5 h-3.5" /> FAQ</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Contact</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Mentions légales</button>
               <button onClick={() => alert("Page à venir prochainement !")} className="hover:text-white transition-colors">Confidentialité</button>
@@ -4106,7 +4106,7 @@ const CompanyPage = ({ onNavigate }) => {
               <button onClick={() => onNavigate('/')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Accueil</button>
               <button onClick={() => onNavigate('/tarifs')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Tarification</button>
               <span className="text-sm font-semibold text-white">Entreprise</span>
-              <button onClick={() => onNavigate('/cas-client')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Cas Clients</button>
+              <button onClick={() => onNavigate('/faq')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">FAQ</button>
             </div>
             <div className="flex items-center gap-3">
               <button onClick={() => onNavigate('/login')} className="hidden lg:block text-sm font-semibold text-gray-400 hover:text-white transition-colors">Connexion</button>
@@ -4122,7 +4122,7 @@ const CompanyPage = ({ onNavigate }) => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="mt-3 bg-[#0d0d0d]/95 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl p-6 space-y-1">
-              {[{ label: "Accueil", action: () => { setIsMobileMenuOpen(false); onNavigate('/'); } }, { label: "Tarification", action: () => { setIsMobileMenuOpen(false); onNavigate('/tarifs'); } }, { label: "Entreprise", action: () => { } }, { label: "Cas Clients", action: () => { setIsMobileMenuOpen(false); onNavigate('/cas-client'); } }, { label: "Connexion", action: () => { setIsMobileMenuOpen(false); onNavigate('/login'); } }].map((item, i) => (
+              {[{ label: "Accueil", action: () => { setIsMobileMenuOpen(false); onNavigate('/'); } }, { label: "Tarification", action: () => { setIsMobileMenuOpen(false); onNavigate('/tarifs'); } }, { label: "Entreprise", action: () => { } }, { label: "FAQ", action: () => { setIsMobileMenuOpen(false); onNavigate('/faq'); } }, { label: "Connexion", action: () => { setIsMobileMenuOpen(false); onNavigate('/login'); } }].map((item, i) => (
                 <button key={i} onClick={item.action} className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold ${item.label === 'Entreprise' ? 'text-white bg-white/5' : 'text-gray-300 hover:text-white hover:bg-white/5'} transition-all`}>{item.label}</button>
               ))}
               <div className="pt-3 border-t border-white/10"><ButtonColorful onClick={() => { setIsMobileMenuOpen(false); onNavigate('/'); }}>Demander un audit</ButtonColorful></div>
@@ -4233,7 +4233,7 @@ const CompanyPage = ({ onNavigate }) => {
           <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-400">
             <button onClick={() => onNavigate('/tarifs')} className="hover:text-white transition-colors">Tarification</button>
             <button onClick={() => onNavigate('/entreprise')} className="hover:text-white transition-colors">Entreprise</button>
-            <button onClick={() => onNavigate('/cas-client')} className="hover:text-white transition-colors">Cas Clients</button>
+            <button onClick={() => onNavigate('/faq')} className="hover:text-white transition-colors">FAQ</button>
           </div>
           <div className="text-center md:text-right">
             <p className="text-xs font-semibold text-gray-400">© {new Date().getFullYear()} Actero. All rights reserved.</p>
@@ -4343,7 +4343,7 @@ const PricingPage = ({ onNavigate }) => {
               <button onClick={() => onNavigate('/')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Accueil</button>
               <span className="text-sm font-semibold text-white">Tarification</span>
               <button onClick={() => onNavigate('/entreprise')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Entreprise</button>
-              <button onClick={() => onNavigate('/cas-client')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Cas Clients</button>
+              <button onClick={() => onNavigate('/faq')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">FAQ</button>
             </div>
             <div className="flex items-center gap-3">
               <button onClick={() => onNavigate('/login')} className="hidden lg:block text-sm font-semibold text-gray-400 hover:text-white transition-colors">Connexion</button>
@@ -4359,7 +4359,7 @@ const PricingPage = ({ onNavigate }) => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="mt-3 bg-[#0d0d0d]/95 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl p-6 space-y-1">
-              {[{ label: "Accueil", action: () => { setIsMobileMenuOpen(false); onNavigate('/'); } }, { label: "Tarification", action: () => { } }, { label: "Entreprise", action: () => { setIsMobileMenuOpen(false); onNavigate('/entreprise'); } }, { label: "Cas Clients", action: () => { setIsMobileMenuOpen(false); onNavigate('/cas-client'); } }, { label: "Connexion", action: () => { setIsMobileMenuOpen(false); onNavigate('/login'); } }].map((item, i) => (
+              {[{ label: "Accueil", action: () => { setIsMobileMenuOpen(false); onNavigate('/'); } }, { label: "Tarification", action: () => { } }, { label: "Entreprise", action: () => { setIsMobileMenuOpen(false); onNavigate('/entreprise'); } }, { label: "FAQ", action: () => { setIsMobileMenuOpen(false); onNavigate('/faq'); } }, { label: "Connexion", action: () => { setIsMobileMenuOpen(false); onNavigate('/login'); } }].map((item, i) => (
                 <button key={i} onClick={item.action} className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold ${item.label === 'Tarification' ? 'text-white bg-white/5' : 'text-gray-300 hover:text-white hover:bg-white/5'} transition-all`}>{item.label}</button>
               ))}
               <div className="pt-3 border-t border-white/10"><ButtonColorful onClick={() => { setIsMobileMenuOpen(false); onNavigate('/'); }}>Demander un audit</ButtonColorful></div>
@@ -4475,7 +4475,7 @@ const PricingPage = ({ onNavigate }) => {
           <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-400">
             <button onClick={() => onNavigate('/tarifs')} className="hover:text-white transition-colors">Tarification</button>
             <button onClick={() => onNavigate('/entreprise')} className="hover:text-white transition-colors">Entreprise</button>
-            <button onClick={() => onNavigate('/cas-client')} className="hover:text-white transition-colors">Cas Clients</button>
+            <button onClick={() => onNavigate('/faq')} className="hover:text-white transition-colors">FAQ</button>
           </div>
           <div className="text-center md:text-right">
             <p className="text-xs font-semibold text-gray-400">© {new Date().getFullYear()} Actero. All rights reserved.</p>
@@ -4487,73 +4487,23 @@ const PricingPage = ({ onNavigate }) => {
 };
 
 // ==========================================
-// 10. CASE STUDIES PAGE (updated)
-const CaseStudiesPage = ({ onNavigate }) => {
+// 10. FAQ PAGE
+// ==========================================
+const FaqPage = ({ onNavigate }) => {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
 
-  const stories = [
-    {
-      brand: "Maison Lumina",
-      category: "DNVB • Décoration",
-      headline: "Exécution plus rapide, meilleurs résultats",
-      description: "Support automatisé à 98% et taux de réachat en hausse de 18% grâce à un agent IA connecté à Shopify et Gorgias.",
-      metric: "98%",
-      metricLabel: "tickets automatisés",
-      color: "emerald",
-    },
-    {
-      brand: "NovaSkin",
-      category: "Cosmétiques • DTC",
-      headline: "De 0 à un canal d'acquisition rentable",
-      description: "NovaSkin a lancé ses premières campagnes automatisées avec Actero. En 3 mois, l'acquisition payante est devenue un pilier de croissance avec un ROAS exceptionnel.",
-      metric: "12x",
-      metricLabel: "ROAS moyen",
-      color: "purple",
-    },
-    {
-      brand: "FitPro Nutrition",
-      category: "Nutrition sportive • E-commerce",
-      headline: "Transition du lead gen vers l'e-commerce",
-      description: "FitPro luttait pour passer d'un modèle lead-gen à la vente directe. Actero a restructuré leur stack et ils opèrent maintenant à 10x de retour sur investissement.",
-      metric: "10x",
-      metricLabel: "retour pub",
-      color: "amber",
-    },
-    {
-      brand: "UrbanWear",
-      category: "Mode streetwear • Shopify Plus",
-      headline: "Stabiliser la performance Meta à grande échelle",
-      description: "Les campagnes Meta étaient volatiles. Après le déploiement d'Actero, les performances se sont stabilisées à ~20x ROAS, restaurant la confiance dans Meta comme canal d'acquisition.",
-      metric: "20x",
-      metricLabel: "ROAS Meta",
-      color: "emerald",
-    },
-    {
-      brand: "TerraCraft",
-      category: "Artisanat • Marketplace",
-      headline: "Scaling sans expertise pub interne",
-      description: "TerraCraft n'avait jamais lancé de pub payante. Avec Actero, l'acquisition est devenue profitable dès le premier mois sans embaucher de media buyer.",
-      metric: "7.5x",
-      metricLabel: "ROAS premier mois",
-      color: "purple",
-    },
-    {
-      brand: "Chrono Luxe",
-      category: "Montres de luxe • High-ticket",
-      headline: "Scalez le high-ticket avec efficacité",
-      description: "Dans un secteur où chaque conversion compte, Chrono Luxe a atteint un retour pub exceptionnel sur des produits à plus de 3000€ grâce à une segmentation IA.",
-      metric: "150x",
-      metricLabel: "retour sur investissement",
-      color: "amber",
-    },
+  const faqs = [
+    { q: "Comment fonctionne la période d'essai ?", a: "L'Audit System est entièrement gratuit et sans engagement. Vous obtenez un diagnostic complet de vos opérations avant de décider de passer à l'étape suivante." },
+    { q: "Puis-je changer de plan à tout moment ?", a: "Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements prennent effet au prochain cycle de facturation." },
+    { q: "Mes données sont-elles sécurisées ?", a: "Absolument. Nous utilisons un chiffrement AES-256, des audits SOC 2 réguliers, et vos données ne sont jamais partagées avec des tiers. Vous gardez le contrôle total." },
+    { q: "Combien de temps prend le déploiement ?", a: "En moyenne 7 jours ouvrés pour notre infrastructure standard. Le forfait sur mesure nécessite un onboarding plus approfondi de 2-3 semaines." },
+    { q: "Quelles intégrations supportez-vous ?", a: "Nous nous connectons nativement à Shopify, Klaviyo, Gorgias, Make, Zapier, et des dizaines d'autres outils. Des intégrations custom sont disponibles sur demande." },
+    { q: "L'agent IA peut-il gérer des réclamations complexes ?", a: "Notre agent de Niveau 1 résout automatiquement ~70% des requêtes (suivi de colis, retours d'infos simples). Les cas complexes ou à forte charge émotionnelle sont escaladés instantanément à un agent humain avec tout le contexte de la conversation." },
+    { q: "L'IA peut-elle s'exprimer avec le ton de ma marque ?", a: "Oui, lors du déploiement, nous injectons vos guidelines de marque, vos historiques de tickets et votre ligne éditoriale pour que l'agent imite parfaitement votre voix vis-à-vis de vos clients." },
+    { q: "Qu'est-ce qui vous différencie d'une simple agence ?", a: "Nous ne sommes pas des consultants, nous construisons des infrastructures. Nous installons un système propriétaire connecté à votre e-commerce pour que votre croissance soit mécanisée et non plus dépendante uniquement d'efforts humains de dernière minute." }
   ];
-
-  const colorMap = {
-    emerald: { bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-400", glow: "shadow-emerald-500/10" },
-    purple: { bg: "bg-purple-500/10", border: "border-purple-500/20", text: "text-purple-400", glow: "shadow-purple-500/10" },
-    amber: { bg: "bg-amber-500/10", border: "border-amber-500/20", text: "text-amber-400", glow: "shadow-amber-500/10" },
-  };
 
   return (
     <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
@@ -4570,7 +4520,7 @@ const CaseStudiesPage = ({ onNavigate }) => {
               <button onClick={() => onNavigate('/')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Accueil</button>
               <button onClick={() => onNavigate('/tarifs')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Tarification</button>
               <button onClick={() => onNavigate('/entreprise')} className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Entreprise</button>
-              <span className="text-sm font-semibold text-white">Cas Clients</span>
+              <span className="text-sm font-semibold text-white">FAQ</span>
             </div>
             <div className="flex items-center gap-3">
               <button onClick={() => onNavigate('/login')} className="hidden lg:block text-sm font-semibold text-gray-400 hover:text-white transition-colors">Connexion</button>
@@ -4586,8 +4536,8 @@ const CaseStudiesPage = ({ onNavigate }) => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }} className="mt-3 bg-[#0d0d0d]/95 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl p-6 space-y-1">
-              {[{ label: "Accueil", action: () => { setIsMobileMenuOpen(false); onNavigate('/'); } }, { label: "Tarification", action: () => { setIsMobileMenuOpen(false); onNavigate('/tarifs'); } }, { label: "Entreprise", action: () => { setIsMobileMenuOpen(false); onNavigate('/entreprise'); } }, { label: "Cas Clients", action: () => { } }, { label: "Connexion", action: () => { setIsMobileMenuOpen(false); onNavigate('/login'); } }].map((item, i) => (
-                <button key={i} onClick={item.action} className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold ${item.label === 'Cas Clients' ? 'text-white bg-white/5' : 'text-gray-300 hover:text-white hover:bg-white/5'} transition-all`}>{item.label}</button>
+              {[{ label: "Accueil", action: () => { setIsMobileMenuOpen(false); onNavigate('/'); } }, { label: "Tarification", action: () => { setIsMobileMenuOpen(false); onNavigate('/tarifs'); } }, { label: "Entreprise", action: () => { setIsMobileMenuOpen(false); onNavigate('/entreprise'); } }, { label: "FAQ", action: () => { } }, { label: "Connexion", action: () => { setIsMobileMenuOpen(false); onNavigate('/login'); } }].map((item, i) => (
+                <button key={i} onClick={item.action} className={`w-full text-left px-4 py-3 rounded-xl text-base font-semibold ${item.label === 'FAQ' ? 'text-white bg-white/5' : 'text-gray-300 hover:text-white hover:bg-white/5'} transition-all`}>{item.label}</button>
               ))}
               <div className="pt-3 border-t border-white/10"><ButtonColorful onClick={() => { setIsMobileMenuOpen(false); onNavigate('/'); }}>Demander un audit</ButtonColorful></div>
             </motion.div>
@@ -4598,57 +4548,45 @@ const CaseStudiesPage = ({ onNavigate }) => {
       <main className="pt-32 pb-20 px-6">
 
         {/* HERO */}
-        <div className="max-w-5xl mx-auto text-center mb-24">
+        <div className="max-w-5xl mx-auto text-center mb-20">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-bold text-gray-300 mb-8">
-            <Database className="w-4 h-4 text-emerald-400" /> Success Stories
+            <HelpCircle className="w-4 h-4 text-emerald-400" /> Support Intégral
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter mb-8 bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent">
-            Des résultats.<br />Pas des promesses.
+            Questions fréquentes.<br />Réponses claires.
           </h1>
           <p className="text-xl md:text-2xl text-gray-400 font-medium max-w-3xl mx-auto leading-relaxed">
-            Découvrez comment des marques e-commerce transforment leurs opérations avec l'infrastructure Actero.
+            Trouvez rapidement toutes les réponses concernant notre architecture complète d'automatisation d'entreprise.
           </p>
         </div>
 
-        {/* STORIES GRID */}
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6 mb-32">
-          {stories.map((s, i) => {
-            const c = colorMap[s.color];
-            return (
-              <div key={i} className="bg-[#0a0a0a] border border-white/[0.08] rounded-3xl p-8 hover:border-white/20 transition-all group relative overflow-hidden">
-                <div className={`absolute top-0 right-0 w-32 h-32 ${c.bg} rounded-full blur-[60px] opacity-40`}></div>
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">{s.category}</p>
-                      <h3 className="text-xl font-bold text-white">{s.brand}</h3>
-                    </div>
-                    <div className={`py-2 px-4 rounded-2xl ${c.bg} ${c.border} border`}>
-                      <span className={`text-2xl font-extrabold ${c.text}`}>{s.metric}</span>
-                      <p className={`text-[10px] font-bold ${c.text} opacity-70 uppercase tracking-wider`}>{s.metricLabel}</p>
-                    </div>
+        {/* FAQ ACCORDION */}
+        <div className="max-w-3xl mx-auto mb-32">
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div key={i} className="bg-[#0a0a0a] border border-white/[0.08] hover:border-white/20 transition-all rounded-3xl overflow-hidden group">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-7 md:p-8 text-left"
+                >
+                  <span className="font-bold text-lg md:text-xl text-white pr-4">{faq.q}</span>
+                  <div className={`flex-shrink-0 transition-transform duration-300 bg-white/5 border border-white/10 rounded-full p-2 group-hover:bg-white/10 ${openFaq === i ? 'rotate-45' : ''}`}>
+                    <Plus className="w-5 h-5 text-gray-400" />
                   </div>
-                  <h4 className="text-lg font-bold text-white/90 mb-3">{s.headline}</h4>
-                  <p className="text-gray-400 font-medium leading-relaxed">{s.description}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* SOCIAL PROOF STRIP */}
-        <div className="max-w-4xl mx-auto text-center mb-24">
-          <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-8">Fait confiance par des équipes growth partout en France</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { end: 42, suffix: "h", label: "Temps moyen sauvé / mois" },
-              { end: 98, suffix: "%", label: "Taux d'automatisation" },
-              { end: 12, suffix: "x", label: "ROAS moyen clients" },
-              { end: 7, suffix: "j", label: "Temps de déploiement" },
-            ].map((m, i) => (
-              <div key={i} className="bg-[#0a0a0a] border border-white/[0.08] rounded-2xl p-6">
-                <div className="text-3xl font-extrabold text-white mb-1"><AnimatedNumber end={m.end} suffix={m.suffix} /></div>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{m.label}</p>
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className="px-7 md:px-8 pb-8 -mt-2 overflow-hidden"
+                    >
+                      <p className="text-gray-400 text-lg font-medium leading-relaxed">{faq.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ))}
           </div>
@@ -4658,11 +4596,11 @@ const CaseStudiesPage = ({ onNavigate }) => {
         <div className="max-w-4xl mx-auto text-center bg-gradient-to-b from-[#0a0a0a] to-[#030303] border border-white/10 rounded-3xl p-12 md:p-16 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px]"></div>
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-[80px]"></div>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 relative z-10">Écrivez votre propre success story.</h2>
-          <p className="text-gray-400 font-medium mb-8 max-w-lg mx-auto relative z-10">Réservez un audit stratégique gratuit pour identifier les goulots d'étranglement de vos opérations.</p>
-          <button onClick={() => onNavigate('/')} className="bg-white text-black px-8 py-4 rounded-xl font-bold hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.1)] relative z-10">
-            Réserver mon audit gratuit
-          </button>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 relative z-10">Vous n'avez pas trouvé votre réponse ?</h2>
+          <p className="text-gray-400 font-medium mb-8 max-w-lg mx-auto relative z-10">Réservez un appel gratuit avec un ingénieur Actero pour auditer ensemble vos opérations.</p>
+          <a href="mailto:contact@actero.fr?subject=Demande de rendez-vous - Actero" className="inline-block bg-white text-black px-8 py-4 rounded-xl font-bold hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.1)] relative z-10">
+            Nous contacter
+          </a>
         </div>
 
       </main>
@@ -4677,7 +4615,7 @@ const CaseStudiesPage = ({ onNavigate }) => {
           <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-400">
             <button onClick={() => onNavigate('/tarifs')} className="hover:text-white transition-colors">Tarification</button>
             <button onClick={() => onNavigate('/entreprise')} className="hover:text-white transition-colors">Entreprise</button>
-            <button onClick={() => onNavigate('/cas-client')} className="hover:text-white transition-colors">Cas Clients</button>
+            <button onClick={() => onNavigate('/faq')} className="hover:text-white transition-colors">FAQ</button>
           </div>
           <div className="text-center md:text-right">
             <p className="text-xs font-semibold text-gray-400">© {new Date().getFullYear()} Actero. All rights reserved.</p>
@@ -4761,8 +4699,8 @@ function MainRouter() {
     return <PricingPage onNavigate={navigate} />;
   }
 
-  if (currentRoute === '/cas-client') {
-    return <CaseStudiesPage onNavigate={navigate} />;
+  if (currentRoute === '/faq') {
+    return <FaqPage onNavigate={navigate} />;
   }
 
   if (currentRoute === '/payment/success') {
