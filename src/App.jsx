@@ -468,12 +468,7 @@ const LoginPage = ({ onNavigate, onLogin }) => {
         email,
         password,
       });
-      const intent = localStorage.getItem('checkout_intent');
-      if (intent) {
-        onNavigate('/tarifs');
-      } else {
-        onNavigate('/app');
-      }
+      onNavigate('/app');
 
     } catch (err) {
       setError(isForgot
@@ -4008,13 +4003,8 @@ function AuthCallbackPage({ onNavigate }) {
 
         if (error) throw error;
         if (session && mounted) {
-          logger("Session existante !");
-          const intent = localStorage.getItem('checkout_intent');
-          if (intent) {
-            onNavigate('/tarifs');
-          } else {
-            onNavigate('/app');
-          }
+          logger("Session existante ! Routing to /app");
+          onNavigate('/app');
         }
       } catch (err) {
         if (mounted) setErrorMsg(err.message || "Erreur lors de la récupération de la session.");
@@ -4028,13 +4018,8 @@ function AuthCallbackPage({ onNavigate }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       logger("onAuthStateChange emitted:", event, session ? "Session Active" : "No Session");
       if (session && mounted) {
-        logger("Session caught via listener.");
-        const intent = localStorage.getItem('checkout_intent');
-        if (intent) {
-          onNavigate('/tarifs');
-        } else {
-          onNavigate('/app');
-        }
+        logger("Session caught via listener. Routing to /app");
+        onNavigate('/app');
       }
     });
 
@@ -4265,64 +4250,14 @@ const CompanyPage = ({ onNavigate }) => {
 const PricingPage = ({ onNavigate }) => {
   useEffect(() => {
     window.scrollTo(0, 0);
-    const intent = localStorage.getItem('checkout_intent');
-    if (intent) {
-      localStorage.removeItem('checkout_intent');
-      handleCheckout(intent);
-    }
   }, []);
 
   const [openFaq, setOpenFaq] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleCheckout = async (planId) => {
-    if (planId === 'free') {
-      onNavigate('/login');
-      return;
-    }
-    if (planId === 'contact') {
-      window.location.href = "mailto:contact@actero.fr";
-      return;
-    }
-
-    try {
-      setIsProcessing(true);
-      // Verify login
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        // Not logged in -> redirect to login but save intent
-        localStorage.setItem('checkout_intent', planId);
-        onNavigate('/login');
-        return;
-      }
-
-      // Call Edge Function
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({
-          plan: planId,
-          returnUrl: window.location.origin
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.url) {
-        window.location.href = data.url; // Redirect to Stripe
-      } else {
-        throw new Error(data.error || "Erreur lors de la création de la session de paiement.");
-      }
-    } catch (err) {
-      alert("Une erreur est survenue : " + err.message);
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleBookCall = () => {
+    // Modify this link to redirect to the correct Calendly/Tally link if needed
+    window.location.href = "mailto:contact@actero.fr?subject=Demande de rendez-vous - Actero";
   };
 
   const plans = [
@@ -4346,8 +4281,8 @@ const PricingPage = ({ onNavigate }) => {
     {
       id: "croissance_automatisee",
       name: "Croissance Automatisée",
-      price: "1 199€",
-      period: "/mois",
+      price: "Sur devis",
+      period: "",
       description: "L'infrastructure complète pour automatiser votre croissance sur 3 canaux avec un agent IA dédié.",
       features: [
         "Tout dans Audit System",
@@ -4359,8 +4294,7 @@ const PricingPage = ({ onNavigate }) => {
         "Account manager dédié",
         "Reporting hebdomadaire",
       ],
-      cta: "Débuter mon essai",
-      secondaryCta: "Ou réserver un appel de conseil",
+      cta: "Réserver un appel",
       highlighted: true,
       color: "emerald",
     },
@@ -4480,18 +4414,13 @@ const PricingPage = ({ onNavigate }) => {
               </ul>
               <div className="mt-auto pt-8">
                 <button
-                  onClick={() => handleCheckout(plan.id)}
-                  disabled={isProcessing}
+                  onClick={plan.id === 'free' ? () => onNavigate('/login') : handleBookCall}
                   className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:scale-105 flex items-center justify-center gap-2 ${plan.highlighted
-                    ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20 disabled:bg-emerald-500/50 disabled:cursor-not-allowed'
-                    : 'bg-white/5 border border-white/10 text-white hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed'
+                    ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20'
+                    : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
                     }`}
                 >
-                  {isProcessing && plan.highlighted ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-black" />
-                  ) : (
-                    <>{plan.cta} <ArrowUpRight className="w-4 h-4 ml-1" /></>
-                  )}
+                  {plan.cta} <ArrowUpRight className="w-4 h-4 ml-1" />
                 </button>
                 {plan.secondaryCta && (
                   <button
