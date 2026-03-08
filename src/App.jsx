@@ -4674,6 +4674,15 @@ function MainRouter() {
   const [currentRoute, setCurrentRoute] = useState('/');
   const [isRouting, setIsRouting] = useState(true);
 
+  // Synchroniser l'état avec l'URL (boutons Précédent/Suivant du navigateur)
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentRoute(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   useEffect(() => {
     const path = window.location.pathname;
     const hash = window.location.hash;
@@ -4684,11 +4693,9 @@ function MainRouter() {
       logger("Recovery hash found, routing to /reset-password");
       setCurrentRoute("/reset-password");
     } else if (path === '/auth/callback' || hash.includes("access_token=")) {
-      // Catch Supabase magic links or invite links that drop tokens in the hash
       logger("Auth hash or callback path found, routing to /auth/callback");
       setCurrentRoute("/auth/callback");
     } else if (path !== '/') {
-      // Very basic sync for manual URL entry if needed (optional, just safety)
       logger("Manual path entry:", path);
       setCurrentRoute(path);
     }
@@ -4696,47 +4703,52 @@ function MainRouter() {
     setIsRouting(false);
   }, []);
 
+  // Fonction de navigation qui met à jour l'URL nativement
+  const navigate = (path) => {
+    window.history.pushState({}, '', path);
+    setCurrentRoute(path);
+    window.scrollTo(0, 0); // Scroll to top on navigation
+  };
+
   const handleLogout = async () => {
     if (isSupabaseConfigured && supabase) {
       await supabase.auth.signOut();
     }
-    setCurrentRoute('/');
-    // Clear hash and path visually
-    window.history.replaceState({}, document.title, "/");
+    navigate('/');
   };
 
-  if (isRouting) return null; // Prevent flash of wrong content
+  if (isRouting) return null;
 
   if (currentRoute === '/') {
-    return <LandingPage onNavigate={setCurrentRoute} />;
+    return <LandingPage onNavigate={navigate} />;
   }
 
   if (currentRoute === '/login') {
-    return <LoginPage onNavigate={setCurrentRoute} />;
+    return <LoginPage onNavigate={navigate} />;
   }
 
   if (currentRoute === '/reset-password') {
-    return <ResetPasswordPage onNavigate={setCurrentRoute} />;
+    return <ResetPasswordPage onNavigate={navigate} />;
   }
 
   if (currentRoute === '/auth/callback') {
-    return <AuthCallbackPage onNavigate={setCurrentRoute} />;
+    return <AuthCallbackPage onNavigate={navigate} />;
   }
 
   if (currentRoute === '/entreprise') {
-    return <CompanyPage onNavigate={setCurrentRoute} />;
+    return <CompanyPage onNavigate={navigate} />;
   }
 
   if (currentRoute === '/tarifs') {
-    return <PricingPage onNavigate={setCurrentRoute} />;
+    return <PricingPage onNavigate={navigate} />;
   }
 
   if (currentRoute === '/cas-client') {
-    return <CaseStudiesPage onNavigate={setCurrentRoute} />;
+    return <CaseStudiesPage onNavigate={navigate} />;
   }
 
   if (currentRoute === '/app' || currentRoute === '/admin') {
-    return <DashboardGate currentRoute={currentRoute} onNavigate={setCurrentRoute} onLogout={handleLogout} />;
+    return <DashboardGate currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;
   }
 
   return (
@@ -4744,7 +4756,7 @@ function MainRouter() {
       <div className="text-center p-8 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-sm">
         <AlertCircle className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-white mb-2">Page introuvable</h2>
-        <button onClick={() => setCurrentRoute('/')} className="bg-white text-zinc-900 px-6 py-3 rounded-xl font-bold hover:bg-zinc-800 transition-colors mt-6">Retour à l'accueil</button>
+        <button onClick={() => navigate('/')} className="bg-white text-zinc-900 px-6 py-3 rounded-xl font-bold hover:bg-zinc-800 transition-colors mt-6">Retour à l'accueil</button>
       </div>
     </div>
   );
