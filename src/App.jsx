@@ -4947,25 +4947,31 @@ const LandingPage = ({ onNavigate }) => {
                     {[...Array(2)].map((_, setIdx) => (
                       <React.Fragment key={setIdx}>
                         {[
-                          "Shopify",
-                          "Stripe",
-                          "Klaviyo",
-                          "Make",
-                          "n8n",
-                          "HubSpot",
-                          "Zendesk",
-                          "Slack",
-                          "OpenAI",
-                          "Intercom",
-                          "Salesforce",
-                          "Zapier",
-                        ].map((name, i) => (
-                          <span
+                          { name: "Shopify", icon: "shopify" },
+                          { name: "Stripe", icon: "stripe" },
+                          { name: "Klaviyo", icon: "klaviyo" },
+                          { name: "Make", icon: "make" },
+                          { name: "n8n", icon: "n8n" },
+                          { name: "HubSpot", icon: "hubspot" },
+                          { name: "Zendesk", icon: "zendesk" },
+                          { name: "Slack", icon: "slack" },
+                          { name: "OpenAI", icon: "openai" },
+                          { name: "Intercom", icon: "intercom" },
+                          { name: "Salesforce", icon: "salesforce" },
+                          { name: "Zapier", icon: "zapier" },
+                        ].map((tech, i) => (
+                          <div
                             key={`${setIdx}-${i}`}
-                            className="text-xl md:text-2xl font-bold text-white/10 hover:text-white/30 transition-colors duration-500 select-none flex-shrink-0"
+                            className="group flex items-center gap-3 text-xl md:text-2xl font-bold text-white/30 hover:text-white transition-all duration-500 select-none flex-shrink-0"
                           >
-                            {name}
-                          </span>
+                            <img
+                              src={`https://cdn.simpleicons.org/${tech.icon}/ffffff`}
+                              alt={tech.name}
+                              className="w-8 h-8 md:w-10 md:h-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                              loading="lazy"
+                            />
+                            <span>{tech.name}</span>
+                          </div>
                         ))}
                       </React.Fragment>
                     ))}
