@@ -4845,11 +4845,16 @@ function MainRouter() {
           </div>
           <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">Paiement validé !</h2>
           <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-            Merci pour votre confiance. Votre infrastructure de croissance est prête à être déployée. Vous pouvez maintenant accéder à votre tableau de bord.
+            Merci pour votre confiance. Pour configurer votre infrastructure, nous avons besoin de quelques informations sur votre marque.
           </p>
-          <button onClick={() => navigate('/app')} className="w-full bg-white text-zinc-900 px-6 py-4 rounded-xl font-bold hover:bg-zinc-200 transition-colors shadow-lg">
-            Accéder à mon espace
-          </button>
+          <a
+            href="https://tally.so/r/nPW7M2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-white text-zinc-900 px-6 py-4 rounded-xl font-bold hover:bg-zinc-200 transition-colors shadow-lg flex items-center justify-center gap-2"
+          >
+            Remplir le formulaire d'onboarding <ArrowUpRight className="w-5 h-5" />
+          </a>
         </div>
       </div>
     );
