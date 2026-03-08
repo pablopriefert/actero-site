@@ -4962,12 +4962,12 @@ const LandingPage = ({ onNavigate }) => {
                         ].map((tech, i) => (
                           <div
                             key={`${setIdx}-${i}`}
-                            className="group flex items-center gap-3 text-xl md:text-2xl font-bold text-white/30 hover:text-white transition-all duration-500 select-none flex-shrink-0"
+                            className="group flex items-center gap-3 text-xl md:text-2xl font-bold text-white/70 hover:text-white transition-all duration-500 select-none flex-shrink-0"
                           >
                             <img
                               src={`https://cdn.simpleicons.org/${tech.icon}/ffffff`}
                               alt={tech.name}
-                              className="w-8 h-8 md:w-10 md:h-10 opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                              className="w-8 h-8 md:w-10 md:h-10 opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
                               loading="lazy"
                             />
                             <span>{tech.name}</span>
