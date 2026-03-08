@@ -4324,10 +4324,10 @@ const AIAuditScannerModal = ({ isOpen, onClose }) => {
           {/* Subtle background glow depending on state */}
           <div
             className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] transition-colors duration-1000 pointer-events-none ${scanState === "idle"
-                ? "bg-zinc-500/10"
-                : scanState === "scanning"
-                  ? "bg-amber-500/10 animate-pulse"
-                  : "bg-emerald-500/20"
+              ? "bg-zinc-500/10"
+              : scanState === "scanning"
+                ? "bg-amber-500/10 animate-pulse"
+                : "bg-emerald-500/20"
               }`}
           ></div>
 
@@ -6660,11 +6660,22 @@ const PricingPage = ({ onNavigate }) => {
         {/* PRICING CARDS */}
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 mb-32">
           {plans.map((plan, i) => (
-            <div
+            <motion.div
               key={i}
-              className={`relative flex flex-col rounded-3xl p-8 border transition-all hover:scale-[1.02] duration-300 ${plan.highlighted
-                  ? "bg-gradient-to-b from-emerald-500/10 to-[#0a0a0a] border-emerald-500/30 shadow-[0_0_60px_rgba(16,185,129,0.12)]"
-                  : "bg-[#0a0a0a] border-white/[0.08] hover:border-white/20"
+              initial={{ opacity: 0, y: 30, rotateX: -15 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
+              transition={{ duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{
+                scale: 1.03,
+                rotateX: 4,
+                rotateY: -4,
+                z: 30,
+                transition: { type: "spring", stiffness: 300, damping: 20 }
+              }}
+              style={{ transformPerspective: 1000, transformStyle: "preserve-3d" }}
+              className={`relative flex flex-col rounded-3xl p-8 border transition-colors ${plan.highlighted
+                ? "bg-gradient-to-b from-emerald-500/10 to-[#0a0a0a] border-emerald-500/30 shadow-[0_0_60px_rgba(16,185,129,0.12)] hover:border-emerald-500/50"
+                : "bg-[#0a0a0a] border-white/[0.08] hover:border-white/20"
                 }`}
             >
               {plan.highlighted && (
@@ -6707,8 +6718,8 @@ const PricingPage = ({ onNavigate }) => {
                       : handleBookCall
                   }
                   className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:scale-105 flex items-center justify-center gap-2 ${plan.highlighted
-                      ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
-                      : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
+                    ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
+                    : "bg-white/5 border border-white/10 text-white hover:bg-white/10"
                     }`}
                 >
                   {plan.cta} <ArrowUpRight className="w-4 h-4 ml-1" />
@@ -6722,7 +6733,7 @@ const PricingPage = ({ onNavigate }) => {
                   </button>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -6738,9 +6749,14 @@ const PricingPage = ({ onNavigate }) => {
           </div>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="bg-[#0a0a0a] border border-white/[0.08] rounded-2xl overflow-hidden"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ scale: 1.01, rotateX: 2, transition: { duration: 0.2 } }}
+                style={{ transformPerspective: 800 }}
+                className="bg-[#0a0a0a] border border-white/[0.08] hover:border-white/20 transition-all rounded-3xl overflow-hidden group"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -6760,7 +6776,7 @@ const PricingPage = ({ onNavigate }) => {
                     </p>
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -6806,8 +6822,8 @@ const PricingPage = ({ onNavigate }) => {
             </p>
           </div>
         </div>
-      </footer>
-    </div>
+      </footer >
+    </div >
   );
 };
 
@@ -7004,8 +7020,13 @@ const FaqPage = ({ onNavigate }) => {
         <div className="max-w-3xl mx-auto mb-32">
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <div
+              <motion.div
                 key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ scale: 1.01, rotateX: 2, transition: { duration: 0.2 } }}
+                style={{ transformPerspective: 800 }}
                 className="bg-[#0a0a0a] border border-white/[0.08] hover:border-white/20 transition-all rounded-3xl overflow-hidden group"
               >
                 <button
@@ -7036,7 +7057,7 @@ const FaqPage = ({ onNavigate }) => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
