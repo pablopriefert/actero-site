@@ -4386,10 +4386,21 @@ const PricingPage = ({ onNavigate }) => {
         {/* PRICING CARDS */}
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 mb-32">
           {plans.map((plan, i) => (
-            <div
+            <motion.div
               key={i}
-              className={`relative flex flex-col rounded-3xl p-8 border transition-all hover:scale-[1.02] duration-300 ${plan.highlighted
-                ? 'bg-gradient-to-b from-emerald-500/10 to-[#0a0a0a] border-emerald-500/30 shadow-[0_0_60px_rgba(16,185,129,0.12)]'
+              initial={{ opacity: 0, y: 30, rotateX: -15 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
+              transition={{ duration: 0.6, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{
+                scale: 1.03,
+                rotateX: 4,
+                rotateY: -4,
+                z: 30,
+                transition: { type: "spring", stiffness: 300, damping: 20 }
+              }}
+              style={{ transformPerspective: 1000, transformStyle: "preserve-3d" }}
+              className={`relative flex flex-col rounded-3xl p-8 border transition-colors ${plan.highlighted
+                ? 'bg-gradient-to-b from-emerald-500/10 to-[#0a0a0a] border-emerald-500/30 shadow-[0_0_60px_rgba(16,185,129,0.12)] hover:border-emerald-500/50'
                 : 'bg-[#0a0a0a] border-white/[0.08] hover:border-white/20'
                 }`}
             >
@@ -4431,7 +4442,7 @@ const PricingPage = ({ onNavigate }) => {
                   </button>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -4443,7 +4454,15 @@ const PricingPage = ({ onNavigate }) => {
           </div>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <div key={i} className="bg-[#0a0a0a] border border-white/[0.08] rounded-2xl overflow-hidden">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ scale: 1.01, rotateX: 2, transition: { duration: 0.2 } }}
+                style={{ transformPerspective: 800 }}
+                className="bg-[#0a0a0a] border border-white/[0.08] rounded-2xl overflow-hidden hover:border-white/20 transition-colors"
+              >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between p-6 text-left"
@@ -4458,7 +4477,7 @@ const PricingPage = ({ onNavigate }) => {
                     <p className="text-gray-400 font-medium leading-relaxed">{faq.a}</p>
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -4564,7 +4583,15 @@ const FaqPage = ({ onNavigate }) => {
         <div className="max-w-3xl mx-auto mb-32">
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <div key={i} className="bg-[#0a0a0a] border border-white/[0.08] hover:border-white/20 transition-all rounded-3xl overflow-hidden group">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ scale: 1.01, rotateX: 2, transition: { duration: 0.2 } }}
+                style={{ transformPerspective: 800 }}
+                className="bg-[#0a0a0a] border border-white/[0.08] hover:border-white/20 transition-all rounded-3xl overflow-hidden group"
+              >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between p-7 md:p-8 text-left"
@@ -4587,7 +4614,7 @@ const FaqPage = ({ onNavigate }) => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -4625,6 +4652,78 @@ const FaqPage = ({ onNavigate }) => {
     </div>
   );
 };
+
+function MainRouterContent({ currentRoute, onNavigate, onLogout }) {
+  if (currentRoute === '/') return <LandingPage onNavigate={onNavigate} />;
+  if (currentRoute === '/login') return <LoginPage onNavigate={onNavigate} />;
+  if (currentRoute === '/reset-password') return <ResetPasswordPage onNavigate={onNavigate} />;
+  if (currentRoute === '/auth/callback') return <AuthCallbackPage onNavigate={onNavigate} />;
+  if (currentRoute === '/entreprise') return <CompanyPage onNavigate={onNavigate} />;
+  if (currentRoute === '/tarifs') return <PricingPage onNavigate={onNavigate} />;
+  if (currentRoute === '/faq') return <FaqPage onNavigate={onNavigate} />;
+
+  if (currentRoute === '/payment/success') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white/5 font-sans">
+        <div className="text-center p-12 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl max-w-md w-full mx-6">
+          <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">Paiement validé !</h2>
+          <p className="text-gray-400 font-medium mb-8 leading-relaxed">
+            Merci pour votre confiance. Pour configurer votre infrastructure, nous avons besoin de quelques informations sur votre marque.
+          </p>
+          <a
+            href="https://tally.so/r/nPW7M2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-white text-zinc-900 px-6 py-4 rounded-xl font-bold hover:bg-zinc-200 transition-colors shadow-lg flex items-center justify-center gap-2"
+          >
+            Remplir le formulaire d'onboarding <ArrowUpRight className="w-5 h-5" />
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentRoute === '/payment/cancel') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white/5 font-sans">
+        <div className="text-center p-12 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl max-w-md w-full mx-6">
+          <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-6">
+            <XCircle className="w-10 h-10 text-red-500" />
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">Paiement annulé</h2>
+          <p className="text-gray-400 font-medium mb-8 leading-relaxed">
+            Vous avez annulé le processus de paiement. Aucun prélèvement n'a été effectué. Vous pouvez réessayer à tout moment.
+          </p>
+          <div className="flex gap-4">
+            <button onClick={() => onNavigate('/tarifs')} className="flex-1 bg-white/5 border border-white/10 text-white px-6 py-4 rounded-xl font-bold hover:bg-white/10 transition-colors">
+              Retour aux tarifs
+            </button>
+            <button onClick={() => onNavigate('/app')} className="flex-1 bg-white text-zinc-900 px-6 py-4 rounded-xl font-bold hover:bg-zinc-200 transition-colors">
+              Mon espace
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (currentRoute === '/app' || currentRoute === '/admin') {
+    return <DashboardGate currentRoute={currentRoute} onNavigate={onNavigate} onLogout={onLogout} />;
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white/5 font-sans">
+      <div className="text-center p-8 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-sm">
+        <AlertCircle className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-white mb-2">Page introuvable</h2>
+        <button onClick={() => onNavigate('/')} className="bg-white text-zinc-900 px-6 py-3 rounded-xl font-bold hover:bg-zinc-800 transition-colors mt-6">Retour à l'accueil</button>
+      </div>
+    </div>
+  );
+}
 
 function MainRouter() {
   const [currentRoute, setCurrentRoute] = useState('/');
@@ -4675,94 +4774,20 @@ function MainRouter() {
 
   if (isRouting) return null;
 
-  if (currentRoute === '/') {
-    return <LandingPage onNavigate={navigate} />;
-  }
-
-  if (currentRoute === '/login') {
-    return <LoginPage onNavigate={navigate} />;
-  }
-
-  if (currentRoute === '/reset-password') {
-    return <ResetPasswordPage onNavigate={navigate} />;
-  }
-
-  if (currentRoute === '/auth/callback') {
-    return <AuthCallbackPage onNavigate={navigate} />;
-  }
-
-  if (currentRoute === '/entreprise') {
-    return <CompanyPage onNavigate={navigate} />;
-  }
-
-  if (currentRoute === '/tarifs') {
-    return <PricingPage onNavigate={navigate} />;
-  }
-
-  if (currentRoute === '/faq') {
-    return <FaqPage onNavigate={navigate} />;
-  }
-
-  if (currentRoute === '/payment/success') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white/5 font-sans">
-        <div className="text-center p-12 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl max-w-md w-full mx-6">
-          <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-emerald-500" />
-          </div>
-          <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">Paiement validé !</h2>
-          <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-            Merci pour votre confiance. Pour configurer votre infrastructure, nous avons besoin de quelques informations sur votre marque.
-          </p>
-          <a
-            href="https://tally.so/r/nPW7M2"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full bg-white text-zinc-900 px-6 py-4 rounded-xl font-bold hover:bg-zinc-200 transition-colors shadow-lg flex items-center justify-center gap-2"
-          >
-            Remplir le formulaire d'onboarding <ArrowUpRight className="w-5 h-5" />
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  if (currentRoute === '/payment/cancel') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white/5 font-sans">
-        <div className="text-center p-12 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl max-w-md w-full mx-6">
-          <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-6">
-            <XCircle className="w-10 h-10 text-red-500" />
-          </div>
-          <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">Paiement annulé</h2>
-          <p className="text-gray-400 font-medium mb-8 leading-relaxed">
-            Vous avez annulé le processus de paiement. Aucun prélèvement n'a été effectué. Vous pouvez réessayer à tout moment.
-          </p>
-          <div className="flex gap-4">
-            <button onClick={() => navigate('/tarifs')} className="flex-1 bg-white/5 border border-white/10 text-white px-6 py-4 rounded-xl font-bold hover:bg-white/10 transition-colors">
-              Retour aux tarifs
-            </button>
-            <button onClick={() => navigate('/app')} className="flex-1 bg-white text-zinc-900 px-6 py-4 rounded-xl font-bold hover:bg-zinc-200 transition-colors">
-              Mon espace
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (currentRoute === '/app' || currentRoute === '/admin') {
-    return <DashboardGate currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white/5 font-sans">
-      <div className="text-center p-8 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-sm">
-        <AlertCircle className="w-12 h-12 text-zinc-300 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">Page introuvable</h2>
-        <button onClick={() => navigate('/')} className="bg-white text-zinc-900 px-6 py-3 rounded-xl font-bold hover:bg-zinc-800 transition-colors mt-6">Retour à l'accueil</button>
-      </div>
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={currentRoute}
+        initial={{ opacity: 0, scale: 0.98, rotateX: 5, y: 15, filter: "blur(10px)" }}
+        animate={{ opacity: 1, scale: 1, rotateX: 0, y: 0, filter: "blur(0px)" }}
+        exit={{ opacity: 0, scale: 1.02, rotateX: -5, y: -15, filter: "blur(10px)" }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformPerspective: 1200, transformOrigin: 'top center' }}
+        className="w-full min-h-screen"
+      >
+        <MainRouterContent currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
