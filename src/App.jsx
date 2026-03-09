@@ -6401,8 +6401,8 @@ const PricingPage = ({ onNavigate }) => {
         "L'infrastructure complète pour automatiser votre croissance sur 3 canaux avec un agent IA dédié.",
       features: [
         "Tout dans Audit System",
-        <span key="ia" className="flex items-center gap-2">Agent IA support client Niveau 1 <GptBadge /></span>,
-        <span key="auto" className="flex items-center gap-2">Automatisations Make/Zapier illimitées <GptBadge /></span>,
+        <span key="ia" className="inline-flex items-center flex-wrap gap-2">Agent IA support client Niveau 1 <GptBadge /></span>,
+        <span key="auto" className="inline-flex items-center flex-wrap gap-2">Automatisations Make/Zapier illimitées <GptBadge /></span>,
         "Intégration Shopify + CRM + Klaviyo",
         "Relances panier abandonné IA",
         "Dashboard de performance en temps réel",
@@ -6422,7 +6422,7 @@ const PricingPage = ({ onNavigate }) => {
         "Pour les marques qui scalent au-delà de 500K€/mois et ont besoin d'une infra sur mesure.",
       features: [
         "Tout dans Croissance Automatisée",
-        <span key="ia-agents" className="flex items-center flex-wrap gap-2">Agents IA multi-canaux personnalisés <GptBadge /></span>,
+        <span key="ia-agents" className="inline-flex items-center flex-wrap gap-2">Agents IA multi-canaux personnalisés <GptBadge /></span>,
         "Architecture data warehouse",
         "Intégrations API custom",
         "Équipe dédiée (2+ agents IA)",
@@ -6649,12 +6649,12 @@ const PricingPage = ({ onNavigate }) => {
                 {plan.features.map((f, j) => (
                   <li
                     key={j}
-                    className="flex items-start gap-3 text-sm text-gray-300"
+                    className="flex justify-start items-start gap-3 text-sm text-gray-300"
                   >
                     <CheckCircle2
-                      className={`w-4 h-4 mt-0.5 flex-shrink-0 ${plan.highlighted ? "text-emerald-400" : "text-gray-500"}`}
+                      className={`w-4 h-4 mt-[3px] flex-shrink-0 ${plan.highlighted ? "text-emerald-400" : "text-gray-500"}`}
                     />
-                    {f}
+                    <div className="leading-snug">{f}</div>
                   </li>
                 ))}
               </ul>
