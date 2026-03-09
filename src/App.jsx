@@ -81,6 +81,7 @@ import { Futuristic3DBackground } from "../components/ui/futuristic-3d-backgroun
 import { GlassHero } from "../components/ui/glass-hero";
 import { RevenueCalculator } from "../components/ui/revenue-calculator";
 import { ArchitectureMap } from "../components/ui/architecture-map";
+import { BeforeAfterSlider } from "../components/ui/before-after-slider";
 import { AITeamBuilder } from "../components/ui/ai-team-builder";
 import {
   FadeInUp,
@@ -5257,6 +5258,9 @@ const LandingPage = ({ onNavigate }) => {
                   </ScaleIn>
                 </div>
               </section>
+
+              {/* 4.3 INNOVATION : BEFORE/AFTER SLIDER */}
+              <BeforeAfterSlider />
 
               {/* 4.5 INNOVATION : AI TEAM BUILDER SIMULATOR */}
               <AITeamBuilder onNavigate={onNavigate} />
