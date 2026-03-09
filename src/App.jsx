@@ -6368,9 +6368,7 @@ const PricingPage = ({ onNavigate }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleBookCall = () => {
-    // Modify this link to redirect to the correct Calendly/Tally link if needed
-    window.location.href =
-      "mailto:contact@actero.fr?subject=Demande de rendez-vous - Actero";
+    onNavigate("/audit");
   };
 
   const plans = [
@@ -6508,7 +6506,7 @@ const PricingPage = ({ onNavigate }) => {
                 Connexion
               </button>
               <div className="hidden sm:block scale-90 origin-right">
-                <ButtonColorful onClick={() => onNavigate("/")}>
+                <ButtonColorful onClick={() => onNavigate("/audit")}>
                   Demander un audit
                 </ButtonColorful>
               </div>
@@ -6577,7 +6575,7 @@ const PricingPage = ({ onNavigate }) => {
                 <ButtonColorful
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    onNavigate("/");
+                    onNavigate("/audit");
                   }}
                 >
                   Demander un audit
@@ -6661,9 +6659,9 @@ const PricingPage = ({ onNavigate }) => {
               <div className="mt-auto pt-8">
                 <button
                   onClick={
-                    plan.id === "free"
-                      ? () => onNavigate("/login")
-                      : handleBookCall
+                    plan.id === "contact"
+                      ? () => { window.location.href = "mailto:contact@actero.fr?subject=Scale sur Mesure - Actero"; }
+                      : () => onNavigate("/audit")
                   }
                   className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all hover:scale-105 flex items-center justify-center gap-2 ${plan.highlighted
                     ? "bg-emerald-500 text-black shadow-lg shadow-emerald-500/20"
