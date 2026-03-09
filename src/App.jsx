@@ -4778,6 +4778,18 @@ const LandingPage = ({ onNavigate }) => {
                 >
                   FAQ
                 </button>
+                <button
+                  onClick={() => onNavigate("/demo")}
+                  className="text-sm font-semibold text-gray-400 hover:text-white transition-colors"
+                >
+                  Simulateur
+                </button>
+                <button
+                  onClick={() => onNavigate("/ressources")}
+                  className="text-sm font-semibold text-gray-400 hover:text-white transition-colors"
+                >
+                  Ressources
+                </button>
               </div>
 
               <div className="flex items-center gap-3">
@@ -4848,6 +4860,20 @@ const LandingPage = ({ onNavigate }) => {
                     action: () => {
                       setIsMobileMenuOpen(false);
                       onNavigate("/faq");
+                    },
+                  },
+                  {
+                    label: "Simulateur",
+                    action: () => {
+                      setIsMobileMenuOpen(false);
+                      onNavigate("/demo");
+                    },
+                  },
+                  {
+                    label: "Ressources",
+                    action: () => {
+                      setIsMobileMenuOpen(false);
+                      onNavigate("/ressources");
                     },
                   },
                   {

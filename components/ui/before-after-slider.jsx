@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef } from 'react';
 import { Layers, Zap, GripVertical } from 'lucide-react';
 import { FadeInUp } from './scroll-animations';
 
@@ -24,12 +23,12 @@ export const BeforeAfterSlider = () => {
 
     // Before Architecture (Chaos)
     const renderBefore = () => (
-        <div className="absolute inset-0 w-full h-full bg-[#111] p-8 flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 w-full h-full bg-[#111] flex flex-col items-center justify-center overflow-hidden">
             <div className="absolute inset-0 opacity-20 pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(circle at center, #ff4444 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
             </div>
 
-            <h3 className="absolute top-6 left-6 text-xl font-bold tracking-tight text-red-400 opacity-80 flex items-center gap-2">
+            <h3 className="absolute top-6 left-6 text-base md:text-xl font-bold tracking-tight text-red-400 opacity-80 flex items-center gap-2 z-20">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Écosystème Chaotique
             </h3>
 
@@ -40,17 +39,23 @@ export const BeforeAfterSlider = () => {
                 <path d="M50,250 L350,250 L500,50 L750,250" stroke="#ff4444" strokeWidth="1" fill="none" />
             </svg>
 
-            {/* Chaotic Nodes */}
-            <div className="relative z-10 w-full max-w-lg aspect-video">
-                <div className="absolute top-[10%] left-[10%] p-4 border border-red-500/30 bg-[#1a0f0f] rounded-xl transform rotate-[-5deg]">Shopify Apps (x12)</div>
-                <div className="absolute top-[60%] left-[20%] p-4 border border-red-500/30 bg-[#1a0f0f] rounded-xl transform rotate-[3deg]">Zendesk (Isolé)</div>
-                <div className="absolute top-[20%] right-[10%] p-4 border border-red-500/30 bg-[#1a0f0f] rounded-xl transform rotate-[8deg]">Fichiers Excel</div>
-                <div className="absolute top-[70%] right-[20%] p-3 border border-red-500/50 bg-red-900/20 text-red-400 rounded-xl font-bold flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500 animate-ping"></div> Erreur de Sync.
+            {/* Chaotic Nodes - better spaced */}
+            <div className="relative z-10 w-full h-full px-6 md:px-12 py-16 md:py-20">
+                <div className="absolute top-[18%] left-[8%] md:left-[12%] p-3 md:p-4 border border-red-500/30 bg-[#1a0f0f] rounded-xl transform rotate-[-5deg] text-xs md:text-sm text-gray-300 font-medium">
+                    Shopify Apps (x12)
                 </div>
-                <div className="absolute top-[40%] left-[40%] p-6 border-2 border-red-500/40 bg-red-500/10 rounded-full text-center">
-                    <p className="text-gray-400 text-sm">Équipe Humaine</p>
-                    <p className="text-red-400 font-bold mt-1">Saturée</p>
+                <div className="absolute top-[55%] left-[5%] md:left-[8%] p-3 md:p-4 border border-red-500/30 bg-[#1a0f0f] rounded-xl transform rotate-[3deg] text-xs md:text-sm text-gray-300 font-medium">
+                    Zendesk (Isolé)
+                </div>
+                <div className="absolute top-[25%] right-[5%] md:right-[12%] p-3 md:p-4 border border-red-500/30 bg-[#1a0f0f] rounded-xl transform rotate-[8deg] text-xs md:text-sm text-gray-300 font-medium">
+                    Fichiers Excel
+                </div>
+                <div className="absolute top-[72%] right-[8%] md:right-[15%] p-2.5 md:p-3 border border-red-500/50 bg-red-900/20 text-red-400 rounded-xl font-bold flex items-center gap-2 text-xs md:text-sm">
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-red-500 animate-ping"></div> Erreur de Sync.
+                </div>
+                <div className="absolute top-[40%] left-1/2 transform -translate-x-1/2 p-4 md:p-6 border-2 border-red-500/40 bg-red-500/10 rounded-full text-center">
+                    <p className="text-gray-400 text-xs md:text-sm">Équipe Humaine</p>
+                    <p className="text-red-400 font-bold text-sm md:text-base mt-1">Saturée</p>
                 </div>
             </div>
         </div>
@@ -66,7 +71,7 @@ export const BeforeAfterSlider = () => {
                 }}>
             </div>
 
-            <h3 className="absolute top-6 right-6 text-xl font-bold tracking-tight text-emerald-400 flex items-center gap-2">
+            <h3 className="absolute top-6 right-6 text-base md:text-xl font-bold tracking-tight text-emerald-400 flex items-center gap-2 z-20">
                 Infrastructure Actero <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
             </h3>
 
@@ -80,30 +85,30 @@ export const BeforeAfterSlider = () => {
                 <circle cx="400" cy="400" r="4" fill="#10b981" />
             </svg>
 
-            {/* Clean Nodes */}
-            <div className="relative z-10 w-full max-w-lg aspect-video flex items-center justify-center">
-                <div className="absolute left-[10%] p-4 border border-white/10 bg-[#0a0a0a] rounded-xl flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-[#95BF47]/20 flex items-center justify-center text-[#95BF47] font-bold">S</div> Shopify
+            {/* Clean Nodes - well separated */}
+            <div className="relative z-10 w-full h-full px-6 md:px-12 py-16 md:py-20">
+                <div className="absolute top-[42%] left-[5%] md:left-[10%] p-3 md:p-4 border border-white/10 bg-[#0a0a0a] rounded-xl flex items-center gap-2 md:gap-3 text-white text-xs md:text-sm font-medium">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded bg-[#95BF47]/20 flex items-center justify-center text-[#95BF47] font-bold text-xs">S</div> Shopify
                 </div>
 
-                <div className="absolute right-[10%] p-4 border border-white/10 bg-[#0a0a0a] rounded-xl flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-white/10 flex items-center justify-center font-bold">K</div> Klaviyo / CRM
+                <div className="absolute top-[42%] right-[5%] md:right-[10%] p-3 md:p-4 border border-white/10 bg-[#0a0a0a] rounded-xl flex items-center gap-2 md:gap-3 text-white text-xs md:text-sm font-medium">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded bg-white/10 flex items-center justify-center font-bold text-xs">K</div> Klaviyo / CRM
                 </div>
 
-                <div className="absolute top-[15%] p-4 border border-white/10 bg-[#0a0a0a] rounded-xl flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-[#17494D]/40 flex items-center justify-center text-teal-200 font-bold">Z</div> Zendesk
+                <div className="absolute top-[18%] left-1/2 transform -translate-x-1/2 p-3 md:p-4 border border-white/10 bg-[#0a0a0a] rounded-xl flex items-center gap-2 md:gap-3 text-white text-xs md:text-sm font-medium">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded bg-[#17494D]/40 flex items-center justify-center text-teal-200 font-bold text-xs">Z</div> Zendesk
                 </div>
 
-                <div className="absolute bottom-[15%] p-4 border border-white/10 bg-[#0a0a0a] rounded-xl flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">M</div> ERP / Logistique
+                <div className="absolute bottom-[15%] left-1/2 transform -translate-x-1/2 p-3 md:p-4 border border-white/10 bg-[#0a0a0a] rounded-xl flex items-center gap-2 md:gap-3 text-white text-xs md:text-sm font-medium">
+                    <div className="w-7 h-7 md:w-8 md:h-8 rounded bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">L</div> Logistique
                 </div>
 
                 {/* Central AI Engine */}
-                <div className="relative p-8 border-2 border-emerald-500/40 bg-emerald-500/10 rounded-2xl text-center shadow-[0_0_50px_rgba(16,185,129,0.15)] flex flex-col items-center justify-center">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-5 md:p-8 border-2 border-emerald-500/40 bg-emerald-500/10 rounded-2xl text-center shadow-[0_0_50px_rgba(16,185,129,0.15)] flex flex-col items-center justify-center">
                     <div className="absolute inset-0 rounded-2xl bg-emerald-400 blur-xl opacity-20 pointer-events-none"></div>
-                    <Zap className="w-8 h-8 text-emerald-400 mb-2 relative z-10" />
-                    <span className="font-bold text-white relative z-10">Actero AI Hub</span>
-                    <span className="text-xs text-emerald-400 font-bold uppercase tracking-widest mt-2 relative z-10">Data Centralisée</span>
+                    <Zap className="w-6 h-6 md:w-8 md:h-8 text-emerald-400 mb-1 md:mb-2 relative z-10" />
+                    <span className="font-bold text-white relative z-10 text-sm md:text-base">Actero AI Hub</span>
+                    <span className="text-[10px] md:text-xs text-emerald-400 font-bold uppercase tracking-widest mt-1 md:mt-2 relative z-10">Data Centralisée</span>
                 </div>
             </div>
         </div>
@@ -129,7 +134,7 @@ export const BeforeAfterSlider = () => {
                 <FadeInUp delay={0.2}>
                     <div
                         ref={containerRef}
-                        className="relative w-full h-[500px] md:h-[600px] rounded-[32px] overflow-hidden border border-white/10 select-none cursor-ew-resize mt-12 bg-[#0a0a0a] shadow-2xl"
+                        className="relative w-full h-[400px] md:h-[550px] rounded-[32px] overflow-hidden border border-white/10 select-none cursor-ew-resize mt-12 bg-[#0a0a0a] shadow-2xl"
                         onMouseMove={handleDrag}
                         onTouchMove={handleDrag}
                         onClick={handleDrag}
