@@ -81,6 +81,7 @@ import { Futuristic3DBackground } from "../components/ui/futuristic-3d-backgroun
 import { GlassHero } from "../components/ui/glass-hero";
 import { RevenueCalculator } from "../components/ui/revenue-calculator";
 import { ArchitectureMap } from "../components/ui/architecture-map";
+import { AITeamBuilder } from "../components/ui/ai-team-builder";
 import {
   FadeInUp,
   SlideInRight,
@@ -5256,6 +5257,9 @@ const LandingPage = ({ onNavigate }) => {
                   </ScaleIn>
                 </div>
               </section>
+
+              {/* 4.5 INNOVATION : AI TEAM BUILDER SIMULATOR */}
+              <AITeamBuilder onNavigate={onNavigate} />
 
               {/* 5. SECTION COMPARAISON (POSITIONNEMENT) */}
               <section className="py-24 bg-transparent border-t border-white/10 px-6 relative z-10">
