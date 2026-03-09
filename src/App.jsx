@@ -182,6 +182,12 @@ const Logo = ({ className = "w-8 h-8", light = false }) => (
   </svg>
 );
 
+const GptBadge = () => (
+  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-0.5 align-middle whitespace-nowrap">
+    <Sparkles className="w-2.5 h-2.5 fill-amber-500/80" /> Powered by GPT 5.4 Thinking
+  </span>
+);
+
 // Scroll-triggered animated counter
 const ScrollCounter = ({ value, prefix = "", suffix = "", className = "" }) => {
   const ref = useRef(null);
@@ -2610,7 +2616,7 @@ const ExecutionPlanDrawer = ({
         desc: "Identification des goulots d'étranglement actuels.",
       },
       {
-        title: "Automatisation",
+        title: <span className="flex items-center gap-2">Automatisation <GptBadge /></span>,
         desc: "Connexion et automatisation des flux de travail chronophages.",
       },
       {
@@ -5048,8 +5054,8 @@ const LandingPage = ({ onNavigate }) => {
                               Étape 02
                             </span>
                           </div>
-                          <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">
-                            Recommandation IA
+                          <h3 className="text-2xl font-bold text-white mb-4 tracking-tight flex items-center flex-wrap gap-2">
+                            Recommandation IA <GptBadge />
                           </h3>
                           <p className="text-gray-400 font-medium leading-relaxed text-base flex-1">
                             L'intelligence artificielle identifie le workflow
@@ -5078,8 +5084,8 @@ const LandingPage = ({ onNavigate }) => {
                               Étape 03
                             </span>
                           </div>
-                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 tracking-tight">
-                            Exécution instantanée
+                          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 tracking-tight flex items-center flex-wrap gap-2">
+                            Exécution instantanée <GptBadge />
                           </h3>
                           <p className="text-gray-400 font-medium leading-relaxed max-w-md text-base">
                             Validez en un clic. L'architecture technique se
@@ -6395,8 +6401,8 @@ const PricingPage = ({ onNavigate }) => {
         "L'infrastructure complète pour automatiser votre croissance sur 3 canaux avec un agent IA dédié.",
       features: [
         "Tout dans Audit System",
-        "Agent IA support client Niveau 1",
-        "Automatisations Make/Zapier illimitées",
+        <span key="ia" className="flex items-center gap-2">Agent IA support client Niveau 1 <GptBadge /></span>,
+        <span key="auto" className="flex items-center gap-2">Automatisations Make/Zapier illimitées <GptBadge /></span>,
         "Intégration Shopify + CRM + Klaviyo",
         "Relances panier abandonné IA",
         "Dashboard de performance en temps réel",
@@ -6416,7 +6422,7 @@ const PricingPage = ({ onNavigate }) => {
         "Pour les marques qui scalent au-delà de 500K€/mois et ont besoin d'une infra sur mesure.",
       features: [
         "Tout dans Croissance Automatisée",
-        "Agents IA multi-canaux personnalisés",
+        <span key="ia-agents" className="flex items-center flex-wrap gap-2">Agents IA multi-canaux personnalisés <GptBadge /></span>,
         "Architecture data warehouse",
         "Intégrations API custom",
         "Équipe dédiée (2+ agents IA)",
