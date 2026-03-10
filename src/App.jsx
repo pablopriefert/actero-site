@@ -461,129 +461,146 @@ const LiveLogFeed = ({ theme = "dark", supabase }) => {
   );
 };
 
-const ROIGlowChart = ({ theme = "dark" }) => {
+const ROIGlowChart = ({ theme = "dark", metrics }) => {
   const isLight = theme === "light";
-  // Simulated chart path drawing an upward curve
+  const hasData = metrics && metrics.estimated_roi > 0;
+
   return (
     <div
       className={`rounded-2xl border p-6 shadow-sm flex flex-col h-full relative overflow-hidden group transition-colors duration-300 ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"
         }`}
     >
-      <div
-        className={`absolute top-[-50%] right-[-10%] w-[300px] h-[300px] blur-[100px] rounded-full transition-colors duration-700 pointer-events-none opacity-20 ${isLight ? "bg-blue-400" : "bg-emerald-500/10"
-          }`}
-      ></div>
-
-      <div className="flex items-center justify-between mb-8 relative z-10">
-        <div>
-          <h3
-            className={`text-sm font-bold uppercase tracking-widest mb-1 ${isLight ? "text-slate-400" : "text-gray-400"}`}
-          >
+      {!hasData ? (
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 relative z-10">
+          <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/5">
+            <TrendingUp className="w-6 h-6 text-gray-500 opacity-50" />
+          </div>
+          <h3 className={`text-sm font-bold uppercase tracking-widest mb-1 ${isLight ? "text-slate-400" : "text-gray-400"}`}>
             Croissance du ROI
           </h3>
-          <div className="flex items-baseline gap-2">
-            <span
-              className={`text-3xl font-bold tracking-tighter ${isLight ? "text-slate-900" : "text-white"}`}
+          <p className="text-xs text-gray-500 max-w-[200px] mt-2">
+            La courbe de rentabilité s'affichera ici dès les premières économies générées.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div
+            className={`absolute top-[-50%] right-[-10%] w-[300px] h-[300px] blur-[100px] rounded-full transition-colors duration-700 pointer-events-none opacity-20 ${isLight ? "bg-blue-400" : "bg-emerald-500/10"
+              }`}
+          ></div>
+
+          <div className="flex items-center justify-between mb-8 relative z-10">
+            <div>
+              <h3
+                className={`text-sm font-bold uppercase tracking-widest mb-1 ${isLight ? "text-slate-400" : "text-gray-400"}`}
+              >
+                Croissance du ROI
+              </h3>
+              <div className="flex items-baseline gap-2">
+                <span
+                  className={`text-3xl font-bold tracking-tighter ${isLight ? "text-slate-900" : "text-white"}`}
+                >
+                  +{metrics.estimated_roi_growth || 0}%
+                </span>
+                <span className="text-sm font-bold text-emerald-500 flex items-center">
+                  <ArrowUpRight className="w-4 h-4" /> ce mois
+                </span>
+              </div>
+            </div>
+            <div
+              className={`p-3 rounded-xl border ${isLight
+                ? "bg-slate-50 border-slate-100"
+                : "bg-white/5 border-white/5"
+                }`}
             >
-              +24%
-            </span>
-            <span className="text-sm font-bold text-emerald-500 flex items-center">
-              <ArrowUpRight className="w-4 h-4" /> ce mois
-            </span>
+              <DollarSign
+                className={`w-5 h-5 ${isLight ? "text-blue-600" : "text-emerald-400"}`}
+              />
+            </div>
           </div>
-        </div>
-        <div
-          className={`p-3 rounded-xl border ${isLight
-            ? "bg-slate-50 border-slate-100"
-            : "bg-white/5 border-white/5"
-            }`}
-        >
-          <DollarSign
-            className={`w-5 h-5 ${isLight ? "text-blue-600" : "text-emerald-400"}`}
-          />
-        </div>
-      </div>
 
-      <div className="flex-1 relative w-full min-h-[160px] flex items-end">
-        <svg
-          viewBox="0 0 400 120"
-          className="w-full h-full preserve-3d overflow-visible"
-        >
-          <defs>
-            <linearGradient id="glowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop
-                offset="0%"
-                stopColor={isLight ? "rgba(37, 99, 235, 0.4)" : "rgba(16, 185, 129, 0.4)"}
+          <div className="flex-1 relative w-full min-h-[160px] flex items-end">
+            <svg
+              viewBox="0 0 400 120"
+              className="w-full h-full preserve-3d overflow-visible"
+            >
+              <defs>
+                <linearGradient id="glowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop
+                    offset="0%"
+                    stopColor={isLight ? "rgba(37, 99, 235, 0.4)" : "rgba(16, 185, 129, 0.4)"}
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor={isLight ? "rgba(37, 99, 235, 0)" : "rgba(16, 185, 129, 0)"}
+                  />
+                </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+
+              {/* Grid lines */}
+              {[30, 70, 110].map((y) => (
+                <line
+                  key={y}
+                  x1="0"
+                  y1={y}
+                  x2="400"
+                  y2={y}
+                  stroke={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)"}
+                  strokeWidth="1"
+                  strokeDasharray="4 4"
+                />
+              ))}
+
+              {/* Fill Area */}
+              <motion.path
+                d="M 0 110 Q 50 100, 100 80 T 200 60 T 300 30 T 400 10 L 400 120 L 0 120 Z"
+                fill="url(#glowGradient)"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.5, delay: 0.5 }}
               />
-              <stop
-                offset="100%"
-                stopColor={isLight ? "rgba(37, 99, 235, 0)" : "rgba(16, 185, 129, 0)"}
+
+              {/* Stroke Line */}
+              <motion.path
+                d="M 0 110 Q 50 100, 100 80 T 200 60 T 300 30 T 400 10"
+                fill="none"
+                stroke={isLight ? "#2563eb" : "#10b981"}
+                strokeWidth="3"
+                filter="url(#glow)"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 2, ease: "easeInOut" }}
               />
-            </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
 
-          {/* Grid lines */}
-          {[30, 70, 110].map((y) => (
-            <line
-              key={y}
-              x1="0"
-              y1={y}
-              x2="400"
-              y2={y}
-              stroke={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)"}
-              strokeWidth="1"
-              strokeDasharray="4 4"
-            />
-          ))}
-
-          {/* Fill Area */}
-          <motion.path
-            d="M 0 110 Q 50 100, 100 80 T 200 60 T 300 30 T 400 10 L 400 120 L 0 120 Z"
-            fill="url(#glowGradient)"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.5, delay: 0.5 }}
-          />
-
-          {/* Stroke Line */}
-          <motion.path
-            d="M 0 110 Q 50 100, 100 80 T 200 60 T 300 30 T 400 10"
-            fill="none"
-            stroke={isLight ? "#2563eb" : "#10b981"}
-            strokeWidth="3"
-            filter="url(#glow)"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-          />
-
-          {/* Dots */}
-          {[
-            { cx: 0, cy: 110 },
-            { cx: 100, cy: 80 },
-            { cx: 200, cy: 60 },
-            { cx: 300, cy: 30 },
-            { cx: 400, cy: 10 },
-          ].map((pt, i) => (
-            <motion.circle
-              key={i}
-              cx={pt.cx}
-              cy={pt.cy}
-              r="4"
-              fill={isLight ? "#ffffff" : "#0a0a0a"}
-              stroke={isLight ? "#2563eb" : "#10b981"}
-              strokeWidth="2"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 1.5 + i * 0.1, type: "spring" }}
-            />
-          ))}
-        </svg>
-      </div>
+              {/* Dots */}
+              {[
+                { cx: 0, cy: 110 },
+                { cx: 100, cy: 80 },
+                { cx: 200, cy: 60 },
+                { cx: 300, cy: 30 },
+                { cx: 400, cy: 10 },
+              ].map((pt, i) => (
+                <motion.circle
+                  key={i}
+                  cx={pt.cx}
+                  cy={pt.cy}
+                  r="4"
+                  fill={isLight ? "#ffffff" : "#0a0a0a"}
+                  stroke={isLight ? "#2563eb" : "#10b981"}
+                  strokeWidth="2"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 1.5 + i * 0.1, type: "spring" }}
+                />
+              ))}
+            </svg>
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -3939,7 +3956,7 @@ const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     <LiveLogFeed theme={theme} />
                   </div>
                   <div className="h-[400px]">
-                    <ROIGlowChart theme={theme} />
+                    <ROIGlowChart theme={theme} metrics={metrics} />
                   </div>
                 </div>
               )}
