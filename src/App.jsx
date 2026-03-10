@@ -100,6 +100,8 @@ import {
 } from "../components/ui/scroll-animations";
 import { initAmplitude, trackEvent } from "./lib/analytics";
 
+// --- Configuration Supabase ---
+const queryClient = new QueryClient();
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
