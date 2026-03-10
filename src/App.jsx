@@ -76,6 +76,7 @@ import {
   ClipboardList,
   Sun,
   Moon,
+  ShieldAlert,
 } from "lucide-react";
 
 // --- Configuration Supabase ---
