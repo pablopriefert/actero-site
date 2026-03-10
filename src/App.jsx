@@ -727,6 +727,7 @@ const InfrastructureNodeMap = () => {
 // ==========================================
 // Helper: fetch the user's role from profiles, fallback to admin_users
 const fetchUserRole = async (userId) => {
+  if (!isSupabaseConfigured || !supabase) return "client";
   try {
     // 1. Try profiles.role first
     const { data: profile, error: profileErr } = await supabase
@@ -747,7 +748,8 @@ const fetchUserRole = async (userId) => {
       .maybeSingle();
 
     return adminRow ? "admin" : "client";
-  } catch {
+  } catch (err) {
+    console.error("[fetchUserRole] Error:", err);
     return "client"; // Safe default
   }
 };
