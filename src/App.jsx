@@ -7723,6 +7723,41 @@ function MainRouter() {
 // LOAD SUPABASE DYNAMICALLY
 // ==========================================
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Critical UX Crash:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-red-950 p-6 text-white font-mono">
+          <div className="max-w-xl">
+            <h1 className="text-2xl font-bold mb-4">Une erreur critique est survenue</h1>
+            <pre className="bg-black/50 p-4 rounded-xl overflow-auto text-xs whitespace-pre-wrap border border-red-500/30">
+              {this.state.error?.toString()}
+              {this.state.error?.stack}
+            </pre>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-6 px-6 py-2 bg-white text-red-950 rounded-lg font-bold"
+            >
+              Recharger la page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const [isReady, setIsReady] = useState(false);
 
@@ -7753,7 +7788,7 @@ export default function App() {
 
   if (!isReady) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white/5 gap-4 font-sans">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white/5 gap-4 font-sans text-white">
         <svg
           className="animate-spin h-8 w-8 text-white"
           fill="none"
@@ -7781,9 +7816,9 @@ export default function App() {
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <MainRouter />
       <Analytics />
-    </>
+    </ErrorBoundary>
   );
 }
