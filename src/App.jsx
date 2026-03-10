@@ -71,6 +71,7 @@ import {
   UserPlus,
   ChevronDown,
   HelpCircle,
+  ClipboardList,
 } from "lucide-react";
 
 // --- Configuration Supabase ---
