@@ -458,23 +458,6 @@ const LiveLogFeed = ({ theme = "dark", supabase }) => {
     </div>
   );
 };
-<div className="flex-1 min-w-0">
-  <p
-    className={`text-sm font-bold leading-snug truncate transition-colors ${isLight ? "text-slate-700" : "text-white"
-      }`}
-  >
-    {log.ticket_type || log.event_category || "Événement inconnu"}
-  </p>
-  <p
-    className={`text-[10px] font-bold ${isLight ? "text-slate-400" : "text-gray-500"}`}
-  >
-    {new Date(log.created_at).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    })}
-  </p>
-</div>
 
 const ROIGlowChart = ({ theme = "dark" }) => {
   const isLight = theme === "light";
@@ -3089,7 +3072,7 @@ const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => {
 
   const [selectedPlanReco, setSelectedPlanReco] = useState(null);
 
-  const { data: recommendations = [], isLoading, error } = useQuery({
+  const { data: recommendations = [], isLoading, error, refetch } = useQuery({
     queryKey: ["ai-recommendations", statusFilter, categoryFilter, sortBy],
     queryFn: async () => {
       if (!supabase) return [];
@@ -3159,14 +3142,14 @@ const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => {
             </p>
           </div>
           <button
-            onClick={() => fetchRecommendations()}
-            disabled={loading}
+            onClick={() => refetch()}
+            disabled={isLoading}
             className={`text-sm font-bold px-4 py-2 rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-50 ${isLight
               ? "bg-white text-slate-900 hover:bg-slate-100"
               : "bg-white/5 text-white hover:bg-white/10"
               }`}
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />{" "}
+            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />{" "}
             Rafraîchir
           </button>
         </div>
@@ -3242,7 +3225,7 @@ const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => {
             <p className="text-red-900 font-bold mb-1">Erreur de connexion</p>
             <p className="text-sm text-red-600">{error}</p>
           </div >
-        ) : loading && recommendations.length === 0 ? (
+        ) : isLoading && recommendations.length === 0 ? (
           <div className="space-y-6">
             {[...Array(3)].map((_, i) => (
               <div
