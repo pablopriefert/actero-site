@@ -14,7 +14,7 @@ export type AnimatedCounterProps = {
     className?: string;
 };
 
-export default function AnimatedCounter({
+export function AnimatedCounter({
     value,
     duration = 1.2,
     suffix = '',

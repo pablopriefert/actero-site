@@ -1,0 +1,172 @@
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Plus,
+  HelpCircle,
+  Clock,
+  ShieldCheck,
+  Zap,
+  ArrowRight,
+  Search,
+} from "lucide-react";
+import { Logo } from "../components/layout/Logo";
+import { Navbar } from "../components/layout/Navbar";
+import { Footer } from "../components/layout/Footer";
+import { ButtonColorful } from "../components/ui/button-colorful";
+import { trackEvent } from "../lib/analytics";
+
+export const FaqPage = ({ onNavigate }) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const [openFaq, setOpenFaq] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const categories = [
+    {
+      title: "Général",
+      questions: [
+        {
+          q: "Qu'est-ce qu'Actero exactement ?",
+          a: "Actero est une Infrastructure as a Service (IaaS) pour l'e-commerce. Nous construisons et gérons des systèmes d'automatisation et d'IA qui remplacent ou optimisent vos processus manuels (SAV, logistique, marketing).",
+        },
+        {
+          q: "Est-ce une agence ou un logiciel ?",
+          a: "C'est le meilleur des deux mondes. Vous avez une plateforme SaaS pour suivre vos métriques et valider les actions, couplée à une équipe d'ingénieurs qui déploie des architectures sur mesure pour votre marque.",
+        },
+      ],
+    },
+    {
+      title: "Technique & Sécurité",
+      questions: [
+        {
+          q: "Mes données sont-elles en sécurité ?",
+          a: "Oui. Nous utilisons le chiffrement AES-256 et des connexions OAuth sécurisées. Nous ne stockons jamais vos mots de passe et respectons strictement le RGPD.",
+        },
+        {
+          q: "Actero modifie-t-il le code de mon site Shopify ?",
+          a: "Non. Nous opérons en 'back-end' via API. Votre site frontal reste intact, ce qui garantit une stabilité totale et aucune interférence avec votre thème ou vos autres apps.",
+        },
+      ],
+    },
+    {
+      title: "Prix & Engagement",
+      questions: [
+        {
+          q: "Y a-t-il un engagement de durée ?",
+          a: "Nos plans Starter et Growth sont sans engagement. Le plan Scale peut inclure des engagements spécifiques selon la complexité de l'infrastructure à déployer.",
+        },
+        {
+          q: "Comment est calculé le ROI ?",
+          a: "Nous mesurons le temps économisé par tâche automatisée et les revenus additionnels générés (ex: récupération de paniers par IA). Ces données sont visibles en temps réel sur votre dashboard.",
+        },
+      ],
+    },
+  ];
+
+  const filteredCategories = searchQuery
+    ? categories.map(cat => ({
+        ...cat,
+        questions: cat.questions.filter(q => 
+          q.q.toLowerCase().includes(searchQuery.toLowerCase()) || 
+          q.a.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      })).filter(cat => cat.questions.length > 0)
+    : categories;
+
+  return (
+    <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
+      <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
+
+      <main className="pt-32 pb-24 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+              Centre d'aide.
+            </h1>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+              Tout ce que vous devez savoir sur Actero et l'avenir de l'automatisation.
+            </p>
+
+            <div className="relative max-w-xl mx-auto">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Rechercher une question..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#0a0a0a] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-zinc-500 outline-none transition-all font-medium"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-12">
+            {filteredCategories.map((category, catIdx) => (
+              <div key={catIdx}>
+                <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-gray-500 mb-6 ml-2">
+                  {category.title}
+                </h2>
+                <div className="space-y-3">
+                  {category.questions.map((faq, i) => {
+                    const uniqueId = `${catIdx}-${i}`;
+                    return (
+                      <div
+                        key={i}
+                        className="bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden group hover:border-white/10 transition-colors"
+                      >
+                        <button
+                          onClick={() => setOpenFaq(openFaq === uniqueId ? null : uniqueId)}
+                          className="w-full flex items-center justify-between p-6 text-left"
+                        >
+                          <span className="font-bold text-lg">{faq.q}</span>
+                          <div className={`transition-transform duration-300 ${openFaq === uniqueId ? 'rotate-45' : ''}`}>
+                            <Plus className="w-5 h-5 text-gray-500" />
+                          </div>
+                        </button>
+                        <AnimatePresence>
+                          {openFaq === uniqueId && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="px-6 pb-6 overflow-hidden"
+                            >
+                              <p className="text-gray-400 leading-relaxed font-medium">
+                                {faq.a}
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            {filteredCategories.length === 0 && (
+              <div className="text-center py-20 bg-[#0a0a0a] rounded-3xl border border-white/5 border-dashed">
+                <HelpCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-xl font-bold">Aucun résultat trouvé</h3>
+                <p className="text-gray-500 mt-2">Essayez d'autres mots-clés ou contactez-nous.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-24 p-10 bg-emerald-500/5 border border-emerald-500/10 rounded-[32px] text-center">
+            <h3 className="text-2xl font-bold mb-4">Besoin d'une réponse immédiate ?</h3>
+            <p className="text-gray-400 mb-8 max-w-md mx-auto">
+              Notre équipe d'ingénieurs est disponible pour discuter de votre architecture spécifique.
+            </p>
+            <ButtonColorful onClick={() => onNavigate("/audit")}>
+              Lancer un scan gratuit <ArrowRight className="ml-2 w-4 h-4" />
+            </ButtonColorful>
+          </div>
+        </div>
+      </main>
+
+      <Footer onNavigate={onNavigate} />
+    </div>
+  );
+};
