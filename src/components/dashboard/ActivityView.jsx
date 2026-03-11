@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Activity } from 'lucide-react'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const formatRelativeTime = (date) => {
   const now = new Date();
   const diff = now - new Date(date);
@@ -15,6 +16,7 @@ export const formatRelativeTime = (date) => {
   return new Date(date).toLocaleDateString();
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLiveActivityFeed = (supabase) => {
   const [events, setEvents] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -28,7 +30,7 @@ export const useLiveActivityFeed = (supabase) => {
     // Fetch initial 50 events
     const fetchInitial = async () => {
       setIsLoading(true);
-      const { data, error } = await supabase
+      const { data, error: _fetchError } = await supabase
         .from('automation_events')
         .select('*')
         .order('created_at', { ascending: false })
@@ -72,6 +74,7 @@ export const useLiveActivityFeed = (supabase) => {
   return { events, isConnected, isLoading };
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const formatEvent = (event) => {
   const cat = event.event_category;
   const type = event.ticket_type;

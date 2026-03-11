@@ -1,10 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Layers, Zap, GripVertical } from 'lucide-react';
 import { FadeInUp } from './scroll-animations';
 
 export const BeforeAfterSlider = () => {
     const [sliderPos, setSliderPos] = useState(50);
+    const [containerWidth, setContainerWidth] = useState(0);
     const containerRef = useRef(null);
+
+    // Track container width via callback ref pattern
+    const measuredRef = useCallback((node) => {
+        if (node) {
+            containerRef.current = node;
+            setContainerWidth(node.offsetWidth);
+            const observer = new ResizeObserver(([entry]) => {
+                setContainerWidth(entry.contentRect.width);
+            });
+            observer.observe(node);
+        }
+    }, []);
 
     const handleDrag = (e) => {
         if (!containerRef.current) return;
@@ -137,7 +150,7 @@ export const BeforeAfterSlider = () => {
                 {/* Slider Container */}
                 <FadeInUp delay={0.2}>
                     <div
-                        ref={containerRef}
+                        ref={measuredRef}
                         className="relative w-full h-[350px] sm:h-[420px] md:h-[520px] lg:h-[580px] rounded-[24px] md:rounded-[32px] overflow-hidden border border-white/10 select-none cursor-ew-resize mt-8 md:mt-12 bg-[#0a0a0a] shadow-2xl"
                         onMouseMove={handleDrag}
                         onTouchMove={handleDrag}
@@ -151,7 +164,7 @@ export const BeforeAfterSlider = () => {
                             className="absolute inset-0 h-full overflow-hidden border-r-2 border-white pointer-events-none shadow-[20px_0_50px_rgba(0,0,0,0.5)]"
                             style={{ width: `${sliderPos}%` }}
                         >
-                            <div className="absolute inset-0" style={{ width: containerRef.current?.offsetWidth || '100vw' }}>
+                            <div className="absolute inset-0" style={{ width: containerWidth || '100vw' }}>
                                 {renderBefore()}
                             </div>
                         </div>

@@ -9,7 +9,7 @@ import { ClientDashboard } from '../../pages/ClientDashboard'
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_URL !== "REPLACE_ME");
 
-const dLog = (...args) => {
+const dLog = (..._args) => {
   // if (true) console.log("[GATE]", ...args);
 };
 
@@ -115,7 +115,7 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
             }
           }
         }
-      } catch (err) {
+      } catch (_err) {
         if (mounted)
           setTenantError(
             "Nous n'avons pas pu valider votre environnement (Erreur DB). Veuillez réessayer ou contacter le support.",

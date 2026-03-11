@@ -28,6 +28,21 @@ const data = [
     { name: 'Dim', marge: 3490, tickets: 430 },
 ];
 
+// Custom Tooltip for Recharts — declared outside render to avoid re-creation
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-[#111] border border-white/10 p-3 rounded-xl shadow-xl">
+                <p className="text-gray-400 text-xs mb-1">{label}</p>
+                <p className="text-emerald-400 font-bold text-sm">
+                    Marge sauvée : {payload[0].value}€
+                </p>
+            </div>
+        );
+    }
+    return null;
+};
+
 export const DemoDashboardPage = ({ onNavigate }) => {
     const [recentLogs, setRecentLogs] = useState([
         { id: 1, text: "L'Agent Support a remboursé la commande #4928 (Motif: Retard Colissimo).", time: "à l'instant", type: "support" },
@@ -53,21 +68,6 @@ export const DemoDashboardPage = ({ onNavigate }) => {
 
         return () => clearInterval(interval);
     }, []);
-
-    // Custom Tooltip for Recharts
-    const CustomTooltip = ({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-            return (
-                <div className="bg-[#111] border border-white/10 p-3 rounded-xl shadow-xl">
-                    <p className="text-gray-400 text-xs mb-1">{label}</p>
-                    <p className="text-emerald-400 font-bold text-sm">
-                        Marge sauvée : {payload[0].value}€
-                    </p>
-                </div>
-            );
-        }
-        return null;
-    };
 
     return (
         <div className="min-h-screen bg-[#030303] text-white selection:bg-emerald-500/30">
@@ -210,7 +210,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
                                 </h3>
 
                                 <div className="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
-                                    {recentLogs.map((log, index) => (
+                                    {recentLogs.map((log) => (
                                         <motion.div
                                             key={log.id}
                                             initial={{ x: 20, opacity: 0 }}

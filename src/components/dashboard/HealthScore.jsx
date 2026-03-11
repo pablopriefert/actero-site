@@ -3,6 +3,7 @@ import React, { useMemo } from 'react'
 /**
  * Calculates a health score from 0 to 100 based on recent metrics and events.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function calculateHealthScore(metricsData = [], eventsData = []) {
   if (!metricsData.length) return { total: 100, components: { uptime: 100, performance: 100, reliability: 100 } };
 
@@ -35,12 +36,6 @@ export function HealthScoreIndicator({ metricsData, eventsData, theme = "dark" }
     if (s >= 90) return "text-emerald-500";
     if (s >= 70) return "text-amber-500";
     return "text-rose-500";
-  };
-
-  const getStatusBg = (s) => {
-    if (s >= 90) return "bg-emerald-500/10";
-    if (s >= 70) return "bg-amber-500/10";
-    return "bg-rose-500/10";
   };
 
   return (

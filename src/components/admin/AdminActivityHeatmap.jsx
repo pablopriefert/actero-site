@@ -1,13 +1,19 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 
+// Simple seeded pseudo-random for deterministic heatmap data
+const seededRandom = (seed) => {
+  const x = Math.sin(seed + 1) * 10000;
+  return x - Math.floor(x);
+};
+
 export const AdminActivityHeatmap = () => {
-  // Generate 30 days of mock data
+  // Generate 30 days of deterministic mock data
   const days = Array.from({ length: 30 }, (_, i) => {
     const isWeekend = i % 7 === 0 || i % 7 === 6;
     const intensity = isWeekend
-      ? Math.floor(Math.random() * 2)
-      : Math.floor(Math.random() * 5); // 0-4
+      ? Math.floor(seededRandom(i) * 2)
+      : Math.floor(seededRandom(i) * 5); // 0-4
     return { id: i, intensity };
   });
 

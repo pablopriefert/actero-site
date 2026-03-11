@@ -17,9 +17,18 @@ import { PromptLibraryPage } from "./components/ui/prompt-library-page";
 
 const queryClient = new QueryClient();
 
+function getInitialRoute() {
+  const path = window.location.pathname;
+  const hash = window.location.hash;
+
+  if (hash.includes("type=recovery")) return "/reset-password";
+  if (path === "/auth/callback" || hash.includes("access_token=")) return "/auth/callback";
+  return path;
+}
+
 function MainRouter() {
-  const [currentRoute, setCurrentRoute] = useState(window.location.pathname);
-  const [isRouting, setIsRouting] = useState(true);
+  const [currentRoute, setCurrentRoute] = useState(getInitialRoute);
+  const [isRouting, _setIsRouting] = useState(false);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -27,21 +36,6 @@ function MainRouter() {
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  useEffect(() => {
-    const path = window.location.pathname;
-    const hash = window.location.hash;
-
-    if (hash.includes("type=recovery")) {
-      setCurrentRoute("/reset-password");
-    } else if (path === "/auth/callback" || hash.includes("access_token=")) {
-      setCurrentRoute("/auth/callback");
-    } else if (path !== "/") {
-      setCurrentRoute(path);
-    }
-
-    setIsRouting(false);
   }, []);
 
   const navigate = (path) => {
@@ -120,7 +114,7 @@ class ErrorBoundary extends React.Component {
     super(props);
     this.state = { hasError: false };
   }
-  static getDerivedStateFromError(error) { return { hasError: true }; }
+  static getDerivedStateFromError(_error) { return { hasError: true }; }
   render() {
     if (this.state.hasError) {
       return (

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   LayoutDashboard, 
@@ -8,9 +8,7 @@ import {
   Database, 
   Activity, 
   Lightbulb, 
-  Download, 
-  Moon, 
-  Sun, 
+  Download,
   Plus, 
   FileText, 
   AlertCircle, 
@@ -35,16 +33,10 @@ import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 import { ActivityView } from '../components/dashboard/ActivityView'
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
-  const queryClient = useQueryClient();
+  // eslint-disable-next-line no-unused-vars -- setTheme needed for future theme toggle UI
   const [theme, setTheme] = useState(() => localStorage.getItem("actero-theme") || "dark");
   const [selectedPeriod, setSelectedPeriod] = useState("this_month");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    localStorage.setItem("actero-theme", newTheme);
-  };
 
   const getTabFromRoute = (route) => {
     if (route === "/client/requests") return "requests";
@@ -109,7 +101,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   });
 
   // 4. Fetch Requests
-  const { data: requests = [], isLoading: requestsLoading } = useQuery({
+  const { data: requests = [] } = useQuery({
     queryKey: ["client-requests", currentClient?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -185,7 +177,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     }
 
     const calcSum = (arr, field) => arr.reduce((sum, d) => sum + (Number(d[field]) || 0), 0);
-    const calcAvg = (arr, field) => arr.length > 0 ? calcSum(arr, field) / arr.length : 0;
+    // calcAvg available if needed: (arr, field) => arr.length > 0 ? calcSum(arr, field) / arr.length : 0
     const getLast = (arr, field) => arr.length > 0 ? Number(arr[arr.length - 1][field]) || 0 : 0;
 
     const computeVar = (currentVal, prevVal) => {

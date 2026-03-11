@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const Logo = ({ className = "w-8 h-8", light = false }) => (
+export const Logo = ({ className = "w-8 h-8", light: _light = false }) => (
   <svg
     viewBox="0 0 32 32"
     fill="none"

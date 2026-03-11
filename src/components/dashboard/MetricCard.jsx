@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react'
 export const MetricCard = ({
   title,
   value,
-  icon: Icon,
+  icon: Icon, // eslint-disable-line no-unused-vars
   color = "zinc",
   subtitleItems = [],
   className = "",

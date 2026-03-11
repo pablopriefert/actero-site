@@ -8,7 +8,7 @@ export const Sidebar = ({
   activeTab, 
   setActiveTab, 
   onLogout, 
-  isOpen, 
+  isOpen: _isOpen,
   onClose,
   theme = "dark"
 }) => {

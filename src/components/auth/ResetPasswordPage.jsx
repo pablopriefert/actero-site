@@ -25,7 +25,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
 
       setSuccess("✅ Mot de passe mis à jour. Tu peux te connecter.");
       setTimeout(() => onNavigate("/login"), 800);
-    } catch (e) {
+    } catch (_e) {
       setError("Erreur pendant la mise à jour. Réessaie via le lien du mail.");
     } finally {
       setLoading(false);

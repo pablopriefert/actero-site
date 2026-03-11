@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { motion } from "framer-motion";
+// framer-motion animations handled via scroll-animations components
 import {
   Cpu,
   Target,

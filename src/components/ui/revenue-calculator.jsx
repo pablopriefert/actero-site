@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Calculator, AlertTriangle, TrendingUp, Euro } from 'lucide-react';
 import { FadeInUp } from './scroll-animations';
@@ -7,12 +7,8 @@ export const RevenueCalculator = () => {
     const [monthlyRevenue, setMonthlyRevenue] = useState(50000);
     const [dailyTickets, setDailyTickets] = useState(50);
 
-    // Derived values
-    const [lostRevenue, setLostRevenue] = useState(0);
-    const [recoverableRevenue, setRecoverableRevenue] = useState(0);
-
-    // Simple ROI Calculation logic
-    useEffect(() => {
+    // Derived values (pure computation, no side effects)
+    const { lostRevenue, recoverableRevenue } = useMemo(() => {
         // Assume 15 min per ticket = 0.25h
         // Average human cost per hour = 25€ (including charges)
         const dailyCostSupport = dailyTickets * 0.25 * 25;
@@ -28,8 +24,7 @@ export const RevenueCalculator = () => {
         // Actero AI recovers roughly 70% of support costs and 80% of missed conversions
         const recovered = (monthlyCostSupport * 0.7) + (missedConversionOpportunity * 0.8);
 
-        setLostRevenue(totalLeak);
-        setRecoverableRevenue(recovered);
+        return { lostRevenue: totalLeak, recoverableRevenue: recovered };
     }, [monthlyRevenue, dailyTickets]);
 
     // Format numbers

@@ -4,7 +4,7 @@ import { ArrowRight, Play, Mic, ArrowUp, Zap } from 'lucide-react';
 import { FadeInUp, ScaleIn } from './scroll-animations';
 import { LeadCaptureModal } from './lead-capture-modal';
 import { ButtonColorful } from './button-colorful';
-import { trackEvent } from '../../src/lib/analytics';
+import { trackEvent } from '../../lib/analytics';
 
 export const GlassHero = ({ onNavigate, onOpenAuditScanner }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,7 +29,7 @@ export const GlassHero = ({ onNavigate, onOpenAuditScanner }) => {
             setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length);
         }, 3000);
         return () => clearInterval(interval);
-    }, []);
+    }, [rotatingWords.length]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];

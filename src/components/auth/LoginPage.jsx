@@ -31,7 +31,7 @@ export const LoginPage = ({ onNavigate }) => {
         if (error) throw error;
         // Navigation is handled by onAuthStateChange in App.jsx or DashboardGate
       }
-    } catch (err) {
+    } catch (_err) {
       setError(
         isForgot
           ? "Erreur lors de l'envoi du lien."
@@ -53,7 +53,7 @@ export const LoginPage = ({ onNavigate }) => {
         },
       });
       if (error) throw error;
-    } catch (err) {
+    } catch (_err) {
       setError("Erreur Google Auth.");
     } finally {
       setLoading(false);

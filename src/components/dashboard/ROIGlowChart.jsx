@@ -42,16 +42,16 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
       return dDate >= start && dDate <= end;
     }).sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    let sum = 0;
-    return filtered.map((d, index) => {
-      sum += Number(d.estimated_roi);
-      return {
+    return filtered.reduce((acc, d, index) => {
+      const prevCumulative = index > 0 ? acc[index - 1].cumulative : 0;
+      acc.push({
         ...d,
         dayIndex: index,
-        cumulative: sum,
+        cumulative: prevCumulative + Number(d.estimated_roi),
         dateLabel: new Date(d.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-      };
-    });
+      });
+      return acc;
+    }, []);
   }, [dailyMetrics, selectedPeriod]);
 
   const previousPeriodChartData = useMemo(() => {
@@ -85,7 +85,10 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
       for (let i = 0; i < itemCount; i++) {
         // Each day, they were earning ~90% of what they earn now
         const baseVal = currentPeriodChartData[i].estimated_roi || 0;
-        const simVal = baseVal * (0.85 + Math.random() * 0.1); 
+        // Deterministic pseudo-random based on index for pure render
+        const pseudoRand = Math.sin(i + 1) * 10000;
+        const noise = (pseudoRand - Math.floor(pseudoRand)) * 0.1;
+        const simVal = baseVal * (0.85 + noise);
         simulatedSum += simVal;
         simulatedData.push({
           date: new Date(start.getTime() + i * 24 * 60 * 60 * 1000).toISOString(),
