@@ -223,16 +223,59 @@ export const GlassHero = ({ onNavigate, onOpenAuditScanner }) => {
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center pt-24 pb-32 px-6 overflow-hidden">
 
-            {/* Background Image Setup */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    src="/moody_landscape_bg.png"
-                    alt="Premium Moody Landscape"
-                    className="w-full h-full object-cover object-[center_70%] opacity-90"
+            {/* Background — Cyan Aurora */}
+            <div className="absolute inset-0 z-0 bg-[#030303] overflow-hidden">
+                {/* Aurora band 1 — wide cyan */}
+                <div
+                    className="absolute top-[8%] left-[-10%] w-[120%] h-[35%] pointer-events-none opacity-50"
+                    style={{
+                        background: 'linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.1) 25%, rgba(6,182,212,0.16) 50%, rgba(6,182,212,0.1) 75%, transparent 100%)',
+                        borderRadius: '50%',
+                        filter: 'blur(60px)',
+                        transform: 'rotate(-3deg)',
+                        animation: 'aurora-drift-1 12s ease-in-out infinite alternate',
+                    }}
                 />
-                {/* Gradients to blend with the rest of the dark site */}
-                <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/40 via-transparent to-[#030303] pointer-events-none"></div>
-                <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-[#030303] to-transparent pointer-events-none"></div>
+                {/* Aurora band 2 — thinner, brighter cyan */}
+                <div
+                    className="absolute top-[18%] left-[-5%] w-[110%] h-[20%] pointer-events-none opacity-40"
+                    style={{
+                        background: 'linear-gradient(90deg, transparent 5%, rgba(6,182,212,0.12) 30%, rgba(6,182,212,0.18) 50%, rgba(6,182,212,0.1) 70%, transparent 95%)',
+                        borderRadius: '50%',
+                        filter: 'blur(50px)',
+                        transform: 'rotate(2deg)',
+                        animation: 'aurora-drift-2 15s ease-in-out infinite alternate',
+                    }}
+                />
+                {/* Aurora band 3 — low subtle */}
+                <div
+                    className="absolute top-[30%] left-[5%] w-[90%] h-[15%] pointer-events-none opacity-30"
+                    style={{
+                        background: 'linear-gradient(90deg, transparent 10%, rgba(6,182,212,0.14) 35%, rgba(6,182,212,0.1) 65%, transparent 100%)',
+                        borderRadius: '50%',
+                        filter: 'blur(45px)',
+                        transform: 'rotate(-1deg)',
+                        animation: 'aurora-drift-3 18s ease-in-out infinite alternate',
+                    }}
+                />
+                {/* Soft top-center glow halo */}
+                <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[80%] h-[40%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(6,182,212,0.06)_0%,transparent_70%)] pointer-events-none" />
+                {/* Bottom fade to page background */}
+                <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-[#030303] to-transparent pointer-events-none" />
+                <style>{`
+                    @keyframes aurora-drift-1 {
+                        0%   { transform: rotate(-3deg) translateX(-3%) translateY(0); }
+                        100% { transform: rotate(-1deg) translateX(3%) translateY(-8px); }
+                    }
+                    @keyframes aurora-drift-2 {
+                        0%   { transform: rotate(2deg) translateX(2%) translateY(0); }
+                        100% { transform: rotate(0deg) translateX(-2%) translateY(10px); }
+                    }
+                    @keyframes aurora-drift-3 {
+                        0%   { transform: rotate(-1deg) translateX(0) translateY(0); }
+                        100% { transform: rotate(1deg) translateX(4%) translateY(-5px); }
+                    }
+                `}</style>
             </div>
 
             <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">

@@ -217,28 +217,57 @@ export const LoginPage = ({ onNavigate }) => {
         </div>
       </div>
 
-      {/* ─── Right: Decorative Image ─── */}
-      <div className="hidden lg:block w-1/2 relative overflow-hidden">
-        <img
-          src="/moody_landscape_bg.png"
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        {/* Vertical bars overlay effect */}
+      {/* ─── Right: Cyan Aurora ─── */}
+      <div className="hidden lg:block w-1/2 relative overflow-hidden bg-[#030303]">
+        {/* Aurora band 1 */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="absolute top-[15%] left-[-10%] w-[120%] h-[35%] pointer-events-none opacity-50"
           style={{
-            background: `repeating-linear-gradient(
-              90deg,
-              transparent 0px,
-              transparent 80px,
-              rgba(0,0,0,0.15) 80px,
-              rgba(0,0,0,0.15) 82px
-            )`,
+            background: 'linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.1) 25%, rgba(6,182,212,0.16) 50%, rgba(6,182,212,0.1) 75%, transparent 100%)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            transform: 'rotate(-3deg)',
+            animation: 'aurora-login-1 12s ease-in-out infinite alternate',
           }}
         />
-        {/* Left edge fade into the dark background */}
+        {/* Aurora band 2 */}
+        <div
+          className="absolute top-[30%] left-[-5%] w-[110%] h-[20%] pointer-events-none opacity-40"
+          style={{
+            background: 'linear-gradient(90deg, transparent 5%, rgba(6,182,212,0.12) 30%, rgba(6,182,212,0.18) 50%, rgba(6,182,212,0.1) 70%, transparent 95%)',
+            borderRadius: '50%',
+            filter: 'blur(50px)',
+            transform: 'rotate(2deg)',
+            animation: 'aurora-login-2 15s ease-in-out infinite alternate',
+          }}
+        />
+        {/* Aurora band 3 */}
+        <div
+          className="absolute top-[50%] left-[5%] w-[90%] h-[15%] pointer-events-none opacity-30"
+          style={{
+            background: 'linear-gradient(90deg, transparent 10%, rgba(6,182,212,0.14) 35%, rgba(6,182,212,0.1) 65%, transparent 100%)',
+            borderRadius: '50%',
+            filter: 'blur(45px)',
+            transform: 'rotate(-1deg)',
+            animation: 'aurora-login-3 18s ease-in-out infinite alternate',
+          }}
+        />
+        {/* Left edge fade */}
         <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#030303] to-transparent" />
+        <style>{`
+          @keyframes aurora-login-1 {
+            0%   { transform: rotate(-3deg) translateX(-3%) translateY(0); }
+            100% { transform: rotate(-1deg) translateX(3%) translateY(-8px); }
+          }
+          @keyframes aurora-login-2 {
+            0%   { transform: rotate(2deg) translateX(2%) translateY(0); }
+            100% { transform: rotate(0deg) translateX(-2%) translateY(10px); }
+          }
+          @keyframes aurora-login-3 {
+            0%   { transform: rotate(-1deg) translateX(0) translateY(0); }
+            100% { transform: rotate(1deg) translateX(4%) translateY(-5px); }
+          }
+        `}</style>
       </div>
     </div>
   );
