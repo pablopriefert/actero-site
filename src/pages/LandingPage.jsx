@@ -159,9 +159,9 @@ export const LandingPage = ({ onNavigate }) => {
 
       <div className="relative z-10 w-full">
         {/* NAVBAR */}
-        <Navbar 
-          onNavigate={onNavigate} 
-          onOpenAuditScanner={() => setIsAuditScannerOpen(true)}
+        <Navbar
+          onNavigate={onNavigate}
+          onAuditOpen={() => onNavigate("/audit")}
           scrollToId={scrollToId}
           isMegaMenuOpen={isMegaMenuOpen}
           setIsMegaMenuOpen={setIsMegaMenuOpen}
