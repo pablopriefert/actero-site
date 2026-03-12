@@ -2,18 +2,14 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  ArrowRight,
-  ArrowUpRight,
   Plus,
-  Zap,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
-import { Logo } from "../components/layout/Logo";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
-import { ButtonColorful } from "../components/ui/button-colorful";
 import { GptBadge } from "../components/ui/GptBadge";
+import { MagneticButton } from "../components/ui/magnetic-button";
 import { trackEvent } from "../lib/analytics";
 
 export const PricingPage = ({ onNavigate }) => {
@@ -21,13 +17,16 @@ export const PricingPage = ({ onNavigate }) => {
     window.scrollTo(0, 0);
   }, []);
 
+  const [isAnnual, setIsAnnual] = useState(true);
   const [openFaq, setOpenFaq] = useState(null);
 
   const plans = [
     {
       id: "free",
       name: "Audit System",
-      price: "Gratuit",
+      monthlyPrice: null,
+      annualPrice: null,
+      priceLabel: "Gratuit",
       period: "",
       description:
         "Un diagnostic complet de vos opérations e-commerce et des quick wins immédiats.",
@@ -40,19 +39,21 @@ export const PricingPage = ({ onNavigate }) => {
       ],
       cta: "Lancer mon audit",
       highlighted: false,
-      color: "white",
+      glowColor: "white",
     },
     {
       id: "croissance_automatisee",
       name: "Croissance Automatisée",
-      price: "Sur devis",
+      monthlyPrice: null,
+      annualPrice: null,
+      priceLabel: "Sur devis",
       period: "",
       description:
         "L'infrastructure complète pour automatiser votre croissance sur 3 canaux avec un agent IA dédié.",
       features: [
         "Tout dans Audit System",
-        <span key="ia" className="inline-flex items-center flex-wrap gap-2">Agent IA support client Niveau 1 <GptBadge /></span>,
-        <span key="auto" className="inline-flex items-center flex-wrap gap-2">Automatisations Make/Zapier illimitées <GptBadge /></span>,
+        { text: "Agent IA support client Niveau 1", badge: true },
+        { text: "Automatisations Make/Zapier illimitées", badge: true },
         "Intégration Shopify + CRM + Klaviyo",
         "Relances panier abandonné IA",
         "Dashboard de performance en temps réel",
@@ -61,18 +62,20 @@ export const PricingPage = ({ onNavigate }) => {
       ],
       cta: "Réserver un appel",
       highlighted: true,
-      color: "emerald",
+      glowColor: "emerald",
     },
     {
       id: "contact",
       name: "Scale sur Mesure",
-      price: "Sur devis",
+      monthlyPrice: null,
+      annualPrice: null,
+      priceLabel: "Sur devis",
       period: "",
       description:
         "Pour les marques qui scalent au-delà de 500K€/mois et ont besoin d'une infra sur mesure.",
       features: [
         "Tout dans Croissance Automatisée",
-        <span key="ia-agents" className="inline-flex items-center flex-wrap gap-2">Agents IA multi-canaux personnalisés <GptBadge /></span>,
+        { text: "Agents IA multi-canaux personnalisés", badge: true },
         "Architecture data warehouse",
         "Intégrations API custom",
         "Équipe dédiée (2+ agents IA)",
@@ -82,7 +85,7 @@ export const PricingPage = ({ onNavigate }) => {
       ],
       cta: "Nous contacter",
       highlighted: false,
-      color: "purple",
+      glowColor: "purple",
     },
   ];
 
@@ -109,43 +112,119 @@ export const PricingPage = ({ onNavigate }) => {
     },
   ];
 
+  const getPrice = (plan) => {
+    if (plan.priceLabel) return plan.priceLabel;
+    const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
+    return `${price}€`;
+  };
+
+  const getPeriod = (plan) => {
+    if (plan.priceLabel) return plan.period;
+    return isAnnual ? "/mois (facturé annuellement)" : "/mois";
+  };
+
   return (
     <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
       <main className="pt-32 pb-24 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl md:text-6xl font-bold tracking-tight mb-6"
+            >
               Investissez dans votre <span className="text-zinc-400">liberté.</span>
-            </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-xl text-gray-400 max-w-2xl mx-auto mb-10"
+            >
               Des tarifs clairs, indexés sur la valeur générée et le temps économisé.
-            </p>
-          </div>
+            </motion.p>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className={`relative p-8 md:p-10 rounded-[32px] border transition-all duration-500 hover:scale-[1.02] ${
-                  plan.highlighted
-                    ? "bg-white/5 border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.05)]"
-                    : "bg-[#0a0a0a] border-white/10"
+            {/* Annual/Monthly Toggle */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-full p-1.5"
+            >
+              <button
+                onClick={() => setIsAnnual(false)}
+                className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
+                  !isAnnual
+                    ? "bg-white text-black shadow-lg"
+                    : "text-gray-400 hover:text-white"
                 }`}
               >
+                Mensuel
+              </button>
+              <button
+                onClick={() => setIsAnnual(true)}
+                className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 ${
+                  isAnnual
+                    ? "bg-white text-black shadow-lg"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                Annuel
+                <span className="text-[10px] font-bold bg-emerald-500 text-black px-2 py-0.5 rounded-full">
+                  -20%
+                </span>
+              </button>
+            </motion.div>
+          </div>
+
+          {/* Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {plans.map((plan, i) => (
+              <motion.div
+                key={plan.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * i + 0.3 }}
+                className={`group relative p-8 md:p-10 rounded-[32px] border transition-all duration-500 hover:scale-[1.02] ${
+                  plan.highlighted
+                    ? "bg-white/[0.03] border-emerald-500/30"
+                    : "bg-[#0a0a0a] border-white/10 hover:border-white/20"
+                }`}
+              >
+                {/* Glow effect on highlighted card */}
                 {plan.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-black text-[10px] font-bold uppercase tracking-widest px-4 py-1 rounded-full shadow-lg">
-                    Recommandé
+                  <div className="absolute -inset-px rounded-[32px] bg-gradient-to-b from-emerald-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+                )}
+
+                {plan.highlighted && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <div className="flex items-center gap-1.5 bg-emerald-500 text-black text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-emerald-500/25">
+                      <Sparkles className="w-3 h-3" />
+                      Recommandé
+                    </div>
                   </div>
                 )}
 
                 <div className="mb-8">
-                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                  <h3 className="text-xl font-bold mb-3">{plan.name}</h3>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={`${plan.id}-${isAnnual}`}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-4xl font-bold"
+                      >
+                        {getPrice(plan)}
+                      </motion.span>
+                    </AnimatePresence>
                     <span className="text-gray-500 text-sm font-medium">
-                      {plan.period}
+                      {getPeriod(plan)}
                     </span>
                   </div>
                   <p className="mt-4 text-gray-400 text-sm font-medium leading-relaxed">
@@ -154,18 +233,26 @@ export const PricingPage = ({ onNavigate }) => {
                 </div>
 
                 <div className="space-y-4 mb-10">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span className="text-sm font-medium text-gray-300">
-                        {feature}
-                      </span>
-                    </div>
-                  ))}
+                  {plan.features.map((feature, idx) => {
+                    const isObj = typeof feature === 'object' && feature !== null;
+                    const text = isObj ? feature.text : feature;
+                    const hasBadge = isObj && feature.badge;
+                    return (
+                      <div key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-sm font-medium text-gray-300 inline-flex items-center flex-wrap gap-2">
+                          {text} {hasBadge && <GptBadge />}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
 
-                <button
-                  onClick={() => onNavigate("/audit")}
+                <MagneticButton
+                  onClick={() => {
+                    trackEvent("Pricing_CTA_Clicked", { plan: plan.id });
+                    onNavigate("/audit");
+                  }}
                   className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${
                     plan.highlighted
                       ? "bg-white text-black hover:bg-zinc-200"
@@ -173,11 +260,12 @@ export const PricingPage = ({ onNavigate }) => {
                   }`}
                 >
                   {plan.cta} <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
+                </MagneticButton>
+              </motion.div>
             ))}
           </div>
 
+          {/* FAQ */}
           <div className="mt-32 max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-center mb-12">
               Questions fréquentes

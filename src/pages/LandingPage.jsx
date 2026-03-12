@@ -30,6 +30,7 @@ import { ArchitectureMap } from '../components/ui/architecture-map'
 import { BeforeAfterSlider } from '../components/ui/before-after-slider'
 import { AITeamBuilder } from '../components/ui/ai-team-builder'
 import { ButtonColorful } from '../components/ui/button-colorful'
+import { MagneticButton } from '../components/ui/magnetic-button'
 import { AIAuditScannerModal } from '../components/landing/AIAuditScannerModal'
 import { GptBadge } from '../components/ui/GptBadge'
 import { ScrollCounter } from '../components/ui/ScrollCounter'
@@ -342,9 +343,12 @@ export const LandingPage = ({ onNavigate }) => {
                             Un système autonome qui optimise vos marges <span className="text-zinc-400">24h/24</span>.
                           </p>
                         </div>
-                        <ButtonColorful onClick={() => onNavigate("/audit")} className="flex-shrink-0">
+                        <MagneticButton
+                          onClick={() => onNavigate("/audit")}
+                          className="flex-shrink-0 bg-white text-black px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-zinc-200 transition-colors"
+                        >
                           Commencer <ArrowRight className="w-4 h-4" />
-                        </ButtonColorful>
+                        </MagneticButton>
                       </div>
                     </div>
                   </FadeInUp>

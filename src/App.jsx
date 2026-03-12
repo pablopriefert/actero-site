@@ -14,6 +14,8 @@ import { AuditPage } from "./pages/AuditPage";
 import { DashboardGate } from "./components/auth/DashboardGate"
 import { DemoDashboardPage } from "./components/ui/demo-dashboard";
 import { PromptLibraryPage } from "./components/ui/prompt-library-page";
+import { CursorGlow } from "./components/ui/cursor-glow";
+import { CommandPalette } from "./components/ui/command-palette";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +55,7 @@ function MainRouter() {
 
   if (isRouting) return null;
 
-  // Static Pages
+  const routeContent = (() => {
   if (currentRoute === "/") return <LandingPage onNavigate={navigate} />;
   if (currentRoute === "/login") return <LoginPage onNavigate={navigate} />;
   if (currentRoute === "/reset-password") return <ResetPasswordPage onNavigate={navigate} />;
@@ -106,6 +108,15 @@ function MainRouter() {
         <button onClick={() => navigate("/")} className="mt-4 text-emerald-400 font-bold">Retour à l'accueil</button>
       </div>
     </div>
+  );
+  })();
+
+  return (
+    <>
+      <CursorGlow />
+      <CommandPalette onNavigate={navigate} />
+      {routeContent}
+    </>
   );
 }
 
