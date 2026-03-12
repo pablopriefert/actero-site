@@ -15,37 +15,64 @@ export function SetPasswordPage({ onNavigate }) {
 
   useEffect(() => {
     let mounted = true;
+    let subscription = null;
 
-    // With PKCE flow, the ?code= param is exchanged for a session ASYNCHRONOUSLY
-    // by the Supabase client. We need to wait for that exchange to complete.
-    const check = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session && mounted) {
-        setSessionReady(true)
-        return
+    const init = async () => {
+      try {
+        // With PKCE flow, the ?code= param is exchanged for a session ASYNCHRONOUSLY
+        // by the Supabase client. We need to wait for that exchange to complete.
+
+        // First, try exchanging the code if present in the URL
+        const params = new URLSearchParams(window.location.search)
+        const code = params.get('code')
+
+        if (code) {
+          // Manually trigger the PKCE exchange
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+          if (error) {
+            console.error('[SetPasswordPage] Code exchange error:', error)
+            if (mounted) setErrorMsg("Lien expiré ou invalide. Veuillez demander un nouveau lien d'invitation.")
+            return
+          }
+          if (data?.session && mounted) {
+            // Clean URL
+            window.history.replaceState({}, '', '/setup-password')
+            setSessionReady(true)
+            return
+          }
+        }
+
+        // Fallback: check if session already exists
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session && mounted) {
+          setSessionReady(true)
+          return
+        }
+      } catch (err) {
+        console.error('[SetPasswordPage] Init error:', err)
+        if (mounted) setErrorMsg("Une erreur est survenue lors de l'activation. Veuillez réessayer.")
       }
-      // Session not ready yet — the PKCE code exchange may still be in progress
-      // Don't set error immediately, the listener below will catch it
     }
-    check()
+    init()
 
-    // Listen for auth state changes (PKCE code exchange completing)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    // Also listen for auth state changes as backup
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && mounted) {
         setSessionReady(true)
       }
     })
+    subscription = authListener?.subscription
 
-    // Timeout fallback: if no session after 10s, show error
+    // Timeout fallback: if no session after 15s, show error
     const timeout = setTimeout(() => {
       if (mounted && !sessionReady) {
         setErrorMsg("Session expirée. Veuillez demander un nouveau lien d'invitation.")
       }
-    }, 10000)
+    }, 15000)
 
     return () => {
       mounted = false
-      subscription.unsubscribe()
+      if (subscription) subscription.unsubscribe()
       clearTimeout(timeout)
     }
   }, [])
