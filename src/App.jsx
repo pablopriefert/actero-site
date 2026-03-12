@@ -55,37 +55,21 @@ function MainRouter() {
 
   if (isRouting) return null;
 
-  const routeContent = (() => {
-  if (currentRoute === "/") return <LandingPage onNavigate={navigate} />;
-  if (currentRoute === "/login") return <LoginPage onNavigate={navigate} />;
-  if (currentRoute === "/reset-password") return <ResetPasswordPage onNavigate={navigate} />;
-  if (currentRoute === "/auth/callback") return <AuthCallbackPage onNavigate={navigate} />;
-  if (currentRoute === "/entreprise") return <CompanyPage onNavigate={navigate} />;
-  if (currentRoute === "/tarifs") return <PricingPage onNavigate={navigate} />;
-  if (currentRoute === "/faq") return <FaqPage onNavigate={navigate} />;
-  if (currentRoute === "/audit") return <AuditPage onNavigate={navigate} />;
-  
-  if (currentRoute === "/demo") return <DemoDashboardPage onNavigate={navigate} />;
-  if (currentRoute === "/ressources") return <PromptLibraryPage onNavigate={navigate} />;
-
-  // Protected Routes (Handled by DashboardGate)
-  if (
-    currentRoute === "/app" || 
-    currentRoute.startsWith("/admin") || 
-    currentRoute.startsWith("/client")
-  ) {
-    return (
-      <DashboardGate
-        currentRoute={currentRoute}
-        onNavigate={navigate}
-        onLogout={handleLogout}
-      />
-    );
-  }
-
-  // Payment Feedback (could be dedicated pages but keeping them simple here)
-  if (currentRoute === "/payment/success") {
-    return (
+  let page;
+  if (currentRoute === "/") page = <LandingPage onNavigate={navigate} />;
+  else if (currentRoute === "/login") page = <LoginPage onNavigate={navigate} />;
+  else if (currentRoute === "/reset-password") page = <ResetPasswordPage onNavigate={navigate} />;
+  else if (currentRoute === "/auth/callback") page = <AuthCallbackPage onNavigate={navigate} />;
+  else if (currentRoute === "/entreprise") page = <CompanyPage onNavigate={navigate} />;
+  else if (currentRoute === "/tarifs") page = <PricingPage onNavigate={navigate} />;
+  else if (currentRoute === "/faq") page = <FaqPage onNavigate={navigate} />;
+  else if (currentRoute === "/audit") page = <AuditPage onNavigate={navigate} />;
+  else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
+  else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
+  else if (currentRoute === "/app" || currentRoute.startsWith("/admin") || currentRoute.startsWith("/client")) {
+    page = <DashboardGate currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;
+  } else if (currentRoute === "/payment/success") {
+    page = (
       <div className="min-h-screen flex items-center justify-center bg-[#030303] font-sans px-6">
         <div className="text-center p-12 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl max-w-md w-full">
           <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
@@ -97,25 +81,23 @@ function MainRouter() {
         </div>
       </div>
     );
-  }
-
-  // Default 404
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#030303] text-white">
-      <div className="text-center">
-        <AlertCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Page introuvable</h2>
-        <button onClick={() => navigate("/")} className="mt-4 text-emerald-400 font-bold">Retour à l'accueil</button>
+  } else {
+    page = (
+      <div className="min-h-screen flex items-center justify-center bg-[#030303] text-white">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Page introuvable</h2>
+          <button onClick={() => navigate("/")} className="mt-4 text-emerald-400 font-bold">Retour à l'accueil</button>
+        </div>
       </div>
-    </div>
-  );
-  })();
+    );
+  }
 
   return (
     <>
       <CursorGlow />
       <CommandPalette onNavigate={navigate} />
-      {routeContent}
+      {page}
     </>
   );
 }
