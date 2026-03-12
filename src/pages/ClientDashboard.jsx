@@ -69,12 +69,31 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     onNavigate(route);
   };
 
-  // 1. Fetch Client Profile
+  // 1. Fetch Client Profile (via client_users link OR owner_user_id)
   const { data: currentClient, isLoading: clientLoading } = useQuery({
     queryKey: ["client-profile"],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Non authentifié");
+
+      // Try via client_users table first (invited users)
+      const { data: link } = await supabase
+        .from("client_users")
+        .select("client_id")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (link?.client_id) {
+        const { data, error } = await supabase
+          .from("clients")
+          .select("id, brand_name, owner_user_id, created_at")
+          .eq("id", link.client_id)
+          .single();
+        if (error && error.code !== "PGRST116") throw error;
+        return data;
+      }
+
+      // Fallback: owner_user_id (legacy / owner accounts)
       const { data, error } = await supabase
         .from("clients")
         .select("id, brand_name, owner_user_id, created_at")
