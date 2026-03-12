@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { AlertCircle } from 'lucide-react'
-import { supabase } from '../lib/supabase'
+import { supabase, INITIAL_URL } from '../lib/supabase'
 import { fetchUserRole } from '../lib/auth-utils'
 
 const DEBUG_AUTH = false;
@@ -12,9 +12,10 @@ export function AuthCallbackPage({ onNavigate }) {
   const [errorMsg, setErrorMsg] = useState(null);
 
   // Detect if this callback is from an invite link
+  // Uses INITIAL_URL because the hash is consumed by Supabase client before React mounts
   const isInviteFlow = () => {
-    const hash = window.location.hash;
-    const params = new URLSearchParams(window.location.search);
+    const hash = INITIAL_URL.hash;
+    const params = new URLSearchParams(INITIAL_URL.search);
     return hash.includes("type=invite") || params.get("type") === "invite";
   };
 

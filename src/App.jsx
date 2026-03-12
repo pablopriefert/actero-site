@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import { AlertCircle } from "lucide-react";
-import { supabase } from "./lib/supabase";
+import { supabase, INITIAL_URL } from "./lib/supabase";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./components/auth/LoginPage";
 import { ResetPasswordPage } from "./components/auth/ResetPasswordPage";
@@ -21,11 +21,15 @@ import { CommandPalette } from "./components/ui/command-palette";
 const queryClient = new QueryClient();
 
 function getInitialRoute() {
-  const path = window.location.pathname;
-  const hash = window.location.hash;
+  // Use INITIAL_URL saved BEFORE Supabase client consumed the hash fragment
+  const path = INITIAL_URL.path;
+  const hash = INITIAL_URL.hash;
+  const search = INITIAL_URL.search;
 
   if (hash.includes("type=recovery")) return "/reset-password";
   if (path === "/auth/callback" || hash.includes("access_token=")) return "/auth/callback";
+  // PKCE flow: Supabase may use a ?code= query param instead of hash
+  if (new URLSearchParams(search).has("code")) return "/auth/callback";
   return path;
 }
 
