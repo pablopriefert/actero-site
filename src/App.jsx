@@ -6,6 +6,7 @@ import { supabase } from "./lib/supabase";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./components/auth/LoginPage";
 import { ResetPasswordPage } from "./components/auth/ResetPasswordPage";
+import { SetPasswordPage } from "./components/auth/SetPasswordPage";
 import { AuthCallbackPage } from "./pages/AuthCallbackPage";
 import { CompanyPage } from "./pages/CompanyPage";
 import { PricingPage } from "./pages/PricingPage";
@@ -59,6 +60,7 @@ function MainRouter() {
   if (currentRoute === "/") page = <LandingPage onNavigate={navigate} />;
   else if (currentRoute === "/login") page = <LoginPage onNavigate={navigate} />;
   else if (currentRoute === "/reset-password") page = <ResetPasswordPage onNavigate={navigate} />;
+  else if (currentRoute === "/setup-password") page = <SetPasswordPage onNavigate={navigate} />;
   else if (currentRoute === "/auth/callback") page = <AuthCallbackPage onNavigate={navigate} />;
   else if (currentRoute === "/entreprise") page = <CompanyPage onNavigate={navigate} />;
   else if (currentRoute === "/tarifs") page = <PricingPage onNavigate={navigate} />;

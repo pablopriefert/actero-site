@@ -11,6 +11,25 @@ const logger = (...args) => {
 export function AuthCallbackPage({ onNavigate }) {
   const [errorMsg, setErrorMsg] = useState(null);
 
+  // Detect if this callback is from an invite link
+  const isInviteFlow = () => {
+    const hash = window.location.hash;
+    const params = new URLSearchParams(window.location.search);
+    return hash.includes("type=invite") || params.get("type") === "invite";
+  };
+
+  const redirectUser = async (session) => {
+    // If this is an invite flow, redirect to set password page
+    if (isInviteFlow()) {
+      logger("Invite flow detected → redirecting to /setup-password");
+      onNavigate("/setup-password");
+      return;
+    }
+    // Otherwise, redirect based on role
+    const userRole = await fetchUserRole(session.user.id);
+    onNavigate(userRole === "admin" ? "/admin" : "/client");
+  };
+
   useEffect(() => {
     logger("Mounted. Checking for session...");
 
@@ -30,9 +49,8 @@ export function AuthCallbackPage({ onNavigate }) {
 
         if (error) throw error;
         if (session && mounted) {
-          logger("Session existante ! Fetching role for redirect...");
-          const userRole = await fetchUserRole(session.user.id);
-          onNavigate(userRole === "admin" ? "/admin" : "/client");
+          logger("Session existante ! Routing...");
+          await redirectUser(session);
         }
       } catch (err) {
         if (mounted)
@@ -55,10 +73,8 @@ export function AuthCallbackPage({ onNavigate }) {
         session ? "Session Active" : "No Session",
       );
       if (session && mounted) {
-        logger("Session caught via listener. Fetching role...");
-        fetchUserRole(session.user.id).then((userRole) => {
-          if (mounted) onNavigate(userRole === "admin" ? "/admin" : "/client");
-        });
+        logger("Session caught via listener. Routing...");
+        redirectUser(session);
       }
     });
 
