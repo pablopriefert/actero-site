@@ -26,7 +26,7 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
         <div className="px-6 md:px-8 h-14 md:h-[60px] flex justify-between items-center">
           <div
             className="flex items-center gap-2 cursor-pointer group"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => onNavigate("/")}
           >
             <Logo
               light={true}
