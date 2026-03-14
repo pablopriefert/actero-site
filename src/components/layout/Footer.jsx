@@ -16,19 +16,35 @@ export const Footer = ({ onNavigate }) => {
           <p className="text-sm font-medium text-gray-400">
             L'infrastructure autopilotée des E-commerçants.
           </p>
-          <a
-            href="https://elevenlabs.io/startup-grants"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Powered by</span>
-            <img
-              src="/elevenlabs-grants.webp"
-              alt="ElevenLabs Startup Grants"
-              className="h-4 w-auto brightness-0 invert"
-            />
-          </a>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://elevenlabs.io/startup-grants"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Powered by</span>
+              <img
+                src="/elevenlabs-grants.webp"
+                alt="ElevenLabs Startup Grants"
+                className="h-4 w-auto brightness-0 invert"
+              />
+            </a>
+            <span className="text-white/10">|</span>
+            <a
+              href="https://www.shopify.com/partners"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <img
+                src="https://cdn.simpleicons.org/shopify/ffffff"
+                alt="Shopify"
+                className="h-4 w-4"
+              />
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Partner</span>
+            </a>
+          </div>
         </div>
 
         <div className="flex flex-wrap justify-center gap-8 text-sm font-bold text-gray-400">
