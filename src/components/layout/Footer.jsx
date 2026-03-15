@@ -35,14 +35,13 @@ export const Footer = ({ onNavigate }) => {
               href="https://www.shopify.com/partners"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+              className="flex items-center opacity-70 hover:opacity-100 transition-opacity"
             >
               <img
-                src="https://cdn.simpleicons.org/shopify/ffffff"
-                alt="Shopify"
-                className="h-4 w-4"
+                src="/shopify-partners.svg"
+                alt="Shopify Partners"
+                className="h-5 w-auto brightness-0 invert"
               />
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Partner</span>
             </a>
           </div>
         </div>
