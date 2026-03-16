@@ -55,18 +55,12 @@ export const LandingPage = ({ onNavigate }) => {
   };
 
   // --- États pour l'interaction IA ---
-  // eslint-disable-next-line no-unused-vars
-  const [aiInput, setAiInput] = useState("");
-  // eslint-disable-next-line no-unused-vars
-  const [platform, setPlatform] = useState("Shopify");
-  // eslint-disable-next-line no-unused-vars
-  const [objective, setObjective] = useState("Conversion");
-  // eslint-disable-next-line no-unused-vars
-  const [aiLoading, setAiLoading] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [aiResult, setAiResult] = useState(null);
-  // eslint-disable-next-line no-unused-vars
-  const [aiError, setAiError] = useState("");
+  const [aiInput, setAiInput] = useState(""); // eslint-disable-line no-unused-vars
+  const [platform, setPlatform] = useState("Shopify"); // eslint-disable-line no-unused-vars
+  const [objective, setObjective] = useState("Conversion"); // eslint-disable-line no-unused-vars
+  const [aiLoading, setAiLoading] = useState(false); // eslint-disable-line no-unused-vars
+  const [aiResult, setAiResult] = useState(null); // eslint-disable-line no-unused-vars
+  const [aiError, setAiError] = useState(""); // eslint-disable-line no-unused-vars
 
   // --- Modal AI Lead ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,8 +80,7 @@ export const LandingPage = ({ onNavigate }) => {
     trackEvent("Landing_Page_Viewed");
   }, []);
 
-  // eslint-disable-next-line no-unused-vars
-  const handleOpenModal = () => setIsModalOpen(true);
+  const handleOpenModal = () => setIsModalOpen(true); // eslint-disable-line no-unused-vars
   const closeModal = () => setIsModalOpen(false);
 
   const handleModalSubmit = async (e) => {

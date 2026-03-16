@@ -19,22 +19,31 @@ export function AuthCallbackPage({ onNavigate }) {
     return hash.includes("type=invite") || params.get("type") === "invite";
   };
 
-  const redirectUser = async (session) => {
-    // If this is an invite flow, redirect to set password page
-    if (isInviteFlow()) {
-      logger("Invite flow detected → redirecting to /setup-password");
-      onNavigate("/setup-password");
-      return;
-    }
-    // Otherwise, redirect based on role
-    const userRole = await fetchUserRole(session.user.id);
-    onNavigate(userRole === "admin" ? "/admin" : "/client");
-  };
-
   useEffect(() => {
     logger("Mounted. Checking for session...");
 
     let mounted = true;
+    let hasRedirected = false;
+
+    const redirectUser = async (session) => {
+      if (hasRedirected || !mounted) return;
+      hasRedirected = true;
+
+      try {
+        // If this is an invite flow, redirect to set password page
+        if (isInviteFlow()) {
+          logger("Invite flow detected → redirecting to /setup-password");
+          onNavigate("/setup-password");
+          return;
+        }
+        // Otherwise, redirect based on role
+        const userRole = await fetchUserRole(session.user.id);
+        onNavigate(userRole === "admin" ? "/admin" : "/client");
+      } catch (err) {
+        hasRedirected = false;
+        if (mounted) setErrorMsg(err.message || "Erreur lors de la redirection.");
+      }
+    };
 
     const checkSession = async () => {
       try {
@@ -81,7 +90,7 @@ export function AuthCallbackPage({ onNavigate }) {
 
     // 8s timeout fallback if something gets stuck
     const timeout = setTimeout(() => {
-      if (mounted) {
+      if (mounted && !hasRedirected) {
         logger("Timeout reached. No session resolved.");
         setErrorMsg("Le lien a expiré ou est invalide. Veuillez réessayer.");
       }

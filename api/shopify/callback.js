@@ -8,6 +8,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required parameters' });
   }
 
+  // 1b. Validate shop domain format
+  if (!/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(shop)) {
+    return res.status(400).json({ error: 'Invalid shop domain' });
+  }
+
   // 2. Verify HMAC signature from Shopify
   const secret = process.env.SHOPIFY_CLIENT_SECRET;
   const queryParams = { ...req.query };
@@ -24,13 +29,13 @@ export default async function handler(req, res) {
     .update(sortedParams)
     .digest('hex');
 
-  if (generatedHmac !== hmac) {
+  if (!crypto.timingSafeEqual(Buffer.from(generatedHmac, 'utf8'), Buffer.from(hmac, 'utf8'))) {
     return res.status(401).json({ error: 'HMAC validation failed' });
   }
 
   // 3. Verify nonce (CSRF protection)
   const cookies = parseCookies(req.headers.cookie || '');
-  if (cookies.shopify_nonce && cookies.shopify_nonce !== state) {
+  if (!state || !cookies.shopify_nonce || cookies.shopify_nonce !== state) {
     return res.status(401).json({ error: 'Invalid state/nonce' });
   }
 
@@ -48,10 +53,15 @@ export default async function handler(req, res) {
 
   if (!tokenResponse.ok) {
     const errorText = await tokenResponse.text();
-    return res.status(500).json({ error: 'Token exchange failed', details: errorText });
+    console.error('Shopify token exchange failed:', errorText);
+    return res.status(500).json({ error: 'Token exchange failed' });
   }
 
-  const { access_token, scope } = await tokenResponse.json();
+  const tokenData = await tokenResponse.json();
+  if (!tokenData.access_token) {
+    return res.status(500).json({ error: 'Invalid token response' });
+  }
+  const { access_token, scope } = tokenData;
 
   // 5. Save to Supabase
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;

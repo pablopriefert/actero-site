@@ -1,5 +1,17 @@
+function escapeHtml(text) {
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return text.replace(/[&<>"']/g, (char) => map[char]);
+}
+
 export default function handler(req, res) {
   const { shop } = req.query;
+
+  // Validate shop domain format
+  if (shop && !/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(shop)) {
+    return res.status(400).json({ error: 'Invalid shop domain' });
+  }
+
+  const safeShop = shop ? escapeHtml(shop) : 'votre boutique';
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.status(200).send(`
@@ -51,7 +63,7 @@ export default function handler(req, res) {
         <h1>Installation réussie !</h1>
         <p>
           L'app Actero a été installée sur<br>
-          <span class="shop">${shop || 'votre boutique'}</span>
+          <span class="shop">${safeShop}</span>
         </p>
         <p style="margin-top: 16px;">
           Vos workflows d'automatisation SAV seront opérationnels sous 24h.

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Zap, 
-  Bot, 
-  Search, 
-  Lock, 
-  Loader2, 
-  CheckCircle2, 
+  Zap,
+  Bot,
+  Search,
+  Lock,
+  Loader2,
+  CheckCircle2,
   ArrowRight,
   Database,
-  RefreshCw
+  RefreshCw,
+  X
 } from 'lucide-react'
 import { callGemini } from '../../lib/gemini'
 

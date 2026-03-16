@@ -39,6 +39,20 @@ Deno.serve(async (req: Request) => {
 
     const { plan, returnUrl } = await req.json();
 
+    // Validate returnUrl against allowed domains to prevent open redirect
+    const ALLOWED_DOMAINS = ['actero.fr', 'www.actero.fr'];
+    let safeReturnUrl = 'https://actero.fr';
+    if (returnUrl) {
+      try {
+        const parsedUrl = new URL(returnUrl);
+        if (ALLOWED_DOMAINS.includes(parsedUrl.hostname)) {
+          safeReturnUrl = returnUrl;
+        }
+      } catch {
+        // Invalid URL, use default
+      }
+    }
+
     const planPrices: Record<string, number> = {
       "croissance_automatisee": 119900, // 1199.00€
     };
@@ -84,8 +98,8 @@ Deno.serve(async (req: Request) => {
         },
       ],
       mode: "subscription",
-      success_url: `${returnUrl || "https://actero.fr"}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${returnUrl || "https://actero.fr"}/payment/cancel`,
+      success_url: `${safeReturnUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${safeReturnUrl}/payment/cancel`,
       metadata: {
         user_id: user.id,
         plan: plan,

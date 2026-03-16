@@ -20,9 +20,14 @@ Deno.serve(async (req: Request) => {
     return new Response("No signature", { status: 400 });
   }
 
+  if (!endpointSecret) {
+    console.error("STRIPE_WEBHOOK_SECRET is not configured");
+    return new Response("Webhook secret not configured", { status: 500 });
+  }
+
   try {
     const body = await req.text();
-    const event = stripe.webhooks.constructEvent(body, signature, endpointSecret!);
+    const event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
 
     switch (event.type) {
       case "checkout.session.completed": {

@@ -8,5 +8,8 @@ ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'inactive' CHECK (status IN ('inact
 -- Index on owner_user_id for faster lookups
 CREATE INDEX IF NOT EXISTS idx_clients_owner_user_id ON public.clients(owner_user_id);
 
+-- Index on stripe_subscription_id for faster webhook lookups
+CREATE INDEX IF NOT EXISTS idx_clients_stripe_subscription_id ON public.clients(stripe_subscription_id);
+
 -- Affichage d'un message de confirmation
 SELECT 'Colonnes Stripe ajoutées à la table clients.' as message;
