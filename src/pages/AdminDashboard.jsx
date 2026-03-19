@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Menu, 
-  Search, 
-  Plus, 
-  AlertCircle, 
-  Users, 
-  LayoutDashboard, 
-  TerminalSquare, 
-  Sparkles, 
-  UserPlus, 
+import {
+  Menu,
+  Search,
+  Plus,
+  AlertCircle,
+  Users,
+  LayoutDashboard,
+  TerminalSquare,
+  Sparkles,
+  UserPlus,
   MoreVertical,
-  Bot
+  Bot,
+  Link2
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -22,6 +23,7 @@ import { CommandKModal } from '../components/layout/CommandKModal'
 import { AdminOnboardingView } from '../components/admin/AdminOnboardingView'
 import { AdminActivityHeatmap } from '../components/admin/AdminActivityHeatmap'
 import { AdminKanbanBoard } from '../components/admin/AdminKanbanBoard'
+import { AdminFunnelView } from '../components/admin/AdminFunnelView'
 import { AnimatedCounter } from '../components/ui/animated-counter'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 
@@ -37,6 +39,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/leads") return "leads";
     if (route === "/admin/intelligence") return "intelligence";
     if (route === "/admin/onboard") return "onboard";
+    if (route === "/admin/funnel") return "funnel";
     return "overview";
   };
 
@@ -105,6 +108,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: "intelligence", label: "Intelligence", icon: Bot },
     { id: "leads", label: "Leads AI", icon: Users, badge: leads.length > 0 ? leads.length : null, badgeColor: "bg-blue-100 text-blue-700" },
     { id: "onboard", label: "Onboarding", icon: UserPlus },
+    { id: "funnel", label: "Funnel", icon: Link2 },
   ];
 
   const handleAddClient = async () => {
@@ -305,6 +309,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "requests" && (
             <div className="max-w-6xl mx-auto animate-fade-in-up">
               <AdminKanbanBoard requests={requests} />
+            </div>
+          )}
+
+          {activeTab === "funnel" && (
+            <div className="max-w-6xl mx-auto animate-fade-in-up">
+              <AdminFunnelView />
             </div>
           )}
 

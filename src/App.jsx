@@ -15,6 +15,9 @@ import { AuditPage } from "./pages/AuditPage";
 import { DashboardGate } from "./components/auth/DashboardGate"
 import { DemoDashboardPage } from "./components/ui/demo-dashboard";
 import { PromptLibraryPage } from "./components/ui/prompt-library-page";
+import { StartPage } from "./pages/StartPage";
+import { SuccessPage } from "./pages/SuccessPage";
+import { CancelPage } from "./pages/CancelPage";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
 
@@ -74,6 +77,12 @@ function MainRouter() {
   else if (currentRoute === "/audit") page = <AuditPage onNavigate={navigate} />;
   else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
+  else if (currentRoute.startsWith("/start/")) {
+    const slug = currentRoute.replace("/start/", "").split("?")[0];
+    page = <StartPage clientSlug={slug} />;
+  }
+  else if (currentRoute === "/success") page = <SuccessPage onNavigate={navigate} />;
+  else if (currentRoute === "/cancel") page = <CancelPage onNavigate={navigate} />;
   else if (currentRoute === "/app" || currentRoute.startsWith("/admin") || currentRoute.startsWith("/client")) {
     page = <DashboardGate currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;
   } else if (currentRoute === "/payment/success") {
