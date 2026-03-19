@@ -467,6 +467,57 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           
           {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} />}
           
+          {activeTab === "architect" && (
+            <div className="max-w-4xl mx-auto text-center py-20">
+              <BrainCircuit className={`w-16 h-16 mx-auto mb-6 ${isLight ? 'text-slate-300' : 'text-gray-600'}`} />
+              <h2 className="text-2xl font-bold mb-3">Architecte IA</h2>
+              <p className={`text-lg mb-8 ${isLight ? 'text-slate-500' : 'text-gray-500'}`}>
+                Décrivez votre besoin et notre IA conçoit l'automatisation idéale pour votre business.
+              </p>
+              <div className={`max-w-xl mx-auto p-6 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+                <p className={`text-sm ${isLight ? 'text-slate-400' : 'text-gray-600'}`}>
+                  Cette fonctionnalité sera disponible prochainement. En attendant, utilisez la page Requêtes pour soumettre vos demandes d'automatisation.
+                </p>
+                <button
+                  onClick={() => setActiveTab("requests")}
+                  className="mt-4 bg-white text-black px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors"
+                >
+                  Aller aux Requêtes
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "systems" && (
+            <div className="max-w-4xl mx-auto text-center py-20">
+              <Database className={`w-16 h-16 mx-auto mb-6 ${isLight ? 'text-slate-300' : 'text-gray-600'}`} />
+              <h2 className="text-2xl font-bold mb-3">Mes Systèmes</h2>
+              <p className={`text-lg mb-8 ${isLight ? 'text-slate-500' : 'text-gray-500'}`}>
+                Visualisez vos automatisations actives, leur statut et leurs performances.
+              </p>
+              <div className={`max-w-xl mx-auto p-6 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+                <p className={`text-sm ${isLight ? 'text-slate-400' : 'text-gray-600'}`}>
+                  Vos systèmes apparaîtront ici une fois configurés par l'équipe Actero.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "reports" && (
+            <div className="max-w-4xl mx-auto text-center py-20">
+              <Download className={`w-16 h-16 mx-auto mb-6 ${isLight ? 'text-slate-300' : 'text-gray-600'}`} />
+              <h2 className="text-2xl font-bold mb-3">Rapports</h2>
+              <p className={`text-lg mb-8 ${isLight ? 'text-slate-500' : 'text-gray-500'}`}>
+                Téléchargez vos rapports mensuels de performance et ROI.
+              </p>
+              <div className={`max-w-xl mx-auto p-6 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+                <p className={`text-sm ${isLight ? 'text-slate-400' : 'text-gray-600'}`}>
+                  Vos rapports seront disponibles après votre premier mois d'activité.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeTab === "requests" && (
             <div className="max-w-4xl mx-auto space-y-6">
                {requests.length === 0 ? (
