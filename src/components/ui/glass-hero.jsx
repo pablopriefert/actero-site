@@ -31,16 +31,16 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                 <>
                     <span className="block">Automatisez votre agence.</span>
                     <span className="block">Récupérez chaque prospect.</span>
-                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-400">
                         3 agents IA à votre service.
                     </span>
                 </>
             ),
             subtitle: "Prise de rendez-vous, collecte de documents, relance des prospects inactifs — nos agents IA gèrent vos tâches chronophages 24h/24 pour que vous vous concentriez sur la vente.",
             metrics: [
-                { icon: <TrendingUp className="w-5 h-5 text-emerald-400" />, value: "+30%", label: "de rendez-vous confirmés" },
-                { icon: <Clock className="w-5 h-5 text-cyan-400" />, value: "-50%", label: "de temps administratif" },
-                { icon: <Shield className="w-5 h-5 text-amber-400" />, value: "+10%", label: "de prospects récupérés" },
+                { icon: <TrendingUp className="w-5 h-5 text-violet-400" />, value: "+30%", label: "de rendez-vous confirmés" },
+                { icon: <Clock className="w-5 h-5 text-purple-400" />, value: "-50%", label: "de temps administratif" },
+                { icon: <Shield className="w-5 h-5 text-fuchsia-400" />, value: "+10%", label: "de prospects récupérés" },
             ],
         },
     };

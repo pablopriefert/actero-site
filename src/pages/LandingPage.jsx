@@ -243,7 +243,7 @@ export const LandingPage = ({ onNavigate }) => {
             <section className="py-24 md:py-32 bg-transparent px-6 relative z-10">
               <div className="max-w-6xl mx-auto">
                 <FadeInUp className="text-center mb-20">
-                  <p className="text-xs font-bold text-emerald-400/80 uppercase tracking-[0.2em] mb-6">
+                  <p className={`text-xs font-bold uppercase tracking-[0.2em] mb-6 ${vertical === 'immobilier' ? 'text-violet-400/80' : 'text-emerald-400/80'}`}>
                     {vertical === 'ecommerce' ? 'Ce que vous récupérez' : 'Vos 3 agents IA'}
                   </p>
                   {vertical === 'ecommerce' ? (
@@ -306,24 +306,24 @@ export const LandingPage = ({ onNavigate }) => {
                   ] : [
                     {
                       icon: <Calendar className="w-6 h-6" />,
-                      iconColor: "text-emerald-400",
-                      iconBg: "bg-emerald-500/10 border-emerald-500/20",
+                      iconColor: "text-violet-400",
+                      iconBg: "bg-violet-500/10 border-violet-500/20",
                       title: "Agent Prise de Rendez-vous",
                       result: "+30% de rendez-vous confirmés",
                       desc: "L'agent qualifie chaque prospect entrant (type de bien, budget, localisation), propose des créneaux disponibles et confirme automatiquement les rendez-vous. Synchronisation directe avec votre agenda.",
                     },
                     {
                       icon: <FileText className="w-6 h-6" />,
-                      iconColor: "text-cyan-400",
-                      iconBg: "bg-cyan-500/10 border-cyan-500/20",
+                      iconColor: "text-purple-400",
+                      iconBg: "bg-purple-500/10 border-purple-500/20",
                       title: "Agent Collecte de Documents",
                       result: "-50% de temps administratif",
                       desc: "L'agent identifie les documents requis selon le type de transaction (vente, achat, location), envoie les demandes personnalisées et relance automatiquement jusqu'à réception complète du dossier.",
                     },
                     {
                       icon: <UserCheck className="w-6 h-6" />,
-                      iconColor: "text-amber-400",
-                      iconBg: "bg-amber-500/10 border-amber-500/20",
+                      iconColor: "text-fuchsia-400",
+                      iconBg: "bg-fuchsia-500/10 border-fuchsia-500/20",
                       title: "Agent Relance Prospects",
                       result: "+10% de prospects réactivés",
                       desc: "L'agent détecte les prospects inactifs depuis 7, 14 ou 30 jours et envoie des relances progressives et personnalisées par email et SMS. Chaque message est adapté au profil et à l'historique du prospect.",
@@ -338,7 +338,7 @@ export const LandingPage = ({ onNavigate }) => {
                           <h3 className="text-xl font-bold text-white">{block.title}</h3>
                         </div>
                         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 mb-5">
-                          <p className="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                          <p className={`text-sm font-bold flex items-center gap-2 ${vertical === 'immobilier' ? 'text-violet-400' : 'text-emerald-400'}`}>
                             <Target className="w-4 h-4 flex-shrink-0" />
                             {block.result}
                           </p>
@@ -400,21 +400,21 @@ export const LandingPage = ({ onNavigate }) => {
                   ] : [
                     {
                       step: "01",
-                      icon: <Activity className="w-5 h-5 text-emerald-400" />,
+                      icon: <Activity className="w-5 h-5 text-violet-400" />,
                       title: "Audit de votre agence",
                       desc: "On analyse vos processus actuels (prise de RDV, collecte documentaire, suivi prospects) et on identifie les gains d'efficacité immédiats.",
                       detail: "Jour 1-2"
                     },
                     {
                       step: "02",
-                      icon: <Zap className="w-5 h-5 text-cyan-400" />,
+                      icon: <Zap className="w-5 h-5 text-purple-400" />,
                       title: "Déploiement des 3 agents",
                       desc: "On configure vos agents IA (RDV, documents, relances), on les connecte à votre CRM et votre agenda, et on valide chaque scénario avec vous.",
                       detail: "Jour 3-5"
                     },
                     {
                       step: "03",
-                      icon: <BarChart3 className="w-5 h-5 text-amber-400" />,
+                      icon: <BarChart3 className="w-5 h-5 text-fuchsia-400" />,
                       title: "Optimisation continue",
                       desc: "On mesure les résultats en temps réel : taux de RDV, documents collectés, prospects réactivés. Les agents s'améliorent en continu.",
                       detail: "En continu"
@@ -494,7 +494,7 @@ export const LandingPage = ({ onNavigate }) => {
                       { value: 80, prefix: "", suffix: "%", label: "Des demandes traitées sans humain", color: "text-white" },
                     ] : [
                       { value: 30, prefix: "+", suffix: "%", label: "De rendez-vous confirmés", color: "text-white" },
-                      { value: 50, prefix: "-", suffix: "%", label: "De temps administratif", color: "text-emerald-400" },
+                      { value: 50, prefix: "-", suffix: "%", label: "De temps administratif", color: "text-violet-400" },
                       { value: 10, prefix: "+", suffix: "%", label: "De prospects réactivés", color: "text-white" },
                     ]).map((stat, i) => (
                       <div key={i} className={`flex flex-col items-center justify-center py-6 ${i < 2 ? "md:border-r border-white/5" : ""}`}>
@@ -554,7 +554,7 @@ export const LandingPage = ({ onNavigate }) => {
                       ) : (
                         <>
                           <div className="flex items-center gap-3 mb-10">
-                            <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-bold uppercase tracking-widest text-emerald-400 shadow-sm">Exemple de déploiement</div>
+                            <div className="px-3 py-1 bg-violet-500/10 border border-violet-500/20 rounded-full text-xs font-bold uppercase tracking-widest text-violet-400 shadow-sm">Exemple de déploiement</div>
                             <span className="text-white font-bold">Agence immobilière — Île-de-France</span>
                           </div>
                           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -573,14 +573,14 @@ export const LandingPage = ({ onNavigate }) => {
                                   <p className="text-2xl font-bold text-gray-400 line-through">12 RDV/mois</p>
                                 </div>
                                 <div>
-                                  <p className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-1">Après 30 jours</p>
+                                  <p className="text-xs font-bold uppercase tracking-widest text-violet-400 mb-1">Après 30 jours</p>
                                   <p className="text-3xl font-bold text-white tracking-tight">19 RDV/mois</p>
                                 </div>
                               </div>
                             </div>
                             <div className="bg-[#0a0a0a] rounded-3xl p-8 border border-white/5 shadow-sm text-center">
                               <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Impact en 30 jours</p>
-                              <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-600 tracking-tighter mb-2">+58%</p>
+                              <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-violet-400 to-purple-600 tracking-tighter mb-2">+58%</p>
                               <p className="text-sm text-gray-500 font-medium mb-6">de rendez-vous qualifiés supplémentaires</p>
                               <button onClick={() => onNavigate("/audit")} className="text-sm font-bold text-white border-b-2 border-white/20 hover:border-white transition-colors pb-0.5 inline-flex items-center gap-1">
                                 Obtenir le même résultat <ArrowRight className="w-3 h-3" />
@@ -607,7 +607,7 @@ export const LandingPage = ({ onNavigate }) => {
                   <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6 leading-tight">
                     Pas un outil de plus à gérer.
                     <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+                    <span className={`text-transparent bg-clip-text bg-gradient-to-r ${vertical === 'immobilier' ? 'from-violet-400 to-purple-400' : 'from-emerald-400 to-cyan-400'}`}>
                       {vertical === 'ecommerce' ? 'Votre équipe opérations IA, externalisée.' : 'Votre assistant digital, clé en main.'}
                     </span>
                   </h2>
@@ -626,7 +626,7 @@ export const LandingPage = ({ onNavigate }) => {
                     </div>
                     <div className="p-6 md:p-8">
                       <p className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span className={`w-2 h-2 rounded-full animate-pulse ${vertical === 'immobilier' ? 'bg-violet-400' : 'bg-emerald-400'}`}></span>
                         Actero
                       </p>
                     </div>
@@ -651,7 +651,7 @@ export const LandingPage = ({ onNavigate }) => {
                           <p className="text-[15px] font-medium text-gray-500">{row.old}</p>
                         </div>
                         <div className="p-6 md:p-8 flex items-center gap-3">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                          <CheckCircle2 className={`w-4 h-4 flex-shrink-0 ${vertical === 'immobilier' ? 'text-violet-400' : 'text-emerald-400'}`} />
                           <p className="text-[15px] font-bold text-white">{row.new}</p>
                         </div>
                       </div>
@@ -679,12 +679,12 @@ export const LandingPage = ({ onNavigate }) => {
                 <FadeInUp delay={0.1}>
                   <div className="bg-[#0a0a0a] rounded-[32px] border border-white/10 overflow-hidden relative">
                     {/* Glow */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-[120px] pointer-events-none ${vertical === 'immobilier' ? 'bg-violet-500/5' : 'bg-emerald-500/5'}`}></div>
 
                     <div className="grid md:grid-cols-2 relative z-10">
                       {/* Left — Offer details */}
                       <div className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/[0.06]">
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-400 mb-6 uppercase tracking-widest">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6 uppercase tracking-widest ${vertical === 'immobilier' ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'}`}>
                           <Zap className="w-3.5 h-3.5" /> Done-for-you
                         </div>
                         <h3 className="text-3xl font-bold text-white mb-3 tracking-tight">
@@ -716,7 +716,7 @@ export const LandingPage = ({ onNavigate }) => {
                             "Account manager dédié",
                           ]).map((feature, i) => (
                             <div key={i} className="flex items-center gap-3">
-                              <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                              <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${vertical === 'immobilier' ? 'text-violet-500' : 'text-emerald-500'}`} />
                               <span className="text-sm font-medium text-gray-300">{feature}</span>
                             </div>
                           ))}
@@ -756,15 +756,15 @@ export const LandingPage = ({ onNavigate }) => {
                               },
                             ] : [
                               {
-                                icon: <Building2 className="w-5 h-5 text-emerald-400" />,
+                                icon: <Building2 className="w-5 h-5 text-violet-400" />,
                                 text: "Vous gérez une agence immobilière avec +5 agents"
                               },
                               {
-                                icon: <Phone className="w-5 h-5 text-cyan-400" />,
+                                icon: <Phone className="w-5 h-5 text-purple-400" />,
                                 text: "Vos agents passent trop de temps en tâches administratives"
                               },
                               {
-                                icon: <TrendingDown className="w-5 h-5 text-amber-400" />,
+                                icon: <TrendingDown className="w-5 h-5 text-fuchsia-400" />,
                                 text: "Vous perdez des prospects faute de suivi systématique"
                               },
                               {
@@ -895,11 +895,11 @@ export const LandingPage = ({ onNavigate }) => {
                 <FadeInUp>
                   <div className="relative bg-[#0a0a0a] rounded-[32px] p-10 md:p-16 border border-white/10 overflow-hidden text-center">
                     {/* Glow */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-emerald-500/[0.06] rounded-full blur-[120px] pointer-events-none"></div>
+                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none ${vertical === 'immobilier' ? 'bg-violet-500/[0.06]' : 'bg-emerald-500/[0.06]'}`}></div>
 
                     <div className="relative z-10">
                       <div className="w-16 h-16 bg-white/[0.04] border border-white/[0.08] rounded-2xl flex items-center justify-center mx-auto mb-8">
-                        <CalendarCheck className="w-8 h-8 text-emerald-400" />
+                        <CalendarCheck className={`w-8 h-8 ${vertical === 'immobilier' ? 'text-violet-400' : 'text-emerald-400'}`} />
                       </div>
 
                       <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-6">
