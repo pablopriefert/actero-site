@@ -2,11 +2,19 @@ import { useState, useEffect } from "react";
 import { CheckCircle, Loader2, ArrowRight, AlertCircle } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
-const benefits = [
+const ecommerceBenefits = [
   "Automatisation du support client",
   "Récupération des ventes perdues",
   "Workflows IA personnalisés",
   "Dashboard de suivi en temps réel",
+  "Onboarding dédié sous 24h",
+];
+
+const immobilierBenefits = [
+  "Qualification automatique des leads",
+  "Réponses instantanées aux demandes de visite",
+  "Suivi intelligent des prospects",
+  "Dashboard ROI en temps réel",
   "Onboarding dédié sous 24h",
 ];
 
@@ -50,6 +58,8 @@ export function StartPage({ clientSlug }) {
   const clientName = clientData?.company_name || formatClientName(clientSlug);
   const setupPrice = clientData?.setup_price ?? 800;
   const monthlyPrice = clientData?.monthly_price ?? 800;
+  const clientType = clientData?.client_type || 'ecommerce';
+  const benefits = clientType === 'immobilier' ? immobilierBenefits : ecommerceBenefits;
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -63,6 +73,7 @@ export function StartPage({ clientSlug }) {
           client: clientSlug,
           setup_price: setupPrice,
           monthly_price: monthlyPrice,
+          client_type: clientType,
         }),
       });
 

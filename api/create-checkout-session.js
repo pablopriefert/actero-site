@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { client, setup_price = 800, monthly_price = 800 } = req.body;
+  const { client, setup_price = 800, monthly_price = 800, client_type = 'ecommerce' } = req.body;
 
   if (!client) {
     return res.status(400).json({ error: 'Missing client parameter' });
@@ -50,6 +50,7 @@ export default async function handler(req, res) {
       ],
       metadata: {
         client,
+        client_type,
         service: 'Actero',
       },
       success_url: `${siteUrl}/success?client=${encodeURIComponent(client)}`,

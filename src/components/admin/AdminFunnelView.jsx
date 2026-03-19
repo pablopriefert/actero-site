@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase'
 const STATUS_CONFIG = {
   draft: { label: 'Brouillon', color: 'bg-gray-500/10 text-gray-400 border-gray-500/20' },
   sent: { label: 'Email envoyé', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-  paid: { label: 'Payé', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+  paid: { label: 'Payé — Actif', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
   canceled: { label: 'Annulé', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
 }
 
@@ -98,6 +98,7 @@ export function AdminFunnelView() {
           company_name: formData.company_name,
           slug: formData.slug,
           email: formData.email,
+          client_type: formData.client_type,
           setup_price: formData.setup_price,
           monthly_price: formData.monthly_price,
           message: formData.message,
@@ -148,6 +149,7 @@ export function AdminFunnelView() {
           company_name: client.company_name,
           slug: client.slug,
           email: client.email,
+          client_type: client.client_type,
           setup_price: client.setup_price,
           monthly_price: client.monthly_price,
           message: client.message,

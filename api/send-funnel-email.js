@@ -2,8 +2,29 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-function buildEmailHtml({ company_name, slug, setup_price, monthly_price, message }) {
+function buildEmailHtml({ company_name, slug, setup_price, monthly_price, message, client_type }) {
   const link = `${process.env.SITE_URL || 'https://actero.fr'}/start/${slug}`;
+  const isImmo = client_type === 'immobilier';
+
+  const benefits = isImmo
+    ? [
+        'Qualification automatique des leads entrants',
+        'Réponses instantanées aux demandes de visite',
+        'Suivi intelligent des prospects',
+        'Dashboard ROI en temps réel',
+        'Onboarding dédié sous 24h',
+      ]
+    : [
+        'Automatisation du support client',
+        'Récupération des ventes perdues',
+        'Workflows IA personnalisés',
+        'Dashboard de suivi en temps réel',
+        'Onboarding dédié sous 24h',
+      ];
+
+  const subtitle = isImmo
+    ? 'Nous avons préparé une configuration adaptée à votre agence immobilière.'
+    : 'Nous avons préparé une configuration adaptée à votre e-commerce.';
 
   return `
 <!DOCTYPE html>
@@ -37,7 +58,7 @@ function buildEmailHtml({ company_name, slug, setup_price, monthly_price, messag
               </p>
 
               <p style="font-size:15px;color:#444444;line-height:1.7;margin:0 0 24px 0;">
-                Nous avons préparé une configuration adaptée à votre activité.
+                ${subtitle}
               </p>
 
               ${message ? `
@@ -72,21 +93,7 @@ function buildEmailHtml({ company_name, slug, setup_price, monthly_price, messag
                   Ce que vous allez mettre en place
                 </p>
                 <table cellpadding="0" cellspacing="0" style="width:100%;">
-                  <tr>
-                    <td style="padding:6px 0;font-size:14px;color:#444;">
-                      <span style="color:#10b981;margin-right:8px;">&#10003;</span> Automatisation du support client
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:6px 0;font-size:14px;color:#444;">
-                      <span style="color:#10b981;margin-right:8px;">&#10003;</span> Récupération des ventes perdues
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:6px 0;font-size:14px;color:#444;">
-                      <span style="color:#10b981;margin-right:8px;">&#10003;</span> Système IA personnalisé
-                    </td>
-                  </tr>
+                  ${benefits.map(b => `<tr><td style="padding:6px 0;font-size:14px;color:#444;"><span style="color:#10b981;margin-right:8px;">&#10003;</span> ${b}</td></tr>`).join('')}
                 </table>
               </div>
             </td>
@@ -129,7 +136,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, company_name, slug, setup_price, monthly_price, message } = req.body;
+  const { email, company_name, slug, setup_price, monthly_price, message, client_type } = req.body;
 
   if (!email || !company_name || !slug) {
     return res.status(400).json({ error: 'Missing required fields: email, company_name, slug' });
@@ -140,7 +147,7 @@ export default async function handler(req, res) {
       from: process.env.RESEND_FROM_EMAIL || 'Actero <onboarding@resend.dev>',
       to: [email],
       subject: 'Votre accès Actero',
-      html: buildEmailHtml({ company_name, slug, setup_price, monthly_price, message }),
+      html: buildEmailHtml({ company_name, slug, setup_price, monthly_price, message, client_type }),
     });
 
     if (error) {
