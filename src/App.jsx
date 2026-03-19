@@ -15,6 +15,9 @@ import { AuditPage } from "./pages/AuditPage";
 import { DashboardGate } from "./components/auth/DashboardGate"
 import { DemoDashboardPage } from "./components/ui/demo-dashboard";
 import { PromptLibraryPage } from "./components/ui/prompt-library-page";
+import { StartPage } from "./pages/StartPage";
+import { SuccessPage } from "./pages/SuccessPage";
+import { CancelPage } from "./pages/CancelPage";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
 
@@ -74,21 +77,16 @@ function MainRouter() {
   else if (currentRoute === "/audit") page = <AuditPage onNavigate={navigate} />;
   else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
+  else if (currentRoute.startsWith("/start/")) {
+    const clientSlug = currentRoute.replace("/start/", "");
+    page = <StartPage clientSlug={clientSlug} />;
+  }
+  else if (currentRoute === "/success") page = <SuccessPage onNavigate={navigate} />;
+  else if (currentRoute === "/cancel") page = <CancelPage onNavigate={navigate} />;
   else if (currentRoute === "/app" || currentRoute.startsWith("/admin") || currentRoute.startsWith("/client")) {
     page = <DashboardGate currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;
   } else if (currentRoute === "/payment/success") {
-    page = (
-      <div className="min-h-screen flex items-center justify-center bg-[#030303] font-sans px-6">
-        <div className="text-center p-12 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl max-w-md w-full">
-          <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
-             <div className="w-10 h-10 text-emerald-500">✓</div>
-          </div>
-          <h2 className="text-3xl font-bold text-white mb-4">Paiement validé !</h2>
-          <p className="text-gray-400 mb-8">Merci pour votre confiance. Préparez-vous à l'autonomie.</p>
-          <button onClick={() => navigate("/client")} className="w-full bg-white text-black py-4 rounded-xl font-bold">Accéder à mon espace</button>
-        </div>
-      </div>
-    );
+    page = <SuccessPage onNavigate={navigate} />;
   } else {
     page = (
       <div className="min-h-screen flex items-center justify-center bg-[#030303] text-white">
