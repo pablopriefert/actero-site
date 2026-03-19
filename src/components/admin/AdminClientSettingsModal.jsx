@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { X, Loader2, CheckCircle, Settings } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
-export const AdminClientSettingsModal = ({ client, onClose, onSaved }) => {
+export const AdminClientSettingsModal = ({ client, onClose, onSaved, clientType }) => {
+  const isImmo = clientType === 'immobilier' || client?.client_type === 'immobilier';
   const [hourlyCost, setHourlyCost] = useState("");
   const [avgTicketTime, setAvgTicketTime] = useState("");
   const [acteroPrice, setActeroPrice] = useState("");
@@ -78,7 +79,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved }) => {
           <form onSubmit={handleSave} className="space-y-5">
             <div>
               <label className="block text-sm font-bold text-white mb-2">
-                Coût horaire client (€/h)
+                {isImmo ? 'Coût horaire agent (€/h)' : 'Coût horaire support (€/h)'}
               </label>
               <input
                 type="number"
@@ -86,21 +87,23 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved }) => {
                 min="0"
                 value={hourlyCost}
                 onChange={(e) => setHourlyCost(e.target.value)}
-                placeholder="Ex: 25"
+                placeholder={isImmo ? 'Ex: 30' : 'Ex: 25'}
                 className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
               />
-              <p className="text-xs text-zinc-500 mt-1">Utilisé pour calculer money_saved = temps × coût</p>
+              <p className="text-xs text-zinc-500 mt-1">
+                {isImmo ? 'Utilisé pour calculer money_saved = temps traitement lead × coût' : 'Utilisé pour calculer money_saved = temps × coût'}
+              </p>
             </div>
             <div>
               <label className="block text-sm font-bold text-white mb-2">
-                Temps moyen / ticket (min)
+                {isImmo ? 'Temps moyen / lead (min)' : 'Temps moyen / ticket (min)'}
               </label>
               <input
                 type="number"
                 min="1"
                 value={avgTicketTime}
                 onChange={(e) => setAvgTicketTime(e.target.value)}
-                placeholder="Ex: 5"
+                placeholder={isImmo ? 'Ex: 8' : 'Ex: 5'}
                 className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
               />
             </div>

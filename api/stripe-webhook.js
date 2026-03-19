@@ -99,8 +99,8 @@ async function onboardClientAfterPayment(funnelClient) {
     .from('client_settings')
     .upsert({
       client_id: client.id,
-      hourly_cost: funnelClient.hourly_cost || 0,
-      avg_ticket_time_min: funnelClient.avg_ticket_time_min || 5,
+      hourly_cost: funnelClient.hourly_cost || (funnelClient.client_type === 'immobilier' ? 30 : 25),
+      avg_ticket_time_min: funnelClient.avg_ticket_time_min || (funnelClient.client_type === 'immobilier' ? 8 : 5),
       actero_monthly_price: monthly_price || 0,
       currency: 'EUR',
     }, { onConflict: 'client_id' });

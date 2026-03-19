@@ -78,8 +78,8 @@ export function AdminFunnelView() {
           client_type: formData.client_type,
           setup_price: formData.setup_price,
           monthly_price: formData.monthly_price,
-          hourly_cost: formData.hourly_cost ? parseFloat(formData.hourly_cost) : 0,
-          avg_ticket_time_min: formData.avg_ticket_time ? parseInt(formData.avg_ticket_time) : 5,
+          hourly_cost: formData.hourly_cost ? parseFloat(formData.hourly_cost) : (formData.client_type === 'immobilier' ? 30 : 25),
+          avg_ticket_time_min: formData.avg_ticket_time ? parseInt(formData.avg_ticket_time) : (formData.client_type === 'immobilier' ? 8 : 5),
           actero_monthly_price: formData.actero_monthly_price ? parseFloat(formData.actero_monthly_price) : formData.monthly_price,
           message: formData.message || null,
           status: 'draft',
@@ -257,7 +257,15 @@ export function AdminFunnelView() {
                 <select
                   required
                   value={formData.client_type}
-                  onChange={(e) => setFormData(prev => ({ ...prev, client_type: e.target.value }))}
+                  onChange={(e) => {
+                    const newType = e.target.value;
+                    setFormData(prev => ({
+                      ...prev,
+                      client_type: newType,
+                      hourly_cost: '',
+                      avg_ticket_time: '',
+                    }));
+                  }}
                   className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all appearance-none cursor-pointer"
                 >
                   <option value="ecommerce">🛒 E-commerce (Shopify)</option>
@@ -295,36 +303,77 @@ export function AdminFunnelView() {
               </div>
 
               <div className="border-t border-white/10 pt-5 mt-1">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Configuration ROI (optionnel)</p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-                      Coût horaire client (€/h)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={formData.hourly_cost}
-                      onChange={(e) => setFormData(prev => ({ ...prev, hourly_cost: e.target.value }))}
-                      placeholder="25"
-                      className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
-                      Temps moyen / ticket (min)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={formData.avg_ticket_time}
-                      onChange={(e) => setFormData(prev => ({ ...prev, avg_ticket_time: e.target.value }))}
-                      placeholder="5"
-                      className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
-                    />
-                  </div>
+                <div className="flex items-center gap-3 mb-4">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Configuration ROI (optionnel)</p>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                    formData.client_type === 'immobilier'
+                      ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20'
+                      : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  }`}>
+                    {formData.client_type === 'immobilier' ? '🏠 Immo' : '🛒 E-com'}
+                  </span>
                 </div>
+                {formData.client_type === 'immobilier' ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                        Coût horaire agent (€/h)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.hourly_cost}
+                        onChange={(e) => setFormData(prev => ({ ...prev, hourly_cost: e.target.value }))}
+                        placeholder="30"
+                        className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                        Temps moyen / lead (min)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={formData.avg_ticket_time}
+                        onChange={(e) => setFormData(prev => ({ ...prev, avg_ticket_time: e.target.value }))}
+                        placeholder="8"
+                        className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                        Coût horaire support (€/h)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.hourly_cost}
+                        onChange={(e) => setFormData(prev => ({ ...prev, hourly_cost: e.target.value }))}
+                        placeholder="25"
+                        className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                        Temps moyen / ticket (min)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={formData.avg_ticket_time}
+                        onChange={(e) => setFormData(prev => ({ ...prev, avg_ticket_time: e.target.value }))}
+                        placeholder="5"
+                        className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {formError && (
