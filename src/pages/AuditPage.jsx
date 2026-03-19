@@ -92,7 +92,7 @@ export const AuditPage = ({ onNavigate }) => {
                 <div className="absolute inset-0 bg-zinc-400/5 blur-3xl transform scale-110 rounded-full"></div>
                 <div className="bg-[#0a0a0a] rounded-[32px] border border-white/10 shadow-2xl relative overflow-hidden h-[700px] flex justify-center w-full">
                   <iframe
-                    src="https://calendly.com/jc6pablo2/30min?embed_domain=actero.io&embed_type=Inline"
+                    src="https://calendly.com/actero-fr/30min?embed_domain=actero.fr&embed_type=Inline"
                     width="100%"
                     height="100%"
                     frameBorder="0"
