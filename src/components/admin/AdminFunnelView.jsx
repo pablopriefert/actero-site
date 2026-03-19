@@ -33,6 +33,9 @@ export function AdminFunnelView() {
     email: '',
     setup_price: 800,
     monthly_price: 800,
+    hourly_cost: '',
+    avg_ticket_time: '',
+    actero_monthly_price: '',
     message: '',
   })
   const [submitting, setSubmitting] = useState(false)
@@ -73,6 +76,9 @@ export function AdminFunnelView() {
           email: formData.email,
           setup_price: formData.setup_price,
           monthly_price: formData.monthly_price,
+          hourly_cost: formData.hourly_cost ? parseFloat(formData.hourly_cost) : 0,
+          avg_ticket_time_min: formData.avg_ticket_time ? parseInt(formData.avg_ticket_time) : 5,
+          actero_monthly_price: formData.actero_monthly_price ? parseFloat(formData.actero_monthly_price) : formData.monthly_price,
           message: formData.message || null,
           status: 'draft',
         }])
@@ -116,6 +122,9 @@ export function AdminFunnelView() {
         email: '',
         setup_price: 800,
         monthly_price: 800,
+        hourly_cost: '',
+        avg_ticket_time: '',
+        actero_monthly_price: '',
         message: '',
       })
     } catch (err) {
@@ -264,6 +273,53 @@ export function AdminFunnelView() {
                     onChange={(e) => setFormData(prev => ({ ...prev, monthly_price: parseInt(e.target.value) || 0 }))}
                     className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
                   />
+                </div>
+              </div>
+
+              <div className="border-t border-white/10 pt-5 mt-1">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Configuration ROI (optionnel)</p>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                      Coût horaire (€/h)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.hourly_cost}
+                      onChange={(e) => setFormData(prev => ({ ...prev, hourly_cost: e.target.value }))}
+                      placeholder="25"
+                      className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                      Temps / ticket (min)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.avg_ticket_time}
+                      onChange={(e) => setFormData(prev => ({ ...prev, avg_ticket_time: e.target.value }))}
+                      placeholder="5"
+                      className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">
+                      Prix Actero (€/m)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.actero_monthly_price}
+                      onChange={(e) => setFormData(prev => ({ ...prev, actero_monthly_price: e.target.value }))}
+                      placeholder="800"
+                      className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm outline-none focus:border-white/20 transition-all"
+                    />
+                  </div>
                 </div>
               </div>
 
