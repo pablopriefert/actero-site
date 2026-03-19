@@ -47,17 +47,7 @@ export const GlassHero = ({ onNavigate }) => {
     const [activeVertical, setActiveVertical] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
 
-    // Auto-rotate every 5 seconds
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setIsTransitioning(true);
-            setTimeout(() => {
-                setActiveVertical(prev => (prev + 1) % VERTICALS.length);
-                setIsTransitioning(false);
-            }, 300);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
+    // No auto-rotate — user controls the toggle manually
 
     const switchVertical = (idx) => {
         if (idx === activeVertical) return;
