@@ -39,6 +39,7 @@ import { SkeletonRow } from '../components/ui/skeleton-row'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 import { ActivityView } from '../components/dashboard/ActivityView'
 import { UpsellsView } from '../components/dashboard/UpsellsView'
+import { CopilotPanel } from '../components/dashboard/CopilotPanel'
 
 export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const queryClient = useQueryClient();
@@ -447,22 +448,12 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
               <HealthScoreWidget metricsData={dailyMetrics.slice(-7)} eventsData={events} theme={theme} />
 
-              {/* CTA Upsells */}
-              <div className={`mt-12 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between shadow-xl ${isLight ? "bg-gradient-to-r from-slate-900 to-slate-800 text-white" : "bg-gradient-to-r from-zinc-900 to-zinc-800"}`}>
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Rocket className="w-5 h-5 text-violet-400" />
-                    <h3 className="text-2xl font-bold">Développez votre agence</h3>
-                  </div>
-                  <p className="opacity-60">Relance SMS, prise de RDV automatisée, scoring leads, reporting premium...</p>
-                </div>
-                <button
-                   onClick={() => setActiveTab("upsells")}
-                   className="mt-6 md:mt-0 bg-white text-black px-6 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-100 transition-all"
-                >
-                  Voir les opportunités <ArrowUpRight className="w-5 h-5" />
-                </button>
-              </div>
+              {/* Actero Copilot */}
+              <CopilotPanel
+                client={{ ...currentClient, client_type: 'immobilier' }}
+                theme={theme}
+                onNavigateToUpsells={() => setActiveTab("upsells")}
+              />
             </div>
           )}
 
