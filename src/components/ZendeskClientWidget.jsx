@@ -1,20 +1,19 @@
 import { useEffect } from 'react'
 
 /**
- * Widget Zendesk — Support public landing page uniquement.
+ * Widget Zendesk — Support client dashboard uniquement.
  *
- * Ce composant charge le widget Zendesk PUBLIC au mount et le supprime
- * proprement au unmount pour éviter qu'il apparaisse sur les
- * dashboards clients ou l'admin.
+ * Ce composant charge le widget Zendesk CLIENT (instance séparée)
+ * au mount et le supprime proprement au unmount.
  *
- * Usage : intégré uniquement dans LandingPage.jsx
- * NE PAS ajouter dans App.jsx, index.html ou les dashboards.
+ * Usage : intégré uniquement dans DashboardGate.jsx pour les clients.
+ * NE PAS ajouter sur la landing page, l'admin ou globalement.
  *
- * Note : Le dashboard client utilise un widget Zendesk SÉPARÉ
- * (ZendeskClientWidget.jsx) avec une clé différente.
+ * Note : La landing page utilise un widget Zendesk PUBLIC séparé
+ * (ZendeskWidget.jsx) avec une clé différente.
  */
-const ZENDESK_PUBLIC_KEY = '72f9b12e-ca6d-4912-af9c-8d0b1bb92e36'
-const SCRIPT_ID = 'ze-snippet-public'
+const ZENDESK_CLIENT_KEY = 'e80cafd5-3a27-4211-bad2-bbfcb94c9a78'
+const SCRIPT_ID = 'ze-snippet-client'
 
 function cleanupZendesk() {
   // Supprimer le script
@@ -34,7 +33,7 @@ function cleanupZendesk() {
   delete window.zEmbed
 }
 
-export const ZendeskWidget = () => {
+export const ZendeskClientWidget = () => {
   useEffect(() => {
     // Éviter les doublons si la page rerender
     if (document.getElementById(SCRIPT_ID)) return
@@ -43,7 +42,7 @@ export const ZendeskWidget = () => {
 
     const script = document.createElement('script')
     script.id = SCRIPT_ID
-    script.src = `https://static.zdassets.com/ekr/snippet.js?key=${ZENDESK_PUBLIC_KEY}`
+    script.src = `https://static.zdassets.com/ekr/snippet.js?key=${ZENDESK_CLIENT_KEY}`
     script.async = true
     document.body.appendChild(script)
 
