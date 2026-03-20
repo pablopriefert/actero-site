@@ -44,6 +44,10 @@ import { SkeletonRow } from '../components/ui/skeleton-row'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 import { ActivityView } from '../components/dashboard/ActivityView'
 import { CopilotChat } from '../components/dashboard/CopilotChat'
+import { ROICalculator } from '../components/dashboard/ROICalculator'
+import { AlertsOverview } from '../components/dashboard/AlertsPanel'
+import { ReportsView } from '../components/dashboard/ReportsView'
+import { ActionLogsView } from '../components/dashboard/ActionLogsView'
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // eslint-disable-next-line no-unused-vars
@@ -195,6 +199,21 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       const counts = {};
       (data || []).forEach(e => { counts[e.event_category] = (counts[e.event_category] || 0) + 1; });
       return counts;
+    },
+    enabled: !!supabase && !!currentClient?.id,
+  });
+
+  // 7. Fetch Client Settings (for ROI Calculator)
+  const { data: clientSettings } = useQuery({
+    queryKey: ["client-settings", currentClient?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("client_settings")
+        .select("*")
+        .eq("client_id", currentClient.id)
+        .maybeSingle();
+      if (error && error.code !== "PGRST116") throw error;
+      return data || { actero_monthly_price: 500, hourly_cost: 25 };
     },
     enabled: !!supabase && !!currentClient?.id,
   });
@@ -494,6 +513,21 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               </div>
 
               <HealthScoreWidget metricsData={dailyMetrics.slice(-7)} eventsData={events} theme={theme} />
+
+              <AlertsOverview
+                periodStats={periodStats}
+                metrics={metrics}
+                events={events}
+                clientType={currentClient?.client_type || 'ecommerce'}
+                theme={theme}
+              />
+
+              <ROICalculator
+                periodStats={periodStats}
+                metrics={metrics}
+                clientSettings={clientSettings}
+                theme={theme}
+              />
             </div>
           )}
 
@@ -508,7 +542,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "intelligence" && <IntelligenceView supabase={supabase} setActiveTab={setActiveTab} theme={theme} />}
 
-          {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} />}
+          {activeTab === "activity" && <ActionLogsView supabase={supabase} clientId={currentClient?.id} theme={theme} />}
 
           {activeTab === "architect" && (
             <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
@@ -620,62 +654,15 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "reports" && (
-            <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
-              <div>
-                <h2 className={`text-3xl font-bold mb-2 tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
-                  Rapports
-                </h2>
-                <p className={`font-medium text-lg ${isLight ? "text-slate-500" : "text-zinc-500"}`}>
-                  Rapports automatisés et historique de performance.
-                </p>
-              </div>
-
-              <div className={`p-8 rounded-2xl border ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isLight ? "bg-blue-50 border border-blue-200" : "bg-blue-500/10 border border-blue-500/20"}`}>
-                    <Download className={`w-6 h-6 ${isLight ? "text-blue-600" : "text-blue-400"}`} />
-                  </div>
-                  <div>
-                    <h3 className={`text-lg font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Rapports mensuels</h3>
-                    <p className={`text-sm ${isLight ? "text-slate-500" : "text-zinc-500"}`}>Téléchargez vos rapports de performance</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {[
-                    { month: "Mars 2026", status: "En cours", downloadable: false },
-                    { month: "Février 2026", status: "Disponible", downloadable: true },
-                    { month: "Janvier 2026", status: "Disponible", downloadable: true },
-                  ].map((report, i) => (
-                    <div key={i} className={`flex items-center justify-between p-4 rounded-xl border ${
-                      isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.02] border-white/[0.06]"
-                    }`}>
-                      <div className="flex items-center gap-4">
-                        <FileText className={`w-5 h-5 ${isLight ? "text-slate-400" : "text-zinc-500"}`} />
-                        <div>
-                          <p className={`text-sm font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Rapport {report.month}</p>
-                          <p className={`text-xs ${isLight ? "text-slate-500" : "text-zinc-500"}`}>Performance & métriques IA</p>
-                        </div>
-                      </div>
-                      {report.downloadable ? (
-                        <button className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-colors ${
-                          isLight
-                            ? "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                            : "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
-                        }`}>
-                          <Download className="w-3.5 h-3.5" />
-                          Télécharger
-                        </button>
-                      ) : (
-                        <span className={`text-xs font-bold ${isLight ? "text-amber-600" : "text-amber-400"}`}>
-                          {report.status}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <ReportsView
+              client={currentClient}
+              metrics={metrics}
+              periodStats={periodStats}
+              dailyMetrics={dailyMetrics}
+              events={events}
+              supabase={supabase}
+              theme={theme}
+            />
           )}
 
           {activeTab === "requests" && (

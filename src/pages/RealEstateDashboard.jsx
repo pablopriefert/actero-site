@@ -38,6 +38,10 @@ import { SkeletonRow } from '../components/ui/skeleton-row'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 import { ActivityView } from '../components/dashboard/ActivityView'
 import { CopilotChat } from '../components/dashboard/CopilotChat'
+import { ROICalculator } from '../components/dashboard/ROICalculator'
+import { AlertsOverview } from '../components/dashboard/AlertsPanel'
+import { ReportsView } from '../components/dashboard/ReportsView'
+import { ActionLogsView } from '../components/dashboard/ActionLogsView'
 
 export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const queryClient = useQueryClient();
@@ -136,6 +140,21 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         .limit(50);
       if (error) throw error;
       return data;
+    },
+    enabled: !!supabase && !!currentClient?.id,
+  });
+
+  // 5. Fetch Client Settings (for ROI Calculator)
+  const { data: clientSettings } = useQuery({
+    queryKey: ["client-settings", currentClient?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("client_settings")
+        .select("*")
+        .eq("client_id", currentClient.id)
+        .maybeSingle();
+      if (error && error.code !== "PGRST116") throw error;
+      return data || { actero_monthly_price: 500, hourly_cost: 25 };
     },
     enabled: !!supabase && !!currentClient?.id,
   });
@@ -445,6 +464,21 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               </div>
 
               <HealthScoreWidget metricsData={dailyMetrics.slice(-7)} eventsData={events} theme={theme} />
+
+              <AlertsOverview
+                periodStats={periodStats}
+                metrics={metrics}
+                events={events}
+                clientType="immobilier"
+                theme={theme}
+              />
+
+              <ROICalculator
+                periodStats={periodStats}
+                metrics={metrics}
+                clientSettings={clientSettings}
+                theme={theme}
+              />
             </div>
           )}
 
@@ -459,7 +493,7 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "intelligence" && <IntelligenceView supabase={supabase} setActiveTab={setActiveTab} theme={theme} />}
 
-          {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} />}
+          {activeTab === "activity" && <ActionLogsView supabase={supabase} clientId={currentClient?.id} theme={theme} />}
 
           {activeTab === "leads" && (
             <div className="max-w-5xl mx-auto space-y-8 animate-fade-in-up">
@@ -576,13 +610,15 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "reports" && (
-            <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up">
-              <div className="text-center py-20">
-                <Download className={`w-12 h-12 mx-auto mb-4 ${isLight ? "text-slate-400" : "text-gray-600"}`} />
-                <h3 className={`text-xl font-bold mb-2 ${isLight ? "text-slate-900" : "text-white"}`}>Rapports à venir</h3>
-                <p className={`${isLight ? "text-slate-500" : "text-gray-500"}`}>Les rapports automatisés seront disponibles ici.</p>
-              </div>
-            </div>
+            <ReportsView
+              client={{ ...currentClient, client_type: 'immobilier' }}
+              metrics={metrics}
+              periodStats={periodStats}
+              dailyMetrics={dailyMetrics}
+              events={events}
+              supabase={supabase}
+              theme={theme}
+            />
           )}
         </main>
       </div>
