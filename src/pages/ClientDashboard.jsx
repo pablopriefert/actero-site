@@ -30,6 +30,7 @@ import {
   ShoppingCart,
   Mail,
   Ticket,
+  Rocket,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -43,6 +44,7 @@ import { AnimatedCounter } from '../components/ui/animated-counter'
 import { SkeletonRow } from '../components/ui/skeleton-row'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 import { ActivityView } from '../components/dashboard/ActivityView'
+import { UpsellsView } from '../components/dashboard/UpsellsView'
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // eslint-disable-next-line no-unused-vars
@@ -65,6 +67,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/systems") return "systems";
     if (route === "/client/intelligence") return "intelligence";
     if (route === "/client/reports") return "reports";
+    if (route === "/client/upsells") return "upsells";
     return "overview";
   };
 
@@ -294,6 +297,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'activity', label: 'Activité en direct', icon: Activity },
     { id: 'intelligence', label: 'Intelligence', icon: Lightbulb },
     { id: 'reports', label: 'Rapports', icon: Download },
+    { type: 'section', label: 'Croissance' },
+    { id: 'upsells', label: 'Opportunités', icon: Rocket },
   ];
 
   const isLoading = clientLoading || metricsLoading || dailyMetricsLoading;
@@ -360,6 +365,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "architect" && "Architecte IA"}
               {activeTab === "activity" && "Activité temps réel"}
               {activeTab === "intelligence" && "Intelligence"}
+              {activeTab === "upsells" && "Opportunités de croissance"}
             </h1>
 
             <div className="hidden lg:flex items-center gap-3">
@@ -488,18 +494,27 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
               <HealthScoreWidget metricsData={dailyMetrics.slice(-7)} eventsData={events} theme={theme} />
 
-              <div className={`mt-12 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between shadow-xl ${isLight ? "bg-slate-900 text-white" : "bg-zinc-900"}`}>
+              <div className={`mt-12 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between shadow-xl ${isLight ? "bg-gradient-to-r from-slate-900 to-slate-800 text-white" : "bg-gradient-to-r from-zinc-900 to-zinc-800"}`}>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Un besoin d'évolution ?</h3>
-                  <p className="opacity-60">Ajoutez un nouveau processus à votre infrastructure.</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Rocket className="w-5 h-5 text-violet-400" />
+                    <h3 className="text-2xl font-bold">Développez votre système</h3>
+                  </div>
+                  <p className="opacity-60">Des automatisations supplémentaires adaptées à votre activité.</p>
                 </div>
                 <button
-                   onClick={() => setActiveTab("architect")}
+                   onClick={() => setActiveTab("upsells")}
                    className="mt-6 md:mt-0 bg-white text-black px-6 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-100 transition-all"
                 >
-                  Consulter l'Architecte IA <ArrowUpRight className="w-5 h-5" />
+                  Voir les opportunités <ArrowUpRight className="w-5 h-5" />
                 </button>
               </div>
+            </div>
+          )}
+
+          {activeTab === "upsells" && (
+            <div className="max-w-5xl mx-auto animate-fade-in-up">
+              <UpsellsView client={currentClient} metrics={metrics} supabase={supabase} theme={theme} />
             </div>
           )}
 

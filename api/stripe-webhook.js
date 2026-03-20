@@ -145,36 +145,60 @@ export default async function handler(req, res) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
-      const clientSlug = session.metadata?.client;
+      const isUpsell = session.metadata?.service === 'Actero Upsell';
 
-      if (clientSlug) {
-        // 1. Update funnel_clients with Stripe info
-        const { error: updateError } = await supabase
-          .from('funnel_clients')
+      if (isUpsell) {
+        // ========== UPSELL CHECKOUT COMPLETED ==========
+        const { client_id, upsell_type } = session.metadata;
+        console.log(`[UPSELL] Checkout completed: ${upsell_type} for client ${client_id}`);
+
+        const { error: upsellError } = await supabase
+          .from('client_upsells')
           .update({
-            status: 'paid',
-            stripe_session_id: session.id,
-            stripe_customer_id: session.customer,
+            status: 'active',
             stripe_subscription_id: session.subscription,
-            paid_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           })
-          .eq('slug', clientSlug);
+          .eq('stripe_checkout_session_id', session.id);
 
-        if (updateError) {
-          console.error('Supabase update error:', updateError);
-        }
-
-        // 2. Fetch funnel client data and auto-onboard
-        const { data: funnelClient, error: fetchError } = await supabase
-          .from('funnel_clients')
-          .select('*')
-          .eq('slug', clientSlug)
-          .single();
-
-        if (fetchError || !funnelClient) {
-          console.error('Failed to fetch funnel client:', fetchError);
+        if (upsellError) {
+          console.error('[UPSELL] Failed to activate upsell:', upsellError);
         } else {
-          await onboardClientAfterPayment(funnelClient);
+          console.log(`[UPSELL] Activated: ${upsell_type} for client ${client_id}`);
+        }
+      } else {
+        // ========== FUNNEL CHECKOUT (existing logic) ==========
+        const clientSlug = session.metadata?.client;
+
+        if (clientSlug) {
+          // 1. Update funnel_clients with Stripe info
+          const { error: updateError } = await supabase
+            .from('funnel_clients')
+            .update({
+              status: 'paid',
+              stripe_session_id: session.id,
+              stripe_customer_id: session.customer,
+              stripe_subscription_id: session.subscription,
+              paid_at: new Date().toISOString(),
+            })
+            .eq('slug', clientSlug);
+
+          if (updateError) {
+            console.error('Supabase update error:', updateError);
+          }
+
+          // 2. Fetch funnel client data and auto-onboard
+          const { data: funnelClient, error: fetchError } = await supabase
+            .from('funnel_clients')
+            .select('*')
+            .eq('slug', clientSlug)
+            .single();
+
+          if (fetchError || !funnelClient) {
+            console.error('Failed to fetch funnel client:', fetchError);
+          } else {
+            await onboardClientAfterPayment(funnelClient);
+          }
         }
       }
       break;
@@ -182,18 +206,53 @@ export default async function handler(req, res) {
 
     case 'customer.subscription.deleted': {
       const subscription = event.data.object;
-      const { error } = await supabase
-        .from('funnel_clients')
-        .update({ status: 'canceled' })
-        .eq('stripe_subscription_id', subscription.id);
 
-      if (error) console.error('Supabase cancel update error:', error);
+      // Check if it's an upsell subscription
+      const { data: upsellSub } = await supabase
+        .from('client_upsells')
+        .select('id')
+        .eq('stripe_subscription_id', subscription.id)
+        .maybeSingle();
+
+      if (upsellSub) {
+        // Cancel the upsell
+        await supabase
+          .from('client_upsells')
+          .update({ status: 'canceled', updated_at: new Date().toISOString() })
+          .eq('stripe_subscription_id', subscription.id);
+        console.log(`[UPSELL] Subscription canceled: ${subscription.id}`);
+      } else {
+        // Original funnel cancellation logic
+        const { error } = await supabase
+          .from('funnel_clients')
+          .update({ status: 'canceled' })
+          .eq('stripe_subscription_id', subscription.id);
+
+        if (error) console.error('Supabase cancel update error:', error);
+      }
       break;
     }
 
     case 'invoice.payment_failed': {
       const invoice = event.data.object;
       console.log('Payment failed for invoice:', invoice.id);
+
+      // If upsell subscription payment failed, mark as payment_failed
+      if (invoice.subscription) {
+        const { data: upsellSub } = await supabase
+          .from('client_upsells')
+          .select('id')
+          .eq('stripe_subscription_id', invoice.subscription)
+          .maybeSingle();
+
+        if (upsellSub) {
+          await supabase
+            .from('client_upsells')
+            .update({ status: 'payment_failed', updated_at: new Date().toISOString() })
+            .eq('stripe_subscription_id', invoice.subscription);
+          console.log(`[UPSELL] Payment failed for subscription: ${invoice.subscription}`);
+        }
+      }
       break;
     }
 
