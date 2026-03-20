@@ -573,11 +573,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 <h3 className={`text-lg font-bold mb-6 ${isLight ? "text-slate-900" : "text-white"}`}>Automatisations actives</h3>
                 <div className="space-y-4">
                   {[
-                    { name: "Agent SAV e-commerce", type: "Agent IA", status: "active" },
-                    { name: "Qualification des leads entrants", type: "Qualification IA", status: "active" },
-                    { name: "Réponse automatique emails", type: "Email IA", status: "active" },
-                    { name: "Synchronisation CRM", type: "Intégration", status: "active" },
-                    { name: "Alertes stock faible", type: "Monitoring", status: "active" },
+                    { name: "SAV Support Client — Triage IA", type: "Agent IA — Webhook", status: "active" },
+                    { name: "Relance paniers abandonnés", type: "Automatisation — Schedule 1h", status: "active" },
+                    { name: "Agrégation métriques journalières", type: "Pipeline données — Schedule 5min", status: "active" },
                   ].map((auto, i) => (
                     <div key={i} className={`flex items-center justify-between p-4 rounded-xl border ${
                       isLight ? "bg-slate-50 border-slate-200" : "bg-white/[0.02] border-white/[0.06]"

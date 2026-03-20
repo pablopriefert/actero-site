@@ -194,9 +194,24 @@ export const ActionLogsView = ({ supabase, clientId, theme }) => {
     }))
   }, [filteredEvents])
 
-  // Stats
-  const todayCount = events.filter(e => new Date(e.created_at).toDateString() === new Date().toDateString()).length
-  const totalValue = events.reduce((sum, e) => sum + (Number(e.revenue_amount) || 0), 0)
+  // Stats — query all events for accurate totals (not just visible 50)
+  const { data: monthStats = {} } = useQuery({
+    queryKey: ['action-logs-stats', clientId],
+    queryFn: async () => {
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+      const today = new Date().toISOString().split('T')[0]
+      const [revResult, todayResult] = await Promise.all([
+        supabase.from('automation_events').select('revenue_amount').eq('client_id', clientId).gte('created_at', startOfMonth).gt('revenue_amount', 0),
+        supabase.from('automation_events').select('id', { count: 'exact', head: true }).eq('client_id', clientId).gte('created_at', today + 'T00:00:00')
+      ])
+      const totalRevenue = (revResult.data || []).reduce((sum, e) => sum + (Number(e.revenue_amount) || 0), 0)
+      return { todayCount: todayResult.count || 0, totalValue: totalRevenue }
+    },
+    enabled: !!clientId && !!supabase,
+    refetchInterval: 30000,
+  })
+  const todayCount = monthStats.todayCount || 0
+  const totalValue = monthStats.totalValue || 0
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fade-in-up">
