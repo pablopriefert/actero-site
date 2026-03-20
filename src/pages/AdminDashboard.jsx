@@ -23,7 +23,9 @@ import {
   Target,
   BarChart3,
   Building2,
-  ShoppingBag
+  ShoppingBag,
+  Copy,
+  Check
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -40,6 +42,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandKOpen, setIsCommandKOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
 
   const getAdminTabFromRoute = (route) => {
     if (route === "/admin/clients") return "clients";
@@ -719,11 +722,26 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         </div>
                         <div className="flex items-center gap-4 mt-1.5 flex-wrap">
                           <span className="text-xs text-gray-500 capitalize">{client.client_type || 'ecommerce'}</span>
-                          {client.contact_email && <span className="text-xs text-gray-400">{client.contact_email}</span>}
+                          <span className="text-xs text-gray-400">{client.contact_email || 'Pas d\'email'}</span>
                           <span className="text-[10px] text-gray-600">Créé le {new Date(client.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                         </div>
-                        <div className="mt-1">
-                          <span className="text-[10px] font-mono text-gray-600 select-all">{client.id}</span>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="text-[10px] font-mono text-gray-600">{client.id}</span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(client.id);
+                              setCopiedId(client.id);
+                              setTimeout(() => setCopiedId(null), 2000);
+                            }}
+                            className="p-0.5 rounded hover:bg-white/10 transition-colors"
+                            title="Copier l'ID"
+                          >
+                            {copiedId === client.id
+                              ? <Check className="w-3 h-3 text-emerald-400" />
+                              : <Copy className="w-3 h-3 text-gray-600 hover:text-gray-400" />
+                            }
+                          </button>
                         </div>
                       </div>
 
