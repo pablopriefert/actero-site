@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { Navbar } from '../components/layout/Navbar'
 import { Footer } from '../components/layout/Footer'
+import { ZendeskWidget } from '../components/ZendeskWidget'
 import { GlassHero } from '../components/ui/glass-hero'
 import { RevenueCalculator } from '../components/ui/revenue-calculator'
 import { ButtonColorful } from '../components/ui/button-colorful'
@@ -58,6 +59,9 @@ export const LandingPage = ({ onNavigate }) => {
 
   return (
     <div className="relative min-h-screen bg-[#030303] font-sans text-white selection:bg-emerald-500/20 selection:text-white">
+      {/* Zendesk — support public landing page uniquement */}
+      <ZendeskWidget />
+
       {/* GLOBAL BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img
