@@ -25,7 +25,8 @@ import {
   UserCheck,
   Timer,
   BarChart3,
-  Eye
+  Eye,
+  MessageSquare,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -42,6 +43,9 @@ import { ROICalculator } from '../components/dashboard/ROICalculator'
 import { AlertsOverview } from '../components/dashboard/AlertsPanel'
 import { ReportsView } from '../components/dashboard/ReportsView'
 import { ActionLogsView } from '../components/dashboard/ActionLogsView'
+import { ObjectivesWidget } from '../components/dashboard/ObjectivesWidget'
+import { BenchmarksWidget } from '../components/dashboard/BenchmarksWidget'
+import { SupportTicketsView } from '../components/dashboard/SupportTicketsView'
 
 export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const queryClient = useQueryClient();
@@ -55,6 +59,7 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/activity") return "activity";
     if (route === "/client/intelligence") return "intelligence";
     if (route === "/client/reports") return "reports";
+    if (route === "/client/support") return "support";
     if (route === "/client/copilot") return "copilot";
     return "overview";
   };
@@ -232,6 +237,7 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'activity', label: 'Activité en direct', icon: Activity },
     { id: 'intelligence', label: 'Intelligence', icon: Lightbulb },
     { id: 'reports', label: 'Rapports', icon: Download },
+    { id: 'support', label: 'Support & Demandes', icon: MessageSquare },
     { type: 'section', label: 'Intelligence' },
     { id: 'copilot', label: 'Actero Copilot', icon: Sparkles },
   ];
@@ -301,6 +307,7 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "activity" && "Activité temps réel"}
               {activeTab === "intelligence" && "Intelligence"}
               {activeTab === "reports" && "Rapports"}
+              {activeTab === "support" && "Support & Demandes"}
               {activeTab === "copilot" && "Actero Copilot"}
             </h1>
 
@@ -479,6 +486,18 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 clientSettings={clientSettings}
                 theme={theme}
               />
+
+              <ObjectivesWidget
+                periodStats={periodStats}
+                eventCounts={{}}
+                clientType="immobilier"
+                theme={theme}
+              />
+
+              <BenchmarksWidget
+                clientType="immobilier"
+                theme={theme}
+              />
             </div>
           )}
 
@@ -617,6 +636,14 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               dailyMetrics={dailyMetrics}
               events={events}
               supabase={supabase}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "support" && (
+            <SupportTicketsView
+              supabase={supabase}
+              clientId={currentClient?.id}
               theme={theme}
             />
           )}

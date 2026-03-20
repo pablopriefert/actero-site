@@ -14,6 +14,7 @@ import { FaqPage } from "./pages/FaqPage";
 import { AuditPage } from "./pages/AuditPage";
 import { DashboardGate } from "./components/auth/DashboardGate"
 import { DemoDashboardPage } from "./components/ui/demo-dashboard";
+import { ProspectDemoPage } from "./pages/ProspectDemoPage";
 import { PromptLibraryPage } from "./components/ui/prompt-library-page";
 import { StartPage } from "./pages/StartPage";
 import { SuccessPage } from "./pages/SuccessPage";
@@ -76,6 +77,7 @@ function MainRouter() {
   else if (currentRoute === "/faq") page = <FaqPage onNavigate={navigate} />;
   else if (currentRoute === "/audit") page = <AuditPage onNavigate={navigate} />;
   else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
+  else if (currentRoute.startsWith("/demo-prospect")) page = <ProspectDemoPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
   else if (currentRoute.startsWith("/start/")) {
     const clientSlug = currentRoute.replace("/start/", "").split("?")[0];

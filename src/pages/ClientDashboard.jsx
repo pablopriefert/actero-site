@@ -48,6 +48,9 @@ import { ROICalculator } from '../components/dashboard/ROICalculator'
 import { AlertsOverview } from '../components/dashboard/AlertsPanel'
 import { ReportsView } from '../components/dashboard/ReportsView'
 import { ActionLogsView } from '../components/dashboard/ActionLogsView'
+import { ObjectivesWidget } from '../components/dashboard/ObjectivesWidget'
+import { BenchmarksWidget } from '../components/dashboard/BenchmarksWidget'
+import { SupportTicketsView } from '../components/dashboard/SupportTicketsView'
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // eslint-disable-next-line no-unused-vars
@@ -308,7 +311,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const sidebarItems = [
     { type: 'section', label: 'Pilotage' },
     { id: 'overview', label: "Vue d'ensemble", icon: LayoutDashboard },
-    { id: 'requests', label: 'Requêtes', icon: ClipboardList, badge: requests.length > 0 ? requests.length : null },
+    { id: 'requests', label: 'Support & Demandes', icon: ClipboardList, badge: requests.length > 0 ? requests.length : null },
     { id: 'architect', label: 'Architecte IA', icon: BrainCircuit },
     { type: 'section', label: 'Infrastructure' },
     { id: 'systems', label: 'Mes Systèmes', icon: Database },
@@ -528,6 +531,18 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 clientSettings={clientSettings}
                 theme={theme}
               />
+
+              <ObjectivesWidget
+                periodStats={periodStats}
+                eventCounts={eventCounts}
+                clientType={currentClient?.client_type || 'ecommerce'}
+                theme={theme}
+              />
+
+              <BenchmarksWidget
+                clientType={currentClient?.client_type || 'ecommerce'}
+                theme={theme}
+              />
             </div>
           )}
 
@@ -666,29 +681,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "requests" && (
-            <div className="max-w-4xl mx-auto space-y-6">
-               {requests.length === 0 ? (
-                 <div className="text-center py-20">
-                   <FileText className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                   <h3 className="text-xl font-bold">Aucune demande</h3>
-                   <button onClick={() => setActiveTab("architect")} className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-xl">Nouveau projet</button>
-                 </div>
-               ) : (
-                 requests.map(req => (
-                    <div key={req.id} className={`p-8 rounded-3xl border ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
-                       <div className="flex justify-between mb-4">
-                          <span className="bg-amber-500/10 text-amber-500 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-bold uppercase">{req.status || "En attente"}</span>
-                          <span className="opacity-40 text-xs">{new Date(req.created_at).toLocaleDateString()}</span>
-                       </div>
-                       <h3 className="text-2xl font-bold mb-2">{req.title}</h3>
-                       <p className="opacity-60 mb-6">{req.description}</p>
-                       <div className="flex gap-2">
-                          {req.stack && <span className="bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-xs">{req.stack}</span>}
-                       </div>
-                    </div>
-                 ))
-               )}
-            </div>
+            <SupportTicketsView
+              supabase={supabase}
+              clientId={currentClient?.id}
+              theme={theme}
+            />
           )}
         </main>
       </div>
