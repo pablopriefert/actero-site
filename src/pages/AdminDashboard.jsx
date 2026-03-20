@@ -33,6 +33,7 @@ import { Logo } from '../components/layout/Logo'
 import { Sidebar } from '../components/layout/Sidebar'
 import { CommandKModal } from '../components/layout/CommandKModal'
 import { AdminKanbanBoard } from '../components/admin/AdminKanbanBoard'
+import { AdminRequestsView } from '../components/admin/AdminRequestsView'
 import { AnimatedCounter } from '../components/ui/animated-counter'
 import { AdminFunnelView } from '../components/admin/AdminFunnelView'
 
@@ -186,7 +187,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const sidebarItems = [
     { id: "overview", label: "Vue Globale", icon: LayoutDashboard },
     { id: "clients", label: "Clients", icon: Users },
-    { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
+    { id: "requests", label: "Demandes clients", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
     { id: "leads", label: "Leads AI", icon: Users, badge: leads.length > 0 ? leads.length : null, badgeColor: "bg-blue-100 text-blue-700" },
     { id: "funnel", label: "Nouveau client", icon: UserPlus },
   ];
@@ -747,9 +748,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "requests" && (
-            <div className="max-w-6xl mx-auto animate-fade-in-up">
-              <AdminKanbanBoard requests={requests} />
-            </div>
+            <AdminRequestsView requests={requests} supabase={supabase} />
           )}
 
           {activeTab === "leads" && (

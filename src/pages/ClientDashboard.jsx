@@ -68,7 +68,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
   const getTabFromRoute = (route) => {
     if (route === "/client/requests") return "requests";
-    if (route === "/client/architect") return "architect";
     if (route === "/client/activity") return "activity";
     if (route === "/client/systems") return "systems";
     if (route === "/client/intelligence") return "intelligence";
@@ -312,7 +311,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { type: 'section', label: 'Pilotage' },
     { id: 'overview', label: "Vue d'ensemble", icon: LayoutDashboard },
     { id: 'requests', label: 'Support & Demandes', icon: ClipboardList, badge: requests.length > 0 ? requests.length : null },
-    { id: 'architect', label: 'Architecte IA', icon: BrainCircuit },
     { type: 'section', label: 'Infrastructure' },
     { id: 'systems', label: 'Mes Systèmes', icon: Database },
     { id: 'activity', label: 'Activité en direct', icon: Activity },
@@ -383,7 +381,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <h1 className={`text-xl font-bold tracking-tight whitespace-nowrap ${isLight ? "text-slate-900" : "text-white"}`}>
               {activeTab === "overview" && "Vue d'ensemble"}
               {activeTab === "requests" && "Mes demandes"}
-              {activeTab === "architect" && "Architecte IA"}
+
               {activeTab === "activity" && "Activité temps réel"}
               {activeTab === "systems" && "Mes Systèmes"}
               {activeTab === "intelligence" && "Intelligence"}
@@ -559,73 +557,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "activity" && <ActionLogsView supabase={supabase} clientId={currentClient?.id} theme={theme} />}
 
-          {activeTab === "architect" && (
-            <div className="max-w-4xl mx-auto space-y-8 animate-fade-in-up">
-              <div>
-                <h2 className={`text-3xl font-bold mb-2 tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
-                  Architecte IA
-                </h2>
-                <p className={`font-medium text-lg ${isLight ? "text-slate-500" : "text-zinc-500"}`}>
-                  Concevez et planifiez de nouvelles automatisations avec l'intelligence artificielle.
-                </p>
-              </div>
-
-              <div className={`p-8 rounded-2xl border ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isLight ? "bg-violet-50 border border-violet-200" : "bg-violet-500/10 border border-violet-500/20"}`}>
-                    <BrainCircuit className={`w-6 h-6 ${isLight ? "text-violet-600" : "text-violet-400"}`} />
-                  </div>
-                  <div>
-                    <h3 className={`text-lg font-bold ${isLight ? "text-slate-900" : "text-white"}`}>Nouveau projet d'automatisation</h3>
-                    <p className={`text-sm ${isLight ? "text-slate-500" : "text-zinc-500"}`}>Décrivez votre besoin, l'IA propose une architecture</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className={`block text-sm font-bold mb-2 ${isLight ? "text-slate-700" : "text-zinc-300"}`}>
-                      Quel process souhaitez-vous automatiser ?
-                    </label>
-                    <textarea
-                      placeholder="Ex: Je voudrais automatiser la relance des paniers abandonnés avec un email personnalisé 2h après..."
-                      rows={4}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/50 ${
-                        isLight
-                          ? "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
-                          : "bg-white/5 border-white/10 text-white placeholder-zinc-600"
-                      }`}
-                    />
-                  </div>
-                  <button className="bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all">
-                    <Sparkles className="w-4 h-4" />
-                    Analyser avec l'IA
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  { title: "Relance paniers abandonnés", desc: "Email automatique 2h après abandon", status: "Suggestion IA" },
-                  { title: "Chatbot SAV intelligent", desc: "Réponses automatiques aux questions fréquentes", status: "Suggestion IA" },
-                  { title: "Reporting hebdomadaire", desc: "Rapport de performance envoyé chaque lundi", status: "Suggestion IA" },
-                ].map((suggestion, i) => (
-                  <div key={i} className={`p-5 rounded-2xl border cursor-pointer transition-all hover:scale-[1.02] ${
-                    isLight
-                      ? "bg-white border-slate-200 hover:border-violet-300 hover:shadow-md"
-                      : "bg-white/[0.02] border-white/[0.06] hover:border-violet-500/30 hover:shadow-lg"
-                  }`}>
-                    <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase mb-3 ${
-                      isLight ? "bg-violet-50 text-violet-600" : "bg-violet-500/10 text-violet-400"
-                    }`}>
-                      {suggestion.status}
-                    </span>
-                    <h4 className={`text-sm font-bold mb-1 ${isLight ? "text-slate-900" : "text-white"}`}>{suggestion.title}</h4>
-                    <p className={`text-xs ${isLight ? "text-slate-500" : "text-zinc-500"}`}>{suggestion.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {activeTab === "systems" && (
             <div className="max-w-5xl mx-auto space-y-8 animate-fade-in-up">
