@@ -34,7 +34,6 @@ import { Sidebar } from '../components/layout/Sidebar'
 import { CommandKModal } from '../components/layout/CommandKModal'
 import { AdminKanbanBoard } from '../components/admin/AdminKanbanBoard'
 import { AnimatedCounter } from '../components/ui/animated-counter'
-import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 import { AdminFunnelView } from '../components/admin/AdminFunnelView'
 
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
@@ -48,7 +47,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/clients") return "clients";
     if (route === "/admin/requests") return "requests";
     if (route === "/admin/leads") return "leads";
-    if (route === "/admin/intelligence") return "intelligence";
     if (route === "/admin/funnel") return "funnel";
     return "overview";
   };
@@ -189,7 +187,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: "overview", label: "Vue Globale", icon: LayoutDashboard },
     { id: "clients", label: "Clients", icon: Users },
     { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
-    { id: "intelligence", label: "Intelligence", icon: Bot },
     { id: "leads", label: "Leads AI", icon: Users, badge: leads.length > 0 ? leads.length : null, badgeColor: "bg-blue-100 text-blue-700" },
     { id: "funnel", label: "Nouveau client", icon: UserPlus },
   ];
@@ -281,11 +278,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             </div>
           )}
           
-          {activeTab === "intelligence" && (
-            <div className="max-w-6xl mx-auto">
-              <IntelligenceView supabase={supabase} theme="dark" />
-            </div>
-          )}
 
           {activeTab === "overview" && (
             <div className="max-w-7xl mx-auto space-y-6 animate-fade-in-up">
