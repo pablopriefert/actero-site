@@ -23,7 +23,8 @@ import {
   Target,
   BarChart3,
   Building2,
-  ShoppingBag
+  ShoppingBag,
+  Link2
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -34,6 +35,7 @@ import { AdminOnboardingView } from '../components/admin/AdminOnboardingView'
 import { AdminKanbanBoard } from '../components/admin/AdminKanbanBoard'
 import { AnimatedCounter } from '../components/ui/animated-counter'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
+import { AdminFunnelView } from '../components/admin/AdminFunnelView'
 
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const queryClient = useQueryClient();
@@ -47,6 +49,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/leads") return "leads";
     if (route === "/admin/intelligence") return "intelligence";
     if (route === "/admin/onboard") return "onboard";
+    if (route === "/admin/funnel") return "funnel";
     return "overview";
   };
 
@@ -189,6 +192,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: "intelligence", label: "Intelligence", icon: Bot },
     { id: "leads", label: "Leads AI", icon: Users, badge: leads.length > 0 ? leads.length : null, badgeColor: "bg-blue-100 text-blue-700" },
     { id: "onboard", label: "Onboarding", icon: UserPlus },
+    { id: "funnel", label: "Funnel", icon: Link2 },
   ];
 
   const handleAddClient = async () => {
@@ -273,6 +277,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === "onboard" && <AdminOnboardingView />}
+
+          {activeTab === "funnel" && (
+            <div className="max-w-6xl mx-auto">
+              <AdminFunnelView />
+            </div>
+          )}
           
           {activeTab === "intelligence" && (
             <div className="max-w-6xl mx-auto">
