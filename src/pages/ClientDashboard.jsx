@@ -23,7 +23,11 @@ import {
   ArrowUpRight, 
   ArrowRight,
   Sparkles,
-  Menu
+  Menu,
+  Bot,
+  Zap,
+  Mail,
+  AlertTriangle
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -37,6 +41,10 @@ import { AnimatedCounter } from '../components/ui/animated-counter'
 import { SkeletonRow } from '../components/ui/skeleton-row'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 import { ActivityView } from '../components/dashboard/ActivityView'
+import { AgentsView } from '../components/dashboard/AgentsView'
+import { ExecutionFeed } from '../components/dashboard/ExecutionFeed'
+import { ProspectionView } from '../components/dashboard/ProspectionView'
+import { AlertsPanel } from '../components/dashboard/AlertsPanel'
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // eslint-disable-next-line no-unused-vars
@@ -59,6 +67,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/systems") return "systems";
     if (route === "/client/intelligence") return "intelligence";
     if (route === "/client/reports") return "reports";
+    if (route === "/client/agents") return "agents";
+    if (route === "/client/executions") return "executions";
+    if (route === "/client/prospection") return "prospection";
     return "overview";
   };
 
@@ -257,6 +268,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'overview', label: "Vue d'ensemble", icon: LayoutDashboard },
     { id: 'requests', label: 'Requêtes', icon: ClipboardList, badge: requests.length > 0 ? requests.length : null },
     { id: 'architect', label: 'Architecte IA', icon: BrainCircuit },
+    { type: 'section', label: 'Agents & Automations' },
+    { id: 'agents', label: 'Mes Agents IA', icon: Bot },
+    { id: 'executions', label: 'Exécutions', icon: Zap },
+    { id: 'prospection', label: 'Prospection', icon: Mail },
     { type: 'section', label: 'Infrastructure' },
     { id: 'systems', label: 'Mes Systèmes', icon: Database },
     { id: 'activity', label: 'Activité en direct', icon: Activity },
@@ -328,7 +343,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "architect" && "Architecte IA"}
               {activeTab === "activity" && "Activité temps réel"}
               {activeTab === "intelligence" && "Intelligence"}
-              {/* Other tab titles */}
+              {activeTab === "agents" && "Mes Agents IA"}
+              {activeTab === "executions" && "Exécutions n8n"}
+              {activeTab === "prospection" && "Prospection"}
             </h1>
 
             <div className="hidden lg:flex items-center gap-3">
@@ -359,6 +376,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === "overview" && (
             <div className="max-w-5xl mx-auto space-y-8 animate-fade-in-up">
+              {/* Alerts from n8n */}
+              <AlertsPanel theme={theme} maxAlerts={3} />
+
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
                   <h2 className={`text-3xl font-bold mb-2 tracking-tight ${isLight ? "text-slate-900" : "text-white"}`}>
@@ -464,8 +484,26 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "intelligence" && <IntelligenceView supabase={supabase} setActiveTab={setActiveTab} theme={theme} />}
-          
+
           {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} />}
+
+          {activeTab === "agents" && (
+            <div className="max-w-5xl mx-auto animate-fade-in-up">
+              <AgentsView theme={theme} />
+            </div>
+          )}
+
+          {activeTab === "executions" && (
+            <div className="max-w-5xl mx-auto animate-fade-in-up">
+              <ExecutionFeed theme={theme} />
+            </div>
+          )}
+
+          {activeTab === "prospection" && (
+            <div className="max-w-5xl mx-auto animate-fade-in-up">
+              <ProspectionView theme={theme} />
+            </div>
+          )}
           
           {activeTab === "requests" && (
             <div className="max-w-4xl mx-auto space-y-6">
