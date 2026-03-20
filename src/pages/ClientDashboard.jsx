@@ -24,6 +24,12 @@ import {
   ArrowRight,
   Sparkles,
   Menu,
+  UserCheck,
+  Phone,
+  CalendarCheck,
+  ShoppingCart,
+  Mail,
+  Ticket,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -86,7 +92,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       if (link?.client_id) {
         const { data, error } = await supabase
           .from("clients")
-          .select("id, brand_name, owner_user_id, created_at")
+          .select("id, brand_name, owner_user_id, created_at, client_type")
           .eq("id", link.client_id)
           .single();
         if (error && error.code !== "PGRST116") throw error;
@@ -96,7 +102,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       // Fallback: owner_user_id (legacy / owner accounts)
       const { data, error } = await supabase
         .from("clients")
-        .select("id, brand_name, owner_user_id, created_at")
+        .select("id, brand_name, owner_user_id, created_at, client_type")
         .eq("owner_user_id", session.user.id)
         .single();
       if (error && error.code !== "PGRST116") throw error;
@@ -161,6 +167,32 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         .limit(50);
       if (error) throw error;
       return data;
+    },
+    enabled: !!supabase && !!currentClient?.id,
+  });
+
+  // 6. Fetch Event counts by category (for vertical-specific KPIs)
+  const { data: eventCounts = {} } = useQuery({
+    queryKey: ["client-event-counts", currentClient?.id, selectedPeriod],
+    queryFn: async () => {
+      const now = new Date();
+      let start;
+      if (selectedPeriod === "this_month") {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+      } else if (selectedPeriod === "last_month") {
+        start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      } else {
+        start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+      const { data, error } = await supabase
+        .from("automation_events")
+        .select("event_category")
+        .eq("client_id", currentClient.id)
+        .gte("created_at", start.toISOString());
+      if (error) throw error;
+      const counts = {};
+      (data || []).forEach(e => { counts[e.event_category] = (counts[e.event_category] || 0) + 1; });
+      return counts;
     },
     enabled: !!supabase && !!currentClient?.id,
   });
@@ -412,16 +444,25 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     color="amber"
                     theme={theme}
                   />
+                  {currentClient?.client_type === 'immobilier' ? (
+                    <MetricCard
+                      title="Leads qualifiés"
+                      value={eventCounts.lead_qualified || 0}
+                      icon={UserCheck}
+                      color="violet"
+                      theme={theme}
+                    />
+                  ) : (
+                    <MetricCard
+                      title="Tickets résolus"
+                      value={eventCounts.ticket_resolved || 0}
+                      icon={Ticket}
+                      color="emerald"
+                      theme={theme}
+                    />
+                  )}
                   <MetricCard
-                    title="Automatisations"
-                    value={periodStats?.active_automations || 0}
-                    variation={periodStats?.active_automations_var}
-                    icon={Activity}
-                    color="emerald"
-                    theme={theme}
-                  />
-                  <MetricCard
-                    title="Tâches IA"
+                    title="Actions IA"
                     value={(periodStats?.tasks_executed || 0).toLocaleString()}
                     icon={TerminalSquare}
                     color="zinc"
