@@ -317,13 +317,13 @@ export const RealEstateDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               <div className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg ${isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"}`}>
                 <Clock className="w-3.5 h-3.5 text-blue-600" />
                 <span className={`text-xs font-bold ${isLight ? "text-slate-900" : "text-white"}`}>
-                  <AnimatedCounter value={metrics?.time_saved_minutes ? Math.round(metrics.time_saved_minutes/60) : 0} />h <span className="font-normal opacity-60">/mois</span>
+                  <AnimatedCounter value={periodStats?.time_saved || 0} />h <span className="font-normal opacity-60">/mois</span>
                 </span>
               </div>
               <div className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg ${isLight ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"}`}>
                 <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
                 <span className={`text-xs font-bold ${isLight ? "text-slate-900" : "text-white"}`}>
-                  <AnimatedCounter value={metrics?.estimated_roi || 0} />€ <span className="font-normal opacity-60">/mois</span>
+                  <AnimatedCounter value={periodStats?.roi || 0} />€ <span className="font-normal opacity-60">/mois</span>
                 </span>
               </div>
             </div>

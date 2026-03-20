@@ -78,8 +78,8 @@ const EventRow = ({ event, theme }) => {
   const Icon = config.icon
 
   const metadata = event.metadata || {}
-  const timeSaved = metadata.time_saved_seconds ? `${Math.round(metadata.time_saved_seconds / 60)} min` : null
-  const value = metadata.cart_value || metadata.order_value || null
+  const timeSaved = event.time_saved_seconds ? `${Math.round(event.time_saved_seconds / 60)} min` : null
+  const value = Number(event.revenue_amount) || metadata.cart_value || metadata.order_value || null
 
   const colorClasses = {
     emerald: isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
@@ -196,7 +196,7 @@ export const ActionLogsView = ({ supabase, clientId, theme }) => {
 
   // Stats
   const todayCount = events.filter(e => new Date(e.created_at).toDateString() === new Date().toDateString()).length
-  const totalValue = events.reduce((sum, e) => sum + (e.metadata?.cart_value || e.metadata?.order_value || 0), 0)
+  const totalValue = events.reduce((sum, e) => sum + (Number(e.revenue_amount) || 0), 0)
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-fade-in-up">
