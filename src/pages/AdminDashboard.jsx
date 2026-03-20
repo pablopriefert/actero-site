@@ -10,29 +10,28 @@ import {
   LayoutDashboard,
   TerminalSquare,
   Sparkles,
+  UserPlus,
   MoreVertical,
   Bot,
-  Link2,
-  ShoppingCart,
-  Home,
   Clock,
   DollarSign,
+  Zap,
   TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
   Activity,
-  Calendar,
-  Settings,
-  Eye,
-  Copy,
-  Check
+  Target,
+  BarChart3,
+  Building2,
+  ShoppingBag
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
 import { Logo } from '../components/layout/Logo'
 import { Sidebar } from '../components/layout/Sidebar'
 import { CommandKModal } from '../components/layout/CommandKModal'
-import { AdminActivityHeatmap } from '../components/admin/AdminActivityHeatmap'
+import { AdminOnboardingView } from '../components/admin/AdminOnboardingView'
 import { AdminKanbanBoard } from '../components/admin/AdminKanbanBoard'
-import { AdminFunnelView } from '../components/admin/AdminFunnelView'
 import { AnimatedCounter } from '../components/ui/animated-counter'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
 
@@ -41,14 +40,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandKOpen, setIsCommandKOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
-  const [copiedClientId, setCopiedClientId] = useState(null);
 
   const getAdminTabFromRoute = (route) => {
     if (route === "/admin/clients") return "clients";
     if (route === "/admin/requests") return "requests";
     if (route === "/admin/leads") return "leads";
     if (route === "/admin/intelligence") return "intelligence";
-    if (route === "/admin/funnel") return "funnel";
+    if (route === "/admin/onboard") return "onboard";
     return "overview";
   };
 
@@ -75,83 +73,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const { data: clients = [], isLoading: clientsLoading } = useQuery({
     queryKey: ['admin-clients'],
     queryFn: async () => {
-      // Fetch clients with settings
-      const { data: clientsData, error } = await supabase
+      const { data, error } = await supabase
         .from("clients")
-        .select("*, client_settings(*)")
+        .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-
-      // Fetch aggregated metrics for each client
-      const enriched = await Promise.all((clientsData || []).map(async (client) => {
-        // Get total metrics
-        const { data: metrics } = await supabase
-          .from("metrics_daily")
-          .select("hours_saved, money_saved, revenue_recovered, tickets_total, tickets_auto, tickets_escalated")
-          .eq("client_id", client.id);
-
-        // Get event count
-        const { count: eventCount } = await supabase
-          .from("automation_events")
-          .select("id", { count: "exact", head: true })
-          .eq("client_id", client.id);
-
-        // Get last event date
-        const { data: lastEvent } = await supabase
-          .from("automation_events")
-          .select("created_at")
-          .eq("client_id", client.id)
-          .order("created_at", { ascending: false })
-          .limit(1);
-
-        // Get owner email
-        let ownerEmail = null;
-        try {
-          const { data: ownerUser } = await supabase
-            .from("client_users")
-            .select("user_id")
-            .eq("client_id", client.id)
-            .eq("role", "owner")
-            .limit(1)
-            .maybeSingle();
-
-          if (ownerUser?.user_id) {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("email")
-              .eq("id", ownerUser.user_id)
-              .maybeSingle();
-            ownerEmail = profile?.email || null;
-          }
-        } catch (e) {
-          // Silently skip if email lookup fails
-        }
-
-        const totals = (metrics || []).reduce((acc, m) => ({
-          hours_saved: acc.hours_saved + (parseFloat(m.hours_saved) || 0),
-          money_saved: acc.money_saved + (parseFloat(m.money_saved) || 0),
-          revenue_recovered: acc.revenue_recovered + (parseFloat(m.revenue_recovered) || 0),
-          tickets_total: acc.tickets_total + (parseInt(m.tickets_total) || 0),
-          tickets_auto: acc.tickets_auto + (parseInt(m.tickets_auto) || 0),
-          tickets_escalated: acc.tickets_escalated + (parseInt(m.tickets_escalated) || 0),
-        }), { hours_saved: 0, money_saved: 0, revenue_recovered: 0, tickets_total: 0, tickets_auto: 0, tickets_escalated: 0 });
-
-        const autoRate = totals.tickets_total > 0
-          ? Math.round((totals.tickets_auto / totals.tickets_total) * 100)
-          : 0;
-
-        return {
-          ...client,
-          ownerEmail,
-          totals,
-          autoRate,
-          eventCount: eventCount || 0,
-          lastEventAt: lastEvent?.[0]?.created_at || null,
-          daysActive: metrics?.length || 0,
-        };
-      }));
-
-      return enriched;
+      return data || [];
     }
   });
 
@@ -179,6 +106,80 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     }
   });
 
+  // Overview data: metrics_daily aggregated
+  const { data: overviewData } = useQuery({
+    queryKey: ['admin-overview'],
+    queryFn: async () => {
+      const [metricsRes, eventsRes, recentEventsRes, funnelRes] = await Promise.all([
+        supabase.from("metrics_daily").select("client_id, date, tickets_total, tickets_auto, hours_saved, revenue_recovered, tasks_executed, time_saved_minutes, estimated_roi, active_automations").order("date", { ascending: false }),
+        supabase.from("automation_events").select("id, client_id, event_category, time_saved_seconds, revenue_amount, created_at").order("created_at", { ascending: false }),
+        supabase.from("automation_events").select("id, client_id, event_category, ticket_type, time_saved_seconds, revenue_amount, created_at, clients(brand_name)").order("created_at", { ascending: false }).limit(8),
+        supabase.from("funnel_clients").select("id, company_name, email, status, client_type, created_at, setup_price, monthly_price").order("created_at", { ascending: false }),
+      ]);
+
+      const metrics = metricsRes.data || [];
+      const events = eventsRes.data || [];
+      const recentEvents = recentEventsRes.data || [];
+      const funnel = funnelRes.data || [];
+
+      // Aggregate metrics
+      const totalHoursSaved = metrics.reduce((s, m) => s + (Number(m.hours_saved) || 0), 0);
+      const totalRevenue = metrics.reduce((s, m) => s + (Number(m.revenue_recovered) || 0), 0);
+      const totalTickets = metrics.reduce((s, m) => s + (Number(m.tickets_total) || 0), 0);
+      const totalTicketsAuto = metrics.reduce((s, m) => s + (Number(m.tickets_auto) || 0), 0);
+      const totalTasksExecuted = metrics.reduce((s, m) => s + (Number(m.tasks_executed) || 0), 0);
+      const autoRate = totalTickets > 0 ? ((totalTicketsAuto / totalTickets) * 100).toFixed(1) : 0;
+
+      // Last 7 days vs previous 7 days
+      const today = new Date();
+      const last7 = metrics.filter(m => {
+        const d = new Date(m.date);
+        return (today - d) / 86400000 <= 7;
+      });
+      const prev7 = metrics.filter(m => {
+        const d = new Date(m.date);
+        const diff = (today - d) / 86400000;
+        return diff > 7 && diff <= 14;
+      });
+      const last7Revenue = last7.reduce((s, m) => s + (Number(m.revenue_recovered) || 0), 0);
+      const prev7Revenue = prev7.reduce((s, m) => s + (Number(m.revenue_recovered) || 0), 0);
+      const revenueTrend = prev7Revenue > 0 ? (((last7Revenue - prev7Revenue) / prev7Revenue) * 100).toFixed(0) : 0;
+      const last7Hours = last7.reduce((s, m) => s + (Number(m.hours_saved) || 0), 0);
+      const prev7Hours = prev7.reduce((s, m) => s + (Number(m.revenue_recovered) || 0), 0);
+      const hoursTrend = prev7Hours > 0 ? (((last7Hours - prev7Hours) / prev7Hours) * 100).toFixed(0) : 0;
+
+      // Events by category
+      const eventsByCategory = {};
+      events.forEach(e => {
+        eventsByCategory[e.event_category] = (eventsByCategory[e.event_category] || 0) + 1;
+      });
+
+      // Daily activity for chart (last 14 days)
+      const dailyActivity = [];
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const dayMetrics = metrics.filter(m => m.date === dateStr);
+        const dayEvents = events.filter(e => e.created_at?.startsWith(dateStr));
+        dailyActivity.push({
+          date: dateStr,
+          label: d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+          tickets: dayMetrics.reduce((s, m) => s + (Number(m.tickets_total) || 0), 0),
+          events: dayEvents.length,
+          revenue: dayMetrics.reduce((s, m) => s + (Number(m.revenue_recovered) || 0), 0),
+        });
+      }
+
+      return {
+        totalHoursSaved, totalRevenue, totalTickets, totalTicketsAuto, totalTasksExecuted,
+        autoRate, revenueTrend, hoursTrend, last7Revenue,
+        eventsByCategory, recentEvents, funnel, dailyActivity,
+        totalEvents: events.length,
+      };
+    }
+  });
+
   const isLoading = clientsLoading || requestsLoading || leadsLoading;
 
   const sidebarItems = [
@@ -187,7 +188,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
     { id: "intelligence", label: "Intelligence", icon: Bot },
     { id: "leads", label: "Leads AI", icon: Users, badge: leads.length > 0 ? leads.length : null, badgeColor: "bg-blue-100 text-blue-700" },
-    { id: "funnel", label: "Funnel", icon: Link2 },
+    { id: "onboard", label: "Onboarding", icon: UserPlus },
   ];
 
   const handleAddClient = async () => {
@@ -271,6 +272,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
+          {activeTab === "onboard" && <AdminOnboardingView />}
+          
           {activeTab === "intelligence" && (
             <div className="max-w-6xl mx-auto">
               <IntelligenceView supabase={supabase} theme="dark" />
@@ -278,40 +281,340 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "overview" && (
-            <div className="max-w-6xl mx-auto space-y-8 animate-fade-in-up">
-              <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5 flex items-start gap-4">
-                <AlertCircle className="w-6 h-6 text-red-500 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="text-base font-bold text-red-400">Alertes Systèmes</h3>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Client "DataSync" : 0 exécution depuis 48h. Vérification recommandée.
-                  </p>
+            <div className="max-w-7xl mx-auto space-y-6 animate-fade-in-up">
+              {/* Row 1: Key KPIs */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  {
+                    label: "Revenus récupérés",
+                    value: overviewData?.totalRevenue || 0,
+                    suffix: "€",
+                    icon: DollarSign,
+                    color: "emerald",
+                    trend: overviewData?.revenueTrend,
+                  },
+                  {
+                    label: "Heures économisées",
+                    value: overviewData?.totalHoursSaved || 0,
+                    suffix: "h",
+                    icon: Clock,
+                    color: "blue",
+                    trend: overviewData?.hoursTrend,
+                  },
+                  {
+                    label: "Taux d'automatisation",
+                    value: overviewData?.autoRate || 0,
+                    suffix: "%",
+                    icon: Zap,
+                    color: "violet",
+                    isPercent: true,
+                  },
+                  {
+                    label: "Événements traités",
+                    value: overviewData?.totalEvents || 0,
+                    suffix: "",
+                    icon: Activity,
+                    color: "amber",
+                  },
+                ].map((kpi, i) => (
+                  <motion.div
+                    key={kpi.label}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="relative bg-[#0a0a0a] rounded-2xl border border-white/10 p-5 overflow-hidden group hover:border-white/20 transition-colors"
+                  >
+                    <div className={`absolute -top-6 -right-6 w-20 h-20 bg-${kpi.color}-500/10 rounded-full blur-2xl group-hover:bg-${kpi.color}-500/20 transition-colors`} />
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">{kpi.label}</span>
+                      <kpi.icon className={`w-4 h-4 text-${kpi.color}-400`} />
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <span className="text-3xl font-bold text-white font-mono tracking-tight">
+                        {kpi.isPercent ? (
+                          <>{overviewData?.autoRate || 0}</>
+                        ) : (
+                          <AnimatedCounter value={kpi.value} />
+                        )}
+                      </span>
+                      <span className="text-sm font-medium text-gray-500 mb-0.5">{kpi.suffix}</span>
+                    </div>
+                    {kpi.trend !== undefined && Number(kpi.trend) !== 0 && (
+                      <div className={`flex items-center gap-1 mt-2 text-xs font-medium ${Number(kpi.trend) > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {Number(kpi.trend) > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                        {Math.abs(Number(kpi.trend))}% vs 7j précédents
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Row 2: Activity chart + Recent events */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Activity mini-chart */}
+                <div className="lg:col-span-2 bg-[#0a0a0a] rounded-2xl border border-white/10 p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <div>
+                      <h3 className="text-sm font-bold text-white">Activité 14 derniers jours</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">Événements traités par jour</p>
+                    </div>
+                    <BarChart3 className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <div className="flex items-end gap-1.5 h-32">
+                    {(overviewData?.dailyActivity || Array.from({ length: 14 }, () => ({ events: 0, label: '' }))).map((day, i) => {
+                      const maxEvents = Math.max(...(overviewData?.dailyActivity || []).map(d => d.events), 1);
+                      const height = Math.max((day.events / maxEvents) * 100, 4);
+                      return (
+                        <motion.div
+                          key={i}
+                          initial={{ height: 0 }}
+                          animate={{ height: `${height}%` }}
+                          transition={{ delay: i * 0.03, duration: 0.4 }}
+                          className="flex-1 group relative"
+                        >
+                          <div
+                            className={`w-full h-full rounded-md transition-colors ${
+                              day.events > 0
+                                ? 'bg-emerald-500/60 hover:bg-emerald-400/80'
+                                : 'bg-white/5'
+                            }`}
+                          />
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                            {day.events} évén.
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between mt-2">
+                    {(overviewData?.dailyActivity || []).filter((_, i) => i % 2 === 0).map((day, i) => (
+                      <span key={i} className="text-[10px] text-gray-600">{day.label}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recent events feed */}
+                <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-white">Derniers événements</h3>
+                    <span className="text-[10px] text-gray-500 font-medium">LIVE</span>
+                  </div>
+                  <div className="space-y-3">
+                    {(overviewData?.recentEvents || []).slice(0, 6).map((event, i) => {
+                      const categoryLabels = {
+                        ticket_resolved: { label: 'Ticket résolu', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+                        ticket_escalated: { label: 'Escaladé', color: 'text-amber-400', bg: 'bg-amber-500/10' },
+                        cart_email_sent: { label: 'Email panier', color: 'text-blue-400', bg: 'bg-blue-500/10' },
+                        cart_recovered: { label: 'Panier récupéré', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+                        visit_scheduled: { label: 'Visite planifiée', color: 'text-violet-400', bg: 'bg-violet-500/10' },
+                        lead_qualified: { label: 'Lead qualifié', color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+                        visit_reply_sent: { label: 'Réponse visite', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+                        match_found: { label: 'Match trouvé', color: 'text-pink-400', bg: 'bg-pink-500/10' },
+                      };
+                      const cat = categoryLabels[event.event_category] || { label: event.event_category, color: 'text-gray-400', bg: 'bg-white/5' };
+                      const timeAgo = (() => {
+                        const diff = (Date.now() - new Date(event.created_at).getTime()) / 1000;
+                        if (diff < 60) return "à l'instant";
+                        if (diff < 3600) return `il y a ${Math.floor(diff / 60)}min`;
+                        if (diff < 86400) return `il y a ${Math.floor(diff / 3600)}h`;
+                        return `il y a ${Math.floor(diff / 86400)}j`;
+                      })();
+                      return (
+                        <motion.div
+                          key={event.id}
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.05 }}
+                          className="flex items-center gap-3"
+                        >
+                          <div className={`w-2 h-2 rounded-full ${cat.color.replace('text-', 'bg-')}`} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-white truncate">{cat.label}</p>
+                            <p className="text-[10px] text-gray-500 truncate">{event.clients?.brand_name || '—'}</p>
+                          </div>
+                          <span className="text-[10px] text-gray-600 whitespace-nowrap">{timeAgo}</span>
+                        </motion.div>
+                      );
+                    })}
+                    {(!overviewData?.recentEvents || overviewData.recentEvents.length === 0) && (
+                      <p className="text-xs text-gray-600 text-center py-4">Aucun événement récent</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-[#0a0a0a] p-6 rounded-2xl border border-white/10">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Total Heures Économisées</p>
-                  <p className="text-4xl font-bold text-white font-mono tracking-tighter">
-                    <AnimatedCounter value={4205} /> <span className="text-xl font-medium text-gray-400">h</span>
-                  </p>
+              {/* Row 3: Clients overview + Funnel + Event breakdown */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Clients list */}
+                <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-white">Clients actifs</h3>
+                    <button onClick={() => setActiveTab('clients')} className="text-[10px] text-emerald-400 font-medium hover:text-emerald-300 transition-colors">Voir tout →</button>
+                  </div>
+                  <div className="space-y-3">
+                    {clients.map((client, i) => (
+                      <motion.div
+                        key={client.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] transition-colors cursor-pointer"
+                        onClick={() => setSelectedClient(client)}
+                      >
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold ${
+                          client.client_type === 'immobilier'
+                            ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20'
+                            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        }`}>
+                          {client.client_type === 'immobilier' ? <Building2 className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">{client.brand_name}</p>
+                          <p className="text-[10px] text-gray-500 capitalize">{client.client_type || 'ecommerce'}</p>
+                        </div>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                          client.status === 'active'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'
+                        }`}>
+                          {client.status === 'active' ? 'ACTIF' : 'INACTIF'}
+                        </span>
+                      </motion.div>
+                    ))}
+                    {clients.length === 0 && (
+                      <p className="text-xs text-gray-600 text-center py-4">Aucun client</p>
+                    )}
+                  </div>
                 </div>
-                <div className="bg-[#0a0a0a] p-6 rounded-2xl border border-white/10">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Valeur Générée (Globale)</p>
-                  <p className="text-4xl font-bold text-white font-mono tracking-tighter">
-                    <AnimatedCounter value={185400} isCurrency={true} /> <span className="text-xl font-medium text-gray-400">€</span>
-                  </p>
+
+                {/* Funnel pipeline */}
+                <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-white">Pipeline Funnel</h3>
+                    <Target className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <div className="space-y-3">
+                    {(overviewData?.funnel || []).map((f, i) => {
+                      const statusColors = {
+                        draft: { label: 'Brouillon', color: 'text-gray-400', bg: 'bg-gray-500/10 border-gray-500/20' },
+                        sent: { label: 'Envoyé', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
+                        paid: { label: 'Payé', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+                        canceled: { label: 'Annulé', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
+                      };
+                      const s = statusColors[f.status] || statusColors.draft;
+                      return (
+                        <motion.div
+                          key={f.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: i * 0.05 }}
+                          className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02]"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-white truncate">{f.company_name}</p>
+                            <p className="text-[10px] text-gray-500">{f.setup_price}€ setup + {f.monthly_price}€/mois</p>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${s.bg} ${s.color}`}>
+                            {s.label.toUpperCase()}
+                          </span>
+                        </motion.div>
+                      );
+                    })}
+                    {(!overviewData?.funnel || overviewData.funnel.length === 0) && (
+                      <p className="text-xs text-gray-600 text-center py-4">Aucun prospect dans le funnel</p>
+                    )}
+                  </div>
                 </div>
-                <div className="bg-[#0a0a0a] p-6 rounded-2xl border border-white/10 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Taux de succès global</p>
-                  <p className="text-4xl font-bold text-emerald-500 font-mono tracking-tighter">
-                    <AnimatedCounter value={99} />.8 <span className="text-xl font-medium text-emerald-600">%</span>
-                  </p>
+
+                {/* Event breakdown by type */}
+                <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-white">Répartition événements</h3>
+                    <TrendingUp className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <div className="space-y-2.5">
+                    {Object.entries(overviewData?.eventsByCategory || {})
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([cat, count], i) => {
+                        const total = overviewData?.totalEvents || 1;
+                        const pct = ((count / total) * 100).toFixed(0);
+                        const labels = {
+                          ticket_resolved: 'Tickets résolus',
+                          ticket_escalated: 'Escaladés',
+                          cart_email_sent: 'Emails panier',
+                          cart_recovered: 'Paniers récupérés',
+                          visit_scheduled: 'Visites planifiées',
+                          lead_qualified: 'Leads qualifiés',
+                          visit_reply_sent: 'Réponses visite',
+                          match_found: 'Matchs trouvés',
+                          email_opened: 'Emails ouverts',
+                          email_clicked: 'Emails cliqués',
+                          lead_escalated: 'Leads escaladés',
+                        };
+                        const colors = {
+                          ticket_resolved: 'bg-emerald-500',
+                          ticket_escalated: 'bg-amber-500',
+                          cart_email_sent: 'bg-blue-500',
+                          cart_recovered: 'bg-cyan-500',
+                          visit_scheduled: 'bg-violet-500',
+                          lead_qualified: 'bg-pink-500',
+                          visit_reply_sent: 'bg-purple-500',
+                          match_found: 'bg-rose-500',
+                          email_opened: 'bg-sky-500',
+                          email_clicked: 'bg-indigo-500',
+                          lead_escalated: 'bg-orange-500',
+                        };
+                        return (
+                          <div key={cat}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs text-gray-400">{labels[cat] || cat}</span>
+                              <span className="text-xs font-mono text-gray-500">{count} ({pct}%)</span>
+                            </div>
+                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ delay: i * 0.05, duration: 0.5 }}
+                                className={`h-full rounded-full ${colors[cat] || 'bg-gray-500'}`}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    {(!overviewData?.eventsByCategory || Object.keys(overviewData.eventsByCategory).length === 0) && (
+                      <p className="text-xs text-gray-600 text-center py-4">Aucune donnée</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <AdminActivityHeatmap />
+              {/* Row 4: Leads preview */}
+              {leads.length > 0 && (
+                <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-sm font-bold text-white">Derniers leads</h3>
+                      <span className="text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-md">{leads.length}</span>
+                    </div>
+                    <button onClick={() => setActiveTab('leads')} className="text-[10px] text-emerald-400 font-medium hover:text-emerald-300 transition-colors">Voir tout →</button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {leads.slice(0, 3).map((lead, i) => (
+                      <motion.div
+                        key={lead.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="p-3 rounded-xl bg-white/[0.02] border border-white/5"
+                      >
+                        <p className="text-sm font-medium text-white">{lead.brand_name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{lead.email}</p>
+                        <p className="text-[10px] text-gray-600 mt-1">{new Date(lead.created_at).toLocaleDateString('fr-FR')}</p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -347,150 +650,37 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {clients.map((client) => {
-                    const isImmo = client.client_type === 'immobilier';
-                    const statusColor = client.status === 'active'
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                      : client.status === 'canceled'
-                      ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                      : 'bg-gray-500/10 text-gray-400 border-gray-500/20';
-                    const statusLabel = client.status === 'active' ? 'Actif' : client.status === 'canceled' ? 'Annulé' : client.status || 'Inactif';
-                    const roi = client.totals.money_saved + client.totals.revenue_recovered;
-
-                    return (
-                      <div key={client.id} className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-all">
-                        {/* Row 1: Header */}
-                        <div className="flex items-start justify-between mb-5">
-                          <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${
-                              isImmo
-                                ? 'bg-violet-500/10 border-violet-500/20 text-violet-400'
-                                : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                            }`}>
-                              {isImmo ? <Home className="w-6 h-6" /> : <ShoppingCart className="w-6 h-6" />}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-3">
-                                <h3 className="text-lg font-bold text-white">{client.brand_name}</h3>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
-                                  isImmo
-                                    ? 'bg-violet-500/10 text-violet-400 border-violet-500/20'
-                                    : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
-                                }`}>
-                                  {isImmo ? '🏠 Immobilier' : '🛒 E-commerce'}
-                                </span>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${statusColor}`}>
-                                  {statusLabel}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4 mt-1">
-                                <span className="flex items-center gap-1.5">
-                                  <span className="text-[11px] text-gray-600 font-mono select-all">{client.id}</span>
-                                  <button
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(client.id);
-                                      setCopiedClientId(client.id);
-                                      setTimeout(() => setCopiedClientId(null), 2000);
-                                    }}
-                                    className="p-0.5 text-gray-600 hover:text-white transition-colors cursor-pointer"
-                                    title="Copier le client_id"
-                                  >
-                                    {copiedClientId === client.id
-                                      ? <Check className="w-3 h-3 text-emerald-400" />
-                                      : <Copy className="w-3 h-3" />
-                                    }
-                                  </button>
-                                </span>
-                                <span className="text-xs text-gray-600">•</span>
-                                <span className="text-xs text-gray-500">{client.ownerEmail || '—'}</span>
-                                <span className="text-xs text-gray-600">•</span>
-                                <span className="text-xs text-gray-500 flex items-center gap-1">
-                                  <Calendar className="w-3 h-3" />
-                                  Client depuis {new Date(client.created_at).toLocaleDateString('fr-FR')}
-                                </span>
-                                {client.lastEventAt && (
-                                  <>
-                                    <span className="text-xs text-gray-600">•</span>
-                                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                                      <Activity className="w-3 h-3 text-emerald-500" />
-                                      Dernière activité {new Date(client.lastEventAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
+                <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                      <tr className="border-b border-white/5 bg-[#030303]">
+                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Entreprise</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Contact</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Status</th>
+                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 text-sm">
+                      {clients.map((client) => (
+                        <tr key={client.id} className="hover:bg-white/5 transition-colors">
+                          <td className="px-6 py-4 font-bold">{client.brand_name}</td>
+                          <td className="px-6 py-4 text-gray-400">—</td>
+                          <td className="px-6 py-4">
+                            <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded-md text-[10px] font-bold">ACTIF</span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
                             <button
                               onClick={() => setSelectedClient(client)}
-                              className="p-2 text-gray-500 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                              title="Configurer ROI"
+                              className="text-gray-500 hover:text-white transition-colors"
+                              title="Configurer"
                             >
-                              <Settings className="w-4 h-4" />
+                              <MoreVertical className="w-5 h-5" />
                             </button>
-                          </div>
-                        </div>
-
-                        {/* Row 2: KPI Cards */}
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Clock className="w-3.5 h-3.5 text-cyan-400" />
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Heures éco.</span>
-                            </div>
-                            <p className="text-xl font-bold text-white">{Math.round(client.totals.hours_saved)}h</p>
-                          </div>
-                          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">ROI total</span>
-                            </div>
-                            <p className="text-xl font-bold text-white">{Math.round(roi).toLocaleString('fr-FR')}€</p>
-                          </div>
-                          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                                {isImmo ? 'Leads traités' : 'Tickets traités'}
-                              </span>
-                            </div>
-                            <p className="text-xl font-bold text-white">{client.totals.tickets_total}</p>
-                          </div>
-                          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <TrendingUp className="w-3.5 h-3.5 text-violet-400" />
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Taux auto</span>
-                            </div>
-                            <p className="text-xl font-bold text-white">{client.autoRate}%</p>
-                          </div>
-                          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Activity className="w-3.5 h-3.5 text-pink-400" />
-                              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Events</span>
-                            </div>
-                            <p className="text-xl font-bold text-white">{client.eventCount}</p>
-                          </div>
-                        </div>
-
-                        {/* Row 3: Progress bar */}
-                        <div className="mt-4 flex items-center gap-4">
-                          <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all ${isImmo ? 'bg-violet-500' : 'bg-emerald-500'}`}
-                              style={{ width: `${Math.min(client.autoRate, 100)}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-gray-500 shrink-0">
-                            {client.totals.tickets_auto} auto / {client.totals.tickets_escalated} escaladés
-                          </span>
-                          <span className="text-xs text-gray-600 shrink-0">
-                            {client.daysActive}j actif
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
@@ -499,12 +689,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "requests" && (
             <div className="max-w-6xl mx-auto animate-fade-in-up">
               <AdminKanbanBoard requests={requests} />
-            </div>
-          )}
-
-          {activeTab === "funnel" && (
-            <div className="max-w-6xl mx-auto animate-fade-in-up">
-              <AdminFunnelView />
             </div>
           )}
 
