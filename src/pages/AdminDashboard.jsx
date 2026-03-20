@@ -619,22 +619,54 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "clients" && (
-            <div className="max-w-6xl mx-auto animate-fade-in-up">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <div className="relative w-full sm:w-auto">
-                  <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                  <input
-                    type="text"
-                    placeholder="Rechercher un client..."
-                    className="pl-10 pr-4 py-2.5 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm w-full sm:w-80 outline-none focus:border-white/20 transition-all"
-                  />
+            <div className="max-w-6xl mx-auto animate-fade-in-up space-y-6">
+              {/* Header with search + add */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Clients</h2>
+                  <p className="text-sm text-gray-500 mt-1">{clients.length} client{clients.length > 1 ? 's' : ''} au total</p>
                 </div>
-                <button
-                  onClick={handleAddClient}
-                  className="bg-white text-black px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-gray-200 transition-colors w-full sm:w-auto justify-center"
-                >
-                  <Plus className="w-4 h-4" /> Nouveau client
-                </button>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="relative flex-1 sm:flex-initial">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <input
+                      type="text"
+                      placeholder="Rechercher..."
+                      className="pl-9 pr-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm w-full sm:w-64 outline-none focus:border-white/20 transition-all"
+                    />
+                  </div>
+                  <button
+                    onClick={handleAddClient}
+                    className="bg-white text-black px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-gray-200 transition-colors whitespace-nowrap"
+                  >
+                    <Plus className="w-4 h-4" /> Nouveau client
+                  </button>
+                </div>
+              </div>
+
+              {/* Summary row */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-emerald-400" />
+                    <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Actifs</span>
+                  </div>
+                  <p className="text-2xl font-bold font-mono text-emerald-400">{clients.filter(c => c.status === 'active').length}</p>
+                </div>
+                <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ShoppingBag className="w-4 h-4 text-blue-400" />
+                    <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">E-commerce</span>
+                  </div>
+                  <p className="text-2xl font-bold font-mono text-white">{clients.filter(c => !c.client_type || c.client_type === 'ecommerce').length}</p>
+                </div>
+                <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Building2 className="w-4 h-4 text-violet-400" />
+                    <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Immobilier</span>
+                  </div>
+                  <p className="text-2xl font-bold font-mono text-white">{clients.filter(c => c.client_type === 'immobilier').length}</p>
+                </div>
               </div>
 
               {isLoading ? (
@@ -650,37 +682,57 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   </button>
                 </div>
               ) : (
-                <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[800px]">
-                    <thead>
-                      <tr className="border-b border-white/5 bg-[#030303]">
-                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Entreprise</th>
-                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Contact</th>
-                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Status</th>
-                        <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5 text-sm">
-                      {clients.map((client) => (
-                        <tr key={client.id} className="hover:bg-white/5 transition-colors">
-                          <td className="px-6 py-4 font-bold">{client.brand_name}</td>
-                          <td className="px-6 py-4 text-gray-400">—</td>
-                          <td className="px-6 py-4">
-                            <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-1 rounded-md text-[10px] font-bold">ACTIF</span>
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => setSelectedClient(client)}
-                              className="text-gray-500 hover:text-white transition-colors"
-                              title="Configurer"
-                            >
-                              <MoreVertical className="w-5 h-5" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="space-y-3">
+                  {clients.map((client, i) => (
+                    <motion.div
+                      key={client.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      onClick={() => setSelectedClient(client)}
+                      className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5 flex items-center gap-5 hover:border-white/20 transition-all cursor-pointer group"
+                    >
+                      {/* Icon */}
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        client.client_type === 'immobilier'
+                          ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20'
+                          : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      }`}>
+                        {client.client_type === 'immobilier' ? <Building2 className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3">
+                          <p className="text-base font-bold text-white truncate">{client.brand_name}</p>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                            client.status === 'active'
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                              : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                          }`}>
+                            {client.status === 'active' ? 'ACTIF' : 'INACTIF'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 mt-1.5 flex-wrap">
+                          <span className="text-xs text-gray-500 capitalize">{client.client_type || 'ecommerce'}</span>
+                          {client.contact_email && <span className="text-xs text-gray-400">{client.contact_email}</span>}
+                          <span className="text-[10px] text-gray-600">Créé le {new Date(client.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        </div>
+                        <div className="mt-1">
+                          <span className="text-[10px] font-mono text-gray-600 select-all">{client.id}</span>
+                        </div>
+                      </div>
+
+                      {/* Action */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setSelectedClient(client); }}
+                        className="text-gray-600 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5 opacity-0 group-hover:opacity-100"
+                        title="Configurer"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </div>
