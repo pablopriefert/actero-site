@@ -18,6 +18,7 @@ import { ProspectDemoPage } from "./pages/ProspectDemoPage";
 import { PromptLibraryPage } from "./components/ui/prompt-library-page";
 import { StartPage } from "./pages/StartPage";
 import { SuccessPage } from "./pages/SuccessPage";
+import { ShopifySuccessPage } from "./pages/ShopifySuccessPage";
 import { CancelPage } from "./pages/CancelPage";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
@@ -84,6 +85,7 @@ function MainRouter() {
     page = <StartPage clientSlug={clientSlug} />;
   }
   else if (currentRoute === "/success") page = <SuccessPage onNavigate={navigate} />;
+  else if (currentRoute === "/shopify-success") page = <ShopifySuccessPage onNavigate={navigate} />;
   else if (currentRoute === "/cancel") page = <CancelPage onNavigate={navigate} />;
   else if (currentRoute === "/app" || currentRoute.startsWith("/admin") || currentRoute.startsWith("/client")) {
     page = <DashboardGate currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 export default function handler(req, res) {
-  const { shop } = req.query;
+  const { shop, client } = req.query;
 
   if (!shop) {
     return res.status(400).json({ error: 'Missing shop parameter. Use ?shop=store-name.myshopify.com' });
@@ -14,8 +14,14 @@ export default function handler(req, res) {
   // Generate a random nonce for CSRF protection
   const nonce = crypto.randomBytes(16).toString('hex');
 
-  // Store nonce in a cookie for verification
-  res.setHeader('Set-Cookie', `shopify_nonce=${nonce}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
+  // Store nonce + client slug in cookies for callback
+  const cookies = [
+    `shopify_nonce=${nonce}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
+  ];
+  if (client) {
+    cookies.push(`actero_client=${encodeURIComponent(client)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`);
+  }
+  res.setHeader('Set-Cookie', cookies);
 
   const authUrl = `https://${shop}/admin/oauth/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${nonce}`;
 

@@ -53,9 +53,43 @@ export default async function handler(req, res) {
 
   const { access_token, scope } = await tokenResponse.json();
 
-  // 5. Save to Supabase
+  // 5. Look up client_id from funnel_clients using the slug cookie
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const clientSlug = cookies.actero_client ? decodeURIComponent(cookies.actero_client) : null;
+
+  let onboardedClientId = null;
+
+  if (clientSlug) {
+    try {
+      const lookupRes = await fetch(
+        `${supabaseUrl}/rest/v1/funnel_clients?slug=eq.${encodeURIComponent(clientSlug)}&select=onboarded_client_id`,
+        {
+          headers: {
+            apikey: supabaseServiceKey,
+            Authorization: `Bearer ${supabaseServiceKey}`,
+          },
+        }
+      );
+      const lookupData = await lookupRes.json();
+      if (lookupData?.[0]?.onboarded_client_id) {
+        onboardedClientId = lookupData[0].onboarded_client_id;
+      }
+    } catch (err) {
+      console.error('Failed to look up client:', err);
+    }
+  }
+
+  // 6. Save to Supabase (with client_id if found)
+  const connectionData = {
+    shop_domain: shop,
+    access_token,
+    scopes: scope,
+    updated_at: new Date().toISOString(),
+  };
+  if (onboardedClientId) {
+    connectionData.client_id = onboardedClientId;
+  }
 
   const upsertResponse = await fetch(`${supabaseUrl}/rest/v1/client_shopify_connections`, {
     method: 'POST',
@@ -65,25 +99,26 @@ export default async function handler(req, res) {
       'Content-Type': 'application/json',
       Prefer: 'resolution=merge-duplicates',
     },
-    body: JSON.stringify({
-      shop_domain: shop,
-      access_token,
-      scopes: scope,
-      updated_at: new Date().toISOString(),
-    }),
+    body: JSON.stringify(connectionData),
   });
 
   if (!upsertResponse.ok) {
     const errText = await upsertResponse.text();
     console.error('Supabase upsert error:', errText);
-    // Don't block — token was obtained, we just failed to save
   }
 
-  // 6. Clear nonce cookie
-  res.setHeader('Set-Cookie', 'shopify_nonce=; Path=/; HttpOnly; Secure; Max-Age=0');
+  // 7. Clear cookies
+  res.setHeader('Set-Cookie', [
+    'shopify_nonce=; Path=/; HttpOnly; Secure; Max-Age=0',
+    'actero_client=; Path=/; HttpOnly; Secure; Max-Age=0',
+  ]);
 
-  // 7. Redirect to success page
-  res.redirect(302, `/api/shopify/success?shop=${encodeURIComponent(shop)}`);
+  // 8. Redirect to Shopify success page (React route)
+  const redirectUrl = onboardedClientId
+    ? `/shopify-success?shop=${encodeURIComponent(shop)}&client_id=${encodeURIComponent(onboardedClientId)}`
+    : `/shopify-success?shop=${encodeURIComponent(shop)}`;
+
+  res.redirect(302, redirectUrl);
 }
 
 function parseCookies(cookieHeader) {
