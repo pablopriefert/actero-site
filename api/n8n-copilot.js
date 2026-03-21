@@ -76,7 +76,10 @@ const ROUTER_PROMPT = `Tu es l'IA Copilot Actero pour n8n. Tu analyses la demand
 
 CONTEXTE:
 - Tu as accès aux workflows n8n et aux clients Actero
+- Tu as accès à TOUTES les données Supabase: clients, connexions Shopify (shop_domain + access_token), paramètres (tarifs, coûts), métriques journalières, événements d'automatisation, pipeline funnel
+- Quand on te demande des infos sur un client, utilise TOUTES ces données pour répondre en détail
 - Le template SAV e-commerce est l'ID "${TEMPLATE_ID}"
+- Quand tu crées un workflow qui utilise l'API Shopify d'un client, utilise son access_token depuis les données Shopify
 
 ACTIONS POSSIBLES:
 1. "gather_create" — L'utilisateur veut créer un workflow mais il manque des infos. Pose des questions QCM pour tout clarifier AVANT de créer.
@@ -303,11 +306,16 @@ export default async function handler(req, res) {
       const { prompt } = req.body;
       if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
 
-      // Fetch context: workflows + executions + clients
-      const [wfData, exData, clientsData] = await Promise.all([
+      // Fetch ALL context: workflows + executions + full Supabase data
+      const [wfData, exData, clientsData, shopifyData, settingsData, metricsData, eventsData, funnelData] = await Promise.all([
         n8nGet('/workflows?limit=100'),
         n8nGet('/executions?limit=100').catch(() => ({ data: [] })),
-        supabase.from('clients').select('id, brand_name, client_type, status'),
+        supabase.from('clients').select('id, brand_name, client_type, status, contact_email, created_at'),
+        supabase.from('client_shopify_connections').select('client_id, shop_domain, access_token, scopes, created_at'),
+        supabase.from('client_settings').select('client_id, hourly_cost, avg_ticket_time_min, actero_monthly_price'),
+        supabase.from('metrics_daily').select('client_id, date, time_saved_minutes, estimated_roi, tasks_executed, tickets_total, tickets_auto').order('date', { ascending: false }).limit(50),
+        supabase.from('automation_events').select('client_id, event_category, created_at, revenue_amount, time_saved_seconds').order('created_at', { ascending: false }).limit(100),
+        supabase.from('funnel_clients').select('id, company_name, email, status, client_type, setup_price, monthly_price, created_at').order('created_at', { ascending: false }),
       ]);
 
       // Map executions to workflows
@@ -330,19 +338,44 @@ export default async function handler(req, res) {
         };
       });
       const clients = clientsData.data || [];
+      const shopify = shopifyData.data || [];
+      const settings = settingsData.data || [];
+      const metrics = metricsData.data || [];
+      const events = eventsData.data || [];
+      const funnel = funnelData.data || [];
+
+      // Enrich clients with their Shopify, settings, and metrics
+      const enrichedClients = clients.map(c => {
+        const shop = shopify.find(s => s.client_id === c.id);
+        const sett = settings.find(s => s.client_id === c.id);
+        const clientMetrics = metrics.filter(m => m.client_id === c.id);
+        const clientEvents = events.filter(e => e.client_id === c.id);
+        const totalRoi = clientMetrics.reduce((s, m) => s + (Number(m.estimated_roi) || 0), 0);
+        const totalTimeSaved = Math.round(clientMetrics.reduce((s, m) => s + (Number(m.time_saved_minutes) || 0), 0) / 60);
+        const totalEvents = clientEvents.length;
+
+        let info = `- "${c.brand_name}" (ID: ${c.id}, type: ${c.client_type}, statut: ${c.status}, email: ${c.contact_email || 'N/A'})`;
+        if (shop) info += `\n    Shopify: ${shop.shop_domain} (token: ${shop.access_token?.substring(0, 8)}..., scopes: ${shop.scopes})`;
+        if (sett) info += `\n    Config: ${sett.hourly_cost}€/h, ${sett.avg_ticket_time_min}min/ticket, abo: ${sett.actero_monthly_price}€/mois`;
+        if (totalEvents > 0) info += `\n    Stats récentes: ${totalEvents} événements, ${totalTimeSaved}h économisées, ${totalRoi}€ ROI`;
+        return info;
+      });
 
       const context = `
-WORKFLOWS ACTUELS (avec statistiques d'exécution récentes):
+WORKFLOWS N8N (avec statistiques d'exécution):
 ${workflows.map(w => {
   const statusStr = w.active ? 'ACTIF' : 'inactif';
   const execStr = w.executions > 0
-    ? `${w.executions} exécutions (${w.successCount} succès, ${w.errorCount} erreurs), dernière: ${w.lastExecution || 'inconnue'}`
+    ? `${w.executions} exéc. (${w.successCount} OK, ${w.errorCount} ERR), dernière: ${w.lastExecution || '?'}`
     : 'aucune exécution récente';
   return `- "${w.name}" (ID: ${w.id}, ${statusStr}, ${w.nodeCount} nodes) — ${execStr}`;
 }).join('\n')}
 
-CLIENTS ACTERO:
-${clients.map(c => `- "${c.brand_name}" (ID: ${c.id}, type: ${c.client_type}, statut: ${c.status})`).join('\n')}
+CLIENTS ACTERO (avec Shopify, config et métriques):
+${enrichedClients.join('\n')}
+
+PIPELINE FUNNEL:
+${funnel.map(f => `- "${f.company_name}" (${f.email}, statut: ${f.status}, ${f.setup_price}€ + ${f.monthly_price}€/mois)`).join('\n') || 'Aucun prospect'}
 
 DEMANDE: ${prompt}`;
 
