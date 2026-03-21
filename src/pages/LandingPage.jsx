@@ -41,6 +41,9 @@ import {
   SlideInLeft
 } from '../components/ui/scroll-animations'
 import { initAmplitude, trackEvent } from '../lib/analytics'
+import { BeforeAfterSlider } from '../components/landing/BeforeAfterSlider'
+import { TicketReplay } from '../components/landing/TicketReplay'
+import { ROISimulator } from '../components/landing/ROISimulator'
 
 export const LandingPage = ({ onNavigate }) => {
   const scrollToId = (id) => {
@@ -354,6 +357,11 @@ export const LandingPage = ({ onNavigate }) => {
             </section>
 
             {/* ============================================ */}
+            {/* SECTION — BEFORE / AFTER                     */}
+            {/* ============================================ */}
+            {vertical === 'ecommerce' && <BeforeAfterSlider />}
+
+            {/* ============================================ */}
             {/* SECTION 4 — COMMENT ÇA MARCHE               */}
             {/* ============================================ */}
             <section id="comment-ca-marche" className="py-24 md:py-32 bg-transparent px-6 relative overflow-hidden z-10">
@@ -463,9 +471,14 @@ export const LandingPage = ({ onNavigate }) => {
             </section>
 
             {/* ============================================ */}
-            {/* SECTION 5 — CALCULATEUR DE PERTES            */}
+            {/* SECTION — TICKET REPLAY IA                   */}
             {/* ============================================ */}
-            {vertical === 'ecommerce' && <RevenueCalculator />}
+            {vertical === 'ecommerce' && <TicketReplay />}
+
+            {/* ============================================ */}
+            {/* SECTION 5 — SIMULATEUR ROI                   */}
+            {/* ============================================ */}
+            {vertical === 'ecommerce' && <ROISimulator onNavigate={onNavigate} />}
 
             {/* ============================================ */}
             {/* SECTION 6 — PREUVES / RÉSULTATS              */}
