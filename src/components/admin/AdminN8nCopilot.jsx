@@ -2,248 +2,250 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Bot, Send, Loader2, ChevronDown, Zap, CheckCircle2,
-  AlertTriangle, ArrowRight, Play, X, Sparkles, Code2,
-  Plus, Minus, RefreshCw
+  Bot, Send, Loader2, Zap, CheckCircle2, AlertTriangle,
+  Play, X, Sparkles, Plus, Minus, Trash2, Copy, Power,
+  ArrowRight, Rocket, PenLine, HelpCircle
 } from 'lucide-react'
 
 const SUGGESTIONS = [
-  "Ajoute un node Slack qui envoie une notification quand un ticket est escaladé",
-  "Ajoute un node If qui vérifie si le montant du panier est > 100€",
-  "Change le schedule trigger pour qu'il s'exécute toutes les 30 minutes",
-  "Ajoute un node HTTP Request qui appelle une API externe après le traitement",
-  "Ajoute une condition qui filtre les emails déjà envoyés dans les 24h",
+  { icon: Rocket, text: "Déploie le template SAV pour le client [nom]", color: "text-emerald-400" },
+  { icon: PenLine, text: "Ajoute un node Slack au workflow SAV du client", color: "text-blue-400" },
+  { icon: Plus, text: "Crée un workflow de notification email quand un ticket est escaladé", color: "text-violet-400" },
+  { icon: Trash2, text: "Supprime le workflow de test", color: "text-red-400" },
+  { icon: Power, text: "Désactive le workflow SAV Demo", color: "text-amber-400" },
+  { icon: HelpCircle, text: "Quels workflows ont des erreurs récentes ?", color: "text-cyan-400" },
 ]
 
+const INTENT_CONFIG = {
+  modify: { label: 'Modifier', icon: PenLine, color: 'blue', confirmLabel: 'Appliquer les modifications' },
+  create: { label: 'Créer', icon: Plus, color: 'emerald', confirmLabel: 'Créer le workflow' },
+  duplicate: { label: 'Déployer', icon: Copy, color: 'emerald', confirmLabel: 'Déployer le workflow' },
+  delete: { label: 'Supprimer', icon: Trash2, color: 'red', confirmLabel: 'Confirmer la suppression' },
+  toggle: { label: 'Basculer', icon: Power, color: 'amber', confirmLabel: 'Confirmer' },
+  info: { label: 'Info', icon: HelpCircle, color: 'violet', confirmLabel: null },
+}
+
 export const AdminN8nCopilot = () => {
-  const [selectedWorkflow, setSelectedWorkflow] = useState(null)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [pendingChange, setPendingChange] = useState(null)
+  const [pendingAction, setPendingAction] = useState(null)
   const [applying, setApplying] = useState(false)
   const chatEndRef = useRef(null)
-
-  // Fetch workflow list
-  const { data: workflowsData } = useQuery({
-    queryKey: ['copilot-workflows'],
-    queryFn: async () => {
-      const res = await fetch('/api/n8n-copilot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'list' }),
-      })
-      if (!res.ok) throw new Error('Erreur')
-      return res.json()
-    },
-  })
-
-  const workflows = workflowsData?.workflows || []
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const addMessage = (role, content, data = null) => {
-    setMessages(prev => [...prev, { role, content, data, timestamp: Date.now() }])
+  const addMsg = (role, content, data = null) => {
+    setMessages(prev => [...prev, { role, content, data, ts: Date.now() }])
   }
 
   const handleSend = async (text = input) => {
-    if (!text.trim() || !selectedWorkflow || loading) return
-
+    if (!text.trim() || loading) return
     const userMsg = text.trim()
     setInput('')
-    addMessage('user', userMsg)
+    addMsg('user', userMsg)
     setLoading(true)
+    setPendingAction(null)
 
     try {
-      const res = await fetch('/api/n8n-copilot', {
+      // Step 1: Ask the router what to do
+      const routerRes = await fetch('/api/n8n-copilot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'modify',
-          workflowId: selectedWorkflow.id,
-          prompt: userMsg,
-        }),
+        body: JSON.stringify({ action: 'chat', prompt: userMsg }),
       })
+      if (!routerRes.ok) throw new Error((await routerRes.json()).error || 'Erreur')
+      const { intent, workflows } = await routerRes.json()
 
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Erreur API')
+      // Step 2: Handle by intent type
+      if (intent.intent === 'info') {
+        addMsg('assistant', intent.message, { type: 'info' })
       }
+      else if (intent.intent === 'modify') {
+        addMsg('assistant', `${intent.message}\n\nAnalyse du workflow en cours...`)
+        const modRes = await fetch('/api/n8n-copilot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'modify', workflowId: intent.workflowId, prompt: intent.description }),
+        })
+        if (!modRes.ok) throw new Error((await modRes.json()).error || 'Erreur')
+        const modData = await modRes.json()
 
-      const data = await res.json()
-      setPendingChange(data)
+        const diffLines = []
+        if (modData.diff.added.length) diffLines.push(`**+${modData.diff.added.length} node(s):** ${modData.diff.added.join(', ')}`)
+        if (modData.diff.removed.length) diffLines.push(`**-${modData.diff.removed.length} node(s):** ${modData.diff.removed.join(', ')}`)
+        if (!modData.diff.added.length && !modData.diff.removed.length) diffLines.push('Configuration des nodes modifiée')
+        diffLines.push(`\n**${modData.diff.before} → ${modData.diff.after} nodes**`)
 
-      const diffText = []
-      if (data.diff.addedNodes.length > 0) {
-        diffText.push(`**+${data.diff.addedNodes.length} node(s) ajouté(s):** ${data.diff.addedNodes.join(', ')}`)
+        // Replace last message
+        setMessages(prev => [...prev.slice(0, -1)])
+        addMsg('assistant', `Modifications proposées pour **${intent.workflowName || 'le workflow'}** :\n\n${diffLines.join('\n')}`, {
+          type: 'modify', diff: modData.diff,
+        })
+        setPendingAction({ type: 'modify', workflowId: intent.workflowId, workflow: modData.modifiedWorkflow })
       }
-      if (data.diff.removedNodes.length > 0) {
-        diffText.push(`**-${data.diff.removedNodes.length} node(s) supprimé(s):** ${data.diff.removedNodes.join(', ')}`)
-      }
-      if (data.diff.totalNodesBefore === data.diff.totalNodesAfter && data.diff.addedNodes.length === 0) {
-        diffText.push('Nodes existants modifiés (même nombre de nodes)')
-      }
+      else if (intent.intent === 'create') {
+        addMsg('assistant', `${intent.message}\n\nGénération du workflow...`)
+        const createRes = await fetch('/api/n8n-copilot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'create', prompt: intent.description }),
+        })
+        if (!createRes.ok) throw new Error((await createRes.json()).error || 'Erreur')
+        const createData = await createRes.json()
 
-      addMessage('assistant', `Voici les modifications proposées :\n\n${diffText.join('\n')}\n\n**${data.diff.totalNodesBefore} → ${data.diff.totalNodesAfter} nodes**\n\nVoulez-vous appliquer ces changements ?`, { type: 'diff', diff: data.diff })
+        setMessages(prev => [...prev.slice(0, -1)])
+        addMsg('assistant', `Workflow **"${createData.preview.name}"** prêt (${createData.preview.nodeCount} nodes) :\n\n${createData.preview.nodes.map(n => `• ${n.name} *(${n.type.split('.').pop()})*`).join('\n')}`, {
+          type: 'create', preview: createData.preview,
+        })
+        setPendingAction({ type: 'create', workflow: createData.workflow })
+      }
+      else if (intent.intent === 'duplicate') {
+        addMsg('assistant', `${intent.message}\n\nPréparation du template...`)
+        const dupRes = await fetch('/api/n8n-copilot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'duplicate',
+            clientName: intent.clientName,
+            clientId: intent.workflowId, // router may put client ID here
+          }),
+        })
+        if (!dupRes.ok) throw new Error((await dupRes.json()).error || 'Erreur')
+        const dupData = await dupRes.json()
+
+        setMessages(prev => [...prev.slice(0, -1)])
+        addMsg('assistant', `Template **"${dupData.preview.templateName}"** prêt pour **${dupData.preview.clientName || 'le client'}** (${dupData.preview.nodeCount} nodes).`, {
+          type: 'duplicate', preview: dupData.preview,
+        })
+        setPendingAction({ type: 'duplicate', workflow: dupData.workflow })
+      }
+      else if (intent.intent === 'delete') {
+        addMsg('assistant', intent.message, { type: 'delete', workflowName: intent.workflowName })
+        setPendingAction({ type: 'delete', workflowId: intent.workflowId, workflowName: intent.workflowName })
+      }
+      else if (intent.intent === 'toggle') {
+        addMsg('assistant', intent.message, { type: 'toggle' })
+        setPendingAction({ type: 'toggle', workflowId: intent.workflowId, active: intent.activate })
+      }
     } catch (err) {
-      addMessage('assistant', `Erreur : ${err.message}`)
-      setPendingChange(null)
+      addMsg('assistant', `Erreur : ${err.message}`, { type: 'error' })
     }
 
     setLoading(false)
   }
 
-  const handleApply = async () => {
-    if (!pendingChange || !selectedWorkflow || applying) return
+  const handleConfirm = async () => {
+    if (!pendingAction || applying) return
     setApplying(true)
 
     try {
-      const res = await fetch('/api/n8n-copilot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'apply',
-          workflowId: selectedWorkflow.id,
-          workflow: pendingChange.modifiedWorkflow,
-        }),
-      })
-
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Erreur')
+      let result
+      if (pendingAction.type === 'modify') {
+        result = await fetch('/api/n8n-copilot', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'apply', workflowId: pendingAction.workflowId, workflow: pendingAction.workflow }),
+        })
+      } else if (pendingAction.type === 'create' || pendingAction.type === 'duplicate') {
+        result = await fetch('/api/n8n-copilot', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'apply', workflow: pendingAction.workflow }),
+        })
+      } else if (pendingAction.type === 'delete') {
+        result = await fetch('/api/n8n-copilot', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', workflowId: pendingAction.workflowId }),
+        })
+      } else if (pendingAction.type === 'toggle') {
+        result = await fetch('/api/n8n-copilot', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'toggle', workflowId: pendingAction.workflowId, active: pendingAction.active }),
+        })
       }
 
-      addMessage('assistant', `Workflow "${selectedWorkflow.name}" mis à jour avec succès ! Les changements sont maintenant actifs dans n8n.`, { type: 'success' })
-      setPendingChange(null)
+      if (!result.ok) throw new Error((await result.json()).error || 'Erreur')
+
+      const labels = { modify: 'modifié', create: 'créé', duplicate: 'déployé', delete: 'supprimé', toggle: 'mis à jour' }
+      addMsg('assistant', `Workflow ${labels[pendingAction.type]} avec succès sur n8n !`, { type: 'success' })
+      setPendingAction(null)
     } catch (err) {
-      addMessage('assistant', `Erreur lors de l'application : ${err.message}`, { type: 'error' })
+      addMsg('assistant', `Erreur : ${err.message}`, { type: 'error' })
     }
 
     setApplying(false)
   }
 
-  const handleReject = () => {
-    setPendingChange(null)
-    addMessage('assistant', 'Modifications annulées. Décrivez les changements que vous souhaitez.', { type: 'info' })
+  const handleCancel = () => {
+    setPendingAction(null)
+    addMsg('assistant', 'Action annulée.', { type: 'info' })
   }
 
+  const cfg = pendingAction ? INTENT_CONFIG[pendingAction.type] : null
+
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 overflow-hidden flex flex-col" style={{ height: '600px' }}>
+    <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 overflow-hidden flex flex-col" style={{ height: '650px' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-gradient-to-r from-violet-500/5 to-transparent">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
             <Bot className="w-4 h-4 text-violet-400" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-white">Actero Copilot for n8n</h3>
-            <p className="text-[10px] text-gray-500">Modifiez vos workflows en langage naturel</p>
+            <p className="text-[10px] text-gray-500">Créez, modifiez, supprimez et déployez vos workflows</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/20">
           <Sparkles className="w-3 h-3 text-violet-400" />
           <span className="text-[10px] text-violet-400 font-bold">Gemini 2.0</span>
         </div>
       </div>
 
-      {/* Workflow Selector */}
-      <div className="px-5 py-3 border-b border-white/5">
-        <div className="relative">
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm hover:border-white/20 transition-colors"
-          >
-            <span className={selectedWorkflow ? 'text-white font-medium' : 'text-gray-500'}>
-              {selectedWorkflow ? selectedWorkflow.name : 'Sélectionner un workflow...'}
-            </span>
-            <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-          </button>
-
-          <AnimatePresence>
-            {isDropdownOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="absolute z-10 w-full mt-1 bg-[#111] border border-white/10 rounded-xl overflow-hidden shadow-2xl max-h-60 overflow-y-auto"
-              >
-                {workflows.map(wf => (
-                  <button
-                    key={wf.id}
-                    onClick={() => {
-                      setSelectedWorkflow(wf)
-                      setIsDropdownOpen(false)
-                      setMessages([])
-                      setPendingChange(null)
-                      addMessage('assistant', `Workflow "${wf.name}" sélectionné (${wf.nodeCount} nodes, ${wf.active ? 'actif' : 'inactif'}). Que souhaitez-vous modifier ?`)
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-white/5 transition-colors"
-                  >
-                    <div className={`w-2 h-2 rounded-full ${wf.active ? 'bg-emerald-400' : 'bg-gray-600'}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-white truncate">{wf.name}</p>
-                      <p className="text-[10px] text-gray-500">{wf.nodeCount} nodes</p>
-                    </div>
-                  </button>
-                ))}
-                {workflows.length === 0 && (
-                  <p className="px-4 py-3 text-xs text-gray-500 text-center">Aucun workflow</p>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Chat Messages */}
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-        {messages.length === 0 && !selectedWorkflow && (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <Bot className="w-12 h-12 text-gray-700 mb-4" />
-            <h4 className="text-sm font-bold text-gray-400 mb-1">Sélectionnez un workflow</h4>
-            <p className="text-xs text-gray-600">Choisissez un workflow ci-dessus pour commencer</p>
-          </div>
-        )}
-
-        {messages.length === 0 && selectedWorkflow && (
-          <div className="space-y-3">
-            <p className="text-xs text-gray-500 font-medium">Suggestions :</p>
-            {SUGGESTIONS.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => handleSend(s)}
-                className="w-full text-left px-4 py-3 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-gray-400 hover:bg-white/5 hover:border-white/10 hover:text-gray-300 transition-all"
-              >
-                <Zap className="w-3 h-3 inline mr-2 text-violet-400" />
-                {s}
-              </button>
-            ))}
+        {messages.length === 0 && (
+          <div className="space-y-4">
+            <div className="text-center py-4">
+              <Bot className="w-10 h-10 text-gray-700 mx-auto mb-3" />
+              <p className="text-xs text-gray-500">Décrivez ce que vous voulez faire — je m'occupe du reste.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {SUGGESTIONS.map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSend(s.text)}
+                  className="text-left px-3 py-2.5 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-gray-400 hover:bg-white/5 hover:border-white/10 hover:text-gray-300 transition-all flex items-start gap-2"
+                >
+                  <s.icon className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${s.color}`} />
+                  <span>{s.text}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {messages.map((msg, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}
           >
             {msg.role === 'assistant' && (
               <div className="w-7 h-7 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Bot className="w-3.5 h-3.5 text-violet-400" />
               </div>
             )}
-            <div className={`max-w-[80%] ${msg.role === 'user' ? 'order-first' : ''}`}>
+            <div className={`max-w-[85%]`}>
               <div className={`px-4 py-3 rounded-2xl text-xs leading-relaxed ${
                 msg.role === 'user'
                   ? 'bg-violet-600 text-white rounded-br-md'
                   : 'bg-white/5 text-gray-300 border border-white/5 rounded-bl-md'
               }`}>
                 {msg.content.split('\n').map((line, j) => (
-                  <p key={j} className={j > 0 ? 'mt-1.5' : ''}>
+                  <p key={j} className={j > 0 ? 'mt-1' : ''}>
                     {line.split('**').map((part, k) =>
                       k % 2 === 1 ? <strong key={k} className="text-white font-bold">{part}</strong> : part
                     )}
@@ -251,25 +253,31 @@ export const AdminN8nCopilot = () => {
                 ))}
               </div>
 
-              {/* Diff visualization */}
-              {msg.data?.type === 'diff' && (
-                <div className="mt-2 space-y-1.5">
-                  {msg.data.diff.addedNodes.map((n, j) => (
-                    <div key={j} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                      <Plus className="w-3 h-3 text-emerald-400" />
-                      <span className="text-[10px] text-emerald-400 font-medium">{n}</span>
+              {/* Diff badges for modify */}
+              {msg.data?.type === 'modify' && msg.data.diff && (
+                <div className="mt-2 space-y-1">
+                  {msg.data.diff.added?.map((n, j) => (
+                    <div key={j} className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                      <Plus className="w-3 h-3 text-emerald-400" /> <span className="text-[10px] text-emerald-400">{n}</span>
                     </div>
                   ))}
-                  {msg.data.diff.removedNodes.map((n, j) => (
-                    <div key={j} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20">
-                      <Minus className="w-3 h-3 text-red-400" />
-                      <span className="text-[10px] text-red-400 font-medium">{n}</span>
+                  {msg.data.diff.removed?.map((n, j) => (
+                    <div key={j} className="flex items-center gap-2 px-3 py-1 rounded-lg bg-red-500/10 border border-red-500/20">
+                      <Minus className="w-3 h-3 text-red-400" /> <span className="text-[10px] text-red-400">{n}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Success indicator */}
+              {/* Delete warning */}
+              {msg.data?.type === 'delete' && (
+                <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
+                  <Trash2 className="w-4 h-4 text-red-400" />
+                  <span className="text-[10px] text-red-400 font-bold">Suppression irréversible</span>
+                </div>
+              )}
+
+              {/* Success */}
               {msg.data?.type === 'success' && (
                 <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -277,7 +285,6 @@ export const AdminN8nCopilot = () => {
                 </div>
               )}
 
-              {/* Error indicator */}
               {msg.data?.type === 'error' && (
                 <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
                   <AlertTriangle className="w-4 h-4 text-red-400" />
@@ -289,47 +296,44 @@ export const AdminN8nCopilot = () => {
         ))}
 
         {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-3"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
               <Bot className="w-3.5 h-3.5 text-violet-400" />
             </div>
             <div className="px-4 py-3 rounded-2xl bg-white/5 border border-white/5 rounded-bl-md">
               <div className="flex items-center gap-2">
                 <Loader2 className="w-3 h-3 animate-spin text-violet-400" />
-                <span className="text-xs text-gray-400">Analyse du workflow en cours...</span>
+                <span className="text-xs text-gray-400">Réflexion en cours...</span>
               </div>
             </div>
           </motion.div>
         )}
-
         <div ref={chatEndRef} />
       </div>
 
-      {/* Apply/Reject buttons */}
+      {/* Confirm/Cancel bar */}
       <AnimatePresence>
-        {pendingChange && (
+        {pendingAction && cfg && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
             className="px-5 py-3 border-t border-white/10 flex items-center gap-3"
           >
             <button
-              onClick={handleApply}
+              onClick={handleConfirm}
               disabled={applying}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-500 transition-all disabled:opacity-50"
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50 ${
+                cfg.color === 'red'
+                  ? 'bg-red-600 text-white hover:bg-red-500'
+                  : 'bg-emerald-600 text-white hover:bg-emerald-500'
+              }`}
             >
-              {applying ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-              Appliquer sur n8n
+              {applying ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <cfg.icon className="w-3.5 h-3.5" />}
+              {cfg.confirmLabel}
             </button>
             <button
-              onClick={handleReject}
+              onClick={handleCancel}
               disabled={applying}
-              className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 hover:bg-white/10 hover:text-white transition-all disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-gray-400 hover:bg-white/10 transition-all disabled:opacity-50"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -345,14 +349,14 @@ export const AdminN8nCopilot = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-            placeholder={selectedWorkflow ? "Décrivez la modification..." : "Sélectionnez un workflow d'abord"}
-            disabled={!selectedWorkflow || loading}
+            placeholder="Créer, modifier, supprimer, déployer un workflow..."
+            disabled={loading}
             className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-gray-600 outline-none focus:border-violet-500/50 transition-colors disabled:opacity-30"
           />
           <button
             onClick={() => handleSend()}
-            disabled={!input.trim() || !selectedWorkflow || loading}
-            className="p-2.5 rounded-xl bg-violet-600 text-white hover:bg-violet-500 transition-all disabled:opacity-30 disabled:hover:bg-violet-600"
+            disabled={!input.trim() || loading}
+            className="p-2.5 rounded-xl bg-violet-600 text-white hover:bg-violet-500 transition-all disabled:opacity-30"
           >
             <Send className="w-4 h-4" />
           </button>
