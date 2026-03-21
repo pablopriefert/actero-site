@@ -129,7 +129,7 @@ AUTRES RÈGLES:
 - Tu as accès aux statistiques d'exécution. Utilise-les pour répondre aux questions sur les erreurs/santé/performances.
 - Sois précis dans l'identification du workflowId`;
 
-// n8n Skills Knowledge Base (from czlonkowski/n8n-skills)
+// n8n Expert Knowledge Base (production-ready, AI-first, minimal workflows)
 const N8N_KNOWLEDGE = `
 ⚠️ LISTE BLANCHE STRICTE DES NODES — N'UTILISE AUCUN AUTRE TYPE DE NODE QUE CEUX LISTÉS CI-DESSOUS.
 Si un node n'est pas dans cette liste, NE L'UTILISE PAS. Utilise httpRequest ou code à la place.
@@ -232,6 +232,83 @@ ERREURS COURANTES À ÉVITER:
 - Toujours settings: { executionOrder: "v1" }
 - Pour le Code node: retourner un ARRAY d'objets: return items.map(item => ({ json: { ... } }))
 - Pour Set node: utiliser assignments avec {name, value, type} dans typeVersion 3.4
+
+N8N EXPERT — PRINCIPES DE CONCEPTION:
+
+PRIORITÉS PAR DÉFAUT (dans l'ordre):
+1. Construire le workflow le plus PETIT possible qui fonctionne
+2. Le chemin principal doit être compréhensible par un enfant de 8 ans
+3. Préférer les nodes natifs n8n au lieu de HTTP Request
+4. Préférer AI Agent et AI Agent Tool au lieu de Code nodes quand possible
+5. Ajouter des notes pour que chaque section soit compréhensible
+6. Chaque node doit justifier son existence — si tu peux l'enlever sans casser le workflow, enlève-le
+
+HIÉRARCHIE DE DÉCISION (préférer le haut):
+1. Un seul node natif
+2. Petite chaîne de nodes natifs
+3. AI Agent avec outils natifs
+4. AI Agent + AI Agent Tool nodes
+5. HTTP Request node (justifier pourquoi)
+6. Code node (justifier pourquoi)
+
+ANTI-PATTERNS À ÉVITER:
+- Ajouter des nodes helper qui renomment 1-2 champs → utiliser des expressions
+- Splitter un flow linéaire en branches sans raison
+- Noms de nodes techniques qui cachent le but métier
+- Workflow sans notes
+- Utiliser HTTP Request quand un node natif existe
+- Utiliser Code pour de la logique qui tient dans une expression
+
+PATTERNS ARCHITECTURAUX PRÉFÉRÉS:
+1. Simple AI Worker: Trigger → AI Agent → Action finale (pour classification, résumé, extraction)
+2. AI Agent With Tools: Trigger → AI Agent → Tool nodes → Action (pour lookup + réponse)
+3. Webhook Processing: Webhook → Validate → Transform → Respond
+4. Scheduled Task: Schedule → Fetch → Process → Deliver → Log
+
+NOTES WORKFLOW OBLIGATOIRES:
+Chaque workflow non-trivial DOIT avoir des notes (Sticky Notes) expliquant:
+- Start: ce qui déclenche le workflow
+- Brain: où l'IA est utilisée et ce qu'elle fait
+- Tools: quels systèmes externes sont touchés
+- Finish: ce que le workflow produit/envoie/stocke
+Style: langage simple, pas de jargon technique
+
+TRACKING MÉTRIQUES OBLIGATOIRE:
+Chaque workflow DOIT inclure un node "📊 Tracker Métriques" qui insère dans automation_events.
+Ce node est un httpRequest POST vers Supabase avec les champs:
+- client_id: UUID du client (depuis le node ⚙️ Config)
+- event_category: support_ticket | cart_recovery | lead_qualified | email_sent | alert
+- event_type: type précis (ticket_auto_resolved, cart_recovered, lead_scored, etc.)
+- description: texte lisible en français
+- revenue_amount: montant en euros si applicable (sinon 0)
+- time_saved_seconds: estimation du temps économisé (min 60s)
+- metadata: { source: "n8n", workflow_name: "nom" }
+- metrics_counted: false (TOUJOURS false)
+
+PLACEMENT DU TRACKER:
+- APRÈS chaque action réussie
+- AVANT le node de réponse finale
+- Si branches multiples → un tracker sur CHAQUE branche de succès
+
+NODE ⚙️ CONFIG OBLIGATOIRE:
+Chaque workflow commence par: Trigger → ⚙️ Config (Set node) → reste du flow
+Le Config contient: client_id, client_name, supabase_url
+
+ESTIMATION time_saved_seconds PAR TYPE:
+- Ticket SAV traité: 300 (5 min)
+- Panier relancé: 180 (3 min)
+- Lead qualifié: 480 (8 min)
+- Email envoyé: 120 (2 min)
+- Alerte: 60 (1 min)
+
+CHECKLIST AVANT LIVRAISON:
+1. Le workflow peut-il être plus petit? Si oui, simplifier
+2. Chaque node a un nom clair en langage simple?
+3. Les notes sont présentes pour Start, Brain, Tools, Finish?
+4. Le node ⚙️ Config est en 2e position?
+5. Le node 📊 Tracker Métriques est avant la fin?
+6. Tous les nodes sont dans la LISTE BLANCHE?
+7. Aucun Code ou HTTP Request injustifié?
 `;
 
 // Real node examples from production workflows
@@ -274,6 +351,15 @@ EXEMPLES DE NODES RÉELS PRODUCTION-READY (copie ce format EXACTEMENT):
 12. No Operation (pour branching):
 {"name":"Ne rien faire","type":"n8n-nodes-base.noOp","typeVersion":1,"position":[720,500],"parameters":{},"id":"uuid-12"}
 
+13. ⚙️ Config Node (OBLIGATOIRE en 2e position dans chaque workflow):
+{"name":"⚙️ Config","type":"n8n-nodes-base.set","typeVersion":3.4,"position":[470,300],"parameters":{"mode":"manual","duplicateItem":false,"assignments":{"assignments":[{"id":"cfg-1","name":"client_id","value":"CLIENT_ID_A_REMPLACER","type":"string"},{"id":"cfg-2","name":"client_name","value":"Nom du client","type":"string"},{"id":"cfg-3","name":"supabase_url","value":"https://ejgdwjjcpjtwaqcxptke.supabase.co/rest/v1","type":"string"}]}},"id":"config-uuid"}
+
+14. 📊 Tracker Métriques Supabase (OBLIGATOIRE en fin de chaque workflow):
+{"name":"📊 Tracker Métriques","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1500,300],"parameters":{"method":"POST","url":"https://ejgdwjjcpjtwaqcxptke.supabase.co/rest/v1/automation_events","authentication":"predefinedCredentialType","nodeCredentialType":"supabaseApi","sendHeaders":true,"headerParameters":{"parameters":[{"name":"Content-Type","value":"application/json"},{"name":"Prefer","value":"return=representation"}]},"sendBody":true,"contentType":"json","specifyBody":"json","jsonBody":"={{ JSON.stringify({ client_id: $node[\\\"⚙️ Config\\\"].json.client_id, event_category: \\\"support_ticket\\\", event_type: \\\"ticket_auto_resolved\\\", description: \\\"Ticket traité automatiquement par IA\\\", revenue_amount: 0, time_saved_seconds: 300, metadata: { source: \\\"n8n\\\", workflow_name: \\\"SAV\\\" }, metrics_counted: false }) }}","options":{"response":{"response":{"responseFormat":"json"}}}},"credentials":{"supabaseApi":{"id":"NswS61zLLGuXpo97","name":"Supabase account"}},"id":"tracker-uuid"}
+
+15. Sticky Note (pour annoter le workflow):
+{"name":"📝 Note","type":"n8n-nodes-base.stickyNote","typeVersion":1,"position":[200,100],"parameters":{"content":"## Start\\nCe workflow se déclenche quand...","width":250,"height":150},"id":"note-uuid"}
+
 CONNECTIONS FORMAT:
 {"NomNodeSource":{"main":[[{"node":"NomNodeCible","type":"main","index":0}]]}}
 Pour IF avec 2 branches: {"Vérifier":{"main":[[{"node":"SiVrai","type":"main","index":0}],[{"node":"SiFaux","type":"main","index":0}]]}}
@@ -299,7 +385,10 @@ RÈGLES MODIFICATION:
 - CHAQUE node DOIT avoir: id, name, type, typeVersion, position, parameters (JAMAIS vides)
 - Positionne les nouveaux nodes à +250px horizontal du dernier
 - Connecte les nodes via "connections" avec le format exact montré ci-dessus
-- Garde le même name, settings du workflow original`;
+- Garde le même name, settings du workflow original
+- Si le workflow n'a PAS de node "📊 Tracker Métriques", AJOUTE-EN UN qui POST vers automation_events
+- Si le workflow n'a PAS de node "⚙️ Config", AJOUTE-EN UN après le trigger avec client_id
+- Les notes (Sticky Notes) doivent être préservées et ajoutées si absentes`;
 
 // Reference architecture from the production-ready SAV template
 const SAV_TEMPLATE_REFERENCE = `
@@ -485,6 +574,77 @@ function sanitizeWorkflow(workflow) {
   // Ensure settings
   if (!workflow.settings) workflow.settings = { executionOrder: 'v1' };
   if (!workflow.settings.executionOrder) workflow.settings.executionOrder = 'v1';
+
+  // ── Auto-inject ⚙️ Config if missing ──
+  const hasConfig = workflow.nodes.some(n => n.name?.includes('Config') || n.name?.includes('⚙️'));
+  if (!hasConfig) {
+    const triggers = workflow.nodes.filter(n => n.type?.includes('Trigger') || n.type?.includes('trigger') || n.type?.includes('webhook'));
+    if (triggers.length > 0) {
+      const configNode = {
+        id: crypto.randomUUID ? crypto.randomUUID() : `config-${Date.now()}`,
+        name: '⚙️ Config',
+        type: 'n8n-nodes-base.set',
+        typeVersion: 3.4,
+        position: [(triggers[0].position?.[0] || 220) + 250, triggers[0].position?.[1] || 300],
+        parameters: {
+          mode: 'manual', duplicateItem: false,
+          assignments: { assignments: [
+            { id: 'c1', name: 'client_id', value: 'CLIENT_ID_A_REMPLACER', type: 'string' },
+            { id: 'c2', name: 'client_name', value: 'Nom du client', type: 'string' },
+            { id: 'c3', name: 'supabase_url', value: 'https://ejgdwjjcpjtwaqcxptke.supabase.co/rest/v1', type: 'string' },
+          ]}
+        }
+      };
+      workflow.nodes.push(configNode);
+      // Connect trigger to config
+      const triggerName = triggers[0].name;
+      if (!workflow.connections) workflow.connections = {};
+      if (!workflow.connections[triggerName]) {
+        workflow.connections[triggerName] = { main: [[{ node: configNode.name, type: 'main', index: 0 }]] };
+      }
+    }
+  }
+
+  // ── Auto-inject 📊 Tracker Métriques if missing ──
+  const hasTracker = workflow.nodes.some(n => n.name?.includes('Tracker') || n.name?.includes('Métriques') || n.name?.includes('📊'));
+  if (!hasTracker) {
+    const lastNode = workflow.nodes.reduce((max, n) =>
+      (n.position?.[0] || 0) > (max.position?.[0] || 0) ? n : max, workflow.nodes[0]
+    );
+    const trackerNode = {
+      id: crypto.randomUUID ? crypto.randomUUID() : `tracker-${Date.now()}`,
+      name: '📊 Tracker Métriques',
+      type: 'n8n-nodes-base.httpRequest',
+      typeVersion: 4.2,
+      position: [(lastNode?.position?.[0] || 1200) + 250, lastNode?.position?.[1] || 300],
+      parameters: {
+        method: 'POST',
+        url: 'https://ejgdwjjcpjtwaqcxptke.supabase.co/rest/v1/automation_events',
+        authentication: 'predefinedCredentialType',
+        nodeCredentialType: 'supabaseApi',
+        sendHeaders: true,
+        headerParameters: { parameters: [
+          { name: 'Content-Type', value: 'application/json' },
+          { name: 'Prefer', value: 'return=representation' }
+        ]},
+        sendBody: true, contentType: 'json', specifyBody: 'json',
+        jsonBody: '={{ JSON.stringify({ client_id: $node["⚙️ Config"].json.client_id || "CLIENT_ID", event_category: "automation", event_type: "task_completed", description: "Action automatisée exécutée", revenue_amount: 0, time_saved_seconds: 120, metadata: { source: "n8n", workflow_name: "' + (workflow.name || 'Workflow') + '" }, metrics_counted: false }) }}',
+        options: { response: { response: { responseFormat: 'json' } } }
+      },
+      credentials: { supabaseApi: { id: 'NswS61zLLGuXpo97', name: 'Supabase account' } }
+    };
+    workflow.nodes.push(trackerNode);
+    // Connect last node to tracker
+    if (lastNode && workflow.connections) {
+      if (!workflow.connections[lastNode.name]) {
+        workflow.connections[lastNode.name] = { main: [[]] };
+      }
+      const mainOutputs = workflow.connections[lastNode.name].main;
+      if (mainOutputs && mainOutputs[0]) {
+        mainOutputs[0].push({ node: trackerNode.name, type: 'main', index: 0 });
+      }
+    }
+  }
 
   return workflow;
 }
