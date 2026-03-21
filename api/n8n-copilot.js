@@ -100,7 +100,9 @@ RETOURNE CE JSON:
 RÈGLES:
 - Si l'utilisateur mentionne un client, cherche le workflow associé par nom
 - Si l'utilisateur veut déployer/onboarder un client → intent "duplicate"
-- Si l'utilisateur pose une question → intent "info" et remplis "message" avec la réponse
+- Si l'utilisateur pose une question → intent "info" et remplis "message" avec la réponse détaillée
+- Tu as accès aux statistiques d'exécution de chaque workflow (succès, erreurs, dernière exécution). Utilise-les pour répondre aux questions sur les erreurs, la santé, les performances.
+- Quand l'utilisateur demande "quels workflows ont des erreurs", liste-les avec leurs stats dans "message"
 - Sois précis dans l'identification du workflowId`;
 
 const MODIFY_PROMPT = `Tu es un expert n8n. Modifie le workflow JSON selon la demande.
@@ -154,23 +156,46 @@ export default async function handler(req, res) {
 
     // ── Chat — AI router ──
     if (action === 'chat') {
-      const { prompt, conversationHistory } = req.body;
+      const { prompt } = req.body;
       if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
 
-      // Fetch context
-      const [wfData, clientsData] = await Promise.all([
+      // Fetch context: workflows + executions + clients
+      const [wfData, exData, clientsData] = await Promise.all([
         n8nGet('/workflows?limit=100'),
+        n8nGet('/executions?limit=100').catch(() => ({ data: [] })),
         supabase.from('clients').select('id, brand_name, client_type, status'),
       ]);
 
-      const workflows = (wfData.data || []).map(w => ({
-        id: w.id, name: w.name, active: w.active, nodeCount: w.nodes?.length || 0,
-      }));
+      // Map executions to workflows
+      const execByWf = {};
+      (exData.data || []).forEach(ex => {
+        const wfId = ex.workflowId;
+        if (!execByWf[wfId]) execByWf[wfId] = { success: 0, error: 0, total: 0, lastAt: null };
+        execByWf[wfId].total++;
+        if (ex.status === 'success' || (ex.finished && ex.stoppedAt)) execByWf[wfId].success++;
+        else execByWf[wfId].error++;
+        if (!execByWf[wfId].lastAt || ex.startedAt > execByWf[wfId].lastAt) execByWf[wfId].lastAt = ex.startedAt;
+      });
+
+      const workflows = (wfData.data || []).map(w => {
+        const stats = execByWf[w.id] || { success: 0, error: 0, total: 0, lastAt: null };
+        return {
+          id: w.id, name: w.name, active: w.active, nodeCount: w.nodes?.length || 0,
+          executions: stats.total, successCount: stats.success, errorCount: stats.error,
+          lastExecution: stats.lastAt,
+        };
+      });
       const clients = clientsData.data || [];
 
       const context = `
-WORKFLOWS ACTUELS:
-${workflows.map(w => `- "${w.name}" (ID: ${w.id}, ${w.active ? 'actif' : 'inactif'}, ${w.nodeCount} nodes)`).join('\n')}
+WORKFLOWS ACTUELS (avec statistiques d'exécution récentes):
+${workflows.map(w => {
+  const statusStr = w.active ? 'ACTIF' : 'inactif';
+  const execStr = w.executions > 0
+    ? `${w.executions} exécutions (${w.successCount} succès, ${w.errorCount} erreurs), dernière: ${w.lastExecution || 'inconnue'}`
+    : 'aucune exécution récente';
+  return `- "${w.name}" (ID: ${w.id}, ${statusStr}, ${w.nodeCount} nodes) — ${execStr}`;
+}).join('\n')}
 
 CLIENTS ACTERO:
 ${clients.map(c => `- "${c.brand_name}" (ID: ${c.id}, type: ${c.client_type}, statut: ${c.status})`).join('\n')}
