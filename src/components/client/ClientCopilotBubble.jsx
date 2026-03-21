@@ -235,20 +235,22 @@ export const ClientCopilotBubble = ({ clientId, clientType, theme = 'dark' }) =>
                       <button
                         onClick={() => playMessage(msg.content, i)}
                         disabled={loadingAudio === i}
-                        className={`mt-1.5 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] transition-all ${
+                        className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
                           playingIdx === i
-                            ? 'bg-violet-500/20 text-violet-400'
-                            : isLight
-                              ? 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'
-                              : 'text-gray-600 hover:bg-white/5 hover:text-gray-400'
+                            ? 'bg-violet-500/20 border-violet-500/30 text-violet-400'
+                            : loadingAudio === i
+                              ? 'bg-violet-500/10 border-violet-500/20 text-violet-400'
+                              : isLight
+                                ? 'bg-white border-slate-200 text-slate-500 hover:bg-violet-50 hover:border-violet-300 hover:text-violet-600 shadow-sm'
+                                : 'bg-white/5 border-white/10 text-gray-400 hover:bg-violet-500/10 hover:border-violet-500/20 hover:text-violet-400'
                         }`}
                       >
                         {loadingAudio === i ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Chargement...</>
                         ) : playingIdx === i ? (
-                          <><Square className="w-3 h-3" /> Stop</>
+                          <><Square className="w-3.5 h-3.5" /> Arrêter</>
                         ) : (
-                          <><Volume2 className="w-3 h-3" /> Écouter</>
+                          <><Volume2 className="w-3.5 h-3.5" /> Écouter la réponse</>
                         )}
                       </button>
                     )}
