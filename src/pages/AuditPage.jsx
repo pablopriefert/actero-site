@@ -15,7 +15,7 @@ import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { FadeInUp } from "../components/ui/scroll-animations";
 import { trackEvent } from "../lib/analytics";
-import { ROISimulator } from "../components/landing/ROISimulator";
+import { OnboardingTimer } from "../components/landing/OnboardingTimer";
 
 export const AuditPage = ({ onNavigate }) => {
   const [openFaq, setOpenFaq] = useState(null);
@@ -106,7 +106,7 @@ export const AuditPage = ({ onNavigate }) => {
           </FadeInUp>
         </div>
 
-        <ROISimulator onNavigate={onNavigate} />
+        <OnboardingTimer />
 
         <section className="py-24 mt-12 bg-transparent relative z-10 border-t border-white/5">
           <div className="max-w-6xl mx-auto px-6">

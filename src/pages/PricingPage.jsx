@@ -11,7 +11,6 @@ import { Footer } from "../components/layout/Footer";
 import { GptBadge } from "../components/ui/GptBadge";
 import { MagneticButton } from "../components/ui/magnetic-button";
 import { trackEvent } from "../lib/analytics";
-import { OnboardingTimer } from "../components/landing/OnboardingTimer";
 
 export const PricingPage = ({ onNavigate }) => {
   useEffect(() => {
@@ -243,9 +242,6 @@ export const PricingPage = ({ onNavigate }) => {
               </motion.div>
             ))}
           </div>
-
-          {/* Onboarding Timer */}
-          <OnboardingTimer />
 
           {/* FAQ */}
           <div className="mt-32 max-w-3xl mx-auto">
