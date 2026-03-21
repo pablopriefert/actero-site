@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 const N8N_URL = process.env.N8N_API_URL;
 const N8N_KEY = process.env.N8N_API_KEY;
 const GEMINI_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-const TEMPLATE_ID = 'B82qZGLUQ7uFEAP8';
+const TEMPLATE_ID = 'lW5HbUydhyrDrV0M'; // "Workflow 4 - Agent SAV - Template - READY" (41 nodes)
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -136,37 +136,61 @@ Si un node n'est pas dans cette liste, NE L'UTILISE PAS. Utilise httpRequest ou 
 INTERDIT: tout node custom, tout node avec un "?" dans n8n, tout node qui n'est pas listé ici.
 
 NODES AUTORISÉS (avec typeVersion EXACTE):
+
+Triggers:
 - n8n-nodes-base.scheduleTrigger (typeVersion: 1.2)
 - n8n-nodes-base.webhook (typeVersion: 2)
 - n8n-nodes-base.manualTrigger (typeVersion: 1)
-- n8n-nodes-base.httpRequest (typeVersion: 4.2) — UTILISE CE NODE POUR TOUTE API EXTERNE
-- n8n-nodes-base.if (typeVersion: 2)
-- n8n-nodes-base.switch (typeVersion: 3)
-- n8n-nodes-base.merge (typeVersion: 3)
-- n8n-nodes-base.splitInBatches (typeVersion: 3)
-- n8n-nodes-base.set (typeVersion: 3.4)
-- n8n-nodes-base.code (typeVersion: 2) — UTILISE CE NODE POUR TOUTE LOGIQUE COMPLEXE
-- n8n-nodes-base.dateTime (typeVersion: 2)
-- n8n-nodes-base.crypto (typeVersion: 1)
-- n8n-nodes-base.slack (typeVersion: 2.2)
-- n8n-nodes-base.emailSend (typeVersion: 2.1)
-- n8n-nodes-base.discord (typeVersion: 2)
-- n8n-nodes-base.postgres (typeVersion: 2.5)
-- n8n-nodes-base.mongoDb (typeVersion: 1)
-- n8n-nodes-base.redis (typeVersion: 1)
-- n8n-nodes-base.googleSheets (typeVersion: 4.5)
-- n8n-nodes-base.airtable (typeVersion: 2.1)
+- n8n-nodes-base.gmailTrigger (typeVersion: 1.3)
+- n8n-nodes-base.telegramTrigger (typeVersion: 1.2)
+- n8n-nodes-base.shopifyTrigger (typeVersion: 1)
 - n8n-nodes-base.errorTrigger (typeVersion: 1)
-- n8n-nodes-base.stopAndError (typeVersion: 1)
+
+Logic & Flow:
+- n8n-nodes-base.if (typeVersion: 2)
+- n8n-nodes-base.switch (typeVersion: 3.3)
+- n8n-nodes-base.merge (typeVersion: 3.2)
+- n8n-nodes-base.splitInBatches (typeVersion: 3)
 - n8n-nodes-base.noOp (typeVersion: 1)
 - n8n-nodes-base.wait (typeVersion: 1.1)
 - n8n-nodes-base.respondToWebhook (typeVersion: 1.1)
-- n8n-nodes-base.shopify (typeVersion: 1)
-- n8n-nodes-base.shopifyTrigger (typeVersion: 1)
+- n8n-nodes-base.stopAndError (typeVersion: 1)
 
-RÈGLE D'OR: Pour TOUTE intégration (Shopify API, Supabase, OpenAI, Stripe, etc.) utilise n8n-nodes-base.httpRequest.
-Pour TOUTE logique complexe ou transformation de données, utilise n8n-nodes-base.code.
-NE JAMAIS inventer un type de node qui n'est pas dans la liste ci-dessus.
+Data:
+- n8n-nodes-base.set (typeVersion: 3.4) — UTILISE CE NODE POUR CONFIGURER DES VARIABLES
+- n8n-nodes-base.code (typeVersion: 2) — UTILISE CE NODE POUR TOUTE LOGIQUE COMPLEXE
+- n8n-nodes-base.httpRequest (typeVersion: 4.2) — UTILISE CE NODE POUR TOUTE API EXTERNE
+- n8n-nodes-base.dateTime (typeVersion: 2)
+- n8n-nodes-base.crypto (typeVersion: 1)
+
+Communication:
+- n8n-nodes-base.gmail (typeVersion: 2.1) — lire/envoyer des emails
+- n8n-nodes-base.emailSend (typeVersion: 2.1) — envoyer via SMTP
+- n8n-nodes-base.telegram (typeVersion: 1.2) — envoyer messages Telegram
+- n8n-nodes-base.slack (typeVersion: 2.2) — notifications Slack
+- n8n-nodes-base.discord (typeVersion: 2)
+
+Storage & Database:
+- n8n-nodes-base.googleSheets (typeVersion: 4.7) — lire/écrire Google Sheets
+- n8n-nodes-base.googleDocs (typeVersion: 2) — lire Google Docs
+- n8n-nodes-base.googleDocsTool (typeVersion: 2) — outil pour agent IA
+- n8n-nodes-base.postgres (typeVersion: 2.5)
+- n8n-nodes-base.airtable (typeVersion: 2.1)
+- n8n-nodes-base.mongoDb (typeVersion: 1)
+- n8n-nodes-base.redis (typeVersion: 1)
+- n8n-nodes-base.shopify (typeVersion: 1)
+
+IA & LangChain:
+- @n8n/n8n-nodes-langchain.agent (typeVersion: 3) — agent IA principal
+- @n8n/n8n-nodes-langchain.lmChatOpenAi (typeVersion: 1.3) — modèle GPT
+- @n8n/n8n-nodes-langchain.memoryBufferWindow (typeVersion: 1.3) — mémoire conversation
+- @n8n/n8n-nodes-langchain.vectorStoreSupabase (typeVersion: 1.3) — RAG avec Supabase
+- @n8n/n8n-nodes-langchain.embeddingsOpenAi (typeVersion: 1.2) — embeddings
+- @n8n/n8n-nodes-langchain.documentDefaultDataLoader (typeVersion: 1.1) — charger données
+- @n8n/n8n-nodes-langchain.chainLlm (typeVersion: 1)
+
+RÈGLE D'OR: N'utilise QUE les nodes de cette liste. Si tu as besoin d'une fonctionnalité absente, utilise httpRequest ou code.
+NE JAMAIS inventer un type de node. Chaque node DOIT avoir ses paramètres COMPLETS et FONCTIONNELS.
 
 EXPRESSION SYNTAX:
 - Utilise {{ }} pour les expressions dans les paramètres string
@@ -264,6 +288,8 @@ const MODIFY_PROMPT = `Tu es un ingénieur n8n expert. Modifie le workflow JSON 
 
 ${N8N_KNOWLEDGE}
 
+${SAV_TEMPLATE_REFERENCE}
+
 ${NODE_EXAMPLES}
 
 RÈGLES MODIFICATION:
@@ -275,9 +301,63 @@ RÈGLES MODIFICATION:
 - Connecte les nodes via "connections" avec le format exact montré ci-dessus
 - Garde le même name, settings du workflow original`;
 
+// Reference architecture from the production-ready SAV template
+const SAV_TEMPLATE_REFERENCE = `
+TEMPLATE DE RÉFÉRENCE — "Agent SAV Multi-Canal Intelligent" (41 nodes, PRODUCTION-READY)
+Utilise cette architecture comme modèle pour créer des workflows de qualité production.
+
+ARCHITECTURE EN 4 ÉTAPES:
+Step 1 — Réception & Qualification:
+  Triggers multi-canaux (Gmail Trigger v1.3 + Telegram Trigger v1.2)
+  → Nodes ⚙️ CONFIGURATION (Set v3.4) pour les variables client (googleSheetId, googleDocKbId, supportEmail)
+  → Lookup mémoire conversationnelle (Google Sheets v4.7 — filtersUI par chatId/threadId)
+  → Code v2 pour préparer l'historique (formatter les messages passés en contexte)
+
+Step 2 — Normalisation & RAG:
+  → Code v2: Normalisation des données (unifie le format entre Gmail et Telegram)
+  → Code v2: Résumé & Priorité (analyse le message, extrait l'intention, détermine la priorité)
+  → vectorStoreSupabase v1.3 (mode: "retrieve", tableName: "documents") pour recherche KB
+  → Code v2: Agrégateur de connaissances (combine KB results + historique)
+
+Step 3 — Agent IA:
+  → Merge v3.2 (mode: "combine", combineBy: "position") — fusionne contexte + données
+  → Agent LangChain v3 (promptType: "define", text: prompt complet avec instructions SAV)
+    Sub-nodes connectés à l'agent:
+    - lmChatOpenAi v1.3 (model: "gpt-4o-mini") — connecté via ai_languageModel
+    - memoryBufferWindow v1.3 (sessionKey dynamique) — connecté via ai_memory
+    - embeddingsOpenAi v1.2 — connecté via ai_embedding
+    - googleDocsTool v2 — connecté via ai_tool (accès direct à la KB)
+  → Code v2: Extraction réponse IA (parse la sortie de l'agent)
+
+Step 4 — Réponse & Mémoire:
+  → Switch v3.3 (aiguillage par canal: email ou telegram)
+  → Gmail v2.1 (operation: "reply", messageId dynamique) OU Telegram v1.2 (chatId dynamique)
+  → Code v2: Préparer stockage mémoire (formater l'échange pour archivage)
+  → Google Sheets v4.7 (operation: "appendOrUpdate") — sauvegarde de la conversation
+
+PIPELINE INDEXATION (séparé, exécuté une seule fois):
+  Manual Trigger → Google Docs v2 (operation: "get") → Code v2 (formatter le texte)
+  → vectorStoreSupabase v1.3 (mode: "insert") avec embeddingsOpenAi v1.2 + documentDefaultDataLoader v1.1
+
+CREDENTIALS REQUISES:
+- OpenAI API (pour GPT-4o-mini et Embeddings)
+- Supabase API (pour stockage vectoriel RAG)
+- Google OAuth2 (pour Docs, Sheets, Gmail)
+- Telegram API (pour le bot)
+
+BONNES PRATIQUES DU TEMPLATE:
+- Noms de nodes descriptifs avec préfixes: ⚙️ pour config, 📧 pour email, 🤖 pour IA
+- Nodes CONFIGURATION (Set) en début de flow pour centraliser les variables
+- Code nodes pour TOUTE transformation de données (jamais de logique dans les paramètres)
+- Mémoire conversationnelle via Google Sheets (pas en mémoire volatile)
+- Switch pour l'aiguillage multi-canal (pas des IF imbriqués)
+`;
+
 const CREATE_PROMPT = `Tu es un ingénieur n8n expert. Crée un workflow n8n COMPLET, FONCTIONNEL et PRODUCTION-READY.
 
 ${N8N_KNOWLEDGE}
+
+${SAV_TEMPLATE_REFERENCE}
 
 ${NODE_EXAMPLES}
 
@@ -306,30 +386,56 @@ RÈGLES CRÉATION STRICTES:
 
 // ── Node whitelist & validator ──────────────────────────────
 const VALID_NODE_TYPES = new Set([
+  // Triggers
   'n8n-nodes-base.scheduleTrigger', 'n8n-nodes-base.webhook', 'n8n-nodes-base.manualTrigger',
-  'n8n-nodes-base.httpRequest',
+  'n8n-nodes-base.gmailTrigger', 'n8n-nodes-base.telegramTrigger', 'n8n-nodes-base.shopifyTrigger',
+  'n8n-nodes-base.errorTrigger',
+  // Logic & Flow
   'n8n-nodes-base.if', 'n8n-nodes-base.switch', 'n8n-nodes-base.merge', 'n8n-nodes-base.splitInBatches',
-  'n8n-nodes-base.set', 'n8n-nodes-base.code', 'n8n-nodes-base.dateTime', 'n8n-nodes-base.crypto',
-  'n8n-nodes-base.slack', 'n8n-nodes-base.emailSend', 'n8n-nodes-base.discord',
-  'n8n-nodes-base.postgres', 'n8n-nodes-base.mongoDb', 'n8n-nodes-base.redis',
-  'n8n-nodes-base.googleSheets', 'n8n-nodes-base.airtable',
-  'n8n-nodes-base.errorTrigger', 'n8n-nodes-base.stopAndError',
-  'n8n-nodes-base.noOp', 'n8n-nodes-base.wait', 'n8n-nodes-base.respondToWebhook',
-  'n8n-nodes-base.shopify', 'n8n-nodes-base.shopifyTrigger',
-  '@n8n/n8n-nodes-langchain.agent', '@n8n/n8n-nodes-langchain.chainLlm', '@n8n/n8n-nodes-langchain.lmChatOpenAi',
+  'n8n-nodes-base.noOp', 'n8n-nodes-base.wait', 'n8n-nodes-base.respondToWebhook', 'n8n-nodes-base.stopAndError',
+  // Data
+  'n8n-nodes-base.set', 'n8n-nodes-base.code', 'n8n-nodes-base.httpRequest',
+  'n8n-nodes-base.dateTime', 'n8n-nodes-base.crypto',
+  // Communication
+  'n8n-nodes-base.gmail', 'n8n-nodes-base.emailSend', 'n8n-nodes-base.telegram',
+  'n8n-nodes-base.slack', 'n8n-nodes-base.discord',
+  // Storage & Database
+  'n8n-nodes-base.googleSheets', 'n8n-nodes-base.googleDocs', 'n8n-nodes-base.googleDocsTool',
+  'n8n-nodes-base.postgres', 'n8n-nodes-base.airtable', 'n8n-nodes-base.mongoDb', 'n8n-nodes-base.redis',
+  'n8n-nodes-base.shopify',
+  // IA & LangChain
+  '@n8n/n8n-nodes-langchain.agent', '@n8n/n8n-nodes-langchain.lmChatOpenAi',
+  '@n8n/n8n-nodes-langchain.chainLlm', '@n8n/n8n-nodes-langchain.memoryBufferWindow',
+  '@n8n/n8n-nodes-langchain.vectorStoreSupabase', '@n8n/n8n-nodes-langchain.embeddingsOpenAi',
+  '@n8n/n8n-nodes-langchain.documentDefaultDataLoader',
+  // Sticky notes (keep them)
+  'n8n-nodes-base.stickyNote',
 ]);
 
 const TYPE_VERSIONS = {
+  // Triggers
   'n8n-nodes-base.scheduleTrigger': 1.2, 'n8n-nodes-base.webhook': 2, 'n8n-nodes-base.manualTrigger': 1,
-  'n8n-nodes-base.httpRequest': 4.2,
-  'n8n-nodes-base.if': 2, 'n8n-nodes-base.switch': 3, 'n8n-nodes-base.merge': 3, 'n8n-nodes-base.splitInBatches': 3,
-  'n8n-nodes-base.set': 3.4, 'n8n-nodes-base.code': 2, 'n8n-nodes-base.dateTime': 2, 'n8n-nodes-base.crypto': 1,
-  'n8n-nodes-base.slack': 2.2, 'n8n-nodes-base.emailSend': 2.1, 'n8n-nodes-base.discord': 2,
-  'n8n-nodes-base.postgres': 2.5, 'n8n-nodes-base.mongoDb': 1, 'n8n-nodes-base.redis': 1,
-  'n8n-nodes-base.googleSheets': 4.5, 'n8n-nodes-base.airtable': 2.1,
-  'n8n-nodes-base.errorTrigger': 1, 'n8n-nodes-base.stopAndError': 1,
-  'n8n-nodes-base.noOp': 1, 'n8n-nodes-base.wait': 1.1, 'n8n-nodes-base.respondToWebhook': 1.1,
-  'n8n-nodes-base.shopify': 1, 'n8n-nodes-base.shopifyTrigger': 1,
+  'n8n-nodes-base.gmailTrigger': 1.3, 'n8n-nodes-base.telegramTrigger': 1.2,
+  'n8n-nodes-base.shopifyTrigger': 1, 'n8n-nodes-base.errorTrigger': 1,
+  // Logic
+  'n8n-nodes-base.if': 2, 'n8n-nodes-base.switch': 3.3, 'n8n-nodes-base.merge': 3.2,
+  'n8n-nodes-base.splitInBatches': 3, 'n8n-nodes-base.noOp': 1, 'n8n-nodes-base.wait': 1.1,
+  'n8n-nodes-base.respondToWebhook': 1.1, 'n8n-nodes-base.stopAndError': 1,
+  // Data
+  'n8n-nodes-base.set': 3.4, 'n8n-nodes-base.code': 2, 'n8n-nodes-base.httpRequest': 4.2,
+  'n8n-nodes-base.dateTime': 2, 'n8n-nodes-base.crypto': 1,
+  // Communication
+  'n8n-nodes-base.gmail': 2.1, 'n8n-nodes-base.emailSend': 2.1, 'n8n-nodes-base.telegram': 1.2,
+  'n8n-nodes-base.slack': 2.2, 'n8n-nodes-base.discord': 2,
+  // Storage
+  'n8n-nodes-base.googleSheets': 4.7, 'n8n-nodes-base.googleDocs': 2, 'n8n-nodes-base.googleDocsTool': 2,
+  'n8n-nodes-base.postgres': 2.5, 'n8n-nodes-base.airtable': 2.1, 'n8n-nodes-base.mongoDb': 1, 'n8n-nodes-base.redis': 1,
+  'n8n-nodes-base.shopify': 1,
+  // IA
+  '@n8n/n8n-nodes-langchain.agent': 3, '@n8n/n8n-nodes-langchain.lmChatOpenAi': 1.3,
+  '@n8n/n8n-nodes-langchain.chainLlm': 1, '@n8n/n8n-nodes-langchain.memoryBufferWindow': 1.3,
+  '@n8n/n8n-nodes-langchain.vectorStoreSupabase': 1.3, '@n8n/n8n-nodes-langchain.embeddingsOpenAi': 1.2,
+  '@n8n/n8n-nodes-langchain.documentDefaultDataLoader': 1.1,
 };
 
 function sanitizeWorkflow(workflow) {
