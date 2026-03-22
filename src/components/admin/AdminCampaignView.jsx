@@ -10,12 +10,12 @@ import {
 const DEMO_SEQUENCES = [
   {
     id: 1,
-    name: 'SAV E-commerce \u2014 Cold outreach',
+    name: 'SAV E-commerce — Cold outreach',
     status: 'active',
     steps: [
       { day: 0, subject: 'Votre SAV perd des clients', openRate: 42, replyRate: 6 },
-      { day: 3, subject: 'Relance \u2014 Les chiffres parlent', openRate: 38, replyRate: 4 },
-      { day: 7, subject: 'Derni\u00e8re chance \u2014 audit gratuit', openRate: 35, replyRate: 8 },
+      { day: 3, subject: 'Relance — Les chiffres parlent', openRate: 38, replyRate: 4 },
+      { day: 7, subject: 'Dernière chance — audit gratuit', openRate: 35, replyRate: 8 },
     ],
     totalSent: 127,
     totalOpened: 52,
@@ -25,12 +25,12 @@ const DEMO_SEQUENCES = [
 ]
 
 const POST_TEMPLATES = [
-  { id: 'case_study', label: '\u00c9tude de cas', icon: Award, color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'R\u00e9sultats client avec avant/apr\u00e8s et chiffres cl\u00e9s' },
-  { id: 'tip', label: 'Tip actionnable', icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Conseil pratique que le lecteur peut appliquer imm\u00e9diatement' },
-  { id: 'before_after', label: 'Avant / Apr\u00e8s', icon: TrendingUp, color: 'text-blue-400', bg: 'bg-blue-500/10', description: 'Transformation concr\u00e8te avec screenshots ou m\u00e9triques' },
+  { id: 'case_study', label: 'Étude de cas', icon: Award, color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Résultats client avec avant/après et chiffres clés' },
+  { id: 'tip', label: 'Tip actionnable', icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Conseil pratique que le lecteur peut appliquer immédiatement' },
+  { id: 'before_after', label: 'Avant / Après', icon: TrendingUp, color: 'text-blue-400', bg: 'bg-blue-500/10', description: 'Transformation concrète avec screenshots ou métriques' },
   { id: 'stats', label: 'Statistique choc', icon: BarChart3, color: 'text-violet-400', bg: 'bg-violet-500/10', description: 'Chiffre marquant + analyse + CTA' },
-  { id: 'story', label: 'Storytelling', icon: BookOpen, color: 'text-pink-400', bg: 'bg-pink-500/10', description: 'Narration personnelle avec le\u00e7on business' },
-  { id: 'contrarian', label: 'Opinion trench\u00e9e', icon: MessageSquare, color: 'text-red-400', bg: 'bg-red-500/10', description: 'Point de vue \u00e0 contre-courant pour cr\u00e9er le d\u00e9bat' },
+  { id: 'story', label: 'Storytelling', icon: BookOpen, color: 'text-pink-400', bg: 'bg-pink-500/10', description: 'Narration personnelle avec leçon business' },
+  { id: 'contrarian', label: 'Opinion trenchée', icon: MessageSquare, color: 'text-red-400', bg: 'bg-red-500/10', description: 'Point de vue à contre-courant pour créer le débat' },
 ]
 
 const DAYS_OF_WEEK = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven']
@@ -80,7 +80,7 @@ export const AdminCampaignView = () => {
       }
     )
     const data = await res.json()
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Erreur de g\u00e9n\u00e9ration'
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Erreur de génération'
   }
 
   const generateSequence = async () => {
@@ -90,11 +90,11 @@ export const AdminCampaignView = () => {
     try {
       const res = await callGemini(`Tu es un expert en cold email B2B pour Actero, agence d'automatisation IA e-commerce.
 
-G\u00e9n\u00e8re une s\u00e9quence de 3 emails pour la campagne "${newCampaign.name}".
+Génère une séquence de 3 emails pour la campagne "${newCampaign.name}".
 
 Pour chaque email, donne :
 - Jour d'envoi (J+0, J+3, J+7)
-- Objet du mail (max 60 caract\u00e8res)
+- Objet du mail (max 60 caractères)
 - Corps du mail (max 120 mots, ton direct, pas corporate)
 
 Format JSON strict :
@@ -104,7 +104,7 @@ Format JSON strict :
   {"day": 7, "subject": "...", "body": "..."}
 ]
 
-R\u00e9ponds UNIQUEMENT avec le JSON, rien d'autre.`)
+Réponds UNIQUEMENT avec le JSON, rien d'autre.`)
 
       const cleaned = res.replace(/```json?\n?/g, '').replace(/```/g, '').trim()
       const steps = JSON.parse(cleaned)
@@ -126,7 +126,7 @@ R\u00e9ponds UNIQUEMENT avec le JSON, rien d'autre.`)
       setSelectedCampaign(campaign)
     } catch (e) {
       console.error('Campaign generation error:', e)
-      alert('Erreur lors de la g\u00e9n\u00e9ration. V\u00e9rifiez votre cl\u00e9 Gemini.')
+      alert('Erreur lors de la génération. Vérifiez votre clé Gemini.')
     }
     setGenerating(false)
   }
@@ -163,20 +163,20 @@ R\u00e9ponds UNIQUEMENT avec le JSON, rien d'autre.`)
     try {
       const text = await callGemini(`Tu es un expert en personal branding LinkedIn pour Actero, agence d'automatisation IA pour e-commerce.
 
-G\u00e9n\u00e8re un post LinkedIn engageant de type "${template.label}" (${template.description}).
+Génère un post LinkedIn engageant de type "${template.label}" (${template.description}).
 
-${schedule.topic ? `Sujet sp\u00e9cifique : ${schedule.topic}` : 'Sujet : au choix parmi tes connaissances sur le SAV e-commerce, l\'IA, l\'automatisation'}
+${schedule.topic ? `Sujet spécifique : ${schedule.topic}` : 'Sujet : au choix parmi tes connaissances sur le SAV e-commerce, l\'IA, l\'automatisation'}
 
-R\u00e8gles :
+Règles :
 - Max 200 mots
-- Commence par un hook percutant (premi\u00e8re ligne qui donne envie de cliquer "voir plus")
-- Utilise des sauts de ligne courts pour la lisibilit\u00e9
-- Termine par un CTA engageant (question ou invitation \u00e0 commenter)
+- Commence par un hook percutant (première ligne qui donne envie de cliquer "voir plus")
+- Utilise des sauts de ligne courts pour la lisibilité
+- Termine par un CTA engageant (question ou invitation à commenter)
 - Ton : expert accessible, pas corporate
-- Inclus 3-5 hashtags pertinents \u00e0 la fin
+- Inclus 3-5 hashtags pertinents à la fin
 - Utilise des emojis avec parcimonie (3-4 max)
 
-R\u00e9ponds UNIQUEMENT avec le post, rien d'autre.`)
+Réponds UNIQUEMENT avec le post, rien d'autre.`)
 
       setGeneratedPosts(prev => ({ ...prev, [schedule.day]: text }))
     } catch (e) {
@@ -194,25 +194,25 @@ R\u00e9ponds UNIQUEMENT avec le post, rien d'autre.`)
     try {
       const text = await callGemini(`Tu es un expert en personal branding LinkedIn pour Actero, agence d'automatisation IA pour e-commerce.
 
-G\u00e9n\u00e8re un post LinkedIn de type "${template.label}".
+Génère un post LinkedIn de type "${template.label}".
 Description du format : ${template.description}
 
-${templateTopic ? `Sujet demand\u00e9 : ${templateTopic}` : 'Sujet : libre, en lien avec le SAV e-commerce ou l\'automatisation IA'}
+${templateTopic ? `Sujet demandé : ${templateTopic}` : 'Sujet : libre, en lien avec le SAV e-commerce ou l\'automatisation IA'}
 
-R\u00e8gles :
+Règles :
 - Max 200 mots
-- Hook percutant en premi\u00e8re ligne
+- Hook percutant en première ligne
 - Sauts de ligne courts
-- CTA engageant \u00e0 la fin
+- CTA engageant à la fin
 - Ton expert accessible
 - 3-5 hashtags
 - Emojis avec parcimonie
 
-R\u00e9ponds UNIQUEMENT avec le post.`)
+Réponds UNIQUEMENT avec le post.`)
 
       setGeneratedTemplate(text)
     } catch (e) {
-      setGeneratedTemplate('Erreur de g\u00e9n\u00e9ration.')
+      setGeneratedTemplate('Erreur de génération.')
     }
     setGeneratingTemplate(false)
   }
@@ -225,7 +225,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Campagnes & Contenu</h2>
-          <p className="text-sm text-zinc-500 mt-1">S\u00e9quences email, calendrier LinkedIn, templates de posts IA</p>
+          <p className="text-sm text-zinc-500 mt-1">Séquences email, calendrier LinkedIn, templates de posts IA</p>
         </div>
         <div className="flex gap-2">
           {activeTab === 'emails' && (
@@ -267,9 +267,9 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
           <div className="grid grid-cols-4 gap-4">
             {[
               { label: 'Campagnes actives', value: campaigns.filter(c => c.status === 'active').length, icon: Play, color: 'text-emerald-400' },
-              { label: 'Emails envoy\u00e9s', value: campaigns.reduce((s, c) => s + c.totalSent, 0), icon: Send, color: 'text-blue-400' },
+              { label: 'Emails envoyés', value: campaigns.reduce((s, c) => s + c.totalSent, 0), icon: Send, color: 'text-blue-400' },
               { label: "Taux d'ouverture", value: (() => { const t = campaigns.reduce((s, c) => s + c.totalSent, 0); return t ? Math.round(campaigns.reduce((s, c) => s + c.totalOpened, 0) / t * 100) : 0 })() + '%', icon: Eye, color: 'text-amber-400' },
-              { label: 'Taux de r\u00e9ponse', value: (() => { const t = campaigns.reduce((s, c) => s + c.totalSent, 0); return t ? Math.round(campaigns.reduce((s, c) => s + c.totalReplied, 0) / t * 100) : 0 })() + '%', icon: Mail, color: 'text-violet-400' },
+              { label: 'Taux de réponse', value: (() => { const t = campaigns.reduce((s, c) => s + c.totalSent, 0); return t ? Math.round(campaigns.reduce((s, c) => s + c.totalReplied, 0) / t * 100) : 0 })() + '%', icon: Mail, color: 'text-violet-400' },
             ].map((stat, i) => (
               <div key={i} className="bg-[#111] border border-white/5 rounded-2xl p-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -304,8 +304,8 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
                       <h4 className="text-white font-bold text-sm">{campaign.name}</h4>
                       <div className="flex items-center gap-3 mt-1 text-xs text-zinc-500">
                         <span>{campaign.steps.length} emails</span>
-                        <span>{campaign.totalSent} envoy\u00e9s</span>
-                        <span>Cr\u00e9\u00e9e le {campaign.createdAt}</span>
+                        <span>{campaign.totalSent} envoyés</span>
+                        <span>Créée le {campaign.createdAt}</span>
                       </div>
                     </div>
                   </div>
@@ -318,7 +318,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
                           <span className="text-blue-400 font-bold">{Math.round(campaign.totalOpened / campaign.totalSent * 100)}%</span>
                         </div>
                         <div className="text-center">
-                          <span className="text-zinc-500 block">R\u00e9pondu</span>
+                          <span className="text-zinc-500 block">Répondu</span>
                           <span className="text-emerald-400 font-bold">{Math.round(campaign.totalReplied / campaign.totalSent * 100)}%</span>
                         </div>
                       </div>
@@ -375,7 +375,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
                               {step.openRate > 0 && (
                                 <div className="flex gap-3 mt-2 text-[10px]">
                                   <span className="text-blue-400">Ouverture: {step.openRate}%</span>
-                                  <span className="text-emerald-400">R\u00e9ponse: {step.replyRate}%</span>
+                                  <span className="text-emerald-400">Réponse: {step.replyRate}%</span>
                                 </div>
                               )}
                             </div>
@@ -488,7 +488,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
                       className="w-full flex items-center justify-center gap-1.5 px-2 py-2 bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 border border-violet-500/20 rounded-lg text-[11px] font-medium transition-all disabled:opacity-50"
                     >
                       {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                      {isGenerating ? 'G\u00e9n\u00e9ration...' : hasGenerated ? 'R\u00e9g\u00e9n\u00e9rer' : 'G\u00e9n\u00e9rer'}
+                      {isGenerating ? 'Génération...' : hasGenerated ? 'Régénérer' : 'Générer'}
                     </button>
                   </div>
                 </div>
@@ -500,7 +500,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
           <div className="bg-[#111] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-zinc-500 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-violet-400" />
-              <span><b className="text-zinc-300">Conseil :</b> Variez les formats pour maximiser l'engagement. Alternez entre case studies (confiance), tips (valeur), et opinions (d\u00e9bat).</span>
+              <span><b className="text-zinc-300">Conseil :</b> Variez les formats pour maximiser l'engagement. Alternez entre case studies (confiance), tips (valeur), et opinions (débat).</span>
             </p>
           </div>
         </div>
@@ -556,7 +556,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
                 <input
                   value={templateTopic}
                   onChange={(e) => setTemplateTopic(e.target.value)}
-                  placeholder="Sujet du post (optionnel, ex: R\u00e9duction du temps de r\u00e9ponse SAV de 24h \u00e0 2min)"
+                  placeholder="Sujet du post (optionnel, ex: Réduction du temps de réponse SAV de 24h à 2min)"
                   className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/50"
                   onKeyDown={e => e.key === 'Enter' && generateFromTemplate()}
                 />
@@ -566,7 +566,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
                   className="flex items-center gap-2 px-5 py-2 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white rounded-xl text-sm font-medium transition-all"
                 >
                   {generatingTemplate ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  {generatingTemplate ? 'G\u00e9n\u00e9ration...' : 'G\u00e9n\u00e9rer'}
+                  {generatingTemplate ? 'Génération...' : 'Générer'}
                 </button>
               </div>
 
@@ -586,7 +586,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
                       onClick={generateFromTemplate}
                       className="px-4 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 rounded-xl text-sm font-medium transition-all border border-white/10"
                     >
-                      <RefreshCw className="w-4 h-4 inline mr-1.5" /> R\u00e9g\u00e9n\u00e9rer
+                      <RefreshCw className="w-4 h-4 inline mr-1.5" /> Régénérer
                     </button>
                   </div>
                 </motion.div>
@@ -625,19 +625,19 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
                   <input
                     value={newCampaign.name}
                     onChange={e => setNewCampaign(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Ex: SAV E-commerce \u2014 Boutiques Shopify FR"
+                    placeholder="Ex: SAV E-commerce — Boutiques Shopify FR"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/50"
                   />
                 </div>
                 <p className="text-xs text-zinc-500">
-                  L'IA va g\u00e9n\u00e9rer une s\u00e9quence de 3 emails (J+0, J+3, J+7) optimis\u00e9e pour la conversion.
+                  L'IA va générer une séquence de 3 emails (J+0, J+3, J+7) optimisée pour la conversion.
                 </p>
                 <button
                   onClick={generateSequence}
                   disabled={generating || !newCampaign.name.trim()}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white rounded-xl text-sm font-medium transition-all"
                 >
-                  {generating ? <><Loader2 className="w-4 h-4 animate-spin" /> G\u00e9n\u00e9ration IA en cours...</> : <><RefreshCw className="w-4 h-4" /> G\u00e9n\u00e9rer la s\u00e9quence avec l'IA</>}
+                  {generating ? <><Loader2 className="w-4 h-4 animate-spin" /> Génération IA en cours...</> : <><RefreshCw className="w-4 h-4" /> Générer la séquence avec l'IA</>}
                 </button>
               </div>
             </motion.div>
@@ -665,7 +665,7 @@ R\u00e9ponds UNIQUEMENT avec le post.`)
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-violet-400" />
-                  Post LinkedIn \u2014 {showPostPreview}
+                  Post LinkedIn — {showPostPreview}
                 </h3>
                 <button onClick={() => setShowPostPreview(null)} className="p-1 hover:bg-white/10 rounded-lg">
                   <X className="w-5 h-5 text-zinc-400" />

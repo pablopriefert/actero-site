@@ -15,21 +15,21 @@ const supabase = createClient(
 
 const PIPELINE_COLS = [
   { id: 'lead', title: 'Lead', color: 'border-zinc-500/30', badge: 'bg-zinc-100 text-zinc-700' },
-  { id: 'contacted', title: 'Contact\u00e9', color: 'border-amber-500/30', badge: 'bg-amber-100 text-amber-700' },
-  { id: 'call_planned', title: 'Call planifi\u00e9', color: 'border-blue-500/30', badge: 'bg-blue-100 text-blue-700' },
+  { id: 'contacted', title: 'Contacté', color: 'border-amber-500/30', badge: 'bg-amber-100 text-amber-700' },
+  { id: 'call_planned', title: 'Call planifié', color: 'border-blue-500/30', badge: 'bg-blue-100 text-blue-700' },
   { id: 'audit_done', title: 'Audit fait', color: 'border-purple-500/30', badge: 'bg-purple-100 text-purple-700' },
-  { id: 'closed', title: 'Ferm\u00e9', color: 'border-emerald-500/30', badge: 'bg-emerald-100 text-emerald-700' },
+  { id: 'closed', title: 'Fermé', color: 'border-emerald-500/30', badge: 'bg-emerald-100 text-emerald-700' },
 ]
 
 // Simulated Trustpilot negative reviews data
 const FAKE_TRUSTPILOT_REVIEWS = [
   { author: 'Marie L.', stars: 1, date: '2026-03-18', text: 'Colis jamais recu, SAV injoignable depuis 2 semaines. Honteux.', painPoints: ['SAV injoignable', 'Livraison non recue'] },
-  { author: 'Thomas B.', stars: 2, date: '2026-03-15', text: 'Produit re\u00e7u cass\u00e9. J\'ai envoy\u00e9 3 mails, toujours pas de r\u00e9ponse apr\u00e8s 10 jours.', painPoints: ['Temps de r\u00e9ponse lent', 'Produit endommag\u00e9'] },
+  { author: 'Thomas B.', stars: 2, date: '2026-03-15', text: 'Produit reçu cassé. J\'ai envoyé 3 mails, toujours pas de réponse après 10 jours.', painPoints: ['Temps de réponse lent', 'Produit endommagé'] },
   { author: 'Sophie M.', stars: 1, date: '2026-03-12', text: 'Impossible de joindre le service client. Le chatbot est inutile, il tourne en boucle.', painPoints: ['Chatbot inefficace', 'Contact impossible'] },
-  { author: 'Pierre D.', stars: 2, date: '2026-03-10', text: 'Retour demand\u00e9 il y a 3 semaines, toujours en attente de remboursement. Z\u00e9ro suivi.', painPoints: ['Remboursement lent', 'Pas de suivi'] },
-  { author: 'Camille R.', stars: 1, date: '2026-03-08', text: 'FAQ compl\u00e8tement vide. Aucune info sur les retours. On se sent abandonn\u00e9.', painPoints: ['FAQ incompl\u00e8te', 'Politique retours floue'] },
-  { author: 'Lucas V.', stars: 2, date: '2026-03-05', text: 'R\u00e9ponse au bout de 5 jours avec un copier-coller g\u00e9n\u00e9rique. Pas du tout personnalis\u00e9.', painPoints: ['R\u00e9ponses g\u00e9n\u00e9riques', 'D\u00e9lai trop long'] },
-  { author: 'Emma G.', stars: 1, date: '2026-03-01', text: 'Mauvaise taille re\u00e7ue, demande d\'\u00e9change refus\u00e9e car "stock \u00e9puis\u00e9". Pas de remboursement propos\u00e9.', painPoints: ['Gestion stock', 'Politique rigide'] },
+  { author: 'Pierre D.', stars: 2, date: '2026-03-10', text: 'Retour demandé il y a 3 semaines, toujours en attente de remboursement. Zéro suivi.', painPoints: ['Remboursement lent', 'Pas de suivi'] },
+  { author: 'Camille R.', stars: 1, date: '2026-03-08', text: 'FAQ complètement vide. Aucune info sur les retours. On se sent abandonné.', painPoints: ['FAQ incomplète', 'Politique retours floue'] },
+  { author: 'Lucas V.', stars: 2, date: '2026-03-05', text: 'Réponse au bout de 5 jours avec un copier-coller générique. Pas du tout personnalisé.', painPoints: ['Réponses génériques', 'Délai trop long'] },
+  { author: 'Emma G.', stars: 1, date: '2026-03-01', text: 'Mauvaise taille reçue, demande d\'échange refusée car "stock épuisé". Pas de remboursement proposé.', painPoints: ['Gestion stock', 'Politique rigide'] },
 ]
 
 export const AdminProspectionView = () => {
@@ -62,12 +62,12 @@ export const AdminProspectionView = () => {
         const domain = url.replace(/^https?:\/\//, '').replace(/\/$/, '')
         const score = Math.floor(Math.random() * 40) + 30
         const issues = []
-        if (score < 50) issues.push('Temps de r\u00e9ponse SAV > 24h')
+        if (score < 50) issues.push('Temps de réponse SAV > 24h')
         if (Math.random() > 0.5) issues.push('Pas de chat live')
-        if (Math.random() > 0.4) issues.push('Taux d\'abandon panier \u00e9lev\u00e9')
-        if (Math.random() > 0.6) issues.push('FAQ inexistante ou incompl\u00e8te')
+        if (Math.random() > 0.4) issues.push('Taux d\'abandon panier élevé')
+        if (Math.random() > 0.6) issues.push('FAQ inexistante ou incomplète')
         if (Math.random() > 0.5) issues.push('Pas de tracking proactif')
-        if (Math.random() > 0.7) issues.push('Pas de programme fid\u00e9lit\u00e9')
+        if (Math.random() > 0.7) issues.push('Pas de programme fidélité')
 
         const monthlyRevenue = Math.floor(Math.random() * 80000) + 20000
         const roiEstimate = Math.floor(Math.random() * 3000) + 500
@@ -143,7 +143,7 @@ export const AdminProspectionView = () => {
       }
     )
     const data = await res.json()
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Erreur de g\u00e9n\u00e9ration'
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Erreur de génération'
   }
 
   const generateContent = async (prospect, type) => {
@@ -155,24 +155,24 @@ export const AdminProspectionView = () => {
     const baseContext = `Boutique Shopify :
 - URL : ${prospect.url}
 - Score SAV : ${prospect.score}/100 (mauvais)
-- Probl\u00e8mes d\u00e9tect\u00e9s : ${prospect.issues.join(', ')}
-- ROI estim\u00e9 : ${prospect.roiEstimate}\u20ac/mois
-- CA mensuel estim\u00e9 : ${prospect.monthlyRevenue?.toLocaleString()}\u20ac
+- Problèmes détectés : ${prospect.issues.join(', ')}
+- ROI estimé : ${prospect.roiEstimate}€/mois
+- CA mensuel estimé : ${prospect.monthlyRevenue?.toLocaleString()}€
 - Tickets support/mois : ~${prospect.estimatedTickets}
-- Temps de r\u00e9ponse moyen : ${prospect.responseTime}
+- Temps de réponse moyen : ${prospect.responseTime}
 - Taux abandon panier : ${prospect.cartAbandonRate}`
 
     let prompt = ''
 
     if (type === 'email') {
-      prompt = `Tu es un expert en cold email B2B pour une agence d'automatisation IA e-commerce appel\u00e9e Actero.
+      prompt = `Tu es un expert en cold email B2B pour une agence d'automatisation IA e-commerce appelée Actero.
 
-G\u00e9n\u00e8re un cold email court (max 150 mots) pour cette boutique Shopify :
+Génère un cold email court (max 150 mots) pour cette boutique Shopify :
 ${baseContext}
 
 Le mail doit :
-1. Mentionner un probl\u00e8me sp\u00e9cifique d\u00e9tect\u00e9 sur LEUR store
-2. Chiffrer le co\u00fbt de ce probl\u00e8me
+1. Mentionner un problème spécifique détecté sur LEUR store
+2. Chiffrer le coût de ce problème
 3. Proposer un audit gratuit de 15 min
 4. CTA vers actero.fr/audit
 5. Ton professionnel mais direct, pas corporate
@@ -181,33 +181,33 @@ Format : Objet: [objet]\n\n[corps du mail]\n\n[signature]`
     } else if (type === 'linkedin') {
       prompt = `Tu es un expert en prospection LinkedIn B2B pour Actero, agence d'automatisation IA e-commerce.
 
-G\u00e9n\u00e8re un message LinkedIn DM court et percutant (max 80 mots) pour cette boutique :
+Génère un message LinkedIn DM court et percutant (max 80 mots) pour cette boutique :
 ${baseContext}
 
 Le message doit :
-1. \u00catre casual et direct (ton LinkedIn, pas email)
-2. Commencer par une observation sp\u00e9cifique sur leur store
-3. Mentionner un chiffre cl\u00e9 (perte estim\u00e9e ou gain possible)
+1. Être casual et direct (ton LinkedIn, pas email)
+2. Commencer par une observation spécifique sur leur store
+3. Mentionner un chiffre clé (perte estimée ou gain possible)
 4. Finir par une question ouverte qui engage la conversation
 5. PAS de lien, PAS de signature formelle
 6. Utiliser des emojis avec parcimonie (1-2 max)
 
-R\u00e9ponds UNIQUEMENT avec le message, rien d'autre.`
+Réponds UNIQUEMENT avec le message, rien d'autre.`
     } else if (type === 'loom') {
-      prompt = `Tu es un expert en vid\u00e9o prospection pour Actero, agence d'automatisation IA e-commerce.
+      prompt = `Tu es un expert en vidéo prospection pour Actero, agence d'automatisation IA e-commerce.
 
-G\u00e9n\u00e8re un script de vid\u00e9o Loom de 2 minutes pour cette boutique :
+Génère un script de vidéo Loom de 2 minutes pour cette boutique :
 ${baseContext}
 
 Structure du script :
-1. INTRO (15 sec) - Salutation + "J'ai analys\u00e9 votre store et..."
-2. PROBL\u00c8ME 1 (30 sec) - Le probl\u00e8me SAV principal d\u00e9tect\u00e9, avec chiffres
-3. PROBL\u00c8ME 2 (20 sec) - Second probl\u00e8me, impact business
-4. SOLUTION (30 sec) - Comment l'IA Actero r\u00e9sout \u00e7a concr\u00e8tement
-5. PREUVE (15 sec) - R\u00e9sultat client type
+1. INTRO (15 sec) - Salutation + "J'ai analysé votre store et..."
+2. PROBLÈME 1 (30 sec) - Le problème SAV principal détecté, avec chiffres
+3. PROBLÈME 2 (20 sec) - Second problème, impact business
+4. SOLUTION (30 sec) - Comment l'IA Actero résout ça concrètement
+5. PREUVE (15 sec) - Résultat client type
 6. CTA (10 sec) - "Prenez 15 min pour un audit gratuit sur actero.fr/audit"
 
-Format avec timecodes, talking points et ce qu'il faut montrer \u00e0 l'\u00e9cran.
+Format avec timecodes, talking points et ce qu'il faut montrer à l'écran.
 Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
     }
 
@@ -215,7 +215,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
       const text = await callGemini(prompt)
       setContentDraft(text)
     } catch (e) {
-      setContentDraft('Erreur lors de la g\u00e9n\u00e9ration. V\u00e9rifiez votre cl\u00e9 Gemini.')
+      setContentDraft('Erreur lors de la génération. Vérifiez votre clé Gemini.')
     }
     setGeneratingContent(false)
   }
@@ -258,7 +258,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Centre de Prospection</h2>
-          <p className="text-sm text-zinc-500 mt-1">Analysez des stores, scrappez Trustpilot, g\u00e9n\u00e9rez du contenu IA, g\u00e9rez votre pipeline</p>
+          <p className="text-sm text-zinc-500 mt-1">Analysez des stores, scrappez Trustpilot, générez du contenu IA, gérez votre pipeline</p>
         </div>
         <div className="flex gap-2">
           {[
@@ -285,7 +285,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
           <div className="bg-[#111] border border-white/5 rounded-2xl p-6">
             <h3 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
               <Star className="w-4 h-4 text-amber-400" />
-              Scraper Trustpilot - Avis n\u00e9gatifs SAV
+              Scraper Trustpilot - Avis négatifs SAV
             </h3>
             <p className="text-xs text-zinc-500 mb-4">Trouvez les boutiques avec un mauvais SAV en analysant leurs avis Trustpilot</p>
             <div className="flex gap-3">
@@ -314,10 +314,10 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-white font-bold text-sm flex items-center gap-2">
                     <ThumbsDown className="w-4 h-4 text-red-400" />
-                    R\u00e9sultats pour "{trustpilotResults.storeName}"
+                    Résultats pour "{trustpilotResults.storeName}"
                   </h3>
                   <span className="text-xs text-zinc-500">
-                    {trustpilotResults.totalNegativeReviews} avis n\u00e9gatifs trouv\u00e9s (1-2 \u00e9toiles)
+                    {trustpilotResults.totalNegativeReviews} avis négatifs trouvés (1-2 étoiles)
                   </span>
                 </div>
 
@@ -337,7 +337,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
 
                 {/* Average rating */}
                 <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/5">
-                  <span className="text-xs text-zinc-500">Note moyenne (avis n\u00e9gatifs) :</span>
+                  <span className="text-xs text-zinc-500">Note moyenne (avis négatifs) :</span>
                   <div className="flex items-center gap-1">
                     {renderStars(Math.round(Number(trustpilotResults.avgNegativeRating)))}
                   </div>
@@ -376,8 +376,8 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                     <Send className="w-5 h-5 text-violet-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-white font-medium">Utiliser ces donn\u00e9es pour prospecter</p>
-                    <p className="text-xs text-zinc-500">Ajoutez ce store comme prospect avec les pain points d\u00e9tect\u00e9s</p>
+                    <p className="text-sm text-white font-medium">Utiliser ces données pour prospecter</p>
+                    <p className="text-xs text-zinc-500">Ajoutez ce store comme prospect avec les pain points détectés</p>
                   </div>
                 </div>
                 <button
@@ -428,7 +428,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
             />
             <div className="flex items-center justify-between mt-3">
               <span className="text-xs text-zinc-600">
-                {urls.split('\n').filter(u => u.trim()).length} URL(s) d\u00e9tect\u00e9e(s)
+                {urls.split('\n').filter(u => u.trim()).length} URL(s) détectée(s)
               </span>
               <button
                 onClick={analyzeStores}
@@ -445,8 +445,8 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
           {prospects.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-white font-bold text-sm">{prospects.length} prospect(s) analys\u00e9(s)</h3>
-                <span className="text-xs text-zinc-500">Tri\u00e9s par score (pire en premier)</span>
+                <h3 className="text-white font-bold text-sm">{prospects.length} prospect(s) analysé(s)</h3>
+                <span className="text-xs text-zinc-500">Triés par score (pire en premier)</span>
               </div>
               {[...prospects].sort((a, b) => a.score - b.score).map((prospect) => (
                 <motion.div
@@ -476,7 +476,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                         <div className="bg-white/[0.02] border border-white/5 rounded-lg px-2.5 py-1.5">
                           <span className="text-[10px] text-zinc-600 block">CA mensuel est.</span>
                           <span className="text-xs font-bold text-white flex items-center gap-1">
-                            <DollarSign className="w-3 h-3 text-emerald-400" />{prospect.monthlyRevenue?.toLocaleString() || 'N/A'}\u20ac
+                            <DollarSign className="w-3 h-3 text-emerald-400" />{prospect.monthlyRevenue?.toLocaleString() || 'N/A'}€
                           </span>
                         </div>
                         <div className="bg-white/[0.02] border border-white/5 rounded-lg px-2.5 py-1.5">
@@ -486,7 +486,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                           </span>
                         </div>
                         <div className="bg-white/[0.02] border border-white/5 rounded-lg px-2.5 py-1.5">
-                          <span className="text-[10px] text-zinc-600 block">Temps r\u00e9ponse</span>
+                          <span className="text-[10px] text-zinc-600 block">Temps réponse</span>
                           <span className="text-xs font-bold text-white flex items-center gap-1">
                             <Clock className="w-3 h-3 text-amber-400" />{prospect.responseTime || 'N/A'}
                           </span>
@@ -498,9 +498,9 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                           </span>
                         </div>
                         <div className="bg-white/[0.02] border border-white/5 rounded-lg px-2.5 py-1.5">
-                          <span className="text-[10px] text-zinc-600 block">ROI estim\u00e9</span>
+                          <span className="text-[10px] text-zinc-600 block">ROI estimé</span>
                           <span className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                            <TrendingDown className="w-3 h-3" />{prospect.roiEstimate}\u20ac/mois
+                            <TrendingDown className="w-3 h-3" />{prospect.roiEstimate}€/mois
                           </span>
                         </div>
                       </div>
@@ -522,21 +522,21 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                         <button
                           onClick={() => generateContent(prospect, 'email')}
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-500/10 hover:bg-violet-500/20 text-violet-400 border border-violet-500/20 rounded-lg text-xs font-medium transition-all"
-                          title="G\u00e9n\u00e9rer cold email"
+                          title="Générer cold email"
                         >
                           <Mail className="w-3.5 h-3.5" /> Email
                         </button>
                         <button
                           onClick={() => generateContent(prospect, 'linkedin')}
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-lg text-xs font-medium transition-all"
-                          title="G\u00e9n\u00e9rer DM LinkedIn"
+                          title="Générer DM LinkedIn"
                         >
                           <MessageSquare className="w-3.5 h-3.5" /> DM
                         </button>
                         <button
                           onClick={() => generateContent(prospect, 'loom')}
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 border border-pink-500/20 rounded-lg text-xs font-medium transition-all"
-                          title="G\u00e9n\u00e9rer script Loom"
+                          title="Générer script Loom"
                         >
                           <Video className="w-3.5 h-3.5" /> Loom
                         </button>
@@ -581,7 +581,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                   <div key={p.id} className={`bg-[#111] border ${col.color} p-3 rounded-xl`}>
                     <div className="flex items-center justify-between mb-1">
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${getScoreBg(p.score)} ${getScoreColor(p.score)}`}>{p.score}/100</span>
-                      <span className="text-[10px] text-emerald-400 font-medium">{p.roiEstimate}\u20ac</span>
+                      <span className="text-[10px] text-emerald-400 font-medium">{p.roiEstimate}€</span>
                     </div>
                     <p className="text-xs text-white font-medium truncate mb-2">{p.url}</p>
                     <div className="flex gap-1">
@@ -595,7 +595,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                             onClick={() => updateProspectStatus(p.id, c.id)}
                             className="flex-1 text-[9px] py-1 rounded-md bg-white/5 hover:bg-white/10 text-zinc-400 transition-all"
                           >
-                            {i < currentIdx ? '\u2190' : '\u2192'} {c.title.split(' ')[0]}
+                            {i < currentIdx ? '←' : '→'} {c.title.split(' ')[0]}
                           </button>
                         )
                       })}
@@ -665,7 +665,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
               {generatingContent ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
-                  <span className="ml-3 text-zinc-400">G\u00e9n\u00e9ration en cours...</span>
+                  <span className="ml-3 text-zinc-400">Génération en cours...</span>
                 </div>
               ) : (
                 <>
@@ -683,7 +683,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
                       onClick={() => generateContent(selectedProspect, contentType)}
                       className="px-4 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 rounded-xl text-sm font-medium transition-all border border-white/10"
                     >
-                      <RefreshCw className="w-4 h-4 inline mr-1.5" /> R\u00e9g\u00e9n\u00e9rer
+                      <RefreshCw className="w-4 h-4 inline mr-1.5" /> Régénérer
                     </button>
                   </div>
                 </>

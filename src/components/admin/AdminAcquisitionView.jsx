@@ -10,7 +10,7 @@ import { supabase } from '../../lib/supabase'
 
 // CRM Partner data (in-memory, would be Supabase in production)
 const INITIAL_PARTNERS = [
-  { id: 1, name: 'Agence Pixel', contact: 'marie@agencepixel.fr', phone: '+33 6 12 34 56 78', status: 'active', commission: 15, clientsReferred: 3, totalRevenue: 4500, notes: 'Sp\u00e9cialis\u00e9e Shopify Plus' },
+  { id: 1, name: 'Agence Pixel', contact: 'marie@agencepixel.fr', phone: '+33 6 12 34 56 78', status: 'active', commission: 15, clientsReferred: 3, totalRevenue: 4500, notes: 'Spécialisée Shopify Plus' },
   { id: 2, name: 'Studio Ecom', contact: 'paul@studioecom.com', phone: '+33 6 98 76 54 32', status: 'active', commission: 10, clientsReferred: 1, totalRevenue: 800, notes: 'Focus mode & luxe' },
   { id: 3, name: 'Digital Factory', contact: 'lea@digitalfactory.io', phone: '+33 7 11 22 33 44', status: 'prospect', commission: 12, clientsReferred: 0, totalRevenue: 0, notes: 'Premier contact via LinkedIn' },
 ]
@@ -54,14 +54,14 @@ export const AdminAcquisitionView = () => {
   // Detailed funnel metrics with conversion rates
   const funnelStages = [
     { label: 'Visiteurs site', count: 340, color: 'text-zinc-400', bg: 'bg-zinc-500/10', description: 'Trafic actero.fr' },
-    { label: 'Leads (formulaire)', count: funnelClients.filter(f => ['draft', 'nouveau'].includes(f.status)).length || 28, color: 'text-blue-400', bg: 'bg-blue-500/10', description: 'Formulaire rempli ou lead import\u00e9' },
-    { label: 'Email envoy\u00e9', count: funnelClients.filter(f => f.status === 'sent').length || 22, color: 'text-cyan-400', bg: 'bg-cyan-500/10', description: 'Premier email ou DM envoy\u00e9' },
+    { label: 'Leads (formulaire)', count: funnelClients.filter(f => ['draft', 'nouveau'].includes(f.status)).length || 28, color: 'text-blue-400', bg: 'bg-blue-500/10', description: 'Formulaire rempli ou lead importé' },
+    { label: 'Email envoyé', count: funnelClients.filter(f => f.status === 'sent').length || 22, color: 'text-cyan-400', bg: 'bg-cyan-500/10', description: 'Premier email ou DM envoyé' },
     { label: 'Email ouvert', count: 16, color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Au moins un email ouvert' },
-    { label: 'R\u00e9ponse re\u00e7ue', count: 8, color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'A r\u00e9pondu \u00e0 un email/DM' },
-    { label: 'Call planifi\u00e9', count: 5, color: 'text-purple-400', bg: 'bg-purple-500/10', description: 'Call de d\u00e9couverte r\u00e9serv\u00e9' },
-    { label: 'Audit r\u00e9alis\u00e9', count: 4, color: 'text-violet-400', bg: 'bg-violet-500/10', description: 'Audit gratuit effectu\u00e9' },
-    { label: 'Devis envoy\u00e9', count: funnelClients.filter(f => f.status === 'paid').length || 3, color: 'text-indigo-400', bg: 'bg-indigo-500/10', description: 'Proposition commerciale envoy\u00e9e' },
-    { label: 'Client sign\u00e9', count: activeClients.length || 2, color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Contrat sign\u00e9 + paiement' },
+    { label: 'Réponse reçue', count: 8, color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'A répondu à un email/DM' },
+    { label: 'Call planifié', count: 5, color: 'text-purple-400', bg: 'bg-purple-500/10', description: 'Call de découverte réservé' },
+    { label: 'Audit réalisé', count: 4, color: 'text-violet-400', bg: 'bg-violet-500/10', description: 'Audit gratuit effectué' },
+    { label: 'Devis envoyé', count: funnelClients.filter(f => f.status === 'paid').length || 3, color: 'text-indigo-400', bg: 'bg-indigo-500/10', description: 'Proposition commerciale envoyée' },
+    { label: 'Client signé', count: activeClients.length || 2, color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Contrat signé + paiement' },
   ]
 
   const conversionRate = funnelStages[0].count > 0 ? Math.round(funnelStages[funnelStages.length - 1].count / funnelStages[0].count * 100) : 0
@@ -117,7 +117,7 @@ export const AdminAcquisitionView = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-white">Tableau de bord Acquisition</h2>
-          <p className="text-sm text-zinc-500 mt-1">Suivi en temps r\u00e9el de vos efforts marketing, conversion et partenariats</p>
+          <p className="text-sm text-zinc-500 mt-1">Suivi en temps réel de vos efforts marketing, conversion et partenariats</p>
         </div>
         <div className="flex gap-2">
           {[
@@ -143,10 +143,10 @@ export const AdminAcquisitionView = () => {
           {/* KPI cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'MRR', value: `${mrr.toLocaleString()}\u20ac`, icon: DollarSign, color: 'text-emerald-400', trend: '+12%', trendUp: true },
+              { label: 'MRR', value: `${mrr.toLocaleString()}€`, icon: DollarSign, color: 'text-emerald-400', trend: '+12%', trendUp: true },
               { label: 'Clients actifs', value: activeClients.length, icon: Users, color: 'text-blue-400', trend: `+${newClientsThisMonth.length} ce mois`, trendUp: true },
-              { label: 'Taux conversion', value: `${conversionRate}%`, icon: Target, color: 'text-violet-400', trend: 'visiteur \u2192 client', trendUp: true },
-              { label: 'CAC', value: '0\u20ac', icon: Zap, color: 'text-amber-400', trend: '100% organique', trendUp: true },
+              { label: 'Taux conversion', value: `${conversionRate}%`, icon: Target, color: 'text-violet-400', trend: 'visiteur → client', trendUp: true },
+              { label: 'CAC', value: '0€', icon: Zap, color: 'text-amber-400', trend: '100% organique', trendUp: true },
             ].map((kpi, i) => (
               <motion.div
                 key={i}
@@ -174,7 +174,7 @@ export const AdminAcquisitionView = () => {
             <div className="bg-[#111] border border-white/5 rounded-2xl p-6">
               <h3 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
                 <Activity className="w-4 h-4 text-violet-400" />
-                Funnel de conversion d\u00e9taill\u00e9
+                Funnel de conversion détaillé
               </h3>
               <div className="space-y-2">
                 {funnelStages.map((stage, i) => {
@@ -218,7 +218,7 @@ export const AdminAcquisitionView = () => {
                 })}
               </div>
               <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                <span className="text-xs text-zinc-500">Conversion globale (visiteur \u2192 client)</span>
+                <span className="text-xs text-zinc-500">Conversion globale (visiteur → client)</span>
                 <span className="text-lg font-bold text-emerald-400">{conversionRate}%</span>
               </div>
             </div>
@@ -274,7 +274,7 @@ export const AdminAcquisitionView = () => {
           <div className="bg-[#111] border border-white/5 rounded-2xl p-6">
             <h3 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-emerald-400" />
-              Derniers clients sign\u00e9s
+              Derniers clients signés
             </h3>
             {activeClients.length === 0 ? (
               <div className="text-center py-8 text-zinc-600 text-sm">
@@ -310,10 +310,10 @@ export const AdminAcquisitionView = () => {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Emails envoy\u00e9s', current: 127, target: 200, unit: '' },
+                { label: 'Emails envoyés', current: 127, target: 200, unit: '' },
                 { label: 'Loom bombs', current: 8, target: 15, unit: '' },
-                { label: 'Calls planifi\u00e9s', current: 3, target: 5, unit: '' },
-                { label: 'Clients sign\u00e9s', current: 1, target: 2, unit: '' },
+                { label: 'Calls planifiés', current: 3, target: 5, unit: '' },
+                { label: 'Clients signés', current: 1, target: 2, unit: '' },
               ].map((obj, i) => {
                 const pct = Math.min(Math.round(obj.current / obj.target * 100), 100)
                 return (
@@ -351,8 +351,8 @@ export const AdminAcquisitionView = () => {
             {[
               { label: 'Partenaires actifs', value: partners.filter(p => p.status === 'active').length, icon: Handshake, color: 'text-emerald-400' },
               { label: 'Prospects', value: partners.filter(p => p.status === 'prospect').length, icon: UserCheck, color: 'text-amber-400' },
-              { label: 'Clients r\u00e9f\u00e9r\u00e9s', value: partners.reduce((s, p) => s + p.clientsReferred, 0), icon: Users, color: 'text-blue-400' },
-              { label: 'Revenu partenariats', value: `${partners.reduce((s, p) => s + (p.totalRevenue || 0), 0).toLocaleString()}\u20ac`, icon: DollarSign, color: 'text-violet-400' },
+              { label: 'Clients référés', value: partners.reduce((s, p) => s + p.clientsReferred, 0), icon: Users, color: 'text-blue-400' },
+              { label: 'Revenu partenariats', value: `${partners.reduce((s, p) => s + (p.totalRevenue || 0), 0).toLocaleString()}€`, icon: DollarSign, color: 'text-violet-400' },
             ].map((stat, i) => (
               <div key={i} className="bg-[#111] border border-white/5 rounded-2xl p-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -424,7 +424,7 @@ export const AdminAcquisitionView = () => {
                   <span className="text-sm font-bold text-white">{partner.clientsReferred}</span>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-sm font-bold text-emerald-400">{(partner.totalRevenue || 0).toLocaleString()}\u20ac</span>
+                  <span className="text-sm font-bold text-emerald-400">{(partner.totalRevenue || 0).toLocaleString()}€</span>
                 </div>
                 <div className="col-span-2 flex items-center gap-1 justify-end">
                   <button
@@ -445,7 +445,7 @@ export const AdminAcquisitionView = () => {
 
             {partners.length === 0 && (
               <div className="text-center py-12 text-zinc-600 text-sm">
-                Aucun partenaire. Ajoutez votre premi\u00e8re agence partenaire.
+                Aucun partenaire. Ajoutez votre première agence partenaire.
               </div>
             )}
           </div>
@@ -454,7 +454,7 @@ export const AdminAcquisitionView = () => {
           <div className="bg-[#111] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-zinc-500 flex items-center gap-2">
               <Handshake className="w-4 h-4 text-emerald-400" />
-              <span><b className="text-zinc-300">Strat\u00e9gie :</b> Les agences Shopify sont votre meilleur canal. Proposez 10-15% de commission sur le MRR g\u00e9n\u00e9r\u00e9 par les clients r\u00e9f\u00e9r\u00e9s.</span>
+              <span><b className="text-zinc-300">Stratégie :</b> Les agences Shopify sont votre meilleur canal. Proposez 10-15% de commission sur le MRR généré par les clients référés.</span>
             </p>
           </div>
         </div>
@@ -504,7 +504,7 @@ export const AdminAcquisitionView = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-zinc-500 font-medium block mb-1">T\u00e9l\u00e9phone</label>
+                    <label className="text-xs text-zinc-500 font-medium block mb-1">Téléphone</label>
                     <input
                       value={newPartner.phone}
                       onChange={e => setNewPartner(p => ({ ...p, phone: e.target.value }))}
@@ -541,7 +541,7 @@ export const AdminAcquisitionView = () => {
                   <input
                     value={newPartner.notes}
                     onChange={e => setNewPartner(p => ({ ...p, notes: e.target.value }))}
-                    placeholder="Sp\u00e9cialit\u00e9, contexte..."
+                    placeholder="Spécialité, contexte..."
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/50"
                   />
                 </div>
@@ -600,7 +600,7 @@ export const AdminAcquisitionView = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-zinc-500 font-medium block mb-1">T\u00e9l\u00e9phone</label>
+                    <label className="text-xs text-zinc-500 font-medium block mb-1">Téléphone</label>
                     <input
                       value={editingPartner.phone}
                       onChange={e => setEditingPartner(p => ({ ...p, phone: e.target.value }))}
@@ -631,7 +631,7 @@ export const AdminAcquisitionView = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-zinc-500 font-medium block mb-1">Clients r\u00e9f.</label>
+                    <label className="text-xs text-zinc-500 font-medium block mb-1">Clients réf.</label>
                     <input
                       type="number"
                       value={editingPartner.clientsReferred}
@@ -642,7 +642,7 @@ export const AdminAcquisitionView = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-zinc-500 font-medium block mb-1">Revenu total (\u20ac)</label>
+                    <label className="text-xs text-zinc-500 font-medium block mb-1">Revenu total (€)</label>
                     <input
                       type="number"
                       value={editingPartner.totalRevenue}
