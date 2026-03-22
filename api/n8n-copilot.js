@@ -389,26 +389,6 @@ SUPABASE CREDENTIALS ACTERO (à utiliser pour tous les nodes Supabase):
 SUPABASE URL: https://ejgdwjjcpjtwaqcxptke.supabase.co/rest/v1/
 `;
 
-const MODIFY_PROMPT = `Tu es un ingénieur n8n expert. Modifie le workflow JSON selon la demande.
-
-${N8N_KNOWLEDGE}
-
-${SAV_TEMPLATE_REFERENCE}
-
-${NODE_EXAMPLES}
-
-RÈGLES MODIFICATION:
-- Retourne UNIQUEMENT le workflow modifié en JSON valide (name, nodes, connections, settings)
-- Ne change JAMAIS les credentials ni les IDs de credentials existants
-- Conserve les nodes existants sauf demande explicite de suppression
-- CHAQUE node DOIT avoir: id, name, type, typeVersion, position, parameters (JAMAIS vides)
-- Positionne les nouveaux nodes à +250px horizontal du dernier
-- Connecte les nodes via "connections" avec le format exact montré ci-dessus
-- Garde le même name, settings du workflow original
-- Si le workflow n'a PAS de node "📊 Tracker Métriques", AJOUTE-EN UN qui POST vers automation_events
-- Si le workflow n'a PAS de node "⚙️ Config", AJOUTE-EN UN après le trigger avec client_id
-- Les notes (Sticky Notes) doivent être préservées et ajoutées si absentes`;
-
 // Reference architecture from the production-ready SAV template
 const SAV_TEMPLATE_REFERENCE = `
 TEMPLATE DE RÉFÉRENCE — "Agent SAV Multi-Canal Intelligent" (41 nodes, PRODUCTION-READY)
@@ -460,6 +440,26 @@ BONNES PRATIQUES DU TEMPLATE:
 - Mémoire conversationnelle via Google Sheets (pas en mémoire volatile)
 - Switch pour l'aiguillage multi-canal (pas des IF imbriqués)
 `;
+
+const MODIFY_PROMPT = `Tu es un ingénieur n8n expert. Modifie le workflow JSON selon la demande.
+
+${N8N_KNOWLEDGE}
+
+${SAV_TEMPLATE_REFERENCE}
+
+${NODE_EXAMPLES}
+
+RÈGLES MODIFICATION:
+- Retourne UNIQUEMENT le workflow modifié en JSON valide (name, nodes, connections, settings)
+- Ne change JAMAIS les credentials ni les IDs de credentials existants
+- Conserve les nodes existants sauf demande explicite de suppression
+- CHAQUE node DOIT avoir: id, name, type, typeVersion, position, parameters (JAMAIS vides)
+- Positionne les nouveaux nodes à +250px horizontal du dernier
+- Connecte les nodes via "connections" avec le format exact montré ci-dessus
+- Garde le même name, settings du workflow original
+- Si le workflow n'a PAS de node "📊 Tracker Métriques", AJOUTE-EN UN qui POST vers automation_events
+- Si le workflow n'a PAS de node "⚙️ Config", AJOUTE-EN UN après le trigger avec client_id
+- Les notes (Sticky Notes) doivent être préservées et ajoutées si absentes`;
 
 const CREATE_PROMPT = `Tu es un ingénieur n8n expert. Crée un workflow n8n COMPLET, FONCTIONNEL et PRODUCTION-READY.
 
