@@ -519,6 +519,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "systems" && (
             <ClientSystemsView
+              clientId={currentClient?.id}
               clientName={currentClient?.brand_name}
               theme={theme}
             />
