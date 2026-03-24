@@ -18,6 +18,7 @@ import { PromptLibraryPage } from "./components/ui/prompt-library-page";
 import { StartPage } from "./pages/StartPage";
 import { SuccessPage } from "./pages/SuccessPage";
 import { CancelPage } from "./pages/CancelPage";
+import { ReferralLanding } from "./pages/ReferralLanding";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
 
@@ -77,6 +78,10 @@ function MainRouter() {
   else if (currentRoute === "/audit") page = <AuditPage onNavigate={navigate} />;
   else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
+  else if (currentRoute.startsWith("/r/")) {
+    const referralCode = currentRoute.replace("/r/", "");
+    page = <ReferralLanding code={referralCode} onNavigate={navigate} />;
+  }
   else if (currentRoute.startsWith("/start/")) {
     const clientSlug = currentRoute.replace("/start/", "");
     page = <StartPage clientSlug={clientSlug} />;

@@ -33,6 +33,7 @@ import {
   User,
   MessageSquare,
   MessageCircle,
+  Gift,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -51,6 +52,7 @@ import { ClientProfileView } from '../components/client/ClientProfileView'
 import { ClientCopilotBubble } from '../components/client/ClientCopilotBubble'
 import { ClientConversationsView } from '../components/client/ClientConversationsView'
 import { ClientSystemsView } from '../components/client/ClientSystemsView'
+import { ClientReferralView } from '../components/client/ClientReferralView'
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // eslint-disable-next-line no-unused-vars
@@ -73,6 +75,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/intelligence") return "intelligence";
     if (route === "/client/reports") return "reports";
     if (route === "/client/support") return "support";
+    if (route === "/client/referral") return "referral";
     if (route === "/client/profile") return "profile";
     return "overview";
   };
@@ -289,6 +292,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'intelligence', label: 'Intelligence', icon: Lightbulb },
     { id: 'reports', label: 'Rapports', icon: Download },
     { id: 'support', label: 'Support & Demandes', icon: MessageSquare },
+    { id: 'referral', label: 'Parrainage', icon: Gift },
     { type: 'section', label: 'Compte' },
     { id: 'profile', label: 'Mon Profil', icon: User },
   ];
@@ -358,6 +362,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "conversations" && "Conversations IA"}
               {activeTab === "intelligence" && "Intelligence"}
               {activeTab === "support" && "Support & Demandes"}
+              {activeTab === "referral" && "Parrainage"}
             </h1>
 
             <div className="hidden lg:flex items-center gap-3">
@@ -512,6 +517,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "support" && (
             <SupportTicketsView
               supabase={supabase}
+              clientId={currentClient?.id}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "referral" && (
+            <ClientReferralView
               clientId={currentClient?.id}
               theme={theme}
             />

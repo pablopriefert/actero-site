@@ -177,6 +177,28 @@ export default async function handler(req, res) {
           await onboardClientAfterPayment(funnelClient);
         }
       }
+
+      // 3. Handle referral validation if referral_code is in metadata
+      const referralCode = session.metadata?.referral_code;
+      if (referralCode) {
+        try {
+          const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://actero.fr';
+          await fetch(`${siteUrl}/api/referral/validate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-internal-secret': process.env.INTERNAL_API_SECRET || '',
+            },
+            body: JSON.stringify({
+              referral_code: referralCode,
+              stripe_customer_id: session.customer,
+            }),
+          });
+          console.log(`[REFERRAL] Validation triggered for code: ${referralCode}`);
+        } catch (refErr) {
+          console.error('[REFERRAL] Validation call failed:', refErr.message);
+        }
+      }
       break;
     }
 
