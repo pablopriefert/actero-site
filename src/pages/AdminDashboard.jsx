@@ -50,6 +50,7 @@ import { AdminClientHealthView } from '../components/admin/AdminClientHealthView
 import { AdminReferralsView } from '../components/admin/AdminReferralsView'
 import { CallNotesWizard } from '../components/admin/CallNotesWizard'
 import { DeploymentProgress } from '../components/admin/DeploymentProgress'
+import { AdminNegativeRatingsView } from '../components/admin/AdminNegativeRatingsView'
 
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const queryClient = useQueryClient();
@@ -71,6 +72,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/billing") return "billing";
     if (route === "/admin/health") return "health";
     if (route === "/admin/referrals") return "referrals";
+    if (route === "/admin/ratings") return "ratings";
     return "overview";
   };
 
@@ -217,6 +219,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: "referrals", label: "Parrainages", icon: Gift },
     { type: 'section', label: 'Outils' },
     { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
+    { id: "ratings", label: "Notations IA", icon: FileText },
     { id: "intelligence", label: "Intelligence", icon: Bot },
     { id: "leads", label: "Leads AI", icon: Users, badge: leads.length > 0 ? leads.length : null, badgeColor: "bg-blue-100 text-blue-700" },
     { id: "funnel", label: "Nouveau client", icon: UserPlus },
@@ -338,6 +341,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "health" && <AdminClientHealthView />}
 
           {activeTab === "referrals" && <AdminReferralsView />}
+
+          {activeTab === "ratings" && <AdminNegativeRatingsView />}
 
           {activeTab === "intelligence" && (
             <div className="max-w-6xl mx-auto">

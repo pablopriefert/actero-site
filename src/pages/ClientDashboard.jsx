@@ -34,6 +34,8 @@ import {
   MessageSquare,
   MessageCircle,
   Gift,
+  BookOpen,
+  AlertTriangle,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -53,6 +55,9 @@ import { ClientCopilotBubble } from '../components/client/ClientCopilotBubble'
 import { ClientConversationsView } from '../components/client/ClientConversationsView'
 import { ClientSystemsView } from '../components/client/ClientSystemsView'
 import { ClientReferralView } from '../components/client/ClientReferralView'
+import { ClientKnowledgeBaseView } from '../components/client/ClientKnowledgeBaseView'
+import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
+import { ClientSatisfactionScore, SatisfactionKPI } from '../components/client/ClientSatisfactionScore'
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // eslint-disable-next-line no-unused-vars
@@ -71,7 +76,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const getTabFromRoute = (route) => {
     if (route === "/client/activity") return "activity";
     if (route === "/client/conversations") return "conversations";
+    if (route === "/client/escalations") return "escalations";
     if (route === "/client/systems") return "systems";
+    if (route === "/client/knowledge") return "knowledge";
     if (route === "/client/intelligence") return "intelligence";
     if (route === "/client/reports") return "reports";
     if (route === "/client/support") return "support";
@@ -282,13 +289,31 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     return Math.round(((curAvg - prevAvg) / prevAvg) * 100);
   }, [dailyMetrics]);
 
+  // Count pending escalations for badge
+  const { data: pendingEscalations = [] } = useQuery({
+    queryKey: ['pending-escalation-count', currentClient?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .select('id')
+        .eq('client_id', currentClient.id)
+        .eq('status', 'escalated')
+        .is('human_response', null)
+      if (error) return []
+      return data || []
+    },
+    enabled: !!currentClient?.id,
+  })
+
   const sidebarItems = [
     { type: 'section', label: 'Pilotage' },
     { id: 'overview', label: "Vue d'ensemble", icon: LayoutDashboard },
     { type: 'section', label: 'Infrastructure' },
-    { id: 'systems', label: 'Mes Systèmes', icon: Database },
-    { id: 'activity', label: 'Activité en direct', icon: Activity },
     { id: 'conversations', label: 'Conversations IA', icon: MessageCircle },
+    { id: 'escalations', label: 'Escalades', icon: AlertTriangle, badge: pendingEscalations.length > 0 ? pendingEscalations.length : null, badgeColor: 'bg-red-500/20 text-red-400' },
+    { id: 'systems', label: 'Mes Systemes', icon: Database },
+    { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
+    { id: 'activity', label: 'Activite en direct', icon: Activity },
     { id: 'intelligence', label: 'Intelligence', icon: Lightbulb },
     { id: 'reports', label: 'Rapports', icon: Download },
     { id: 'support', label: 'Support & Demandes', icon: MessageSquare },
@@ -357,9 +382,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           <div className="flex items-center gap-6">
             <h1 className={`text-xl font-bold tracking-tight whitespace-nowrap ${isLight ? "text-slate-900" : "text-white"}`}>
               {activeTab === "overview" && "Vue d'ensemble"}
-              {activeTab === "activity" && "Activité temps réel"}
-              {activeTab === "systems" && "Mes Systèmes"}
+              {activeTab === "activity" && "Activite temps reel"}
+              {activeTab === "systems" && "Mes Systemes"}
               {activeTab === "conversations" && "Conversations IA"}
+              {activeTab === "escalations" && "Escalades"}
+              {activeTab === "knowledge" && "Base de connaissances"}
               {activeTab === "intelligence" && "Intelligence"}
               {activeTab === "support" && "Support & Demandes"}
               {activeTab === "referral" && "Parrainage"}
@@ -430,9 +457,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                    {[...Array(4)].map((_, i) => <SkeletonRow key={i} height="h-40" className="rounded-2xl" />)}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                   <MetricCard
-                    title="Temps économisé"
+                    title="Temps economise"
                     value={`${periodStats?.time_saved || 0}h`}
                     variation={periodStats?.time_saved_var}
                     icon={Clock}
@@ -440,7 +467,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     theme={theme}
                   />
                   <MetricCard
-                    title="ROI Généré"
+                    title="ROI Genere"
                     value={`${(periodStats?.roi || 0).toLocaleString()}€`}
                     variation={periodStats?.roi_var}
                     icon={DollarSign}
@@ -449,7 +476,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   />
                   {currentClient?.client_type === 'immobilier' ? (
                     <MetricCard
-                      title="Leads qualifiés"
+                      title="Leads qualifies"
                       value={eventCounts.lead_qualified || 0}
                       icon={UserCheck}
                       color="violet"
@@ -457,7 +484,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     />
                   ) : (
                     <MetricCard
-                      title="Tickets résolus"
+                      title="Tickets resolus"
                       value={eventCounts.ticket_resolved || 0}
                       icon={Ticket}
                       color="emerald"
@@ -471,6 +498,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     color="zinc"
                     theme={theme}
                   />
+                  {currentClient?.id && (
+                    <SatisfactionKPI clientId={currentClient.id} theme={theme} />
+                  )}
                 </div>
               )}
 
@@ -488,6 +518,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   />
                 </div>
               </div>
+
+              {/* Satisfaction Score + SLA Tracking (Features 5 & 6) */}
+              {currentClient?.id && (
+                <ClientSatisfactionScore clientId={currentClient.id} theme={theme} />
+              )}
 
               <HealthScoreWidget metricsData={dailyMetrics.slice(-7)} eventsData={events} theme={theme} />
 
@@ -533,6 +568,21 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <ClientSystemsView
               clientId={currentClient?.id}
               clientName={currentClient?.brand_name}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "knowledge" && (
+            <ClientKnowledgeBaseView
+              clientId={currentClient?.id}
+              clientType={currentClient?.client_type}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "escalations" && (
+            <ClientEscalationsView
+              clientId={currentClient?.id}
               theme={theme}
             />
           )}

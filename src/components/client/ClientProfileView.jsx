@@ -3,9 +3,153 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
   User, Mail, Building2, Lock, Save, CheckCircle2, AlertCircle,
-  ShoppingBag, Calendar, Shield, CreditCard, ExternalLink, Loader2
+  ShoppingBag, Calendar, Shield, CreditCard, ExternalLink, Loader2,
+  Bell, Clock as ClockIcon
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+
+const NOTIFICATION_TOGGLES = [
+  { key: 'daily_summary', label: 'Resume quotidien', desc: 'Recevez un email chaque matin avec les performances de la veille', defaultVal: true },
+  { key: 'weekly_summary', label: 'Resume hebdomadaire', desc: 'Rapport chaque lundi matin', defaultVal: false },
+  { key: 'escalation_alert', label: 'Alerte d\'escalade', desc: 'Email immediat quand un ticket necessite votre intervention', defaultVal: true },
+  { key: 'milestone_alert', label: 'Alertes milestone', desc: 'Notifications quand vous atteignez des jalons importants', defaultVal: true },
+  { key: 'monthly_report', label: 'Rapport mensuel', desc: 'Rapport detaille en fin de mois', defaultVal: true },
+]
+
+const HOURS = Array.from({ length: 17 }, (_, i) => i + 6) // 6h to 22h
+
+const NotificationPreferences = ({ clientId, isLight }) => {
+  const queryClient = useQueryClient()
+  const [notifStatus, setNotifStatus] = useState(null)
+
+  const { data: prefs, isLoading: prefsLoading } = useQuery({
+    queryKey: ['notification-prefs', clientId],
+    queryFn: async () => {
+      if (!clientId) return null
+      const { data, error } = await supabase
+        .from('client_notification_preferences')
+        .select('*')
+        .eq('client_id', clientId)
+        .maybeSingle()
+      if (error && error.code !== 'PGRST116') {
+        console.warn('Notification prefs fetch error:', error.message)
+        return null
+      }
+      if (!data) {
+        // Auto-create default preferences
+        const { data: newPrefs, error: insertError } = await supabase
+          .from('client_notification_preferences')
+          .insert({ client_id: clientId })
+          .select()
+          .single()
+        if (insertError) {
+          console.warn('Could not create notification prefs:', insertError.message)
+          return null
+        }
+        return newPrefs
+      }
+      return data
+    },
+    enabled: !!clientId,
+  })
+
+  const updatePrefMutation = useMutation({
+    mutationFn: async ({ key, value }) => {
+      if (!prefs?.id) return
+      const { error } = await supabase
+        .from('client_notification_preferences')
+        .update({ [key]: value })
+        .eq('id', prefs.id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notification-prefs', clientId] })
+      setNotifStatus('success')
+      setTimeout(() => setNotifStatus(null), 2000)
+    },
+    onError: () => {
+      setNotifStatus('error')
+      setTimeout(() => setNotifStatus(null), 2000)
+    },
+  })
+
+  if (!clientId) return null
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+      className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLight ? 'bg-blue-50 text-blue-600' : 'bg-blue-500/10 text-blue-400'}`}>
+            <Bell className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className={`text-lg font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>Notifications</h3>
+            <p className={`text-xs ${isLight ? 'text-slate-500' : 'text-gray-500'}`}>Configurez les emails que vous recevez</p>
+          </div>
+        </div>
+        {notifStatus === 'success' && (
+          <span className="text-xs text-emerald-400 flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3" /> Enregistre
+          </span>
+        )}
+      </div>
+
+      {prefsLoading ? (
+        <div className="flex justify-center py-4">
+          <Loader2 className="w-5 h-5 animate-spin text-zinc-500" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {NOTIFICATION_TOGGLES.map((toggle) => {
+            const isOn = prefs ? prefs[toggle.key] : toggle.defaultVal
+            return (
+              <div key={toggle.key} className="flex items-center justify-between">
+                <div className="flex-1 mr-4">
+                  <p className={`text-sm font-medium ${isLight ? 'text-slate-700' : 'text-zinc-300'}`}>{toggle.label}</p>
+                  <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-500' : 'text-zinc-600'}`}>{toggle.desc}</p>
+                </div>
+                <button
+                  onClick={() => updatePrefMutation.mutate({ key: toggle.key, value: !isOn })}
+                  disabled={updatePrefMutation.isPending}
+                  className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${isOn ? 'bg-blue-500' : (isLight ? 'bg-slate-200' : 'bg-zinc-700')}`}
+                >
+                  <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${isOn ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                </button>
+              </div>
+            )
+          })}
+
+          {/* Preferred hour */}
+          <div className="flex items-center justify-between pt-2 border-t border-white/5">
+            <div className="flex-1 mr-4">
+              <p className={`text-sm font-medium ${isLight ? 'text-slate-700' : 'text-zinc-300'}`}>
+                <ClockIcon className="w-3 h-3 inline mr-1" /> Heure d&apos;envoi preferee
+              </p>
+            </div>
+            <select
+              value={prefs?.preferred_hour ?? 8}
+              onChange={(e) => updatePrefMutation.mutate({ key: 'preferred_hour', value: parseInt(e.target.value) })}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium outline-none ${
+                isLight
+                  ? 'bg-slate-50 border border-slate-200 text-slate-700'
+                  : 'bg-white/5 border border-white/10 text-white'
+              }`}
+            >
+              {HOURS.map(h => (
+                <option key={h} value={h} className="bg-zinc-900">{h}h00</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+    </motion.div>
+  )
+}
 
 const StripePortalButton = ({ clientId, isLight }) => {
   const [loading, setLoading] = useState(false)
@@ -287,6 +431,9 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
 
         <StripePortalButton clientId={client?.id} isLight={isLight} />
       </motion.div>
+
+      {/* Notification Preferences */}
+      <NotificationPreferences clientId={client?.id} isLight={isLight} />
 
       {/* Password change */}
       <motion.div
