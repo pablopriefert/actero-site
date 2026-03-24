@@ -10,7 +10,7 @@ const WORKFLOW_TEMPLATES = [
   { id: 'tpl_relance_prospects', label: 'Relance Prospects' },
 ];
 
-export const AdminClientSettingsModal = ({ client, onClose, onSaved }) => {
+export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallNotes }) => {
   const [hourlyCost, setHourlyCost] = useState("");
   const [avgTicketTime, setAvgTicketTime] = useState("");
   const [acteroPrice, setActeroPrice] = useState("");
@@ -158,6 +158,20 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved }) => {
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Quick access: Call Notes */}
+        {onOpenCallNotes && (
+          <button
+            onClick={onOpenCallNotes}
+            className="w-full mb-6 flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/15 transition-colors text-left"
+          >
+            <Rocket className="w-5 h-5 text-emerald-400" />
+            <div>
+              <p className="text-sm font-bold text-emerald-400">Notes de call & Deploiement</p>
+              <p className="text-xs text-gray-500">Formulaire structure + deploiement automatise</p>
+            </div>
+          </button>
+        )}
 
         {fetching ? (
           <div className="flex justify-center py-8">

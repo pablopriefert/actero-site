@@ -30,7 +30,9 @@ import {
   GitBranch,
   Receipt,
   Heart,
-  Gift
+  Gift,
+  Rocket,
+  FileText
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -46,6 +48,8 @@ import { AdminPipelineView } from '../components/admin/AdminPipelineView'
 import { AdminBillingView } from '../components/admin/AdminBillingView'
 import { AdminClientHealthView } from '../components/admin/AdminClientHealthView'
 import { AdminReferralsView } from '../components/admin/AdminReferralsView'
+import { CallNotesWizard } from '../components/admin/CallNotesWizard'
+import { DeploymentProgress } from '../components/admin/DeploymentProgress'
 
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const queryClient = useQueryClient();
@@ -53,6 +57,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [isCommandKOpen, setIsCommandKOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [callNotesClient, setCallNotesClient] = useState(null);
+  const [deploymentState, setDeploymentState] = useState(null); // { deploymentId, clientName }
 
   const getAdminTabFromRoute = (route) => {
     if (route === "/admin/clients") return "clients";
@@ -225,6 +231,26 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       queryClient.invalidateQueries({ queryKey: ['admin-clients'] });
     } catch (err) {
       alert("Erreur: " + err.message);
+    }
+  };
+
+  const handleDeployReady = async (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    try {
+      const res = await fetch('/api/deploy/full-pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: clientId }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Erreur serveur' }));
+        throw new Error(err.error || `Erreur ${res.status}`);
+      }
+      const data = await res.json();
+      setCallNotesClient(null);
+      setDeploymentState({ deploymentId: data.deployment_id, clientName: client?.brand_name || 'Client' });
+    } catch (err) {
+      alert('Erreur deploiement: ' + err.message);
     }
   };
 
@@ -771,14 +797,23 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         </div>
                       </div>
 
-                      {/* Action */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setSelectedClient(client); }}
-                        className="text-gray-600 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5 opacity-0 group-hover:opacity-100"
-                        title="Configurer"
-                      >
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
+                      {/* Actions */}
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setCallNotesClient(client); }}
+                          className="text-gray-600 hover:text-emerald-400 transition-colors p-2 rounded-lg hover:bg-emerald-500/10"
+                          title="Notes de call"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSelectedClient(client); }}
+                          className="text-gray-600 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5"
+                          title="Configurer"
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -842,8 +877,32 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           client={selectedClient}
           onClose={() => setSelectedClient(null)}
           onSaved={() => queryClient.invalidateQueries({ queryKey: ['admin-clients'] })}
+          onOpenCallNotes={() => { setCallNotesClient(selectedClient); setSelectedClient(null); }}
         />
       )}
+
+      <AnimatePresence>
+        {callNotesClient && (
+          <CallNotesWizard
+            client={callNotesClient}
+            onClose={() => setCallNotesClient(null)}
+            onDeployReady={handleDeployReady}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {deploymentState && (
+          <DeploymentProgress
+            deploymentId={deploymentState.deploymentId}
+            clientName={deploymentState.clientName}
+            onClose={() => {
+              setDeploymentState(null);
+              queryClient.invalidateQueries({ queryKey: ['admin-clients'] });
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
