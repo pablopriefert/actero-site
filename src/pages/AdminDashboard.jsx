@@ -32,7 +32,8 @@ import {
   Heart,
   Gift,
   Rocket,
-  FileText
+  FileText,
+  Award
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -51,6 +52,7 @@ import { AdminReferralsView } from '../components/admin/AdminReferralsView'
 import { CallNotesWizard } from '../components/admin/CallNotesWizard'
 import { DeploymentProgress } from '../components/admin/DeploymentProgress'
 import { AdminNegativeRatingsView } from '../components/admin/AdminNegativeRatingsView'
+import { AdminAmbassadorsView } from '../components/admin/AdminAmbassadorsView'
 
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const queryClient = useQueryClient();
@@ -72,6 +74,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/billing") return "billing";
     if (route === "/admin/health") return "health";
     if (route === "/admin/referrals") return "referrals";
+    if (route === "/admin/ambassadors") return "ambassadors";
     if (route === "/admin/ratings") return "ratings";
     return "overview";
   };
@@ -217,6 +220,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: "monitoring", label: "Monitoring n8n", icon: Wifi },
     { id: "billing", label: "Facturation", icon: Receipt },
     { id: "referrals", label: "Parrainages", icon: Gift },
+    { id: "ambassadors", label: "Ambassadeurs", icon: Award },
     { type: 'section', label: 'Outils' },
     { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
     { id: "ratings", label: "Notations IA", icon: FileText },
@@ -341,6 +345,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "health" && <AdminClientHealthView />}
 
           {activeTab === "referrals" && <AdminReferralsView />}
+
+          {activeTab === "ambassadors" && <AdminAmbassadorsView />}
 
           {activeTab === "ratings" && <AdminNegativeRatingsView />}
 
