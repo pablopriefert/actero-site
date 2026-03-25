@@ -90,13 +90,19 @@ export default async function handler(req, res) {
       });
     }
 
+    // Map niche to valid DB values
+    const validNiches = ['ecommerce', 'immobilier', 'autre'];
+    const nicheMap = { 'e-commerce': 'ecommerce', 'e_commerce': 'ecommerce', 'tech': 'autre', 'finance': 'autre' };
+    const rawNiche = (company_niche || '').toLowerCase().trim();
+    const cleanNiche = validNiches.includes(rawNiche) ? rawNiche : (nicheMap[rawNiche] || null);
+
     const { data: lead, error } = await supabase
       .from('ambassador_leads')
       .insert({
         ambassador_id: ambassador.id,
         prospect_name: prospect_name.trim(),
         company_name: company_name.trim(),
-        company_niche: company_niche || null,
+        company_niche: cleanNiche,
         prospect_email: cleanEmail,
         prospect_phone: prospect_phone?.trim() || null,
         message: message?.trim() || null,
