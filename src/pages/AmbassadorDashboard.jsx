@@ -346,9 +346,9 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
   ]
 
   const ambassadorLink = ambassador?.code
-    ? `https://actero.fr/ambassadeurs?ref=${ambassador.code}`
+    ? `https://actero.fr/audit?ref=${ambassador.code}`
     : ambassador?.ambassador_code
-      ? `https://actero.fr/ambassadeurs?ref=${ambassador.ambassador_code}`
+      ? `https://actero.fr/audit?ref=${ambassador.ambassador_code}`
       : ''
 
   const ambCode = ambassador?.code || ambassador?.ambassador_code || ''

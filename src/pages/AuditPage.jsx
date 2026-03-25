@@ -23,15 +23,17 @@ export const AuditPage = ({ onNavigate }) => {
   const [openFaq, setOpenFaq] = useState(null);
   const [referralCode, setReferralCode] = useState(null);
   const [referrerName, setReferrerName] = useState(null);
+  const [ambassadorRef, setAmbassadorRef] = useState(null);
+  const [ambassadorName, setAmbassadorName] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    // Check for referral code in URL or cookie
     const params = new URLSearchParams(window.location.search);
+
+    // Check for client referral code
     const code = params.get('referral_code') || document.cookie.split('; ').find(c => c.startsWith('actero_referral_code='))?.split('=')[1];
     if (code) {
       setReferralCode(code);
-      // Fetch referrer name
       fetch('/api/referral/track-click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,6 +42,22 @@ export const AuditPage = ({ onNavigate }) => {
         .then(r => r.json())
         .then(d => { if (d.referrer_name) setReferrerName(d.referrer_name); })
         .catch(() => {});
+    }
+
+    // Check for ambassador ref code
+    const ref = params.get('ref') || document.cookie.split('; ').find(c => c.startsWith('actero_ambassador_ref='))?.split('=')[1];
+    if (ref) {
+      setAmbassadorRef(ref);
+      // Save cookie for 90 days
+      document.cookie = `actero_ambassador_ref=${ref}; path=/; max-age=${90 * 24 * 60 * 60}; SameSite=Lax`;
+      // Track click
+      fetch(`/api/ambassador/track-click?code=${ref}`).catch(() => {});
+      // Fetch ambassador name
+      import('@supabase/supabase-js').then(({ createClient }) => {
+        const sb = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
+        sb.from('ambassadors').select('first_name').eq('ambassador_code', ref).maybeSingle()
+          .then(({ data }) => { if (data?.first_name) setAmbassadorName(data.first_name); });
+      });
     }
   }, []);
 
@@ -67,7 +85,39 @@ export const AuditPage = ({ onNavigate }) => {
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
       <main className="pt-32 pb-24 relative z-10 flex-grow px-6">
-        {/* Referral banner */}
+        {/* Ambassador referral banner */}
+        {ambassadorRef && !referralCode && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-5xl mx-auto mb-8"
+          >
+            <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-cyan-500/10 p-6">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl" />
+              <div className="relative flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                  <Gift className="w-6 h-6 text-emerald-400" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                      <Sparkles className="w-3 h-3" />
+                      {ambassadorName ? `Recommandé par ${ambassadorName}` : 'Recommandation ambassadeur'}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white">
+                    Vous avez été parrainé ! Vos frais de setup sont <span className="text-emerald-400">offerts</span>
+                  </h3>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Un ambassadeur Actero vous a recommandé. Réservez votre audit gratuit de 15 minutes pour en profiter.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Client referral banner */}
         {referralCode && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
