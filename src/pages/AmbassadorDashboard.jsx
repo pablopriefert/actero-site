@@ -26,6 +26,7 @@ import {
   Target,
   Award,
   CheckCircle,
+  Landmark,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -227,6 +228,9 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
             last_name: amb.last_name || '',
             phone: amb.phone || '',
             siret: amb.siret || '',
+            iban: amb.iban || '',
+            bic: amb.bic || '',
+            iban_holder: amb.iban_holder || '',
           })
         }
 
@@ -342,6 +346,9 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
           last_name: profileForm.last_name,
           phone: profileForm.phone,
           siret: profileForm.siret,
+          iban: profileForm.iban?.replace(/\s/g, '') || null,
+          bic: profileForm.bic || null,
+          iban_holder: profileForm.iban_holder || null,
         })
         .eq('id', ambassador.id)
 
@@ -1000,6 +1007,45 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition-all"
                     placeholder="123 456 789 00012"
                   />
+                </div>
+
+                {/* IBAN Section */}
+                <div className="p-5 rounded-xl bg-white/[0.02] border border-white/5">
+                  <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                    <Landmark className="w-4 h-4 text-emerald-400" /> Informations bancaires
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-300 mb-2">Titulaire du compte</label>
+                      <input
+                        type="text"
+                        value={profileForm.iban_holder}
+                        onChange={(e) => setProfileForm((p) => ({ ...p, iban_holder: e.target.value }))}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition-all"
+                        placeholder="Prénom Nom ou Raison sociale"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-300 mb-2">IBAN</label>
+                      <input
+                        type="text"
+                        value={profileForm.iban}
+                        onChange={(e) => setProfileForm((p) => ({ ...p, iban: e.target.value.toUpperCase() }))}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition-all font-mono"
+                        placeholder="FR76 1234 5678 9012 3456 7890 123"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-300 mb-2">BIC / SWIFT (optionnel)</label>
+                      <input
+                        type="text"
+                        value={profileForm.bic}
+                        onChange={(e) => setProfileForm((p) => ({ ...p, bic: e.target.value.toUpperCase() }))}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition-all font-mono"
+                        placeholder="BNPAFRPP"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-6">

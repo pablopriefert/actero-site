@@ -74,12 +74,12 @@ export default function AmbassadorSetupPassword() {
           >
             <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Mot de passe créé !</h2>
-            <p className="text-zinc-400 mb-8">Votre espace ambassadeur est prêt. Commencez à recommander Actero et gagnez des récompenses.</p>
+            <p className="text-zinc-400 mb-8">Dernière étape : ajoutez votre IBAN pour recevoir vos récompenses.</p>
             <a
-              href="/ambassador/overview"
+              href="/ambassador/setup-iban"
               className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-8 py-3 rounded-xl transition-colors text-lg"
             >
-              Accéder à mon dashboard <ArrowRight className="w-5 h-5" />
+              Ajouter mon IBAN <ArrowRight className="w-5 h-5" />
             </a>
           </motion.div>
         ) : (

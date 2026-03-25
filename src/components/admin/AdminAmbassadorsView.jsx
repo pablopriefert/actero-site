@@ -6,7 +6,7 @@ import {
   CheckCircle2, XCircle, Clock, Eye, Loader2, MoreVertical,
   UserPlus, Briefcase, Mail, Phone, Copy, Check, X,
   ArrowRight, FileText, AlertCircle, RefreshCw, ChevronDown,
-  Filter, Timer, MessageSquare, StickyNote,
+  Filter, Timer, MessageSquare, StickyNote, Landmark, AlertTriangle,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import {
@@ -513,7 +513,7 @@ export const AdminAmbassadorsView = () => {
                         {amb.phone && <span className="text-xs text-gray-500 flex items-center gap-1"><Phone className="w-3 h-3" /> {amb.phone}</span>}
                         <span className="text-xs text-gray-600">{amb.network_type || '\u2014'}</span>
                       </div>
-                      <div className="flex items-center gap-2 mt-1.5">
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         <span className="text-xs font-mono text-emerald-400/80 bg-emerald-500/5 px-2 py-0.5 rounded">{amb.ambassador_code}</span>
                         <button
                           onClick={() => { navigator.clipboard.writeText(amb.ambassador_code); setCopiedCode(amb.id); setTimeout(() => setCopiedCode(null), 2000); }}
@@ -521,6 +521,15 @@ export const AdminAmbassadorsView = () => {
                         >
                           {copiedCode === amb.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-gray-600" />}
                         </button>
+                        {amb.iban ? (
+                          <span className="text-[10px] font-mono text-emerald-400/60 bg-emerald-500/5 border border-emerald-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+                            <Landmark className="w-3 h-3" /> IBAN {amb.iban.slice(0, 4)}...{amb.iban.slice(-4)}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" /> IBAN manquant
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-6 flex-shrink-0 text-center">
