@@ -110,18 +110,25 @@ export default async function handler(req, res) {
     });
 
     if (authError) {
-      // If user already exists in auth, find them
-      if (authError.message?.includes('already been registered') || authError.message?.includes('already exists')) {
-        const { data: { users } } = await supabase.auth.admin.listUsers({ filter: cleanEmail });
-        const existingUser = users?.find(u => u.email === cleanEmail);
+      // If user already exists in auth, find them via REST API
+      if (authError.message?.includes('already') || authError.message?.includes('exists') || authError.message?.includes('unique') || authError.message?.includes('registered')) {
+        // Direct REST call to find user by email
+        const listRes = await fetch(`${supabaseUrl}/auth/v1/admin/users?page=1&per_page=50`, {
+          headers: { 'Authorization': `Bearer ${supabaseServiceKey}`, 'apikey': supabaseServiceKey },
+        });
+        const listData = await listRes.json();
+        const existingUser = listData?.users?.find(u => u.email === cleanEmail);
+
         if (existingUser) {
           userId = existingUser.id;
-          // Update their role to ambassador
-          await supabase.auth.admin.updateUser(userId, {
-            app_metadata: { role: 'ambassador' },
+          // Update role
+          await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${supabaseServiceKey}`, 'apikey': supabaseServiceKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ app_metadata: { role: 'ambassador' } }),
           });
         } else {
-          console.error('Auth user creation error:', authError);
+          console.error('Auth user not found after conflict:', authError);
           return res.status(500).json({ error: 'Erreur création compte.' });
         }
       } else {
