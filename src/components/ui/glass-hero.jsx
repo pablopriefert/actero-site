@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Shield, Clock, TrendingUp } from 'lucide-react';
+import { ArrowRight, Shield, Clock, TrendingUp, UserPlus } from 'lucide-react';
 import { FadeInUp, ScaleIn } from './scroll-animations';
 import { ButtonColorful } from './button-colorful';
 import { MagneticButton } from './magnetic-button';
@@ -154,7 +154,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                 </FadeInUp>
 
                 {/* CTA Buttons */}
-                <FadeInUp delay={0.2} className="flex flex-col sm:flex-row items-center gap-4 mb-16">
+                <FadeInUp delay={0.2} className="flex flex-col sm:flex-row items-center gap-4 mb-6">
                     <ButtonColorful
                         onClick={() => onNavigate('/audit')}
                     >
@@ -169,6 +169,17 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                     >
                         Voir comment ça marche <ArrowRight className="w-4 h-4" />
                     </MagneticButton>
+                </FadeInUp>
+
+                {/* Ambassador CTA */}
+                <FadeInUp delay={0.25} className="mb-16">
+                    <button
+                        onClick={() => onNavigate('/ambassadeurs')}
+                        className="text-sm font-medium text-emerald-400/70 hover:text-emerald-400 transition-colors flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/10 hover:border-emerald-500/30 bg-emerald-500/[0.03] hover:bg-emerald-500/[0.06]"
+                    >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        Devenir ambassadeur Actero
+                    </button>
                 </FadeInUp>
 
                 {/* Proof Metrics Bar */}

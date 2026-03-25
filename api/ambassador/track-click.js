@@ -10,25 +10,29 @@ export default async function handler(req, res) {
   }
 
   const code = req.query.code;
-  if (!code) {
+  if (!code || typeof code !== 'string' || code.trim().length < 3) {
     return res.redirect(302, '/audit');
   }
 
+  const cleanCode = code.trim().toUpperCase();
+
   try {
-    // Verify ambassador code exists
+    // Verify ambassador code exists and is active
     const { data: ambassador, error: ambError } = await supabase
       .from('ambassadors')
       .select('id, ambassador_code, status')
-      .eq('ambassador_code', code.toUpperCase())
+      .eq('ambassador_code', cleanCode)
       .maybeSingle();
 
     if (ambError || !ambassador) {
-      // Invalid code, just redirect to audit page
       return res.redirect(302, '/audit');
     }
 
-    // Create a lead entry with source 'link' to track the click
-    // Only if no recent click from same code (within 1 hour, anti-spam)
+    if (ambassador.status !== 'active') {
+      return res.redirect(302, '/audit');
+    }
+
+    // Anti-spam: only create a lead entry if no recent click from same ambassador (within 1 hour)
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { data: recentClick } = await supabase
       .from('ambassador_leads')
@@ -40,23 +44,35 @@ export default async function handler(req, res) {
       .maybeSingle();
 
     if (!recentClick) {
-      await supabase
+      const { data: lead } = await supabase
         .from('ambassador_leads')
         .insert({
           ambassador_id: ambassador.id,
           prospect_name: 'Visiteur (lien)',
-          company_name: 'A qualifier',
+          company_name: '\u00c0 qualifier',
           source: 'link',
           status: 'submitted',
-        });
+        })
+        .select('id')
+        .single();
+
+      // Log event
+      if (lead) {
+        await supabase.from('ambassador_lead_events').insert({
+          lead_id: lead.id,
+          event_type: 'submitted',
+          note: 'Clic sur lien de parrainage',
+          created_by: `system:track-click`,
+        }).catch(() => {});
+      }
     }
 
     // Set cookie with ambassador code (90 days)
-    const maxAge = 90 * 24 * 60 * 60; // 90 days in seconds
-    res.setHeader('Set-Cookie', `ambassador_ref=${code.toUpperCase()}; Path=/; Max-Age=${maxAge}; SameSite=Lax`);
+    const maxAge = 90 * 24 * 60 * 60;
+    res.setHeader('Set-Cookie', `ambassador_ref=${cleanCode}; Path=/; Max-Age=${maxAge}; SameSite=Lax`);
 
     // Redirect to audit page with ref param
-    return res.redirect(302, `/audit?ref=${code.toUpperCase()}`);
+    return res.redirect(302, `/audit?ref=${cleanCode}`);
   } catch (err) {
     console.error('Track click error:', err);
     return res.redirect(302, '/audit');

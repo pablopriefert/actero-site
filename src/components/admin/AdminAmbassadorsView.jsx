@@ -5,43 +5,17 @@ import {
   Users, DollarSign, TrendingUp, Search, Award,
   CheckCircle2, XCircle, Clock, Eye, Loader2, MoreVertical,
   UserPlus, Briefcase, Mail, Phone, Copy, Check, X,
-  ArrowRight, FileText, AlertCircle, RefreshCw, ChevronDown
+  ArrowRight, FileText, AlertCircle, RefreshCw, ChevronDown,
+  Filter, Timer, MessageSquare, StickyNote,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-
-const AMBASSADOR_STATUS_CONFIG = {
-  pending: { label: 'En attente', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  active: { label: 'Actif', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
-  suspended: { label: 'Suspendu', color: 'text-red-400 bg-red-400/10 border-red-400/20' },
-  inactive: { label: 'Inactif', color: 'text-gray-400 bg-gray-400/10 border-gray-400/20' },
-}
-
-const LEAD_STATUS_CONFIG = {
-  submitted: { label: 'Soumis', color: 'text-gray-400 bg-gray-400/10 border-gray-400/20' },
-  contacted: { label: 'Contacte', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
-  qualified: { label: 'Qualifie', color: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20' },
-  audit_booked: { label: 'Audit reserve', color: 'text-violet-400 bg-violet-400/10 border-violet-400/20' },
-  audit_done: { label: 'Audit fait', color: 'text-purple-400 bg-purple-400/10 border-purple-400/20' },
-  closing_in_progress: { label: 'Closing', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  won: { label: 'Gagne', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
-  lost: { label: 'Perdu', color: 'text-red-400 bg-red-400/10 border-red-400/20' },
-}
-
-const COMMISSION_STATUS_CONFIG = {
-  pending: { label: 'En attente', color: 'text-gray-400 bg-gray-400/10 border-gray-400/20' },
-  waiting_30_days: { label: 'Delai 30j', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  eligible: { label: 'Eligible', color: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20' },
-  approved: { label: 'Approuve', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
-  paid: { label: 'Paye', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
-  cancelled: { label: 'Annule', color: 'text-red-400 bg-red-400/10 border-red-400/20' },
-}
-
-const APPLICATION_STATUS_CONFIG = {
-  new: { label: 'Nouveau', color: 'text-blue-400 bg-blue-400/10 border-blue-400/20' },
-  reviewed: { label: 'Examine', color: 'text-amber-400 bg-amber-400/10 border-amber-400/20' },
-  approved: { label: 'Approuve', color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' },
-  rejected: { label: 'Rejete', color: 'text-red-400 bg-red-400/10 border-red-400/20' },
-}
+import {
+  LEAD_STATUS_MAP,
+  COMMISSION_STATUS_MAP,
+  AMBASSADOR_STATUS_MAP,
+  APPLICATION_STATUS_MAP,
+  getJ30Countdown,
+} from '../../lib/ambassador-helpers'
 
 const SUB_TABS = [
   { id: 'ambassadors', label: 'Ambassadeurs', icon: Users },
@@ -54,6 +28,60 @@ async function getAuthToken() {
   return data?.session?.access_token
 }
 
+// J+30 Countdown Badge
+const J30Badge = ({ eligibilityDate }) => {
+  const { daysLeft, isEligible, label } = getJ30Countdown(eligibilityDate)
+  if (daysLeft === null) return <span className="text-[10px] text-gray-600">\u2014</span>
+  if (isEligible) {
+    return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">\u00c9ligible</span>
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+      <Timer className="w-3 h-3" />
+      {label}
+    </span>
+  )
+}
+
+// Internal note inline editor
+const InlineNoteEditor = ({ leadId, currentNote, onSave }) => {
+  const [editing, setEditing] = useState(false)
+  const [note, setNote] = useState(currentNote || '')
+
+  if (!editing) {
+    return (
+      <button
+        onClick={() => setEditing(true)}
+        className="flex items-center gap-1 text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
+        title="Ajouter une note interne"
+      >
+        <StickyNote className="w-3 h-3" />
+        {currentNote ? currentNote.substring(0, 30) + (currentNote.length > 30 ? '...' : '') : 'Note interne'}
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        type="text"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') { onSave(leadId, note); setEditing(false) } }}
+        className="px-2 py-1 bg-[#111] border border-white/10 rounded-lg text-[10px] text-white w-40 outline-none focus:border-white/20"
+        placeholder="Note interne..."
+        autoFocus
+      />
+      <button onClick={() => { onSave(leadId, note); setEditing(false) }} className="text-emerald-400 hover:text-emerald-300">
+        <Check className="w-3 h-3" />
+      </button>
+      <button onClick={() => setEditing(false)} className="text-gray-500 hover:text-gray-300">
+        <X className="w-3 h-3" />
+      </button>
+    </div>
+  )
+}
+
 export const AdminAmbassadorsView = () => {
   const queryClient = useQueryClient()
   const [subTab, setSubTab] = useState('ambassadors')
@@ -63,6 +91,12 @@ export const AdminAmbassadorsView = () => {
   const [commissionForm, setCommissionForm] = useState({ amount: '', client_payment_date: '' })
   const [showLeadStatusMenu, setShowLeadStatusMenu] = useState(null)
   const [copiedCode, setCopiedCode] = useState(null)
+
+  // Filters
+  const [leadStatusFilter, setLeadStatusFilter] = useState('all')
+  const [leadAmbassadorFilter, setLeadAmbassadorFilter] = useState('all')
+  const [commissionStatusFilter, setCommissionStatusFilter] = useState('all')
+  const [ambassadorStatusFilter, setAmbassadorStatusFilter] = useState('all')
 
   // Fetch ambassadors with stats
   const { data: ambassadors = [], isLoading: ambLoading } = useQuery({
@@ -128,7 +162,7 @@ export const AdminAmbassadorsView = () => {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status, notes_admin }),
       })
-      if (!res.ok) throw new Error('Erreur mise a jour')
+      if (!res.ok) throw new Error('Erreur mise \u00e0 jour')
       return res.json()
     },
     onSuccess: () => {
@@ -146,7 +180,7 @@ export const AdminAmbassadorsView = () => {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status, status_note, admin_note, client_id }),
       })
-      if (!res.ok) throw new Error('Erreur mise a jour')
+      if (!res.ok) throw new Error('Erreur mise \u00e0 jour')
       return res.json()
     },
     onSuccess: () => {
@@ -164,7 +198,10 @@ export const AdminAmbassadorsView = () => {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ ambassador_id, lead_id, client_id, amount: Number(amount), client_payment_date }),
       })
-      if (!res.ok) throw new Error('Erreur creation commission')
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Erreur cr\u00e9ation commission')
+      }
       return res.json()
     },
     onSuccess: () => {
@@ -183,7 +220,7 @@ export const AdminAmbassadorsView = () => {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status, admin_note, client_payment_date }),
       })
-      if (!res.ok) throw new Error('Erreur mise a jour')
+      if (!res.ok) throw new Error('Erreur mise \u00e0 jour')
       return res.json()
     },
     onSuccess: () => {
@@ -205,7 +242,7 @@ export const AdminAmbassadorsView = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-ambassador-commissions'] })
-      if (data.processed > 0) alert(`${data.processed} commission(s) passee(s) en eligible`)
+      if (data.processed > 0) alert(`${data.processed} commission(s) pass\u00e9e(s) en \u00e9ligible`)
     },
   })
 
@@ -243,6 +280,11 @@ export const AdminAmbassadorsView = () => {
     },
   })
 
+  // Save admin note on lead
+  const saveLeadNote = (leadId, note) => {
+    updateLeadMutation.mutate({ id: leadId, admin_note: note })
+  }
+
   // Stats
   const totalAmbassadors = ambassadors.length
   const activeAmbassadors = ambassadors.filter(a => a.status === 'active').length
@@ -261,6 +303,52 @@ export const AdminAmbassadorsView = () => {
       </div>
     )
   }
+
+  // Unique ambassador names for filter
+  const ambassadorOptions = ambassadors.map(a => ({ id: a.id, name: `${a.first_name} ${a.last_name}` }))
+
+  // Filtered data
+  const filteredLeads = leads.filter(l => {
+    if (leadStatusFilter !== 'all' && l.status !== leadStatusFilter) return false
+    if (leadAmbassadorFilter !== 'all' && l.ambassador_id !== leadAmbassadorFilter) return false
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      return (
+        l.prospect_name?.toLowerCase().includes(q) ||
+        l.company_name?.toLowerCase().includes(q) ||
+        l.ambassadors?.first_name?.toLowerCase().includes(q) ||
+        l.ambassadors?.last_name?.toLowerCase().includes(q)
+      )
+    }
+    return true
+  })
+
+  const filteredCommissions = commissions.filter(c => {
+    if (commissionStatusFilter !== 'all' && c.status !== commissionStatusFilter) return false
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      return (
+        c.ambassadors?.first_name?.toLowerCase().includes(q) ||
+        c.ambassadors?.last_name?.toLowerCase().includes(q) ||
+        c.ambassador_leads?.company_name?.toLowerCase().includes(q)
+      )
+    }
+    return true
+  })
+
+  const filteredAmbassadors = ambassadors.filter(a => {
+    if (ambassadorStatusFilter !== 'all' && a.status !== ambassadorStatusFilter) return false
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      return (
+        a.first_name?.toLowerCase().includes(q) ||
+        a.last_name?.toLowerCase().includes(q) ||
+        a.email?.toLowerCase().includes(q) ||
+        a.ambassador_code?.toLowerCase().includes(q)
+      )
+    }
+    return true
+  })
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in-up">
@@ -288,9 +376,9 @@ export const AdminAmbassadorsView = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Ambassadeurs actifs', value: activeAmbassadors, total: totalAmbassadors, icon: Users, color: 'emerald' },
-          { label: 'Leads total', value: totalLeads, sub: `${wonLeads} gagnes`, icon: Briefcase, color: 'blue' },
+          { label: 'Leads total', value: totalLeads, sub: `${wonLeads} gagn\u00e9s`, icon: Briefcase, color: 'blue' },
           { label: 'Commissions total', value: `${totalCommissions.toLocaleString('fr-FR')}`, suffix: 'EUR', icon: DollarSign, color: 'violet' },
-          { label: 'Commissions payees', value: `${paidCommissions.toLocaleString('fr-FR')}`, suffix: 'EUR', icon: TrendingUp, color: 'amber' },
+          { label: 'Commissions pay\u00e9es', value: `${paidCommissions.toLocaleString('fr-FR')}`, suffix: 'EUR', icon: TrendingUp, color: 'amber' },
         ].map((kpi, i) => (
           <motion.div
             key={kpi.label}
@@ -332,7 +420,7 @@ export const AdminAmbassadorsView = () => {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white">{app.first_name} {app.last_name}</p>
                   <p className="text-xs text-gray-500">{app.email}{app.phone ? ` | ${app.phone}` : ''}</p>
-                  {app.network_type && <p className="text-xs text-gray-600 mt-0.5">Reseau: {app.network_type}</p>}
+                  {app.network_type && <p className="text-xs text-gray-600 mt-0.5">R\u00e9seau: {app.network_type}</p>}
                   {app.message && <p className="text-xs text-gray-600 mt-1 line-clamp-2">{app.message}</p>}
                   <p className="text-[10px] text-gray-600 mt-1">{new Date(app.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
@@ -376,22 +464,31 @@ export const AdminAmbassadorsView = () => {
         ))}
       </div>
 
-      {/* Ambassadeurs sub-tab */}
+      {/* ═══════════════════════════════════════ */}
+      {/* Ambassadeurs sub-tab                    */}
+      {/* ═══════════════════════════════════════ */}
       {subTab === 'ambassadors' && (
-        <div className="space-y-3">
-          {ambassadors
-            .filter(a => {
-              if (!searchQuery) return true
-              const q = searchQuery.toLowerCase()
-              return (
-                a.first_name?.toLowerCase().includes(q) ||
-                a.last_name?.toLowerCase().includes(q) ||
-                a.email?.toLowerCase().includes(q) ||
-                a.ambassador_code?.toLowerCase().includes(q)
-              )
-            })
-            .map((amb, i) => {
-              const st = AMBASSADOR_STATUS_CONFIG[amb.status] || AMBASSADOR_STATUS_CONFIG.pending
+        <div className="space-y-4">
+          {/* Filter bar */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <Filter className="w-3.5 h-3.5" /> Filtrer:
+            </div>
+            <select
+              value={ambassadorStatusFilter}
+              onChange={(e) => setAmbassadorStatusFilter(e.target.value)}
+              className="px-3 py-1.5 bg-[#0a0a0a] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
+            >
+              <option value="all">Tous les statuts</option>
+              {Object.entries(AMBASSADOR_STATUS_MAP).map(([key, cfg]) => (
+                <option key={key} value={key}>{cfg.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-3">
+            {filteredAmbassadors.map((amb, i) => {
+              const st = AMBASSADOR_STATUS_MAP[amb.status] || AMBASSADOR_STATUS_MAP.pending
               return (
                 <motion.div
                   key={amb.id}
@@ -414,7 +511,7 @@ export const AdminAmbassadorsView = () => {
                       <div className="flex items-center gap-4 mt-1 flex-wrap">
                         <span className="text-xs text-gray-500 flex items-center gap-1"><Mail className="w-3 h-3" /> {amb.email}</span>
                         {amb.phone && <span className="text-xs text-gray-500 flex items-center gap-1"><Phone className="w-3 h-3" /> {amb.phone}</span>}
-                        <span className="text-xs text-gray-600">{amb.network_type || '—'}</span>
+                        <span className="text-xs text-gray-600">{amb.network_type || '\u2014'}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="text-xs font-mono text-emerald-400/80 bg-emerald-500/5 px-2 py-0.5 rounded">{amb.ambassador_code}</span>
@@ -433,7 +530,7 @@ export const AdminAmbassadorsView = () => {
                       </div>
                       <div>
                         <p className="text-lg font-bold font-mono text-emerald-400">{amb.stats?.won_count || 0}</p>
-                        <p className="text-[10px] text-gray-500">Gagnes</p>
+                        <p className="text-[10px] text-gray-500">Gagn\u00e9s</p>
                       </div>
                       <div>
                         <p className="text-lg font-bold font-mono text-violet-400">{(amb.stats?.commissions_total || 0).toLocaleString('fr-FR')}</p>
@@ -441,7 +538,7 @@ export const AdminAmbassadorsView = () => {
                       </div>
                       <div>
                         <p className="text-lg font-bold font-mono text-amber-400">{(amb.stats?.commissions_paid || 0).toLocaleString('fr-FR')}</p>
-                        <p className="text-[10px] text-gray-500">Paye</p>
+                        <p className="text-[10px] text-gray-500">Pay\u00e9</p>
                       </div>
                     </div>
                     <div className="relative flex-shrink-0">
@@ -474,7 +571,7 @@ export const AdminAmbassadorsView = () => {
                               onClick={() => updateAmbassadorMutation.mutate({ id: amb.id, status: 'inactive' })}
                               className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/5 transition-colors"
                             >
-                              Desactiver
+                              D\u00e9sactiver
                             </button>
                           )}
                         </div>
@@ -484,47 +581,69 @@ export const AdminAmbassadorsView = () => {
                 </motion.div>
               )
             })}
-          {ambassadors.length === 0 && (
-            <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-16 text-center">
-              <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-500">Aucun ambassadeur pour le moment</p>
-            </div>
-          )}
+            {filteredAmbassadors.length === 0 && (
+              <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-16 text-center">
+                <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500">Aucun ambassadeur trouv\u00e9</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Leads sub-tab */}
+      {/* ═══════════════════════════════════════ */}
+      {/* Leads sub-tab                           */}
+      {/* ═══════════════════════════════════════ */}
       {subTab === 'leads' && (
-        <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[900px]">
-              <thead>
-                <tr className="border-b border-white/5 bg-[#030303]">
-                  <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Ambassadeur</th>
-                  <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Prospect</th>
-                  <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Entreprise</th>
-                  <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Niche</th>
-                  <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Source</th>
-                  <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Statut</th>
-                  <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Date</th>
-                  <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-sm">
-                {leads
-                  .filter(l => {
-                    if (!searchQuery) return true
-                    const q = searchQuery.toLowerCase()
-                    return (
-                      l.prospect_name?.toLowerCase().includes(q) ||
-                      l.company_name?.toLowerCase().includes(q) ||
-                      l.ambassadors?.first_name?.toLowerCase().includes(q) ||
-                      l.ambassadors?.last_name?.toLowerCase().includes(q)
-                    )
-                  })
-                  .map((lead) => {
-                    const st = LEAD_STATUS_CONFIG[lead.status] || LEAD_STATUS_CONFIG.submitted
-                    const ambName = lead.ambassadors ? `${lead.ambassadors.first_name} ${lead.ambassadors.last_name}` : '—'
+        <div className="space-y-4">
+          {/* Filter bar */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+              <Filter className="w-3.5 h-3.5" /> Filtrer:
+            </div>
+            <select
+              value={leadStatusFilter}
+              onChange={(e) => setLeadStatusFilter(e.target.value)}
+              className="px-3 py-1.5 bg-[#0a0a0a] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
+            >
+              <option value="all">Tous les statuts</option>
+              {Object.entries(LEAD_STATUS_MAP).map(([key, cfg]) => (
+                <option key={key} value={key}>{cfg.label}</option>
+              ))}
+            </select>
+            <select
+              value={leadAmbassadorFilter}
+              onChange={(e) => setLeadAmbassadorFilter(e.target.value)}
+              className="px-3 py-1.5 bg-[#0a0a0a] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
+            >
+              <option value="all">Tous les ambassadeurs</option>
+              {ambassadorOptions.map(a => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </select>
+            <span className="text-[10px] text-gray-600">{filteredLeads.length} r\u00e9sultat{filteredLeads.length > 1 ? 's' : ''}</span>
+          </div>
+
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[900px]">
+                <thead>
+                  <tr className="border-b border-white/5 bg-[#030303]">
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Ambassadeur</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Prospect</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Entreprise</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Niche</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Source</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Statut</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Date</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Note</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-sm">
+                  {filteredLeads.map((lead) => {
+                    const st = LEAD_STATUS_MAP[lead.status] || LEAD_STATUS_MAP.submitted
+                    const ambName = lead.ambassadors ? `${lead.ambassadors.first_name} ${lead.ambassadors.last_name}` : '\u2014'
                     return (
                       <tr key={lead.id} className="hover:bg-white/[0.02] transition-colors">
                         <td className="px-5 py-3">
@@ -536,20 +655,20 @@ export const AdminAmbassadorsView = () => {
                           {lead.prospect_email && <p className="text-[10px] text-gray-500">{lead.prospect_email}</p>}
                         </td>
                         <td className="px-5 py-3 text-xs text-gray-300">{lead.company_name}</td>
-                        <td className="px-5 py-3 text-xs text-gray-500 capitalize">{lead.company_niche || '—'}</td>
+                        <td className="px-5 py-3 text-xs text-gray-500 capitalize">{lead.company_niche || '\u2014'}</td>
                         <td className="px-5 py-3 text-xs text-gray-500">{lead.source}</td>
                         <td className="px-5 py-3">
                           <div className="relative">
                             <button
                               onClick={() => setShowLeadStatusMenu(showLeadStatusMenu === lead.id ? null : lead.id)}
-                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${st.color} cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-1`}
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${st.color} ${st.border} cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-1`}
                             >
                               {st.label.toUpperCase()}
                               <ChevronDown className="w-3 h-3" />
                             </button>
                             {showLeadStatusMenu === lead.id && (
                               <div className="absolute left-0 top-7 bg-[#111] border border-white/10 rounded-xl shadow-xl z-20 py-1 min-w-[170px]">
-                                {Object.entries(LEAD_STATUS_CONFIG).map(([key, cfg]) => (
+                                {Object.entries(LEAD_STATUS_MAP).map(([key, cfg]) => (
                                   <button
                                     key={key}
                                     onClick={() => updateLeadMutation.mutate({ id: lead.id, status: key })}
@@ -564,6 +683,9 @@ export const AdminAmbassadorsView = () => {
                         </td>
                         <td className="px-5 py-3 text-xs text-gray-500">{new Date(lead.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</td>
                         <td className="px-5 py-3">
+                          <InlineNoteEditor leadId={lead.id} currentNote={lead.admin_note} onSave={saveLeadNote} />
+                        </td>
+                        <td className="px-5 py-3">
                           <div className="flex items-center gap-1">
                             {lead.status === 'won' && !commissions.find(c => c.lead_id === lead.id) && (
                               <button
@@ -574,35 +696,55 @@ export const AdminAmbassadorsView = () => {
                               </button>
                             )}
                             {commissions.find(c => c.lead_id === lead.id) && (
-                              <span className="text-[10px] font-bold text-emerald-400/60 px-2 py-1">Commission creee</span>
+                              <span className="text-[10px] font-bold text-emerald-400/60 px-2 py-1">Commission cr\u00e9\u00e9e</span>
                             )}
                           </div>
                         </td>
                       </tr>
                     )
                   })}
-                {leads.length === 0 && (
-                  <tr>
-                    <td colSpan={8} className="px-5 py-16 text-center text-gray-500 text-sm">Aucun lead ambassadeur</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  {filteredLeads.length === 0 && (
+                    <tr>
+                      <td colSpan={9} className="px-5 py-16 text-center text-gray-500 text-sm">Aucun lead trouv\u00e9</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Commissions sub-tab */}
+      {/* ═══════════════════════════════════════ */}
+      {/* Commissions sub-tab                     */}
+      {/* ═══════════════════════════════════════ */}
       {subTab === 'commissions' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            {/* Filter bar */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                <Filter className="w-3.5 h-3.5" /> Filtrer:
+              </div>
+              <select
+                value={commissionStatusFilter}
+                onChange={(e) => setCommissionStatusFilter(e.target.value)}
+                className="px-3 py-1.5 bg-[#0a0a0a] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
+              >
+                <option value="all">Tous les statuts</option>
+                {Object.entries(COMMISSION_STATUS_MAP).map(([key, cfg]) => (
+                  <option key={key} value={key}>{cfg.label}</option>
+                ))}
+              </select>
+              <span className="text-[10px] text-gray-600">{filteredCommissions.length} r\u00e9sultat{filteredCommissions.length > 1 ? 's' : ''}</span>
+            </div>
             <button
               onClick={() => processEligibilityMutation.mutate()}
               disabled={processEligibilityMutation.isPending}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold hover:bg-cyan-500/20 transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${processEligibilityMutation.isPending ? 'animate-spin' : ''}`} />
-              Traiter eligibilite 30j
+              Traiter \u00e9ligibilit\u00e9 J+30
             </button>
           </div>
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
@@ -614,88 +756,78 @@ export const AdminAmbassadorsView = () => {
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Prospect</th>
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Montant</th>
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Paiement client</th>
-                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Eligibilite</th>
+                    <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">J+30</th>
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Statut</th>
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 text-sm">
-                  {commissions
-                    .filter(c => {
-                      if (!searchQuery) return true
-                      const q = searchQuery.toLowerCase()
-                      return (
-                        c.ambassadors?.first_name?.toLowerCase().includes(q) ||
-                        c.ambassadors?.last_name?.toLowerCase().includes(q) ||
-                        c.ambassador_leads?.company_name?.toLowerCase().includes(q)
-                      )
-                    })
-                    .map((comm) => {
-                      const st = COMMISSION_STATUS_CONFIG[comm.status] || COMMISSION_STATUS_CONFIG.pending
-                      const ambName = comm.ambassadors ? `${comm.ambassadors.first_name} ${comm.ambassadors.last_name}` : '—'
-                      return (
-                        <tr key={comm.id} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="px-5 py-3 text-xs font-medium text-white">{ambName}</td>
-                          <td className="px-5 py-3">
-                            <p className="text-xs text-white">{comm.ambassador_leads?.prospect_name || '—'}</p>
-                            <p className="text-[10px] text-gray-600">{comm.ambassador_leads?.company_name || ''}</p>
-                          </td>
-                          <td className="px-5 py-3 text-sm font-bold font-mono text-white">{Number(comm.amount).toLocaleString('fr-FR')} {comm.currency}</td>
-                          <td className="px-5 py-3 text-xs text-gray-500">
-                            {comm.client_payment_date ? new Date(comm.client_payment_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-                          </td>
-                          <td className="px-5 py-3 text-xs text-gray-500">
-                            {comm.eligibility_date ? new Date(comm.eligibility_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-                          </td>
-                          <td className="px-5 py-3">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${st.color}`}>
-                              {st.label.toUpperCase()}
-                            </span>
-                          </td>
-                          <td className="px-5 py-3">
-                            <div className="relative">
-                              <button
-                                onClick={() => setActionMenuId(actionMenuId === comm.id ? null : comm.id)}
-                                className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-gray-500"
-                              >
-                                <MoreVertical className="w-4 h-4" />
-                              </button>
-                              {actionMenuId === comm.id && (
-                                <div className="absolute right-0 top-8 bg-[#111] border border-white/10 rounded-xl shadow-xl z-20 py-1 min-w-[160px]">
-                                  {(comm.status === 'eligible' || comm.status === 'pending') && (
-                                    <button
-                                      onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'approved' })}
-                                      className="w-full text-left px-4 py-2 text-xs text-blue-400 hover:bg-white/5 transition-colors"
-                                    >
-                                      Approuver
-                                    </button>
-                                  )}
-                                  {(comm.status === 'approved' || comm.status === 'eligible') && (
-                                    <button
-                                      onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'paid' })}
-                                      className="w-full text-left px-4 py-2 text-xs text-emerald-400 hover:bg-white/5 transition-colors"
-                                    >
-                                      Marquer paye
-                                    </button>
-                                  )}
-                                  {comm.status !== 'cancelled' && comm.status !== 'paid' && (
-                                    <button
-                                      onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'cancelled' })}
-                                      className="w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-white/5 transition-colors"
-                                    >
-                                      Annuler
-                                    </button>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  {commissions.length === 0 && (
+                  {filteredCommissions.map((comm) => {
+                    const st = COMMISSION_STATUS_MAP[comm.status] || COMMISSION_STATUS_MAP.pending
+                    const ambName = comm.ambassadors ? `${comm.ambassadors.first_name} ${comm.ambassadors.last_name}` : '\u2014'
+                    return (
+                      <tr key={comm.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="px-5 py-3 text-xs font-medium text-white">{ambName}</td>
+                        <td className="px-5 py-3">
+                          <p className="text-xs text-white">{comm.ambassador_leads?.prospect_name || '\u2014'}</p>
+                          <p className="text-[10px] text-gray-600">{comm.ambassador_leads?.company_name || ''}</p>
+                        </td>
+                        <td className="px-5 py-3 text-sm font-bold font-mono text-white">{Number(comm.amount).toLocaleString('fr-FR')} {comm.currency}</td>
+                        <td className="px-5 py-3 text-xs text-gray-500">
+                          {comm.client_payment_date ? new Date(comm.client_payment_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '\u2014'}
+                        </td>
+                        <td className="px-5 py-3">
+                          <J30Badge eligibilityDate={comm.eligibility_date} />
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${st.color} ${st.border}`}>
+                            {st.label.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3">
+                          <div className="relative">
+                            <button
+                              onClick={() => setActionMenuId(actionMenuId === comm.id ? null : comm.id)}
+                              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-gray-500"
+                            >
+                              <MoreVertical className="w-4 h-4" />
+                            </button>
+                            {actionMenuId === comm.id && (
+                              <div className="absolute right-0 top-8 bg-[#111] border border-white/10 rounded-xl shadow-xl z-20 py-1 min-w-[160px]">
+                                {(comm.status === 'eligible' || comm.status === 'pending') && (
+                                  <button
+                                    onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'approved' })}
+                                    className="w-full text-left px-4 py-2 text-xs text-blue-400 hover:bg-white/5 transition-colors"
+                                  >
+                                    Approuver
+                                  </button>
+                                )}
+                                {(comm.status === 'approved' || comm.status === 'eligible') && (
+                                  <button
+                                    onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'paid' })}
+                                    className="w-full text-left px-4 py-2 text-xs text-emerald-400 hover:bg-white/5 transition-colors"
+                                  >
+                                    Marquer pay\u00e9
+                                  </button>
+                                )}
+                                {comm.status !== 'cancelled' && comm.status !== 'paid' && (
+                                  <button
+                                    onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'cancelled' })}
+                                    className="w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-white/5 transition-colors"
+                                  >
+                                    Annuler
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {filteredCommissions.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-5 py-16 text-center text-gray-500 text-sm">Aucune commission</td>
+                      <td colSpan={7} className="px-5 py-16 text-center text-gray-500 text-sm">Aucune commission trouv\u00e9e</td>
                     </tr>
                   )}
                 </tbody>
@@ -723,7 +855,7 @@ export const AdminAmbassadorsView = () => {
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-white">Creer une commission</h3>
+                <h3 className="text-lg font-bold text-white">Cr\u00e9er une commission</h3>
                 <button onClick={() => setShowCommissionModal(null)} className="text-gray-500 hover:text-white transition-colors">
                   <X className="w-5 h-5" />
                 </button>
@@ -731,7 +863,7 @@ export const AdminAmbassadorsView = () => {
               <div className="space-y-4">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Lead</p>
-                  <p className="text-sm text-white font-medium">{showCommissionModal.prospect_name} — {showCommissionModal.company_name}</p>
+                  <p className="text-sm text-white font-medium">{showCommissionModal.prospect_name} \u2014 {showCommissionModal.company_name}</p>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Montant (EUR)</label>
@@ -766,7 +898,7 @@ export const AdminAmbassadorsView = () => {
                   disabled={createCommissionMutation.isPending}
                   className="w-full py-2.5 rounded-xl bg-white text-black font-bold text-sm hover:bg-gray-200 transition-colors disabled:opacity-50"
                 >
-                  {createCommissionMutation.isPending ? 'Creation...' : 'Creer la commission'}
+                  {createCommissionMutation.isPending ? 'Cr\u00e9ation...' : 'Cr\u00e9er la commission'}
                 </button>
               </div>
             </motion.div>

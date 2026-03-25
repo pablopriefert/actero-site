@@ -6,15 +6,21 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function checkAdmin(req) {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return false;
+  if (!token) return null;
   const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return false;
-  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  if (error || !user) return null;
+  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  return isAdmin ? user : null;
 }
 
+const VALID_STATUSES = ['submitted', 'contacted', 'qualified', 'audit_booked', 'audit_done', 'closing_in_progress', 'won', 'lost'];
+
 export default async function handler(req, res) {
-  const isAdmin = await checkAdmin(req);
-  if (!isAdmin) return res.status(403).json({ error: 'Acces refuse' });
+  res.setHeader('X-RateLimit-Limit', '60');
+  res.setHeader('X-RateLimit-Window', '60');
+
+  const adminUser = await checkAdmin(req);
+  if (!adminUser) return res.status(403).json({ error: 'Acc\u00e8s refus\u00e9.' });
 
   if (req.method === 'GET') {
     try {
@@ -25,20 +31,24 @@ export default async function handler(req, res) {
 
       if (error) {
         console.error('Admin fetch leads error:', error);
-        return res.status(500).json({ error: 'Erreur serveur' });
+        return res.status(500).json({ error: 'Erreur serveur.' });
       }
 
       return res.status(200).json({ leads });
     } catch (err) {
       console.error('Admin leads error:', err);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      return res.status(500).json({ error: 'Erreur serveur.' });
     }
   }
 
   if (req.method === 'PATCH') {
-    const { id, status, status_note, admin_note, client_id } = req.body;
+    const { id, status, status_note, admin_note, client_id } = req.body || {};
 
-    if (!id) return res.status(400).json({ error: 'id requis' });
+    if (!id) return res.status(400).json({ error: 'id requis.' });
+
+    if (status && !VALID_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `Statut invalide. Valeurs accept\u00e9es: ${VALID_STATUSES.join(', ')}` });
+    }
 
     const updates = {};
     if (status) updates.status = status;
@@ -56,13 +66,34 @@ export default async function handler(req, res) {
 
       if (error) {
         console.error('Update lead error:', error);
-        return res.status(500).json({ error: 'Erreur mise a jour' });
+        return res.status(500).json({ error: 'Erreur mise \u00e0 jour.' });
+      }
+
+      // Log event for status change
+      if (status) {
+        const eventType = status === 'closing_in_progress' ? 'closing' : status;
+        await supabase.from('ambassador_lead_events').insert({
+          lead_id: id,
+          event_type: eventType,
+          note: status_note || `Statut chang\u00e9 en "${status}" par admin`,
+          created_by: `admin:${adminUser.email}`,
+        }).catch(e => console.error('Event log error:', e));
+      }
+
+      // Log event for note added
+      if (admin_note && !status) {
+        await supabase.from('ambassador_lead_events').insert({
+          lead_id: id,
+          event_type: 'note_added',
+          note: admin_note,
+          created_by: `admin:${adminUser.email}`,
+        }).catch(e => console.error('Event log error:', e));
       }
 
       return res.status(200).json({ success: true, lead: data });
     } catch (err) {
       console.error('Patch lead error:', err);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      return res.status(500).json({ error: 'Erreur serveur.' });
     }
   }
 

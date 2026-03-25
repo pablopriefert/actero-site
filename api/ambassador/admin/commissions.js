@@ -6,15 +6,21 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function checkAdmin(req) {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return false;
+  if (!token) return null;
   const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return false;
-  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  if (error || !user) return null;
+  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  return isAdmin ? user : null;
 }
 
+const VALID_STATUSES = ['pending', 'waiting_30_days', 'eligible', 'approved', 'paid', 'cancelled'];
+
 export default async function handler(req, res) {
-  const isAdmin = await checkAdmin(req);
-  if (!isAdmin) return res.status(403).json({ error: 'Acces refuse' });
+  res.setHeader('X-RateLimit-Limit', '60');
+  res.setHeader('X-RateLimit-Window', '60');
+
+  const adminUser = await checkAdmin(req);
+  if (!adminUser) return res.status(403).json({ error: 'Acc\u00e8s refus\u00e9.' });
 
   if (req.method === 'GET') {
     try {
@@ -25,21 +31,36 @@ export default async function handler(req, res) {
 
       if (error) {
         console.error('Admin fetch commissions error:', error);
-        return res.status(500).json({ error: 'Erreur serveur' });
+        return res.status(500).json({ error: 'Erreur serveur.' });
       }
 
       return res.status(200).json({ commissions });
     } catch (err) {
       console.error('Admin commissions error:', err);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      return res.status(500).json({ error: 'Erreur serveur.' });
     }
   }
 
   if (req.method === 'POST') {
-    const { ambassador_id, lead_id, client_id, amount, client_payment_date } = req.body;
+    const { ambassador_id, lead_id, client_id, amount, client_payment_date } = req.body || {};
 
-    if (!ambassador_id || !lead_id || !amount) {
-      return res.status(400).json({ error: 'ambassador_id, lead_id et amount sont requis' });
+    if (!ambassador_id || !lead_id) {
+      return res.status(400).json({ error: 'ambassador_id et lead_id sont requis.' });
+    }
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      return res.status(400).json({ error: 'Un montant valide (> 0) est requis.' });
+    }
+
+    // Check for duplicate commission for same lead
+    const { data: existingCommission } = await supabase
+      .from('ambassador_commissions')
+      .select('id')
+      .eq('lead_id', lead_id)
+      .neq('status', 'cancelled')
+      .maybeSingle();
+
+    if (existingCommission) {
+      return res.status(409).json({ error: 'Une commission existe d\u00e9j\u00e0 pour ce lead.' });
     }
 
     // Calculate eligibility date (payment date + 30 days)
@@ -57,7 +78,7 @@ export default async function handler(req, res) {
           ambassador_id,
           lead_id,
           client_id: client_id || null,
-          amount,
+          amount: Number(amount),
           currency: 'EUR',
           client_payment_date: client_payment_date || null,
           eligibility_date,
@@ -68,20 +89,41 @@ export default async function handler(req, res) {
 
       if (error) {
         console.error('Create commission error:', error);
-        return res.status(500).json({ error: 'Erreur creation commission' });
+        return res.status(500).json({ error: 'Erreur cr\u00e9ation commission.' });
+      }
+
+      // Log commission event
+      await supabase.from('ambassador_commission_events').insert({
+        commission_id: data.id,
+        event_type: 'created',
+        note: `Commission de ${Number(amount).toLocaleString('fr-FR')} EUR cr\u00e9\u00e9e`,
+        created_by: `admin:${adminUser.email}`,
+      }).catch(e => console.error('Event log error:', e));
+
+      if (client_payment_date) {
+        await supabase.from('ambassador_commission_events').insert({
+          commission_id: data.id,
+          event_type: 'j30_started',
+          note: `D\u00e9lai J+30 d\u00e9marr\u00e9 (paiement client: ${new Date(client_payment_date).toLocaleDateString('fr-FR')})`,
+          created_by: `admin:${adminUser.email}`,
+        }).catch(e => console.error('Event log error:', e));
       }
 
       return res.status(200).json({ success: true, commission: data });
     } catch (err) {
       console.error('Post commission error:', err);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      return res.status(500).json({ error: 'Erreur serveur.' });
     }
   }
 
   if (req.method === 'PATCH') {
-    const { id, status, admin_note, client_payment_date } = req.body;
+    const { id, status, admin_note, client_payment_date } = req.body || {};
 
-    if (!id) return res.status(400).json({ error: 'id requis' });
+    if (!id) return res.status(400).json({ error: 'id requis.' });
+
+    if (status && !VALID_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `Statut invalide. Valeurs accept\u00e9es: ${VALID_STATUSES.join(', ')}` });
+    }
 
     const updates = {};
     if (status) updates.status = status;
@@ -109,13 +151,31 @@ export default async function handler(req, res) {
 
       if (error) {
         console.error('Update commission error:', error);
-        return res.status(500).json({ error: 'Erreur mise a jour' });
+        return res.status(500).json({ error: 'Erreur mise \u00e0 jour.' });
+      }
+
+      // Log commission event for status change
+      if (status) {
+        const eventMap = {
+          waiting_30_days: 'j30_started',
+          eligible: 'eligible',
+          approved: 'approved',
+          paid: 'paid',
+          cancelled: 'cancelled',
+        };
+        const eventType = eventMap[status] || 'note_added';
+        await supabase.from('ambassador_commission_events').insert({
+          commission_id: id,
+          event_type: eventType,
+          note: admin_note || `Statut chang\u00e9 en "${status}" par admin`,
+          created_by: `admin:${adminUser.email}`,
+        }).catch(e => console.error('Event log error:', e));
       }
 
       return res.status(200).json({ success: true, commission: data });
     } catch (err) {
       console.error('Patch commission error:', err);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      return res.status(500).json({ error: 'Erreur serveur.' });
     }
   }
 

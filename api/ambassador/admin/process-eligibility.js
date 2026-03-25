@@ -6,10 +6,11 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function checkAdmin(req) {
   const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return false;
+  if (!token) return null;
   const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return false;
-  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  if (error || !user) return null;
+  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  return isAdmin ? user : null;
 }
 
 export default async function handler(req, res) {
@@ -17,8 +18,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const isAdmin = await checkAdmin(req);
-  if (!isAdmin) return res.status(403).json({ error: 'Acces refuse' });
+  const adminUser = await checkAdmin(req);
+  if (!adminUser) return res.status(403).json({ error: 'Acc\u00e8s refus\u00e9.' });
 
   try {
     const now = new Date().toISOString();
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
 
     if (fetchError) {
       console.error('Fetch eligible error:', fetchError);
-      return res.status(500).json({ error: 'Erreur serveur' });
+      return res.status(500).json({ error: 'Erreur serveur.' });
     }
 
     if (!eligible || eligible.length === 0) {
@@ -48,12 +49,21 @@ export default async function handler(req, res) {
 
     if (updateError) {
       console.error('Update eligible error:', updateError);
-      return res.status(500).json({ error: 'Erreur mise a jour' });
+      return res.status(500).json({ error: 'Erreur mise \u00e0 jour.' });
     }
+
+    // Log events for each commission
+    const events = ids.map(id => ({
+      commission_id: id,
+      event_type: 'eligible',
+      note: 'D\u00e9lai J+30 atteint \u2014 commission \u00e9ligible',
+      created_by: `system:process-eligibility`,
+    }));
+    await supabase.from('ambassador_commission_events').insert(events).catch(e => console.error('Event log error:', e));
 
     return res.status(200).json({ success: true, processed: ids.length });
   } catch (err) {
     console.error('Process eligibility error:', err);
-    return res.status(500).json({ error: 'Erreur serveur' });
+    return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
