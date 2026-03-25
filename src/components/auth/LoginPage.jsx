@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Mail, Lock } from 'lucide-react'
 import { Logo } from '../layout/Logo'
-import { ButtonColorful } from '../ui/button-colorful'
 import { supabase } from '../../lib/supabase'
 
 export const LoginPage = ({ onNavigate }) => {
@@ -31,7 +32,6 @@ export const LoginPage = ({ onNavigate }) => {
         });
         if (error) throw error;
 
-        // Check role to redirect to correct dashboard
         const userId = signInData?.user?.id;
         if (userId) {
           const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
@@ -75,214 +75,198 @@ export const LoginPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] flex font-sans">
-      {/* ─── Left: Form ─── */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 md:px-20 lg:px-16 xl:px-24 py-12">
-        <div className="max-w-[420px] w-full mx-auto">
-          {/* Logo + Brand */}
-          <div className="flex items-center gap-3 mb-14">
-            <button
-              onClick={() => onNavigate("/")}
-              aria-label="Retour à l'accueil"
-              className="w-10 h-10 rounded-full bg-[#18181b] flex items-center justify-center border border-white/5 hover:scale-105 transition-transform"
-            >
-              <Logo light={true} className="w-5 h-5 text-white" />
-            </button>
-            <span className="text-white text-lg font-semibold tracking-tight">Actero</span>
+    <div className="min-h-screen bg-[#030303] flex items-center justify-center font-sans relative overflow-hidden">
+      {/* Circuit board background */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="circuit" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+              <path d="M0 100h80m40 0h80M100 0v80m0 40v80" stroke="white" strokeWidth="1" fill="none" />
+              <rect x="80" y="80" width="40" height="40" rx="4" stroke="white" strokeWidth="1" fill="none" />
+              <circle cx="80" cy="100" r="3" fill="white" />
+              <circle cx="120" cy="100" r="3" fill="white" />
+              <circle cx="100" cy="80" r="3" fill="white" />
+              <circle cx="100" cy="120" r="3" fill="white" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#circuit)" />
+        </svg>
+      </div>
+
+      {/* Corner nodes */}
+      <div className="absolute top-12 left-12 w-20 h-10 rounded-lg border border-white/10 bg-white/[0.02] hidden lg:flex items-center justify-center">
+        <div className="flex gap-1.5">
+          {[...Array(6)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />)}
+        </div>
+      </div>
+      <div className="absolute top-12 right-12 w-20 h-10 rounded-lg border border-white/10 bg-white/[0.02] hidden lg:flex items-center justify-center">
+        <div className="flex gap-1.5">
+          {[...Array(6)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />)}
+        </div>
+      </div>
+      <div className="absolute bottom-12 left-12 w-20 h-10 rounded-lg border border-white/10 bg-white/[0.02] hidden lg:flex items-center justify-center">
+        <div className="flex gap-1.5">
+          {[...Array(6)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />)}
+        </div>
+      </div>
+      <div className="absolute bottom-12 right-12 w-20 h-10 rounded-lg border border-white/10 bg-white/[0.02] hidden lg:flex items-center justify-center">
+        <div className="flex gap-1.5">
+          {[...Array(6)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />)}
+        </div>
+      </div>
+
+      {/* Lines connecting corners */}
+      <div className="absolute top-[3.25rem] left-32 right-32 h-px bg-gradient-to-r from-white/5 via-white/10 to-white/5 hidden lg:block" />
+      <div className="absolute bottom-[3.25rem] left-32 right-32 h-px bg-gradient-to-r from-white/5 via-white/10 to-white/5 hidden lg:block" />
+      <div className="absolute left-[5.5rem] top-24 bottom-24 w-px bg-gradient-to-b from-white/5 via-white/10 to-white/5 hidden lg:block" />
+      <div className="absolute right-[5.5rem] top-24 bottom-24 w-px bg-gradient-to-b from-white/5 via-white/10 to-white/5 hidden lg:block" />
+
+      {/* Login card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 w-full max-w-[420px] mx-4"
+      >
+        <div className="bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 shadow-2xl shadow-black/50">
+          {/* Logo */}
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-14 h-14 rounded-2xl bg-[#111] border border-white/10 flex items-center justify-center mb-5">
+              <Logo light={true} className="w-7 h-7 text-white" />
+            </div>
+            <h1 className="text-white text-2xl font-bold tracking-tight">
+              {isForgot ? "Réinitialiser" : "Welcome Back"}
+            </h1>
+            <p className="text-zinc-500 text-sm mt-1.5">
+              {isForgot ? "Entrez votre email pour recevoir un lien." : (
+                <>
+                  Pas encore de compte ?{" "}
+                  <button
+                    onClick={() => onNavigate("/audit")}
+                    className="text-white font-semibold hover:text-zinc-300 transition-colors"
+                  >
+                    Sing up
+                  </button>
+                </>
+              )}
+            </p>
           </div>
 
-          {/* Heading */}
-          <h1 className="text-white text-3xl sm:text-4xl font-bold tracking-tight mb-3">
-            Bon retour parmi nous
-          </h1>
-          <p className="text-zinc-500 text-sm mb-10">
-            Vous n'avez pas de compte ?{" "}
-            <button
-              onClick={() => onNavigate("/audit")}
-              className="text-white hover:text-zinc-300 underline underline-offset-4 decoration-zinc-700 hover:decoration-zinc-500 transition-colors font-medium"
-            >
-              Contactez-nous
-            </button>
-          </p>
+          {/* Alerts */}
+          {error && (
+            <div className="p-3 mb-4 bg-red-500/10 text-red-400 text-xs font-medium rounded-xl border border-red-500/20 text-center">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="p-3 mb-4 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-xl border border-emerald-500/20 text-center">
+              {success}
+            </div>
+          )}
 
-          <form className="space-y-5 flex flex-col" onSubmit={handleSubmit}>
-            {/* Alerts */}
-            {error && (
-              <div role="alert" className="p-3 bg-red-500/10 text-red-400 text-xs font-medium rounded-xl border border-red-500/20 text-center">
-                {error}
-              </div>
-            )}
-            {success && (
-              <div role="status" className="p-3 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-xl border border-emerald-500/20 text-center">
-                {success}
-              </div>
-            )}
-
-            {/* OAuth Buttons */}
-            {!isForgot && (
-              <>
-                <button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  disabled={loading}
-                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-[14px] text-sm font-semibold text-white bg-[#18181b] border border-white/10 hover:bg-[#27272a] hover:border-white/15 transition-all disabled:opacity-50 h-[48px]"
-                >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                  </svg>
-                  Continuer avec Google
-                </button>
-
-                {/* Separator */}
-                <div className="flex items-center gap-4 my-1">
-                  <div className="flex-1 h-px bg-white/10" />
-                  <span className="text-xs text-zinc-600 font-medium uppercase tracking-wider">ou</span>
-                  <div className="flex-1 h-px bg-white/10" />
-                </div>
-              </>
-            )}
-
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-xs font-medium text-zinc-400 mb-2">
-                Adresse e-mail
-              </label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
               <input
-                id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 bg-[#18181b] border border-white/10 rounded-[14px] focus:ring-1 focus:ring-zinc-500 focus:border-zinc-500 outline-none transition-all text-sm text-white placeholder:text-zinc-600 font-medium disabled:opacity-50"
-                placeholder="nom@entreprise.com"
+                className="w-full pl-11 pr-4 py-3.5 bg-[#111] border border-white/[0.08] rounded-xl text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/20 transition-all"
+                placeholder="email address"
               />
             </div>
 
             {/* Password */}
             {!isForgot && (
-              <div>
-                <label htmlFor="password" className="block text-xs font-medium text-zinc-400 mb-2">
-                  Mot de passe
-                </label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                 <input
-                  id="password"
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-[#18181b] border border-white/10 rounded-[14px] focus:ring-1 focus:ring-zinc-500 focus:border-zinc-500 outline-none transition-all text-sm text-white placeholder:text-zinc-600 font-medium disabled:opacity-50"
-                  placeholder="••••••••"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#111] border border-white/[0.08] rounded-xl text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/20 transition-all"
+                  placeholder="Password"
                 />
-                <p className="text-[11px] text-zinc-600 mt-2">Minimum 8 caractères</p>
               </div>
             )}
 
             {/* Submit */}
-            {isForgot ? (
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 mt-2 rounded-[14px] text-sm font-semibold text-zinc-300 bg-[#27272a] hover:bg-[#3f3f46] hover:text-white transition-colors disabled:opacity-50 h-[48px] flex items-center justify-center"
-              >
-                {loading ? (
-                  <svg className="animate-spin h-5 w-5 text-zinc-400" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                ) : (
-                  "Envoyer le lien"
-                )}
-              </button>
-            ) : (
-              <ButtonColorful
-                type="submit"
-                disabled={loading}
-                className="w-full mt-2 disabled:opacity-50"
-              >
-                {loading ? (
-                  <svg className="animate-spin h-5 w-5 text-zinc-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                ) : (
-                  "Se connecter"
-                )}
-              </ButtonColorful>
-            )}
-
-            {/* Forgot password link */}
-            <div className="flex items-center justify-center mt-4 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsForgot(!isForgot);
-                  setError("");
-                  setSuccess("");
-                }}
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium underline underline-offset-4 decoration-zinc-800 hover:decoration-zinc-600"
-              >
-                {isForgot ? "Retour à la connexion" : "Mot de passe oublié ?"}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 rounded-xl text-sm font-bold text-white bg-[#3b82f6] hover:bg-[#2563eb] disabled:opacity-50 transition-all"
+            >
+              {loading ? (
+                <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              ) : (
+                isForgot ? "Envoyer le lien" : "Login"
+              )}
+            </button>
           </form>
-        </div>
-      </div>
 
-      {/* ─── Right: Cyan Aurora ─── */}
-      <div className="hidden lg:block w-1/2 relative overflow-hidden bg-[#030303]">
-        {/* Aurora band 1 */}
-        <div
-          className="absolute top-[15%] left-[-10%] w-[120%] h-[35%] pointer-events-none opacity-50"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.1) 25%, rgba(6,182,212,0.16) 50%, rgba(6,182,212,0.1) 75%, transparent 100%)',
-            borderRadius: '50%',
-            filter: 'blur(60px)',
-            transform: 'rotate(-3deg)',
-            animation: 'aurora-login-1 12s ease-in-out infinite alternate',
-          }}
-        />
-        {/* Aurora band 2 */}
-        <div
-          className="absolute top-[30%] left-[-5%] w-[110%] h-[20%] pointer-events-none opacity-40"
-          style={{
-            background: 'linear-gradient(90deg, transparent 5%, rgba(6,182,212,0.12) 30%, rgba(6,182,212,0.18) 50%, rgba(6,182,212,0.1) 70%, transparent 95%)',
-            borderRadius: '50%',
-            filter: 'blur(50px)',
-            transform: 'rotate(2deg)',
-            animation: 'aurora-login-2 15s ease-in-out infinite alternate',
-          }}
-        />
-        {/* Aurora band 3 */}
-        <div
-          className="absolute top-[50%] left-[5%] w-[90%] h-[15%] pointer-events-none opacity-30"
-          style={{
-            background: 'linear-gradient(90deg, transparent 10%, rgba(6,182,212,0.14) 35%, rgba(6,182,212,0.1) 65%, transparent 100%)',
-            borderRadius: '50%',
-            filter: 'blur(45px)',
-            transform: 'rotate(-1deg)',
-            animation: 'aurora-login-3 18s ease-in-out infinite alternate',
-          }}
-        />
-        {/* Left edge fade */}
-        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[#030303] to-transparent" />
-        <style>{`
-          @keyframes aurora-login-1 {
-            0%   { transform: rotate(-3deg) translateX(-3%) translateY(0); }
-            100% { transform: rotate(-1deg) translateX(3%) translateY(-8px); }
-          }
-          @keyframes aurora-login-2 {
-            0%   { transform: rotate(2deg) translateX(2%) translateY(0); }
-            100% { transform: rotate(0deg) translateX(-2%) translateY(10px); }
-          }
-          @keyframes aurora-login-3 {
-            0%   { transform: rotate(-1deg) translateX(0) translateY(0); }
-            100% { transform: rotate(1deg) translateX(4%) translateY(-5px); }
-          }
-        `}</style>
-      </div>
+          {/* Forgot password */}
+          <div className="text-center mt-4">
+            <button
+              onClick={() => { setIsForgot(!isForgot); setError(""); setSuccess(""); }}
+              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium"
+            >
+              {isForgot ? "Retour à la connexion" : "Mot de passe oublié ?"}
+            </button>
+          </div>
+
+          {/* OAuth separator */}
+          {!isForgot && (
+            <>
+              <div className="flex items-center gap-4 my-6">
+                <div className="flex-1 h-px bg-white/[0.06]" />
+                <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-widest">or</span>
+                <div className="flex-1 h-px bg-white/[0.06]" />
+              </div>
+
+              {/* OAuth buttons */}
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#111] border border-white/[0.08] hover:bg-[#1a1a1a] hover:border-white/15 transition-all"
+                  disabled
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={loading}
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#111] border border-white/[0.08] hover:bg-[#1a1a1a] hover:border-white/15 transition-all disabled:opacity-50"
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#111] border border-white/[0.08] hover:bg-[#1a1a1a] hover:border-white/15 transition-all"
+                  disabled
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 };
