@@ -25,6 +25,7 @@ import {
   Send,
   Target,
   Award,
+  CheckCircle,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -863,23 +864,23 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
               {[
                 {
                   title: 'Attribution',
-                  content: 'Les leads sont attribués via votre lien ou code unique, ou par recommandation manuelle validée par Actero. Chaque lead est vérifié avant attribution définitive.',
+                  content: "Les leads sont attribués via votre lien ou code unique, ou par recommandation manuelle validée par Actero. Chaque lead est vérifié avant attribution définitive.",
                 },
                 {
-                  title: 'Quand la récompense est due',
-                  content: 'La récompense est due uniquement si le prospect recommandé devient client ET effectue un paiement. La simple recommandation ne suffit pas.',
+                  title: "Quand la récompense est due",
+                  content: "La récompense est due uniquement si le prospect recommandé devient client ET effectue un paiement. La simple recommandation ne suffit pas.",
                 },
                 {
-                  title: 'Délai de paiement (J+30)',
-                  content: 'La récompense est versée 30 jours après l\'encaissement effectif du paiement client. Ce délai permet de couvrir les éventuelles périodes de rétractation.',
+                  title: "Délai de paiement (J+30)",
+                  content: "La récompense est versée 30 jours après l\u2019encaissement effectif du paiement client. Ce délai permet de couvrir les éventuelles périodes de rétractation.",
                 },
                 {
-                  title: 'Cas où aucune récompense n\'est due',
-                  content: 'Aucune commission n\'est versée si : le client ne paie pas, le client est remboursé intégralement, le lead n\'est pas validé par Actero, ou le lead a déjà été soumis par un autre ambassadeur.',
+                  title: "Cas où aucune récompense n\u2019est due",
+                  content: "Aucune commission n\u2019est versée si : le client ne paie pas, le client est remboursé intégralement, le lead n\u2019est pas validé par Actero, ou le lead a déjà été soumis par un autre ambassadeur.",
                 },
                 {
-                  title: 'Règle du premier arrivé',
-                  content: 'Un lead ne peut être attribué qu\'à un seul ambassadeur. En cas de doublon, c\'est le premier ambassadeur ayant soumis le lead qui est retenu (premier arrivé, premier servi).',
+                  title: "Règle du premier arrivé",
+                  content: "Un lead ne peut être attribué qu\u2019à un seul ambassadeur. En cas de doublon, c\u2019est le premier ambassadeur ayant soumis le lead qui est retenu (premier arrivé, premier servi).",
                 },
               ].map((rule, i) => (
                 <div key={i} className="p-6 rounded-2xl bg-[#111] border border-white/10">
@@ -887,6 +888,25 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
                   <p className="text-gray-400 font-medium leading-relaxed">{rule.content}</p>
                 </div>
               ))}
+
+              {/* Engagements que vous avez acceptés */}
+              <div className="p-6 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+                <h3 className="text-lg font-bold text-emerald-400 mb-4">Engagements acceptés lors de votre inscription</h3>
+                <div className="space-y-3">
+                  {[
+                    "Mon rôle est uniquement de recommander Actero, pas de vendre ni de closer.",
+                    "Je ne peux faire aucune promesse au nom d\u2019Actero, ni annoncer des prix ou des résultats non validés.",
+                    "Une récompense est versée uniquement si le client signe, paie effectivement, et 30 jours après l\u2019encaissement.",
+                    "Un lead peut être refusé s\u2019il est non qualifié, abusif, ou déjà connu d\u2019Actero.",
+                    "Tout abus, spam ou comportement nuisible peut entraîner la désactivation de mon compte.",
+                  ].map((rule, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <CheckCircle className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-zinc-300 leading-relaxed">{rule}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )

@@ -45,6 +45,15 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
   const [formLoading, setFormLoading] = useState(false)
   const [formSuccess, setFormSuccess] = useState(false)
   const [formError, setFormError] = useState('')
+  const [rules, setRules] = useState({
+    role: false,
+    promises: false,
+    payment: false,
+    refusal: false,
+    abuse: false,
+    accept: false,
+  })
+  const allRulesAccepted = Object.values(rules).every(Boolean)
 
   const scrollToId = (id) => {
     const el = document.getElementById(id)
@@ -565,6 +574,29 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
                     />
                   </div>
 
+                  {/* Validation des règles */}
+                  <div className="space-y-3 p-4 bg-white/[0.02] border border-white/5 rounded-xl">
+                    <p className="text-sm font-bold text-white mb-3">Validation des règles du programme</p>
+                    {[
+                      { key: 'role', text: "Je comprends que mon rôle est uniquement de recommander Actero, pas de vendre ni de closer." },
+                      { key: 'promises', text: "Je comprends que je ne peux faire aucune promesse au nom d\u2019Actero, ni annoncer des prix ou des résultats non validés." },
+                      { key: 'payment', text: "Je comprends qu\u2019une récompense est versée uniquement si le client signe, paie effectivement, et 30 jours après l\u2019encaissement." },
+                      { key: 'refusal', text: "Je comprends qu\u2019un lead peut être refusé s\u2019il est non qualifié, abusif, ou déjà connu d\u2019Actero." },
+                      { key: 'abuse', text: "Je comprends que tout abus, spam ou comportement nuisible peut entraîner la désactivation de mon compte." },
+                      { key: 'accept', text: "J\u2019accepte les règles du programme ambassadeur Actero." },
+                    ].map(({ key, text }) => (
+                      <label key={key} className="flex items-start gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={rules[key]}
+                          onChange={() => setRules(prev => ({ ...prev, [key]: !prev[key] }))}
+                          className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500/30 accent-emerald-500 flex-shrink-0"
+                        />
+                        <span className={`text-xs leading-relaxed transition-colors ${rules[key] ? 'text-zinc-300' : 'text-zinc-500 group-hover:text-zinc-400'}`}>{text}</span>
+                      </label>
+                    ))}
+                  </div>
+
                   {formError && (
                     <div className="p-3 bg-red-500/10 text-red-400 text-sm font-medium rounded-xl border border-red-500/20 text-center">
                       {formError}
@@ -573,8 +605,8 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
 
                   <button
                     type="submit"
-                    disabled={formLoading}
-                    className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold rounded-xl text-lg transition-all flex items-center justify-center gap-3"
+                    disabled={formLoading || !allRulesAccepted}
+                    className={`w-full py-4 font-bold rounded-xl text-lg transition-all flex items-center justify-center gap-3 ${allRulesAccepted ? 'bg-emerald-500 hover:bg-emerald-400 text-black' : 'bg-white/5 text-zinc-600 cursor-not-allowed'}`}
                   >
                     {formLoading ? (
                       <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />

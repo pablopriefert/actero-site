@@ -22,6 +22,7 @@ import { ReferralLanding } from "./pages/ReferralLanding";
 import { AmbassadorLandingPage } from "./pages/AmbassadorLandingPage";
 import { AmbassadorLogin } from "./pages/AmbassadorLogin";
 import { AmbassadorDashboard } from "./pages/AmbassadorDashboard";
+import AmbassadorSetupPassword from "./pages/AmbassadorSetupPassword";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
 
@@ -95,6 +96,7 @@ function MainRouter() {
   else if (currentRoute === "/cancel") page = <CancelPage onNavigate={navigate} />;
   else if (currentRoute === "/ambassadeurs") page = <AmbassadorLandingPage onNavigate={navigate} />;
   else if (currentRoute === "/ambassador/login") page = <AmbassadorLogin onNavigate={navigate} />;
+  else if (currentRoute === "/ambassador/setup-password") page = <AmbassadorSetupPassword />;
   else if (currentRoute.startsWith("/ambassador")) {
     page = <AmbassadorDashboard currentRoute={currentRoute} onNavigate={navigate} />;
   }
