@@ -106,10 +106,10 @@ export const AuditPage = ({ onNavigate }) => {
                     </span>
                   </div>
                   <h3 className="text-lg font-bold text-white">
-                    Vous avez été parrainé ! Vos frais de setup sont <span className="text-emerald-400">offerts</span>
+                    Vous avez été recommandé par un partenaire Actero
                   </h3>
                   <p className="text-sm text-gray-400 mt-1">
-                    Un ambassadeur Actero vous a recommandé. Réservez votre audit gratuit de 15 minutes pour en profiter.
+                    Réservez votre audit stratégie gratuit de 15 minutes et découvrez comment automatiser votre business.
                   </p>
                 </div>
               </div>
