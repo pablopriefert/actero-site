@@ -30,8 +30,8 @@ export const AuditPage = ({ onNavigate }) => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     const params = new URLSearchParams(window.location.search);
 
-    // Check for client referral code
-    const code = params.get('referral_code') || document.cookie.split('; ').find(c => c.startsWith('actero_referral_code='))?.split('=')[1];
+    // Check for client referral code — only from URL param
+    const code = params.get('referral_code');
     if (code) {
       setReferralCode(code);
       fetch('/api/referral/track-click', {
@@ -44,8 +44,8 @@ export const AuditPage = ({ onNavigate }) => {
         .catch(() => {});
     }
 
-    // Check for ambassador ref code
-    const ref = params.get('ref') || document.cookie.split('; ').find(c => c.startsWith('actero_ambassador_ref='))?.split('=')[1];
+    // Check for ambassador ref code — only from URL param, not cookie
+    const ref = params.get('ref');
     if (ref) {
       setAmbassadorRef(ref);
       // Save cookie for 90 days
