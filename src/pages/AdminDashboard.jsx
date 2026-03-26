@@ -228,8 +228,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { type: 'section', label: 'Outils' },
     { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
     { id: "ratings", label: "Notations IA", icon: FileText },
-    { id: "intelligence", label: "Intelligence", icon: Bot },
-    { id: "leads", label: "Leads AI", icon: Users, badge: leads.length > 0 ? leads.length : null, badgeColor: "bg-blue-100 text-blue-700" },
     { id: "funnel", label: "Nouveau client", icon: UserPlus },
   ];
 
