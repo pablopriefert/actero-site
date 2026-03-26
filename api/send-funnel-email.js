@@ -142,6 +142,31 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Admin-only: sends onboarding emails with pricing info
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  let isAuthorized = false;
+
+  // Allow internal calls via secret
+  if (internalSecret && req.headers['x-internal-secret'] === internalSecret) {
+    isAuthorized = true;
+  }
+
+  // Allow admin users via JWT
+  if (!isAuthorized && token) {
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (!error && user) {
+      isAuthorized = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+    }
+  }
+
+  if (!isAuthorized) return res.status(403).json({ error: 'Accès refusé.' });
+
   const { email, company_name, slug, setup_price, monthly_price, message, client_type } = req.body;
 
   if (!email || !company_name || !slug) {

@@ -4,13 +4,20 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { type, clientName, details, webhookUrl } = req.body || {};
+  // Internal-only endpoint: require internal secret
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
+    return res.status(403).json({ error: 'Accès non autorisé' });
+  }
+
+  const { type, clientName, details } = req.body || {};
 
   if (!type || !clientName) {
     return res.status(400).json({ error: 'Missing required fields: type, clientName' });
   }
 
-  const targetUrl = webhookUrl || process.env.SLACK_WEBHOOK_URL;
+  // Only use the server-configured webhook URL — never accept user-supplied URLs (SSRF risk)
+  const targetUrl = process.env.SLACK_WEBHOOK_URL;
 
   if (!targetUrl) {
     return res.status(500).json({ error: 'No webhook URL provided and SLACK_WEBHOOK_URL not configured' });

@@ -1,11 +1,24 @@
 // Text-to-Speech via ElevenLabs API
+import { createClient } from '@supabase/supabase-js';
+
 const ELEVENLABS_KEY = process.env.ELEVENLABS_API_KEY;
 // Rachel voice — warm, professional French female
 const VOICE_ID = '21m00Tcm4TlvDq8ikWAM';
 
+const supabase = createClient(
+  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!ELEVENLABS_KEY) return res.status(500).json({ error: 'ELEVENLABS_API_KEY missing' });
+
+  // Auth check: requires authenticated user
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Non autorisé.' });
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !user) return res.status(401).json({ error: 'Non autorisé.' });
 
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: 'Missing text' });

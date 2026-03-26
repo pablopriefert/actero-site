@@ -18,6 +18,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Auth check: internal or authenticated user
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  const isInternal = internalSecret && req.headers['x-internal-secret'] === internalSecret;
+  if (!isInternal) {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'Non autorisé.' });
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return res.status(401).json({ error: 'Non autorisé.' });
+  }
+
   const { client_id } = req.body || {};
   if (!client_id) {
     return res.status(400).json({ error: 'Missing client_id' });

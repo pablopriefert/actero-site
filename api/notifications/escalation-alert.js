@@ -17,6 +17,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Internal-only: called from n8n workflows
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(403).json({ error: 'Accès refusé.' });
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return res.status(403).json({ error: 'Accès refusé.' });
+  }
+
   const { client_id, ticket_id, customer_name, customer_email, subject, message, escalation_reason } = req.body || {};
 
   if (!client_id) {

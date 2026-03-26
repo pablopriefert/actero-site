@@ -12,9 +12,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Auth check: user must be authenticated and belong to the client
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Non autorisé.' });
+  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+  if (authError || !user) return res.status(401).json({ error: 'Non autorisé.' });
+
   const { client_id } = req.body;
   if (!client_id) {
     return res.status(400).json({ error: 'Missing client_id' });
+  }
+
+  // Verify user belongs to this client or is admin
+  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  if (!isAdmin) {
+    const { data: link } = await supabaseAdmin
+      .from('client_users')
+      .select('client_id')
+      .eq('user_id', user.id)
+      .eq('client_id', client_id)
+      .maybeSingle();
+    if (!link) return res.status(403).json({ error: 'Accès refusé.' });
   }
 
   try {

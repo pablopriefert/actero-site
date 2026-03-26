@@ -1,11 +1,28 @@
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const supabase = createClient(
+  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+async function checkAdmin(req) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return false;
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return false;
+  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Admin-only: exposes all Stripe billing data
+  const isAdmin = await checkAdmin(req);
+  if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
 
   try {
     // Fetch active subscriptions

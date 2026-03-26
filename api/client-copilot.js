@@ -1,7 +1,7 @@
 // Client Copilot — AI assistant for client dashboard questions
 import { createClient } from '@supabase/supabase-js';
 
-const GEMINI_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -89,8 +89,26 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY missing' });
 
+  // Auth check: user must be authenticated and belong to the requested client
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Non autorisé.' });
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !user) return res.status(401).json({ error: 'Non autorisé.' });
+
   const { client_id, message, history } = req.body;
   if (!client_id || !message) return res.status(400).json({ error: 'Missing client_id or message' });
+
+  // Verify user has access to this client (is admin or belongs to client)
+  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  if (!isAdmin) {
+    const { data: link } = await supabase
+      .from('client_users')
+      .select('client_id')
+      .eq('user_id', user.id)
+      .eq('client_id', client_id)
+      .maybeSingle();
+    if (!link) return res.status(403).json({ error: 'Accès refusé.' });
+  }
 
   try {
     // Fetch client context

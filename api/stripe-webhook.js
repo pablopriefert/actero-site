@@ -132,11 +132,11 @@ export default async function handler(req, res) {
     const rawBody = await getRawBody(req);
     const sig = req.headers['stripe-signature'];
 
-    if (endpointSecret) {
-      event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
-    } else {
-      event = JSON.parse(rawBody.toString());
+    if (!endpointSecret) {
+      console.error('STRIPE_WEBHOOK_SECRET is not configured — rejecting webhook');
+      return res.status(500).json({ error: 'Webhook secret not configured' });
     }
+    event = stripe.webhooks.constructEvent(rawBody, sig, endpointSecret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     return res.status(400).json({ error: `Webhook Error: ${err.message}` });

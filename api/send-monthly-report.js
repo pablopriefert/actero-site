@@ -93,6 +93,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Internal/admin-only: triggers monthly report emails
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
+    // Also allow admin users via JWT
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(403).json({ error: 'Accès refusé.' });
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) return res.status(403).json({ error: 'Accès refusé.' });
+    const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+    if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
+  }
+
   const { client_id } = req.body;
   if (!client_id) {
     return res.status(400).json({ error: 'Missing client_id' });
@@ -153,7 +165,7 @@ export default async function handler(req, res) {
     const { error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'Actero <onboarding@resend.dev>',
       to: [recipientEmail],
-      subject: `Rapport Actero — ${safePeriod}`,
+      subject: `Rapport Actero — ${period}`,
       html: buildReportHtml({ brand_name: client.brand_name, period, stats }),
     });
 

@@ -15,6 +15,21 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
   }
 
+  // Admin/internal-only endpoint
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token) {
+    const { data: { user }, error: authErr } = await db.auth.getUser(token);
+    if (authErr || !user) return res.status(403).json({ error: 'Accès refusé.' });
+    const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+    if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
+  } else {
+    const internalSecret = process.env.INTERNAL_API_SECRET;
+    const isInternal = internalSecret && req.headers['x-internal-secret'] === internalSecret;
+    if (!isInternal && !req.headers['x-vercel-cron-signature']) {
+      return res.status(403).json({ error: 'Accès refusé.' });
+    }
+  }
+
   try {
     // Fetch all unverified domains
     const { data: pending, error } = await db

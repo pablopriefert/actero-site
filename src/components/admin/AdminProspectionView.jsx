@@ -142,20 +142,18 @@ export const AdminProspectionView = () => {
   }
 
   const callGemini = async (prompt) => {
-    const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 800 }
-        })
-      }
-    )
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch('/api/gemini-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({ prompt, temperature: 0.7, maxOutputTokens: 800 })
+    })
     const data = await res.json()
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Erreur de génération'
+    if (!res.ok) throw new Error(data.error || 'Erreur Gemini')
+    return data.text || 'Erreur de génération'
   }
 
   const generateContent = async (prospect, type) => {

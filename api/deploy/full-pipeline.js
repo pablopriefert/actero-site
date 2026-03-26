@@ -5,9 +5,9 @@ const supabase = () => createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const N8N_URL = () => process.env.N8N_API_URL || process.env.VITE_N8N_API_URL;
-const N8N_KEY = () => process.env.N8N_API_KEY || process.env.VITE_N8N_API_KEY;
-const GEMINI_KEY = () => process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+const N8N_URL = () => process.env.N8N_API_URL;
+const N8N_KEY = () => process.env.N8N_API_KEY;
+const GEMINI_KEY = () => process.env.GEMINI_API_KEY;
 const RESEND_KEY = () => process.env.RESEND_API_KEY;
 
 // Template name mapping
@@ -19,10 +19,23 @@ const TEMPLATE_MAP = {
   prospect_followup: { search: '[TEMPLATE] Relance Prospects Immobilier', prefix: 'Relance' },
 };
 
+async function checkAdmin(req) {
+  const db = supabase();
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return false;
+  const { data: { user }, error } = await db.auth.getUser(token);
+  if (error || !user) return false;
+  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Admin-only: deploys full client pipeline
+  const isAdmin = await checkAdmin(req);
+  if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
 
   const { client_id, step: resumeStep } = req.body || {};
   if (!client_id) {

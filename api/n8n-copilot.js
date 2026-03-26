@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const N8N_URL = process.env.N8N_API_URL;
 const N8N_KEY = process.env.N8N_API_KEY;
-const GEMINI_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const TEMPLATE_ID = 'lW5HbUydhyrDrV0M'; // "Workflow 4 - Agent SAV - Template - READY" (41 nodes)
 
 const supabase = createClient(

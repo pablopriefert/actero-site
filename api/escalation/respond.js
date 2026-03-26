@@ -10,6 +10,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Auth check: requires authenticated user
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Non autorisé.' });
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !user) return res.status(401).json({ error: 'Non autorisé.' });
+
   const { conversation_id, response, add_to_kb } = req.body || {};
 
   if (!conversation_id || !response) {
@@ -40,7 +46,7 @@ export default async function handler(req, res) {
           subject: `Re: ${conversation.subject || 'Votre demande'}`,
           html: `
             <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
-              <p>${response.replace(/\n/g, '<br>')}</p>
+              <p>${String(response).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br>')}</p>
             </div>
           `,
         });

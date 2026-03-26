@@ -17,6 +17,20 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Internal/cron-only endpoint
+  const internalSecret = process.env.INTERNAL_API_SECRET;
+  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token) {
+      const { data: { user }, error } = await supabase.auth.getUser(token);
+      if (error || !user) return res.status(403).json({ error: 'Accès refusé.' });
+      const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+      if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
+    } else if (!req.headers['x-vercel-cron-signature']) {
+      return res.status(403).json({ error: 'Accès refusé.' });
+    }
+  }
+
   try {
     // 1. Get clients with daily_summary enabled
     const { data: prefs, error: prefsError } = await supabase

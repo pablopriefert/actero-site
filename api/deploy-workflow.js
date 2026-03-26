@@ -1,11 +1,30 @@
 // One-click deploy: duplicate an n8n template, inject client config, activate
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+async function checkAdmin(req) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return false;
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) return false;
+  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const N8N_URL = process.env.N8N_API_URL || process.env.VITE_N8N_API_URL;
-  const N8N_KEY = process.env.N8N_API_KEY || process.env.VITE_N8N_API_KEY;
+  // Admin-only: deploys n8n workflows
+  const isAdmin = await checkAdmin(req);
+  if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
+
+  const N8N_URL = process.env.N8N_API_URL;
+  const N8N_KEY = process.env.N8N_API_KEY;
 
   if (!N8N_URL || !N8N_KEY) {
     return res.status(500).json({ error: 'N8N_API_URL or N8N_API_KEY not configured' });

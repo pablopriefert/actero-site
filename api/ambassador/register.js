@@ -27,18 +27,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Admin check: require service role key in header
-  const authHeader = req.headers['x-admin-key'];
-  if (authHeader !== supabaseServiceKey) {
-    // Also check for Supabase auth session (admin user)
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ error: 'Non autorise' });
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) return res.status(401).json({ error: 'Non autorise' });
-    // Check if admin (has admin role in app_metadata or is in admin list)
-    const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
-    if (!isAdmin) return res.status(403).json({ error: 'Acces refuse' });
-  }
+  // Admin check: require authenticated admin user (JWT-based only)
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Non autorise' });
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !user) return res.status(401).json({ error: 'Non autorise' });
+  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  if (!isAdmin) return res.status(403).json({ error: 'Acces refuse' });
 
   const { application_id, first_name, last_name, email, phone, network_type, siret } = req.body;
 

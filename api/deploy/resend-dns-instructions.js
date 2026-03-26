@@ -11,6 +11,14 @@ export default async function handler(req, res) {
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
+  // Admin-only endpoint
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Non autorisé.' });
+  const { data: { user }, error: authErr } = await db.auth.getUser(token);
+  if (authErr || !user) return res.status(401).json({ error: 'Non autorisé.' });
+  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
+
   const { client_id } = req.body || {};
   if (!client_id) {
     return res.status(400).json({ error: 'Missing client_id' });
