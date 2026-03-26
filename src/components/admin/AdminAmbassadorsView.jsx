@@ -31,7 +31,7 @@ async function getAuthToken() {
 // J+30 Countdown Badge
 const J30Badge = ({ eligibilityDate }) => {
   const { daysLeft, isEligible, label } = getJ30Countdown(eligibilityDate)
-  if (daysLeft === null) return <span className="text-[10px] text-gray-600">\u2014</span>
+  if (daysLeft === null) return <span className="text-[10px] text-gray-600">—</span>
   if (isEligible) {
     return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Éligible</span>
   }
@@ -511,7 +511,7 @@ export const AdminAmbassadorsView = () => {
                       <div className="flex items-center gap-4 mt-1 flex-wrap">
                         <span className="text-xs text-gray-500 flex items-center gap-1"><Mail className="w-3 h-3" /> {amb.email}</span>
                         {amb.phone && <span className="text-xs text-gray-500 flex items-center gap-1"><Phone className="w-3 h-3" /> {amb.phone}</span>}
-                        <span className="text-xs text-gray-600">{amb.network_type || '\u2014'}</span>
+                        <span className="text-xs text-gray-600">{amb.network_type || '—'}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         <span className="text-xs font-mono text-emerald-400/80 bg-emerald-500/5 px-2 py-0.5 rounded">{amb.ambassador_code}</span>
@@ -652,7 +652,7 @@ export const AdminAmbassadorsView = () => {
                 <tbody className="divide-y divide-white/5 text-sm">
                   {filteredLeads.map((lead) => {
                     const st = LEAD_STATUS_MAP[lead.status] || LEAD_STATUS_MAP.submitted
-                    const ambName = lead.ambassadors ? `${lead.ambassadors.first_name} ${lead.ambassadors.last_name}` : '\u2014'
+                    const ambName = lead.ambassadors ? `${lead.ambassadors.first_name} ${lead.ambassadors.last_name}` : '—'
                     return (
                       <tr key={lead.id} className="hover:bg-white/[0.02] transition-colors">
                         <td className="px-5 py-3">
@@ -664,7 +664,7 @@ export const AdminAmbassadorsView = () => {
                           {lead.prospect_email && <p className="text-[10px] text-gray-500">{lead.prospect_email}</p>}
                         </td>
                         <td className="px-5 py-3 text-xs text-gray-300">{lead.company_name}</td>
-                        <td className="px-5 py-3 text-xs text-gray-500 capitalize">{lead.company_niche || '\u2014'}</td>
+                        <td className="px-5 py-3 text-xs text-gray-500 capitalize">{lead.company_niche || '—'}</td>
                         <td className="px-5 py-3 text-xs text-gray-500">{lead.source}</td>
                         <td className="px-5 py-3">
                           <div className="relative">
@@ -773,17 +773,17 @@ export const AdminAmbassadorsView = () => {
                 <tbody className="divide-y divide-white/5 text-sm">
                   {filteredCommissions.map((comm) => {
                     const st = COMMISSION_STATUS_MAP[comm.status] || COMMISSION_STATUS_MAP.pending
-                    const ambName = comm.ambassadors ? `${comm.ambassadors.first_name} ${comm.ambassadors.last_name}` : '\u2014'
+                    const ambName = comm.ambassadors ? `${comm.ambassadors.first_name} ${comm.ambassadors.last_name}` : '—'
                     return (
                       <tr key={comm.id} className="hover:bg-white/[0.02] transition-colors">
                         <td className="px-5 py-3 text-xs font-medium text-white">{ambName}</td>
                         <td className="px-5 py-3">
-                          <p className="text-xs text-white">{comm.ambassador_leads?.prospect_name || '\u2014'}</p>
+                          <p className="text-xs text-white">{comm.ambassador_leads?.prospect_name || '—'}</p>
                           <p className="text-[10px] text-gray-600">{comm.ambassador_leads?.company_name || ''}</p>
                         </td>
                         <td className="px-5 py-3 text-sm font-bold font-mono text-white">{Number(comm.amount).toLocaleString('fr-FR')} {comm.currency}</td>
                         <td className="px-5 py-3 text-xs text-gray-500">
-                          {comm.client_payment_date ? new Date(comm.client_payment_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '\u2014'}
+                          {comm.client_payment_date ? new Date(comm.client_payment_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                         </td>
                         <td className="px-5 py-3">
                           <J30Badge eligibilityDate={comm.eligibility_date} />
@@ -872,7 +872,7 @@ export const AdminAmbassadorsView = () => {
               <div className="space-y-4">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Lead</p>
-                  <p className="text-sm text-white font-medium">{showCommissionModal.prospect_name} \u2014 {showCommissionModal.company_name}</p>
+                  <p className="text-sm text-white font-medium">{showCommissionModal.prospect_name} — {showCommissionModal.company_name}</p>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Montant (EUR)</label>

@@ -140,7 +140,7 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
 
   const socialProofStats = [
     { icon: Users, value: '20+', label: 'Ambassadeurs actifs' },
-    { icon: DollarSign, value: '15 000\u00a0\u20AC+', label: 'Commissions versées' },
+    { icon: DollarSign, value: '15 000  €+', label: 'Commissions versées' },
     { icon: TrendingUp, value: '94%', label: 'Taux de satisfaction' },
     { icon: Award, value: '30j', label: 'Délai de paiement' },
   ]
@@ -257,7 +257,7 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
           </section>
 
           {/* ═══════════════════════════════════════════ */}
-          {/* COMMENT \u00c7A MARCHE                          */}
+          {/* COMMENT ÇA MARCHE                          */}
           {/* ═══════════════════════════════════════════ */}
           <section className="py-24 md:py-32 px-6">
             <FadeInUp className="max-w-5xl mx-auto text-center mb-16">
@@ -292,7 +292,7 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
           </section>
 
           {/* ═══════════════════════════════════════════ */}
-          {/* QUI PEUT \u00caTRE RECOMMANDÉ                   */}
+          {/* QUI PEUT ÊTRE RECOMMANDÉ                   */}
           {/* ═══════════════════════════════════════════ */}
           <section className="py-24 md:py-32 px-6 bg-[#080808]">
             <FadeInUp className="max-w-5xl mx-auto text-center mb-16">

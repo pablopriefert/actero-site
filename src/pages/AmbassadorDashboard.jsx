@@ -57,7 +57,7 @@ const KPICard = ({ label, value, icon: Icon, accent = 'emerald', subtitle }) => 
       <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</p>
       {Icon && <Icon className={`w-4 h-4 text-${accent}-400 opacity-60 group-hover:opacity-100 transition-opacity`} />}
     </div>
-    <p className={`text-3xl font-bold text-${accent}-400`}>{value ?? '\u2014'}</p>
+    <p className={`text-3xl font-bold text-${accent}-400`}>{value ?? '—'}</p>
     {subtitle && <p className="text-xs text-gray-600 mt-1">{subtitle}</p>}
   </div>
 )
@@ -84,7 +84,7 @@ const CopyButton = ({ text }) => {
 // ─── J+30 Countdown Badge ───
 const J30Badge = ({ eligibilityDate }) => {
   const { daysLeft, isEligible, label } = getJ30Countdown(eligibilityDate)
-  if (daysLeft === null) return <span className="text-xs text-gray-600">\u2014</span>
+  if (daysLeft === null) return <span className="text-xs text-gray-600">—</span>
   if (isEligible) {
     return <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-green-500/20 text-green-400">Éligible</span>
   }
@@ -474,35 +474,35 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
             <div className="grid md:grid-cols-2 gap-4">
               <div className={`p-5 rounded-2xl border text-center ${leadsWon < 3 ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-white/[0.02] border-white/5'}`}>
                 <p className="text-[10px] font-bold text-emerald-400/60 uppercase tracking-widest mb-1">1er et 2e client</p>
-                <p className="text-3xl font-bold text-emerald-400">150\u20AC</p>
-                <p className="text-xs text-gray-500 mt-1">par client sign\u00e9</p>
+                <p className="text-3xl font-bold text-emerald-400">150 €</p>
+                <p className="text-xs text-gray-500 mt-1">par client signé</p>
                 {leadsWon < 3 && <p className="text-[10px] text-emerald-400/80 mt-2 font-bold">Palier actuel</p>}
               </div>
               <div className={`p-5 rounded-2xl border text-center relative overflow-hidden ${leadsWon >= 3 ? 'bg-amber-500/5 border-amber-500/20' : 'bg-white/[0.02] border-white/5'}`}>
                 {leadsWon >= 3 && <p className="absolute top-2 right-2 text-[9px] font-bold text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full">Actif</p>}
-                <p className="text-[10px] font-bold text-amber-400/60 uppercase tracking-widest mb-1">\u00C0 partir du 3e client</p>
-                <p className="text-3xl font-bold text-amber-400">300\u20AC</p>
-                <p className="text-xs text-gray-500 mt-1">par client sign\u00e9</p>
-                {leadsWon < 3 && <p className="text-[10px] text-gray-600 mt-2">Encore {3 - leadsWon} client{3 - leadsWon > 1 ? 's' : ''} pour d\u00e9bloquer</p>}
+                <p className="text-[10px] font-bold text-amber-400/60 uppercase tracking-widest mb-1">À partir du 3e client</p>
+                <p className="text-3xl font-bold text-amber-400">300 €</p>
+                <p className="text-xs text-gray-500 mt-1">par client signé</p>
+                {leadsWon < 3 && <p className="text-[10px] text-gray-600 mt-2">Encore {3 - leadsWon} client{3 - leadsWon > 1 ? 's' : ''} pour débloquer</p>}
               </div>
             </div>
 
             {/* KPIs */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              <KPICard label="Leads envoy\u00e9s" value={totalLeads} icon={Send} />
+              <KPICard label="Leads envoyés" value={totalLeads} icon={Send} />
               <KPICard label="En cours" value={leadsInProgress} icon={Target} accent="blue" />
-              <KPICard label="Leads sign\u00e9s" value={leadsWon} icon={Award} accent="green" />
-              <KPICard label="Total gagn\u00e9" value={`${totalEarned.toLocaleString('fr-FR')} \u20AC`} icon={DollarSign} />
+              <KPICard label="Leads signés" value={leadsWon} icon={Award} accent="green" />
+              <KPICard label="Total gagné" value={`${totalEarned.toLocaleString('fr-FR')}  €`} icon={DollarSign} />
               <KPICard
-                label="Prochaine r\u00e9compense"
-                value={leadsWon >= 3 ? '300 \u20AC' : '150 \u20AC'}
+                label="Prochaine récompense"
+                value={leadsWon >= 3 ? '300  €' : '150  €'}
                 icon={Gift}
                 accent="amber"
-                subtitle={leadsWon >= 3 ? 'Palier 300\u20AC actif' : `${leadsWon}/3 pour palier 300\u20AC`}
+                subtitle={leadsWon >= 3 ? 'Palier 300 € actif' : `${leadsWon}/3 pour palier 300 €`}
               />
               <KPICard
                 label="Taux de conversion"
-                value={totalLeads > 0 ? `${Math.round((leadsWon / totalLeads) * 100)}%` : '\u2014'}
+                value={totalLeads > 0 ? `${Math.round((leadsWon / totalLeads) * 100)}%` : '—'}
                 icon={TrendingUp}
                 accent="cyan"
                 subtitle={totalLeads > 0 ? `${leadsWon} sur ${totalLeads}` : undefined}
@@ -563,13 +563,13 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
             <div className="p-8 rounded-2xl bg-[#111] border border-white/10 space-y-6">
               <div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Code ambassadeur</p>
-                <p className="text-4xl font-bold text-emerald-400 font-mono">{ambCode || '\u2014'}</p>
+                <p className="text-4xl font-bold text-emerald-400 font-mono">{ambCode || '—'}</p>
               </div>
 
               <div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Lien de parrainage</p>
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10 flex-wrap">
-                  <code className="text-sm text-white font-mono break-all flex-1">{ambassadorLink || '\u2014'}</code>
+                  <code className="text-sm text-white font-mono break-all flex-1">{ambassadorLink || '—'}</code>
                   {ambassadorLink && <CopyButton text={ambassadorLink} />}
                   {ambassadorLink && (
                     <button
@@ -651,7 +651,7 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span className="text-xs text-gray-600">
-                          {lead.created_at ? new Date(lead.created_at).toLocaleDateString('fr-FR') : '\u2014'}
+                          {lead.created_at ? new Date(lead.created_at).toLocaleDateString('fr-FR') : '—'}
                         </span>
                         <button
                           onClick={() => {
@@ -845,10 +845,10 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <KPICard label="En attente" value={`${commissionsPending.toLocaleString('fr-FR')} \u20AC`} icon={Clock} accent="amber" />
-              <KPICard label="Validées" value={`${commissionsValidated.toLocaleString('fr-FR')} \u20AC`} icon={Check} accent="green" />
-              <KPICard label="Payées" value={`${commissionsPaid.toLocaleString('fr-FR')} \u20AC`} icon={DollarSign} />
-              <KPICard label="Total cumulé" value={`${commissionsTotal.toLocaleString('fr-FR')} \u20AC`} icon={TrendingUp} accent="cyan" />
+              <KPICard label="En attente" value={`${commissionsPending.toLocaleString('fr-FR')}  €`} icon={Clock} accent="amber" />
+              <KPICard label="Validées" value={`${commissionsValidated.toLocaleString('fr-FR')}  €`} icon={Check} accent="green" />
+              <KPICard label="Payées" value={`${commissionsPaid.toLocaleString('fr-FR')}  €`} icon={DollarSign} />
+              <KPICard label="Total cumulé" value={`${commissionsTotal.toLocaleString('fr-FR')}  €`} icon={TrendingUp} accent="cyan" />
             </div>
 
             {commissions.length === 0 ? (
@@ -868,7 +868,7 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 flex-wrap">
-                          <p className="text-sm font-bold text-white">{c.prospect_name || c.ambassador_leads?.prospect_name || '\u2014'}</p>
+                          <p className="text-sm font-bold text-white">{c.prospect_name || c.ambassador_leads?.prospect_name || '—'}</p>
                           <StatusBadge status={c.status} config={COMMISSION_STATUS_MAP} />
                         </div>
                         <p className="text-xs text-gray-500 mt-1">{c.company_name || c.ambassador_leads?.company_name || ''}</p>
@@ -876,7 +876,7 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
                       <div className="flex items-center gap-4 flex-shrink-0">
                         <J30Badge eligibilityDate={c.eligibility_date} />
                         <p className="text-lg font-bold font-mono text-white">
-                          {c.amount ? `${Number(c.amount).toLocaleString('fr-FR')} \u20AC` : '\u2014'}
+                          {c.amount ? `${Number(c.amount).toLocaleString('fr-FR')}  €` : '—'}
                         </p>
                       </div>
                     </div>
@@ -899,7 +899,7 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
         )
 
       // ═══════════════════════════════════════
-      // R\u00c8GLES
+      // RÈGLES
       // ═══════════════════════════════════════
       case 'rules':
         return (
@@ -1069,7 +1069,7 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
                   <div>
                     <label className="block text-sm font-bold text-gray-300 mb-2">Date d'inscription</label>
                     <p className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-sm">
-                      {ambassador?.created_at ? new Date(ambassador.created_at).toLocaleDateString('fr-FR') : '\u2014'}
+                      {ambassador?.created_at ? new Date(ambassador.created_at).toLocaleDateString('fr-FR') : '—'}
                     </p>
                   </div>
                   <div>
