@@ -1,5 +1,8 @@
 import Stripe from 'stripe';
+import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -227,6 +230,89 @@ export default async function handler(req, res) {
         console.log('[n8n] Onboarding dispatch OK');
       } catch (err) {
         console.error('[n8n] Onboarding dispatch failed:', err.message);
+      }
+
+      // 5. Email post-paiement — confirmation + lien Shopify (e-commerce uniquement)
+      const clientEmail = funnelClient?.email || session.customer_details?.email || session.customer_email;
+      const clientCompany = funnelClient?.company_name || session.customer_details?.name || '';
+      const clientType = funnelClient?.client_type || 'ecommerce';
+
+      if (clientEmail) {
+        try {
+          const shopifyBlock = clientType === 'ecommerce' ? `
+            <tr>
+              <td style="padding:0 40px 32px 40px;">
+                <div style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;">
+                  <p style="font-size:14px;font-weight:700;color:#166534;margin:0 0 8px 0;">
+                    🔗 Étape suivante : installer l'app Shopify
+                  </p>
+                  <p style="font-size:13px;color:#15803d;line-height:1.6;margin:0 0 16px 0;">
+                    Pour connecter votre boutique à Actero, installez notre app custom en un clic :
+                  </p>
+                  <a href="https://admin.shopify.com/oauth/install_custom_app?client_id=fcb9a2aafa1c3d00a213ba7dd16a584c&no_redirect=true&signature=eyJleHBpcmVzX2F0IjoxNzc0MTc3NDU3LCJwZXJtYW5lbnRfZG9tYWluIjoiYWN0ZXJvLXRlc3QubXlzaG9waWZ5LmNvbSIsImNsaWVudF9pZCI6ImZjYjlhMmFhZmExYzNkMDBhMjEzYmE3ZGQxNmE1ODRjIiwicHVycG9zZSI6ImN1c3RvbV9hcHAiLCJtZXJjaGFudF9vcmdhbml6YXRpb25faWQiOjIxMDE0NTc5N30%3D--34a7d58a33b46daaef09e2292dc8b4ba17c9dc65"
+                     style="display:inline-block;background-color:#16a34a;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;padding:12px 28px;border-radius:10px;">
+                    Installer l'app Shopify
+                  </a>
+                </div>
+              </td>
+            </tr>` : '';
+
+          await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || 'Actero <onboarding@resend.dev>',
+            to: [clientEmail],
+            subject: 'Bienvenue chez Actero — Votre paiement est confirmé ✓',
+            html: `<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f8f8f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f8f8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+        <tr><td style="padding:40px 40px 0 40px;">
+          <div style="font-size:22px;font-weight:700;color:#000;letter-spacing:-0.5px;">Actero</div>
+        </td></tr>
+        <tr><td style="padding:32px 40px;">
+          <h1 style="font-size:24px;font-weight:700;color:#000;margin:0 0 20px 0;line-height:1.3;">
+            Paiement confirmé 🎉
+          </h1>
+          <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 16px 0;">
+            Bonjour${clientCompany ? ' ' + clientCompany : ''},
+          </p>
+          <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 16px 0;">
+            Votre paiement a bien été reçu. Votre compte Actero est en cours de configuration — vous recevrez un email d'invitation pour définir votre mot de passe dans quelques instants.
+          </p>
+          <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 24px 0;">
+            Notre équipe va préparer le déploiement de vos agents IA. Vous serez opérationnel sous 24-48h.
+          </p>
+        </td></tr>
+        ${shopifyBlock}
+        <tr><td style="padding:0 40px 32px 40px;">
+          <div style="background-color:#fafafa;border:1px solid #eee;border-radius:12px;padding:16px 20px;">
+            <p style="font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin:0 0 10px 0;">Prochaines étapes</p>
+            <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">
+              1. Vous recevez un email pour créer votre mot de passe<br>
+              2. ${clientType === 'ecommerce' ? 'Installez l\'app Shopify (lien ci-dessus)' : 'Notre équipe vous contacte pour le setup'}<br>
+              3. Vos agents IA sont déployés sous 24-48h<br>
+              4. Accédez à votre dashboard de suivi en temps réel
+            </p>
+          </div>
+        </td></tr>
+        <tr><td style="padding:0 40px 40px 40px;">
+          <p style="font-size:14px;color:#444;line-height:1.7;margin:0;">À très vite,</p>
+          <p style="font-size:14px;font-weight:700;color:#000;margin:8px 0 0 0;">L'équipe Actero</p>
+        </td></tr>
+        <tr><td style="padding:20px 40px;background-color:#fafafa;border-top:1px solid #eee;">
+          <p style="font-size:11px;color:#aaa;margin:0;text-align:center;line-height:1.5;">Cet email a été envoyé par Actero · actero.fr</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`,
+          });
+          console.log('[RESEND] Post-payment email sent to', clientEmail);
+        } catch (emailErr) {
+          console.error('[RESEND] Post-payment email failed:', emailErr.message);
+        }
       }
       break;
     }
