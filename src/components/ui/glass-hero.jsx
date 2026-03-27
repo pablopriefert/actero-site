@@ -11,8 +11,8 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
             badge: { icon: '/shopify-partners.svg', label: 'Partenaire Shopify officiel' },
             headline: (
                 <>
-                    <span className="block">Transformez votre SAV</span>
-                    <span className="block">en machine de croissance.</span>
+                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #9ca3af 100%)' }}>Transformez votre SAV</span>
+                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #e5e7eb 0%, #6b7280 100%)' }}>en machine de croissance.</span>
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-300">
                         Récupérez chaque euro perdu.
                     </span>
@@ -33,8 +33,8 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
             badge: { icon: null, label: 'Spécialiste IA pour agences immobilières' },
             headline: (
                 <>
-                    <span className="block">Automatisez votre agence.</span>
-                    <span className="block">Récupérez chaque prospect.</span>
+                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #c4b5fd 100%)' }}>Automatisez votre agence.</span>
+                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #e9d5ff 0%, #8b5cf6 100%)' }}>Récupérez chaque prospect.</span>
                     <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400">
                         3 agents IA à votre service.
                     </span>
