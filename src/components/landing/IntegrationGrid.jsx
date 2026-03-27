@@ -46,10 +46,10 @@ export const IntegrationGrid = ({ vertical }) => {
           viewport={{ once: true, margin: '-40px' }}
           transition={{ delay: i * 0.04, duration: 0.35, ease: 'easeOut' }}
           whileHover={{ y: -3, borderColor: isImmo ? 'rgba(139,92,246,0.3)' : 'rgba(16,185,129,0.3)' }}
-          className="bg-[#0a0a0a] border border-white/[0.06] rounded-2xl p-4 md:p-5 flex flex-col gap-3 cursor-default transition-all duration-300 group"
+          className="bg-[#0d0d0d] border border-white/[0.10] rounded-2xl p-5 flex flex-col gap-3 cursor-default transition-all duration-300 group"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center flex-shrink-0 group-hover:border-white/10 transition-colors">
+            <div className="w-9 h-9 rounded-xl bg-white/[0.08] border border-white/[0.14] flex items-center justify-center flex-shrink-0 group-hover:border-white/10 transition-colors">
               <img
                 src={integ.src
                   ? integ.src
@@ -61,7 +61,7 @@ export const IntegrationGrid = ({ vertical }) => {
             </div>
             <span className="font-bold text-white text-sm leading-tight">{integ.name}</span>
           </div>
-          <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
+          <p className="text-xs text-gray-400 font-medium leading-relaxed">
             {integ.desc}
           </p>
         </motion.div>

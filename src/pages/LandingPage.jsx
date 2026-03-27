@@ -143,7 +143,7 @@ export const LandingPage = ({ onNavigate }) => {
                       Votre croissance est freinée<br className="hidden md:block" />
                       par des problèmes invisibles.
                     </h2>
-                    <p className="text-xl md:text-2xl text-gray-400 font-medium max-w-3xl mx-auto leading-relaxed mb-20">
+                    <p className="text-xl md:text-2xl text-gray-300 font-medium max-w-3xl mx-auto leading-relaxed mb-20">
                       Des paniers abandonnés sans relance. Un support qui noie votre équipe.
                       <br className="hidden md:block" />
                       Des milliers d'euros qui s'évaporent chaque mois — sans que personne ne les chiffre.
@@ -155,7 +155,7 @@ export const LandingPage = ({ onNavigate }) => {
                       Vos agents perdent du temps<br className="hidden md:block" />
                       sur des tâches à faible valeur.
                     </h2>
-                    <p className="text-xl md:text-2xl text-gray-400 font-medium max-w-3xl mx-auto leading-relaxed mb-20">
+                    <p className="text-xl md:text-2xl text-gray-300 font-medium max-w-3xl mx-auto leading-relaxed mb-20">
                       Des prospects jamais relancés. Des documents collectés à la main.
                       <br className="hidden md:block" />
                       Des heures englouties en administratif au lieu de conclure des ventes.
@@ -210,7 +210,7 @@ export const LandingPage = ({ onNavigate }) => {
                       <div className="mb-4 opacity-60 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300">
                         {block.icon}
                       </div>
-                      <p className="text-4xl md:text-5xl font-black text-white mb-3 tracking-tighter">
+                      <p className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
                         {block.stat}
                       </p>
                       <h3 className="text-lg font-bold text-white mb-3">

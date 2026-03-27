@@ -122,14 +122,14 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* ── Vertical Toggle — very prominent ── */}
                 <FadeInUp className="mb-10">
-                    <div className="relative inline-flex items-center bg-white/[0.05] backdrop-blur-xl border border-white/10 rounded-2xl p-1.5 gap-1.5 shadow-2xl">
+                    <div className="relative inline-flex items-center bg-white/[0.08] backdrop-blur-xl border border-white/[0.15] rounded-2xl p-1.5 gap-1.5 shadow-2xl">
                         {/* Sliding indicator */}
                         <div
                             className={`absolute top-1.5 bottom-1.5 rounded-xl transition-all duration-300 ease-out ${
                                 isEcommerce
                                     ? 'left-1.5 right-[calc(50%+0.375rem)]'
                                     : 'left-[calc(50%+0.375rem)] right-1.5'
-                            } ${isEcommerce ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-violet-500/10 border border-violet-500/20'}`}
+                            } ${isEcommerce ? 'bg-emerald-500/15 border border-emerald-500/30' : 'bg-violet-500/15 border border-violet-500/30'}`}
                         />
                         {[
                             { key: 'ecommerce', label: 'E-commerce', icon: <ShoppingBag className="w-4 h-4" /> },
@@ -157,7 +157,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* Made in France */}
                 <FadeInUp className="mb-3">
-                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 px-3 py-1.5 rounded-full border border-white/[0.06] bg-white/[0.02]">
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 px-3 py-1.5 rounded-full border border-white/[0.12] bg-white/[0.06]">
                     <span>🇫🇷</span>
                     <span>Made in France</span>
                   </div>
@@ -165,15 +165,15 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* Trust Badge */}
                 <FadeInUp className="mb-10">
-                    <div className={`inline-flex items-center gap-3 backdrop-blur-md border px-5 py-2 rounded-full text-sm font-medium transition-all duration-500 ${
+                    <div className={`inline-flex items-center gap-3 backdrop-blur-md border px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-500 ${
                         isEcommerce
-                            ? 'bg-emerald-500/[0.06] border-emerald-500/20 text-emerald-300/80'
-                            : 'bg-violet-500/[0.06] border-violet-500/20 text-violet-300/80'
+                            ? 'bg-emerald-500/[0.10] border-emerald-500/30 text-emerald-300'
+                            : 'bg-violet-500/[0.10] border-violet-500/30 text-violet-300'
                     }`}>
                         {content.badge.icon && (
                             <>
-                                <img src={content.badge.icon} alt="" className="h-4 w-auto brightness-0 invert opacity-70" />
-                                <span className="w-px h-4 bg-white/10"></span>
+                                <img src={content.badge.icon} alt="" className="h-4 w-auto brightness-0 invert opacity-80" />
+                                <span className="w-px h-4 bg-white/15"></span>
                             </>
                         )}
                         <span>{content.badge.label}</span>
@@ -182,14 +182,14 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* ── Headline ── */}
                 <FadeInUp delay={0.1} className="text-center max-w-4xl mb-8">
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] md:leading-[1.08]" style={{ letterSpacing: '-0.025em' }}>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.12] md:leading-[1.1]" style={{ letterSpacing: '-0.02em' }}>
                         {content.headline}
                     </h1>
                 </FadeInUp>
 
                 {/* Subtitle */}
                 <FadeInUp delay={0.15} className="text-center max-w-2xl mb-10">
-                    <p className="text-base md:text-lg text-zinc-400 font-medium leading-relaxed">
+                    <p className="text-base md:text-lg text-zinc-300 font-medium leading-relaxed">
                         {content.subtitle}
                     </p>
                 </FadeInUp>
@@ -225,23 +225,19 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* ── Proof Metrics Bar ── */}
                 <ScaleIn delay={0.3} className="w-full max-w-3xl">
-                    <div className={`border rounded-2xl px-6 py-5 md:px-10 md:py-6 transition-all duration-500 ${
-                        isEcommerce
-                            ? 'bg-white/[0.02] border-white/[0.06] backdrop-blur-xl'
-                            : 'bg-white/[0.02] border-white/[0.06] backdrop-blur-xl'
-                    }`}>
+                    <div className="border rounded-2xl px-6 py-5 md:px-10 md:py-6 bg-white/[0.05] border-white/[0.12] backdrop-blur-xl">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0">
                             {content.metrics.map((item, i) => (
                                 <div
                                     key={i}
-                                    className={`flex items-center gap-4 ${i < 2 ? 'md:border-r md:border-white/[0.06]' : ''} ${i > 0 ? 'md:pl-8' : ''}`}
+                                    className={`flex items-center gap-4 ${i < 2 ? 'md:border-r md:border-white/[0.10]' : ''} ${i > 0 ? 'md:pl-8' : ''}`}
                                 >
-                                    <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center flex-shrink-0">
+                                    <div className="w-10 h-10 rounded-xl bg-white/[0.08] border border-white/[0.12] flex items-center justify-center flex-shrink-0">
                                         {item.icon}
                                     </div>
                                     <div>
                                         <p className="text-white font-bold text-xl leading-tight tracking-tight">{item.value}</p>
-                                        <p className="text-zinc-500 text-sm font-medium">{item.label}</p>
+                                        <p className="text-zinc-400 text-sm font-medium">{item.label}</p>
                                     </div>
                                 </div>
                             ))}

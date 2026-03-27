@@ -88,7 +88,7 @@ export const AgentCarousel = ({ agents, vertical }) => {
               <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">{active.title}</h3>
             </div>
 
-            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 mb-6">
+            <div className="bg-white/[0.07] border border-white/[0.14] rounded-xl px-4 py-3 mb-6">
               <p className={`text-sm font-bold flex items-center gap-2 ${accentClasses.result}`}>
                 <Target className="w-4 h-4 flex-shrink-0" />
                 {active.result}
