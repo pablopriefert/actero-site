@@ -16,6 +16,7 @@ import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { ButtonColorful } from "../components/ui/button-colorful";
 import { trackEvent } from "../lib/analytics";
+import { SEO } from "../components/SEO";
 
 export const CompanyPage = ({ onNavigate }) => {
   useEffect(() => {
@@ -56,6 +57,12 @@ export const CompanyPage = ({ onNavigate }) => {
   ];
 
   return (
+    <>
+      <SEO
+        title="À propos d'Actero | Agence d'infrastructure IA en France"
+        description="Actero construit des systèmes d'automatisation IA autonomes et mesurables pour les entreprises ambitieuses. Découvrez notre mission et nos valeurs."
+        canonical="/entreprise"
+      />
     <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
@@ -122,5 +129,6 @@ export const CompanyPage = ({ onNavigate }) => {
 
       <Footer onNavigate={onNavigate} />
     </div>
+    </>
   );
 };

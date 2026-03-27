@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
+import { SEO } from "../components/SEO";
 import { GptBadge } from "../components/ui/GptBadge";
 import { MagneticButton } from "../components/ui/magnetic-button";
 import { trackEvent } from "../lib/analytics";
@@ -124,6 +125,12 @@ export const PricingPage = ({ onNavigate }) => {
   };
 
   return (
+    <>
+      <SEO
+        title="Tarifs Actero | Agent IA SAV dès 490€/mois — ROI garanti"
+        description="Découvrez nos offres d'automatisation IA : audit gratuit, agent SAV e-commerce, qualification de leads immobilier. Tarifs transparents, ROI mesurable."
+        canonical="/tarifs"
+      />
     <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
@@ -288,5 +295,6 @@ export const PricingPage = ({ onNavigate }) => {
 
       <Footer onNavigate={onNavigate} />
     </div>
+    </>
   );
 };

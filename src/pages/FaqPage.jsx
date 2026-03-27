@@ -12,6 +12,7 @@ import {
 import { Logo } from "../components/layout/Logo";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
+import { SEO } from "../components/SEO";
 import { ButtonColorful } from "../components/ui/button-colorful";
 import { trackEvent } from "../lib/analytics";
 
@@ -75,7 +76,29 @@ export const FaqPage = ({ onNavigate }) => {
       })).filter(cat => cat.questions.length > 0)
     : categories;
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": categories.flatMap(cat =>
+      cat.questions.map(faq => ({
+        "@type": "Question",
+        "name": faq.q,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.a
+        }
+      }))
+    )
+  };
+
   return (
+    <>
+      <SEO
+        title="FAQ Actero | Questions sur l'automatisation IA e-commerce & immobilier"
+        description="Réponses à toutes vos questions sur les agents IA Actero : fonctionnement, tarifs, intégration Shopify, délais, sécurité et résultats."
+        canonical="/faq"
+        schemaData={faqSchema}
+      />
     <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
@@ -168,5 +191,6 @@ export const FaqPage = ({ onNavigate }) => {
 
       <Footer onNavigate={onNavigate} />
     </div>
+    </>
   );
 };

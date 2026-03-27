@@ -18,6 +18,7 @@ import { Footer } from "../components/layout/Footer";
 import { FadeInUp } from "../components/ui/scroll-animations";
 import { trackEvent } from "../lib/analytics";
 import { OnboardingTimer } from "../components/landing/OnboardingTimer";
+import { SEO } from "../components/SEO";
 
 export const AuditPage = ({ onNavigate }) => {
   const [openFaq, setOpenFaq] = useState(null);
@@ -81,6 +82,12 @@ export const AuditPage = ({ onNavigate }) => {
   ];
 
   return (
+    <>
+      <SEO
+        title="Audit IA Gratuit | Analysez votre boutique Shopify en 15 min"
+        description="Réservez votre audit stratégie gratuit de 15 minutes. Estimation ROI personnalisée, 3 workflows prioritaires, plan d'architecture technique."
+        canonical="/audit"
+      />
     <div className="min-h-screen bg-[#030303] text-zinc-50 font-sans selection:bg-white/20 relative overflow-hidden flex flex-col">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
@@ -290,5 +297,6 @@ export const AuditPage = ({ onNavigate }) => {
 
       <Footer onNavigate={onNavigate} />
     </div>
+    </>
   );
 };

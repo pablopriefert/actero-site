@@ -31,6 +31,7 @@ import {
   StaggerItem,
   ScaleIn,
 } from '../components/ui/scroll-animations'
+import { SEO } from '../components/SEO'
 
 export const AmbassadorLandingPage = ({ onNavigate }) => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null)
@@ -185,6 +186,12 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
   ]
 
   return (
+    <>
+      <SEO
+        title="Programme Ambassadeur Actero | Recommandez, soyez récompensé"
+        description="Devenez ambassadeur Actero et touchez jusqu'à 300€ par client recommandé. Zéro effort commercial, on s'occupe de tout."
+        canonical="/ambassadeurs"
+      />
     <div className="relative min-h-screen bg-[#030303] font-sans text-white selection:bg-emerald-500/20 selection:text-white">
       {/* BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -639,5 +646,6 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
         <Footer onNavigate={onNavigate} />
       </div>
     </div>
+    </>
   )
 }

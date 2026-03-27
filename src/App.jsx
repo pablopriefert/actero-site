@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from "react-helmet-async";
 import { Analytics } from "@vercel/analytics/react";
 import { AlertCircle } from "lucide-react";
 import { supabase, INITIAL_URL } from "./lib/supabase";
@@ -153,11 +154,13 @@ class ErrorBoundary extends React.Component {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <MainRouter />
-        <Analytics />
-      </ErrorBoundary>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <MainRouter />
+          <Analytics />
+        </ErrorBoundary>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }

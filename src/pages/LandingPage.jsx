@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { SEO } from '../components/SEO'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronDown,
@@ -59,7 +60,37 @@ export const LandingPage = ({ onNavigate }) => {
     trackEvent("Landing_Page_Viewed");
   }, []);
 
+  const landingSchema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Actero",
+      "url": "https://actero.fr",
+      "logo": "https://actero.fr/favicon-192.png",
+      "description": "Actero déploie des agents IA autonomes pour automatiser le SAV e-commerce Shopify et qualifier les leads immobiliers.",
+      "sameAs": []
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Actero",
+      "url": "https://actero.fr/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://actero.fr/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ];
+
   return (
+    <>
+      <SEO
+        title="Actero | Automatisation IA pour E-commerce Shopify & Agences Immobilières"
+        description="Actero déploie des agents IA autonomes pour automatiser le SAV e-commerce Shopify et qualifier les leads immobiliers. ROI mesurable dès le premier mois."
+        canonical="/"
+        schemaData={landingSchema}
+      />
     <div className="relative min-h-screen bg-[#030303] font-sans text-white selection:bg-emerald-500/20 selection:text-white">
       {/* GLOBAL BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -958,5 +989,6 @@ export const LandingPage = ({ onNavigate }) => {
         <Footer onNavigate={onNavigate} />
       </div>
     </div>
+    </>
   );
 };

@@ -30,6 +30,7 @@ import {
   StaggerItem,
   ScaleIn,
 } from '../components/ui/scroll-animations'
+import { SEO } from '../components/SEO'
 
 export const PartnerLandingPage = ({ onNavigate }) => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null)
@@ -156,6 +157,12 @@ export const PartnerLandingPage = ({ onNavigate }) => {
   const clientsOptions = ['1-3', '4-10', '10+']
 
   return (
+    <>
+      <SEO
+        title="Partenariat B2B Actero | Agences & Freelances"
+        description="Devenez partenaire Actero et proposez l'automatisation IA à vos clients e-commerce et immobilier. Commission attractive, support dédié."
+        canonical="/partner"
+      />
     <div className="relative min-h-screen bg-[#030303] font-sans text-white selection:bg-indigo-500/20 selection:text-white">
       {/* BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
@@ -555,5 +562,6 @@ export const PartnerLandingPage = ({ onNavigate }) => {
         <Footer onNavigate={onNavigate} />
       </div>
     </div>
+    </>
   )
 }
