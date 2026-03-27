@@ -114,7 +114,6 @@ export const LandingPage = ({ onNavigate }) => {
       </div>
 
       <div className="relative z-10 w-full">
-        <AnnouncementBar onNavigate={onNavigate} vertical={vertical} />
         {/* NAVBAR */}
         <Navbar
           onNavigate={onNavigate}
