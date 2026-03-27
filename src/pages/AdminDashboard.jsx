@@ -80,6 +80,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/ambassadors") return "ambassadors";
     if (route === "/admin/partners") return "partners";
     if (route === "/admin/ratings") return "ratings";
+    if (route === "/admin/shopify") return "shopify";
     return "overview";
   };
 
