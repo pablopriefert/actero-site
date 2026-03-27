@@ -54,6 +54,7 @@ import { StickyCTA } from '../components/ui/StickyCTA'
 import { LiveTicker } from '../components/ui/LiveTicker'
 import { ReadingProgress } from '../components/ui/ReadingProgress'
 import { GlowCard } from '../components/ui/GlowCard'
+import { Tilt3D } from '../components/ui/Tilt3D'
 
 export const LandingPage = ({ onNavigate }) => {
   const scrollToId = (id) => {
@@ -207,18 +208,22 @@ export const LandingPage = ({ onNavigate }) => {
                       key={`${vertical}-${i}`}
                       className="flex flex-col items-center group"
                     >
-                      <div className="mb-4 opacity-60 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300">
-                        {block.icon}
-                      </div>
-                      <p className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
-                        <ScrollCounter value={block.statValue} suffix={block.statSuffix} />
-                      </p>
-                      <h3 className="text-lg font-bold text-white mb-3">
-                        {block.title}
-                      </h3>
-                      <p className="text-base text-gray-400 font-medium leading-relaxed max-w-xs">
-                        {block.desc}
-                      </p>
+                      <Tilt3D intensity={8} className="w-full">
+                        <div className="bg-white/[0.025] border border-white/[0.07] rounded-2xl p-6 md:p-8 flex flex-col items-center hover:border-white/[0.14] transition-colors duration-300">
+                          <div className="mb-4 opacity-60 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300">
+                            {block.icon}
+                          </div>
+                          <p className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+                            <ScrollCounter value={block.statValue} suffix={block.statSuffix} />
+                          </p>
+                          <h3 className="text-lg font-bold text-white mb-3">
+                            {block.title}
+                          </h3>
+                          <p className="text-base text-gray-400 font-medium leading-relaxed max-w-xs">
+                            {block.desc}
+                          </p>
+                        </div>
+                      </Tilt3D>
                     </StaggerItem>
                   ))}
                 </StaggerContainer>
@@ -659,6 +664,7 @@ export const LandingPage = ({ onNavigate }) => {
                 </FadeInUp>
 
                 <FadeInUp delay={0.1}>
+                  <Tilt3D intensity={5} glare={true}>
                   <div className={`p-[1px] rounded-[32px] ${vertical === 'immobilier' ? 'shimmer-border-violet' : 'shimmer-border-emerald'}`}>
                   <div className="bg-[#0d0d0d] rounded-[31px] overflow-hidden relative">
                     {/* Glow */}
@@ -790,6 +796,7 @@ export const LandingPage = ({ onNavigate }) => {
                     </div>
                   </div>
                   </div>
+                  </Tilt3D>
                 </FadeInUp>
               </div>
             </section>

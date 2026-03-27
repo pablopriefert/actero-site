@@ -1,8 +1,18 @@
 import React from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Shield, Clock, TrendingUp, UserPlus, ShoppingBag, Building2 } from 'lucide-react';
 import { FadeInUp, ScaleIn } from './scroll-animations';
 import { ButtonColorful } from './button-colorful';
 import { MagneticButton } from './magnetic-button';
+
+const ORBS = [
+  { left: '8%',  top: '18%', size: 260, dur: 9,  delay: 0,   y: 28 },
+  { left: '88%', top: '12%', size: 200, dur: 13, delay: 2.5, y: 20 },
+  { left: '14%', top: '68%', size: 180, dur: 11, delay: 1,   y: 32 },
+  { left: '82%', top: '62%', size: 300, dur: 10, delay: 3,   y: 18 },
+  { left: '50%', top: '88%', size: 220, dur: 8,  delay: 0.8, y: 22 },
+  { left: '38%', top: '30%', size: 140, dur: 14, delay: 4,   y: 26 },
+];
 
 export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange }) => {
 
@@ -56,11 +66,19 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
     const content = heroContent[vertical];
     const isEcommerce = vertical === 'ecommerce';
 
+    // Scroll parallax
+    const { scrollY } = useScroll();
+    const bgY    = useTransform(scrollY, [0, 700], [0,  160]);
+    const contentY = useTransform(scrollY, [0, 500], [0, -50]);
+    const contentOpacity = useTransform(scrollY, [0, 380], [1, 0]);
+
+    const orbColor = isEcommerce ? 'rgba(16,185,129,' : 'rgba(139,92,246,';
+
     return (
         <div className="relative min-h-[100vh] flex flex-col items-center justify-center pt-24 pb-20 px-6 overflow-hidden">
 
             {/* ── Geometric grid background ── */}
-            <div className="absolute inset-0 z-0 bg-[#030303] overflow-hidden">
+            <motion.div className="absolute inset-0 z-0 bg-[#030303] overflow-hidden" style={{ y: bgY }}>
                 {/* Fine grid lines */}
                 <svg
                     className="absolute inset-0 w-full h-full opacity-[0.04]"
@@ -115,10 +133,67 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* Bottom fade */}
                 <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#030303] to-transparent pointer-events-none" />
+            </motion.div>
+
+            {/* ── Floating orbs (outside scrolling bg, fixed in hero) ── */}
+            {ORBS.map((orb, i) => (
+                <motion.div
+                    key={i}
+                    className="absolute rounded-full pointer-events-none"
+                    style={{
+                        left: orb.left,
+                        top: orb.top,
+                        width: orb.size,
+                        height: orb.size,
+                        x: '-50%',
+                        y: '-50%',
+                        background: `radial-gradient(circle at 38% 38%, ${orbColor}0.18) 0%, transparent 70%)`,
+                        filter: 'blur(48px)',
+                    }}
+                    animate={{ y: [0, -orb.y, 0], x: [0, orb.y * 0.35, 0] }}
+                    transition={{ duration: orb.dur, delay: orb.delay, repeat: Infinity, ease: 'easeInOut' }}
+                />
+            ))}
+
+            {/* ── 3D rotating ring ── */}
+            <div
+                className="absolute pointer-events-none z-0"
+                style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)', perspective: '800px' }}
+            >
+                <motion.div
+                    className="rounded-full border"
+                    style={{
+                        width: 560,
+                        height: 560,
+                        borderColor: isEcommerce ? 'rgba(16,185,129,0.08)' : 'rgba(139,92,246,0.08)',
+                        rotateX: 70,
+                    }}
+                    animate={{ rotateZ: 360 }}
+                    transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+                />
+            </div>
+            <div
+                className="absolute pointer-events-none z-0"
+                style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)', perspective: '800px' }}
+            >
+                <motion.div
+                    className="rounded-full border"
+                    style={{
+                        width: 340,
+                        height: 340,
+                        borderColor: isEcommerce ? 'rgba(6,182,212,0.06)' : 'rgba(168,85,247,0.06)',
+                        rotateX: 65,
+                    }}
+                    animate={{ rotateZ: -360 }}
+                    transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+                />
             </div>
 
-            {/* ── Content ── */}
-            <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">
+            {/* ── Content (with scroll parallax) ── */}
+            <motion.div
+                className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center"
+                style={{ y: contentY, opacity: contentOpacity }}
+            >
 
                 {/* ── Vertical Toggle — very prominent ── */}
                 <FadeInUp className="mb-10">
@@ -244,7 +319,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                         </div>
                     </div>
                 </ScaleIn>
-            </div>
+            </motion.div>
         </div>
     );
 };
