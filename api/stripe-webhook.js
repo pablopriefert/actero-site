@@ -239,24 +239,6 @@ export default async function handler(req, res) {
 
       if (clientEmail) {
         try {
-          const shopifyBlock = clientType === 'ecommerce' ? `
-            <tr>
-              <td style="padding:0 40px 32px 40px;">
-                <div style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;">
-                  <p style="font-size:14px;font-weight:700;color:#166534;margin:0 0 8px 0;">
-                    🔗 Étape suivante : installer l'app Shopify
-                  </p>
-                  <p style="font-size:13px;color:#15803d;line-height:1.6;margin:0 0 16px 0;">
-                    Pour connecter votre boutique à Actero, installez notre app custom en un clic :
-                  </p>
-                  <a href="https://admin.shopify.com/oauth/install_custom_app?client_id=fcb9a2aafa1c3d00a213ba7dd16a584c&no_redirect=true&signature=eyJleHBpcmVzX2F0IjoxNzc0MTc3NDU3LCJwZXJtYW5lbnRfZG9tYWluIjoiYWN0ZXJvLXRlc3QubXlzaG9waWZ5LmNvbSIsImNsaWVudF9pZCI6ImZjYjlhMmFhZmExYzNkMDBhMjEzYmE3ZGQxNmE1ODRjIiwicHVycG9zZSI6ImN1c3RvbV9hcHAiLCJtZXJjaGFudF9vcmdhbml6YXRpb25faWQiOjIxMDE0NTc5N30%3D--34a7d58a33b46daaef09e2292dc8b4ba17c9dc65"
-                     style="display:inline-block;background-color:#16a34a;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;padding:12px 28px;border-radius:10px;">
-                    Installer l'app Shopify
-                  </a>
-                </div>
-              </td>
-            </tr>` : '';
-
           await resend.emails.send({
             from: process.env.RESEND_FROM_EMAIL || 'Actero <onboarding@resend.dev>',
             to: [clientEmail],
@@ -285,13 +267,12 @@ export default async function handler(req, res) {
             Notre équipe va préparer le déploiement de vos agents IA. Vous serez opérationnel sous 24-48h.
           </p>
         </td></tr>
-        ${shopifyBlock}
         <tr><td style="padding:0 40px 32px 40px;">
           <div style="background-color:#fafafa;border:1px solid #eee;border-radius:12px;padding:16px 20px;">
             <p style="font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin:0 0 10px 0;">Prochaines étapes</p>
             <p style="font-size:14px;color:#444;line-height:1.8;margin:0;">
               1. Vous recevez un email pour créer votre mot de passe<br>
-              2. ${clientType === 'ecommerce' ? 'Installez l\'app Shopify (lien ci-dessus)' : 'Notre équipe vous contacte pour le setup'}<br>
+              2. Notre équipe vous contacte pour le setup<br>
               3. Vos agents IA sont déployés sous 24-48h<br>
               4. Accédez à votre dashboard de suivi en temps réel
             </p>
