@@ -172,9 +172,9 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                     </div>
                 </FadeInUp>
 
-                {/* ── Headline — very large ── */}
-                <FadeInUp delay={0.1} className="text-center max-w-5xl mb-8">
-                    <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] xl:text-[6rem] font-bold tracking-tight text-white leading-[1.0] md:leading-[1.02]" style={{ letterSpacing: '-0.03em' }}>
+                {/* ── Headline ── */}
+                <FadeInUp delay={0.1} className="text-center max-w-4xl mb-8">
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.1] md:leading-[1.08]" style={{ letterSpacing: '-0.025em' }}>
                         {content.headline}
                     </h1>
                 </FadeInUp>
