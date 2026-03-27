@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, Loader2, ArrowRight } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 const benefits = [
   "Automatisation du support client",
@@ -18,8 +19,20 @@ function formatClientName(slug) {
 export function StartPage({ clientSlug }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [clientData, setClientData] = useState(null);
 
-  const clientName = formatClientName(clientSlug);
+  useEffect(() => {
+    supabase
+      .from('funnel_clients')
+      .select('company_name, setup_price, monthly_price, client_type')
+      .eq('slug', clientSlug)
+      .maybeSingle()
+      .then(({ data }) => { if (data) setClientData(data); });
+  }, [clientSlug]);
+
+  const clientName = clientData?.company_name || formatClientName(clientSlug);
+  const setupPrice = clientData?.setup_price ?? 800;
+  const monthlyPrice = clientData?.monthly_price ?? 800;
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -67,12 +80,15 @@ export function StartPage({ clientSlug }) {
         <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 shadow-2xl">
           {/* Pricing */}
           <div className="flex items-baseline gap-3 mb-2">
-            <span className="text-5xl font-bold text-white">800€</span>
+            <span className="text-5xl font-bold text-white">{monthlyPrice}€</span>
             <span className="text-gray-500 text-lg">/mois</span>
           </div>
-          <p className="text-sm text-gray-500 mb-8">
-            + 800€ de frais de setup (facturés une seule fois)
-          </p>
+          {setupPrice > 0 && (
+            <p className="text-sm text-gray-500 mb-8">
+              + {setupPrice}€ de frais de setup (facturés une seule fois)
+            </p>
+          )}
+          {setupPrice === 0 && <div className="mb-8" />}
 
           {/* Divider */}
           <div className="border-t border-white/10 my-6" />
