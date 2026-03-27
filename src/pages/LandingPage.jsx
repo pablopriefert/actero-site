@@ -588,9 +588,9 @@ export const LandingPage = ({ onNavigate }) => {
                 </FadeInUp>
 
                 <SlideInLeft>
-                <GlowCard color={vertical === 'immobilier' ? 'violet' : 'white'} glowSize={300} className="bg-[#0a0a0a] rounded-[32px] border border-white/10 overflow-hidden shadow-sm">
-                  <div className="grid grid-cols-2 border-b border-white/5 bg-white/5">
-                    <div className="p-6 md:p-8 border-r border-white/5">
+                <GlowCard color={vertical === 'immobilier' ? 'violet' : 'white'} glowSize={300} className="bg-[#0d0d0d] rounded-[32px] border border-white/[0.12] overflow-hidden">
+                  <div className="grid grid-cols-2 border-b border-white/[0.10] bg-white/[0.06]">
+                    <div className="p-6 md:p-8 border-r border-white/[0.10]">
                       <p className="text-lg font-bold tracking-tight text-gray-400 line-through">Outils en self-service</p>
                     </div>
                     <div className="p-6 md:p-8">
@@ -601,7 +601,7 @@ export const LandingPage = ({ onNavigate }) => {
                     </div>
                   </div>
 
-                  <div className="divide-y divide-white/5">
+                  <div className="divide-y divide-white/[0.08]">
                     {(vertical === 'ecommerce' ? [
                       { old: "Vous construisez vos flux vous-même", new: "On déploie et on gère pour vous" },
                       { old: "Pas de stratégie, juste des connecteurs", new: "Audit + recommandation + exécution" },
@@ -615,9 +615,9 @@ export const LandingPage = ({ onNavigate }) => {
                       { old: "Aucun suivi des prospects inactifs", new: "Détection et réactivation intelligente" },
                       { old: "Pas de visibilité sur la performance", new: "Dashboard temps réel + account manager" },
                     ]).map((row, i) => (
-                      <div key={i} className="grid grid-cols-2 group hover:bg-white/[0.02] transition-colors">
-                        <div className="p-6 md:p-8 border-r border-white/5 flex items-center">
-                          <p className="text-[15px] font-medium text-gray-500">{row.old}</p>
+                      <div key={i} className="grid grid-cols-2 group hover:bg-white/[0.04] transition-colors">
+                        <div className="p-6 md:p-8 border-r border-white/[0.08] flex items-center">
+                          <p className="text-[15px] font-medium text-gray-400">{row.old}</p>
                         </div>
                         <div className="p-6 md:p-8 flex items-center gap-3">
                           <CheckCircle2 className={`w-4 h-4 flex-shrink-0 ${vertical === 'immobilier' ? 'text-violet-400' : 'text-emerald-400'}`} />
@@ -637,7 +637,7 @@ export const LandingPage = ({ onNavigate }) => {
             <section className="py-24 md:py-32 bg-transparent px-6 relative z-10">
               <div className="max-w-5xl mx-auto">
                 <FadeInUp className="text-center mb-16">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-6">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-6">
                     Le programme
                   </p>
                   <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6">
@@ -647,13 +647,13 @@ export const LandingPage = ({ onNavigate }) => {
                 </FadeInUp>
 
                 <FadeInUp delay={0.1}>
-                  <div className="bg-[#0a0a0a] rounded-[32px] border border-white/10 overflow-hidden relative">
+                  <div className="bg-[#0d0d0d] rounded-[32px] border border-white/[0.12] overflow-hidden relative">
                     {/* Glow */}
-                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-[120px] pointer-events-none ${vertical === 'immobilier' ? 'bg-violet-500/5' : 'bg-emerald-500/5'}`}></div>
+                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-[120px] pointer-events-none ${vertical === 'immobilier' ? 'bg-violet-500/10' : 'bg-emerald-500/10'}`}></div>
 
                     <div className="grid md:grid-cols-2 relative z-10">
                       {/* Left — Offer details */}
-                      <div className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/[0.06]">
+                      <div className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/[0.10]">
                         <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6 uppercase tracking-widest ${vertical === 'immobilier' ? 'bg-violet-500/10 border border-violet-500/20 text-violet-400' : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'}`}>
                           <Zap className="w-3.5 h-3.5" /> Done-for-you
                         </div>
@@ -694,16 +694,16 @@ export const LandingPage = ({ onNavigate }) => {
                           ))}
                         </div>
 
-                        <div className="pt-6 border-t border-white/[0.06]">
+                        <div className="pt-6 border-t border-white/[0.10]">
                           <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-xs font-bold uppercase tracking-widest text-gray-500">À partir de</span>
+                            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">À partir de</span>
                           </div>
                           <div className="flex items-baseline gap-2 mb-3">
                             <span className={`text-4xl font-bold tracking-tight ${vertical === 'immobilier' ? 'text-violet-400' : 'text-emerald-400'}`}>800€</span>
-                            <span className="text-gray-400 font-medium text-lg">/mois</span>
-                            <span className="text-gray-600 text-sm font-medium">HT</span>
+                            <span className="text-gray-300 font-medium text-lg">/mois</span>
+                            <span className="text-gray-500 text-sm font-medium">HT</span>
                           </div>
-                          <p className="text-sm text-gray-500 font-medium">
+                          <p className="text-sm text-gray-400 font-medium">
                             {vertical === 'ecommerce'
                               ? "Tarif selon la taille de votre boutique et le périmètre. L'audit initial est gratuit et sans engagement."
                               : "Tarif selon la taille de votre agence et le nombre d'agents déployés. La démo est gratuite."
@@ -753,7 +753,7 @@ export const LandingPage = ({ onNavigate }) => {
                               },
                             ]).map((item, i) => (
                               <div key={i} className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <div className="w-10 h-10 rounded-xl bg-white/[0.08] border border-white/[0.12] flex items-center justify-center flex-shrink-0 mt-0.5">
                                   {item.icon}
                                 </div>
                                 <p className="text-gray-300 font-medium leading-relaxed text-[15px]">{item.text}</p>
@@ -849,10 +849,10 @@ export const LandingPage = ({ onNavigate }) => {
                       a: "À partir de 800€/mois HT selon le périmètre d'automatisation. L'audit initial est gratuit et inclut une estimation du ROI attendu avant tout engagement."
                     },
                   ]).map((faq, i) => (
-                    <div key={i} className="border border-white/[0.08] rounded-2xl bg-[#030303] overflow-hidden hover:border-white/[0.12] transition-colors">
+                    <div key={i} className="border border-white/[0.10] rounded-2xl bg-[#0a0a0a] overflow-hidden hover:border-white/[0.18] transition-colors">
                       <button onClick={() => setOpenFaqIndex(openFaqIndex === i ? null : i)} className="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span className="font-bold text-white text-lg pr-4">{faq.q}</span>
-                        <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform flex-shrink-0 ${openFaqIndex === i ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${openFaqIndex === i ? 'rotate-180' : ''}`} />
                       </button>
                       <AnimatePresence>
                         {openFaqIndex === i && (
@@ -873,12 +873,12 @@ export const LandingPage = ({ onNavigate }) => {
             <section className="py-24 md:py-32 bg-transparent px-6 relative z-10">
               <div className="max-w-4xl mx-auto">
                 <FadeInUp>
-                  <div className="relative bg-[#0a0a0a] rounded-[32px] p-10 md:p-16 border border-white/10 overflow-hidden text-center">
+                  <div className="relative bg-[#0d0d0d] rounded-[32px] p-10 md:p-16 border border-white/[0.14] overflow-hidden text-center">
                     {/* Glow */}
-                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none ${vertical === 'immobilier' ? 'bg-violet-500/[0.06]' : 'bg-emerald-500/[0.06]'}`}></div>
+                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none ${vertical === 'immobilier' ? 'bg-violet-500/[0.12]' : 'bg-emerald-500/[0.12]'}`}></div>
 
                     <div className="relative z-10">
-                      <div className="w-16 h-16 bg-white/[0.04] border border-white/[0.08] rounded-2xl flex items-center justify-center mx-auto mb-8">
+                      <div className="w-16 h-16 bg-white/[0.08] border border-white/[0.14] rounded-2xl flex items-center justify-center mx-auto mb-8">
                         <CalendarCheck className={`w-8 h-8 ${vertical === 'immobilier' ? 'text-violet-400' : 'text-emerald-400'}`} />
                       </div>
 
@@ -889,7 +889,7 @@ export const LandingPage = ({ onNavigate }) => {
                         }
                       </h2>
 
-                      <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
+                      <p className="text-lg text-gray-300 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
                         {vertical === 'ecommerce'
                           ? "En 15 minutes, on analyse votre boutique et on vous montre exactement combien vous perdez — et ce qu'on peut récupérer pour vous."
                           : "En 15 minutes, on analyse votre agence et on vous montre exactement combien de prospects vous perdez — et ce que nos agents IA peuvent récupérer."
@@ -902,7 +902,7 @@ export const LandingPage = ({ onNavigate }) => {
                         </ButtonColorful>
                       </div>
 
-                      <div className="flex items-center justify-center gap-6 text-sm text-gray-500 font-medium">
+                      <div className="flex items-center justify-center gap-6 text-sm text-gray-400 font-medium">
                         <span className="flex items-center gap-1.5">
                           <Shield className="w-4 h-4" /> Sans engagement
                         </span>
