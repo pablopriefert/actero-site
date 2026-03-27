@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
-/* ── Font override: Plus Jakarta Sans ── */
+/* ── Font override: Mona Sans ── */
 @theme {
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Mona Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* optionnel : un reset propre */
