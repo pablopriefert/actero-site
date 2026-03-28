@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#03363D"/>
-  <path d="M50 30v25L25 70h25V30z" fill="white"/>
-  <path d="M50 30H75L50 45z" fill="white"/>
-  <circle cx="62.5" cy="35" r="8" fill="white"/>
-  <path d="M50 55L75 70H50V55z" fill="white"/>
+  <rect width="100" height="100" rx="16" fill="#03363D"/>
+  <g transform="translate(18,20)">
+    <path d="M32 0v35L0 60h32V0z" fill="#78A300"/>
+    <circle cx="48" cy="10" r="10" fill="#78A300"/>
+    <path d="M32 0h32L32 25z" fill="#78A300"/>
+    <path d="M32 60V25l32 35H32z" fill="#D4AE5E"/>
+  </g>
 </svg>

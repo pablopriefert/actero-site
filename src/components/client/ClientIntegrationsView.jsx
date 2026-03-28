@@ -14,23 +14,18 @@ const ProviderIcon = ({ provider, connected, size = 40 }) => {
   return (
     <div
       className="rounded-xl flex items-center justify-center shrink-0 transition-all overflow-hidden"
-      style={{
-        width: size,
-        height: size,
-        opacity: connected ? 1 : 0.5,
-      }}
+      style={{ width: size, height: size }}
     >
       {hasIcon ? (
         <img
           src={config.icon}
           alt={config.name}
           className="w-full h-full object-contain"
-          style={{ filter: connected ? 'none' : 'grayscale(100%)' }}
         />
       ) : (
         <div
           className="w-full h-full rounded-xl flex items-center justify-center font-bold text-white"
-          style={{ backgroundColor: connected ? config.color : '#3f3f46', fontSize: size * 0.4 }}
+          style={{ backgroundColor: config.color || '#3f3f46', fontSize: size * 0.4 }}
         >
           {config.name?.[0] || '?'}
         </div>
