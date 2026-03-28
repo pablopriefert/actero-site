@@ -34,6 +34,7 @@ import {
   MessageSquare,
   MessageCircle,
   Gift,
+  Plug,
   BookOpen,
   AlertTriangle,
 } from 'lucide-react'
@@ -56,6 +57,7 @@ import { ClientConversationsView } from '../components/client/ClientConversation
 import { ClientSystemsView } from '../components/client/ClientSystemsView'
 import { ClientReferralView } from '../components/client/ClientReferralView'
 import { ClientKnowledgeBaseView } from '../components/client/ClientKnowledgeBaseView'
+import { ClientIntegrationsView } from '../components/client/ClientIntegrationsView'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ClientSatisfactionScore, SatisfactionKPI } from '../components/client/ClientSatisfactionScore'
 
@@ -81,6 +83,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/reports") return "reports";
     if (route === "/client/support") return "support";
     if (route === "/client/referral") return "referral";
+    if (route === "/client/integrations") return "integrations";
     if (route === "/client/profile") return "profile";
     return "overview";
   };
@@ -325,6 +328,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'systems', label: 'Mes Systemes', icon: Database },
     { id: 'support', label: 'Support', icon: MessageSquare },
     { id: 'referral', label: 'Parrainage', icon: Gift },
+    { id: 'integrations', label: 'Intégrations', icon: Plug },
     { type: 'section', label: 'Compte' },
     { id: 'profile', label: 'Mon Profil', icon: User },
   ];
@@ -395,6 +399,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "intelligence" && "Intelligence"}
               {activeTab === "support" && "Support & Demandes"}
               {activeTab === "referral" && "Parrainage"}
+              {activeTab === "integrations" && "Intégrations"}
             </h1>
 
             <div className="hidden lg:flex items-center gap-3">
@@ -600,6 +605,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "knowledge" && (
             <ClientKnowledgeBaseView
+              clientId={currentClient?.id}
+              clientType={currentClient?.client_type}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "integrations" && (
+            <ClientIntegrationsView
               clientId={currentClient?.id}
               clientType={currentClient?.client_type}
               theme={theme}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { X, Loader2, CheckCircle, Settings, Rocket, Globe, Sparkles } from 'lucide-react'
+import { X, Loader2, CheckCircle, Settings, Rocket, Globe, Sparkles, Plug, RefreshCw } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase'
 
 const WORKFLOW_TEMPLATES = [
@@ -346,7 +347,124 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
             )}
           </div>
         )}
+
+        {/* Intégrations client */}
+        {!fetching && <AdminClientIntegrations clientId={client.id} />}
       </div>
+    </div>
+  );
+};
+
+const STATUS_COLORS = {
+  active: 'text-emerald-400 bg-emerald-500/20',
+  expired: 'text-amber-400 bg-amber-500/20',
+  error: 'text-red-400 bg-red-500/20',
+  revoked: 'text-zinc-400 bg-zinc-500/20',
+  pending: 'text-blue-400 bg-blue-500/20',
+};
+
+const AdminClientIntegrations = ({ clientId }) => {
+  const [testingId, setTestingId] = useState(null);
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['admin-client-integrations', clientId],
+    queryFn: async () => {
+      const { data: integrations, error } = await supabase
+        .from('client_integrations')
+        .select('id, provider, provider_label, auth_type, status, status_message, connected_at, last_checked_at')
+        .eq('client_id', clientId);
+      if (error) throw error;
+
+      const { data: shopify } = await supabase
+        .from('client_shopify_connections')
+        .select('id, shop_domain, installed_at')
+        .eq('client_id', clientId)
+        .maybeSingle();
+
+      return { integrations: integrations || [], shopify };
+    },
+    enabled: !!clientId,
+  });
+
+  const handleForceTest = async (integration) => {
+    setTestingId(integration.id);
+    try {
+      await supabase
+        .from('client_integrations')
+        .update({ last_checked_at: new Date().toISOString() })
+        .eq('id', integration.id);
+      await refetch();
+    } finally {
+      setTestingId(null);
+    }
+  };
+
+  const integrations = data?.integrations || [];
+  const shopify = data?.shopify;
+  const hasAny = integrations.length > 0 || !!shopify;
+
+  return (
+    <div className="mt-6 pt-6 border-t border-white/10 space-y-4">
+      <div className="flex items-center gap-2 mb-2">
+        <Plug className="w-4 h-4 text-cyan-400" />
+        <h4 className="text-sm font-bold text-white">Intégrations</h4>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-4">
+          <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
+        </div>
+      ) : !hasAny ? (
+        <p className="text-xs text-zinc-500">Aucune intégration connectée</p>
+      ) : (
+        <div className="space-y-2">
+          {shopify && (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#030303] border border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white" style={{ backgroundColor: '#96BF48' }}>S</div>
+                <div>
+                  <p className="text-xs font-bold text-white">Shopify</p>
+                  <p className="text-[10px] text-zinc-500">{shopify.shop_domain}</p>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-400 bg-emerald-500/20">Connecté</span>
+            </div>
+          )}
+
+          {integrations.map(int => (
+            <div key={int.id} className="flex items-center justify-between p-3 rounded-xl bg-[#030303] border border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white bg-zinc-700">
+                  {(int.provider_label || int.provider)[0].toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">{int.provider_label || int.provider}</p>
+                  <p className="text-[10px] text-zinc-500">
+                    {int.last_checked_at ? `Vérifié ${new Date(int.last_checked_at).toLocaleDateString('fr-FR')}` : 'Jamais vérifié'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${STATUS_COLORS[int.status] || STATUS_COLORS.pending}`}>
+                  {int.status === 'active' ? 'Connecté' : int.status}
+                </span>
+                <button
+                  onClick={() => handleForceTest(int)}
+                  disabled={testingId === int.id}
+                  className="p-1 rounded hover:bg-white/10 transition-colors"
+                  title="Forcer le test"
+                >
+                  {testingId === int.id ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-400" />
+                  ) : (
+                    <RefreshCw className="w-3.5 h-3.5 text-zinc-500 hover:text-white" />
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
