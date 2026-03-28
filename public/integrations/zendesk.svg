@@ -1,9 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="16" fill="#03363D"/>
-  <g transform="translate(18,20)">
-    <path d="M32 0v35L0 60h32V0z" fill="#78A300"/>
-    <circle cx="48" cy="10" r="10" fill="#78A300"/>
-    <path d="M32 0h32L32 25z" fill="#78A300"/>
-    <path d="M32 60V25l32 35H32z" fill="#D4AE5E"/>
+  <rect width="100" height="100" rx="16" fill="white"/>
+  <g transform="translate(18,15)">
+    <!-- Top left: triangle -->
+    <path d="M0 22L30 0v22z" fill="#03363D"/>
+    <!-- Top right: circle -->
+    <circle cx="48" cy="11" r="11" fill="#03363D"/>
+    <!-- Bottom left: half circle -->
+    <path d="M15 48a15 15 0 0 1-15-15h30a15 15 0 0 1-15 15z" fill="#03363D" transform="translate(0,22)"/>
+    <!-- Bottom right: triangle -->
+    <path d="M34 70L64 48v22z" fill="#03363D" transform="rotate(180,49,59)"/>
   </g>
 </svg>
