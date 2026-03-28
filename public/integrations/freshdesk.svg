@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="16" fill="#25C16F"/>
-  <g transform="translate(22,18)">
-    <path d="M28 0C14.7 0 4 10.7 4 24v8c0 3.3 2.7 6 6 6h4v-20c0-7.7 6.3-14 14-14s14 6.3 14 14v20h4c3.3 0 6-2.7 6-6v-8C52 10.7 41.3 0 28 0z" fill="white"/>
-    <rect x="14" y="38" width="10" height="16" rx="5" fill="white"/>
-    <rect x="32" y="38" width="10" height="16" rx="5" fill="white"/>
-    <path d="M14 54c0 7.7 6.3 14 14 14s14-6.3 14-14" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="white" rx="0"/>
+  <g transform="translate(35,20)">
+    <path d="M65 0C29 0 0 29 0 65v20c0 5 4 9 9 9h15V59c0-22.6 18.4-41 41-41s41 18.4 41 41v35h15c5 0 9-4 9-9V65c0-36-29-65-65-65z" fill="#25C16F"/>
+    <rect x="24" y="100" width="25" height="45" rx="12.5" fill="#25C16F"/>
+    <rect x="81" y="100" width="25" height="45" rx="12.5" fill="#25C16F"/>
+    <path d="M30 155c0 20 15.7 35 35 35s35-15 35-35" fill="none" stroke="#25C16F" stroke-width="10" stroke-linecap="round"/>
   </g>
 </svg>
