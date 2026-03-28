@@ -565,13 +565,19 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                 onChange={(e) => setOauthPromptValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleOAuthPromptSubmit()}
                 autoFocus
-                placeholder={oauthPromptProvider.id === 'shopify' ? 'ma-boutique.myshopify.com' : 'ma-boutique'}
-                className={`w-full px-4 py-3 rounded-xl text-sm outline-none transition-all mb-5 ${
+                placeholder={oauthPromptProvider.oauthPromptPlaceholder || 'ma-boutique'}
+                className={`w-full px-4 py-3 rounded-xl text-sm outline-none transition-all ${
                   isLight
                     ? 'bg-slate-50 border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/40'
                     : 'bg-[#030303] border border-white/10 text-white focus:ring-2 focus:ring-zinc-400'
                 }`}
               />
+              {oauthPromptProvider.oauthPromptHint && (
+                <p className={`text-xs mt-1.5 mb-4 ${isLight ? 'text-slate-400' : 'text-zinc-500'}`}>
+                  {oauthPromptProvider.oauthPromptHint}
+                </p>
+              )}
+              {!oauthPromptProvider.oauthPromptHint && <div className="mb-5" />}
               <div className="flex gap-3">
                 <button
                   onClick={() => setOauthPromptProvider(null)}
