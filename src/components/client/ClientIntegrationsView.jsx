@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -47,7 +47,7 @@ const STATUS_BADGES = {
   pending: { label: 'En attente', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
 };
 
-const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain, onConnect, onDisconnect, isLight }) => {
+const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain, onOAuthConnect, onDisconnect, isLight }) => {
   const isShopify = provider.id === 'shopify';
   const isConnected = isShopify ? shopifyConnected : !!connection;
   const status = isShopify ? (shopifyConnected ? 'active' : null) : connection?.status;
@@ -105,42 +105,19 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                   </span>
                 )}
               </>
-            ) : provider.authType === 'oauth' && provider.id !== 'shopify' ? (
+            ) : provider.authType === 'coming_soon' ? (
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-500 bg-zinc-800 cursor-not-allowed">
                 <Plug className="w-3 h-3" /> Bientôt
               </span>
             ) : provider.authType === 'oauth' ? (
-              <a
-                href={`/api/shopify/install?shop=${encodeURIComponent(provider.id === 'shopify' ? 'votre-boutique.myshopify.com' : '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const shop = prompt('Entrez votre domaine Shopify (ex: ma-boutique.myshopify.com)');
-                  if (shop?.trim()) {
-                    window.open(`/api/shopify/install?shop=${encodeURIComponent(shop.trim())}`, '_blank');
-                  }
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                  isLight
-                    ? 'text-white bg-[#96BF48] hover:bg-[#7ea33d]'
-                    : 'text-white bg-[#96BF48] hover:bg-[#7ea33d]'
-                }`}
-              >
-                <ExternalLink className="w-3 h-3" /> Installer l'app
-              </a>
-            ) : (
               <button
-                onClick={() => onConnect(provider)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                  isLight
-                    ? 'text-white bg-slate-900 hover:bg-slate-800'
-                    : 'text-white bg-white/10 hover:bg-white/15 border border-white/10'
-                }`}
+                onClick={() => onOAuthConnect(provider)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors`}
+                style={{ backgroundColor: provider.color, color: '#fff' }}
               >
-                <Plug className="w-3 h-3" /> Connecter
+                <ExternalLink className="w-3 h-3" /> Connecter
               </button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -367,10 +344,39 @@ const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight 
 export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const queryClient = useQueryClient();
   const isLight = theme === 'light';
-  const [connectProvider, setConnectProvider] = useState(null);
   const [disconnectTarget, setDisconnectTarget] = useState(null);
   const [disconnecting, setDisconnecting] = useState(false);
   const [search, setSearch] = useState('');
+  const [oauthMessage, setOauthMessage] = useState(null);
+
+  // Handle OAuth callback messages
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('success');
+    const error = params.get('error');
+    if (success) {
+      setOauthMessage({ type: 'success', text: `${success.charAt(0).toUpperCase() + success.slice(1)} connecté avec succès !` });
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (error) {
+      setOauthMessage({ type: 'error', text: `Erreur de connexion : ${error.replace(/_/g, ' ')}` });
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  const handleOAuthConnect = async (provider) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    if (provider.oauthPrompt) {
+      const value = prompt(provider.oauthPromptLabel);
+      if (!value?.trim()) return;
+      const url = provider.oauthUrl({ [provider.oauthPrompt]: value.trim(), token: session.access_token });
+      window.location.href = url;
+    } else if (provider.oauthUrl) {
+      const url = provider.oauthUrl({ token: session.access_token });
+      window.location.href = url;
+    }
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['client-integrations', clientId],
@@ -452,6 +458,30 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
         </div>
       </div>
 
+      {/* OAuth callback message */}
+      <AnimatePresence>
+        {oauthMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className={`flex items-center justify-between gap-3 p-4 rounded-xl ${
+              oauthMessage.type === 'success'
+                ? (isLight ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20')
+                : (isLight ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-red-500/10 text-red-400 border border-red-500/20')
+            }`}
+          >
+            <div className="flex items-center gap-2 text-sm font-medium">
+              {oauthMessage.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+              {oauthMessage.text}
+            </div>
+            <button onClick={() => setOauthMessage(null)} className="opacity-60 hover:opacity-100">
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {isLoading ? (
         <div className="flex justify-center py-16">
           <Loader2 className={`w-6 h-6 animate-spin ${isLight ? 'text-slate-400' : 'text-zinc-400'}`} />
@@ -487,7 +517,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                     connection={getConnectionForProvider(provider.id)}
                     shopifyConnected={shopifyConnected}
                     shopifyDomain={shopifyDomain}
-                    onConnect={(p) => setConnectProvider(p)}
+                    onOAuthConnect={handleOAuthConnect}
                     onDisconnect={(conn) => setDisconnectTarget({ ...conn, providerName: provider.name })}
                     isLight={isLight}
                   />
@@ -497,21 +527,6 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
           );
         })
       )}
-
-      {/* Connect Modal */}
-      <AnimatePresence>
-        {connectProvider && (
-          <ConnectModal
-            provider={connectProvider}
-            onClose={() => setConnectProvider(null)}
-            onSuccess={() => {
-              setConnectProvider(null);
-              queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
-            }}
-            isLight={isLight}
-          />
-        )}
-      </AnimatePresence>
 
       {/* Disconnect Modal */}
       <AnimatePresence>
