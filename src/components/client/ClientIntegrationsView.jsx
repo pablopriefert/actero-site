@@ -343,6 +343,8 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const [disconnecting, setDisconnecting] = useState(false);
   const [search, setSearch] = useState('');
   const [oauthMessage, setOauthMessage] = useState(null);
+  const [oauthPromptProvider, setOauthPromptProvider] = useState(null);
+  const [oauthPromptValue, setOauthPromptValue] = useState('');
 
   // Handle OAuth callback messages
   useEffect(() => {
@@ -363,14 +365,24 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
     if (!session) return;
 
     if (provider.oauthPrompt) {
-      const value = prompt(provider.oauthPromptLabel);
-      if (!value?.trim()) return;
-      const url = provider.oauthUrl({ [provider.oauthPrompt]: value.trim(), token: session.access_token });
-      window.location.href = url;
+      setOauthPromptProvider(provider);
+      setOauthPromptValue('');
     } else if (provider.oauthUrl) {
       const url = provider.oauthUrl({ token: session.access_token });
       window.location.href = url;
     }
+  };
+
+  const handleOAuthPromptSubmit = async () => {
+    if (!oauthPromptValue.trim() || !oauthPromptProvider) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const url = oauthPromptProvider.oauthUrl({
+      [oauthPromptProvider.oauthPrompt]: oauthPromptValue.trim(),
+      token: session.access_token,
+    });
+    setOauthPromptProvider(null);
+    window.location.href = url;
   };
 
   const { data, isLoading } = useQuery({
@@ -522,6 +534,66 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
           );
         })
       )}
+
+      {/* OAuth Prompt Modal (Shopify domain, Gorgias subdomain, etc.) */}
+      <AnimatePresence>
+        {oauthPromptProvider && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOauthPromptProvider(null)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className={`relative w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6 ${
+                isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <ProviderIcon provider={oauthPromptProvider} connected={false} size={36} />
+                <div>
+                  <h3 className={`font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    Connecter {oauthPromptProvider.name}
+                  </h3>
+                </div>
+              </div>
+              <label className={`block text-xs font-bold mb-2 ${isLight ? 'text-slate-700' : 'text-zinc-400'}`}>
+                {oauthPromptProvider.oauthPromptLabel}
+              </label>
+              <input
+                type="text"
+                value={oauthPromptValue}
+                onChange={(e) => setOauthPromptValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleOAuthPromptSubmit()}
+                autoFocus
+                placeholder={oauthPromptProvider.id === 'shopify' ? 'ma-boutique.myshopify.com' : 'ma-boutique'}
+                className={`w-full px-4 py-3 rounded-xl text-sm outline-none transition-all mb-5 ${
+                  isLight
+                    ? 'bg-slate-50 border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/40'
+                    : 'bg-[#030303] border border-white/10 text-white focus:ring-2 focus:ring-zinc-400'
+                }`}
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setOauthPromptProvider(null)}
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
+                    isLight ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white/10 text-white hover:bg-white/15'
+                  }`}
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleOAuthPromptSubmit}
+                  disabled={!oauthPromptValue.trim()}
+                  className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-50 transition-colors"
+                  style={{ backgroundColor: oauthPromptProvider.color || '#10b981' }}
+                >
+                  <ExternalLink className="w-4 h-4" /> Connecter
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Disconnect Modal */}
       <AnimatePresence>
