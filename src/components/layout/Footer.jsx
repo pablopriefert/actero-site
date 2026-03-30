@@ -8,7 +8,7 @@ export const Footer = ({ onNavigate }) => {
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex flex-col items-center md:items-start gap-4">
           <div className="flex items-center gap-2">
-            <Logo light={false} className="w-6 h-6" />
+            <Logo className="w-6 h-6 text-[#262626]" />
             <span className="font-bold tracking-tight text-[#262626] text-lg">
               Actero
             </span>

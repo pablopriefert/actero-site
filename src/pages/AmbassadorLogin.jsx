@@ -39,7 +39,7 @@ export const AmbassadorLogin = ({ onNavigate }) => {
               aria-label="Retour à l'accueil"
               className="w-10 h-10 rounded-full bg-[#18181b] flex items-center justify-center border border-gray-100 hover:scale-105 transition-transform"
             >
-              <Logo light={true} className="w-5 h-5 text-[#262626]" />
+              <Logo className="w-5 h-5 text-[#262626]" />
             </button>
             <span className="text-[#262626] text-lg font-semibold tracking-tight">Actero</span>
           </div>
@@ -108,7 +108,7 @@ export const AmbassadorLogin = ({ onNavigate }) => {
       <div className="hidden lg:flex w-1/2 items-center justify-center bg-gradient-to-br from-emerald-950/30 to-[#030303] border-l border-gray-100">
         <div className="text-center p-12">
           <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-8">
-            <Logo light={true} className="w-10 h-10 text-emerald-400" />
+            <Logo className="w-10 h-10 text-emerald-400" />
           </div>
           <h2 className="text-3xl font-bold text-[#262626] mb-4 tracking-tight">
             Programme Ambassadeur

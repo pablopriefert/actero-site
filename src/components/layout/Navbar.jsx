@@ -34,7 +34,6 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
             onClick={() => onNavigate("/")}
           >
             <Logo
-              light={true}
               className="w-7 h-7 text-[#262626] group-hover:scale-105 transition-transform"
             />
             <span className="font-bold text-xl tracking-tight text-[#262626]">

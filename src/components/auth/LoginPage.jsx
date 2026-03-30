@@ -88,7 +88,7 @@ export const LoginPage = ({ onNavigate }) => {
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-14 h-14 rounded-2xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center mb-5">
-              <Logo light={true} className="w-7 h-7 text-[#262626]" />
+              <Logo className="w-7 h-7 text-[#262626]" />
             </div>
             <h1 className="text-[#262626] text-2xl font-bold tracking-tight">
               {isForgot ? "Réinitialiser" : "Bon retour parmi nous"}
