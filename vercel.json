@@ -5,8 +5,16 @@
             "destination": "/api/$1"
         },
         {
+            "source": "/((?!api/).*)",
+            "destination": "/index.html"
+        }
+    ],
+    "headers": [
+        {
             "source": "/(.*)",
-            "destination": "/"
+            "headers": [
+                { "key": "X-Robots-Tag", "value": "index, follow" }
+            ]
         }
     ]
 }

@@ -127,8 +127,8 @@ export const PricingPage = ({ onNavigate }) => {
   return (
     <>
       <SEO
-        title="Tarifs Actero | Agent IA SAV dès 490€/mois — ROI garanti"
-        description="Découvrez nos offres d'automatisation IA : audit gratuit, agent SAV e-commerce, qualification de leads immobilier. Tarifs transparents, ROI mesurable."
+        title="Tarifs Actero — Automatisation IA sur devis"
+        description="Decouvrez les offres Actero : agents IA SAV pour e-commerce Shopify et automatisation pour agences immobilieres. Tarif sur devis."
         canonical="/tarifs"
       />
     <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">

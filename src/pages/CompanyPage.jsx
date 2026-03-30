@@ -59,8 +59,8 @@ export const CompanyPage = ({ onNavigate }) => {
   return (
     <>
       <SEO
-        title="À propos d'Actero | Agence d'infrastructure IA en France"
-        description="Actero construit des systèmes d'automatisation IA autonomes et mesurables pour les entreprises ambitieuses. Découvrez notre mission et nos valeurs."
+        title="A propos d'Actero — Agence IA specialisee e-commerce et immobilier"
+        description="Actero est une agence IA francaise specialisee dans l'automatisation pour e-commerce Shopify et agences immobilieres. Fondee en 2026."
         canonical="/entreprise"
       />
     <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">

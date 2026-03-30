@@ -70,8 +70,20 @@ export const LandingPage = ({ onNavigate }) => {
       "name": "Actero",
       "url": "https://actero.fr",
       "logo": "https://actero.fr/favicon-192.png",
-      "description": "Actero déploie des agents IA autonomes pour automatiser le SAV e-commerce Shopify et qualifier les leads immobiliers.",
-      "sameAs": []
+      "description": "Agence IA specialisee dans l'automatisation pour e-commerce Shopify et agences immobilieres",
+      "foundingDate": "2026",
+      "founders": [
+        { "@type": "Person", "name": "Pablo Priefert-Vallette" },
+        { "@type": "Person", "name": "Gaspard Ain" }
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contact@actero.fr",
+        "contactType": "sales"
+      },
+      "sameAs": [
+        "https://www.linkedin.com/company/actero"
+      ]
     },
     {
       "@context": "https://schema.org",
@@ -89,9 +101,11 @@ export const LandingPage = ({ onNavigate }) => {
   return (
     <>
       <SEO
-        title="Actero | Automatisation IA pour E-commerce Shopify & Agences Immobilières"
-        description="Actero déploie des agents IA autonomes pour automatiser le SAV e-commerce Shopify et qualifier les leads immobiliers. ROI mesurable dès le premier mois."
+        title="Actero — Automatisation IA pour E-commerce Shopify & Agences Immobilieres"
+        description="Actero deploie des agents IA autonomes pour automatiser le SAV e-commerce Shopify et qualifier les leads immobiliers. ROI mesurable des le premier mois."
+        keywords="agent IA e-commerce, automatisation Shopify, agent SAV IA, chatbot IA immobilier, agence IA France"
         canonical="/"
+        ogImage="https://actero.fr/og-image.png"
         schemaData={landingSchema}
       />
     <div className="relative min-h-screen bg-white font-sans text-[#262626]">

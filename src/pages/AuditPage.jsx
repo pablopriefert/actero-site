@@ -84,8 +84,8 @@ export const AuditPage = ({ onNavigate }) => {
   return (
     <>
       <SEO
-        title="Audit IA Gratuit | Analysez votre boutique Shopify en 15 min"
-        description="Réservez votre audit stratégie gratuit de 15 minutes. Estimation ROI personnalisée, 3 workflows prioritaires, plan d'architecture technique."
+        title="Audit gratuit — Analysez le potentiel IA de votre entreprise | Actero"
+        description="Reservez votre audit gratuit avec Actero. On analyse votre service client et on vous montre combien de temps et d'argent l'IA peut vous faire gagner."
         canonical="/audit"
       />
     <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10 relative overflow-hidden flex flex-col">

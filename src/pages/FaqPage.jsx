@@ -94,8 +94,8 @@ export const FaqPage = ({ onNavigate }) => {
   return (
     <>
       <SEO
-        title="FAQ Actero | Questions sur l'automatisation IA e-commerce & immobilier"
-        description="Réponses à toutes vos questions sur les agents IA Actero : fonctionnement, tarifs, intégration Shopify, délais, sécurité et résultats."
+        title="FAQ Actero — Questions frequentes sur nos agents IA"
+        description="Reponses a vos questions sur les agents IA Actero : fonctionnement, integration Shopify, tarifs, delais de deploiement, support."
         canonical="/faq"
         schemaData={faqSchema}
       />

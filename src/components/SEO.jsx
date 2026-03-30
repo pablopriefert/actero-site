@@ -8,6 +8,7 @@ export function SEO({
   title,
   description,
   canonical,
+  keywords,
   ogImage = DEFAULT_OG_IMAGE,
   ogType = "website",
   schemaData,
@@ -23,6 +24,7 @@ export function SEO({
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      {keywords && <meta name="keywords" content={keywords} />}
       <meta name="robots" content="index, follow" />
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 

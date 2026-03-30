@@ -188,8 +188,8 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
   return (
     <>
       <SEO
-        title="Programme Ambassadeur Actero | Recommandez, soyez récompensé"
-        description="Devenez ambassadeur Actero et touchez jusqu'à 300€ par client recommandé. Zéro effort commercial, on s'occupe de tout."
+        title="Programme Ambassadeur Actero | Recommandez, soyez recompense"
+        description="Devenez ambassadeur Actero et touchez une commission par client recommande. Zero effort commercial, on s'occupe de tout."
         canonical="/ambassadeurs"
       />
     <div className="relative min-h-screen bg-white font-sans text-[#262626] selection:bg-[#003725]/15 selection:text-[#262626]">

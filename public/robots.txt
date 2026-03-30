@@ -1,15 +1,8 @@
 User-agent: *
 Allow: /
-Disallow: /app
 Disallow: /admin
 Disallow: /client
-Disallow: /ambassador/
+Disallow: /ambassador/dashboard
 Disallow: /api/
-Disallow: /login
-Disallow: /setup-password
-Disallow: /reset-password
-Disallow: /auth/
-Disallow: /success
-Disallow: /cancel
 
 Sitemap: https://actero.fr/sitemap.xml
