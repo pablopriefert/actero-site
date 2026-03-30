@@ -7,7 +7,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
     const heroContent = {
         ecommerce: {
-            badge: { icon: '/shopify-partners.svg', label: 'Partenaire Shopify officiel' },
+            badge: { icon: '/elevenlabs-grants.webp', label: 'Powered by ElevenLabs Grants' },
             headlineMain: "L'automatisation IA",
             headlineSub: "qui fait croître votre e-commerce",
             subtitle: "Actero automatise le support client et relance vos paniers abandonnés pour les marques Shopify qui veulent scaler sans multiplier les coûts.",
@@ -20,7 +20,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
             ],
         },
         immobilier: {
-            badge: { icon: null, label: 'Spécialiste IA pour agences immobilières' },
+            badge: { icon: '/elevenlabs-grants.webp', label: 'Powered by ElevenLabs Grants' },
             headlineMain: "3 agents IA pour",
             headlineSub: "transformer votre agence",
             subtitle: "Prise de rendez-vous, collecte de documents, relance des prospects inactifs — nos agents IA gèrent vos tâches chronophages 24h/24.",

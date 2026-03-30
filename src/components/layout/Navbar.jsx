@@ -25,9 +25,7 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
-      <nav className={`w-full bg-white border-b border-gray-200 transition-all duration-300 ${
-        scrolled ? 'shadow-sm' : ''
-      }`}>
+      <nav className="w-full bg-white transition-all duration-300">
         <div className={`max-w-6xl mx-auto px-6 md:px-8 flex justify-between items-center transition-all duration-500 ${
           scrolled ? 'h-14 md:h-[56px]' : 'h-16 md:h-[64px]'
         }`}>

@@ -724,18 +724,13 @@ export const LandingPage = ({ onNavigate }) => {
                         </div>
 
                         <div className="pt-6 border-t border-gray-200">
-                          <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-xs font-bold uppercase tracking-widest text-[#716D5C]">À partir de</span>
-                          </div>
                           <div className="flex items-baseline gap-2 mb-3">
-                            <span className="text-4xl font-bold tracking-tight text-[#003725]">800€</span>
-                            <span className="text-[#716D5C] font-medium text-lg">/mois</span>
-                            <span className="text-[#716D5C] text-sm font-medium">HT</span>
+                            <span className="text-4xl font-bold tracking-tight text-[#003725]">Sur devis</span>
                           </div>
                           <p className="text-sm text-[#716D5C] font-medium">
                             {vertical === 'ecommerce'
-                              ? "Tarif selon la taille de votre boutique et le périmètre. L'audit initial est gratuit et sans engagement."
-                              : "Tarif selon la taille de votre agence et le nombre d'agents déployés. La démo est gratuite."
+                              ? "Tarif adapté à votre boutique et vos objectifs. L'audit initial est gratuit et sans engagement."
+                              : "Tarif adapté à votre agence et au nombre d'agents déployés. La démo est gratuite."
                             }
                           </p>
                         </div>
@@ -846,7 +841,7 @@ export const LandingPage = ({ onNavigate }) => {
                     },
                     {
                       q: "Combien ça coûte ?",
-                      a: "À partir de 800€/mois HT selon le périmètre d'automatisation. L'audit initial est gratuit et inclut une estimation du ROI attendu avant tout engagement."
+                      a: "Tarif sur devis, adapté à votre périmètre d'automatisation. L'audit initial est gratuit et inclut une estimation du ROI attendu avant tout engagement."
                     },
                   ] : [
                     {
@@ -875,7 +870,7 @@ export const LandingPage = ({ onNavigate }) => {
                     },
                     {
                       q: "Combien ça coûte ?",
-                      a: "À partir de 800€/mois HT selon le périmètre d'automatisation. L'audit initial est gratuit et inclut une estimation du ROI attendu avant tout engagement."
+                      a: "Tarif sur devis, adapté à votre périmètre d'automatisation. L'audit initial est gratuit et inclut une estimation du ROI attendu avant tout engagement."
                     },
                   ]).map((faq, i) => (
                     <div key={i} className="py-6">
