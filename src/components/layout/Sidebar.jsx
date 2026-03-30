@@ -15,7 +15,7 @@ export const Sidebar = ({
   const isLight = theme === "light";
 
   return (
-    <div className={`w-full md:w-64 flex flex-col h-full border-r ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
+    <div className={`w-full md:w-64 flex flex-col h-full border-r ${isLight ? "bg-white border-slate-200" : "bg-[#0E1424] border-white/10"}`}>
       <div className={`h-16 flex items-center px-6 border-b justify-between md:justify-start ${isLight ? "border-slate-100" : "border-white/10"}`}>
         <div className="flex items-center gap-2">
           <Logo className={`w-6 h-6 ${isLight ? "text-blue-600" : "text-white"}`} />

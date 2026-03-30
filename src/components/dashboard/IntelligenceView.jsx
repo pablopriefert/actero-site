@@ -101,8 +101,8 @@ export const ExecutionPlanDrawer = ({
         className="fixed inset-0 z-50 bg-gray-900/40 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
-      <div className="fixed inset-y-0 right-0 z-50 w-full md:w-[540px] bg-[#0a0a0a] shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-0 overflow-y-auto border-l border-white/10">
-        <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0a0a0a]/90 backdrop-blur z-10">
+      <div className="fixed inset-y-0 right-0 z-50 w-full md:w-[540px] bg-[#0E1424] shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-0 overflow-y-auto border-l border-white/10">
+        <div className="p-6 md:p-8 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0E1424]/90 backdrop-blur z-10">
           <div className="flex items-center gap-3 text-white font-bold">
             <Sparkles className="w-5 h-5 text-zinc-300" />
             <h2 className="text-xl tracking-tight">Plan d'exécution IA</h2>
@@ -127,7 +127,7 @@ export const ExecutionPlanDrawer = ({
               {reco.description}
             </p>
 
-            <div className="flex gap-4 p-5 rounded-2xl bg-[#030303] border border-white/5">
+            <div className="flex gap-4 p-5 rounded-2xl bg-[#0A0E1A] border border-white/5">
               <div className="flex-1">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
                   Score d'impact IA
@@ -183,10 +183,10 @@ export const ExecutionPlanDrawer = ({
             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-px before:bg-gradient-to-b before:from-white/10 before:to-transparent">
               {planSteps.map((step, idx) => (
                 <div key={idx} className="relative flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-[#0a0a0a] border border-white/10 flex items-center justify-center flex-shrink-0 z-10 text-gray-400 font-bold text-sm shadow-sm mt-1">
+                  <div className="w-10 h-10 rounded-full bg-[#0E1424] border border-white/10 flex items-center justify-center flex-shrink-0 z-10 text-gray-400 font-bold text-sm shadow-sm mt-1">
                     {idx + 1}
                   </div>
-                  <div className="bg-[#0a0a0a] border border-white/5 p-4 rounded-2xl flex-1 shadow-sm mt-1">
+                  <div className="bg-[#0E1424] border border-white/5 p-4 rounded-2xl flex-1 shadow-sm mt-1">
                     <h5 className="font-bold text-white mb-1 leading-tight">
                       {step.title}
                     </h5>
@@ -200,7 +200,7 @@ export const ExecutionPlanDrawer = ({
           </section>
 
           {isStarted && (
-            <section className="mt-4 bg-[#030303] border border-white/10 rounded-3xl p-6 text-white overflow-hidden relative">
+            <section className="mt-4 bg-[#0A0E1A] border border-white/10 rounded-3xl p-6 text-white overflow-hidden relative">
               <div className="absolute top-0 right-0 p-4">
                 <span className="flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -254,7 +254,7 @@ export const ExecutionPlanDrawer = ({
         </div>
 
         {!isStarted && (
-          <div className="p-6 md:p-8 border-t border-white/10 bg-[#030303] flex flex-col sm:flex-row gap-3 sticky bottom-0 z-10">
+          <div className="p-6 md:p-8 border-t border-white/10 bg-[#0A0E1A] flex flex-col sm:flex-row gap-3 sticky bottom-0 z-10">
             <button
               disabled={loading}
               onClick={handleImplementClick}
@@ -270,7 +270,7 @@ export const ExecutionPlanDrawer = ({
             <button
               disabled={loading}
               onClick={onClose}
-              className="flex-1 sm:flex-none bg-[#0a0a0a] text-gray-400 font-bold py-3.5 px-6 rounded-xl border border-white/10 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
+              className="flex-1 sm:flex-none bg-[#0E1424] text-gray-400 font-bold py-3.5 px-6 rounded-xl border border-white/10 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-50"
             >
               Annuler
             </button>
@@ -308,7 +308,7 @@ export const RecommendationCard = ({ reco, onAction, onOpenPlan, theme = "dark" 
   const ImpactIcon = cat.icon;
 
   return (
-    <div className={`border rounded-3xl p-6 transition-all duration-300 ${isLight ? "bg-white border-slate-200 shadow-sm hover:shadow-md" : "bg-[#0a0a0a] border-white/10 hover:border-white/20"}`}>
+    <div className={`border rounded-3xl p-6 transition-all duration-300 ${isLight ? "bg-white border-slate-200 shadow-sm hover:shadow-md" : "bg-[#0E1424] border-white/10 hover:border-white/20"}`}>
       <div className="flex flex-col lg:flex-row gap-6 mb-6">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-4">
@@ -432,7 +432,7 @@ export const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => 
 
   return (
     <div className="flex flex-col gap-6">
-      <div className={`border rounded-3xl shadow-sm overflow-hidden transition-colors duration-300 ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
+      <div className={`border rounded-3xl shadow-sm overflow-hidden transition-colors duration-300 ${isLight ? "bg-white border-slate-200" : "bg-[#0E1424] border-white/10"}`}>
         <div className={`p-6 md:p-8 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${isLight ? "bg-slate-900 text-white" : "bg-gradient-to-r from-zinc-900 to-zinc-800 text-white"}`}>
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -454,7 +454,7 @@ export const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => 
           </button>
         </div>
 
-        <div className={`px-6 py-4 flex flex-wrap gap-4 items-center border-b ${isLight ? "bg-slate-50 border-slate-100" : "bg-[#0a0a0a] border-white/5"}`}>
+        <div className={`px-6 py-4 flex flex-wrap gap-4 items-center border-b ${isLight ? "bg-slate-50 border-slate-100" : "bg-[#0E1424] border-white/5"}`}>
           <div className="flex items-center gap-2">
             <Filter className={`w-4 h-4 ${isLight ? "text-slate-400" : "text-zinc-500"}`} />
             <span className={`text-sm font-bold ${isLight ? "text-slate-500" : "text-zinc-600"}`}>Filtrer par :</span>
@@ -509,7 +509,7 @@ export const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => 
       ) : isLoading && recommendations.length === 0 ? (
         <div className="space-y-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className={`border rounded-3xl p-6 shadow-sm animate-pulse h-48 flex flex-col gap-4 ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
+            <div key={i} className={`border rounded-3xl p-6 shadow-sm animate-pulse h-48 flex flex-col gap-4 ${isLight ? "bg-white border-slate-200" : "bg-[#0E1424] border-white/10"}`}>
               <div className={`h-6 rounded w-1/4 ${isLight ? "bg-slate-100" : "bg-white/5"}`}></div>
               <div className={`h-4 rounded w-3/4 mt-2 ${isLight ? "bg-slate-100" : "bg-white/5"}`}></div>
               <div className="mt-auto flex gap-4">
@@ -519,7 +519,7 @@ export const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => 
           ))}
         </div>
       ) : recommendations.length === 0 ? (
-        <div className={`border rounded-3xl p-16 text-center shadow-sm flex flex-col items-center ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
+        <div className={`border rounded-3xl p-16 text-center shadow-sm flex flex-col items-center ${isLight ? "bg-white border-slate-200" : "bg-[#0E1424] border-white/10"}`}>
           <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 border ${isLight ? "bg-blue-50 border-blue-100" : "bg-white/5 border-white/5"}`}>
             <Lightbulb className={`w-10 h-10 ${isLight ? "text-blue-500" : "text-gray-300"}`} />
           </div>

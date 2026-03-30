@@ -70,7 +70,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#030303] text-white selection:bg-emerald-500/30">
+        <div className="min-h-screen bg-[#0A0E1A] text-white selection:bg-emerald-500/30">
             {/* Header Banner - Explaining this is a demo */}
             <div className="bg-emerald-500/10 border-b border-emerald-500/20 py-3 px-6 text-center relative z-50">
                 <p className="text-emerald-400 text-sm font-bold flex items-center justify-center gap-2">
@@ -82,7 +82,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
             <div className="flex h-[calc(100vh-45px)] overflow-hidden">
 
                 {/* Sidebar (Fake Menu) */}
-                <div className="w-64 bg-[#0a0a0a] border-r border-white/5 p-6 hidden md:flex flex-col flex-shrink-0">
+                <div className="w-64 bg-[#0E1424] border-r border-white/5 p-6 hidden md:flex flex-col flex-shrink-0">
                     <div className="flex items-center gap-3 mb-12">
                         <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
                             <div className="w-3 h-3 bg-black rounded-sm rotate-45"></div>
@@ -118,7 +118,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
                 </div>
 
                 {/* Main Dashboard Content */}
-                <div className="flex-1 overflow-y-auto bg-[#030303] relative">
+                <div className="flex-1 overflow-y-auto bg-[#0A0E1A] relative">
 
                     {/* Background glow */}
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none"></div>
@@ -138,7 +138,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
 
                         {/* Top KPI Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 shadow-sm">
+                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-[#0E1424] border border-white/5 rounded-2xl p-6 shadow-sm">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
                                         <TrendingUp className="w-5 h-5" />
@@ -149,7 +149,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
                                 <p className="text-sm font-medium text-gray-500 uppercase tracking-widest">Marge nette récupérée</p>
                             </motion.div>
 
-                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 shadow-sm">
+                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="bg-[#0E1424] border border-white/5 rounded-2xl p-6 shadow-sm">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400">
                                         <Users className="w-5 h-5" />
@@ -160,7 +160,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
                                 <p className="text-sm font-medium text-gray-500 uppercase tracking-widest">Temps humain économisé</p>
                             </motion.div>
 
-                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="bg-[#0a0a0a] border border-white/5 rounded-2xl p-6 shadow-sm">
+                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="bg-[#0E1424] border border-white/5 rounded-2xl p-6 shadow-sm">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
                                         <CheckCircle2 className="w-5 h-5" />
@@ -176,7 +176,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                             {/* Recharts Graph */}
-                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="lg:col-span-2 bg-[#0a0a0a] border border-white/5 rounded-3xl p-6 h-[400px] flex flex-col">
+                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="lg:col-span-2 bg-[#0E1424] border border-white/5 rounded-3xl p-6 h-[400px] flex flex-col">
                                 <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                                     <Activity className="w-4 h-4 text-emerald-400" /> Croissance générée par l'IA
                                 </h3>
@@ -200,7 +200,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
                             </motion.div>
 
                             {/* Live Logs Feed */}
-                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="bg-[#0a0a0a] border border-white/5 rounded-3xl p-6 h-[400px] flex flex-col overflow-hidden">
+                            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="bg-[#0E1424] border border-white/5 rounded-3xl p-6 h-[400px] flex flex-col overflow-hidden">
                                 <h3 className="text-lg font-bold mb-6 flex items-center justify-between">
                                     <span className="flex items-center gap-2"><Zap className="w-4 h-4 text-amber-400" /> Flux en direct</span>
                                     <span className="flex h-2 w-2 relative">
@@ -247,7 +247,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
             <BeforeAfterSlider />
 
             {/* Bottom CTA */}
-            <section className="py-24 text-center bg-[#030303] border-t border-white/5">
+            <section className="py-24 text-center bg-[#0A0E1A] border-t border-white/5">
                 <div className="max-w-2xl mx-auto px-6">
                     <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-6">
                         Prêt à transformer votre stack ?

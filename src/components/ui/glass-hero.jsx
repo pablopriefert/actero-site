@@ -67,61 +67,48 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
         <div className="relative min-h-[100vh] flex flex-col items-center justify-center pt-24 pb-20 px-6 overflow-hidden">
 
             {/* ── Aurora wave background ── */}
-            <motion.div className="absolute inset-0 z-0 bg-[#040a04] overflow-hidden" style={{ y: bgY }}>
+            <motion.div className="absolute inset-0 z-0 bg-[#0A0E1A] overflow-hidden" style={{ y: bgY }}>
 
-                {/* Base dark gradient */}
+                {/* Base — deep ocean gradient (Lumenos Ink → Abyss) */}
                 <div className="absolute inset-0" style={{
-                    background: 'radial-gradient(ellipse 120% 80% at 50% 30%, #0a1a0a 0%, #040a04 50%, #020502 100%)',
+                    background: 'radial-gradient(ellipse 130% 80% at 50% 20%, #152236 0%, #0E1424 30%, #0A0E1A 60%, #070B14 100%)',
                 }} />
 
-                {/* Aurora wave 1 — main green */}
+                {/* Horizon drift wave 1 — slate/mist blue */}
                 <div
-                    className="aurora-wave absolute w-[200%] h-[600px] opacity-30 pointer-events-none"
+                    className="horizon-drift absolute w-[200%] h-[500px] pointer-events-none"
                     style={{
-                        top: '15%',
+                        top: '18%',
                         left: '-50%',
-                        background: `linear-gradient(180deg, transparent 0%, ${isEcommerce ? 'rgba(16,185,129,0.15)' : 'rgba(139,92,246,0.15)'} 30%, ${isEcommerce ? 'rgba(6,182,212,0.08)' : 'rgba(168,85,247,0.08)'} 60%, transparent 100%)`,
-                        borderRadius: '50%',
-                        filter: 'blur(40px)',
-                    }}
-                />
-
-                {/* Aurora wave 2 — golden accent */}
-                <div
-                    className="aurora-wave-reverse absolute w-[180%] h-[400px] opacity-20 pointer-events-none"
-                    style={{
-                        top: '25%',
-                        left: '-40%',
-                        background: `linear-gradient(180deg, transparent 0%, rgba(202,178,100,0.12) 40%, ${isEcommerce ? 'rgba(16,185,129,0.06)' : 'rgba(139,92,246,0.06)'} 70%, transparent 100%)`,
+                        background: `linear-gradient(180deg, transparent 0%, ${isEcommerce ? 'rgba(90,122,140,0.12)' : 'rgba(139,92,246,0.12)'} 35%, ${isEcommerce ? 'rgba(46,64,104,0.06)' : 'rgba(168,85,247,0.06)'} 65%, transparent 100%)`,
                         borderRadius: '50%',
                         filter: 'blur(50px)',
                     }}
                 />
 
-                {/* Aurora wave 3 — subtle lower wave */}
+                {/* Horizon drift wave 2 — silver accent */}
                 <div
-                    className="aurora-wave absolute w-[160%] h-[350px] opacity-15 pointer-events-none"
+                    className="horizon-drift-reverse absolute w-[180%] h-[400px] pointer-events-none"
                     style={{
-                        top: '45%',
-                        left: '-30%',
-                        background: `linear-gradient(180deg, transparent 0%, ${isEcommerce ? 'rgba(52,211,153,0.1)' : 'rgba(167,139,250,0.1)'} 50%, transparent 100%)`,
+                        top: '28%',
+                        left: '-40%',
+                        background: `linear-gradient(180deg, transparent 0%, rgba(232,236,240,0.04) 40%, rgba(90,122,140,0.03) 70%, transparent 100%)`,
                         borderRadius: '50%',
                         filter: 'blur(60px)',
-                        animationDuration: '18s',
                     }}
                 />
 
-                {/* Top glow */}
+                {/* Orb pulse — central glow */}
                 <div
-                    className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] pointer-events-none transition-all duration-700"
+                    className="orb-pulse absolute top-[15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] pointer-events-none transition-all duration-700"
                     style={{
-                        background: `radial-gradient(ellipse at center, ${content.glowColor} 0%, transparent 70%)`,
+                        background: `radial-gradient(ellipse at center, ${isEcommerce ? 'rgba(90,122,140,0.10)' : 'rgba(139,92,246,0.10)'} 0%, transparent 70%)`,
                         filter: 'blur(80px)',
                     }}
                 />
 
-                {/* Bottom fade */}
-                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#040a04] to-transparent pointer-events-none" />
+                {/* Depth fade — bottom */}
+                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0A0E1A] to-transparent pointer-events-none" />
             </motion.div>
 
             {/* ── Content (with scroll parallax) ── */}

@@ -128,7 +128,7 @@ export const TicketReplay = () => {
         </motion.div>
 
         {/* Replay container */}
-        <div className="bg-[#060e06] border border-white/[0.06] rounded-3xl p-6 md:p-8 relative overflow-hidden">
+        <div className="bg-[#0E1424] border border-white/[0.06] rounded-3xl p-6 md:p-8 relative overflow-hidden">
           {/* Progress bar */}
           <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/5">
             <motion.div

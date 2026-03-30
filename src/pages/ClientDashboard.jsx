@@ -337,9 +337,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const isLight = theme === "light";
 
   return (
-    <div className={`min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300 ${isLight ? "bg-slate-50 text-slate-900" : "bg-[#030303] text-white"}`}>
+    <div className={`min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300 ${isLight ? "bg-slate-50 text-slate-900" : "bg-[#0A0E1A] text-white"}`}>
       {/* Mobile Header */}
-      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 ${isLight ? "bg-white border-b border-slate-200" : "bg-[#0a0a0a] border-b border-white/10"}`}>
+      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 ${isLight ? "bg-white border-b border-slate-200" : "bg-[#0E1424] border-b border-white/10"}`}>
         <div className="flex items-center gap-2">
           <Logo className={`w-6 h-6 ${isLight ? "text-blue-600" : "text-white"}`} />
           <span className={`font-bold text-lg ${isLight ? "text-slate-900" : "text-white"}`}>Actero OS</span>
@@ -372,7 +372,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             />
             <motion.div
               initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
-              className={`relative w-4/5 max-w-xs h-full shadow-2xl ${isLight ? "bg-white" : "bg-[#0a0a0a]"}`}
+              className={`relative w-4/5 max-w-xs h-full shadow-2xl ${isLight ? "bg-white" : "bg-[#0E1424]"}`}
             >
               <Sidebar 
                 title="Actero OS"
@@ -389,7 +389,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className={`sticky top-0 z-40 backdrop-blur-md px-4 md:px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b ${isLight ? "bg-white/80 border-slate-200" : "bg-[#0a0a0a]/80 border-white/10"}`}>
+        <header className={`sticky top-0 z-40 backdrop-blur-md px-4 md:px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b ${isLight ? "bg-white/80 border-slate-200" : "bg-[#0E1424]/80 border-white/10"}`}>
           <div className="flex items-center gap-6">
             <h1 className={`text-xl font-bold tracking-tight whitespace-nowrap ${isLight ? "text-slate-900" : "text-white"}`}>
               {activeTab === "overview" && "Vue d'ensemble"}

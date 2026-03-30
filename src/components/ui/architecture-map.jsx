@@ -64,7 +64,7 @@ export const ArchitectureMap = () => {
     };
 
     return (
-        <section className="py-24 relative overflow-hidden bg-[#030303] z-10 w-full border-t border-white/5">
+        <section className="py-24 relative overflow-hidden bg-[#0A0E1A] z-10 w-full border-t border-white/5">
             <div className="max-w-6xl mx-auto px-6 relative z-10">
                 <FadeInUp className="text-center mb-16">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-sm font-bold text-blue-400 mb-6">
@@ -89,7 +89,7 @@ export const ArchitectureMap = () => {
                                 onClick={() => playScenario(s)}
                                 className={`text-left p-5 rounded-2xl border transition-all duration-300 ${activeScenario.id === s.id
                                         ? 'bg-blue-500/10 border-blue-500/30'
-                                        : 'bg-[#0a0a0a] border-white/5 hover:border-white/10 hover:bg-white/5'
+                                        : 'bg-[#0E1424] border-white/5 hover:border-white/10 hover:bg-white/5'
                                     }`}
                             >
                                 <div className="flex justify-between items-center mb-2">
@@ -112,7 +112,7 @@ export const ArchitectureMap = () => {
 
                     {/* Node Visualizer Grid */}
                     <FadeInUp delay={0.2} className="w-full lg:w-2/3">
-                        <div className="bg-[#0a0a0a] rounded-[32px] border border-white/5 p-8 md:p-16 relative overflow-hidden flex items-center justify-center min-h-[500px]">
+                        <div className="bg-[#0E1424] rounded-[32px] border border-white/5 p-8 md:p-16 relative overflow-hidden flex items-center justify-center min-h-[500px]">
                             {/* Grid layout for nodes */}
                             <div className="grid grid-cols-3 grid-rows-3 gap-8 md:gap-16 relative z-10 w-full max-w-lg mx-auto">
 

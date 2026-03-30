@@ -52,7 +52,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
     <div className={`relative rounded-2xl border p-5 transition-all hover:border-white/20 ${
       isLight
         ? `bg-white border-slate-200 ${isConnected ? 'ring-1 ring-emerald-200' : ''}`
-        : `bg-[#0a0a0a] border-white/10 ${isConnected ? 'ring-1 ring-emerald-500/20' : ''}`
+        : `bg-[#0E1424] border-white/10 ${isConnected ? 'ring-1 ring-emerald-500/20' : ''}`
     }`}>
       {provider.popular && (
         <div className="absolute -top-2.5 right-4">
@@ -192,7 +192,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         className={`relative w-full max-w-md mx-4 rounded-2xl border shadow-2xl p-6 max-h-[85vh] overflow-y-auto ${
-          isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'
+          isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'
         }`}
       >
         <div className="flex items-center justify-between mb-6">
@@ -246,7 +246,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
                 className={`w-full px-4 py-3 rounded-xl text-sm outline-none transition-all ${
                   isLight
                     ? 'bg-slate-50 border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/40'
-                    : 'bg-[#030303] border border-white/10 text-white focus:ring-2 focus:ring-zinc-400'
+                    : 'bg-[#0A0E1A] border border-white/10 text-white focus:ring-2 focus:ring-zinc-400'
                 }`}
               />
             </div>
@@ -307,7 +307,7 @@ const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={`relative w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6 ${
-        isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'
+        isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'
       }`}
     >
       <h3 className={`font-bold mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>Déconnecter {provider}?</h3>
@@ -459,7 +459,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
             className={`w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all ${
               isLight
                 ? 'bg-white border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/40'
-                : 'bg-[#0a0a0a] border border-white/10 text-white focus:ring-2 focus:ring-zinc-400'
+                : 'bg-[#0E1424] border border-white/10 text-white focus:ring-2 focus:ring-zinc-400'
             }`}
           />
         </div>
@@ -545,7 +545,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className={`relative w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6 ${
-                isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'
+                isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'
               }`}
             >
               <div className="flex items-center gap-3 mb-5">
@@ -569,7 +569,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                 className={`w-full px-4 py-3 rounded-xl text-sm outline-none transition-all ${
                   isLight
                     ? 'bg-slate-50 border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/40'
-                    : 'bg-[#030303] border border-white/10 text-white focus:ring-2 focus:ring-zinc-400'
+                    : 'bg-[#0A0E1A] border border-white/10 text-white focus:ring-2 focus:ring-zinc-400'
                 }`}
               />
               {oauthPromptProvider.oauthPromptHint && (

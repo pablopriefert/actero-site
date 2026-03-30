@@ -118,7 +118,7 @@ export function SetPasswordPage({ onNavigate }) {
 
   if (!sessionReady && !errorMsg) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#030303]">
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
         <Loader2 className="w-8 h-8 text-white animate-spin" />
       </div>
     )
@@ -126,7 +126,7 @@ export function SetPasswordPage({ onNavigate }) {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#030303] flex flex-col justify-center items-center px-6 font-sans">
+      <div className="min-h-screen bg-[#0A0E1A] flex flex-col justify-center items-center px-6 font-sans">
         <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6">
           <CheckCircle className="w-10 h-10 text-emerald-500" />
         </div>
@@ -137,7 +137,7 @@ export function SetPasswordPage({ onNavigate }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] flex font-sans">
+    <div className="min-h-screen bg-[#0A0E1A] flex font-sans">
       {/* Left side — Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center px-6 sm:px-12 lg:px-20">
         <div className="w-full max-w-md">
@@ -174,7 +174,7 @@ export function SetPasswordPage({ onNavigate }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 pr-12 bg-[#0a0a0a] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                  className="w-full px-4 py-3 pr-12 bg-[#0E1424] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
                   required
                   autoFocus
                 />
@@ -200,7 +200,7 @@ export function SetPasswordPage({ onNavigate }) {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                className="w-full px-4 py-3 bg-[#0E1424] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
                 required
               />
               {confirmPassword && password !== confirmPassword && (

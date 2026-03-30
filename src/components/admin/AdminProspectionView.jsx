@@ -582,7 +582,7 @@ Ton : enthousiaste mais professionnel, comme un expert qui veut aider.`
           {PIPELINE_COLS.map(col => {
             const colProspects = prospects.filter(p => p.status === col.id)
             return (
-              <div key={col.id} className="rounded-2xl border border-white/5 bg-[#0a0a0a]/50 p-3 flex flex-col gap-3 min-h-[50vh]">
+              <div key={col.id} className="rounded-2xl border border-white/5 bg-[#0E1424]/50 p-3 flex flex-col gap-3 min-h-[50vh]">
                 <div className="flex items-center justify-between px-2 mb-1">
                   <h4 className="font-bold text-white text-xs tracking-widest uppercase">{col.title}</h4>
                   <span className="bg-white/10 text-zinc-400 px-2 py-0.5 rounded-full text-[10px] font-bold">{colProspects.length}</span>

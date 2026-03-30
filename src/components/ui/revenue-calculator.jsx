@@ -52,7 +52,7 @@ export const RevenueCalculator = () => {
 
                     {/* Controls */}
                     <FadeInUp delay={0.1}>
-                        <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+                        <div className="bg-[#0E1424] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                             {/* Slider 1: Revenue */}

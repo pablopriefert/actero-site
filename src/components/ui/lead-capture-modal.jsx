@@ -30,7 +30,7 @@ export const LeadCaptureModal = ({ isOpen, onClose, onSubmit }) => {
             ></div>
 
             {/* Modal */}
-            <div className="relative bg-[#0a0a0a] rounded-3xl p-8 md:p-10 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 z-10 border border-white/10 overflow-hidden">
+            <div className="relative bg-[#0E1424] rounded-3xl p-8 md:p-10 max-w-md w-full shadow-2xl animate-in fade-in zoom-in-95 z-10 border border-white/10 overflow-hidden">
 
                 {/* Glow effect */}
                 <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 blur-3xl rounded-full pointer-events-none"></div>

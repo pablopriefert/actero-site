@@ -6,7 +6,7 @@ export const InfrastructureNodeMap = ({ theme = "dark" }) => {
   const isLight = theme === "light";
   return (
     <div
-      className={`rounded-3xl border p-8 shadow-sm relative overflow-hidden h-[400px] flex items-center justify-center transition-colors duration-300 ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"
+      className={`rounded-3xl border p-8 shadow-sm relative overflow-hidden h-[400px] flex items-center justify-center transition-colors duration-300 ${isLight ? "bg-white border-slate-200" : "bg-[#0E1424] border-white/10"
         }`}
     >
       {/* Background grid */}

@@ -96,8 +96,8 @@ export function AuthCallbackPage({ onNavigate }) {
 
   if (errorMsg) {
     return (
-      <div className="min-h-screen bg-[#030303] flex flex-col justify-center items-center py-12 px-6 font-sans text-center">
-        <div className="w-20 h-20 bg-[#0a0a0a] rounded-3xl border border-white/5 shadow-sm flex items-center justify-center mb-6">
+      <div className="min-h-screen bg-[#0A0E1A] flex flex-col justify-center items-center py-12 px-6 font-sans text-center">
+        <div className="w-20 h-20 bg-[#0E1424] rounded-3xl border border-white/5 shadow-sm flex items-center justify-center mb-6">
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-white mb-2">
@@ -115,7 +115,7 @@ export function AuthCallbackPage({ onNavigate }) {
           </button>
           <button
             onClick={() => window.location.replace("/")}
-            className="bg-[#0a0a0a] border border-white/10 text-gray-300 px-8 py-3.5 rounded-xl font-bold shadow-sm hover:bg-white/5 transition-colors"
+            className="bg-[#0E1424] border border-white/10 text-gray-300 px-8 py-3.5 rounded-xl font-bold shadow-sm hover:bg-white/5 transition-colors"
           >
             Retour accueil
           </button>
@@ -125,7 +125,7 @@ export function AuthCallbackPage({ onNavigate }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#030303] gap-4 font-sans text-white">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A0E1A] gap-4 font-sans text-white">
       <svg
         className="animate-spin h-8 w-8 text-white"
         fill="none"

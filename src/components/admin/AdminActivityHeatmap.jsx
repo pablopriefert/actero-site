@@ -35,7 +35,7 @@ export const AdminActivityHeatmap = () => {
   };
 
   return (
-    <div className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 shadow-sm mt-6">
+    <div className="bg-[#0E1424] rounded-2xl border border-white/10 p-6 shadow-sm mt-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">

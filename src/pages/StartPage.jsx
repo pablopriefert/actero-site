@@ -59,7 +59,7 @@ export function StartPage({ clientSlug }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] flex items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="text-center mb-10">
@@ -77,7 +77,7 @@ export function StartPage({ clientSlug }) {
         </div>
 
         {/* Card */}
-        <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-[#0E1424] border border-white/10 rounded-2xl p-8 shadow-2xl">
           {/* Pricing */}
           <div className="flex items-baseline gap-3 mb-2">
             <span className="text-5xl font-bold text-white">{monthlyPrice}€</span>

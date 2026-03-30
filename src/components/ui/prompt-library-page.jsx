@@ -151,7 +151,7 @@ export const PromptLibraryPage = ({ onNavigate }) => {
     };
 
     return (
-        <div className="min-h-screen bg-[#030303] pt-32 pb-24 selection:bg-emerald-500/30">
+        <div className="min-h-screen bg-[#0A0E1A] pt-32 pb-24 selection:bg-emerald-500/30">
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute top-0 right-1/4 w-[800px] h-[800px] bg-emerald-500/5 rounded-full blur-[120px]"></div>
@@ -175,7 +175,7 @@ export const PromptLibraryPage = ({ onNavigate }) => {
                     </div>
 
                     {/* CTA to get a custom setup */}
-                    <div className="bg-[#0a0a0a] border border-white/10 p-6 rounded-3xl w-full md:w-auto text-left shadow-2xl relative overflow-hidden group">
+                    <div className="bg-[#0E1424] border border-white/10 p-6 rounded-3xl w-full md:w-auto text-left shadow-2xl relative overflow-hidden group">
                         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <h3 className="text-white font-bold text-lg mb-2 relative z-10">Trop complexe à déployer ?</h3>
                         <p className="text-gray-400 text-sm mb-4 max-w-xs relative z-10">Nos ingénieurs déploient ces systèmes directement dans votre stack existante.</p>
@@ -215,7 +215,7 @@ export const PromptLibraryPage = ({ onNavigate }) => {
                             placeholder="Rechercher (ex: SEO, Zendesk)"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all placeholder:text-gray-600"
+                            className="w-full bg-[#0E1424] border border-white/10 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all placeholder:text-gray-600"
                         />
                     </div>
                 </FadeInUp>
@@ -247,7 +247,7 @@ export const PromptLibraryPage = ({ onNavigate }) => {
                                             initial={{ opacity: 0, scale: 0.95 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.95 }}
-                                            className="bg-[#0a0a0a] border border-white/10 rounded-[24px] p-6 h-full flex flex-col group hover:border-emerald-500/30 transition-colors"
+                                            className="bg-[#0E1424] border border-white/10 rounded-[24px] p-6 h-full flex flex-col group hover:border-emerald-500/30 transition-colors"
                                         >
                                             <div className="flex justify-between items-start mb-6">
                                                 <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 group-hover:text-emerald-400 transition-colors">

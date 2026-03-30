@@ -98,7 +98,7 @@ export const ROISimulator = ({ onNavigate }) => {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="bg-[#060e06] border border-white/[0.06] rounded-3xl p-8 space-y-8"
+            className="bg-[#0E1424] border border-white/[0.06] rounded-3xl p-8 space-y-8"
           >
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center">
@@ -177,7 +177,7 @@ export const ROISimulator = ({ onNavigate }) => {
 
             {/* Breakdown */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#060e06] border border-white/[0.06] rounded-2xl p-5">
+              <div className="bg-[#0E1424] border border-white/[0.06] rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full bg-emerald-400" />
                   <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">SAV automatisé</span>
@@ -190,7 +190,7 @@ export const ROISimulator = ({ onNavigate }) => {
                   {results.hoursSaved}h économisées
                 </p>
               </div>
-              <div className="bg-[#060e06] border border-white/[0.06] rounded-2xl p-5">
+              <div className="bg-[#0E1424] border border-white/[0.06] rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full bg-violet-400" />
                   <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Paniers récupérés</span>

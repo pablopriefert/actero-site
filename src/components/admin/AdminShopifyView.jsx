@@ -105,9 +105,9 @@ export function AdminShopifyView() {
             required
             className="w-full bg-white/[0.05] border border-white/[0.10] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-colors"
           >
-            <option value="" className="bg-[#0d0d0d]">Sélectionner un client...</option>
+            <option value="" className="bg-[#111B2E]">Sélectionner un client...</option>
             {clients.map((c) => (
-              <option key={c.id} value={c.id} className="bg-[#0d0d0d]">
+              <option key={c.id} value={c.id} className="bg-[#111B2E]">
                 {c.brand_name} — {c.contact_email || 'pas d\'email'}
                 {connectedIds.has(c.id) ? ' ✓ Shopify connecté' : ''}
               </option>

@@ -31,8 +31,8 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
     <div className="fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-6xl z-50">
       <nav className={`w-full backdrop-blur-3xl border shadow-2xl rounded-full transition-all duration-500 ${
         scrolled
-          ? 'bg-[#060e06]/95 border-white/[0.10] shadow-black/60'
-          : 'bg-[#060e06]/60 border-white/[0.06]'
+          ? 'bg-[#0E1424]/95 border-white/[0.10] shadow-black/60'
+          : 'bg-[#0E1424]/60 border-white/[0.06]'
       }`}>
         <div className={`px-6 md:px-8 flex justify-between items-center transition-all duration-500 ${
           scrolled ? 'h-12 md:h-[52px]' : 'h-14 md:h-[60px]'
@@ -70,14 +70,14 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.98 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[850px] bg-[#030303] border border-white/10 rounded-[28px] shadow-2xl p-6 gap-6 grid grid-cols-3"
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[850px] bg-[#0A0E1A] border border-white/10 rounded-[28px] shadow-2xl p-6 gap-6 grid grid-cols-3"
                   >
                     <div
                       onClick={() => {
                         setIsMegaMenuOpen(false);
                         scrollToId("comment-ca-marche");
                       }}
-                      className="flex flex-col p-6 rounded-[24px] bg-[#0d0d0d] border border-white/[0.08] hover:bg-[#141414] hover:border-white/20 transition-all cursor-pointer group"
+                      className="flex flex-col p-6 rounded-[24px] bg-[#111B2E] border border-white/[0.08] hover:bg-[#141414] hover:border-white/20 transition-all cursor-pointer group"
                     >
                       <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
                         <Bot className="w-7 h-7" />
@@ -95,7 +95,7 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
                         setIsMegaMenuOpen(false);
                         scrollToId("comment-ca-marche");
                       }}
-                      className="flex flex-col p-6 rounded-[24px] bg-[#0d0d0d] border border-white/[0.08] hover:bg-[#141414] hover:border-white/20 transition-all cursor-pointer group"
+                      className="flex flex-col p-6 rounded-[24px] bg-[#111B2E] border border-white/[0.08] hover:bg-[#141414] hover:border-white/20 transition-all cursor-pointer group"
                     >
                       <div className="w-14 h-14 bg-[#141416] rounded-2xl flex items-center justify-center mb-6 text-amber-300 shadow-md border border-white/5 group-hover:scale-105 transition-transform">
                         <Zap className="w-7 h-7 fill-amber-300" />
@@ -113,7 +113,7 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
                         setIsMegaMenuOpen(false);
                         onAuditOpen?.();
                       }}
-                      className="flex flex-col p-6 rounded-[24px] bg-[#0d0d0d] border border-white/[0.08] hover:bg-[#141414] hover:border-white/20 transition-all cursor-pointer group text-left"
+                      className="flex flex-col p-6 rounded-[24px] bg-[#111B2E] border border-white/[0.08] hover:bg-[#141414] hover:border-white/20 transition-all cursor-pointer group text-left"
                     >
                       <div className="w-14 h-14 bg-[#1e1313] rounded-2xl flex items-center justify-center mb-6 text-orange-400 shadow-md border border-orange-500/10 group-hover:scale-105 transition-transform">
                         <Sparkles className="w-7 h-7 fill-orange-400" />
@@ -183,7 +183,7 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="mt-3 bg-[#0d0d0d]/95 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl p-6 space-y-1"
+            className="mt-3 bg-[#111B2E]/95 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl p-6 space-y-1"
           >
             {[
               {

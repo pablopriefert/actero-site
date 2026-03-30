@@ -62,7 +62,7 @@ const NewTicketForm = ({ onSubmit, onCancel, theme, isSubmitting }) => {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className={`p-6 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}
+      className={`p-6 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className={`text-base font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>
@@ -172,7 +172,7 @@ const TicketCard = ({ ticket, theme }) => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className={`p-4 rounded-2xl border transition-colors ${
-        isLight ? 'bg-white border-slate-200 hover:border-slate-300' : 'bg-[#0a0a0a] border-white/10 hover:border-white/20'
+        isLight ? 'bg-white border-slate-200 hover:border-slate-300' : 'bg-[#0E1424] border-white/10 hover:border-white/20'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -358,7 +358,7 @@ export const SupportTicketsView = ({ supabase, clientId, theme }) => {
             ))}
           </div>
         ) : filteredTickets.length === 0 ? (
-          <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+          <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}>
             <MessageSquare className={`w-10 h-10 mx-auto mb-3 ${isLight ? 'text-slate-300' : 'text-zinc-700'}`} />
             <p className={`text-sm font-bold mb-1 ${isLight ? 'text-slate-500' : 'text-zinc-500'}`}>
               {filter === 'all' ? 'Aucune demande' : 'Aucune demande dans cette catégorie'}

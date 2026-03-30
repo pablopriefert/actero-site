@@ -146,7 +146,7 @@ export const AdminPipelineView = () => {
               </div>
 
               {items.length === 0 ? (
-                <div className="bg-[#0a0a0a] rounded-xl border border-white/5 p-4 text-center">
+                <div className="bg-[#0E1424] rounded-xl border border-white/5 p-4 text-center">
                   <p className="text-[10px] text-gray-600">Aucun</p>
                 </div>
               ) : (
@@ -156,7 +156,7 @@ export const AdminPipelineView = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="bg-[#0a0a0a] rounded-xl border border-white/10 p-3 hover:border-white/20 transition-colors"
+                    className="bg-[#0E1424] rounded-xl border border-white/10 p-3 hover:border-white/20 transition-colors"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <User className="w-3 h-3 text-gray-500" />

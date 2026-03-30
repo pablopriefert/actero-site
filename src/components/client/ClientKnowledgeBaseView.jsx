@@ -375,7 +375,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
       <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar categories */}
         <div className="md:w-56 flex-shrink-0">
-          <div className={`rounded-2xl border p-2 space-y-1 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+          <div className={`rounded-2xl border p-2 space-y-1 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}>
             {CATEGORIES.map((cat) => {
               const count = entries.filter(e => e.category === cat.id).length
               const isActive = selectedCategory === cat.id
@@ -411,7 +411,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
               <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
             </div>
           ) : selectedCategory === 'tone' ? (
-            <div className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+            <div className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}>
               <ToneEditor
                 entry={filteredEntries[0]}
                 onSave={(entry) => saveMutation.mutate(entry)}
@@ -422,7 +422,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             <>
               {/* Entry list */}
               {filteredEntries.length === 0 && !isCreating ? (
-                <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+                <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}>
                   <categoryConfig.icon className={`w-10 h-10 mx-auto mb-3 ${isLight ? 'text-slate-300' : 'text-zinc-700'}`} />
                   <p className={`text-sm ${isLight ? 'text-slate-500' : 'text-zinc-500'}`}>
                     Ajoutez vos {categoryConfig.label.toLowerCase()} pour que l&apos;IA reponde precisement a vos clients.
@@ -462,7 +462,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                         className={`rounded-2xl border p-5 cursor-pointer transition-all ${
                           isExpired
                             ? (isLight ? 'bg-slate-50 border-slate-200 opacity-50' : 'bg-white/[0.02] border-white/5 opacity-50')
-                            : (isLight ? 'bg-white border-slate-200 hover:border-slate-300' : 'bg-[#0a0a0a] border-white/10 hover:border-white/20')
+                            : (isLight ? 'bg-white border-slate-200 hover:border-slate-300' : 'bg-[#0E1424] border-white/10 hover:border-white/20')
                         }`}
                       >
                         <div className="flex items-start justify-between">

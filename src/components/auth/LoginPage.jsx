@@ -76,7 +76,7 @@ export const LoginPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] flex items-center justify-center font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center font-sans relative overflow-hidden">
       {/* Circuit board background */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">

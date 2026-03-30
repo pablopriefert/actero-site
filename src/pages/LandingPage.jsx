@@ -101,19 +101,13 @@ export const LandingPage = ({ onNavigate }) => {
         canonical="/"
         schemaData={landingSchema}
       />
-    <div className="relative min-h-screen bg-[#040a04] font-sans text-white selection:bg-emerald-500/20 selection:text-white">
+    <div className="relative min-h-screen bg-[#0A0E1A] font-sans text-white selection:bg-[#5A7A8C]/30 selection:text-[#E8ECF0]">
       <ReadingProgress vertical={vertical} />
       <StickyCTA onNavigate={onNavigate} vertical={vertical} />
-      {/* GLOBAL BACKGROUND — dark green-tinted with subtle aurora */}
+      {/* GLOBAL BACKGROUND — Lumenos deep ocean */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0" style={{
-          background: 'radial-gradient(ellipse 100% 60% at 50% 0%, #0a1a0a 0%, #040a04 40%, #020502 100%)',
-        }} />
-        {/* Subtle ambient aurora glow */}
-        <div className="aurora-wave absolute w-[200%] h-[500px] opacity-10 top-[5%] left-[-50%]" style={{
-          background: 'linear-gradient(180deg, transparent, rgba(16,185,129,0.08) 40%, rgba(202,178,100,0.04) 70%, transparent)',
-          borderRadius: '50%',
-          filter: 'blur(60px)',
+          background: 'linear-gradient(180deg, #0E1424 0%, #0A0E1A 30%, #070B14 100%)',
         }} />
       </div>
 
@@ -500,7 +494,7 @@ export const LandingPage = ({ onNavigate }) => {
 
                 {/* Case Study */}
                 <ScaleIn className="max-w-4xl mx-auto">
-                  <div className="bg-[#040a04] rounded-[32px] p-8 md:p-12 border border-white/10 shadow-xl relative overflow-hidden">
+                  <div className="bg-[#0A0E1A] rounded-[32px] p-8 md:p-12 border border-white/10 shadow-xl relative overflow-hidden">
                     <div className="relative z-10">
                       {vertical === 'ecommerce' ? (
                         <>
@@ -529,7 +523,7 @@ export const LandingPage = ({ onNavigate }) => {
                                 </div>
                               </div>
                             </div>
-                            <div className="bg-[#060e06] rounded-3xl p-8 border border-white/5 shadow-sm text-center">
+                            <div className="bg-[#0E1424] rounded-3xl p-8 border border-white/5 shadow-sm text-center">
                               <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Impact net en 30 jours</p>
                               <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-600 tracking-tighter mb-2">+ 12 400 €</p>
                               <p className="text-sm text-gray-500 font-medium mb-6">de revenus supplémentaires récupérés</p>
@@ -566,7 +560,7 @@ export const LandingPage = ({ onNavigate }) => {
                                 </div>
                               </div>
                             </div>
-                            <div className="bg-[#060e06] rounded-3xl p-8 border border-white/5 shadow-sm text-center">
+                            <div className="bg-[#0E1424] rounded-3xl p-8 border border-white/5 shadow-sm text-center">
                               <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Impact en 30 jours</p>
                               <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-violet-400 to-purple-600 tracking-tighter mb-2">+58%</p>
                               <p className="text-sm text-gray-500 font-medium mb-6">de rendez-vous qualifiés supplémentaires</p>
@@ -608,7 +602,7 @@ export const LandingPage = ({ onNavigate }) => {
                 </FadeInUp>
 
                 <SlideInLeft>
-                <GlowCard color={vertical === 'immobilier' ? 'violet' : 'white'} glowSize={300} className="bg-[#081008] rounded-[32px] border border-white/[0.12] overflow-hidden">
+                <GlowCard color={vertical === 'immobilier' ? 'violet' : 'white'} glowSize={300} className="bg-[#111B2E] rounded-[32px] border border-white/[0.12] overflow-hidden">
                   <div className="grid grid-cols-2 border-b border-white/[0.10] bg-white/[0.06]">
                     <div className="p-6 md:p-8 border-r border-white/[0.10]">
                       <p className="text-lg font-bold tracking-tight text-gray-400 line-through">Outils en self-service</p>
@@ -669,7 +663,7 @@ export const LandingPage = ({ onNavigate }) => {
                 <FadeInUp delay={0.1}>
                   <Tilt3D intensity={5} glare={true}>
                   <div className={`p-[1px] rounded-[32px] ${vertical === 'immobilier' ? 'shimmer-border-violet' : 'shimmer-border-emerald'}`}>
-                  <div className="bg-[#081008] rounded-[31px] overflow-hidden relative">
+                  <div className="bg-[#111B2E] rounded-[31px] overflow-hidden relative">
                     {/* Glow */}
                     <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-[120px] pointer-events-none ${vertical === 'immobilier' ? 'bg-violet-500/10' : 'bg-emerald-500/10'}`}></div>
 
@@ -876,7 +870,7 @@ export const LandingPage = ({ onNavigate }) => {
                       a: "À partir de 800€/mois HT selon le périmètre d'automatisation. L'audit initial est gratuit et inclut une estimation du ROI attendu avant tout engagement."
                     },
                   ]).map((faq, i) => (
-                    <div key={i} className="border border-white/[0.10] rounded-2xl bg-[#060e06] overflow-hidden hover:border-white/[0.18] transition-colors">
+                    <div key={i} className="border border-white/[0.10] rounded-2xl bg-[#0E1424] overflow-hidden hover:border-white/[0.18] transition-colors">
                       <button onClick={() => setOpenFaqIndex(openFaqIndex === i ? null : i)} className="w-full px-6 py-5 flex items-center justify-between text-left">
                         <span className="font-bold text-white text-lg pr-4">{faq.q}</span>
                         <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${openFaqIndex === i ? 'rotate-180' : ''}`} />
@@ -900,7 +894,7 @@ export const LandingPage = ({ onNavigate }) => {
             <section className="py-24 md:py-32 bg-transparent px-6 relative z-10">
               <div className="max-w-4xl mx-auto">
                 <FadeInUp>
-                  <div className="relative bg-[#081008] rounded-[32px] p-10 md:p-16 border border-white/[0.14] overflow-hidden text-center">
+                  <div className="relative bg-[#111B2E] rounded-[32px] p-10 md:p-16 border border-white/[0.14] overflow-hidden text-center">
                     {/* Glow */}
                     <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none ${vertical === 'immobilier' ? 'bg-violet-500/[0.12]' : 'bg-emerald-500/[0.12]'}`}></div>
 

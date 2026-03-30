@@ -5,7 +5,7 @@ export function CancelPage({ onNavigate }) {
   const client = params.get("client");
 
   return (
-    <div className="min-h-screen bg-[#030303] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center px-4">
       <div className="text-center max-w-md w-full">
         <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-8">
           <XCircle className="w-10 h-10 text-red-500" />

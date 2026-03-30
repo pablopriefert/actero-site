@@ -60,7 +60,7 @@ export function HealthScoreWidget({ metricsData, eventsData, theme = "dark" }) {
   const isLight = theme === "light";
 
   return (
-    <div className={`p-6 rounded-2xl border transition-all ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
+    <div className={`p-6 rounded-2xl border transition-all ${isLight ? "bg-white border-slate-200" : "bg-[#0E1424] border-white/10"}`}>
       <h3 className={`text-sm font-bold uppercase tracking-widest mb-6 ${isLight ? "text-slate-500" : "text-gray-400"}`}>
         Santé de l'infrastructure
       </h3>

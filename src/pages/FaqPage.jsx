@@ -99,7 +99,7 @@ export const FaqPage = ({ onNavigate }) => {
         canonical="/faq"
         schemaData={faqSchema}
       />
-    <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
+    <div className="min-h-screen bg-[#0A0E1A] text-white font-sans selection:bg-white/20">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
       <main className="pt-32 pb-24 px-6">
@@ -119,7 +119,7 @@ export const FaqPage = ({ onNavigate }) => {
                 placeholder="Rechercher une question..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#0a0a0a] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-zinc-500 outline-none transition-all font-medium"
+                className="w-full bg-[#0E1424] border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-zinc-500 outline-none transition-all font-medium"
               />
             </div>
           </div>
@@ -136,7 +136,7 @@ export const FaqPage = ({ onNavigate }) => {
                     return (
                       <div
                         key={i}
-                        className="bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden group hover:border-white/10 transition-colors"
+                        className="bg-[#0E1424] border border-white/5 rounded-2xl overflow-hidden group hover:border-white/10 transition-colors"
                       >
                         <button
                           onClick={() => setOpenFaq(openFaq === uniqueId ? null : uniqueId)}
@@ -169,7 +169,7 @@ export const FaqPage = ({ onNavigate }) => {
             ))}
 
             {filteredCategories.length === 0 && (
-              <div className="text-center py-20 bg-[#0a0a0a] rounded-3xl border border-white/5 border-dashed">
+              <div className="text-center py-20 bg-[#0E1424] rounded-3xl border border-white/5 border-dashed">
                 <HelpCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                 <h3 className="text-xl font-bold">Aucun résultat trouvé</h3>
                 <p className="text-gray-500 mt-2">Essayez d'autres mots-clés ou contactez-nous.</p>

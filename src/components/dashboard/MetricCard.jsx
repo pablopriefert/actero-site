@@ -73,7 +73,7 @@ export const MetricCard = ({
     <div
       className={`group p-6 rounded-2xl border transition-all duration-300 ${isLight
         ? "bg-white border-slate-200 shadow-sm hover:shadow-md"
-        : "bg-[#0a0a0a] border-white/10 hover:border-white/20"
+        : "bg-[#0E1424] border-white/10 hover:border-white/20"
         } ${className}`}
     >
       <div className="flex items-center gap-3 mb-6">

@@ -33,7 +33,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#0A0E1A] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <h2 className="text-3xl font-bold tracking-tight text-white">
           Nouveau mot de passe
@@ -44,7 +44,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-[#0a0a0a] py-8 px-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/10 sm:rounded-3xl sm:px-10">
+        <div className="bg-[#0E1424] py-8 px-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/10 sm:rounded-3xl sm:px-10">
           <form className="space-y-6" onSubmit={handleUpdate}>
             {error && (
               <div role="alert" className="p-4 bg-red-50 text-red-600 text-sm font-medium rounded-xl border border-red-100">
@@ -66,7 +66,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
+                className="block w-full px-4 py-3 bg-[#0E1424] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
                 placeholder="••••••••"
                 required
               />
@@ -81,7 +81,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#0a0a0a] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
+                className="block w-full px-4 py-3 bg-[#0E1424] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
                 placeholder="••••••••"
                 required
               />

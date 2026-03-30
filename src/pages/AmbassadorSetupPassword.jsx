@@ -55,7 +55,7 @@ export default function AmbassadorSetupPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -70,7 +70,7 @@ export default function AmbassadorSetupPassword() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 text-center"
+            className="bg-[#0E1424] border border-white/10 rounded-2xl p-8 text-center"
           >
             <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Mot de passe créé !</h2>
@@ -83,7 +83,7 @@ export default function AmbassadorSetupPassword() {
             </a>
           </motion.div>
         ) : (
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8">
+          <div className="bg-[#0E1424] border border-white/10 rounded-2xl p-8">
             <div className="text-center mb-6">
               <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Lock className="w-7 h-7 text-emerald-400" />

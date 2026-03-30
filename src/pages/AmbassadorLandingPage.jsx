@@ -192,7 +192,7 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
         description="Devenez ambassadeur Actero et touchez jusqu'à 300€ par client recommandé. Zéro effort commercial, on s'occupe de tout."
         canonical="/ambassadeurs"
       />
-    <div className="relative min-h-screen bg-[#030303] font-sans text-white selection:bg-emerald-500/20 selection:text-white">
+    <div className="relative min-h-screen bg-[#0A0E1A] font-sans text-white selection:bg-emerald-500/20 selection:text-white">
       {/* BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/20 via-[#030303] to-[#030303]" />
@@ -301,7 +301,7 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
           {/* ═══════════════════════════════════════════ */}
           {/* QUI PEUT ÊTRE RECOMMANDÉ                   */}
           {/* ═══════════════════════════════════════════ */}
-          <section className="py-24 md:py-32 px-6 bg-[#080808]">
+          <section className="py-24 md:py-32 px-6 bg-[#0E1424]">
             <FadeInUp className="max-w-5xl mx-auto text-center mb-16">
               <p className="text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-4">
                 Qui peut être recommandé
@@ -363,7 +363,7 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
           {/* ═══════════════════════════════════════════ */}
           {/* CE QUE VOUS N'AVEZ PAS À FAIRE             */}
           {/* ═══════════════════════════════════════════ */}
-          <section className="py-24 md:py-32 px-6 bg-[#080808]">
+          <section className="py-24 md:py-32 px-6 bg-[#0E1424]">
             <FadeInUp className="max-w-3xl mx-auto text-center mb-12">
               <p className="text-xs font-bold text-red-400/80 uppercase tracking-[0.2em] mb-4">
                 Ce que vous n’avez pas à faire
@@ -415,7 +415,7 @@ export const AmbassadorLandingPage = ({ onNavigate }) => {
           {/* ═══════════════════════════════════════════ */}
           {/* FAQ                                        */}
           {/* ═══════════════════════════════════════════ */}
-          <section className="py-24 md:py-32 px-6 bg-[#080808]">
+          <section className="py-24 md:py-32 px-6 bg-[#0E1424]">
             <FadeInUp className="max-w-3xl mx-auto">
               <div className="text-center mb-16">
                 <p className="text-xs font-bold text-cyan-400/80 uppercase tracking-[0.2em] mb-4">

@@ -46,7 +46,7 @@ export const AdminBillingView = () => {
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto text-center py-20 bg-[#0a0a0a] rounded-2xl border border-red-500/20">
+      <div className="max-w-6xl mx-auto text-center py-20 bg-[#0E1424] rounded-2xl border border-red-500/20">
         <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
         <h3 className="text-lg font-bold text-red-400">Impossible de charger les données Stripe</h3>
         <p className="text-sm text-gray-500 mt-2">{error.message}</p>
@@ -94,7 +94,7 @@ export const AdminBillingView = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-5"
+            className="bg-[#0E1424] rounded-2xl border border-white/10 p-5"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">{kpi.label}</span>
@@ -116,7 +116,7 @@ export const AdminBillingView = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4 flex items-center gap-4 hover:border-white/20 transition-colors"
+                className="bg-[#0E1424] border border-white/10 rounded-xl p-4 flex items-center gap-4 hover:border-white/20 transition-colors"
               >
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${s.bg}`}>
                   <CreditCard className={`w-4 h-4 ${s.color}`} />
@@ -140,7 +140,7 @@ export const AdminBillingView = () => {
             )
           })}
           {(!data?.subscriptions || data.subscriptions.length === 0) && (
-            <div className="text-center py-12 bg-[#0a0a0a] rounded-2xl border border-white/10">
+            <div className="text-center py-12 bg-[#0E1424] rounded-2xl border border-white/10">
               <CreditCard className="w-10 h-10 text-gray-600 mx-auto mb-3" />
               <p className="text-sm text-gray-500">Aucun abonnement</p>
             </div>
@@ -151,7 +151,7 @@ export const AdminBillingView = () => {
       {view === 'invoices' && (
         <div className="space-y-3">
           <h3 className="text-sm font-bold text-gray-400">Dernières factures ({data?.invoices?.length || 0})</h3>
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-[#0E1424] border border-white/10 rounded-2xl overflow-hidden">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-white/5">

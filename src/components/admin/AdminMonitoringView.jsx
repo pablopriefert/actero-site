@@ -491,7 +491,7 @@ export const AdminMonitoringView = () => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden border-b border-white/5"
                   >
-                    <div className="px-5 py-4 bg-[#0a0a0a] grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="px-5 py-4 bg-[#0E1424] grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
                         <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">ID Workflow</p>
                         <p className="text-xs text-white font-mono">{wf.id}</p>

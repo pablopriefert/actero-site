@@ -18,14 +18,14 @@ export const ActivityModal = ({ log, onClose }) => {
         className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       ></div>
-      <div className="bg-[#0a0a0a] rounded-2xl w-full max-w-lg relative z-10 shadow-xl overflow-hidden animate-fade-in-up border border-white/10">
-        <div className="p-6 md:p-8 flex items-center justify-between border-b border-white/5 bg-[#030303]">
+      <div className="bg-[#0E1424] rounded-2xl w-full max-w-lg relative z-10 shadow-xl overflow-hidden animate-fade-in-up border border-white/10">
+        <div className="p-6 md:p-8 flex items-center justify-between border-b border-white/5 bg-[#0A0E1A]">
           <h3 className="text-xl font-bold text-white tracking-tight">
             Détail de l'événement
           </h3>
           <button
             onClick={onClose}
-            className="p-2 bg-[#0a0a0a] rounded-full border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white shadow-sm transition-colors"
+            className="p-2 bg-[#0E1424] rounded-full border border-white/10 text-gray-400 hover:bg-white/5 hover:text-white shadow-sm transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -41,7 +41,7 @@ export const ActivityModal = ({ log, onClose }) => {
               </code>
               <button
                 onClick={copyId}
-                className="p-2 bg-[#0a0a0a] border border-white/10 rounded-lg hover:bg-white/5 text-gray-400 transition-colors shadow-sm"
+                className="p-2 bg-[#0E1424] border border-white/10 rounded-lg hover:bg-white/5 text-gray-400 transition-colors shadow-sm"
                 title="Copier l'ID"
               >
                 <Copy className="w-4 h-4" />

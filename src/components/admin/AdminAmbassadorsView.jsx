@@ -366,7 +366,7 @@ export const AdminAmbassadorsView = () => {
               placeholder="Rechercher..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-[#0a0a0a] border border-white/10 rounded-xl text-sm w-64 outline-none focus:border-white/20 transition-all text-white"
+              className="pl-9 pr-4 py-2 bg-[#0E1424] border border-white/10 rounded-xl text-sm w-64 outline-none focus:border-white/20 transition-all text-white"
             />
           </div>
         </div>
@@ -385,7 +385,7 @@ export const AdminAmbassadorsView = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="relative bg-[#0a0a0a] rounded-2xl border border-white/10 p-5 overflow-hidden group hover:border-white/20 transition-colors"
+            className="relative bg-[#0E1424] rounded-2xl border border-white/10 p-5 overflow-hidden group hover:border-white/20 transition-colors"
           >
             <div className={`absolute -top-6 -right-6 w-20 h-20 bg-${kpi.color}-500/10 rounded-full blur-2xl group-hover:bg-${kpi.color}-500/20 transition-colors`} />
             <div className="flex items-center justify-between mb-3">
@@ -404,7 +404,7 @@ export const AdminAmbassadorsView = () => {
 
       {/* Applications section (if any pending) */}
       {pendingApplications > 0 && (
-        <div className="bg-[#0a0a0a] rounded-2xl border border-amber-500/20 p-6">
+        <div className="bg-[#0E1424] rounded-2xl border border-amber-500/20 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
               <UserPlus className="w-4 h-4 text-amber-400" />
@@ -447,7 +447,7 @@ export const AdminAmbassadorsView = () => {
       )}
 
       {/* Sub-tabs */}
-      <div className="flex items-center gap-1 bg-[#0a0a0a] rounded-xl border border-white/10 p-1 w-fit">
+      <div className="flex items-center gap-1 bg-[#0E1424] rounded-xl border border-white/10 p-1 w-fit">
         {SUB_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -477,7 +477,7 @@ export const AdminAmbassadorsView = () => {
             <select
               value={ambassadorStatusFilter}
               onChange={(e) => setAmbassadorStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#0a0a0a] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
+              className="px-3 py-1.5 bg-[#0E1424] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
             >
               <option value="all">Tous les statuts</option>
               {Object.entries(AMBASSADOR_STATUS_MAP).map(([key, cfg]) => (
@@ -495,7 +495,7 @@ export const AdminAmbassadorsView = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all"
+                  className="bg-[#0E1424] border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
@@ -591,7 +591,7 @@ export const AdminAmbassadorsView = () => {
               )
             })}
             {filteredAmbassadors.length === 0 && (
-              <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-16 text-center">
+              <div className="bg-[#0E1424] border border-white/10 rounded-2xl p-16 text-center">
                 <Users className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-500">Aucun ambassadeur trouvé</p>
               </div>
@@ -613,7 +613,7 @@ export const AdminAmbassadorsView = () => {
             <select
               value={leadStatusFilter}
               onChange={(e) => setLeadStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#0a0a0a] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
+              className="px-3 py-1.5 bg-[#0E1424] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
             >
               <option value="all">Tous les statuts</option>
               {Object.entries(LEAD_STATUS_MAP).map(([key, cfg]) => (
@@ -623,7 +623,7 @@ export const AdminAmbassadorsView = () => {
             <select
               value={leadAmbassadorFilter}
               onChange={(e) => setLeadAmbassadorFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#0a0a0a] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
+              className="px-3 py-1.5 bg-[#0E1424] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
             >
               <option value="all">Tous les ambassadeurs</option>
               {ambassadorOptions.map(a => (
@@ -633,11 +633,11 @@ export const AdminAmbassadorsView = () => {
             <span className="text-[10px] text-gray-600">{filteredLeads.length} résultat{filteredLeads.length > 1 ? 's' : ''}</span>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-[#0E1424] border border-white/10 rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
-                  <tr className="border-b border-white/5 bg-[#030303]">
+                  <tr className="border-b border-white/5 bg-[#0A0E1A]">
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Ambassadeur</th>
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Prospect</th>
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Entreprise</th>
@@ -738,7 +738,7 @@ export const AdminAmbassadorsView = () => {
               <select
                 value={commissionStatusFilter}
                 onChange={(e) => setCommissionStatusFilter(e.target.value)}
-                className="px-3 py-1.5 bg-[#0a0a0a] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
+                className="px-3 py-1.5 bg-[#0E1424] border border-white/10 rounded-lg text-xs text-white outline-none focus:border-white/20"
               >
                 <option value="all">Tous les statuts</option>
                 {Object.entries(COMMISSION_STATUS_MAP).map(([key, cfg]) => (
@@ -756,11 +756,11 @@ export const AdminAmbassadorsView = () => {
               Traiter éligibilité J+30
             </button>
           </div>
-          <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+          <div className="bg-[#0E1424] border border-white/10 rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
-                  <tr className="border-b border-white/5 bg-[#030303]">
+                  <tr className="border-b border-white/5 bg-[#0A0E1A]">
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Ambassadeur</th>
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Prospect</th>
                     <th className="px-5 py-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Montant</th>
@@ -860,7 +860,7 @@ export const AdminAmbassadorsView = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 max-w-md w-full"
+              className="bg-[#0E1424] border border-white/10 rounded-2xl p-6 max-w-md w-full"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">

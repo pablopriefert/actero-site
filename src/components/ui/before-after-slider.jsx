@@ -74,7 +74,7 @@ export const BeforeAfterSlider = () => {
 
     // After Architecture (Order & AI)
     const renderAfter = () => (
-        <div className="absolute inset-0 w-full h-full bg-[#030303] overflow-hidden">
+        <div className="absolute inset-0 w-full h-full bg-[#0A0E1A] overflow-hidden">
             {/* Grid background */}
             <div className="absolute inset-0 pointer-events-none"
                 style={{
@@ -102,22 +102,22 @@ export const BeforeAfterSlider = () => {
             </svg>
 
             {/* LEFT NODE: Shopify */}
-            <div className="absolute top-1/2 left-[4%] md:left-[8%] transform -translate-y-1/2 p-2.5 md:p-3.5 border border-white/10 bg-[#0a0a0a] rounded-lg md:rounded-xl flex items-center gap-2 text-white text-[11px] md:text-sm font-medium z-10">
+            <div className="absolute top-1/2 left-[4%] md:left-[8%] transform -translate-y-1/2 p-2.5 md:p-3.5 border border-white/10 bg-[#0E1424] rounded-lg md:rounded-xl flex items-center gap-2 text-white text-[11px] md:text-sm font-medium z-10">
                 <div className="w-6 h-6 md:w-7 md:h-7 rounded bg-[#95BF47]/20 flex items-center justify-center text-[#95BF47] font-bold text-[10px] md:text-xs">S</div> Shopify
             </div>
 
             {/* RIGHT NODE: Klaviyo */}
-            <div className="absolute top-1/2 right-[4%] md:right-[8%] transform -translate-y-1/2 p-2.5 md:p-3.5 border border-white/10 bg-[#0a0a0a] rounded-lg md:rounded-xl flex items-center gap-2 text-white text-[11px] md:text-sm font-medium z-10">
+            <div className="absolute top-1/2 right-[4%] md:right-[8%] transform -translate-y-1/2 p-2.5 md:p-3.5 border border-white/10 bg-[#0E1424] rounded-lg md:rounded-xl flex items-center gap-2 text-white text-[11px] md:text-sm font-medium z-10">
                 <div className="w-6 h-6 md:w-7 md:h-7 rounded bg-white/10 flex items-center justify-center font-bold text-[10px] md:text-xs">K</div> Klaviyo / CRM
             </div>
 
             {/* TOP NODE: Zendesk */}
-            <div className="absolute top-[12%] md:top-[14%] left-1/2 transform -translate-x-1/2 p-2.5 md:p-3.5 border border-white/10 bg-[#0a0a0a] rounded-lg md:rounded-xl flex items-center gap-2 text-white text-[11px] md:text-sm font-medium z-10">
+            <div className="absolute top-[12%] md:top-[14%] left-1/2 transform -translate-x-1/2 p-2.5 md:p-3.5 border border-white/10 bg-[#0E1424] rounded-lg md:rounded-xl flex items-center gap-2 text-white text-[11px] md:text-sm font-medium z-10">
                 <div className="w-6 h-6 md:w-7 md:h-7 rounded bg-[#17494D]/40 flex items-center justify-center text-teal-200 font-bold text-[10px] md:text-xs">Z</div> Zendesk
             </div>
 
             {/* BOTTOM NODE: Logistique */}
-            <div className="absolute bottom-[12%] md:bottom-[14%] left-1/2 transform -translate-x-1/2 p-2.5 md:p-3.5 border border-white/10 bg-[#0a0a0a] rounded-lg md:rounded-xl flex items-center gap-2 text-white text-[11px] md:text-sm font-medium z-10">
+            <div className="absolute bottom-[12%] md:bottom-[14%] left-1/2 transform -translate-x-1/2 p-2.5 md:p-3.5 border border-white/10 bg-[#0E1424] rounded-lg md:rounded-xl flex items-center gap-2 text-white text-[11px] md:text-sm font-medium z-10">
                 <div className="w-6 h-6 md:w-7 md:h-7 rounded bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-[10px] md:text-xs">L</div> Logistique
             </div>
 
@@ -132,7 +132,7 @@ export const BeforeAfterSlider = () => {
     );
 
     return (
-        <section className="py-24 md:py-32 relative overflow-hidden bg-[#030303] border-t border-white/5 z-10">
+        <section className="py-24 md:py-32 relative overflow-hidden bg-[#0A0E1A] border-t border-white/5 z-10">
             <div className="max-w-7xl mx-auto px-6">
 
                 <FadeInUp className="text-center mb-12 md:mb-16">
@@ -151,7 +151,7 @@ export const BeforeAfterSlider = () => {
                 <FadeInUp delay={0.2}>
                     <div
                         ref={measuredRef}
-                        className="relative w-full h-[350px] sm:h-[420px] md:h-[520px] lg:h-[580px] rounded-[24px] md:rounded-[32px] overflow-hidden border border-white/10 select-none cursor-ew-resize mt-8 md:mt-12 bg-[#0a0a0a] shadow-2xl"
+                        className="relative w-full h-[350px] sm:h-[420px] md:h-[520px] lg:h-[580px] rounded-[24px] md:rounded-[32px] overflow-hidden border border-white/10 select-none cursor-ew-resize mt-8 md:mt-12 bg-[#0E1424] shadow-2xl"
                         onMouseMove={handleDrag}
                         onTouchMove={handleDrag}
                         onClick={handleDrag}

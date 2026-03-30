@@ -2,7 +2,7 @@ import { CheckCircle, ArrowRight } from "lucide-react";
 
 export function SuccessPage({ onNavigate }) {
   return (
-    <div className="min-h-screen bg-[#030303] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center px-4">
       <div className="text-center max-w-md w-full">
         <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-8">
           <CheckCircle className="w-10 h-10 text-emerald-500" />

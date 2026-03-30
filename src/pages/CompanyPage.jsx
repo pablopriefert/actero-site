@@ -63,7 +63,7 @@ export const CompanyPage = ({ onNavigate }) => {
         description="Actero construit des systèmes d'automatisation IA autonomes et mesurables pour les entreprises ambitieuses. Découvrez notre mission et nos valeurs."
         canonical="/entreprise"
       />
-    <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
+    <div className="min-h-screen bg-[#0A0E1A] text-white font-sans selection:bg-white/20">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
       <main className="pt-32 pb-24 px-6">
@@ -105,7 +105,7 @@ export const CompanyPage = ({ onNavigate }) => {
             {values.map((v, i) => (
               <div
                 key={i}
-                className="p-8 rounded-[32px] bg-[#0a0a0a] border border-white/5 hover:border-white/10 transition-colors"
+                className="p-8 rounded-[32px] bg-[#0E1424] border border-white/5 hover:border-white/10 transition-colors"
               >
                 <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-6 text-zinc-400">
                   {v.icon}
@@ -117,7 +117,7 @@ export const CompanyPage = ({ onNavigate }) => {
           </div>
 
           {/* Team/CTA Section */}
-          <div className="bg-[#0a0a0a] rounded-[40px] p-12 border border-white/10 text-center relative overflow-hidden">
+          <div className="bg-[#0E1424] rounded-[40px] p-12 border border-white/10 text-center relative overflow-hidden">
              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-white/5 rounded-full blur-[100px] -mt-40"></div>
              <h2 className="text-3xl md:text-5xl font-bold mb-8 relative z-10">Rejoignez l'ère de l'entreprise autonome.</h2>
              <ButtonColorful onClick={() => onNavigate("/audit")} className="relative z-10">

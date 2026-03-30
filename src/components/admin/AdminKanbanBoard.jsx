@@ -82,7 +82,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
           return (
             <div
               key={col.id}
-              className="rounded-3xl border border-white/5 bg-[#0a0a0a]/50 p-4 flex flex-col gap-4 shadow-inner min-h-[60vh]"
+              className="rounded-3xl border border-white/5 bg-[#0E1424]/50 p-4 flex flex-col gap-4 shadow-inner min-h-[60vh]"
             >
               <div className="flex items-center justify-between mb-2 px-2">
                 <h3 className="font-bold text-white text-sm tracking-widest uppercase">

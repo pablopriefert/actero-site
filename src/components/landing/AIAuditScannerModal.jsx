@@ -151,7 +151,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
           </p>
         </div>
 
-        <div className="bg-[#060e06] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+        <div className="bg-[#0E1424] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
           <div
             className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] transition-colors duration-1000 pointer-events-none ${scanState === "idle"
               ? "bg-zinc-500/10"
@@ -185,7 +185,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                       placeholder="URL de votre site (ex: lumina.com)"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      className="w-full bg-[#040a04] border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white font-medium placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                      className="w-full bg-[#0A0E1A] border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white font-medium placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
                       required
                     />
                   </div>
@@ -219,7 +219,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                   </span>
                 </div>
 
-                <div className="w-full h-3 bg-[#040a04] rounded-full border border-white/5 overflow-hidden mb-6">
+                <div className="w-full h-3 bg-[#0A0E1A] rounded-full border border-white/5 overflow-hidden mb-6">
                   <motion.div
                     className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-400 relative"
                     initial={{ width: 0 }}
@@ -230,7 +230,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                   </motion.div>
                 </div>
 
-                <div className="bg-[#040a04] border border-white/10 rounded-xl p-4 font-mono text-xs text-gray-400 h-32 overflow-hidden relative">
+                <div className="bg-[#0A0E1A] border border-white/10 rounded-xl p-4 font-mono text-xs text-gray-400 h-32 overflow-hidden relative">
                   <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-[#030303] to-transparent z-10"></div>
                   <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#030303] to-transparent z-10"></div>
                   <motion.div

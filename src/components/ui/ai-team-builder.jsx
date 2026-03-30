@@ -104,7 +104,7 @@ export const AITeamBuilder = ({ onNavigate }) => {
                                         disabled={isSelected}
                                         className={`p-5 rounded-2xl border text-left transition-all duration-300 relative overflow-hidden group ${isSelected
                                                 ? 'bg-white/5 border-white/5 opacity-50 cursor-not-allowed'
-                                                : 'bg-[#0a0a0a] border-white/10 hover:border-white/20 hover:bg-white/5'
+                                                : 'bg-[#0E1424] border-white/10 hover:border-white/20 hover:bg-white/5'
                                             }`}
                                     >
                                         <div className="flex justify-between items-start mb-4">
@@ -132,7 +132,7 @@ export const AITeamBuilder = ({ onNavigate }) => {
 
                     {/* Your Active Team & ROI Dashboard */}
                     <FadeInUp delay={0.2} className="w-full lg:w-1/2 sticky top-32">
-                        <div className="bg-[#0a0a0a] rounded-[32px] border border-white/10 p-6 md:p-8 shadow-2xl relative overflow-hidden">
+                        <div className="bg-[#0E1424] rounded-[32px] border border-white/10 p-6 md:p-8 shadow-2xl relative overflow-hidden">
                             {/* Decorative background blur */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 

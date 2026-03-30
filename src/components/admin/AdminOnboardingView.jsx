@@ -115,7 +115,7 @@ export const AdminOnboardingView = () => {
         </p>
       </div>
 
-      <div className="bg-[#0a0a0a] p-8 rounded-2xl border border-white/10 shadow-sm mb-8">
+      <div className="bg-[#0E1424] p-8 rounded-2xl border border-white/10 shadow-sm mb-8">
         <form onSubmit={handleCreateAndInvite} className="space-y-6">
           {errorMsg && (
             <div role="alert" className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-500/20 flex items-start gap-3 text-sm font-medium">
@@ -135,7 +135,7 @@ export const AdminOnboardingView = () => {
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
                 placeholder="Ex: Koma"
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
                 required
               />
             </div>
@@ -149,7 +149,7 @@ export const AdminOnboardingView = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Ex: contact@koma.com"
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
                 required
               />
             </div>
@@ -170,7 +170,7 @@ export const AdminOnboardingView = () => {
                   value={hourlyCost}
                   onChange={(e) => setHourlyCost(e.target.value)}
                   placeholder="Ex: 25"
-                  className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                  className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
                 />
               </div>
               <div>
@@ -184,7 +184,7 @@ export const AdminOnboardingView = () => {
                   value={avgTicketTime}
                   onChange={(e) => setAvgTicketTime(e.target.value)}
                   placeholder="Ex: 5"
-                  className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                  className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
                 />
               </div>
               <div>
@@ -199,7 +199,7 @@ export const AdminOnboardingView = () => {
                   value={acteroPrice}
                   onChange={(e) => setActeroPrice(e.target.value)}
                   placeholder="Ex: 490"
-                  className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                  className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
                 />
               </div>
             </div>
@@ -242,7 +242,7 @@ export const AdminOnboardingView = () => {
             </div>
           </div>
 
-          <div className="bg-[#0a0a0a] rounded-xl border border-white/5 p-4 space-y-3 text-sm mb-6">
+          <div className="bg-[#0E1424] rounded-xl border border-white/5 p-4 space-y-3 text-sm mb-6">
             <div className="flex justify-between border-b border-white/5 pb-2 flex-wrap gap-2">
               <span className="text-gray-400 font-medium whitespace-nowrap">
                 Client ID

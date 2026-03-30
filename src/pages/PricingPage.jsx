@@ -131,7 +131,7 @@ export const PricingPage = ({ onNavigate }) => {
         description="Découvrez nos offres d'automatisation IA : audit gratuit, agent SAV e-commerce, qualification de leads immobilier. Tarifs transparents, ROI mesurable."
         canonical="/tarifs"
       />
-    <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-white/20">
+    <div className="min-h-screen bg-[#0A0E1A] text-white font-sans selection:bg-white/20">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
       <main className="pt-32 pb-24 px-6">
@@ -176,7 +176,7 @@ export const PricingPage = ({ onNavigate }) => {
                 className={`group relative p-8 md:p-10 rounded-[32px] border transition-all duration-500 hover:scale-[1.02] ${
                   plan.highlighted
                     ? "bg-white/[0.03] border-emerald-500/30"
-                    : "bg-[#0a0a0a] border-white/10 hover:border-white/20"
+                    : "bg-[#0E1424] border-white/10 hover:border-white/20"
                 }`}
               >
                 {/* Glow effect on highlighted card */}
@@ -259,7 +259,7 @@ export const PricingPage = ({ onNavigate }) => {
               {faqs.map((faq, i) => (
                 <div
                   key={i}
-                  className="bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden"
+                  className="bg-[#0E1424] border border-white/5 rounded-2xl overflow-hidden"
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}

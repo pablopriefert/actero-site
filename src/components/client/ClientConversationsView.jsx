@@ -132,7 +132,7 @@ const SatisfactionGauge = ({ rate, totalRated }) => {
 
   if (totalRated < 10) {
     return (
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-xl px-5 py-3 flex items-center gap-3">
+      <div className="bg-[#0E1424] border border-white/10 rounded-xl px-5 py-3 flex items-center gap-3">
         <ThumbsUp className="w-4 h-4 text-zinc-600" />
         <div>
           <p className="text-xs text-zinc-500">Satisfaction</p>
@@ -143,7 +143,7 @@ const SatisfactionGauge = ({ rate, totalRated }) => {
   }
 
   return (
-    <div className="bg-[#0a0a0a] border border-white/10 rounded-xl px-5 py-3 flex items-center gap-4">
+    <div className="bg-[#0E1424] border border-white/10 rounded-xl px-5 py-3 flex items-center gap-4">
       <div className="relative w-14 h-14">
         <svg className="w-14 h-14 -rotate-90" viewBox="0 0 80 80">
           <circle cx="40" cy="40" r="36" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
@@ -191,7 +191,7 @@ const ConversationCard = ({ event, onRate, isFromAiConversations }) => {
   return (
     <motion.div
       layout
-      className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden hover:border-white/15 transition-colors"
+      className="bg-[#0E1424] border border-white/10 rounded-2xl overflow-hidden hover:border-white/15 transition-colors"
     >
       <button
         onClick={() => setExpanded(!expanded)}
@@ -365,14 +365,14 @@ export const ClientConversationsView = ({ clientId }) => {
 
       {/* Stats */}
       <div className="flex flex-wrap gap-4">
-        <div className="bg-[#0a0a0a] border border-white/10 rounded-xl px-5 py-3 flex items-center gap-3">
+        <div className="bg-[#0E1424] border border-white/10 rounded-xl px-5 py-3 flex items-center gap-3">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <div>
             <p className="text-xs text-zinc-500">Resolus</p>
             <p className="text-lg font-bold text-white">{resolvedCount}</p>
           </div>
         </div>
-        <div className="bg-[#0a0a0a] border border-white/10 rounded-xl px-5 py-3 flex items-center gap-3">
+        <div className="bg-[#0E1424] border border-white/10 rounded-xl px-5 py-3 flex items-center gap-3">
           <AlertTriangle className="w-4 h-4 text-amber-400" />
           <div>
             <p className="text-xs text-zinc-500">Escalades</p>

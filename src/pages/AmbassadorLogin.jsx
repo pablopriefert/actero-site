@@ -28,7 +28,7 @@ export const AmbassadorLogin = ({ onNavigate }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] flex font-sans">
+    <div className="min-h-screen bg-[#0A0E1A] flex font-sans">
       {/* Left: Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 md:px-20 lg:px-16 xl:px-24 py-12">
         <div className="max-w-[420px] w-full mx-auto">

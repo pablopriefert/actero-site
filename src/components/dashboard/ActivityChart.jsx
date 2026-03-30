@@ -68,7 +68,7 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
 
   if (isLoading) {
     return (
-      <div className={`h-full rounded-2xl border p-6 animate-pulse ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
+      <div className={`h-full rounded-2xl border p-6 animate-pulse ${isLight ? "bg-white border-slate-200" : "bg-[#0E1424] border-white/10"}`}>
         <div className="h-6 w-1/3 bg-white/5 mb-4 rounded" />
         <div className="flex-1 bg-white/5 rounded-xl" />
       </div>
@@ -76,7 +76,7 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
   }
 
   return (
-    <div className={`rounded-2xl border p-6 shadow-sm flex flex-col h-full transition-colors duration-300 ${isLight ? "bg-white border-slate-200" : "bg-[#0a0a0a] border-white/10"}`}>
+    <div className={`rounded-2xl border p-6 shadow-sm flex flex-col h-full transition-colors duration-300 ${isLight ? "bg-white border-slate-200" : "bg-[#0E1424] border-white/10"}`}>
       <div className="flex items-center justify-between mb-6">
         <h3 className={`text-sm font-bold uppercase tracking-widest flex items-center gap-2 ${isLight ? "text-slate-900" : "text-white"}`}>
           Graphique d'activité <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>

@@ -343,15 +343,15 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}>
           <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-zinc-500'}`}>Escalades ce mois</p>
           <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>{stats?.monthCount || 0}</p>
         </div>
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}>
           <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-zinc-500'}`}>Temps moyen de reponse</p>
           <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>{stats?.avgResponseHours || 0}h</p>
         </div>
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}>
           <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-500' : 'text-zinc-500'}`}>Taux d&apos;escalade</p>
           <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>{stats?.escalationRate || 0}%</p>
         </div>
@@ -394,7 +394,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
           <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0a0a0a] border-white/10'}`}>
+        <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-slate-200' : 'bg-[#0E1424] border-white/10'}`}>
           <CheckCircle2 className={`w-10 h-10 mx-auto mb-3 ${isLight ? 'text-slate-300' : 'text-zinc-700'}`} />
           <p className={`text-sm ${isLight ? 'text-slate-500' : 'text-zinc-500'}`}>
             {filter === 'pending' ? 'Aucun ticket en attente.' : 'Aucune escalade trouvee.'}
@@ -413,7 +413,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                 className={`rounded-2xl border p-5 cursor-pointer transition-all ${
                   isLight
                     ? 'bg-white border-slate-200 hover:border-slate-300'
-                    : 'bg-[#0a0a0a] border-white/10 hover:border-white/20'
+                    : 'bg-[#0E1424] border-white/10 hover:border-white/20'
                 } ${overdue ? 'border-l-2 border-l-red-500' : ''}`}
               >
                 <div className="flex items-start justify-between">

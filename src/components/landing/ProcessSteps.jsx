@@ -7,7 +7,7 @@ import { GlowCard } from '../ui/GlowCard'
 /* ── Mini UI Mockups ── */
 
 const MockupAudit = ({ isImmo }) => (
-  <div className="bg-[#081008] rounded-xl border border-white/[0.06] p-4 text-[11px] font-mono">
+  <div className="bg-[#111B2E] rounded-xl border border-white/[0.06] p-4 text-[11px] font-mono">
     <p className="text-gray-600 mb-3 uppercase tracking-widest text-[9px]">Connexion outils</p>
     <div className="space-y-2">
       {(isImmo ? [
@@ -71,7 +71,7 @@ const MockupDeploy = ({ isImmo }) => {
   }
 
   return (
-    <div className="bg-[#081008] rounded-xl border border-white/[0.06] p-4">
+    <div className="bg-[#111B2E] rounded-xl border border-white/[0.06] p-4">
       <p className="text-gray-600 mb-3 uppercase tracking-widest text-[9px] font-mono">Déploiement agents</p>
       <div className="grid grid-cols-2 gap-2">
         {agents.map((agent) => {
@@ -113,7 +113,7 @@ const MockupDashboard = ({ isImmo }) => {
   const accentText = isImmo ? 'text-violet-400' : 'text-emerald-400'
 
   return (
-    <div className="bg-[#081008] rounded-xl border border-white/[0.06] p-4">
+    <div className="bg-[#111B2E] rounded-xl border border-white/[0.06] p-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-gray-600 uppercase tracking-widest text-[9px] font-mono">Dashboard ROI</p>
         <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/5 ${accentText}`}>
@@ -224,7 +224,7 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
         <FadeInUp key={`${vertical}-${i}`} delay={i * 0.12}>
           <GlowCard
             color={block.glowColor}
-            className="bg-[#060e06] rounded-[28px] border border-white/[0.06] h-full hover:border-white/[0.12] transition-all duration-500 overflow-hidden"
+            className="bg-[#0E1424] rounded-[28px] border border-white/[0.06] h-full hover:border-white/[0.12] transition-all duration-500 overflow-hidden"
           >
             <div className="p-6 md:p-7">
               {/* Step header */}

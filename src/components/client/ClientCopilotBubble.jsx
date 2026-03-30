@@ -136,7 +136,7 @@ export const ClientCopilotBubble = ({ clientId, clientType, theme = 'dark' }) =>
             className={`fixed bottom-6 right-6 z-50 w-[380px] h-[520px] rounded-2xl shadow-2xl flex flex-col overflow-hidden border ${
               isLight
                 ? 'bg-white border-slate-200 shadow-slate-200/50'
-                : 'bg-[#0a0a0a] border-white/10 shadow-black/50'
+                : 'bg-[#0E1424] border-white/10 shadow-black/50'
             }`}
           >
             {/* Header */}

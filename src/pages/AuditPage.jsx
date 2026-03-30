@@ -88,7 +88,7 @@ export const AuditPage = ({ onNavigate }) => {
         description="Réservez votre audit stratégie gratuit de 15 minutes. Estimation ROI personnalisée, 3 workflows prioritaires, plan d'architecture technique."
         canonical="/audit"
       />
-    <div className="min-h-screen bg-[#030303] text-zinc-50 font-sans selection:bg-white/20 relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-[#0A0E1A] text-zinc-50 font-sans selection:bg-white/20 relative overflow-hidden flex flex-col">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
       <main className="pt-32 pb-24 relative z-10 flex-grow px-6">
@@ -173,7 +173,7 @@ export const AuditPage = ({ onNavigate }) => {
                   </p>
                 </div>
 
-                <div className="bg-[#0a0a0a] rounded-[24px] border border-white/5 p-8">
+                <div className="bg-[#0E1424] rounded-[24px] border border-white/5 p-8">
                   <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-6">
                     Pendant cet appel vous recevrez :
                   </p>
@@ -203,14 +203,14 @@ export const AuditPage = ({ onNavigate }) => {
 
               <div className="relative">
                 <div className="absolute inset-0 bg-zinc-400/5 blur-3xl transform scale-110 rounded-full"></div>
-                <div className="bg-[#0a0a0a] rounded-[32px] border border-white/10 shadow-2xl relative overflow-hidden h-[700px] flex justify-center w-full">
+                <div className="bg-[#0E1424] rounded-[32px] border border-white/10 shadow-2xl relative overflow-hidden h-[700px] flex justify-center w-full">
                   <iframe
                     src="https://calendly.com/actero-fr/30min?embed_domain=actero.fr&embed_type=Inline"
                     width="100%"
                     height="100%"
                     frameBorder="0"
                     title="Calendly Scheduling"
-                    className="bg-[#0a0a0a] absolute inset-0 w-full h-full"
+                    className="bg-[#0E1424] absolute inset-0 w-full h-full"
                   ></iframe>
                 </div>
               </div>
@@ -233,7 +233,7 @@ export const AuditPage = ({ onNavigate }) => {
 
             <div className="grid md:grid-cols-3 gap-6">
               <FadeInUp delay={0.1}>
-                <div className="bg-[#0a0a0a] rounded-2xl p-8 border border-white/5 h-full hover:border-white/10 transition-colors">
+                <div className="bg-[#0E1424] rounded-2xl p-8 border border-white/5 h-full hover:border-white/10 transition-colors">
                   <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 text-indigo-400">
                     <Database className="w-6 h-6" />
                   </div>
@@ -244,7 +244,7 @@ export const AuditPage = ({ onNavigate }) => {
                 </div>
               </FadeInUp>
               <FadeInUp delay={0.2}>
-                <div className="bg-[#0a0a0a] rounded-2xl p-8 border border-white/5 h-full hover:border-white/10 transition-colors">
+                <div className="bg-[#0E1424] rounded-2xl p-8 border border-white/5 h-full hover:border-white/10 transition-colors">
                   <div className="w-12 h-12 bg-rose-500/10 rounded-xl flex items-center justify-center mb-6 text-rose-400">
                     <Activity className="w-6 h-6" />
                   </div>
@@ -255,7 +255,7 @@ export const AuditPage = ({ onNavigate }) => {
                 </div>
               </FadeInUp>
               <FadeInUp delay={0.3}>
-                <div className="bg-[#0a0a0a] rounded-2xl p-8 border border-white/5 h-full hover:border-white/10 transition-colors">
+                <div className="bg-[#0E1424] rounded-2xl p-8 border border-white/5 h-full hover:border-white/10 transition-colors">
                   <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-6 text-emerald-400">
                     <ArrowUpRight className="w-6 h-6" />
                   </div>
@@ -276,7 +276,7 @@ export const AuditPage = ({ onNavigate }) => {
             </FadeInUp>
             <div className="space-y-3">
               {auditFaqs.map((faq, i) => (
-                <div key={i} className="bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden">
+                <div key={i} className="bg-[#0E1424] border border-white/5 rounded-2xl overflow-hidden">
                   <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between p-6 text-left">
                     <span className="font-bold">{faq.q}</span>
                     <Plus className={`w-5 h-5 transition-transform ${openFaq === i ? 'rotate-45' : ''}`} />

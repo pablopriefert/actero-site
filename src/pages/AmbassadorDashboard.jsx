@@ -399,7 +399,7 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030303] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
       </div>
     )
@@ -1115,7 +1115,7 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] font-sans text-white flex">
+    <div className="min-h-screen bg-[#0A0E1A] font-sans text-white flex">
       {/* Mobile menu toggle */}
       <button
         onClick={() => setIsMobileMenuOpen(true)}

@@ -163,7 +163,7 @@ export const PartnerLandingPage = ({ onNavigate }) => {
         description="Devenez partenaire Actero et proposez l'automatisation IA à vos clients e-commerce et immobilier. Commission attractive, support dédié."
         canonical="/partner"
       />
-    <div className="relative min-h-screen bg-[#030303] font-sans text-white selection:bg-indigo-500/20 selection:text-white">
+    <div className="relative min-h-screen bg-[#0A0E1A] font-sans text-white selection:bg-indigo-500/20 selection:text-white">
       {/* BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/20 via-[#030303] to-[#030303]" />

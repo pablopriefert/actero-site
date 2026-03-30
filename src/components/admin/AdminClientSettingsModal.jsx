@@ -149,7 +149,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-[#0E1424] border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Settings className="w-5 h-5 text-zinc-400" />
@@ -191,7 +191,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
                 value={hourlyCost}
                 onChange={(e) => setHourlyCost(e.target.value)}
                 placeholder="Ex: 25"
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
               />
               <p className="text-xs text-zinc-500 mt-1">Utilisé pour calculer money_saved = temps × coût</p>
             </div>
@@ -205,7 +205,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
                 value={avgTicketTime}
                 onChange={(e) => setAvgTicketTime(e.target.value)}
                 placeholder="Ex: 5"
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
               />
             </div>
             <div>
@@ -219,7 +219,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
                 value={acteroPrice}
                 onChange={(e) => setActeroPrice(e.target.value)}
                 placeholder="Ex: 490"
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
               />
               <p className="text-xs text-zinc-500 mt-1">Pour le calcul du ROI net</p>
             </div>
@@ -260,7 +260,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
               <select
                 value={selectedTemplate}
                 onChange={(e) => setSelectedTemplate(e.target.value)}
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-blue-500/40 transition-all appearance-none"
+                className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-blue-500/40 transition-all appearance-none"
               >
                 {WORKFLOW_TEMPLATES.map((t) => (
                   <option key={t.id} value={t.id}>{t.label}</option>
@@ -302,7 +302,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
                   value={brandUrl}
                   onChange={(e) => setBrandUrl(e.target.value)}
                   placeholder="https://example.com"
-                  className="flex-1 px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-violet-500/40 transition-all"
+                  className="flex-1 px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-violet-500/40 transition-all"
                 />
                 <button
                   onClick={handleGenerateBrandContext}
@@ -325,7 +325,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
                 onChange={(e) => setBrandContext(e.target.value)}
                 rows={5}
                 placeholder="Le brand context apparaîtra ici après génération..."
-                className="w-full px-4 py-3 bg-[#030303] border border-white/10 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-violet-500/40 transition-all resize-y"
+                className="w-full px-4 py-3 bg-[#0A0E1A] border border-white/10 rounded-xl text-sm text-white outline-none focus:ring-2 focus:ring-violet-500/40 transition-all resize-y"
               />
             </div>
             <button
@@ -419,7 +419,7 @@ const AdminClientIntegrations = ({ clientId }) => {
       ) : (
         <div className="space-y-2">
           {shopify && (
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#030303] border border-white/10">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#0A0E1A] border border-white/10">
               <div className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white" style={{ backgroundColor: '#96BF48' }}>S</div>
                 <div>
@@ -432,7 +432,7 @@ const AdminClientIntegrations = ({ clientId }) => {
           )}
 
           {integrations.map(int => (
-            <div key={int.id} className="flex items-center justify-between p-3 rounded-xl bg-[#030303] border border-white/10">
+            <div key={int.id} className="flex items-center justify-between p-3 rounded-xl bg-[#0A0E1A] border border-white/10">
               <div className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold text-white bg-zinc-700">
                   {(int.provider_label || int.provider)[0].toUpperCase()}

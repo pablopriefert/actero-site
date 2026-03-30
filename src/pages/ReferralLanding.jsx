@@ -43,7 +43,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030303] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -55,7 +55,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#030303] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center text-white">
         <div className="text-center">
           <p className="text-red-400 text-lg mb-4">{error}</p>
           <button onClick={() => onNavigate('/')} className="text-emerald-400 font-bold">
@@ -67,9 +67,9 @@ export const ReferralLanding = ({ code, onNavigate }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white overflow-hidden">
+    <div className="min-h-screen bg-[#0A0E1A] text-white overflow-hidden">
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#030303]/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0E1A]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <button onClick={() => onNavigate('/')} className="flex items-center gap-2">
             <Logo className="w-7 h-7 text-white" />
@@ -184,7 +184,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-[#0a0a0a] rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-colors"
+                className="bg-[#0E1424] rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-colors"
               >
                 <div className={`w-10 h-10 rounded-xl bg-${item.color}-500/10 flex items-center justify-center mb-4`}>
                   <item.icon className={`w-5 h-5 text-${item.color}-400`} />

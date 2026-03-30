@@ -87,7 +87,7 @@ export const AdminNegativeRatingsView = () => {
               className={`rounded-xl border p-3 text-left transition-all ${
                 selectedClientId === client.id
                   ? 'bg-white/10 border-white/20'
-                  : 'bg-[#0a0a0a] border-white/10 hover:border-white/20'
+                  : 'bg-[#0E1424] border-white/10 hover:border-white/20'
               }`}
             >
               <p className="text-sm font-bold text-white truncate">{client.brand_name}</p>
@@ -138,7 +138,7 @@ export const AdminNegativeRatingsView = () => {
           <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
         </div>
       ) : ratingsData.length === 0 ? (
-        <div className="text-center py-16 rounded-2xl border bg-[#0a0a0a] border-white/10">
+        <div className="text-center py-16 rounded-2xl border bg-[#0E1424] border-white/10">
           <ThumbsDown className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
           <p className="text-sm text-zinc-500">Aucune notation negative{selectedClientId ? ' pour ce client' : ''}.</p>
         </div>
@@ -151,7 +151,7 @@ export const AdminNegativeRatingsView = () => {
                 key={conv.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5 space-y-3"
+                className="bg-[#0E1424] border border-white/10 rounded-2xl p-5 space-y-3"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

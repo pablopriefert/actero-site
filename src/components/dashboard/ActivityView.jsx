@@ -167,7 +167,7 @@ export const ActivityView = ({ supabase, theme = "dark" }) => {
         </div>
       </div>
 
-      <div className={`border rounded-3xl overflow-hidden ${isLight ? "bg-white border-slate-200 shadow-sm" : "bg-[#0a0a0a] border-white/10 shadow-2xl"}`}>
+      <div className={`border rounded-3xl overflow-hidden ${isLight ? "bg-white border-slate-200 shadow-sm" : "bg-[#0E1424] border-white/10 shadow-2xl"}`}>
         {isLoading && events.length === 0 ? (
           <div className="p-12 space-y-6">
             {[...Array(5)].map((_, i) => (

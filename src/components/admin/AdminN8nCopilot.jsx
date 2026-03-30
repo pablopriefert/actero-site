@@ -435,7 +435,7 @@ export const AdminN8nCopilot = () => {
       </AnimatePresence>
 
       {/* Input — ChatGPT style */}
-      <div className="border-t border-white/5 bg-[#0a0a0a]">
+      <div className="border-t border-white/5 bg-[#0E1424]">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="relative flex items-end bg-white/[0.05] border border-white/10 rounded-2xl focus-within:border-white/20 transition-colors">
             <textarea
