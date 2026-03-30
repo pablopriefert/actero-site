@@ -36,8 +36,8 @@ const STEPS = [
   {
     id: 3,
     icon: Brain,
-    color: 'text-[#1B7D3A]',
-    bg: 'bg-green-50 border-green-200',
+    color: 'text-[#003725]',
+    bg: 'bg-[#F9F7F1] border-[#003725]/20',
     title: 'Generation reponse IA',
     subtitle: 'Gemini + contexte client',
     detail: 'Reponse personnalisee generee avec excuses, proposition de renvoi gratuit, et code promo -15% pour le prochain achat.',
@@ -56,8 +56,8 @@ const STEPS = [
   {
     id: 5,
     icon: CheckCircle2,
-    color: 'text-[#1B7D3A]',
-    bg: 'bg-green-50 border-green-200',
+    color: 'text-[#003725]',
+    bg: 'bg-[#F9F7F1] border-[#003725]/20',
     title: 'Ticket resolu',
     subtitle: 'Automatiquement',
     detail: 'Temps total : 1.5 secondes | Temps economise : 8 minutes | Satisfaction client preservee',
@@ -115,14 +115,14 @@ export const TicketReplay = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-600 text-xs font-bold mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F9F7F1] border border-gray-200 text-[#716D5C] text-xs font-bold mb-6">
             <Zap className="w-3.5 h-3.5" />
             Demo en direct
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-[#262626] mb-6">
             Voyez l'IA en action.
           </h2>
-          <p className="text-lg text-gray-600 font-medium max-w-2xl mx-auto">
+          <p className="text-lg text-[#716D5C] font-medium max-w-2xl mx-auto">
             Un ticket SAV traite en 1.5 seconde. De A a Z. Sans intervention humaine.
           </p>
         </motion.div>
@@ -130,9 +130,9 @@ export const TicketReplay = () => {
         {/* Replay container */}
         <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 relative overflow-hidden">
           {/* Progress bar */}
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-100">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#F9F7F1]">
             <motion.div
-              className="h-full bg-[#1B7D3A]"
+              className="h-full bg-[#0F5F35]"
               animate={{ width: `${((activeStep + 1) / STEPS.length) * 100}%` }}
               transition={{ duration: 0.5 }}
             />
@@ -141,14 +141,14 @@ export const TicketReplay = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-8 mt-2">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-[#1B7D3A] animate-pulse" />
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <div className="w-2 h-2 rounded-full bg-[#0F5F35] animate-pulse" />
+              <span className="text-xs font-bold text-[#716D5C] uppercase tracking-wider">
                 {isPlaying ? 'Traitement en cours...' : activeStep >= STEPS.length - 1 ? 'Traitement termine' : 'Workflow SAV IA'}
               </span>
             </div>
             <button
               onClick={startReplay}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 text-xs font-medium transition-all border border-gray-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F9F7F1] hover:bg-[#F9F7F1] text-[#716D5C] hover:text-[#262626] text-xs font-medium transition-all border border-gray-200"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Rejouer
@@ -172,35 +172,35 @@ export const TicketReplay = () => {
                       className={`flex gap-4 p-4 rounded-2xl border transition-all duration-300 ${
                         isCurrent
                           ? `${step.bg} shadow-sm`
-                          : 'bg-gray-50 border-gray-200'
+                          : 'bg-[#F9F7F1] border-gray-200'
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        isCurrent ? step.bg : 'bg-gray-100'
+                        isCurrent ? step.bg : 'bg-[#F9F7F1]'
                       }`}>
                         <Icon className={`w-5 h-5 ${isCurrent ? step.color : 'text-gray-400'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
-                            <h4 className={`text-sm font-bold ${isCurrent ? 'text-gray-900' : 'text-gray-500'}`}>
+                            <h4 className={`text-sm font-bold ${isCurrent ? 'text-[#262626]' : 'text-[#716D5C]'}`}>
                               {step.title}
                             </h4>
-                            <span className="text-[10px] text-gray-500 font-mono">
+                            <span className="text-[10px] text-[#716D5C] font-mono">
                               {step.subtitle}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3 text-gray-400" />
-                            <span className="text-[10px] text-gray-500 font-mono">{step.time}</span>
+                            <span className="text-[10px] text-[#716D5C] font-mono">{step.time}</span>
                           </div>
                         </div>
-                        <p className="text-xs leading-relaxed text-gray-500">
+                        <p className="text-xs leading-relaxed text-[#716D5C]">
                           {step.detail}
                         </p>
                       </div>
                       {!isCurrent && isActive && (
-                        <CheckCircle2 className="w-5 h-5 text-[#1B7D3A]/50 flex-shrink-0 mt-2" />
+                        <CheckCircle2 className="w-5 h-5 text-[#003725]/50 flex-shrink-0 mt-2" />
                       )}
                     </motion.div>
                   )}
@@ -216,22 +216,22 @@ export const TicketReplay = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="mt-6 p-5 rounded-2xl bg-gray-50 border border-gray-200 text-center"
+                className="mt-6 p-5 rounded-2xl bg-[#F9F7F1] border border-gray-200 text-center"
               >
                 <div className="flex items-center justify-center gap-6 text-sm">
                   <div>
-                    <span className="text-gray-500">Temps total</span>
-                    <p className="text-xl font-black text-[#1B7D3A]">1.5s</p>
+                    <span className="text-[#716D5C]">Temps total</span>
+                    <p className="text-xl font-black text-[#003725]">1.5s</p>
                   </div>
                   <div className="w-px h-8 bg-gray-200" />
                   <div>
-                    <span className="text-gray-500">Temps economise</span>
-                    <p className="text-xl font-black text-gray-900">8 min</p>
+                    <span className="text-[#716D5C]">Temps economise</span>
+                    <p className="text-xl font-black text-[#262626]">8 min</p>
                   </div>
                   <div className="w-px h-8 bg-gray-200" />
                   <div>
-                    <span className="text-gray-500">Satisfaction</span>
-                    <p className="text-xl font-black text-gray-900">98%</p>
+                    <span className="text-[#716D5C]">Satisfaction</span>
+                    <p className="text-xl font-black text-[#262626]">98%</p>
                   </div>
                 </div>
               </motion.div>

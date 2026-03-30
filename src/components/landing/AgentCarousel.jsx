@@ -22,21 +22,21 @@ export const AgentCarousel = ({ agents, vertical }) => {
               whileTap={{ scale: 0.96 }}
               className={`w-16 h-16 rounded-2xl border-2 flex items-center justify-center text-lg font-black transition-all duration-300 ${
                 activeIdx === i
-                  ? 'border-[#1B7D3A] bg-[#1B7D3A]/5 text-[#1B7D3A]'
-                  : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:text-gray-600'
+                  ? 'border-[#003725] bg-[#0F5F35]/5 text-[#003725]'
+                  : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:text-[#716D5C]'
               }`}
             >
               {agent.agentName.slice(0, 2)}
             </motion.div>
             <span className={`text-[10px] font-black tracking-[0.2em] uppercase transition-colors ${
-              activeIdx === i ? 'text-[#1B7D3A]' : 'text-gray-500 group-hover:text-gray-700'
+              activeIdx === i ? 'text-[#003725]' : 'text-[#716D5C] group-hover:text-[#262626]'
             }`}>
               {agent.agentName}
             </span>
             {activeIdx === i && (
               <motion.div
                 layoutId="agent-underline"
-                className="h-0.5 w-8 rounded-full bg-[#1B7D3A]"
+                className="h-0.5 w-8 rounded-full bg-[#0F5F35]"
               />
             )}
           </button>
@@ -55,27 +55,27 @@ export const AgentCarousel = ({ agents, vertical }) => {
         >
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
-              <span className="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 rounded-lg border text-gray-600 bg-gray-50 border-gray-200">
+              <span className="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 rounded-lg border text-[#716D5C] bg-[#F9F7F1] border-gray-200">
                 Agent {active.agentName}
               </span>
-              <span className="w-2 h-2 rounded-full animate-pulse bg-[#1B7D3A]" />
+              <span className="w-2 h-2 rounded-full animate-pulse bg-[#0F5F35]" />
             </div>
 
             <div className="flex items-center gap-4 mb-6">
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${active.iconBg} ${active.iconColor} flex-shrink-0`}>
                 {active.icon}
               </div>
-              <h3 className="text-xl md:text-2xl font-bold text-gray-900 leading-snug">{active.title}</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-[#262626] leading-snug">{active.title}</h3>
             </div>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-6">
-              <p className="text-sm font-bold flex items-center gap-2 text-[#1B7D3A]">
+            <div className="bg-[#F9F7F1] border border-gray-200 rounded-xl px-4 py-3 mb-6">
+              <p className="text-sm font-bold flex items-center gap-2 text-[#003725]">
                 <Target className="w-4 h-4 flex-shrink-0" />
                 {active.result}
               </p>
             </div>
 
-            <p className="text-gray-600 font-medium leading-relaxed">
+            <p className="text-[#716D5C] font-medium leading-relaxed">
               {active.desc}
             </p>
           </div>

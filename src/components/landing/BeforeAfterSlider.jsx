@@ -28,14 +28,14 @@ export const BeforeAfterSlider = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-6">
+          <p className="text-xs font-bold text-[#716D5C] uppercase tracking-[0.2em] mb-6">
             Transformation
           </p>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-[#262626] mb-6">
             Avant vs Après<br className="hidden md:block" />
-            <span className="text-[#1B7D3A]">Actero.</span>
+            <span className="text-[#003725]">Actero.</span>
           </h2>
-          <p className="text-lg text-gray-600 font-medium max-w-2xl mx-auto">
+          <p className="text-lg text-[#716D5C] font-medium max-w-2xl mx-auto">
             Glissez le curseur pour voir la différence.
           </p>
         </motion.div>
@@ -55,8 +55,8 @@ export const BeforeAfterSlider = () => {
                   <X className="w-5 h-5 text-red-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Sans Actero</h3>
-                  <p className="text-xs text-gray-500">Processus manuels</p>
+                  <h3 className="text-lg font-bold text-[#262626]">Sans Actero</h3>
+                  <p className="text-xs text-[#716D5C]">Processus manuels</p>
                 </div>
               </div>
               <div className="space-y-5">
@@ -73,8 +73,8 @@ export const BeforeAfterSlider = () => {
                       <item.icon className="w-4 h-4 text-red-500" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{item.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{item.sub}</p>
+                      <p className="text-sm font-semibold text-[#262626]">{item.label}</p>
+                      <p className="text-xs text-[#716D5C] mt-0.5">{item.sub}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -92,15 +92,15 @@ export const BeforeAfterSlider = () => {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="p-8 md:p-10 bg-green-50/30"
+              className="p-8 md:p-10 bg-[#F9F7F1]/30"
             >
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 rounded-2xl bg-green-50 border border-green-200 flex items-center justify-center">
-                  <Check className="w-5 h-5 text-[#1B7D3A]" />
+                <div className="w-10 h-10 rounded-2xl bg-[#F9F7F1] border border-[#003725]/20 flex items-center justify-center">
+                  <Check className="w-5 h-5 text-[#003725]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Avec Actero</h3>
-                  <p className="text-xs text-gray-500">IA autonome 24/7</p>
+                  <h3 className="text-lg font-bold text-[#262626]">Avec Actero</h3>
+                  <p className="text-xs text-[#716D5C]">IA autonome 24/7</p>
                 </div>
               </div>
               <div className="space-y-5">
@@ -113,20 +113,20 @@ export const BeforeAfterSlider = () => {
                     transition={{ delay: i * 0.1 }}
                     className="flex gap-3"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <item.icon className="w-4 h-4 text-[#1B7D3A]" />
+                    <div className="w-8 h-8 rounded-xl bg-[#F9F7F1] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <item.icon className="w-4 h-4 text-[#003725]" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{item.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{item.sub}</p>
+                      <p className="text-sm font-semibold text-[#262626]">{item.label}</p>
+                      <p className="text-xs text-[#716D5C] mt-0.5">{item.sub}</p>
                     </div>
                   </motion.div>
                 ))}
               </div>
-              <div className="mt-8 p-4 rounded-2xl bg-green-50 border border-green-200">
+              <div className="mt-8 p-4 rounded-2xl bg-[#F9F7F1] border border-[#003725]/20">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#1B7D3A] uppercase tracking-wider">Gain mensuel</span>
-                  <span className="text-2xl font-black text-[#1B7D3A]">+3 400€</span>
+                  <span className="text-xs font-bold text-[#003725] uppercase tracking-wider">Gain mensuel</span>
+                  <span className="text-2xl font-black text-[#003725]">+3 400€</span>
                 </div>
               </div>
             </motion.div>

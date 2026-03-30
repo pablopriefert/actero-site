@@ -48,7 +48,7 @@ export const IntegrationGrid = ({ vertical }) => {
           className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3 cursor-default transition-all duration-300 group hover:border-gray-300"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors">
+            <div className="w-9 h-9 rounded-xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors">
               <img
                 src={integ.src
                   ? integ.src
@@ -58,9 +58,9 @@ export const IntegrationGrid = ({ vertical }) => {
                 loading="lazy"
               />
             </div>
-            <span className="font-bold text-gray-900 text-sm leading-tight">{integ.name}</span>
+            <span className="font-bold text-[#262626] text-sm leading-tight">{integ.name}</span>
           </div>
-          <p className="text-xs text-gray-500 font-medium leading-relaxed">
+          <p className="text-xs text-[#716D5C] font-medium leading-relaxed">
             {integ.desc}
           </p>
         </motion.div>

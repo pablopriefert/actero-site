@@ -31,14 +31,14 @@ export const LiveTicker = ({ vertical }) => {
   const stat = stats[idx]
 
   return (
-    <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 border bg-gray-50 border-gray-200">
+    <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 border bg-[#F9F7F1] border-gray-200">
       {/* Live dot */}
       <span className="relative flex h-2 w-2 flex-shrink-0">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 bg-[#1B7D3A]" />
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1B7D3A]" />
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 bg-[#0F5F35]" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0F5F35]" />
       </span>
 
-      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest flex-shrink-0">En direct</span>
+      <span className="text-[11px] font-bold text-[#716D5C] uppercase tracking-widest flex-shrink-0">En direct</span>
 
       <div className="h-3 w-px bg-gray-200 flex-shrink-0" />
 
@@ -49,9 +49,9 @@ export const LiveTicker = ({ vertical }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.25 }}
-          className="text-sm font-medium text-gray-600 whitespace-nowrap"
+          className="text-sm font-medium text-[#716D5C] whitespace-nowrap"
         >
-          <span className="font-black text-base text-gray-900">
+          <span className="font-black text-base text-[#262626]">
             {stat.value}{stat.suffix}
           </span>{' '}
           {stat.label}

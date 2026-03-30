@@ -6,8 +6,8 @@ import { FadeInUp } from '../ui/scroll-animations'
 /* ── Mini UI Mockups ── */
 
 const MockupAudit = ({ isImmo }) => (
-  <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 text-[11px] font-mono">
-    <p className="text-gray-500 mb-3 uppercase tracking-widest text-[9px]">Connexion outils</p>
+  <div className="bg-[#F9F7F1] rounded-xl border border-gray-200 p-4 text-[11px] font-mono">
+    <p className="text-[#716D5C] mb-3 uppercase tracking-widest text-[9px]">Connexion outils</p>
     <div className="space-y-2">
       {(isImmo ? [
         { name: 'HubSpot CRM', status: 'connected' },
@@ -28,9 +28,9 @@ const MockupAudit = ({ isImmo }) => (
           transition={{ delay: i * 0.12, duration: 0.3 }}
           className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-gray-100"
         >
-          <span className="text-gray-600">{tool.name}</span>
+          <span className="text-[#716D5C]">{tool.name}</span>
           {tool.status === 'connected' ? (
-            <span className="flex items-center gap-1 text-[#1B7D3A]">
+            <span className="flex items-center gap-1 text-[#003725]">
               <CheckCircle2 className="w-3 h-3" />
               <span className="text-[9px] uppercase tracking-wider">Connecté</span>
             </span>
@@ -61,8 +61,8 @@ const MockupDeploy = ({ isImmo }) => {
       ]
 
   return (
-    <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
-      <p className="text-gray-500 mb-3 uppercase tracking-widest text-[9px] font-mono">Déploiement agents</p>
+    <div className="bg-[#F9F7F1] rounded-xl border border-gray-200 p-4">
+      <p className="text-[#716D5C] mb-3 uppercase tracking-widest text-[9px] font-mono">Déploiement agents</p>
       <div className="grid grid-cols-2 gap-2">
         {agents.map((agent) => (
           <motion.div
@@ -71,20 +71,20 @@ const MockupDeploy = ({ isImmo }) => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: agent.delay, duration: 0.3 }}
-            className="bg-[#1B7D3A]/5 rounded-xl p-3 flex flex-col gap-2"
+            className="bg-[#0F5F35]/5 rounded-xl p-3 flex flex-col gap-2"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black tracking-widest text-[#1B7D3A]">{agent.name}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#1B7D3A] animate-pulse" />
+              <span className="text-[10px] font-black tracking-widest text-[#003725]">{agent.name}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0F5F35] animate-pulse" />
             </div>
-            <span className="text-[10px] text-gray-500 font-medium">{agent.label}</span>
+            <span className="text-[10px] text-[#716D5C] font-medium">{agent.label}</span>
             <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 whileInView={{ width: '100%' }}
                 viewport={{ once: true }}
                 transition={{ delay: agent.delay + 0.3, duration: 0.8 }}
-                className="h-full bg-[#1B7D3A] rounded-full"
+                className="h-full bg-[#0F5F35] rounded-full"
               />
             </div>
           </motion.div>
@@ -98,10 +98,10 @@ const MockupDashboard = ({ isImmo }) => {
   const bars = [60, 45, 75, 55, 85, 70, 90]
 
   return (
-    <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+    <div className="bg-[#F9F7F1] rounded-xl border border-gray-200 p-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-gray-500 uppercase tracking-widest text-[9px] font-mono">Dashboard ROI</p>
-        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#1B7D3A]/5 text-[#1B7D3A]">
+        <p className="text-[#716D5C] uppercase tracking-widest text-[9px] font-mono">Dashboard ROI</p>
+        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0F5F35]/5 text-[#003725]">
           Live
         </span>
       </div>
@@ -115,8 +115,8 @@ const MockupDashboard = ({ isImmo }) => {
           { label: 'Revenus récup.', value: '+15%' },
         ]).map((kpi) => (
           <div key={kpi.label} className="bg-white rounded-lg px-3 py-2 border border-gray-100">
-            <p className="text-base font-black tracking-tight text-gray-900">{kpi.value}</p>
-            <p className="text-[9px] text-gray-500 mt-0.5">{kpi.label}</p>
+            <p className="text-base font-black tracking-tight text-[#262626]">{kpi.value}</p>
+            <p className="text-[9px] text-[#716D5C] mt-0.5">{kpi.label}</p>
           </div>
         ))}
       </div>
@@ -130,11 +130,11 @@ const MockupDashboard = ({ isImmo }) => {
             whileInView={{ height: `${h}%` }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.07, duration: 0.5, ease: 'easeOut' }}
-            className={`flex-1 rounded-sm ${i === bars.length - 1 ? 'bg-[#1B7D3A]' : 'bg-gray-200'}`}
+            className={`flex-1 rounded-sm ${i === bars.length - 1 ? 'bg-[#0F5F35]' : 'bg-gray-200'}`}
           />
         ))}
       </div>
-      <p className="text-[9px] text-gray-500 mt-1.5 text-right">7 derniers jours</p>
+      <p className="text-[9px] text-[#716D5C] mt-1.5 text-right">7 derniers jours</p>
     </div>
   )
 }
@@ -147,7 +147,7 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
   const steps = isImmo ? [
     {
       step: '01',
-      icon: <Activity className="w-5 h-5 text-[#1B7D3A]" />,
+      icon: <Activity className="w-5 h-5 text-[#003725]" />,
       title: 'Audit de votre agence',
       desc: "On analyse vos processus actuels (prise de RDV, collecte documentaire, suivi prospects) et on identifie les gains d'efficacité immédiats.",
       detail: 'Jour 1-2',
@@ -155,7 +155,7 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
     },
     {
       step: '02',
-      icon: <Zap className="w-5 h-5 text-[#1B7D3A]" />,
+      icon: <Zap className="w-5 h-5 text-[#003725]" />,
       title: 'Déploiement des 3 agents',
       desc: "On configure vos agents IA (RDV, documents, relances), on les connecte à votre CRM et votre agenda, et on valide chaque scénario avec vous.",
       detail: 'Jour 3-5',
@@ -163,7 +163,7 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
     },
     {
       step: '03',
-      icon: <BarChart3 className="w-5 h-5 text-[#1B7D3A]" />,
+      icon: <BarChart3 className="w-5 h-5 text-[#003725]" />,
       title: 'Optimisation continue',
       desc: "On mesure les résultats en temps réel : taux de RDV, documents collectés, prospects réactivés. Les agents s'améliorent en continu.",
       detail: 'En continu',
@@ -172,7 +172,7 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
   ] : [
     {
       step: '01',
-      icon: <Activity className="w-5 h-5 text-[#1B7D3A]" />,
+      icon: <Activity className="w-5 h-5 text-[#003725]" />,
       title: 'Audit & Connexion',
       desc: "On analyse votre stack (Shopify, CRM, support) et on identifie vos plus grosses fuites de marge. On connecte vos outils en 15 minutes.",
       detail: 'Jour 1-2',
@@ -180,7 +180,7 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
     },
     {
       step: '02',
-      icon: <Zap className="w-5 h-5 text-[#1B7D3A]" />,
+      icon: <Zap className="w-5 h-5 text-[#003725]" />,
       title: 'Déploiement des agents',
       desc: "On configure vos agents IA et vos workflows sur mesure. Chaque automatisation est testée et validée avec vous avant la mise en production.",
       detail: 'Jour 3-5',
@@ -188,7 +188,7 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
     },
     {
       step: '03',
-      icon: <BarChart3 className="w-5 h-5 text-[#1B7D3A]" />,
+      icon: <BarChart3 className="w-5 h-5 text-[#003725]" />,
       title: 'Optimisation continue',
       desc: "On mesure les résultats en temps réel et on optimise. Vous suivez tout depuis votre dashboard : ROI, tickets traités, revenus récupérés.",
       detail: 'En continu',
@@ -208,9 +208,9 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   {block.icon}
-                  <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Étape {block.step}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#716D5C]">Étape {block.step}</span>
                 </div>
-                <span className="text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1 rounded-full">{block.detail}</span>
+                <span className="text-xs font-bold text-gray-400 bg-[#F9F7F1] px-3 py-1 rounded-full">{block.detail}</span>
               </div>
 
               {/* Mockup */}
@@ -219,8 +219,8 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
               </div>
 
               {/* Text */}
-              <h3 className="text-lg font-bold text-gray-900 mb-3 tracking-tight">{block.title}</h3>
-              <p className="text-[13px] text-gray-500 font-medium leading-relaxed">
+              <h3 className="text-lg font-bold text-[#262626] mb-3 tracking-tight">{block.title}</h3>
+              <p className="text-[13px] text-[#716D5C] font-medium leading-relaxed">
                 {block.desc}
               </p>
             </div>
