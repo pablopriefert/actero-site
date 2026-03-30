@@ -119,16 +119,16 @@ export const TicketReplay = () => {
             <Zap className="w-3.5 h-3.5" />
             Demo en direct
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-[#0A0E1A] mb-6">
             Voyez l'IA en action.
           </h2>
-          <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto">
+          <p className="text-lg text-[#5A7A8C] font-medium max-w-2xl mx-auto">
             Un ticket SAV traite en 1.5 seconde. De A a Z. Sans intervention humaine.
           </p>
         </motion.div>
 
         {/* Replay container */}
-        <div className="bg-[#0E1424] border border-white/[0.06] rounded-3xl p-6 md:p-8 relative overflow-hidden">
+        <div className="bg-white/80 border border-[#2E4068]/10 rounded-3xl p-6 md:p-8 relative overflow-hidden">
           {/* Progress bar */}
           <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/5">
             <motion.div
@@ -142,13 +142,13 @@ export const TicketReplay = () => {
           <div className="flex items-center justify-between mb-8 mt-2">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <span className="text-xs font-bold text-[#5A7A8C] uppercase tracking-wider">
                 {isPlaying ? 'Traitement en cours...' : activeStep >= STEPS.length - 1 ? 'Traitement termine' : 'Workflow SAV IA'}
               </span>
             </div>
             <button
               onClick={startReplay}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[#5A7A8C] hover:text-[#0A0E1A] text-xs font-medium transition-all"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Rejouer
@@ -172,30 +172,30 @@ export const TicketReplay = () => {
                       className={`flex gap-4 p-4 rounded-2xl border transition-all duration-300 ${
                         isCurrent
                           ? `${step.bg} shadow-lg`
-                          : 'bg-white/[0.02] border-white/5'
+                          : 'bg-white/[0.02] border-[#2E4068]/8'
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                         isCurrent ? step.bg : 'bg-white/5'
                       }`}>
-                        <Icon className={`w-5 h-5 ${isCurrent ? step.color : 'text-gray-500'}`} />
+                        <Icon className={`w-5 h-5 ${isCurrent ? step.color : 'text-[#5A7A8C]'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
-                            <h4 className={`text-sm font-bold ${isCurrent ? 'text-white' : 'text-gray-400'}`}>
+                            <h4 className={`text-sm font-bold ${isCurrent ? 'text-[#0A0E1A]' : 'text-[#5A7A8C]'}`}>
                               {step.title}
                             </h4>
-                            <span className="text-[10px] text-gray-600 font-mono">
+                            <span className="text-[10px] text-[#5A7A8C] font-mono">
                               {step.subtitle}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-gray-600" />
-                            <span className="text-[10px] text-gray-600 font-mono">{step.time}</span>
+                            <Clock className="w-3 h-3 text-[#5A7A8C]" />
+                            <span className="text-[10px] text-[#5A7A8C] font-mono">{step.time}</span>
                           </div>
                         </div>
-                        <p className={`text-xs leading-relaxed ${isCurrent ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <p className={`text-xs leading-relaxed ${isCurrent ? 'text-[#5A7A8C]' : 'text-[#5A7A8C]'}`}>
                           {step.detail}
                         </p>
                       </div>
@@ -220,17 +220,17 @@ export const TicketReplay = () => {
               >
                 <div className="flex items-center justify-center gap-6 text-sm">
                   <div>
-                    <span className="text-gray-500">Temps total</span>
+                    <span className="text-[#5A7A8C]">Temps total</span>
                     <p className="text-xl font-black text-emerald-400">1.5s</p>
                   </div>
                   <div className="w-px h-8 bg-white/10" />
                   <div>
-                    <span className="text-gray-500">Temps economise</span>
+                    <span className="text-[#5A7A8C]">Temps economise</span>
                     <p className="text-xl font-black text-violet-400">8 min</p>
                   </div>
                   <div className="w-px h-8 bg-white/10" />
                   <div>
-                    <span className="text-gray-500">Satisfaction</span>
+                    <span className="text-[#5A7A8C]">Satisfaction</span>
                     <p className="text-xl font-black text-amber-400">98%</p>
                   </div>
                 </div>

@@ -28,35 +28,35 @@ export const BeforeAfterSlider = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-6">
+          <p className="text-xs font-bold text-[#5A7A8C] uppercase tracking-[0.2em] mb-6">
             Transformation
           </p>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-[#0A0E1A] mb-6">
             Avant vs Après<br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-emerald-400">Actero.</span>
           </h2>
-          <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto">
+          <p className="text-lg text-[#5A7A8C] font-medium max-w-2xl mx-auto">
             Glissez le curseur pour voir la différence.
           </p>
         </motion.div>
 
         {/* Slider container */}
-        <div className="relative rounded-3xl overflow-hidden border border-white/[0.06]">
+        <div className="relative rounded-3xl overflow-hidden border border-[#2E4068]/10">
           <div className="grid md:grid-cols-2">
             {/* BEFORE */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="p-8 md:p-10 bg-gradient-to-br from-red-500/[0.03] to-transparent border-r border-white/[0.06]"
+              className="p-8 md:p-10 bg-gradient-to-br from-red-500/[0.03] to-transparent border-r border-[#2E4068]/10"
             >
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
                   <X className="w-5 h-5 text-red-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Sans Actero</h3>
-                  <p className="text-xs text-gray-500">Processus manuels</p>
+                  <h3 className="text-lg font-bold text-[#0A0E1A]">Sans Actero</h3>
+                  <p className="text-xs text-[#5A7A8C]">Processus manuels</p>
                 </div>
               </div>
               <div className="space-y-5">
@@ -73,8 +73,8 @@ export const BeforeAfterSlider = () => {
                       <item.icon className="w-4 h-4 text-red-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{item.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{item.sub}</p>
+                      <p className="text-sm font-semibold text-[#0A0E1A]">{item.label}</p>
+                      <p className="text-xs text-[#5A7A8C] mt-0.5">{item.sub}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -99,8 +99,8 @@ export const BeforeAfterSlider = () => {
                   <Check className="w-5 h-5 text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Avec Actero</h3>
-                  <p className="text-xs text-gray-500">IA autonome 24/7</p>
+                  <h3 className="text-lg font-bold text-[#0A0E1A]">Avec Actero</h3>
+                  <p className="text-xs text-[#5A7A8C]">IA autonome 24/7</p>
                 </div>
               </div>
               <div className="space-y-5">
@@ -117,8 +117,8 @@ export const BeforeAfterSlider = () => {
                       <item.icon className="w-4 h-4 text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{item.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{item.sub}</p>
+                      <p className="text-sm font-semibold text-[#0A0E1A]">{item.label}</p>
+                      <p className="text-xs text-[#5A7A8C] mt-0.5">{item.sub}</p>
                     </div>
                   </motion.div>
                 ))}

@@ -133,7 +133,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
           <button
             onClick={onClose}
             aria-label="Fermer"
-            className="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-50 transition-colors"
+            className="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 text-[#0A0E1A] rounded-full flex items-center justify-center z-50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -143,15 +143,15 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-400 mb-4 uppercase tracking-widest">
             <Zap className="w-3.5 h-3.5" /> IA Gratuite
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-2">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-[#0A0E1A] mb-2">
             Audit Express d'Architecture
           </h2>
-          <p className="text-lg text-gray-400 font-medium max-w-2xl mx-auto">
+          <p className="text-lg text-[#5A7A8C] font-medium max-w-2xl mx-auto">
             Notre Agent IA analyse votre site et extrait les meilleures opportunités d'automatisation.
           </p>
         </div>
 
-        <div className="bg-[#0E1424] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+        <div className="bg-white/80 border border-[#2E4068]/12 rounded-3xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
           <div
             className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[100px] transition-colors duration-1000 pointer-events-none ${scanState === "idle"
               ? "bg-zinc-500/10"
@@ -177,7 +177,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                   <div className="relative flex-1">
                     <label htmlFor="audit-url" className="sr-only">URL de votre site</label>
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Search className="w-5 h-5 text-gray-500" />
+                      <Search className="w-5 h-5 text-[#5A7A8C]" />
                     </div>
                     <input
                       id="audit-url"
@@ -185,7 +185,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                       placeholder="URL de votre site (ex: lumina.com)"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
-                      className="w-full bg-[#0A0E1A] border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white font-medium placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                      className="w-full bg-white border border-[#2E4068]/12 rounded-xl py-4 pl-12 pr-4 text-[#0A0E1A] font-medium placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
                       required
                     />
                   </div>
@@ -196,7 +196,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                     Lancer le Scan <Bot className="w-5 h-5" />
                   </button>
                 </form>
-                <p className="text-xs text-zinc-500 mt-4 font-medium flex items-center justify-center gap-1.5">
+                <p className="text-xs text-[#5A7A8C] mt-4 font-medium flex items-center justify-center gap-1.5">
                   <Lock className="w-3.5 h-3.5" /> Analyse confidentielle et 100% gratuite.
                 </p>
               </motion.div>
@@ -214,12 +214,12 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                   <span className="text-sm font-bold text-emerald-400 font-mono flex items-center gap-2">
                     <Loader2 className="w-4 h-4 animate-spin" /> Analyse en cours...
                   </span>
-                  <span className="text-sm font-bold text-white font-mono">
+                  <span className="text-sm font-bold text-[#0A0E1A] font-mono">
                     {Math.round(progress)}%
                   </span>
                 </div>
 
-                <div className="w-full h-3 bg-[#0A0E1A] rounded-full border border-white/5 overflow-hidden mb-6">
+                <div className="w-full h-3 bg-white rounded-full border border-[#2E4068]/8 overflow-hidden mb-6">
                   <motion.div
                     className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-400 relative"
                     initial={{ width: 0 }}
@@ -230,7 +230,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                   </motion.div>
                 </div>
 
-                <div className="bg-[#0A0E1A] border border-white/10 rounded-xl p-4 font-mono text-xs text-gray-400 h-32 overflow-hidden relative">
+                <div className="bg-white border border-[#2E4068]/12 rounded-xl p-4 font-mono text-xs text-[#5A7A8C] h-32 overflow-hidden relative">
                   <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-[#030303] to-transparent z-10"></div>
                   <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#030303] to-transparent z-10"></div>
                   <motion.div
@@ -240,7 +240,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                     className="flex items-start gap-2"
                   >
                     <span className="text-emerald-500 mt-0.5">❯</span>
-                    <span className="text-gray-300">{currentLog}</span>
+                    <span className="text-[#5A7A8C]">{currentLog}</span>
                   </motion.div>
                 </div>
               </motion.div>
@@ -256,26 +256,26 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                 <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                   <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
+                <h3 className="text-2xl font-bold text-[#0A0E1A] mb-2 tracking-tight">
                   Analyse terminée avec succès !
                 </h3>
-                <p className="text-zinc-400 font-medium mb-10 leading-relaxed">
-                  L'IA a détecté <strong className="text-white">3 goulots d'étranglement majeurs</strong> sur <span className="text-emerald-400 font-mono">{url}</span>. 
-                  La résolution de ces processus vous ferait économiser <strong className="text-white bg-white/10 px-2 py-0.5 rounded">{auditData?.timeSaved || "25h+ / semaine"}</strong>.
+                <p className="text-[#5A7A8C] font-medium mb-10 leading-relaxed">
+                  L'IA a détecté <strong className="text-[#0A0E1A]">3 goulots d'étranglement majeurs</strong> sur <span className="text-emerald-400 font-mono">{url}</span>. 
+                  La résolution de ces processus vous ferait économiser <strong className="text-[#0A0E1A] bg-white/10 px-2 py-0.5 rounded">{auditData?.timeSaved || "25h+ / semaine"}</strong>.
                 </p>
 
                 <div className="text-left space-y-4 mb-10">
                   {auditData?.bottlenecks?.map((neck, idx) => (
                     <div
                       key={idx}
-                      className="bg-white/5 border border-white/10 rounded-xl p-5 flex items-start gap-4 hover:border-white/20 transition-all"
+                      className="bg-white/5 border border-[#2E4068]/12 rounded-xl p-5 flex items-start gap-4 hover:border-[#2E4068]/20 transition-all"
                     >
                       <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-emerald-400 flex-shrink-0 mt-1">
                         {neck.icon === 'bot' ? <Bot className="w-5 h-5" /> : neck.icon === 'database' ? <Database className="w-5 h-5" /> : <RefreshCw className="w-5 h-5" />}
                       </div>
                       <div>
-                        <h4 className="text-white font-bold mb-1">{neck.title}</h4>
-                        <p className="text-sm text-gray-400 font-medium leading-relaxed">{neck.description}</p>
+                        <h4 className="text-[#0A0E1A] font-bold mb-1">{neck.title}</h4>
+                        <p className="text-sm text-[#5A7A8C] font-medium leading-relaxed">{neck.description}</p>
                       </div>
                     </div>
                   ))}
@@ -295,7 +295,7 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                       setIsRealScanDone(false);
                       setAuditData(null);
                     }}
-                    className="flex-1 bg-white/5 border border-white/10 text-white font-bold py-4 rounded-xl hover:bg-white/10 transition-colors"
+                    className="flex-1 bg-white/5 border border-[#2E4068]/12 text-[#0A0E1A] font-bold py-4 rounded-xl hover:bg-white/10 transition-colors"
                   >
                     Scanner un autre site
                   </button>

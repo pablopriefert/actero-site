@@ -26,7 +26,7 @@ export const StickyCTA = ({ onNavigate, vertical }) => {
             onClick={() => onNavigate('/audit')}
             className={`w-full py-4 px-6 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-2xl transition-all active:scale-[0.98] ${
               isImmo
-                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-violet-500/30'
+                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-[#0A0E1A] shadow-violet-500/30'
                 : 'bg-white text-black shadow-black/30'
             }`}
           >

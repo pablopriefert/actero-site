@@ -43,7 +43,7 @@ export const LiveTicker = ({ vertical }) => {
         <span className={`relative inline-flex rounded-full h-2 w-2 ${isImmo ? 'bg-violet-400' : 'bg-emerald-400'}`} />
       </span>
 
-      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest flex-shrink-0">En direct</span>
+      <span className="text-[11px] font-bold text-[#5A7A8C] uppercase tracking-widest flex-shrink-0">En direct</span>
 
       <div className="h-3 w-px bg-white/10 flex-shrink-0" />
 
@@ -54,7 +54,7 @@ export const LiveTicker = ({ vertical }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.25 }}
-          className="text-sm font-medium text-white/70 whitespace-nowrap"
+          className="text-sm font-medium text-[#0A0E1A]/70 whitespace-nowrap"
         >
           <span className={`font-black text-base ${isImmo ? 'text-violet-300' : 'text-emerald-300'}`}>
             {stat.value}{stat.suffix}

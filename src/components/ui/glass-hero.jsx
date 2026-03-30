@@ -12,9 +12,9 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
             badge: { icon: '/shopify-partners.svg', label: 'Partenaire Shopify officiel' },
             headline: (
                 <>
-                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #9ca3af 100%)' }}>Transformez votre SAV</span>
-                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #e5e7eb 0%, #6b7280 100%)' }}>en machine de croissance.</span>
-                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-emerald-300">
+                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #0A0E1A 0%, #2E4068 100%)' }}>Transformez votre SAV</span>
+                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #111B2E 0%, #5A7A8C 100%)' }}>en machine de croissance.</span>
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#2E4068] via-[#5A7A8C] to-[#2E4068]">
                         Récupérez chaque euro perdu.
                     </span>
                 </>
@@ -34,9 +34,9 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
             badge: { icon: null, label: 'Spécialiste IA pour agences immobilières' },
             headline: (
                 <>
-                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #c4b5fd 100%)' }}>Automatisez votre agence.</span>
-                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #e9d5ff 0%, #8b5cf6 100%)' }}>Récupérez chaque prospect.</span>
-                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-fuchsia-400">
+                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #0A0E1A 0%, #2E4068 100%)' }}>Automatisez votre agence.</span>
+                    <span className="block text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(180deg, #111B2E 0%, #5A7A8C 100%)' }}>Récupérez chaque prospect.</span>
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#2E4068] via-[#5A7A8C] to-[#2E4068]">
                         3 agents IA à votre service.
                     </span>
                 </>
@@ -66,49 +66,49 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
     return (
         <div className="relative min-h-[100vh] flex flex-col items-center justify-center pt-24 pb-20 px-6 overflow-hidden">
 
-            {/* ── Aurora wave background ── */}
-            <motion.div className="absolute inset-0 z-0 bg-[#0A0E1A] overflow-hidden" style={{ y: bgY }}>
+            {/* ── Lumenos light gradient background ── */}
+            <motion.div className="absolute inset-0 z-0 overflow-hidden" style={{ y: bgY }}>
 
-                {/* Base — deep ocean gradient (Lumenos Ink → Abyss) */}
+                {/* Base — light silver-blue gradient */}
                 <div className="absolute inset-0" style={{
-                    background: 'radial-gradient(ellipse 130% 80% at 50% 20%, #152236 0%, #0E1424 30%, #0A0E1A 60%, #070B14 100%)',
+                    background: 'radial-gradient(ellipse 130% 80% at 50% 20%, #D0D8E2 0%, #DDE3EA 30%, #E8ECF0 60%, #EEF1F5 100%)',
                 }} />
 
-                {/* Horizon drift wave 1 — slate/mist blue */}
+                {/* Horizon drift wave 1 — subtle slate blue */}
                 <div
                     className="horizon-drift absolute w-[200%] h-[500px] pointer-events-none"
                     style={{
                         top: '18%',
                         left: '-50%',
-                        background: `linear-gradient(180deg, transparent 0%, ${isEcommerce ? 'rgba(90,122,140,0.12)' : 'rgba(139,92,246,0.12)'} 35%, ${isEcommerce ? 'rgba(46,64,104,0.06)' : 'rgba(168,85,247,0.06)'} 65%, transparent 100%)`,
+                        background: `linear-gradient(180deg, transparent 0%, rgba(46,64,104,0.06) 35%, rgba(90,122,140,0.04) 65%, transparent 100%)`,
                         borderRadius: '50%',
                         filter: 'blur(50px)',
                     }}
                 />
 
-                {/* Horizon drift wave 2 — silver accent */}
+                {/* Horizon drift wave 2 — silver shimmer */}
                 <div
                     className="horizon-drift-reverse absolute w-[180%] h-[400px] pointer-events-none"
                     style={{
                         top: '28%',
                         left: '-40%',
-                        background: `linear-gradient(180deg, transparent 0%, rgba(232,236,240,0.04) 40%, rgba(90,122,140,0.03) 70%, transparent 100%)`,
+                        background: `linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.3) 40%, rgba(200,210,220,0.15) 70%, transparent 100%)`,
                         borderRadius: '50%',
                         filter: 'blur(60px)',
                     }}
                 />
 
-                {/* Orb pulse — central glow */}
+                {/* Orb pulse — central soft glow */}
                 <div
                     className="orb-pulse absolute top-[15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] pointer-events-none transition-all duration-700"
                     style={{
-                        background: `radial-gradient(ellipse at center, ${isEcommerce ? 'rgba(90,122,140,0.10)' : 'rgba(139,92,246,0.10)'} 0%, transparent 70%)`,
+                        background: `radial-gradient(ellipse at center, rgba(255,255,255,0.4) 0%, transparent 70%)`,
                         filter: 'blur(80px)',
                     }}
                 />
 
-                {/* Depth fade — bottom */}
-                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0A0E1A] to-transparent pointer-events-none" />
+                {/* Depth fade — bottom matches page bg */}
+                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#E8ECF0] to-transparent pointer-events-none" />
             </motion.div>
 
             {/* ── Content (with scroll parallax) ── */}
@@ -119,7 +119,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* ── Vertical Toggle — very prominent ── */}
                 <FadeInUp className="mb-10">
-                    <div className="relative inline-flex items-center bg-white/[0.06] backdrop-blur-xl border border-white/[0.10] rounded-2xl p-1.5 gap-1.5 shadow-2xl">
+                    <div className="relative inline-flex items-center bg-white/70 backdrop-blur-xl border border-[#2E4068]/15 rounded-2xl p-1.5 gap-1.5 shadow-2xl">
                         {/* Sliding indicator */}
                         <div
                             className={`absolute top-1.5 bottom-1.5 rounded-xl transition-all duration-300 ease-out ${
@@ -140,10 +140,10 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                                         ? v.key === 'ecommerce'
                                             ? 'text-emerald-300'
                                             : 'text-violet-300'
-                                        : 'text-zinc-500 hover:text-zinc-300'
+                                        : 'text-[#5A7A8C] hover:text-[#5A7A8C]'
                                 }`}
                             >
-                                <span className={`transition-all duration-300 ${vertical === v.key ? (v.key === 'ecommerce' ? 'text-emerald-400' : 'text-violet-400') : 'text-zinc-600'}`}>
+                                <span className={`transition-all duration-300 ${vertical === v.key ? (v.key === 'ecommerce' ? 'text-emerald-400' : 'text-violet-400') : 'text-[#5A7A8C]'}`}>
                                     {v.icon}
                                 </span>
                                 {v.label}
@@ -154,7 +154,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* Made in France */}
                 <FadeInUp className="mb-3">
-                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.04]">
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-[#5A7A8C] px-3 py-1.5 rounded-full border border-[#2E4068]/12 bg-white/60">
                     <span>🇫🇷</span>
                     <span>Made in France</span>
                   </div>
@@ -179,14 +179,14 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* ── Headline ── */}
                 <FadeInUp delay={0.1} className="text-center max-w-4xl mb-8">
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.08] md:leading-[1.05]" style={{ letterSpacing: '-0.03em' }}>
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-[#0A0E1A] leading-[1.08] md:leading-[1.05]" style={{ letterSpacing: '-0.03em' }}>
                         {content.headline}
                     </h1>
                 </FadeInUp>
 
                 {/* Subtitle */}
                 <FadeInUp delay={0.15} className="text-center max-w-2xl mb-10">
-                    <p className="text-base md:text-lg text-zinc-400 font-normal leading-relaxed">
+                    <p className="text-base md:text-lg text-[#5A7A8C] font-normal leading-relaxed">
                         {content.subtitle}
                     </p>
                 </FadeInUp>
@@ -203,7 +203,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                             const el = document.getElementById('comment-ca-marche');
                             if (el) el.scrollIntoView({ behavior: 'smooth' });
                         }}
-                        className="text-sm font-semibold text-zinc-400 hover:text-white transition-colors flex items-center gap-2 px-6 py-3 border border-white/[0.10] rounded-xl hover:border-white/[0.20] bg-white/[0.04] hover:bg-white/[0.06]"
+                        className="text-sm font-semibold text-[#5A7A8C] hover:text-[#0A0E1A] transition-colors flex items-center gap-2 px-6 py-3 border border-[#2E4068]/15 rounded-xl hover:border-white/[0.20] bg-white/60 hover:bg-white/70"
                     >
                         Voir comment ça marche <ArrowRight className="w-4 h-4" />
                     </MagneticButton>
@@ -222,19 +222,19 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
 
                 {/* ── Proof Metrics Bar ── */}
                 <ScaleIn delay={0.3} className="w-full max-w-3xl">
-                    <div className="border rounded-2xl px-6 py-5 md:px-10 md:py-6 bg-white/[0.03] border-white/[0.08] backdrop-blur-xl">
+                    <div className="border rounded-2xl px-6 py-5 md:px-10 md:py-6 bg-white/60 border-[#2E4068]/12 backdrop-blur-xl">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0">
                             {content.metrics.map((item, i) => (
                                 <div
                                     key={i}
-                                    className={`flex items-center gap-4 ${i < 2 ? 'md:border-r md:border-white/[0.08]' : ''} ${i > 0 ? 'md:pl-8' : ''}`}
+                                    className={`flex items-center gap-4 ${i < 2 ? 'md:border-r md:border-[#2E4068]/12' : ''} ${i > 0 ? 'md:pl-8' : ''}`}
                                 >
-                                    <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center flex-shrink-0">
+                                    <div className="w-10 h-10 rounded-xl bg-white/70 border border-[#2E4068]/12 flex items-center justify-center flex-shrink-0">
                                         {item.icon}
                                     </div>
                                     <div>
-                                        <p className="text-white font-bold text-xl leading-tight tracking-tight">{item.value}</p>
-                                        <p className="text-zinc-500 text-sm font-medium">{item.label}</p>
+                                        <p className="text-[#0A0E1A] font-bold text-xl leading-tight tracking-tight">{item.value}</p>
+                                        <p className="text-[#5A7A8C] text-sm font-medium">{item.label}</p>
                                     </div>
                                 </div>
                             ))}

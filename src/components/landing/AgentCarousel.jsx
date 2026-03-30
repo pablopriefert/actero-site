@@ -38,13 +38,13 @@ export const AgentCarousel = ({ agents, vertical }) => {
               className={`w-16 h-16 rounded-2xl border-2 flex items-center justify-center text-lg font-black transition-all duration-300 ${
                 activeIdx === i
                   ? accentClasses.avatarActive
-                  : 'border-white/10 bg-white/[0.03] text-white/40 hover:border-white/25 hover:text-white/70'
+                  : 'border-[#2E4068]/12 bg-white/60 text-[#0A0E1A]/40 hover:border-white/25 hover:text-[#0A0E1A]/70'
               }`}
             >
               {agent.agentName.slice(0, 2)}
             </motion.div>
             <span className={`text-[10px] font-black tracking-[0.2em] uppercase transition-colors ${
-              activeIdx === i ? accentClasses.labelActive : 'text-gray-600 group-hover:text-gray-400'
+              activeIdx === i ? accentClasses.labelActive : 'text-[#5A7A8C] group-hover:text-[#5A7A8C]'
             }`}>
               {agent.agentName}
             </span>
@@ -66,7 +66,7 @@ export const AgentCarousel = ({ agents, vertical }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.28, ease: 'easeOut' }}
-          className={`bg-[#0E1424] rounded-[28px] p-8 md:p-10 border ${accentClasses.cardBorder} max-w-2xl mx-auto relative overflow-hidden`}
+          className={`bg-white/80 rounded-[28px] p-8 md:p-10 border ${accentClasses.cardBorder} max-w-2xl mx-auto relative overflow-hidden`}
         >
           {/* Subtle glow */}
           <div className={`absolute -top-16 -right-16 w-48 h-48 rounded-full blur-[80px] pointer-events-none ${
@@ -85,17 +85,17 @@ export const AgentCarousel = ({ agents, vertical }) => {
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${active.iconBg} ${active.iconColor} flex-shrink-0`}>
                 {active.icon}
               </div>
-              <h3 className="text-xl md:text-2xl font-bold text-white leading-snug">{active.title}</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-[#0A0E1A] leading-snug">{active.title}</h3>
             </div>
 
-            <div className="bg-white/[0.07] border border-white/[0.14] rounded-xl px-4 py-3 mb-6">
+            <div className="bg-white/[0.07] border border-[#2E4068]/18 rounded-xl px-4 py-3 mb-6">
               <p className={`text-sm font-bold flex items-center gap-2 ${accentClasses.result}`}>
                 <Target className="w-4 h-4 flex-shrink-0" />
                 {active.result}
               </p>
             </div>
 
-            <p className="text-gray-400 font-medium leading-relaxed">
+            <p className="text-[#5A7A8C] font-medium leading-relaxed">
               {active.desc}
             </p>
           </div>

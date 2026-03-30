@@ -75,8 +75,8 @@ export const ChatMockup = ({ vertical }) => {
   }, [vertical])
 
   const accentBubble = isImmo
-    ? 'bg-violet-500/20 border-violet-500/20 text-white'
-    : 'bg-emerald-500/20 border-emerald-500/20 text-white'
+    ? 'bg-violet-500/20 border-violet-500/20 text-[#0A0E1A]'
+    : 'bg-emerald-500/20 border-emerald-500/20 text-[#0A0E1A]'
   const accentLabel = isImmo ? 'text-violet-400' : 'text-emerald-400'
   const accentDot = isImmo ? 'bg-violet-400' : 'bg-emerald-400'
   const accentAvatar = isImmo ? 'bg-violet-500/20 text-violet-300' : 'bg-emerald-500/20 text-emerald-300'
@@ -85,10 +85,10 @@ export const ChatMockup = ({ vertical }) => {
     <div className="grid md:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
       {/* Phone mockup */}
       <div className="flex justify-center">
-        <div className="w-80 bg-[#152236] rounded-[32px] border border-white/[0.08] overflow-hidden shadow-2xl">
+        <div className="w-80 bg-[#F0F3F6] rounded-[32px] border border-[#2E4068]/12 overflow-hidden shadow-2xl">
           {/* Status bar */}
           <div className="bg-[#111] px-5 pt-4 pb-2 flex items-center justify-between">
-            <span className="text-[11px] text-white/60 font-medium">09:41</span>
+            <span className="text-[11px] text-[#0A0E1A]/60 font-medium">09:41</span>
             <div className="flex gap-1.5">
               <div className="w-1 h-3 bg-white/40 rounded-full" />
               <div className="w-1 h-3 bg-white/70 rounded-full" />
@@ -97,15 +97,15 @@ export const ChatMockup = ({ vertical }) => {
           </div>
 
           {/* Chat header */}
-          <div className="bg-[#161616] px-4 py-3 flex items-center gap-3 border-b border-white/[0.06]">
+          <div className="bg-[#161616] px-4 py-3 flex items-center gap-3 border-b border-[#2E4068]/10">
             <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black ${accentAvatar}`}>
               {agentInitials}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-[13px] font-bold leading-none mb-1">{agentName} — Agent IA</p>
+              <p className="text-[#0A0E1A] text-[13px] font-bold leading-none mb-1">{agentName} — Agent IA</p>
               <div className="flex items-center gap-1.5">
                 <span className={`w-1.5 h-1.5 rounded-full ${accentDot} animate-pulse`} />
-                <span className="text-[10px] text-gray-500">En ligne</span>
+                <span className="text-[10px] text-[#5A7A8C]">En ligne</span>
               </div>
             </div>
           </div>
@@ -123,7 +123,7 @@ export const ChatMockup = ({ vertical }) => {
                 >
                   <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-[12px] leading-relaxed border ${
                     msg.from === 'agent'
-                      ? 'bg-[#1e1e1e] border-white/[0.06] text-gray-200 rounded-tl-sm'
+                      ? 'bg-[#1e1e1e] border-[#2E4068]/10 text-gray-200 rounded-tl-sm'
                       : `${accentBubble} rounded-tr-sm`
                   }`}>
                     {msg.agent && (
@@ -146,7 +146,7 @@ export const ChatMockup = ({ vertical }) => {
                   exit={{ opacity: 0, y: -4 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-[#1e1e1e] border border-white/[0.06] px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
+                  <div className="bg-[#1e1e1e] border border-[#2E4068]/10 px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
                     {[0, 1, 2].map(i => (
                       <motion.span
                         key={i}
@@ -162,9 +162,9 @@ export const ChatMockup = ({ vertical }) => {
           </div>
 
           {/* Input bar */}
-          <div className="bg-[#111] px-4 py-3 flex items-center gap-3 border-t border-white/[0.06]">
+          <div className="bg-[#111] px-4 py-3 flex items-center gap-3 border-t border-[#2E4068]/10">
             <div className="flex-1 bg-[#1e1e1e] rounded-full px-4 py-2">
-              <span className="text-[11px] text-gray-600">Tapez un message...</span>
+              <span className="text-[11px] text-[#5A7A8C]">Tapez un message...</span>
             </div>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isImmo ? 'bg-violet-500/20' : 'bg-emerald-500/20'}`}>
               <svg className={`w-4 h-4 ${accentLabel}`} fill="currentColor" viewBox="0 0 20 20">
@@ -181,13 +181,13 @@ export const ChatMockup = ({ vertical }) => {
           <p className={`text-xs font-bold uppercase tracking-[0.2em] mb-3 ${accentLabel}`}>
             En action 24h/24
           </p>
-          <h3 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-4">
+          <h3 className="text-3xl md:text-4xl font-bold text-[#0A0E1A] leading-tight mb-4">
             {isImmo
               ? <>Vos agents IA qualifient<br />chaque prospect<br /><span className={accentLabel}>instantanément.</span></>
               : <>Votre support client<br />répond en quelques<br /><span className={accentLabel}>secondes.</span></>
             }
           </h3>
-          <p className="text-gray-400 font-medium leading-relaxed">
+          <p className="text-[#5A7A8C] font-medium leading-relaxed">
             {isImmo
               ? "L'agent LÉA qualifie, planifie et confirme automatiquement. Chaque prospect est contacté immédiatement, sans intervention humaine."
               : "L'agent SARA traite les demandes récurrentes (suivi commande, retours, remboursements) sans jamais s'arrêter. Votre équipe se concentre sur ce qui crée de la valeur."
@@ -198,7 +198,7 @@ export const ChatMockup = ({ vertical }) => {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {stats.map((stat, i) => (
-            <div key={i} className="bg-[#0E1424] border border-white/[0.06] rounded-2xl p-4 text-center">
+            <div key={i} className="bg-white/80 border border-[#2E4068]/10 rounded-2xl p-4 text-center">
               <p className={`text-2xl font-black tracking-tight ${
                 stat.color === 'violet' ? 'text-violet-400' :
                 stat.color === 'purple' ? 'text-purple-400' :
@@ -206,7 +206,7 @@ export const ChatMockup = ({ vertical }) => {
               }`}>
                 {stat.value}<span className="text-sm font-bold">{stat.suffix}</span>
               </p>
-              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mt-1 leading-tight">{stat.label}</p>
+              <p className="text-[10px] font-bold text-[#5A7A8C] uppercase tracking-wider mt-1 leading-tight">{stat.label}</p>
             </div>
           ))}
         </div>

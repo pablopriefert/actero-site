@@ -46,16 +46,16 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
     return (
       <div className="flex items-center justify-center gap-3 py-6">
         <Clock className="w-4 h-4 text-violet-400" />
-        <span className="text-sm font-medium text-gray-400">Temps de mise en production :</span>
-        <span className="text-lg font-black text-white">48h</span>
+        <span className="text-sm font-medium text-[#5A7A8C]">Temps de mise en production :</span>
+        <span className="text-lg font-black text-[#0A0E1A]">48h</span>
         <div className="flex items-center gap-1.5 ml-4">
           {steps.map((step, i) => (
             <React.Fragment key={i}>
               <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${step.color} flex items-center justify-center`}>
-                <step.icon className="w-3.5 h-3.5 text-white" />
+                <step.icon className="w-3.5 h-3.5 text-[#0A0E1A]" />
               </div>
               {i < steps.length - 1 && (
-                <ArrowRight className="w-3 h-3 text-gray-600" />
+                <ArrowRight className="w-3 h-3 text-[#5A7A8C]" />
               )}
             </React.Fragment>
           ))}
@@ -77,10 +77,10 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
             <Clock className="w-3.5 h-3.5" />
             Mise en production
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-[#0A0E1A] mb-4">
             Operationnel en <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-emerald-400">48 heures.</span>
           </h2>
-          <p className="text-gray-400 font-medium max-w-xl mx-auto">
+          <p className="text-[#5A7A8C] font-medium max-w-xl mx-auto">
             Du paiement au dashboard live. Zero setup de votre cote.
           </p>
         </motion.div>
@@ -100,32 +100,32 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
                 transition={{ delay: i * 0.15 }}
                 className="relative"
               >
-                <div className={`bg-[#0E1424] border ${step.borderColor} rounded-2xl p-5 text-center hover:scale-[1.02] transition-transform`}>
+                <div className={`bg-white/80 border ${step.borderColor} rounded-2xl p-5 text-center hover:scale-[1.02] transition-transform`}>
                   {/* Step number */}
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-[#0E1424] border border-white/10 flex items-center justify-center">
-                    <span className="text-[9px] font-bold text-gray-500">{i + 1}</span>
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white/80 border border-[#2E4068]/12 flex items-center justify-center">
+                    <span className="text-[9px] font-bold text-[#5A7A8C]">{i + 1}</span>
                   </div>
 
                   {/* Icon */}
                   <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                    <step.icon className="w-6 h-6 text-white" />
+                    <step.icon className="w-6 h-6 text-[#0A0E1A]" />
                   </div>
 
                   {/* Content */}
-                  <h4 className="text-sm font-bold text-white mb-0.5">{step.title}</h4>
-                  <p className="text-[10px] text-gray-500 font-medium mb-3">{step.subtitle}</p>
+                  <h4 className="text-sm font-bold text-[#0A0E1A] mb-0.5">{step.title}</h4>
+                  <p className="text-[10px] text-[#5A7A8C] font-medium mb-3">{step.subtitle}</p>
 
                   {/* Time badge */}
                   <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                     step.time === 'Done'
                       ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                      : 'bg-white/5 text-gray-400 border border-white/10'
+                      : 'bg-white/5 text-[#5A7A8C] border border-[#2E4068]/12'
                   }`}>
                     {step.time === 'Done' ? <Check className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                     {step.time}
                   </div>
 
-                  <p className="text-[11px] text-gray-600 mt-3">{step.detail}</p>
+                  <p className="text-[11px] text-[#5A7A8C] mt-3">{step.detail}</p>
                 </div>
               </motion.div>
             ))}

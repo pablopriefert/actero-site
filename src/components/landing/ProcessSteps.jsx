@@ -7,8 +7,8 @@ import { GlowCard } from '../ui/GlowCard'
 /* ── Mini UI Mockups ── */
 
 const MockupAudit = ({ isImmo }) => (
-  <div className="bg-[#111B2E] rounded-xl border border-white/[0.06] p-4 text-[11px] font-mono">
-    <p className="text-gray-600 mb-3 uppercase tracking-widest text-[9px]">Connexion outils</p>
+  <div className="bg-white rounded-xl border border-[#2E4068]/10 p-4 text-[11px] font-mono">
+    <p className="text-[#5A7A8C] mb-3 uppercase tracking-widest text-[9px]">Connexion outils</p>
     <div className="space-y-2">
       {(isImmo ? [
         { name: 'HubSpot CRM', status: 'connected' },
@@ -27,9 +27,9 @@ const MockupAudit = ({ isImmo }) => (
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ delay: i * 0.12, duration: 0.3 }}
-          className="flex items-center justify-between bg-white/[0.03] rounded-lg px-3 py-2"
+          className="flex items-center justify-between bg-white/60 rounded-lg px-3 py-2"
         >
-          <span className="text-gray-400">{tool.name}</span>
+          <span className="text-[#5A7A8C]">{tool.name}</span>
           {tool.status === 'connected' ? (
             <span className="flex items-center gap-1 text-emerald-400">
               <CheckCircle2 className="w-3 h-3" />
@@ -71,8 +71,8 @@ const MockupDeploy = ({ isImmo }) => {
   }
 
   return (
-    <div className="bg-[#111B2E] rounded-xl border border-white/[0.06] p-4">
-      <p className="text-gray-600 mb-3 uppercase tracking-widest text-[9px] font-mono">Déploiement agents</p>
+    <div className="bg-white rounded-xl border border-[#2E4068]/10 p-4">
+      <p className="text-[#5A7A8C] mb-3 uppercase tracking-widest text-[9px] font-mono">Déploiement agents</p>
       <div className="grid grid-cols-2 gap-2">
         {agents.map((agent) => {
           const c = colorMap[agent.color]
@@ -89,7 +89,7 @@ const MockupDeploy = ({ isImmo }) => {
                 <span className={`text-[10px] font-black tracking-widest ${c.text}`}>{agent.name}</span>
                 <span className={`w-1.5 h-1.5 rounded-full ${c.dot} animate-pulse`} />
               </div>
-              <span className="text-[10px] text-gray-500 font-medium">{agent.label}</span>
+              <span className="text-[10px] text-[#5A7A8C] font-medium">{agent.label}</span>
               <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
@@ -113,9 +113,9 @@ const MockupDashboard = ({ isImmo }) => {
   const accentText = isImmo ? 'text-violet-400' : 'text-emerald-400'
 
   return (
-    <div className="bg-[#111B2E] rounded-xl border border-white/[0.06] p-4">
+    <div className="bg-white rounded-xl border border-[#2E4068]/10 p-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-gray-600 uppercase tracking-widest text-[9px] font-mono">Dashboard ROI</p>
+        <p className="text-[#5A7A8C] uppercase tracking-widest text-[9px] font-mono">Dashboard ROI</p>
         <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/5 ${accentText}`}>
           Live
         </span>
@@ -129,9 +129,9 @@ const MockupDashboard = ({ isImmo }) => {
           { label: 'Tickets auto', value: '94%' },
           { label: 'Revenus récup.', value: '+15%' },
         ]).map((kpi) => (
-          <div key={kpi.label} className="bg-white/[0.03] rounded-lg px-3 py-2">
+          <div key={kpi.label} className="bg-white/60 rounded-lg px-3 py-2">
             <p className={`text-base font-black tracking-tight ${accentText}`}>{kpi.value}</p>
-            <p className="text-[9px] text-gray-600 mt-0.5">{kpi.label}</p>
+            <p className="text-[9px] text-[#5A7A8C] mt-0.5">{kpi.label}</p>
           </div>
         ))}
       </div>
@@ -149,7 +149,7 @@ const MockupDashboard = ({ isImmo }) => {
           />
         ))}
       </div>
-      <p className="text-[9px] text-gray-600 mt-1.5 text-right">7 derniers jours</p>
+      <p className="text-[9px] text-[#5A7A8C] mt-1.5 text-right">7 derniers jours</p>
     </div>
   )
 }
@@ -224,16 +224,16 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
         <FadeInUp key={`${vertical}-${i}`} delay={i * 0.12}>
           <GlowCard
             color={block.glowColor}
-            className="bg-[#0E1424] rounded-[28px] border border-white/[0.06] h-full hover:border-white/[0.12] transition-all duration-500 overflow-hidden"
+            className="bg-white/80 rounded-[28px] border border-[#2E4068]/10 h-full hover:border-[#2E4068]/15 transition-all duration-500 overflow-hidden"
           >
             <div className="p-6 md:p-7">
               {/* Step header */}
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   {block.icon}
-                  <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Étape {block.step}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#5A7A8C]">Étape {block.step}</span>
                 </div>
-                <span className="text-xs font-bold text-white/40 bg-white/[0.04] px-3 py-1 rounded-full">{block.detail}</span>
+                <span className="text-xs font-bold text-[#0A0E1A]/40 bg-white/60 px-3 py-1 rounded-full">{block.detail}</span>
               </div>
 
               {/* Mockup */}
@@ -242,8 +242,8 @@ export const ProcessSteps = ({ vertical, onNavigate }) => {
               </div>
 
               {/* Text */}
-              <h3 className="text-lg font-bold text-white mb-3 tracking-tight">{block.title}</h3>
-              <p className="text-[13px] text-gray-400 font-medium leading-relaxed">
+              <h3 className="text-lg font-bold text-[#0A0E1A] mb-3 tracking-tight">{block.title}</h3>
+              <p className="text-[13px] text-[#5A7A8C] font-medium leading-relaxed">
                 {block.desc}
               </p>
             </div>
