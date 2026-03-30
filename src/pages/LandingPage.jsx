@@ -46,7 +46,6 @@ import { ChatMockup } from '../components/landing/ChatMockup'
 import { IntegrationGrid } from '../components/landing/IntegrationGrid'
 import { ProcessSteps } from '../components/landing/ProcessSteps'
 import { StickyCTA } from '../components/ui/StickyCTA'
-import { LiveTicker } from '../components/ui/LiveTicker'
 import { ReadingProgress } from '../components/ui/ReadingProgress'
 import { Tilt3D } from '../components/ui/Tilt3D'
 
@@ -232,9 +231,6 @@ export const LandingPage = ({ onNavigate }) => {
                   </p>
                 </FadeInUp>
                 <IntegrationGrid vertical={vertical} />
-                <div className="flex justify-center mt-10">
-                  <LiveTicker vertical={vertical} />
-                </div>
               </div>
             </section>
 
