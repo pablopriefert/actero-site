@@ -46,7 +46,7 @@ export const IntegrationGrid = ({ vertical }) => {
           viewport={{ once: true, margin: '-40px' }}
           transition={{ delay: i * 0.04, duration: 0.35, ease: 'easeOut' }}
           whileHover={{ y: -3, borderColor: isImmo ? 'rgba(139,92,246,0.3)' : 'rgba(16,185,129,0.3)' }}
-          className="bg-[#0d0d0d] border border-white/[0.10] rounded-2xl p-5 flex flex-col gap-3 cursor-default transition-all duration-300 group"
+          className="bg-[#081008] border border-white/[0.10] rounded-2xl p-5 flex flex-col gap-3 cursor-default transition-all duration-300 group"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-white/[0.08] border border-white/[0.14] flex items-center justify-center flex-shrink-0 group-hover:border-white/10 transition-colors">

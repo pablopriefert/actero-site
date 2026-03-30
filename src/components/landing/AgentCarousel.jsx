@@ -66,7 +66,7 @@ export const AgentCarousel = ({ agents, vertical }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.28, ease: 'easeOut' }}
-          className={`bg-[#0a0a0a] rounded-[28px] p-8 md:p-10 border ${accentClasses.cardBorder} max-w-2xl mx-auto relative overflow-hidden`}
+          className={`bg-[#060e06] rounded-[28px] p-8 md:p-10 border ${accentClasses.cardBorder} max-w-2xl mx-auto relative overflow-hidden`}
         >
           {/* Subtle glow */}
           <div className={`absolute -top-16 -right-16 w-48 h-48 rounded-full blur-[80px] pointer-events-none ${

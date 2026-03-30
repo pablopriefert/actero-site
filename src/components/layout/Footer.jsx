@@ -4,7 +4,7 @@ import { Logo } from './Logo'
 
 export const Footer = ({ onNavigate }) => {
   return (
-    <footer className="bg-[#0a0a0a] border-t border-white/5 py-16 px-6 relative z-10 w-full mt-auto">
+    <footer className="bg-[#060e06] border-t border-white/5 py-16 px-6 relative z-10 w-full mt-auto">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex flex-col items-center md:items-start gap-4">
           <div className="flex items-center gap-2">

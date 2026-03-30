@@ -100,9 +100,9 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
                 transition={{ delay: i * 0.15 }}
                 className="relative"
               >
-                <div className={`bg-[#0a0a0a] border ${step.borderColor} rounded-2xl p-5 text-center hover:scale-[1.02] transition-transform`}>
+                <div className={`bg-[#060e06] border ${step.borderColor} rounded-2xl p-5 text-center hover:scale-[1.02] transition-transform`}>
                   {/* Step number */}
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-[#0a0a0a] border border-white/10 flex items-center justify-center">
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-[#060e06] border border-white/10 flex items-center justify-center">
                     <span className="text-[9px] font-bold text-gray-500">{i + 1}</span>
                   </div>
 

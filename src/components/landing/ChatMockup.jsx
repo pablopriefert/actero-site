@@ -85,7 +85,7 @@ export const ChatMockup = ({ vertical }) => {
     <div className="grid md:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
       {/* Phone mockup */}
       <div className="flex justify-center">
-        <div className="w-80 bg-[#0f0f0f] rounded-[32px] border border-white/[0.08] overflow-hidden shadow-2xl">
+        <div className="w-80 bg-[#0a120a] rounded-[32px] border border-white/[0.08] overflow-hidden shadow-2xl">
           {/* Status bar */}
           <div className="bg-[#111] px-5 pt-4 pb-2 flex items-center justify-between">
             <span className="text-[11px] text-white/60 font-medium">09:41</span>
@@ -198,7 +198,7 @@ export const ChatMockup = ({ vertical }) => {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {stats.map((stat, i) => (
-            <div key={i} className="bg-[#0a0a0a] border border-white/[0.06] rounded-2xl p-4 text-center">
+            <div key={i} className="bg-[#060e06] border border-white/[0.06] rounded-2xl p-4 text-center">
               <p className={`text-2xl font-black tracking-tight ${
                 stat.color === 'violet' ? 'text-violet-400' :
                 stat.color === 'purple' ? 'text-purple-400' :
