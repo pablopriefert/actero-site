@@ -23,7 +23,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
 
-      setSuccess("✅ Mot de passe mis à jour. Tu peux te connecter.");
+      setSuccess("Mot de passe mis à jour. Tu peux te connecter.");
       setTimeout(() => onNavigate("/login"), 800);
     } catch (_e) {
       setError("Erreur pendant la mise à jour. Réessaie via le lien du mail.");
@@ -33,18 +33,18 @@ export const ResetPasswordPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#F9F7F1] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-white">
+        <h2 className="text-3xl font-bold tracking-tight text-[#262626]">
           Nouveau mot de passe
         </h2>
-        <p className="mt-2 text-sm text-zinc-500 font-medium">
+        <p className="mt-2 text-sm text-[#716D5C] font-medium">
           Choisis un nouveau mot de passe.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-[#0E1424] py-8 px-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/10 sm:rounded-3xl sm:px-10">
+        <div className="bg-white py-8 px-4 shadow-lg border border-gray-200 sm:rounded-3xl sm:px-10">
           <form className="space-y-6" onSubmit={handleUpdate}>
             {error && (
               <div role="alert" className="p-4 bg-red-50 text-red-600 text-sm font-medium rounded-xl border border-red-100">
@@ -58,7 +58,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
             )}
 
             <div>
-              <label htmlFor="new-password" title="Nouveau mot de passe" className="block text-sm font-bold text-white mb-2">
+              <label htmlFor="new-password" title="Nouveau mot de passe" className="block text-sm font-bold text-[#262626] mb-2">
                 Nouveau mot de passe
               </label>
               <input
@@ -66,14 +66,14 @@ export const ResetPasswordPage = ({ onNavigate }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#0E1424] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
+                className="block w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0F5F35]/30 focus:border-[#0F5F35]/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
                 placeholder="••••••••"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="confirm-password" title="Confirmer le mot de passe" className="block text-sm font-bold text-white mb-2">
+              <label htmlFor="confirm-password" title="Confirmer le mot de passe" className="block text-sm font-bold text-[#262626] mb-2">
                 Confirmer
               </label>
               <input
@@ -81,7 +81,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#0E1424] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 sm:text-sm outline-none transition-all text-white placeholder:text-gray-500"
+                className="block w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0F5F35]/30 focus:border-[#0F5F35]/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
                 placeholder="••••••••"
                 required
               />
@@ -90,7 +90,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-3.5 px-4 rounded-xl shadow-sm text-sm font-bold text-black bg-white hover:bg-gray-100 disabled:opacity-50 transition-colors"
+              className="w-full flex justify-center py-3.5 px-4 rounded-full shadow-sm text-sm font-bold text-white bg-[#0F5F35] hover:bg-[#003725] disabled:opacity-50 transition-colors"
             >
               {loading ? "Mise à jour..." : "Changer le mot de passe"}
             </button>
@@ -98,7 +98,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => onNavigate("/login")}
-              className="w-full text-center text-sm text-zinc-500 hover:text-white font-medium mt-2"
+              className="w-full text-center text-sm text-[#716D5C] hover:text-[#262626] font-medium mt-2"
             >
               Retour à la connexion
             </button>

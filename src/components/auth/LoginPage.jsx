@@ -76,52 +76,7 @@ export const LoginPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center font-sans relative overflow-hidden">
-      {/* Circuit board background */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="circuit" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
-              <path d="M0 100h80m40 0h80M100 0v80m0 40v80" stroke="white" strokeWidth="1" fill="none" />
-              <rect x="80" y="80" width="40" height="40" rx="4" stroke="white" strokeWidth="1" fill="none" />
-              <circle cx="80" cy="100" r="3" fill="white" />
-              <circle cx="120" cy="100" r="3" fill="white" />
-              <circle cx="100" cy="80" r="3" fill="white" />
-              <circle cx="100" cy="120" r="3" fill="white" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#circuit)" />
-        </svg>
-      </div>
-
-      {/* Corner nodes */}
-      <div className="absolute top-12 left-12 w-20 h-10 rounded-lg border border-white/10 bg-white/[0.02] hidden lg:flex items-center justify-center">
-        <div className="flex gap-1.5">
-          {[...Array(6)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />)}
-        </div>
-      </div>
-      <div className="absolute top-12 right-12 w-20 h-10 rounded-lg border border-white/10 bg-white/[0.02] hidden lg:flex items-center justify-center">
-        <div className="flex gap-1.5">
-          {[...Array(6)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />)}
-        </div>
-      </div>
-      <div className="absolute bottom-12 left-12 w-20 h-10 rounded-lg border border-white/10 bg-white/[0.02] hidden lg:flex items-center justify-center">
-        <div className="flex gap-1.5">
-          {[...Array(6)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />)}
-        </div>
-      </div>
-      <div className="absolute bottom-12 right-12 w-20 h-10 rounded-lg border border-white/10 bg-white/[0.02] hidden lg:flex items-center justify-center">
-        <div className="flex gap-1.5">
-          {[...Array(6)].map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20" />)}
-        </div>
-      </div>
-
-      {/* Lines connecting corners */}
-      <div className="absolute top-[3.25rem] left-32 right-32 h-px bg-gradient-to-r from-white/5 via-white/10 to-white/5 hidden lg:block" />
-      <div className="absolute bottom-[3.25rem] left-32 right-32 h-px bg-gradient-to-r from-white/5 via-white/10 to-white/5 hidden lg:block" />
-      <div className="absolute left-[5.5rem] top-24 bottom-24 w-px bg-gradient-to-b from-white/5 via-white/10 to-white/5 hidden lg:block" />
-      <div className="absolute right-[5.5rem] top-24 bottom-24 w-px bg-gradient-to-b from-white/5 via-white/10 to-white/5 hidden lg:block" />
-
+    <div className="min-h-screen bg-[#F9F7F1] flex items-center justify-center font-sans relative overflow-hidden">
       {/* Login card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -129,22 +84,22 @@ export const LoginPage = ({ onNavigate }) => {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-[420px] mx-4"
       >
-        <div className="bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 shadow-2xl shadow-black/50">
+        <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#111] border border-white/10 flex items-center justify-center mb-5">
-              <Logo light={true} className="w-7 h-7 text-white" />
+            <div className="w-14 h-14 rounded-2xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center mb-5">
+              <Logo light={true} className="w-7 h-7 text-[#262626]" />
             </div>
-            <h1 className="text-white text-2xl font-bold tracking-tight">
+            <h1 className="text-[#262626] text-2xl font-bold tracking-tight">
               {isForgot ? "Réinitialiser" : "Bon retour parmi nous"}
             </h1>
-            <p className="text-zinc-500 text-sm mt-1.5">
+            <p className="text-[#716D5C] text-sm mt-1.5">
               {isForgot ? "Entrez votre email pour recevoir un lien." : (
                 <>
                   Pas encore de compte ?{" "}
                   <button
                     onClick={() => onNavigate("/audit")}
-                    className="text-white font-semibold hover:text-zinc-300 transition-colors"
+                    className="text-[#003725] font-semibold hover:text-[#0F5F35] transition-colors"
                   >
                     Contactez-nous
                   </button>
@@ -155,12 +110,12 @@ export const LoginPage = ({ onNavigate }) => {
 
           {/* Alerts */}
           {error && (
-            <div className="p-3 mb-4 bg-red-500/10 text-red-400 text-xs font-medium rounded-xl border border-red-500/20 text-center">
+            <div className="p-3 mb-4 bg-red-50 text-red-600 text-xs font-medium rounded-xl border border-red-100 text-center">
               {error}
             </div>
           )}
           {success && (
-            <div className="p-3 mb-4 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-xl border border-emerald-500/20 text-center">
+            <div className="p-3 mb-4 bg-emerald-50 text-emerald-600 text-xs font-medium rounded-xl border border-emerald-100 text-center">
               {success}
             </div>
           )}
@@ -168,13 +123,13 @@ export const LoginPage = ({ onNavigate }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#716D5C]" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 bg-[#111] border border-white/[0.08] rounded-xl text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/20 transition-all"
+                className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-[#0F5F35]/40 transition-all"
                 placeholder="adresse email"
               />
             </div>
@@ -182,13 +137,13 @@ export const LoginPage = ({ onNavigate }) => {
             {/* Password */}
             {!isForgot && (
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#716D5C]" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#111] border border-white/[0.08] rounded-xl text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/20 transition-all"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-[#0F5F35]/40 transition-all"
                   placeholder="Mot de passe"
                 />
               </div>
@@ -199,28 +154,28 @@ export const LoginPage = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-xl text-sm font-semibold text-zinc-300 bg-[#27272a] hover:bg-[#3f3f46] hover:text-white transition-colors disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-semibold text-white bg-[#0F5F35] hover:bg-[#003725] transition-colors disabled:opacity-50"
               >
                 {loading ? (
-                  <svg className="animate-spin h-5 w-5 text-zinc-400 mx-auto" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                 ) : "Envoyer le lien"}
               </button>
             ) : (
-              <ButtonColorful
+              <button
                 type="submit"
                 disabled={loading}
-                className="w-full disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-[#0F5F35] hover:bg-[#003725] transition-colors disabled:opacity-50"
               >
                 {loading ? (
-                  <svg className="animate-spin h-5 w-5 text-zinc-500" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                 ) : "Se connecter"}
-              </ButtonColorful>
+              </button>
             )}
           </form>
 
@@ -228,7 +183,7 @@ export const LoginPage = ({ onNavigate }) => {
           <div className="text-center mt-4">
             <button
               onClick={() => { setIsForgot(!isForgot); setError(""); setSuccess(""); }}
-              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium"
+              className="text-xs text-[#716D5C] hover:text-[#262626] transition-colors font-medium"
             >
               {isForgot ? "Retour à la connexion" : "Mot de passe oublié ?"}
             </button>
@@ -238,19 +193,19 @@ export const LoginPage = ({ onNavigate }) => {
           {!isForgot && (
             <>
               <div className="flex items-center gap-4 my-6">
-                <div className="flex-1 h-px bg-white/[0.06]" />
-                <span className="text-[10px] text-zinc-600 font-medium uppercase tracking-widest">ou</span>
-                <div className="flex-1 h-px bg-white/[0.06]" />
+                <div className="flex-1 h-px bg-gray-200" />
+                <span className="text-[10px] text-[#716D5C] font-medium uppercase tracking-widest">ou</span>
+                <div className="flex-1 h-px bg-gray-200" />
               </div>
 
               {/* OAuth buttons */}
               <div className="grid grid-cols-3 gap-3">
                 <button
                   type="button"
-                  className="flex items-center justify-center py-3 rounded-xl bg-[#111] border border-white/[0.08] hover:bg-[#1a1a1a] hover:border-white/15 transition-all"
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all"
                   disabled
                 >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#262626]" fill="currentColor">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                   </svg>
                 </button>
@@ -258,7 +213,7 @@ export const LoginPage = ({ onNavigate }) => {
                   type="button"
                   onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="flex items-center justify-center py-3 rounded-xl bg-[#111] border border-white/[0.08] hover:bg-[#1a1a1a] hover:border-white/15 transition-all disabled:opacity-50"
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all disabled:opacity-50"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -269,10 +224,10 @@ export const LoginPage = ({ onNavigate }) => {
                 </button>
                 <button
                   type="button"
-                  className="flex items-center justify-center py-3 rounded-xl bg-[#111] border border-white/[0.08] hover:bg-[#1a1a1a] hover:border-white/15 transition-all"
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all"
                   disabled
                 >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#262626]" fill="currentColor">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                   </svg>
                 </button>

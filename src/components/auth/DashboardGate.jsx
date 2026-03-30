@@ -149,15 +149,15 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
 
   if (tenantError) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex flex-col justify-center items-center py-12 px-6 font-sans text-center">
+      <div className="min-h-screen bg-[#F9F7F1] flex flex-col justify-center items-center py-12 px-6 font-sans text-center">
         <AlertCircle className="w-16 h-16 text-red-500 mb-6" />
-        <h2 className="text-2xl font-bold tracking-tight text-white mb-2">
+        <h2 className="text-2xl font-bold tracking-tight text-[#262626] mb-2">
           Erreur de connexion
         </h2>
-        <p className="text-gray-400 font-medium max-w-sm mb-8">{tenantError}</p>
+        <p className="text-[#716D5C] font-medium max-w-sm mb-8">{tenantError}</p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-[#0E1424] border border-white/10 text-gray-300 px-6 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-white/5 transition-colors"
+          className="bg-white border border-gray-200 text-[#262626] px-6 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-gray-50 transition-colors"
         >
           Réessayer
         </button>
@@ -167,9 +167,9 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
 
   if (loadingTenant || !role) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex flex-col items-center justify-center font-sans">
+      <div className="min-h-screen bg-[#F9F7F1] flex flex-col items-center justify-center font-sans">
         <svg
-          className="animate-spin h-10 w-10 text-white mb-4"
+          className="animate-spin h-10 w-10 text-[#0F5F35] mb-4"
           fill="none"
           viewBox="0 0 24 24"
         >
@@ -187,7 +187,7 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        <p className="text-gray-400 text-sm font-medium">Chargement de votre espace...</p>
+        <p className="text-[#716D5C] text-sm font-medium">Chargement de votre espace...</p>
       </div>
     );
   }

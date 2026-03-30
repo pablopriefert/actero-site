@@ -131,7 +131,7 @@ export const PricingPage = ({ onNavigate }) => {
         description="Découvrez nos offres d'automatisation IA : audit gratuit, agent SAV e-commerce, qualification de leads immobilier. Tarifs transparents, ROI mesurable."
         canonical="/tarifs"
       />
-    <div className="min-h-screen bg-[#0A0E1A] text-white font-sans selection:bg-white/20">
+    <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
       <main className="pt-32 pb-24 px-6">
@@ -142,14 +142,15 @@ export const PricingPage = ({ onNavigate }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-4xl md:text-6xl font-bold tracking-tight mb-6"
+              style={{ fontFamily: "var(--font-display)" }}
             >
-              Investissez dans votre <span className="text-zinc-400">liberté.</span>
+              Investissez dans votre <span className="text-[#716D5C]">liberté.</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-xl text-gray-400 max-w-2xl mx-auto mb-10"
+              className="text-xl text-[#716D5C] max-w-2xl mx-auto mb-10"
             >
               Des tarifs clairs, indexés sur la valeur générée et le temps économisé.
             </motion.p>
@@ -159,9 +160,9 @@ export const PricingPage = ({ onNavigate }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-5 py-2.5"
+              className="inline-flex items-center gap-3 bg-[#F9F7F1] border border-gray-200 rounded-full px-5 py-2.5"
             >
-              <span className="text-sm font-bold text-white">Mensuel</span>
+              <span className="text-sm font-bold text-[#262626]">Mensuel</span>
             </motion.div>
           </div>
 
@@ -173,20 +174,15 @@ export const PricingPage = ({ onNavigate }) => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * i + 0.3 }}
-                className={`group relative p-8 md:p-10 rounded-[32px] border transition-all duration-500 hover:scale-[1.02] ${
+                className={`group relative p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.02] ${
                   plan.highlighted
-                    ? "bg-white/[0.03] border-emerald-500/30"
-                    : "bg-[#0E1424] border-white/10 hover:border-white/20"
+                    ? "bg-white border-[#0F5F35]/30 shadow-lg"
+                    : "bg-white border-gray-200 hover:border-gray-300"
                 }`}
               >
-                {/* Glow effect on highlighted card */}
-                {plan.highlighted && (
-                  <div className="absolute -inset-px rounded-[32px] bg-gradient-to-b from-emerald-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
-                )}
-
                 {plan.highlighted && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1.5 bg-emerald-500 text-black text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-emerald-500/25">
+                    <div className="flex items-center gap-1.5 bg-[#0F5F35] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-[#0F5F35]/25">
                       <Sparkles className="w-3 h-3" />
                       Recommandé
                     </div>
@@ -194,7 +190,7 @@ export const PricingPage = ({ onNavigate }) => {
                 )}
 
                 <div className="mb-8">
-                  <h3 className="text-xl font-bold mb-3">{plan.name}</h3>
+                  <h3 className="text-xl font-bold text-[#262626] mb-3">{plan.name}</h3>
                   <div className="flex items-baseline gap-1">
                     <AnimatePresence mode="wait">
                       <motion.span
@@ -203,16 +199,16 @@ export const PricingPage = ({ onNavigate }) => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2 }}
-                        className="text-4xl font-bold"
+                        className="text-4xl font-bold text-[#262626]"
                       >
                         {getPrice(plan)}
                       </motion.span>
                     </AnimatePresence>
-                    <span className="text-gray-500 text-sm font-medium">
+                    <span className="text-[#716D5C] text-sm font-medium">
                       {getPeriod(plan)}
                     </span>
                   </div>
-                  <p className="mt-4 text-gray-400 text-sm font-medium leading-relaxed">
+                  <p className="mt-4 text-[#716D5C] text-sm font-medium leading-relaxed">
                     {plan.description}
                   </p>
                 </div>
@@ -224,8 +220,8 @@ export const PricingPage = ({ onNavigate }) => {
                     const hasBadge = isObj && feature.badge;
                     return (
                       <div key={idx} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                        <span className="text-sm font-medium text-gray-300 inline-flex items-center flex-wrap gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-[#0F5F35] shrink-0 mt-0.5" />
+                        <span className="text-sm font-medium text-[#716D5C] inline-flex items-center flex-wrap gap-2">
                           {text} {hasBadge && <GptBadge />}
                         </span>
                       </div>
@@ -238,10 +234,10 @@ export const PricingPage = ({ onNavigate }) => {
                     trackEvent("Pricing_CTA_Clicked", { plan: plan.id });
                     onNavigate("/audit");
                   }}
-                  className={`w-full py-4 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 ${
+                  className={`w-full py-4 rounded-full font-bold transition-all flex items-center justify-center gap-2 ${
                     plan.highlighted
-                      ? "bg-white text-black hover:bg-zinc-200"
-                      : "bg-white/5 border border-white/10 hover:bg-white/10"
+                      ? "bg-[#0F5F35] text-white hover:bg-[#003725]"
+                      : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
                   }`}
                 >
                   {plan.cta} <ChevronRight className="w-4 h-4" />
@@ -252,22 +248,22 @@ export const PricingPage = ({ onNavigate }) => {
 
           {/* FAQ */}
           <div className="mt-32 max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+            <h2 className="text-3xl font-bold text-center text-[#262626] mb-12" style={{ fontFamily: "var(--font-display)" }}>
               Questions fréquentes
             </h2>
             <div className="space-y-3">
               {faqs.map((faq, i) => (
                 <div
                   key={i}
-                  className="bg-[#0E1424] border border-white/5 rounded-2xl overflow-hidden"
+                  className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-hidden"
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
                     className="w-full flex items-center justify-between p-6 text-left"
                   >
-                    <span className="font-bold">{faq.q}</span>
+                    <span className="font-bold text-[#262626]">{faq.q}</span>
                     <Plus
-                      className={`w-5 h-5 transition-transform duration-300 ${
+                      className={`w-5 h-5 text-[#716D5C] transition-transform duration-300 ${
                         openFaq === i ? "rotate-45" : ""
                       }`}
                     />
@@ -280,7 +276,7 @@ export const PricingPage = ({ onNavigate }) => {
                         exit={{ height: 0, opacity: 0 }}
                         className="px-6 pb-6 overflow-hidden"
                       >
-                        <p className="text-gray-400 text-sm leading-relaxed">
+                        <p className="text-[#716D5C] text-sm leading-relaxed">
                           {faq.a}
                         </p>
                       </motion.div>

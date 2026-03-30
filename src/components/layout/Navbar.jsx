@@ -46,7 +46,7 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
 
           <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             <button
-              onClick={() => onNavigate("/produits")}
+              onClick={() => { onNavigate("/"); setTimeout(() => { const el = document.getElementById('comment-ca-marche'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
               className="text-[14px] font-semibold text-[#262626] hover:text-[#003725] transition-colors"
             >
               Produits

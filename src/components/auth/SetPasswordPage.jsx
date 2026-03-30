@@ -19,15 +19,10 @@ export function SetPasswordPage({ onNavigate }) {
 
     const init = async () => {
       try {
-        // With PKCE flow, the ?code= param is exchanged for a session ASYNCHRONOUSLY
-        // by the Supabase client. We need to wait for that exchange to complete.
-
-        // First, try exchanging the code if present in the URL
         const params = new URLSearchParams(window.location.search)
         const code = params.get('code')
 
         if (code) {
-          // Manually trigger the PKCE exchange
           const { data, error } = await supabase.auth.exchangeCodeForSession(code)
           if (error) {
             console.error('[SetPasswordPage] Code exchange error:', error)
@@ -35,14 +30,12 @@ export function SetPasswordPage({ onNavigate }) {
             return
           }
           if (data?.session && mounted) {
-            // Clean URL
             window.history.replaceState({}, '', '/setup-password')
             setSessionReady(true)
             return
           }
         }
 
-        // Fallback: check if session already exists
         const { data: { session } } = await supabase.auth.getSession()
         if (session && mounted) {
           setSessionReady(true)
@@ -55,7 +48,6 @@ export function SetPasswordPage({ onNavigate }) {
     }
     init()
 
-    // Also listen for auth state changes as backup
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && mounted) {
         setSessionReady(true)
@@ -63,7 +55,6 @@ export function SetPasswordPage({ onNavigate }) {
     })
     subscription = authListener?.subscription
 
-    // Timeout fallback: if no session after 15s, show error
     const timeout = setTimeout(() => {
       if (mounted && !sessionReady) {
         setErrorMsg("Session expirée. Veuillez demander un nouveau lien d'invitation.")
@@ -99,7 +90,6 @@ export function SetPasswordPage({ onNavigate }) {
 
       setSuccess(true)
 
-      // After 2s, redirect to the right dashboard
       setTimeout(async () => {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
@@ -118,44 +108,44 @@ export function SetPasswordPage({ onNavigate }) {
 
   if (!sessionReady && !errorMsg) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A]">
-        <Loader2 className="w-8 h-8 text-white animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#F9F7F1]">
+        <Loader2 className="w-8 h-8 text-[#0F5F35] animate-spin" />
       </div>
     )
   }
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#0A0E1A] flex flex-col justify-center items-center px-6 font-sans">
-        <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mb-6">
-          <CheckCircle className="w-10 h-10 text-emerald-500" />
+      <div className="min-h-screen bg-[#F9F7F1] flex flex-col justify-center items-center px-6 font-sans">
+        <div className="w-20 h-20 bg-[#0F5F35]/10 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle className="w-10 h-10 text-[#0F5F35]" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Mot de passe créé !</h2>
-        <p className="text-gray-400 text-sm">Redirection vers votre espace...</p>
+        <h2 className="text-2xl font-bold text-[#262626] mb-2">Mot de passe créé !</h2>
+        <p className="text-[#716D5C] text-sm">Redirection vers votre espace...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex font-sans">
+    <div className="min-h-screen bg-[#F9F7F1] flex font-sans">
       {/* Left side — Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center px-6 sm:px-12 lg:px-20">
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-12">
             <img src="/favicon.svg" alt="Actero" className="w-8 h-8" />
-            <span className="text-white font-bold text-xl tracking-tight">Actero</span>
+            <span className="text-[#262626] font-bold text-xl tracking-tight">Actero</span>
           </div>
 
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
+          <h1 className="text-3xl font-bold text-[#262626] mb-2 tracking-tight">
             Créez votre mot de passe
           </h1>
-          <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+          <p className="text-[#716D5C] text-sm mb-8 leading-relaxed">
             Bienvenue ! Sécurisez votre compte en définissant un mot de passe pour vos prochaines connexions.
           </p>
 
           {errorMsg && (
-            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-sm text-red-400 mb-6">
+            <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 text-sm text-red-600 mb-6">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
@@ -164,7 +154,7 @@ export function SetPasswordPage({ onNavigate }) {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Password */}
             <div>
-              <label htmlFor="new-password" className="block text-sm font-bold text-white mb-2">
+              <label htmlFor="new-password" className="block text-sm font-bold text-[#262626] mb-2">
                 Mot de passe
               </label>
               <div className="relative">
@@ -174,24 +164,24 @@ export function SetPasswordPage({ onNavigate }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 pr-12 bg-[#0E1424] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                  className="w-full px-4 py-3 pr-12 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0F5F35]/30 outline-none transition-all text-sm text-[#262626]"
                   required
                   autoFocus
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#716D5C] hover:text-[#262626] transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1.5">Minimum 8 caractères</p>
+              <p className="text-xs text-[#716D5C] mt-1.5">Minimum 8 caractères</p>
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirm-password" className="block text-sm font-bold text-white mb-2">
+              <label htmlFor="confirm-password" className="block text-sm font-bold text-[#262626] mb-2">
                 Confirmer le mot de passe
               </label>
               <input
@@ -200,20 +190,20 @@ export function SetPasswordPage({ onNavigate }) {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 bg-[#0E1424] border border-white/10 rounded-xl focus:ring-2 focus:ring-zinc-400 outline-none transition-all text-sm text-white"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0F5F35]/30 outline-none transition-all text-sm text-[#262626]"
                 required
               />
               {confirmPassword && password !== confirmPassword && (
-                <p className="text-xs text-red-400 mt-1.5">Les mots de passe ne correspondent pas</p>
+                <p className="text-xs text-red-500 mt-1.5">Les mots de passe ne correspondent pas</p>
               )}
             </div>
 
             {/* Submit */}
             <div className="pt-2">
-              <ButtonColorful
+              <button
                 type="submit"
                 disabled={loading || !isValid}
-                className="w-full h-14 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-14 rounded-full font-bold text-white bg-[#0F5F35] hover:bg-[#003725] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -226,7 +216,7 @@ export function SetPasswordPage({ onNavigate }) {
                     Activer mon compte
                   </>
                 )}
-              </ButtonColorful>
+              </button>
             </div>
           </form>
         </div>
@@ -234,16 +224,16 @@ export function SetPasswordPage({ onNavigate }) {
 
       {/* Right side — Decorative */}
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-[#0a0a0a] to-zinc-900" />
+        <div className="absolute inset-0 bg-white" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center px-12">
-            <div className="w-20 h-20 bg-white/5 rounded-3xl border border-white/10 flex items-center justify-center mx-auto mb-8">
-              <Lock className="w-10 h-10 text-white/40" />
+            <div className="w-20 h-20 bg-[#F9F7F1] rounded-3xl border border-gray-200 flex items-center justify-center mx-auto mb-8">
+              <Lock className="w-10 h-10 text-[#716D5C]" />
             </div>
-            <h3 className="text-2xl font-bold text-white/80 mb-3">
+            <h3 className="text-2xl font-bold text-[#262626] mb-3">
               Votre espace est prêt
             </h3>
-            <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
+            <p className="text-[#716D5C] text-sm max-w-sm mx-auto leading-relaxed">
               Tableau de bord, recommandations IA et suivi de performance — tout est configuré pour vous.
             </p>
           </div>
