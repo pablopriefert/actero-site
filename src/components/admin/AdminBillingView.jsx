@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { supabase } from '../../lib/supabase'
 import { motion } from 'framer-motion'
 import {
   DollarSign, CreditCard, Receipt, TrendingUp, AlertCircle,
@@ -29,8 +30,14 @@ export const AdminBillingView = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['stripe-billing'],
     queryFn: async () => {
-      const res = await fetch('/api/stripe-billing')
-      if (!res.ok) throw new Error('Erreur API Stripe')
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/stripe-billing', {
+        headers: { 'Authorization': `Bearer ${session?.access_token}` },
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Erreur API Stripe')
+      }
       return res.json()
     },
     refetchInterval: 60000,

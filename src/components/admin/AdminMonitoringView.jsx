@@ -204,7 +204,10 @@ export const AdminMonitoringView = () => {
   const { data, refetch, isLoading } = useQuery({
     queryKey: ['n8n-workflows'],
     queryFn: async () => {
-      const res = await fetch('/api/n8n-workflows')
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/n8n-workflows', {
+        headers: { 'Authorization': `Bearer ${session?.access_token}` },
+      })
       if (!res.ok) throw new Error('Erreur')
       return res.json()
     },
