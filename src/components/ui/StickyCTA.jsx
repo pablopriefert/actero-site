@@ -24,11 +24,7 @@ export const StickyCTA = ({ onNavigate, vertical }) => {
         >
           <button
             onClick={() => onNavigate('/audit')}
-            className={`w-full py-4 px-6 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-2xl transition-all active:scale-[0.98] ${
-              isImmo
-                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-[#0A0E1A] shadow-violet-500/30'
-                : 'bg-white text-black shadow-black/30'
-            }`}
+            className="w-full py-4 px-6 rounded-full font-bold text-base flex items-center justify-center gap-2 shadow-xl transition-all active:scale-[0.98] bg-[#1B7D3A] text-white"
           >
             {isImmo ? 'Demander une démo' : 'Réserver mon audit gratuit'}
             <ArrowRight className="w-4 h-4" />

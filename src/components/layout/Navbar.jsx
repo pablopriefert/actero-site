@@ -28,14 +28,12 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
   };
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-6xl z-50">
-      <nav className={`w-full backdrop-blur-3xl border shadow-2xl rounded-full transition-all duration-500 ${
-        scrolled
-          ? 'bg-white/90 border-[#2E4068]/15 shadow-[#2E4068]/10'
-          : 'bg-white/60 border-[#2E4068]/8'
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <nav className={`w-full bg-white border-b border-gray-200 transition-all duration-300 ${
+        scrolled ? 'shadow-sm' : ''
       }`}>
-        <div className={`px-6 md:px-8 flex justify-between items-center transition-all duration-500 ${
-          scrolled ? 'h-12 md:h-[52px]' : 'h-14 md:h-[60px]'
+        <div className={`max-w-6xl mx-auto px-6 md:px-8 flex justify-between items-center transition-all duration-500 ${
+          scrolled ? 'h-14 md:h-[56px]' : 'h-16 md:h-[64px]'
         }`}>
           <div
             className="flex items-center gap-2 cursor-pointer group"
@@ -43,9 +41,9 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
           >
             <Logo
               light={true}
-              className="w-7 h-7 text-[#0A0E1A] group-hover:scale-105 transition-transform"
+              className="w-7 h-7 text-gray-900 group-hover:scale-105 transition-transform"
             />
-            <span className="font-bold text-xl tracking-tight text-[#0A0E1A]">
+            <span className="font-bold text-xl tracking-tight text-gray-900">
               Actero
             </span>
           </div>
@@ -56,10 +54,10 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
               onMouseEnter={() => setIsMegaMenuOpen(true)}
               onMouseLeave={() => setIsMegaMenuOpen(false)}
             >
-              <div className="flex items-center gap-1 cursor-pointer py-4 text-sm font-semibold text-[#5A7A8C] hover:text-[#0A0E1A] transition-colors group">
+              <div className="flex items-center gap-1 cursor-pointer py-4 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors group">
                 Produits
                 <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform duration-300 ${isMegaMenuOpen ? "rotate-180 text-[#0A0E1A]" : ""}`}
+                  className={`w-3.5 h-3.5 transition-transform duration-300 ${isMegaMenuOpen ? "rotate-180 text-gray-900" : ""}`}
                 />
               </div>
 
@@ -70,22 +68,22 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.98 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[850px] bg-white border border-[#2E4068]/12 rounded-[28px] shadow-2xl p-6 gap-6 grid grid-cols-3"
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[850px] bg-white border border-gray-200 rounded-3xl shadow-xl p-6 gap-6 grid grid-cols-3"
                   >
                     <div
                       onClick={() => {
                         setIsMegaMenuOpen(false);
                         scrollToId("comment-ca-marche");
                       }}
-                      className="flex flex-col p-6 rounded-[24px] bg-white border border-[#2E4068]/12 hover:bg-[#141414] hover:border-[#2E4068]/20 transition-all cursor-pointer group"
+                      className="flex flex-col p-6 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer group"
                     >
-                      <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center mb-6 text-[#0A0E1A] shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                      <div className="w-14 h-14 bg-[#1B7D3A] rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-[#1B7D3A]/20 group-hover:scale-105 transition-transform">
                         <Bot className="w-7 h-7" />
                       </div>
-                      <h3 className="text-[#0A0E1A] font-semibold text-[19px] mb-2">
+                      <h3 className="text-gray-900 font-semibold text-[19px] mb-2">
                         Agents IA
                       </h3>
-                      <p className="text-[15px] text-[#5A7A8C] font-medium leading-relaxed">
+                      <p className="text-[15px] text-gray-500 font-medium leading-relaxed">
                         Vos employés virtuels qui ne dorment jamais.
                       </p>
                     </div>
@@ -95,15 +93,15 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
                         setIsMegaMenuOpen(false);
                         scrollToId("comment-ca-marche");
                       }}
-                      className="flex flex-col p-6 rounded-[24px] bg-white border border-[#2E4068]/12 hover:bg-[#141414] hover:border-[#2E4068]/20 transition-all cursor-pointer group"
+                      className="flex flex-col p-6 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer group"
                     >
-                      <div className="w-14 h-14 bg-[#141416] rounded-2xl flex items-center justify-center mb-6 text-amber-300 shadow-md border border-[#2E4068]/8 group-hover:scale-105 transition-transform">
-                        <Zap className="w-7 h-7 fill-amber-300" />
+                      <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-6 text-amber-500 shadow-md border border-gray-200 group-hover:scale-105 transition-transform">
+                        <Zap className="w-7 h-7 fill-amber-500" />
                       </div>
-                      <h3 className="text-[#0A0E1A] font-semibold text-[19px] mb-2">
+                      <h3 className="text-gray-900 font-semibold text-[19px] mb-2">
                         Automatisations
                       </h3>
-                      <p className="text-[15px] text-[#5A7A8C] font-medium leading-relaxed">
+                      <p className="text-[15px] text-gray-500 font-medium leading-relaxed">
                         Connectez Shopify, votre CRM et vos factures.
                       </p>
                     </div>
@@ -113,15 +111,15 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
                         setIsMegaMenuOpen(false);
                         onAuditOpen?.();
                       }}
-                      className="flex flex-col p-6 rounded-[24px] bg-white border border-[#2E4068]/12 hover:bg-[#141414] hover:border-[#2E4068]/20 transition-all cursor-pointer group text-left"
+                      className="flex flex-col p-6 rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer group text-left"
                     >
-                      <div className="w-14 h-14 bg-[#1e1313] rounded-2xl flex items-center justify-center mb-6 text-orange-400 shadow-md border border-orange-500/10 group-hover:scale-105 transition-transform">
-                        <Sparkles className="w-7 h-7 fill-orange-400" />
+                      <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-6 text-orange-500 shadow-md border border-gray-200 group-hover:scale-105 transition-transform">
+                        <Sparkles className="w-7 h-7 fill-orange-500" />
                       </div>
-                      <h3 className="text-[#0A0E1A] font-semibold text-[19px] mb-2">
+                      <h3 className="text-gray-900 font-semibold text-[19px] mb-2">
                         Audit IA
                       </h3>
-                      <p className="text-[15px] text-[#5A7A8C] font-medium leading-relaxed">
+                      <p className="text-[15px] text-gray-500 font-medium leading-relaxed">
                         Analyse gratuite de votre business en temps réel.
                       </p>
                     </button>
@@ -132,26 +130,26 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
 
             <button
               onClick={() => onNavigate("/tarifs")}
-              className="text-[13px] font-semibold text-[#5A7A8C] hover:text-[#0A0E1A] transition-colors"
+              className="text-[13px] font-semibold text-gray-700 hover:text-gray-900 transition-colors"
             >
               Tarifs
             </button>
             <button
               onClick={() => onNavigate("/entreprise")}
-              className="text-[13px] font-semibold text-[#5A7A8C] hover:text-[#0A0E1A] transition-colors"
+              className="text-[13px] font-semibold text-gray-700 hover:text-gray-900 transition-colors"
             >
               Entreprise
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => onNavigate("/login")}
-              className="hidden lg:block text-[13px] font-semibold text-[#5A7A8C] hover:text-[#0A0E1A] transition-colors px-1"
+              className="hidden lg:block text-[13px] font-semibold text-gray-700 hover:text-gray-900 transition-colors px-1"
             >
               Connexion
             </button>
-            <div className="hidden sm:block scale-90 origin-right">
+            <div className="hidden sm:block">
               <ButtonColorful
                 onClick={() => {
                   trackEvent?.("Header_CTA_Clicked", { location: "navbar" });
@@ -164,12 +162,12 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-[#2E4068]/12 hover:bg-white/10 transition-colors"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors"
             >
               {isMobileMenuOpen ? (
-                <X className="w-5 h-5 text-[#0A0E1A]" />
+                <X className="w-5 h-5 text-gray-900" />
               ) : (
-                <Menu className="w-5 h-5 text-[#0A0E1A]" />
+                <Menu className="w-5 h-5 text-gray-900" />
               )}
             </button>
           </div>
@@ -183,7 +181,7 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="mt-3 bg-white/95 backdrop-blur-3xl border border-[#2E4068]/12 rounded-3xl shadow-2xl p-6 space-y-1"
+            className="mx-4 mt-2 bg-white border border-gray-200 rounded-3xl shadow-xl p-6 space-y-1"
           >
             {[
               {
@@ -239,7 +237,7 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
               <button
                 key={idx}
                 onClick={item.action}
-                className="w-full text-left p-3 rounded-2xl text-sm font-bold text-[#5A7A8C] hover:text-[#0A0E1A] hover:bg-white/5 transition-all"
+                className="w-full text-left p-3 rounded-2xl text-sm font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all"
               >
                 {item.label}
               </button>

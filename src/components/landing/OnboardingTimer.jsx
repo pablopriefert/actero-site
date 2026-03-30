@@ -8,8 +8,8 @@ const steps = [
     title: 'Paiement',
     subtitle: 'Stripe Checkout',
     time: '2 min',
-    color: 'from-violet-500 to-violet-600',
-    borderColor: 'border-violet-500/30',
+    color: 'from-gray-700 to-gray-800',
+    borderColor: 'border-gray-300',
     detail: 'Paiement securise par carte ou PayPal',
   },
   {
@@ -17,8 +17,8 @@ const steps = [
     title: 'App Shopify',
     subtitle: 'Installation OAuth',
     time: '1 min',
-    color: 'from-blue-500 to-blue-600',
-    borderColor: 'border-blue-500/30',
+    color: 'from-gray-700 to-gray-800',
+    borderColor: 'border-gray-300',
     detail: 'Un clic pour connecter votre boutique',
   },
   {
@@ -26,8 +26,8 @@ const steps = [
     title: 'Deploiement IA',
     subtitle: 'Workflows n8n',
     time: '24-48h',
-    color: 'from-emerald-500 to-emerald-600',
-    borderColor: 'border-emerald-500/30',
+    color: 'from-[#1B7D3A] to-[#166B32]',
+    borderColor: 'border-gray-300',
     detail: 'Configuration et activation de vos agents IA',
   },
   {
@@ -35,8 +35,8 @@ const steps = [
     title: 'En production',
     subtitle: 'Dashboard live',
     time: 'Done',
-    color: 'from-amber-500 to-orange-500',
-    borderColor: 'border-amber-500/30',
+    color: 'from-[#1B7D3A] to-[#166B32]',
+    borderColor: 'border-gray-300',
     detail: 'Vos automatisations tournent 24/7',
   },
 ]
@@ -45,17 +45,17 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
   if (variant === 'compact') {
     return (
       <div className="flex items-center justify-center gap-3 py-6">
-        <Clock className="w-4 h-4 text-violet-400" />
-        <span className="text-sm font-medium text-[#5A7A8C]">Temps de mise en production :</span>
-        <span className="text-lg font-black text-[#0A0E1A]">48h</span>
+        <Clock className="w-4 h-4 text-gray-500" />
+        <span className="text-sm font-medium text-gray-600">Temps de mise en production :</span>
+        <span className="text-lg font-black text-gray-900">48h</span>
         <div className="flex items-center gap-1.5 ml-4">
           {steps.map((step, i) => (
             <React.Fragment key={i}>
               <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${step.color} flex items-center justify-center`}>
-                <step.icon className="w-3.5 h-3.5 text-[#0A0E1A]" />
+                <step.icon className="w-3.5 h-3.5 text-white" />
               </div>
               {i < steps.length - 1 && (
-                <ArrowRight className="w-3 h-3 text-[#5A7A8C]" />
+                <ArrowRight className="w-3 h-3 text-gray-400" />
               )}
             </React.Fragment>
           ))}
@@ -65,7 +65,7 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
   }
 
   return (
-    <section className="py-20 bg-transparent px-6 relative z-10">
+    <section className="py-20 bg-white px-6 relative z-10">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -73,14 +73,14 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-bold mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-600 text-xs font-bold mb-6">
             <Clock className="w-3.5 h-3.5" />
             Mise en production
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-[#0A0E1A] mb-4">
-            Operationnel en <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-emerald-400">48 heures.</span>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-gray-900 mb-4">
+            Operationnel en <span className="text-[#1B7D3A]">48 heures.</span>
           </h2>
-          <p className="text-[#5A7A8C] font-medium max-w-xl mx-auto">
+          <p className="text-gray-600 font-medium max-w-xl mx-auto">
             Du paiement au dashboard live. Zero setup de votre cote.
           </p>
         </motion.div>
@@ -88,7 +88,7 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
         {/* Timeline */}
         <div className="relative">
           {/* Connection line */}
-          <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent hidden md:block" />
+          <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-200 hidden md:block" />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {steps.map((step, i) => (
@@ -100,32 +100,32 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
                 transition={{ delay: i * 0.15 }}
                 className="relative"
               >
-                <div className={`bg-white/80 border ${step.borderColor} rounded-2xl p-5 text-center hover:scale-[1.02] transition-transform`}>
+                <div className={`bg-white border ${step.borderColor} rounded-2xl p-5 text-center hover:scale-[1.02] transition-transform`}>
                   {/* Step number */}
-                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white/80 border border-[#2E4068]/12 flex items-center justify-center">
-                    <span className="text-[9px] font-bold text-[#5A7A8C]">{i + 1}</span>
+                  <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                    <span className="text-[9px] font-bold text-gray-500">{i + 1}</span>
                   </div>
 
                   {/* Icon */}
-                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-                    <step.icon className="w-6 h-6 text-[#0A0E1A]" />
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center mx-auto mb-4 shadow-md`}>
+                    <step.icon className="w-6 h-6 text-white" />
                   </div>
 
                   {/* Content */}
-                  <h4 className="text-sm font-bold text-[#0A0E1A] mb-0.5">{step.title}</h4>
-                  <p className="text-[10px] text-[#5A7A8C] font-medium mb-3">{step.subtitle}</p>
+                  <h4 className="text-sm font-bold text-gray-900 mb-0.5">{step.title}</h4>
+                  <p className="text-[10px] text-gray-500 font-medium mb-3">{step.subtitle}</p>
 
                   {/* Time badge */}
                   <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                     step.time === 'Done'
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                      : 'bg-white/5 text-[#5A7A8C] border border-[#2E4068]/12'
+                      ? 'bg-green-50 text-[#1B7D3A] border border-green-200'
+                      : 'bg-gray-50 text-gray-500 border border-gray-200'
                   }`}>
                     {step.time === 'Done' ? <Check className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                     {step.time}
                   </div>
 
-                  <p className="text-[11px] text-[#5A7A8C] mt-3">{step.detail}</p>
+                  <p className="text-[11px] text-gray-500 mt-3">{step.detail}</p>
                 </div>
               </motion.div>
             ))}

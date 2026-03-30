@@ -19,7 +19,6 @@ const STATS = {
 export const LiveTicker = ({ vertical }) => {
   const [idx, setIdx] = useState(0)
   const stats = STATS[vertical] || STATS.ecommerce
-  const isImmo = vertical === 'immobilier'
 
   useEffect(() => {
     setIdx(0)
@@ -32,20 +31,16 @@ export const LiveTicker = ({ vertical }) => {
   const stat = stats[idx]
 
   return (
-    <div className={`inline-flex items-center gap-3 rounded-full px-5 py-2.5 border ${
-      isImmo
-        ? 'bg-violet-500/[0.05] border-violet-500/15'
-        : 'bg-emerald-500/[0.05] border-emerald-500/15'
-    }`}>
+    <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 border bg-gray-50 border-gray-200">
       {/* Live dot */}
       <span className="relative flex h-2 w-2 flex-shrink-0">
-        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 ${isImmo ? 'bg-violet-400' : 'bg-emerald-400'}`} />
-        <span className={`relative inline-flex rounded-full h-2 w-2 ${isImmo ? 'bg-violet-400' : 'bg-emerald-400'}`} />
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 bg-[#1B7D3A]" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1B7D3A]" />
       </span>
 
-      <span className="text-[11px] font-bold text-[#5A7A8C] uppercase tracking-widest flex-shrink-0">En direct</span>
+      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest flex-shrink-0">En direct</span>
 
-      <div className="h-3 w-px bg-white/10 flex-shrink-0" />
+      <div className="h-3 w-px bg-gray-200 flex-shrink-0" />
 
       <AnimatePresence mode="wait">
         <motion.span
@@ -54,9 +49,9 @@ export const LiveTicker = ({ vertical }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.25 }}
-          className="text-sm font-medium text-[#0A0E1A]/70 whitespace-nowrap"
+          className="text-sm font-medium text-gray-600 whitespace-nowrap"
         >
-          <span className={`font-black text-base ${isImmo ? 'text-violet-300' : 'text-emerald-300'}`}>
+          <span className="font-black text-base text-gray-900">
             {stat.value}{stat.suffix}
           </span>{' '}
           {stat.label}

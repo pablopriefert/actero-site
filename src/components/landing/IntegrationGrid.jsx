@@ -34,7 +34,6 @@ const INTEGRATIONS = {
 
 export const IntegrationGrid = ({ vertical }) => {
   const integrations = INTEGRATIONS[vertical] || INTEGRATIONS.ecommerce
-  const isImmo = vertical === 'immobilier'
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
@@ -45,11 +44,11 @@ export const IntegrationGrid = ({ vertical }) => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ delay: i * 0.04, duration: 0.35, ease: 'easeOut' }}
-          whileHover={{ y: -3, borderColor: isImmo ? 'rgba(139,92,246,0.3)' : 'rgba(16,185,129,0.3)' }}
-          className="bg-white border border-[#2E4068]/15 rounded-2xl p-5 flex flex-col gap-3 cursor-default transition-all duration-300 group"
+          whileHover={{ y: -3 }}
+          className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3 cursor-default transition-all duration-300 group hover:border-gray-300"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-white/80 border border-[#2E4068]/18 flex items-center justify-center flex-shrink-0 group-hover:border-[#2E4068]/12 transition-colors">
+            <div className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors">
               <img
                 src={integ.src
                   ? integ.src
@@ -59,9 +58,9 @@ export const IntegrationGrid = ({ vertical }) => {
                 loading="lazy"
               />
             </div>
-            <span className="font-bold text-[#0A0E1A] text-sm leading-tight">{integ.name}</span>
+            <span className="font-bold text-gray-900 text-sm leading-tight">{integ.name}</span>
           </div>
-          <p className="text-xs text-[#5A7A8C] font-medium leading-relaxed">
+          <p className="text-xs text-gray-500 font-medium leading-relaxed">
             {integ.desc}
           </p>
         </motion.div>

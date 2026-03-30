@@ -74,21 +74,14 @@ export const ChatMockup = ({ vertical }) => {
     return () => timerRef.current.forEach(clearTimeout)
   }, [vertical])
 
-  const accentBubble = isImmo
-    ? 'bg-violet-500/20 border-violet-500/20 text-[#0A0E1A]'
-    : 'bg-emerald-500/20 border-emerald-500/20 text-[#0A0E1A]'
-  const accentLabel = isImmo ? 'text-violet-400' : 'text-emerald-400'
-  const accentDot = isImmo ? 'bg-violet-400' : 'bg-emerald-400'
-  const accentAvatar = isImmo ? 'bg-violet-500/20 text-violet-300' : 'bg-emerald-500/20 text-emerald-300'
-
   return (
     <div className="grid md:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
       {/* Phone mockup */}
       <div className="flex justify-center">
-        <div className="w-80 bg-[#F0F3F6] rounded-[32px] border border-[#2E4068]/12 overflow-hidden shadow-2xl">
+        <div className="w-80 bg-gray-50 rounded-[32px] border border-gray-200 overflow-hidden shadow-lg">
           {/* Status bar */}
-          <div className="bg-[#111] px-5 pt-4 pb-2 flex items-center justify-between">
-            <span className="text-[11px] text-[#0A0E1A]/60 font-medium">09:41</span>
+          <div className="bg-gray-900 px-5 pt-4 pb-2 flex items-center justify-between">
+            <span className="text-[11px] text-white/60 font-medium">09:41</span>
             <div className="flex gap-1.5">
               <div className="w-1 h-3 bg-white/40 rounded-full" />
               <div className="w-1 h-3 bg-white/70 rounded-full" />
@@ -97,21 +90,21 @@ export const ChatMockup = ({ vertical }) => {
           </div>
 
           {/* Chat header */}
-          <div className="bg-[#161616] px-4 py-3 flex items-center gap-3 border-b border-[#2E4068]/10">
-            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-black ${accentAvatar}`}>
+          <div className="bg-gray-900 px-4 py-3 flex items-center gap-3 border-b border-gray-700">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black bg-[#1B7D3A]/20 text-[#1B7D3A]">
               {agentInitials}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[#0A0E1A] text-[13px] font-bold leading-none mb-1">{agentName} — Agent IA</p>
+              <p className="text-white text-[13px] font-bold leading-none mb-1">{agentName} — Agent IA</p>
               <div className="flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full ${accentDot} animate-pulse`} />
-                <span className="text-[10px] text-[#5A7A8C]">En ligne</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1B7D3A] animate-pulse" />
+                <span className="text-[10px] text-gray-400">En ligne</span>
               </div>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="p-4 space-y-2.5 min-h-[340px] flex flex-col justify-end">
+          <div className="p-4 space-y-2.5 min-h-[340px] flex flex-col justify-end bg-white">
             <AnimatePresence initial={false}>
               {messages.slice(0, visibleCount).map((msg, i) => (
                 <motion.div
@@ -123,11 +116,11 @@ export const ChatMockup = ({ vertical }) => {
                 >
                   <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-[12px] leading-relaxed border ${
                     msg.from === 'agent'
-                      ? 'bg-[#1e1e1e] border-[#2E4068]/10 text-gray-200 rounded-tl-sm'
-                      : `${accentBubble} rounded-tr-sm`
+                      ? 'bg-gray-50 border-gray-200 text-gray-800 rounded-tl-sm'
+                      : 'bg-[#1B7D3A]/10 border-[#1B7D3A]/20 text-gray-900 rounded-tr-sm'
                   }`}>
                     {msg.agent && (
-                      <p className={`text-[9px] font-black tracking-widest uppercase mb-1 ${accentLabel}`}>
+                      <p className="text-[9px] font-black tracking-widest uppercase mb-1 text-[#1B7D3A]">
                         {msg.agent}
                       </p>
                     )}
@@ -146,11 +139,11 @@ export const ChatMockup = ({ vertical }) => {
                   exit={{ opacity: 0, y: -4 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-[#1e1e1e] border border-[#2E4068]/10 px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
+                  <div className="bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
                     {[0, 1, 2].map(i => (
                       <motion.span
                         key={i}
-                        className="w-1.5 h-1.5 bg-gray-500 rounded-full block"
+                        className="w-1.5 h-1.5 bg-gray-400 rounded-full block"
                         animate={{ y: [0, -4, 0] }}
                         transition={{ repeat: Infinity, duration: 0.5, delay: i * 0.12 }}
                       />
@@ -162,12 +155,12 @@ export const ChatMockup = ({ vertical }) => {
           </div>
 
           {/* Input bar */}
-          <div className="bg-[#111] px-4 py-3 flex items-center gap-3 border-t border-[#2E4068]/10">
-            <div className="flex-1 bg-[#1e1e1e] rounded-full px-4 py-2">
-              <span className="text-[11px] text-[#5A7A8C]">Tapez un message...</span>
+          <div className="bg-gray-50 px-4 py-3 flex items-center gap-3 border-t border-gray-200">
+            <div className="flex-1 bg-white rounded-full px-4 py-2 border border-gray-200">
+              <span className="text-[11px] text-gray-400">Tapez un message...</span>
             </div>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isImmo ? 'bg-violet-500/20' : 'bg-emerald-500/20'}`}>
-              <svg className={`w-4 h-4 ${accentLabel}`} fill="currentColor" viewBox="0 0 20 20">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1B7D3A]/10">
+              <svg className="w-4 h-4 text-[#1B7D3A]" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
               </svg>
             </div>
@@ -178,16 +171,16 @@ export const ChatMockup = ({ vertical }) => {
       {/* Stats & description */}
       <div className="space-y-8">
         <div>
-          <p className={`text-xs font-bold uppercase tracking-[0.2em] mb-3 ${accentLabel}`}>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-3 text-[#1B7D3A]">
             En action 24h/24
           </p>
-          <h3 className="text-3xl md:text-4xl font-bold text-[#0A0E1A] leading-tight mb-4">
+          <h3 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4">
             {isImmo
-              ? <>Vos agents IA qualifient<br />chaque prospect<br /><span className={accentLabel}>instantanément.</span></>
-              : <>Votre support client<br />répond en quelques<br /><span className={accentLabel}>secondes.</span></>
+              ? <>Vos agents IA qualifient<br />chaque prospect<br /><span className="text-[#1B7D3A]">instantanément.</span></>
+              : <>Votre support client<br />répond en quelques<br /><span className="text-[#1B7D3A]">secondes.</span></>
             }
           </h3>
-          <p className="text-[#5A7A8C] font-medium leading-relaxed">
+          <p className="text-gray-600 font-medium leading-relaxed">
             {isImmo
               ? "L'agent LÉA qualifie, planifie et confirme automatiquement. Chaque prospect est contacté immédiatement, sans intervention humaine."
               : "L'agent SARA traite les demandes récurrentes (suivi commande, retours, remboursements) sans jamais s'arrêter. Votre équipe se concentre sur ce qui crée de la valeur."
@@ -198,15 +191,11 @@ export const ChatMockup = ({ vertical }) => {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {stats.map((stat, i) => (
-            <div key={i} className="bg-white/80 border border-[#2E4068]/10 rounded-2xl p-4 text-center">
-              <p className={`text-2xl font-black tracking-tight ${
-                stat.color === 'violet' ? 'text-violet-400' :
-                stat.color === 'purple' ? 'text-purple-400' :
-                stat.color === 'cyan' ? 'text-cyan-400' : 'text-emerald-400'
-              }`}>
-                {stat.value}<span className="text-sm font-bold">{stat.suffix}</span>
+            <div key={i} className="bg-white border border-gray-200 rounded-2xl p-4 text-center">
+              <p className="text-2xl font-black tracking-tight text-gray-900">
+                {stat.value}<span className="text-sm font-bold text-gray-500">{stat.suffix}</span>
               </p>
-              <p className="text-[10px] font-bold text-[#5A7A8C] uppercase tracking-wider mt-1 leading-tight">{stat.label}</p>
+              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mt-1 leading-tight">{stat.label}</p>
             </div>
           ))}
         </div>

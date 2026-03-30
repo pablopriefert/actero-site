@@ -6,8 +6,8 @@ const STEPS = [
   {
     id: 0,
     icon: MessageSquare,
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10 border-amber-500/20',
+    color: 'text-amber-500',
+    bg: 'bg-amber-50 border-amber-200',
     title: 'Ticket recu',
     subtitle: 'Webhook Shopify',
     detail: '"Bonjour, ma commande #4821 est arrivee cassee. Je voudrais un remboursement ou un renvoi."',
@@ -16,8 +16,8 @@ const STEPS = [
   {
     id: 1,
     icon: Search,
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10 border-blue-500/20',
+    color: 'text-blue-500',
+    bg: 'bg-blue-50 border-blue-200',
     title: 'Extraction des donnees',
     subtitle: 'Analyse IA du message',
     detail: 'Intent : reclamation produit endommage | Commande : #4821 | Client : Marie D. | Priorite : haute',
@@ -26,8 +26,8 @@ const STEPS = [
   {
     id: 2,
     icon: ShoppingBag,
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/10 border-violet-500/20',
+    color: 'text-violet-500',
+    bg: 'bg-violet-50 border-violet-200',
     title: 'Recuperation commande Shopify',
     subtitle: 'API Shopify',
     detail: 'Commande #4821 | Livree le 18/03 | Montant : 89.90EUR | Produit : Lampe Artisanale XL | Transporteur : Colissimo',
@@ -36,8 +36,8 @@ const STEPS = [
   {
     id: 3,
     icon: Brain,
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/20',
+    color: 'text-[#1B7D3A]',
+    bg: 'bg-green-50 border-green-200',
     title: 'Generation reponse IA',
     subtitle: 'Gemini + contexte client',
     detail: 'Reponse personnalisee generee avec excuses, proposition de renvoi gratuit, et code promo -15% pour le prochain achat.',
@@ -46,8 +46,8 @@ const STEPS = [
   {
     id: 4,
     icon: Send,
-    color: 'text-cyan-400',
-    bg: 'bg-cyan-500/10 border-cyan-500/20',
+    color: 'text-cyan-500',
+    bg: 'bg-cyan-50 border-cyan-200',
     title: 'Envoi de la reponse',
     subtitle: 'Email automatique',
     detail: 'Email envoye a marie.d@email.com avec la proposition de resolution. Ticket marque comme "resolu".',
@@ -56,8 +56,8 @@ const STEPS = [
   {
     id: 5,
     icon: CheckCircle2,
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/20',
+    color: 'text-[#1B7D3A]',
+    bg: 'bg-green-50 border-green-200',
     title: 'Ticket resolu',
     subtitle: 'Automatiquement',
     detail: 'Temps total : 1.5 secondes | Temps economise : 8 minutes | Satisfaction client preservee',
@@ -107,7 +107,7 @@ export const TicketReplay = () => {
   }, [ref, hasPlayed])
 
   return (
-    <section className="py-24 md:py-32 bg-transparent px-6 relative z-10 border-t border-white/[0.04]" ref={setRef}>
+    <section className="py-24 md:py-32 bg-white px-6 relative z-10 border-t border-gray-200" ref={setRef}>
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -115,24 +115,24 @@ export const TicketReplay = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-600 text-xs font-bold mb-6">
             <Zap className="w-3.5 h-3.5" />
             Demo en direct
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-[#0A0E1A] mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-gray-900 mb-6">
             Voyez l'IA en action.
           </h2>
-          <p className="text-lg text-[#5A7A8C] font-medium max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 font-medium max-w-2xl mx-auto">
             Un ticket SAV traite en 1.5 seconde. De A a Z. Sans intervention humaine.
           </p>
         </motion.div>
 
         {/* Replay container */}
-        <div className="bg-white/80 border border-[#2E4068]/10 rounded-3xl p-6 md:p-8 relative overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 relative overflow-hidden">
           {/* Progress bar */}
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/5">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gray-100">
             <motion.div
-              className="h-full bg-gradient-to-r from-violet-500 to-emerald-500"
+              className="h-full bg-[#1B7D3A]"
               animate={{ width: `${((activeStep + 1) / STEPS.length) * 100}%` }}
               transition={{ duration: 0.5 }}
             />
@@ -141,14 +141,14 @@ export const TicketReplay = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-8 mt-2">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-bold text-[#5A7A8C] uppercase tracking-wider">
+              <div className="w-2 h-2 rounded-full bg-[#1B7D3A] animate-pulse" />
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                 {isPlaying ? 'Traitement en cours...' : activeStep >= STEPS.length - 1 ? 'Traitement termine' : 'Workflow SAV IA'}
               </span>
             </div>
             <button
               onClick={startReplay}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[#5A7A8C] hover:text-[#0A0E1A] text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 text-xs font-medium transition-all border border-gray-200"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Rejouer
@@ -171,36 +171,36 @@ export const TicketReplay = () => {
                       transition={{ duration: 0.4, ease: 'easeOut' }}
                       className={`flex gap-4 p-4 rounded-2xl border transition-all duration-300 ${
                         isCurrent
-                          ? `${step.bg} shadow-lg`
-                          : 'bg-white/[0.02] border-[#2E4068]/8'
+                          ? `${step.bg} shadow-sm`
+                          : 'bg-gray-50 border-gray-200'
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        isCurrent ? step.bg : 'bg-white/5'
+                        isCurrent ? step.bg : 'bg-gray-100'
                       }`}>
-                        <Icon className={`w-5 h-5 ${isCurrent ? step.color : 'text-[#5A7A8C]'}`} />
+                        <Icon className={`w-5 h-5 ${isCurrent ? step.color : 'text-gray-400'}`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
-                            <h4 className={`text-sm font-bold ${isCurrent ? 'text-[#0A0E1A]' : 'text-[#5A7A8C]'}`}>
+                            <h4 className={`text-sm font-bold ${isCurrent ? 'text-gray-900' : 'text-gray-500'}`}>
                               {step.title}
                             </h4>
-                            <span className="text-[10px] text-[#5A7A8C] font-mono">
+                            <span className="text-[10px] text-gray-500 font-mono">
                               {step.subtitle}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-[#5A7A8C]" />
-                            <span className="text-[10px] text-[#5A7A8C] font-mono">{step.time}</span>
+                            <Clock className="w-3 h-3 text-gray-400" />
+                            <span className="text-[10px] text-gray-500 font-mono">{step.time}</span>
                           </div>
                         </div>
-                        <p className={`text-xs leading-relaxed ${isCurrent ? 'text-[#5A7A8C]' : 'text-[#5A7A8C]'}`}>
+                        <p className="text-xs leading-relaxed text-gray-500">
                           {step.detail}
                         </p>
                       </div>
                       {!isCurrent && isActive && (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500/50 flex-shrink-0 mt-2" />
+                        <CheckCircle2 className="w-5 h-5 text-[#1B7D3A]/50 flex-shrink-0 mt-2" />
                       )}
                     </motion.div>
                   )}
@@ -216,22 +216,22 @@ export const TicketReplay = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="mt-6 p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-violet-500/10 border border-emerald-500/20 text-center"
+                className="mt-6 p-5 rounded-2xl bg-gray-50 border border-gray-200 text-center"
               >
                 <div className="flex items-center justify-center gap-6 text-sm">
                   <div>
-                    <span className="text-[#5A7A8C]">Temps total</span>
-                    <p className="text-xl font-black text-emerald-400">1.5s</p>
+                    <span className="text-gray-500">Temps total</span>
+                    <p className="text-xl font-black text-[#1B7D3A]">1.5s</p>
                   </div>
-                  <div className="w-px h-8 bg-white/10" />
+                  <div className="w-px h-8 bg-gray-200" />
                   <div>
-                    <span className="text-[#5A7A8C]">Temps economise</span>
-                    <p className="text-xl font-black text-violet-400">8 min</p>
+                    <span className="text-gray-500">Temps economise</span>
+                    <p className="text-xl font-black text-gray-900">8 min</p>
                   </div>
-                  <div className="w-px h-8 bg-white/10" />
+                  <div className="w-px h-8 bg-gray-200" />
                   <div>
-                    <span className="text-[#5A7A8C]">Satisfaction</span>
-                    <p className="text-xl font-black text-amber-400">98%</p>
+                    <span className="text-gray-500">Satisfaction</span>
+                    <p className="text-xl font-black text-gray-900">98%</p>
                   </div>
                 </div>
               </motion.div>
