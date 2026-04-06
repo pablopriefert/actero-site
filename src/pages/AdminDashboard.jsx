@@ -57,6 +57,77 @@ import { AdminAmbassadorsView } from '../components/admin/AdminAmbassadorsView'
 import { AdminPartnersView } from '../components/admin/AdminPartnersView'
 import { AdminShopifyView } from '../components/admin/AdminShopifyView'
 
+const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigateTab }) => {
+  const [query, setQuery] = useState('');
+  const [focused, setFocused] = useState(false);
+  const inputRef = React.useRef(null);
+
+  const results = React.useMemo(() => {
+    if (!query.trim() || query.length < 2) return [];
+    const q = query.toLowerCase();
+    const items = [];
+
+    // Search clients
+    clients.forEach(c => {
+      if (`${c.brand_name} ${c.contact_email || ''} ${c.client_type || ''}`.toLowerCase().includes(q)) {
+        items.push({ type: 'client', label: c.brand_name, sub: c.client_type || 'ecommerce', data: c });
+      }
+    });
+
+    // Search funnel
+    funnel.forEach(f => {
+      if (`${f.company_name || ''} ${f.email || ''} ${f.slug || ''}`.toLowerCase().includes(q)) {
+        items.push({ type: 'funnel', label: f.company_name || f.slug, sub: f.status || 'draft', data: f });
+      }
+    });
+
+    return items.slice(0, 8);
+  }, [query, clients, funnel]);
+
+  const showResults = focused && results.length > 0;
+
+  return (
+    <div className="relative w-72">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#716D5C]" />
+      <input
+        ref={inputRef}
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setTimeout(() => setFocused(false), 200)}
+        placeholder="Rechercher un client, funnel..."
+        className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] placeholder-gray-400 outline-none focus:ring-1 focus:ring-gray-300"
+      />
+      {showResults && (
+        <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50">
+          {results.map((r, i) => (
+            <button
+              key={i}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[#F9F7F1] transition-colors text-sm"
+              onMouseDown={() => {
+                if (r.type === 'client') {
+                  onSelectClient(r.data);
+                } else if (r.type === 'funnel') {
+                  onNavigateTab('funnel');
+                }
+                setQuery('');
+                setFocused(false);
+              }}
+            >
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${
+                r.type === 'client' ? 'bg-emerald-50 text-[#003725] border-emerald-200' : 'bg-blue-50 text-blue-600 border-blue-200'
+              }`}>{r.type === 'client' ? 'Client' : 'Funnel'}</span>
+              <span className="font-medium text-[#262626] truncate">{r.label}</span>
+              <span className="text-[#716D5C] text-xs ml-auto">{r.sub}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -344,10 +415,16 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="hidden md:flex h-16 bg-[#F9F7F1] border-b border-gray-200 items-center px-8">
+        <header className="hidden md:flex h-16 bg-[#F9F7F1] border-b border-gray-200 items-center px-8 justify-between">
           <h1 className="text-xl font-bold capitalize tracking-tight">
             {activeTab.replace("-", " ")}
           </h1>
+          <GlobalSearchBar
+            clients={clients}
+            funnel={overviewData?.funnel || []}
+            onSelectClient={(c) => { setSelectedClient(c); }}
+            onNavigateTab={setActiveTab}
+          />
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
