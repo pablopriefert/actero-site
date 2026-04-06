@@ -386,14 +386,27 @@ const AdminClientIntegrations = ({ clientId }) => {
     enabled: !!clientId,
   });
 
+  const [testResults, setTestResults] = useState({});
+
   const handleForceTest = async (integration) => {
     setTestingId(integration.id);
+    setTestResults(prev => ({ ...prev, [integration.id]: null }));
     try {
-      await supabase
-        .from('client_integrations')
-        .update({ last_checked_at: new Date().toISOString() })
-        .eq('id', integration.id);
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/integrations/test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ integration_id: integration.id }),
+      });
+      const result = await res.json();
+      setTestResults(prev => ({ ...prev, [integration.id]: result }));
       await refetch();
+      if (result.ok) setTimeout(() => setTestResults(prev => ({ ...prev, [integration.id]: null })), 4000);
+    } catch {
+      setTestResults(prev => ({ ...prev, [integration.id]: { ok: false, message: 'Erreur reseau' } }));
     } finally {
       setTestingId(null);
     }
@@ -460,6 +473,11 @@ const AdminClientIntegrations = ({ clientId }) => {
                     <RefreshCw className="w-3.5 h-3.5 text-[#716D5C] hover:text-[#262626]" />
                   )}
                 </button>
+                {testResults[int.id] && (
+                  <span className={`text-[10px] font-bold ${testResults[int.id].ok ? 'text-[#003725]' : 'text-red-500'}`}>
+                    {testResults[int.id].ok ? '✓' : '✗'}
+                  </span>
+                )}
               </div>
             </div>
           ))}

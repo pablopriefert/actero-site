@@ -116,6 +116,22 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     }
   });
 
+  // Fetch integration status for all clients (for badges in client list)
+  const { data: allIntegrations = [] } = useQuery({
+    queryKey: ['admin-all-integrations'],
+    queryFn: async () => {
+      const { data: integrations } = await supabase
+        .from('client_integrations')
+        .select('client_id, provider, status');
+      const { data: shopifyConns } = await supabase
+        .from('client_shopify_connections')
+        .select('client_id, shop_domain');
+      return [...(integrations || []), ...(shopifyConns || []).map(s => ({ client_id: s.client_id, provider: 'shopify', status: 'active' }))];
+    },
+  });
+
+  const getClientIntegrations = (clientId) => allIntegrations.filter(i => i.client_id === clientId);
+
   const { data: requests = [], isLoading: requestsLoading, refetch: refetchRequests } = useQuery({
     queryKey: ['admin-requests'],
     queryFn: async () => {
@@ -797,6 +813,24 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           <span className="text-xs text-[#716D5C]">{client.contact_email || 'Pas d\'email'}</span>
                           <span className="text-[10px] text-[#716D5C]">Créé le {new Date(client.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                         </div>
+                        {/* Integration status badges */}
+                        {getClientIntegrations(client.id).length > 0 && (
+                          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                            {getClientIntegrations(client.id).map((integ, j) => (
+                              <span key={j} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border capitalize ${
+                                integ.status === 'active'
+                                  ? 'bg-emerald-50 text-[#003725] border-emerald-200'
+                                  : integ.status === 'error'
+                                  ? 'bg-red-50 text-red-600 border-red-200'
+                                  : integ.status === 'expired'
+                                  ? 'bg-amber-50 text-amber-600 border-amber-200'
+                                  : 'bg-gray-50 text-[#716D5C] border-gray-200'
+                              }`}>
+                                {integ.provider}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <div className="mt-1 flex items-center gap-2">
                           <span className="text-[10px] font-mono text-[#716D5C]">{client.id}</span>
                           <button
