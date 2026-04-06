@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users, Search, Handshake, Mail, Phone, Building2,
   CheckCircle2, XCircle, Clock, Eye, Loader2, MoreVertical,
-  Briefcase, ChevronDown, Filter, X, AlertCircle,
+  Briefcase, ChevronDown, Filter, X, AlertCircle, Plus, Trash2,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
@@ -29,6 +29,9 @@ export const AdminPartnersView = () => {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [expandedRow, setExpandedRow] = useState(null)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [newPartner, setNewPartner] = useState({ first_name: '', last_name: '', email: '', company_name: '', phone: '', activity_type: '', potential_clients: '' })
+  const [creating, setCreating] = useState(false)
 
   const { data: partners = [], isLoading } = useQuery({
     queryKey: ['admin-partners'],
@@ -54,6 +57,32 @@ export const AdminPartnersView = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-partners'] })
     },
   })
+
+  const handleCreate = async () => {
+    if (!newPartner.first_name || !newPartner.last_name || !newPartner.email) return
+    setCreating(true)
+    try {
+      const { error } = await supabase.from('partner_applications').insert([{
+        ...newPartner,
+        status: 'new',
+        source: 'admin_manual',
+      }])
+      if (error) throw error
+      queryClient.invalidateQueries({ queryKey: ['admin-partners'] })
+      setNewPartner({ first_name: '', last_name: '', email: '', company_name: '', phone: '', activity_type: '', potential_clients: '' })
+      setShowCreateForm(false)
+    } catch (err) {
+      alert('Erreur: ' + err.message)
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const handleDelete = async (id, name) => {
+    if (!confirm(`Supprimer le partenaire ${name} ?`)) return
+    const { error } = await supabase.from('partner_applications').delete().eq('id', id)
+    if (!error) queryClient.invalidateQueries({ queryKey: ['admin-partners'] })
+  }
 
   const filtered = partners.filter((p) => {
     const matchesSearch =
@@ -85,7 +114,90 @@ export const AdminPartnersView = () => {
             Candidatures du programme partenaire B2B
           </p>
         </div>
+        <button
+          onClick={() => setShowCreateForm(!showCreateForm)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#0F5F35] text-white rounded-full text-sm font-semibold hover:bg-[#003725] transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Ajouter
+        </button>
       </div>
+
+      {/* Create form */}
+      <AnimatePresence>
+        {showCreateForm && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="p-6 rounded-xl bg-[#F9F7F1] border border-gray-200 space-y-4">
+              <h3 className="text-sm font-bold text-[#262626]">Nouveau partenaire</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  placeholder="Prenom *"
+                  value={newPartner.first_name}
+                  onChange={(e) => setNewPartner(p => ({ ...p, first_name: e.target.value }))}
+                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                />
+                <input
+                  type="text"
+                  placeholder="Nom *"
+                  value={newPartner.last_name}
+                  onChange={(e) => setNewPartner(p => ({ ...p, last_name: e.target.value }))}
+                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                />
+                <input
+                  type="email"
+                  placeholder="Email *"
+                  value={newPartner.email}
+                  onChange={(e) => setNewPartner(p => ({ ...p, email: e.target.value }))}
+                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                />
+                <input
+                  type="text"
+                  placeholder="Societe"
+                  value={newPartner.company_name}
+                  onChange={(e) => setNewPartner(p => ({ ...p, company_name: e.target.value }))}
+                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                />
+                <input
+                  type="text"
+                  placeholder="Telephone"
+                  value={newPartner.phone}
+                  onChange={(e) => setNewPartner(p => ({ ...p, phone: e.target.value }))}
+                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                />
+                <input
+                  type="text"
+                  placeholder="Type d'activite"
+                  value={newPartner.activity_type}
+                  onChange={(e) => setNewPartner(p => ({ ...p, activity_type: e.target.value }))}
+                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                />
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCreate}
+                  disabled={creating || !newPartner.first_name || !newPartner.last_name || !newPartner.email}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#0F5F35] text-white rounded-xl text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+                >
+                  {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                  Creer le partenaire
+                </button>
+                <button
+                  onClick={() => setShowCreateForm(false)}
+                  className="px-4 py-2.5 text-sm font-semibold text-[#716D5C] hover:text-[#262626] transition-colors"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -173,19 +285,31 @@ export const AdminPartnersView = () => {
                         {new Date(p.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-4 py-3">
-                        <select
-                          value={p.status}
-                          onChange={(e) => {
-                            e.stopPropagation()
-                            updateStatusMutation.mutate({ id: p.id, status: e.target.value })
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className="px-2 py-1 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs text-[#262626] outline-none cursor-pointer"
-                        >
-                          {Object.entries(STATUS_MAP).map(([key, val]) => (
-                            <option key={key} value={key} className="bg-[#F9F7F1]">{val.label}</option>
-                          ))}
-                        </select>
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={p.status}
+                            onChange={(e) => {
+                              e.stopPropagation()
+                              updateStatusMutation.mutate({ id: p.id, status: e.target.value })
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="px-2 py-1 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs text-[#262626] outline-none cursor-pointer"
+                          >
+                            {Object.entries(STATUS_MAP).map(([key, val]) => (
+                              <option key={key} value={key} className="bg-[#F9F7F1]">{val.label}</option>
+                            ))}
+                          </select>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDelete(p.id, `${p.first_name} ${p.last_name}`)
+                            }}
+                            className="p-1.5 rounded-lg text-[#716D5C] hover:text-red-500 hover:bg-red-50 transition-colors"
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                     <AnimatePresence>
