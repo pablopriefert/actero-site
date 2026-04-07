@@ -43,6 +43,11 @@ const PROVIDER_TEST_ENDPOINTS = {
     url: () => 'https://api.calendly.com/users/me',
     headers: (c) => ({ 'Authorization': `Bearer ${c.api_key}` }),
   },
+  google_sheets: {
+    method: 'GET',
+    url: () => 'https://www.googleapis.com/oauth2/v2/userinfo',
+    headers: (c) => ({ 'Authorization': `Bearer ${c.access_token}` }),
+  },
 };
 
 export default async function handler(req, res) {
