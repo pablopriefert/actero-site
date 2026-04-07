@@ -88,7 +88,7 @@ const NotificationPreferences = ({ clientId, isLight }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}
+      className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -324,7 +324,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}
+        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
       >
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLight ? 'bg-[#003725]/10 text-[#003725]' : 'bg-gray-50 text-[#262626]'}`}>
@@ -421,7 +421,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}
+        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
       >
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLight ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-500/10 text-emerald-400'}`}>
@@ -455,7 +455,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}
+        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
       >
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLight ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-[#262626]'}`}>

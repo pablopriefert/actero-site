@@ -110,7 +110,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#F9F7F1] border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-white border border-gray-100 rounded-2xl shadow-sm w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -343,15 +343,15 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}>
+        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
           <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>Escalades ce mois</p>
           <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>{stats?.monthCount || 0}</p>
         </div>
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}>
+        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
           <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>Temps moyen de reponse</p>
           <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>{stats?.avgResponseHours || 0}h</p>
         </div>
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}>
+        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
           <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>Taux d&apos;escalade</p>
           <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>{stats?.escalationRate || 0}%</p>
         </div>
@@ -394,7 +394,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
           <Loader2 className="w-6 h-6 animate-spin text-[#716D5C]" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}>
+        <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
           <CheckCircle2 className={`w-10 h-10 mx-auto mb-3 ${isLight ? 'text-slate-300' : 'text-[#716D5C]'}`} />
           <p className={`text-sm ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>
             {filter === 'pending' ? 'Aucun ticket en attente.' : 'Aucune escalade trouvee.'}
@@ -413,7 +413,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                 className={`rounded-2xl border p-5 cursor-pointer transition-all ${
                   isLight
                     ? 'bg-white border-gray-200 hover:border-slate-300'
-                    : 'bg-[#F9F7F1] border-gray-200 hover:border-gray-300'
+                    : 'bg-white border-gray-100 shadow-sm hover:border-gray-300'
                 } ${overdue ? 'border-l-2 border-l-red-500' : ''}`}
               >
                 <div className="flex items-start justify-between">

@@ -354,9 +354,9 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans text-[#262626]">
+    <div className="min-h-screen bg-[#F5F5F0] flex flex-col md:flex-row font-sans text-[#262626]">
       {/* Mobile Header */}
-      <div className="md:hidden h-16 bg-[#F9F7F1] border-b border-gray-200 flex items-center justify-between px-4">
+      <div className="md:hidden h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Logo className="w-6 h-6 text-[#262626]" />
           <span className="font-bold text-lg">Actero Admin</span>
@@ -415,7 +415,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="hidden md:flex h-16 bg-[#F9F7F1] border-b border-gray-200 items-center px-8 justify-between">
+        <header className="hidden md:flex h-16 bg-white border-b border-gray-100 items-center px-8 justify-between">
           <h1 className="text-xl font-bold capitalize tracking-tight">
             {activeTab.replace("-", " ")}
           </h1>
@@ -500,7 +500,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="relative bg-[#F9F7F1] rounded-2xl border border-gray-200 p-5 overflow-hidden group hover:border-gray-300 transition-colors"
+                    className="relative bg-white rounded-2xl border border-gray-100 p-5 shadow-sm overflow-hidden group hover:border-gray-300 transition-colors"
                   >
                     <div className={`absolute -top-6 -right-6 w-20 h-20 bg-${kpi.color}-500/10 rounded-full blur-2xl group-hover:bg-${kpi.color}-500/20 transition-colors`} />
                     <div className="flex items-center justify-between mb-3">
@@ -530,7 +530,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {/* Row 2: Activity chart + Recent events */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Activity mini-chart */}
-                <div className="lg:col-span-2 bg-[#F9F7F1] rounded-2xl border border-gray-200 p-6">
+                <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h3 className="text-sm font-bold text-[#262626]">Activité 14 derniers jours</h3>
@@ -572,7 +572,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 </div>
 
                 {/* Recent events feed */}
-                <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-6">
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-bold text-[#262626]">Derniers événements</h3>
                     <span className="text-[10px] text-[#716D5C] font-medium">LIVE</span>
@@ -624,7 +624,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {/* Row 3: Clients overview + Funnel + Event breakdown */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Clients list */}
-                <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-6">
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-bold text-[#262626]">Clients actifs</h3>
                     <button onClick={() => setActiveTab('clients')} className="text-[10px] text-emerald-400 font-medium hover:text-emerald-300 transition-colors">Voir tout →</button>
@@ -666,7 +666,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 </div>
 
                 {/* Funnel pipeline */}
-                <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-6">
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-bold text-[#262626]">Pipeline Funnel</h3>
                     <Target className="w-4 h-4 text-[#716D5C]" />
@@ -705,7 +705,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 </div>
 
                 {/* Event breakdown by type */}
-                <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-6">
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-bold text-[#262626]">Répartition événements</h3>
                     <TrendingUp className="w-4 h-4 text-[#716D5C]" />
@@ -768,7 +768,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
               {/* Row 4: Leads preview */}
               {leads.length > 0 && (
-                <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-6">
+                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <h3 className="text-sm font-bold text-[#262626]">Derniers leads</h3>
@@ -818,21 +818,21 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
               {/* Summary row */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-5">
+                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
                   <div className="flex items-center gap-2 mb-2">
                     <Users className="w-4 h-4 text-emerald-400" />
                     <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">Actifs</span>
                   </div>
                   <p className="text-2xl font-bold font-mono text-emerald-400">{clients.filter(c => c.status === 'active').length}</p>
                 </div>
-                <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-5">
+                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
                   <div className="flex items-center gap-2 mb-2">
                     <ShoppingBag className="w-4 h-4 text-blue-400" />
                     <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">E-commerce</span>
                   </div>
                   <p className="text-2xl font-bold font-mono text-[#262626]">{clients.filter(c => !c.client_type || c.client_type === 'ecommerce').length}</p>
                 </div>
-                <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-5">
+                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
                   <div className="flex items-center gap-2 mb-2">
                     <Building2 className="w-4 h-4 text-violet-400" />
                     <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">Immobilier</span>

@@ -436,9 +436,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const isLight = theme === "light";
 
   return (
-    <div className={`min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300 ${isLight ? "bg-[#F9F7F1] text-[#262626]" : "bg-white text-[#262626]"}`}>
+    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#F5F5F0] text-[#262626]">
       {/* Mobile Header */}
-      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 ${isLight ? "bg-white border-b border-gray-200" : "bg-[#F9F7F1] border-b border-gray-200"}`}>
+      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 ${isLight ? "bg-white border-b border-gray-200" : "bg-white border-b border-gray-100"}`}>
         <div className="flex items-center gap-2">
           <Logo className={`w-6 h-6 ${isLight ? "text-[#003725]" : "text-[#262626]"}`} />
           <span className={`font-bold text-lg ${isLight ? "text-[#262626]" : "text-[#262626]"}`}>Actero OS</span>

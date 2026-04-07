@@ -13,11 +13,12 @@ export const Sidebar = ({
   theme = "light"
 }) => {
   return (
-    <div className="w-full md:w-64 flex flex-col h-full border-r bg-white border-gray-200">
-      <div className="h-16 flex items-center px-6 border-b justify-between md:justify-start border-gray-200">
-        <div className="flex items-center gap-2">
-          <Logo className="w-6 h-6 text-[#003725]" />
-          <span className="font-bold text-lg text-[#262626]">{title}</span>
+    <div className="w-full md:w-[260px] flex flex-col h-full bg-white border-r border-gray-100">
+      {/* Header */}
+      <div className="h-16 flex items-center px-5 justify-between md:justify-start border-b border-gray-100">
+        <div className="flex items-center gap-2.5">
+          <Logo className="w-7 h-7 text-[#003725]" />
+          <span className="font-bold text-[17px] text-[#262626] tracking-tight">{title}</span>
         </div>
         <button
           className="md:hidden text-[#716D5C] hover:text-[#262626]"
@@ -28,12 +29,15 @@ export const Sidebar = ({
         </button>
       </div>
 
-      <div className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto">
+      {/* Navigation */}
+      <div className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
         {items.map((item, idx) => {
           if (item.type === 'section') {
             return (
-              <div key={idx} className="px-3 text-[10px] font-bold uppercase tracking-widest mb-3 mt-6 text-[#716D5C]">
-                {item.label}
+              <div key={idx} className="px-3 pt-6 pb-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#716D5C]/70">
+                  {item.label}
+                </p>
               </div>
             );
           }
@@ -46,19 +50,21 @@ export const Sidebar = ({
                 setActiveTab(item.id);
                 if (onClose) onClose();
               }}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 ${
                 isActive
-                  ? "bg-[#003725]/10 text-[#003725]"
-                  : "text-[#716D5C] hover:bg-gray-50 hover:text-[#262626]"
+                  ? "bg-[#003725] text-white shadow-sm"
+                  : "text-[#716D5C] hover:bg-[#F9F7F1] hover:text-[#262626]"
               }`}
             >
-              <div className="flex items-center gap-3">
-                {item.icon && <item.icon className="w-4 h-4" />}
-                {item.label}
+              <div className="flex items-center gap-2.5">
+                {item.icon && <item.icon className={`w-[18px] h-[18px] ${isActive ? 'text-white/80' : ''}`} />}
+                <span>{item.label}</span>
               </div>
               {item.badge && (
-                <span className={`py-0.5 px-2 rounded-full text-[10px] font-bold ${
-                  item.badgeColor || "bg-gray-100 text-[#716D5C]"
+                <span className={`min-w-[20px] text-center py-0.5 px-1.5 rounded-md text-[10px] font-bold ${
+                  isActive
+                    ? "bg-white/20 text-white"
+                    : (item.badgeColor || "bg-gray-100 text-[#716D5C]")
                 }`}>
                   {item.badge}
                 </span>
@@ -68,12 +74,13 @@ export const Sidebar = ({
         })}
       </div>
 
-      <div className="p-4 border-t border-gray-200">
+      {/* Footer */}
+      <div className="p-3 border-t border-gray-100">
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-colors text-[#716D5C] hover:bg-red-50 hover:text-red-600"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors text-[#716D5C] hover:bg-red-50 hover:text-red-600"
         >
-          <LogOut className="w-4 h-4" /> Déconnexion
+          <LogOut className="w-[18px] h-[18px]" /> Deconnexion
         </button>
       </div>
     </div>

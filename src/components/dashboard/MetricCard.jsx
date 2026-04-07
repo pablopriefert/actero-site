@@ -4,109 +4,66 @@ import { TrendingUp, TrendingDown } from 'lucide-react'
 export const MetricCard = ({
   title,
   value,
-  icon: Icon, // eslint-disable-line no-unused-vars
+  icon: Icon,
   color = "zinc",
   subtitleItems = [],
   className = "",
   theme = "dark",
   variation = null,
 }) => {
-  const isLight = theme === "light";
   const colors = {
-    zinc: {
-      bg: isLight ? "bg-gray-100" : "bg-gray-50",
-      border: isLight ? "border-gray-200" : "border-zinc-700",
-      text: isLight ? "text-[#716D5C]" : "text-[#716D5C]",
-      val: isLight ? "text-[#262626]" : "text-[#716D5C]",
-      hover: isLight ? "group-hover:bg-gray-200/50" : "group-hover:bg-gray-200/10",
-    },
-    emerald: {
-      bg: isLight ? "bg-emerald-50" : "bg-emerald-500/10",
-      border: isLight ? "border-emerald-100" : "border-emerald-500/20",
-      text: "text-emerald-600",
-      val: isLight ? "text-emerald-700" : "text-emerald-500",
-      hover: isLight ? "group-hover:bg-emerald-100/50" : "group-hover:bg-emerald-500/20",
-    },
-    amber: {
-      bg: isLight ? "bg-amber-50" : "bg-amber-500/10",
-      border: isLight ? "border-amber-100" : "border-amber-500/20",
-      text: "text-amber-600",
-      val: isLight ? "text-amber-700" : "text-amber-500",
-      hover: isLight ? "group-hover:bg-amber-100/50" : "group-hover:bg-amber-500/20",
-    },
-    blue: {
-      bg: isLight ? "bg-blue-50" : "bg-blue-500/10",
-      border: isLight ? "border-blue-100" : "border-blue-500/20",
-      text: "text-blue-600",
-      val: isLight ? "text-blue-700" : "text-blue-500",
-      hover: isLight ? "group-hover:bg-blue-100/50" : "group-hover:bg-blue-500/20",
-    },
+    zinc: { iconBg: "bg-gray-100", iconText: "text-[#716D5C]", val: "text-[#262626]" },
+    emerald: { iconBg: "bg-emerald-50", iconText: "text-emerald-600", val: "text-[#262626]" },
+    amber: { iconBg: "bg-amber-50", iconText: "text-amber-600", val: "text-[#262626]" },
+    blue: { iconBg: "bg-blue-50", iconText: "text-blue-600", val: "text-[#262626]" },
+    violet: { iconBg: "bg-violet-50", iconText: "text-violet-600", val: "text-[#262626]" },
   };
 
   const c = colors[color] || colors.zinc;
 
-  const renderVariation = () => {
-    if (variation === null || variation === undefined) return null;
-    if (variation === "—") {
-      return (
-        <span className="text-[10px] font-bold text-[#716D5C] mt-2 block">
-          — pas de données
-        </span>
-      );
-    }
-
-    const isPos = variation > 0;
-    const isNeg = variation < 0;
-    const isNeut = variation === 0;
-
-    return (
-      <div className={`flex items-center gap-1 mt-2 text-[10px] font-bold ${isPos ? "text-emerald-500" : isNeg ? "text-rose-500" : "text-[#716D5C]"}`}>
-        {isPos && <TrendingUp className="w-3 h-3" />}
-        {isNeg && <TrendingDown className="w-3 h-3" />}
-        {isNeut && <span className="mr-0.5">=</span>}
-        <span>{variation > 0 ? `+${variation}` : variation}% vs mois dernier</span>
-      </div>
-    );
-  };
-
   return (
-    <div
-      className={`group p-6 rounded-2xl border transition-all duration-300 ${isLight
-        ? "bg-white border-gray-200 shadow-sm hover:shadow-md"
-        : "bg-[#F9F7F1] border-gray-200 hover:border-gray-300"
-        } ${className}`}
-    >
-      <div className="flex items-center gap-3 mb-6">
-        <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${c.bg} ${c.border} ${c.hover}`}
-        >
-          <Icon className={`w-5 h-5 ${c.text}`} />
-        </div>
-        <h4
-          className={`text-xs font-bold uppercase tracking-widest ${isLight ? "text-[#716D5C]" : "text-[#716D5C]"
-            }`}
-        >
+    <div className={`group bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-all duration-300 ${className}`}>
+      {/* Header: title left, icon right */}
+      <div className="flex items-start justify-between mb-4">
+        <p className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">
           {title}
-        </h4>
+        </p>
+        {Icon && (
+          <div className={`w-9 h-9 rounded-xl ${c.iconBg} flex items-center justify-center`}>
+            <Icon className={`w-4.5 h-4.5 ${c.iconText}`} />
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-col">
-        <span className={`text-4xl font-bold tracking-tight mb-1 ${c.val}`}>
-          {value}
-        </span>
-        <div className="flex flex-wrap gap-x-3 gap-y-1">
+      {/* Value */}
+      <p className={`text-3xl font-bold tracking-tight ${c.val} mb-1`}>
+        {value}
+      </p>
+
+      {/* Variation */}
+      {variation !== null && variation !== undefined && variation !== "—" ? (
+        <div className={`flex items-center gap-1 text-xs font-medium ${
+          variation > 0 ? "text-emerald-600" : variation < 0 ? "text-rose-500" : "text-[#716D5C]"
+        }`}>
+          {variation > 0 && <TrendingUp className="w-3.5 h-3.5" />}
+          {variation < 0 && <TrendingDown className="w-3.5 h-3.5" />}
+          <span>{variation > 0 ? `+${variation}%` : `${variation}%`}</span>
+          <span className="text-[#716D5C] font-normal ml-1">vs 7j precedents</span>
+        </div>
+      ) : variation === "—" ? (
+        <p className="text-xs text-[#716D5C]">— pas de donnees</p>
+      ) : null}
+
+      {/* Subtitle items */}
+      {subtitleItems.length > 0 && (
+        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
           {subtitleItems.map((item, idx) => (
-            <span
-              key={idx}
-              className={`text-[10px] font-bold uppercase tracking-widest ${isLight ? "text-[#716D5C]" : "text-[#716D5C]"
-                }`}
-            >
+            <span key={idx} className="text-[10px] font-medium text-[#716D5C] uppercase tracking-wider">
               {item}
             </span>
           ))}
         </div>
-        {renderVariation()}
-      </div>
+      )}
     </div>
   );
 };

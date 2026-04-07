@@ -112,10 +112,10 @@ export const ClientReferralView = ({ clientId, theme = 'dark' }) => {
   const currentReward = totalRewarded < 3 ? 800 : 1600
   const nextReward = 1600
 
-  const cardBg = isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'
+  const cardBg = isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'
   const textPrimary = isLight ? 'text-[#262626]' : 'text-[#262626]'
   const textSecondary = isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'
-  const inputBg = isLight ? 'bg-[#F9F7F1] border-gray-200' : 'bg-gray-50 border-gray-200'
+  const inputBg = isLight ? 'bg-white border-gray-100 shadow-sm' : 'bg-gray-50 border-gray-200'
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-fade-in-up">

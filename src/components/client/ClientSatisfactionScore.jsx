@@ -21,7 +21,7 @@ const SLACard = ({ label, value, unit, icon: Icon, color = 'zinc', theme }) => {
     zinc: 'text-[#716D5C]',
   }
   return (
-    <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}>
+    <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
       <div className="flex items-center gap-2 mb-2">
         <Icon className={`w-4 h-4 ${colors[color]}`} />
         <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>{label}</p>
@@ -179,7 +179,7 @@ export const ClientSatisfactionScore = ({ clientId, theme = 'dark' }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}
+        className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
       >
         <div className="flex flex-col md:flex-row items-center gap-6">
           <ScoreGauge score={scoreData.compositeScore} theme={theme} />
@@ -272,7 +272,7 @@ export const SatisfactionKPI = ({ clientId, theme = 'dark' }) => {
 
   return (
     <div className={`group p-6 rounded-2xl border transition-all duration-300 ${
-      isLight ? 'bg-white border-gray-200 shadow-sm hover:shadow-md' : 'bg-[#F9F7F1] border-gray-200 hover:border-gray-300'
+      isLight ? 'bg-white border-gray-200 shadow-sm hover:shadow-md' : 'bg-white border-gray-100 shadow-sm hover:border-gray-300'
     }`}>
       <div className="flex items-center gap-3 mb-6">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${

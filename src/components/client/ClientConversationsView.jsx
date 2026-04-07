@@ -191,7 +191,7 @@ const ConversationCard = ({ event, onRate, isFromAiConversations }) => {
   return (
     <motion.div
       layout
-      className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 transition-colors"
+      className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden hover:border-gray-300 transition-colors"
     >
       <button
         onClick={() => setExpanded(!expanded)}
