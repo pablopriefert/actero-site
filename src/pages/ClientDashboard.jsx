@@ -62,6 +62,7 @@ import { ClientIntegrationsView } from '../components/client/ClientIntegrationsV
 import { OnboardingChecklist } from '../components/client/OnboardingChecklist'
 import { AutoDiagnostic } from '../components/client/AutoDiagnostic'
 import { GuardrailsEditor } from '../components/client/GuardrailsEditor'
+import { PromptEditor } from '../components/client/PromptEditor'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ClientSatisfactionScore, SatisfactionKPI } from '../components/client/ClientSatisfactionScore'
 
@@ -174,6 +175,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/support") return "support";
     if (route === "/client/referral") return "referral";
     if (route === "/client/integrations") return "integrations";
+    if (route === "/client/agent-config") return "agent-config";
     if (route === "/client/guardrails") return "guardrails";
     if (route === "/client/escalations") return "escalations";
     if (route === "/client/profile") return "profile";
@@ -420,6 +422,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'overview', label: "Vue d'ensemble", icon: LayoutDashboard },
     { id: 'activity', label: 'Activite', icon: Activity },
     { id: 'systems', label: 'Mes Systemes', icon: Database },
+    { id: 'agent-config', label: 'Agent IA', icon: Sparkles },
     { id: 'guardrails', label: 'Garde-fous', icon: Shield },
     { id: 'escalations', label: 'Escalades', icon: AlertTriangle, badge: escalationCount > 0 ? escalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
     { id: 'support', label: 'Support', icon: MessageSquare },
@@ -496,6 +499,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "support" && "Support & Demandes"}
               {activeTab === "referral" && "Parrainage"}
               {activeTab === "integrations" && "Intégrations"}
+              {activeTab === "agent-config" && "Agent IA"}
               {activeTab === "guardrails" && "Garde-fous"}
               {activeTab === "escalations" && "Escalades"}
             </h1>
@@ -735,6 +739,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "escalations" && (
             <ClientEscalationsView
+              clientId={currentClient?.id}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "agent-config" && (
+            <PromptEditor
               clientId={currentClient?.id}
               theme={theme}
             />
