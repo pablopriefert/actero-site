@@ -1,13 +1,9 @@
+import { supabase } from "../lib/supabase"
 import React, { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { motion } from 'framer-motion'
 import { Landmark, CheckCircle, ArrowRight, AlertTriangle } from 'lucide-react'
 import { Logo } from '../components/layout/Logo'
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
 
 export default function AmbassadorSetupIban() {
   const [iban, setIban] = useState('')

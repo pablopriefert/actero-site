@@ -1,12 +1,8 @@
+import { supabase } from "../../lib/supabase"
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { createClient } from '@supabase/supabase-js'
 import { ChevronRight, ChevronLeft, Check, Trash2, X, Eye } from 'lucide-react'
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
 
 const COLUMNS = [
   {

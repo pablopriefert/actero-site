@@ -1,6 +1,6 @@
+import { supabase } from "../../lib/supabase"
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { createClient } from '@supabase/supabase-js'
 import { useToast } from '../ui/Toast'
 import {
   Search, Send, RefreshCw, ExternalLink, Loader2, Plus, ChevronRight, Copy,
@@ -9,10 +9,6 @@ import {
   ThumbsDown, StarHalf
 } from 'lucide-react'
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
 
 const PIPELINE_COLS = [
   { id: 'lead', title: 'Lead', color: 'border-gray-200', badge: 'bg-gray-100 text-[#716D5C]' },

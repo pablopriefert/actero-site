@@ -1,16 +1,12 @@
+import { supabase } from "../../lib/supabase"
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createClient } from '@supabase/supabase-js'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Power, Play, Pause, Activity, Clock, CheckCircle2, XCircle,
   AlertTriangle, Loader2, Zap, ShieldCheck, BarChart3, TrendingUp
 } from 'lucide-react'
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-)
 
 const CATEGORY_CONFIG = {
   sav: { label: 'SAV', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20', icon: '🎧' },
