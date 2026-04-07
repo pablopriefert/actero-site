@@ -86,6 +86,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/support") return "support";
     if (route === "/client/referral") return "referral";
     if (route === "/client/integrations") return "integrations";
+    if (route === "/client/escalations") return "escalations";
     if (route === "/client/profile") return "profile";
     return "overview";
   };
@@ -324,10 +325,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     enabled: !!currentClient?.id,
   })
 
+  const escalationCount = pendingEscalations.length;
+
   const sidebarItems = [
     { id: 'overview', label: "Vue d'ensemble", icon: LayoutDashboard },
     { id: 'activity', label: 'Activite', icon: Activity },
     { id: 'systems', label: 'Mes Systemes', icon: Database },
+    { id: 'escalations', label: 'Escalades', icon: AlertTriangle, badge: escalationCount > 0 ? escalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
     { id: 'support', label: 'Support', icon: MessageSquare },
     { id: 'referral', label: 'Parrainage', icon: Gift },
     { id: 'integrations', label: 'Intégrations', icon: Plug },
@@ -402,6 +406,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "support" && "Support & Demandes"}
               {activeTab === "referral" && "Parrainage"}
               {activeTab === "integrations" && "Intégrations"}
+              {activeTab === "escalations" && "Escalades"}
             </h1>
 
             <div className="hidden lg:flex items-center gap-3">
@@ -462,7 +467,26 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 </div>
               </div>
 
-              {/* Onboarding Checklist — replaces Shopify banner */}
+              {/* Escalation alert */}
+              {escalationCount > 0 && (
+                <div
+                  className="flex items-center gap-4 p-4 rounded-xl bg-amber-50 border border-amber-200 cursor-pointer hover:bg-amber-100 transition-colors"
+                  onClick={() => setActiveTab('escalations')}
+                >
+                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-bold text-sm text-amber-800">
+                      {escalationCount} ticket{escalationCount > 1 ? 's' : ''} en attente de reponse humaine
+                    </p>
+                    <p className="text-xs text-amber-600">
+                      L'IA n'a pas pu resoudre ces demandes. Cliquez pour voir et repondre.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-amber-600 shrink-0" />
+                </div>
+              )}
+
+              {/* Onboarding Checklist */}
               <OnboardingChecklist
                 clientId={currentClient?.id}
                 clientType={currentClient?.client_type}
@@ -609,6 +633,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <ClientIntegrationsView
               clientId={currentClient?.id}
               clientType={currentClient?.client_type}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "escalations" && (
+            <ClientEscalationsView
+              clientId={currentClient?.id}
               theme={theme}
             />
           )}
