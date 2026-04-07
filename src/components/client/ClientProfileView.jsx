@@ -9,11 +9,19 @@ import {
 import { supabase } from '../../lib/supabase'
 
 const NOTIFICATION_TOGGLES = [
-  { key: 'daily_summary', label: 'Resume quotidien', desc: 'Recevez un email chaque matin avec les performances de la veille', defaultVal: true },
-  { key: 'weekly_summary', label: 'Resume hebdomadaire', desc: 'Rapport chaque lundi matin', defaultVal: false },
-  { key: 'escalation_alert', label: 'Alerte d\'escalade', desc: 'Email immediat quand un ticket necessite votre intervention', defaultVal: true },
-  { key: 'milestone_alert', label: 'Alertes milestone', desc: 'Notifications quand vous atteignez des jalons importants', defaultVal: true },
-  { key: 'monthly_report', label: 'Rapport mensuel', desc: 'Rapport detaille en fin de mois', defaultVal: true },
+  { section: 'Alertes', items: [
+    { key: 'escalation_alert', label: 'Tickets escalades', desc: 'Email immediat quand un ticket necessite votre intervention', defaultVal: true },
+    { key: 'anomaly_alert', label: 'Alertes anomalie', desc: 'Notification si un pic de tickets ou une baisse de performance est detecte', defaultVal: true },
+    { key: 'urgent_ticket_alert', label: 'Tickets urgents', desc: 'Email immediat pour les tickets detectes comme urgents ou agressifs', defaultVal: true },
+  ]},
+  { section: 'Rapports', items: [
+    { key: 'daily_summary', label: 'Resume quotidien', desc: 'Email chaque matin avec les performances de la veille', defaultVal: true },
+    { key: 'weekly_summary', label: 'Resume hebdomadaire', desc: 'Rapport chaque lundi matin', defaultVal: false },
+    { key: 'monthly_report', label: 'Rapport mensuel', desc: 'Rapport detaille en fin de mois', defaultVal: true },
+  ]},
+  { section: 'Celebrations', items: [
+    { key: 'milestone_alert', label: 'Jalons atteints', desc: 'Quand vous atteignez un nouveau palier (100h economisees, etc.)', defaultVal: true },
+  ]},
 ]
 
 const HOURS = Array.from({ length: 17 }, (_, i) => i + 6) // 6h to 22h
@@ -104,25 +112,32 @@ const NotificationPreferences = ({ clientId, isLight }) => {
           <Loader2 className="w-5 h-5 animate-spin text-[#716D5C]" />
         </div>
       ) : (
-        <div className="space-y-4">
-          {NOTIFICATION_TOGGLES.map((toggle) => {
-            const isOn = prefs ? prefs[toggle.key] : toggle.defaultVal
-            return (
-              <div key={toggle.key} className="flex items-center justify-between">
-                <div className="flex-1 mr-4">
-                  <p className={`text-sm font-medium ${isLight ? 'text-slate-700' : 'text-[#716D5C]'}`}>{toggle.label}</p>
-                  <p className={`text-xs mt-0.5 ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>{toggle.desc}</p>
-                </div>
-                <button
-                  onClick={() => updatePrefMutation.mutate({ key: toggle.key, value: !isOn })}
-                  disabled={updatePrefMutation.isPending}
-                  className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${isOn ? 'bg-blue-500' : (isLight ? 'bg-gray-200' : 'bg-gray-200')}`}
-                >
-                  <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${isOn ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                </button>
+        <div className="space-y-6">
+          {NOTIFICATION_TOGGLES.map((group) => (
+            <div key={group.section}>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#716D5C] mb-3">{group.section}</p>
+              <div className="space-y-3">
+                {group.items.map((toggle) => {
+                  const isOn = prefs ? (prefs[toggle.key] ?? toggle.defaultVal) : toggle.defaultVal
+                  return (
+                    <div key={toggle.key} className="flex items-center justify-between">
+                      <div className="flex-1 mr-4">
+                        <p className="text-sm font-medium text-[#262626]">{toggle.label}</p>
+                        <p className="text-xs mt-0.5 text-[#716D5C]">{toggle.desc}</p>
+                      </div>
+                      <button
+                        onClick={() => updatePrefMutation.mutate({ key: toggle.key, value: !isOn })}
+                        disabled={updatePrefMutation.isPending}
+                        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${isOn ? 'bg-[#0F5F35]' : 'bg-gray-200'}`}
+                      >
+                        <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${isOn ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
-            )
-          })}
+            </div>
+          ))}
 
           {/* Preferred hour */}
           <div className="flex items-center justify-between pt-2 border-t border-gray-100">
