@@ -49,7 +49,7 @@ import { MilestoneBadge } from '../components/dashboard/MilestoneBadge'
 import { AnimatedCounter } from '../components/ui/animated-counter'
 import { SkeletonRow } from '../components/ui/skeleton-row'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
-import { ActivityView } from '../components/dashboard/ActivityView'
+import { ActivityView, useLiveActivityFeed, formatEvent, formatRelativeTime } from '../components/dashboard/ActivityView'
 import { SupportTicketsView } from '../components/dashboard/SupportTicketsView'
 import { ClientProfileView } from '../components/client/ClientProfileView'
 import { ClientCopilotBubble } from '../components/client/ClientCopilotBubble'
@@ -62,6 +62,53 @@ import { OnboardingChecklist } from '../components/client/OnboardingChecklist'
 import { AutoDiagnostic } from '../components/client/AutoDiagnostic'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ClientSatisfactionScore, SatisfactionKPI } from '../components/client/ClientSatisfactionScore'
+
+const LiveActivityWidget = ({ supabase, setActiveTab, isLight }) => {
+  const { events, isConnected } = useLiveActivityFeed(supabase);
+  const recent = events.slice(0, 6);
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      <div className="p-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-[#0F5F35] animate-pulse' : 'bg-red-500'}`} />
+            <h3 className="font-bold text-[#262626] text-sm">Activite recente</h3>
+          </div>
+          <span className="text-[10px] font-bold text-[#716D5C] uppercase tracking-widest px-2 py-0.5 bg-[#F9F7F1] rounded-full">
+            LIVE
+          </span>
+        </div>
+        <button
+          onClick={() => setActiveTab('activity')}
+          className="text-xs font-bold text-[#003725] hover:underline"
+        >
+          Tout voir →
+        </button>
+      </div>
+      <div className="divide-y divide-gray-100">
+        {recent.length === 0 ? (
+          <div className="px-5 py-8 text-center text-sm text-[#716D5C]">
+            Aucune activite recente. Les evenements apparaitront ici en temps reel.
+          </div>
+        ) : (
+          recent.map((event, i) => {
+            const formatted = formatEvent(event);
+            return (
+              <div key={event.id || i} className="flex items-center gap-3 px-5 py-3 hover:bg-[#F9F7F1] transition-colors">
+                <span className="text-lg flex-shrink-0">{formatted.icon}</span>
+                <p className="text-sm text-[#262626] flex-1 truncate">{formatted.message}</p>
+                <span className="text-[10px] text-[#716D5C] flex-shrink-0 whitespace-nowrap">
+                  {formatRelativeTime(event.created_at)}
+                </span>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // eslint-disable-next-line no-unused-vars
@@ -568,6 +615,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     selectedPeriod={selectedPeriod}
                   />
                 </div>
+              </div>
+
+              {/* Live Activity Feed Widget */}
+              <div className="mt-12">
+                <LiveActivityWidget supabase={supabase} setActiveTab={setActiveTab} isLight={isLight} />
               </div>
 
               {/* Satisfaction Score + SLA Tracking (Features 5 & 6) */}
