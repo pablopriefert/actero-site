@@ -58,7 +58,7 @@ export const ConversationSimulator = ({ clientId, clientType, theme }) => {
       const s = clientConfig?.settings || {}
       const systemPrompt = buildSystemPrompt(s, clientConfig?.guardrails || [], clientConfig?.knowledge || '')
 
-      const res = await fetch('/api/gemini-proxy', {
+      const res = await fetch('/api/simulator-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +72,8 @@ export const ConversationSimulator = ({ clientId, clientType, theme }) => {
       })
 
       const data = await res.json()
-      const aiResponse = data.response || data.text || data.result || "Je n'ai pas pu generer une reponse."
+      if (!res.ok) throw new Error(data.error || 'Erreur API')
+      const aiResponse = data.text || "Je n'ai pas pu generer une reponse."
 
       // Check if any guardrail was triggered
       const guardrailTriggered = clientConfig?.guardrails?.some(rule =>
