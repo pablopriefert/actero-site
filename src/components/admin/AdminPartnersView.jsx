@@ -8,6 +8,7 @@ import {
   Send, CreditCard,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useToast } from '../ui/Toast'
 
 const PaymentLinkForm = ({ email, name }) => {
   const [amount, setAmount] = useState('')
@@ -105,6 +106,7 @@ const StatusBadge = ({ status }) => {
 }
 
 export const AdminPartnersView = () => {
+  const toast = useToast();
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -152,7 +154,7 @@ export const AdminPartnersView = () => {
       setNewPartner({ first_name: '', last_name: '', email: '', company_name: '', phone: '', activity_type: '', potential_clients: '' })
       setShowCreateForm(false)
     } catch (err) {
-      alert('Erreur: ' + err.message)
+      toast.error('Erreur: ' + err.message)
     } finally {
       setCreating(false)
     }

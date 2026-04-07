@@ -31,6 +31,7 @@ import AmbassadorSetupPassword from "./pages/AmbassadorSetupPassword";
 import AmbassadorSetupIban from "./pages/AmbassadorSetupIban";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
+import { ToastProvider } from "./components/ui/Toast";
 
 const queryClient = new QueryClient();
 
@@ -162,10 +163,12 @@ export default function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <MainRouter />
-          <Analytics />
-        </ErrorBoundary>
+        <ToastProvider>
+          <ErrorBoundary>
+            <MainRouter />
+            <Analytics />
+          </ErrorBoundary>
+        </ToastProvider>
       </QueryClientProvider>
     </HelmetProvider>
   );

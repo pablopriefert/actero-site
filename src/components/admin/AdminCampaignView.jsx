@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useToast } from '../ui/Toast'
 import {
   Mail, Plus, Play, Pause, Trash2, Clock, Send, CheckCircle, Eye,
   Loader2, ChevronRight, BarChart3, X, AlertCircle, RefreshCw,
@@ -44,6 +45,7 @@ const WEEKLY_SCHEDULE_DEFAULT = [
 ]
 
 export const AdminCampaignView = () => {
+  const toast = useToast();
   const [campaigns, setCampaigns] = useState(DEMO_SEQUENCES)
   const [showCreate, setShowCreate] = useState(false)
   const [newCampaign, setNewCampaign] = useState({ name: '', steps: [{ day: 0, subject: '' }, { day: 3, subject: '' }, { day: 7, subject: '' }] })
@@ -128,7 +130,7 @@ Réponds UNIQUEMENT avec le JSON, rien d'autre.`)
       setSelectedCampaign(campaign)
     } catch (e) {
       console.error('Campaign generation error:', e)
-      alert('Erreur lors de la génération. Vérifiez votre clé Gemini.')
+      toast.error('Erreur lors de la génération.')
     }
     setGenerating(false)
   }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@supabase/supabase-js'
+import { useToast } from '../ui/Toast'
 import {
   Search, Send, RefreshCw, ExternalLink, Loader2, Plus, ChevronRight, Copy,
   Globe, Mail, BarChart3, AlertTriangle, CheckCircle, Star, Trash2, Eye, X,
@@ -33,6 +34,7 @@ const FAKE_TRUSTPILOT_REVIEWS = [
 ]
 
 export const AdminProspectionView = () => {
+  const toast = useToast();
   const [urls, setUrls] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
   const [prospects, setProspects] = useState([])
@@ -110,7 +112,7 @@ export const AdminProspectionView = () => {
       const data = await res.json()
 
       if (data.error) {
-        alert('Erreur : ' + data.error)
+        toast.error('Erreur : ' + data.error)
         setScrapingTrustpilot(false)
         return
       }
@@ -136,7 +138,7 @@ export const AdminProspectionView = () => {
     })
     } catch (e) {
       console.error('Scrape error:', e)
-      alert('Erreur lors du scraping. Vérifiez votre clé SerpAPI.')
+      toast.error('Erreur lors du scraping.')
     }
     setScrapingTrustpilot(false)
   }

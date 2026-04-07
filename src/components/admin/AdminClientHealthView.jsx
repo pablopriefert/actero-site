@@ -6,6 +6,7 @@ import {
   ShoppingBag, Building2, Clock, Zap
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useToast } from '../ui/Toast'
 
 function computeHealthScore(client, metrics, events, lastLogin) {
   let score = 0
@@ -69,6 +70,7 @@ function computeHealthScore(client, metrics, events, lastLogin) {
 }
 
 export const AdminClientHealthView = () => {
+  const toast = useToast();
   const { data: clients = [] } = useQuery({
     queryKey: ['health-clients'],
     queryFn: async () => {
@@ -134,9 +136,9 @@ export const AdminClientHealthView = () => {
         body: JSON.stringify({ client_id: clientId }),
       })
       if (!res.ok) throw new Error('Erreur envoi')
-      alert('Rapport envoyé !')
+      toast.success('Rapport envoyé !')
     } catch (err) {
-      alert('Erreur: ' + err.message)
+      toast.error('Erreur: ' + err.message)
     }
     setSending(null)
   }

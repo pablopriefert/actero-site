@@ -7,6 +7,7 @@ import {
   Bell, Clock as ClockIcon
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useToast } from '../ui/Toast'
 
 const NOTIFICATION_TOGGLES = [
   { section: 'Alertes', items: [
@@ -167,6 +168,7 @@ const NotificationPreferences = ({ clientId, isLight }) => {
 }
 
 const StripePortalButton = ({ clientId, isLight }) => {
+  const toast = useToast();
   const [loading, setLoading] = useState(false)
 
   const openPortal = async () => {
@@ -186,7 +188,7 @@ const StripePortalButton = ({ clientId, isLight }) => {
       if (!res.ok) throw new Error(data.error || 'Erreur')
       window.open(data.url, '_blank')
     } catch (err) {
-      alert('Impossible d\'accéder au portail : ' + err.message)
+      toast.error('Impossible d\'accéder au portail : ' + err.message)
     }
     setLoading(false)
   }

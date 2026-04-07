@@ -6,6 +6,7 @@ import {
   ToggleLeft, ToggleRight, AlertTriangle, Sliders, Save,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useToast } from '../ui/Toast'
 
 const EXAMPLES = [
   "Ne jamais proposer de remboursement sans escalade humaine",
@@ -17,6 +18,7 @@ const EXAMPLES = [
 ]
 
 export const GuardrailsEditor = ({ clientId, theme }) => {
+  const toast = useToast();
   const queryClient = useQueryClient()
   const [newRule, setNewRule] = useState('')
   const [adding, setAdding] = useState(false)
@@ -50,7 +52,7 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
       setNewRule('')
       queryClient.invalidateQueries({ queryKey: ['guardrails', clientId] })
     } catch (err) {
-      alert('Erreur: ' + err.message)
+      toast.error('Erreur: ' + err.message)
     }
     setAdding(false)
   }

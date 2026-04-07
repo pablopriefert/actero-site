@@ -56,6 +56,7 @@ import { AdminNegativeRatingsView } from '../components/admin/AdminNegativeRatin
 import { AdminAmbassadorsView } from '../components/admin/AdminAmbassadorsView'
 import { AdminPartnersView } from '../components/admin/AdminPartnersView'
 import { AdminShopifyView } from '../components/admin/AdminShopifyView'
+import { useToast } from '../components/ui/Toast'
 
 const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigateTab }) => {
   const [query, setQuery] = useState('');
@@ -129,6 +130,7 @@ const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigate
 };
 
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
+  const toast = useToast();
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandKOpen, setIsCommandKOpen] = useState(false);
@@ -331,7 +333,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ['admin-clients'] });
     } catch (err) {
-      alert("Erreur: " + err.message);
+      toast.error("Erreur: " + err.message);
     }
   };
 
@@ -351,7 +353,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       setCallNotesClient(null);
       setDeploymentState({ deploymentId: data.deployment_id, clientName: client?.brand_name || 'Client' });
     } catch (err) {
-      alert('Erreur deploiement: ' + err.message);
+      toast.error('Erreur deploiement: ' + err.message);
     }
   };
 

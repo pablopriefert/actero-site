@@ -9,8 +9,10 @@ import {
   RefreshCw 
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useToast } from '../ui/Toast'
 
 export const AdminOnboardingView = () => {
+  const toast = useToast();
   const [brandName, setBrandName] = useState("");
   const [email, setEmail] = useState("");
   const [hourlyCost, setHourlyCost] = useState("");
@@ -82,9 +84,9 @@ export const AdminOnboardingView = () => {
     try {
       const { error } = await supabase.auth.signInWithOtp({ email: targetEmail });
       if (error) throw error;
-      alert("Nouveau lien envoyé !");
+      toast.success("Nouveau lien envoyé !");
     } catch (err) {
-      alert("Erreur: " + err.message);
+      toast.error("Erreur: " + err.message);
     }
   };
 
@@ -96,10 +98,10 @@ export const AdminOnboardingView = () => {
       if (error) throw error;
       if (!data?.ok)
         throw new Error(data?.message || "Erreur de vérification.");
-      alert(`Statut: ${data.status}\nLié: ${data.linked ? "Oui" : "Non"}`);
+      toast.info(`Statut: ${data.status} — Lié: ${data.linked ? "Oui" : "Non"}`);
     } catch (err) {
       console.error(err);
-      alert("Erreur: " + err.message);
+      toast.error("Erreur: " + err.message);
     }
   };
 

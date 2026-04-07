@@ -9,6 +9,7 @@ import {
   Filter, Timer, MessageSquare, StickyNote, Landmark, AlertTriangle,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useToast } from '../ui/Toast'
 import {
   LEAD_STATUS_MAP,
   COMMISSION_STATUS_MAP,
@@ -83,6 +84,7 @@ const InlineNoteEditor = ({ leadId, currentNote, onSave }) => {
 }
 
 export const AdminAmbassadorsView = () => {
+  const toast = useToast();
   const queryClient = useQueryClient()
   const [subTab, setSubTab] = useState('ambassadors')
   const [searchQuery, setSearchQuery] = useState('')
@@ -242,7 +244,7 @@ export const AdminAmbassadorsView = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-ambassador-commissions'] })
-      if (data.processed > 0) alert(`${data.processed} commission(s) passée(s) en éligible`)
+      if (data.processed > 0) toast.success(`${data.processed} commission(s) passée(s) en éligible`)
     },
   })
 
@@ -895,7 +897,7 @@ export const AdminAmbassadorsView = () => {
                 </div>
                 <button
                   onClick={() => {
-                    if (!commissionForm.amount) return alert('Montant requis')
+                    if (!commissionForm.amount) { toast.error('Montant requis'); return; }
                     createCommissionMutation.mutate({
                       ambassador_id: showCommissionModal.ambassador_id,
                       lead_id: showCommissionModal.id,
