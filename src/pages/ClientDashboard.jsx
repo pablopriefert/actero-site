@@ -59,6 +59,7 @@ import { ClientReferralView } from '../components/client/ClientReferralView'
 import { ClientKnowledgeBaseView } from '../components/client/ClientKnowledgeBaseView'
 import { ClientIntegrationsView } from '../components/client/ClientIntegrationsView'
 import { OnboardingChecklist } from '../components/client/OnboardingChecklist'
+import { AutoDiagnostic } from '../components/client/AutoDiagnostic'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ClientSatisfactionScore, SatisfactionKPI } from '../components/client/ClientSatisfactionScore'
 
@@ -466,6 +467,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 clientId={currentClient?.id}
                 clientType={currentClient?.client_type}
                 setActiveTab={setActiveTab}
+                theme={theme}
+              />
+
+              {/* Auto Diagnostic */}
+              <AutoDiagnostic
+                clientId={currentClient?.id}
+                clientType={currentClient?.client_type}
                 theme={theme}
               />
 
