@@ -25,6 +25,7 @@ import { AmbassadorLandingPage } from "./pages/AmbassadorLandingPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { SupportGuidePage } from "./pages/SupportGuidePage";
 import { LegalPage } from "./pages/LegalPage";
+import { TermsPage } from "./pages/TermsPage";
 import { AmbassadorLogin } from "./pages/AmbassadorLogin";
 import { AmbassadorDashboard } from "./pages/AmbassadorDashboard";
 import AmbassadorSetupPassword from "./pages/AmbassadorSetupPassword";
@@ -92,6 +93,7 @@ function MainRouter() {
   else if (currentRoute === "/confidentialite") page = <PrivacyPage onNavigate={navigate} />;
   else if (currentRoute === "/support") page = <SupportGuidePage onNavigate={navigate} />;
   else if (currentRoute === "/mentions-legales") page = <LegalPage onNavigate={navigate} />;
+  else if (currentRoute === "/utilisation") page = <TermsPage onNavigate={navigate} />;
   else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
   else if (currentRoute.startsWith("/r/")) {
