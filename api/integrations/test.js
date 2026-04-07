@@ -48,6 +48,13 @@ const PROVIDER_TEST_ENDPOINTS = {
     url: () => 'https://www.googleapis.com/oauth2/v2/userinfo',
     headers: (c) => ({ 'Authorization': `Bearer ${c.access_token}` }),
   },
+  zendesk: {
+    method: 'GET',
+    url: (c) => c.subdomain
+      ? `https://${c.subdomain}.zendesk.com/api/v2/users/me.json`
+      : 'https://actero.zendesk.com/api/v2/users/me.json',
+    headers: (c) => ({ 'Authorization': `Bearer ${c.access_token}` }),
+  },
 };
 
 export default async function handler(req, res) {
