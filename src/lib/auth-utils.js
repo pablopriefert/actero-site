@@ -12,14 +12,7 @@ export const fetchUserRole = async (userId) => {
     const { data: { user } } = await supabase.auth.getUser();
     const email = user?.email || '';
 
-    // Real Actero admins: must have @actero.fr email OR be in admin_users table
-    // This prevents client team members with role='admin' in client_users
-    // from being redirected to the Actero admin dashboard
-    if (email.endsWith('@actero.fr')) {
-      return "admin";
-    }
-
-    // Check admin_users table (for non-@actero.fr admins like Pablo)
+    // Check admin_users table
     const { data: adminRow } = await supabase
       .from("admin_users")
       .select("user_id")
