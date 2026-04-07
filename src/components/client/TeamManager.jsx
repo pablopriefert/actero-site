@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 
 const ROLES = [
-  { id: 'admin', label: 'Admin', desc: 'Tout voir et modifier', icon: Shield, color: 'text-[#003725] bg-emerald-50' },
+  { id: 'manager', label: 'Manager', desc: 'Tout voir et modifier', icon: Shield, color: 'text-[#003725] bg-emerald-50' },
   { id: 'operational', label: 'Operationnel', desc: 'Metriques et tickets escalades', icon: Eye, color: 'text-blue-600 bg-blue-50' },
   { id: 'support', label: 'Support', desc: 'Voir et repondre aux escalades uniquement', icon: Headphones, color: 'text-amber-600 bg-amber-50' },
   { id: 'finance', label: 'Finance', desc: 'Factures uniquement', icon: Receipt, color: 'text-violet-600 bg-violet-50' },
@@ -17,7 +17,7 @@ const ROLES = [
 
 const ROLE_LABELS = {
   owner: { label: 'Proprietaire', icon: Crown, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
-  admin: { label: 'Admin', icon: Shield, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
+  manager: { label: 'Manager', icon: Shield, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
   operational: { label: 'Operationnel', icon: Eye, color: 'text-blue-600 bg-blue-50 border-blue-200' },
   support: { label: 'Support', icon: Headphones, color: 'text-amber-600 bg-amber-50 border-amber-200' },
   finance: { label: 'Finance', icon: Receipt, color: 'text-violet-600 bg-violet-50 border-violet-200' },
@@ -26,7 +26,7 @@ const ROLE_LABELS = {
 // Define which tabs each role can access
 export const ROLE_PERMISSIONS = {
   owner: '*', // all tabs
-  admin: '*', // all tabs
+  manager: '*', // all tabs
   operational: ['overview', 'activity', 'escalations', 'systems', 'integrations'],
   support: ['overview', 'escalations'],
   finance: ['overview', 'profile'], // profile for billing portal
