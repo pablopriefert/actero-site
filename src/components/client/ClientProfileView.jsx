@@ -158,9 +158,13 @@ const StripePortalButton = ({ clientId, isLight }) => {
     if (!clientId) return
     setLoading(true)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch('/api/create-portal-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
         body: JSON.stringify({ client_id: clientId }),
       })
       const data = await res.json()
@@ -176,11 +180,7 @@ const StripePortalButton = ({ clientId, isLight }) => {
     <button
       onClick={openPortal}
       disabled={loading || !clientId}
-      className={`w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all ${
-        isLight
-          ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-          : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'
-      } disabled:opacity-50`}
+      className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold bg-[#0F5F35] text-white hover:bg-[#003725] transition-all disabled:opacity-50"
     >
       {loading ? (
         <><Loader2 className="w-4 h-4 animate-spin" /> Chargement...</>
