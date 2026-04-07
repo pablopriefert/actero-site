@@ -363,12 +363,13 @@ export const AmbassadorDashboard = ({ onNavigate, currentRoute }) => {
   }
 
   const sidebarItems = [
-    { type: 'section', label: 'Navigation' },
     { id: 'overview', label: 'Vue d\'ensemble', icon: LayoutDashboard },
     { id: 'link', label: 'Mon Lien', icon: Link2 },
+    { type: 'section', label: 'Performance' },
     { id: 'leads', label: 'Mes Recommandations', icon: Users },
     { id: 'commissions', label: 'Mes Commissions', icon: DollarSign },
-    { id: 'rules', label: 'Règles', icon: BookOpen },
+    { type: 'section', label: 'Compte' },
+    { id: 'rules', label: 'Regles', icon: BookOpen },
     { id: 'profile', label: 'Mon Profil', icon: User },
   ]
 

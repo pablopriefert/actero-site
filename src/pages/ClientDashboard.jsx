@@ -421,14 +421,17 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const sidebarItems = [
     { id: 'overview', label: "Vue d'ensemble", icon: LayoutDashboard },
     { id: 'activity', label: 'Activite', icon: Activity },
-    { id: 'systems', label: 'Mes Systemes', icon: Database },
+    { type: 'section', label: 'IA & Automatisation' },
     { id: 'agent-config', label: 'Agent IA', icon: Sparkles },
     { id: 'guardrails', label: 'Garde-fous', icon: Shield },
     { id: 'escalations', label: 'Escalades', icon: AlertTriangle, badge: escalationCount > 0 ? escalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
+    { type: 'section', label: 'Outils' },
+    { id: 'systems', label: 'Mes Systemes', icon: Database },
+    { id: 'integrations', label: 'Integrations', icon: Plug },
+    { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
     { id: 'support', label: 'Support', icon: MessageSquare },
-    { id: 'referral', label: 'Parrainage', icon: Gift },
-    { id: 'integrations', label: 'Intégrations', icon: Plug },
     { type: 'section', label: 'Compte' },
+    { id: 'referral', label: 'Parrainage', icon: Gift },
     { id: 'profile', label: 'Mon Profil', icon: User },
   ];
 

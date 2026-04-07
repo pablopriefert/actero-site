@@ -305,20 +305,22 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
   const sidebarItems = [
     { id: "overview", label: "Vue Globale", icon: LayoutDashboard },
+    { type: 'section', label: 'Clients' },
     { id: "clients", label: "Clients", icon: Users },
-    { id: "health", label: "Santé Clients", icon: Heart },
+    { id: "health", label: "Sante Clients", icon: Heart },
     { id: "pipeline", label: "Pipeline", icon: GitBranch },
-    { type: 'section', label: 'Opérations' },
+    { id: "funnel", label: "Nouveau client", icon: UserPlus },
+    { type: 'section', label: 'Operations' },
     { id: "monitoring", label: "Monitoring n8n", icon: Wifi },
     { id: "billing", label: "Facturation", icon: Receipt },
+    { id: "shopify", label: "App Shopify", icon: ShoppingBag },
+    { type: 'section', label: 'Reseau' },
     { id: "referrals", label: "Parrainages", icon: Gift },
     { id: "ambassadors", label: "Ambassadeurs", icon: Award },
     { id: "partners", label: "Partenaires", icon: Handshake },
-    { type: 'section', label: 'Outils' },
+    { type: 'section', label: 'IA' },
     { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
     { id: "ratings", label: "Notations IA", icon: FileText },
-    { id: "funnel", label: "Nouveau client", icon: UserPlus },
-    { id: "shopify", label: "App Shopify", icon: ShoppingBag },
   ];
 
   const handleAddClient = async () => {
