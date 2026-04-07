@@ -142,6 +142,17 @@ export const INTEGRATIONS = {
       docsUrl: 'https://developer.calendly.com/',
       color: '#006BFF',
     },
+    {
+      id: 'gmail',
+      name: 'Gmail',
+      description: 'Envoi et reception d\'emails via votre compte Gmail',
+      icon: 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico',
+      authType: 'oauth',
+      oauthUrl: (params) => `/api/integrations/oauth/gmail/install?token=${encodeURIComponent(params.token)}`,
+      category: 'general',
+      docsUrl: 'https://developers.google.com/gmail/api',
+      color: '#EA4335',
+    },
   ],
 };
 

@@ -48,6 +48,11 @@ const PROVIDER_TEST_ENDPOINTS = {
     url: () => 'https://www.googleapis.com/oauth2/v2/userinfo',
     headers: (c) => ({ 'Authorization': `Bearer ${c.access_token}` }),
   },
+  gmail: {
+    method: 'GET',
+    url: () => 'https://gmail.googleapis.com/gmail/v1/users/me/profile',
+    headers: (c) => ({ 'Authorization': `Bearer ${c.access_token}` }),
+  },
   zendesk: {
     method: 'GET',
     url: (c) => c.subdomain
