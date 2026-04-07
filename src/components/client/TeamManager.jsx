@@ -72,45 +72,23 @@ export const TeamManager = ({ clientId }) => {
     if (!inviteEmail.trim()) return
     setInviting(true)
     try {
-      // Invite user via Supabase Auth
-      const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(inviteEmail.trim(), {
-        redirectTo: `${window.location.origin}/setup-password`,
-        data: { client_id: clientId },
-      })
-
-      if (inviteError) {
-        // If admin invite fails, just create the link (user may already exist)
-        // Try to find existing user
-        const { data: existingLink } = await supabase
-          .from('client_users')
-          .select('*')
-          .eq('client_id', clientId)
-          .eq('email', inviteEmail.trim())
-          .maybeSingle()
-
-        if (existingLink) {
-          toast.error('Cet email est deja dans l\'equipe')
-          setInviting(false)
-          return
-        }
-      }
-
-      const userId = inviteData?.user?.id || null
-
-      // Create the client_users entry
-      const { error: linkError } = await supabase
-        .from('client_users')
-        .insert({
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/invite-team-member', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
           client_id: clientId,
-          user_id: userId || '00000000-0000-0000-0000-000000000000', // placeholder if no user yet
-          role: inviteRole,
           email: inviteEmail.trim(),
-          invited_at: new Date().toISOString(),
-        })
+          role: inviteRole,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erreur')
 
-      if (linkError) throw linkError
-
-      toast.success(`Invitation envoyee a ${inviteEmail}`)
+      toast.success(data.message || `Invitation envoyee a ${inviteEmail}`)
       setInviteEmail('')
       setShowInvite(false)
       queryClient.invalidateQueries({ queryKey: ['team-members', clientId] })
