@@ -37,6 +37,7 @@ import {
   Plug,
   BookOpen,
   AlertTriangle,
+  Shield,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -60,6 +61,7 @@ import { ClientKnowledgeBaseView } from '../components/client/ClientKnowledgeBas
 import { ClientIntegrationsView } from '../components/client/ClientIntegrationsView'
 import { OnboardingChecklist } from '../components/client/OnboardingChecklist'
 import { AutoDiagnostic } from '../components/client/AutoDiagnostic'
+import { GuardrailsEditor } from '../components/client/GuardrailsEditor'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ClientSatisfactionScore, SatisfactionKPI } from '../components/client/ClientSatisfactionScore'
 
@@ -172,6 +174,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/support") return "support";
     if (route === "/client/referral") return "referral";
     if (route === "/client/integrations") return "integrations";
+    if (route === "/client/guardrails") return "guardrails";
     if (route === "/client/escalations") return "escalations";
     if (route === "/client/profile") return "profile";
     return "overview";
@@ -417,6 +420,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'overview', label: "Vue d'ensemble", icon: LayoutDashboard },
     { id: 'activity', label: 'Activite', icon: Activity },
     { id: 'systems', label: 'Mes Systemes', icon: Database },
+    { id: 'guardrails', label: 'Garde-fous', icon: Shield },
     { id: 'escalations', label: 'Escalades', icon: AlertTriangle, badge: escalationCount > 0 ? escalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
     { id: 'support', label: 'Support', icon: MessageSquare },
     { id: 'referral', label: 'Parrainage', icon: Gift },
@@ -492,6 +496,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "support" && "Support & Demandes"}
               {activeTab === "referral" && "Parrainage"}
               {activeTab === "integrations" && "Intégrations"}
+              {activeTab === "guardrails" && "Garde-fous"}
               {activeTab === "escalations" && "Escalades"}
             </h1>
 
@@ -730,6 +735,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "escalations" && (
             <ClientEscalationsView
+              clientId={currentClient?.id}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "guardrails" && (
+            <GuardrailsEditor
               clientId={currentClient?.id}
               theme={theme}
             />
