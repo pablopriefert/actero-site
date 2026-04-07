@@ -63,6 +63,7 @@ import { OnboardingChecklist } from '../components/client/OnboardingChecklist'
 import { AutoDiagnostic } from '../components/client/AutoDiagnostic'
 import { GuardrailsEditor } from '../components/client/GuardrailsEditor'
 import { PromptEditor } from '../components/client/PromptEditor'
+import { ConversationSimulator } from '../components/client/ConversationSimulator'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ClientSatisfactionScore, SatisfactionKPI } from '../components/client/ClientSatisfactionScore'
 
@@ -176,6 +177,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/referral") return "referral";
     if (route === "/client/integrations") return "integrations";
     if (route === "/client/agent-config") return "agent-config";
+    if (route === "/client/simulator") return "simulator";
     if (route === "/client/guardrails") return "guardrails";
     if (route === "/client/escalations") return "escalations";
     if (route === "/client/profile") return "profile";
@@ -423,6 +425,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'activity', label: 'Activite', icon: Activity },
     { type: 'section', label: 'IA & Automatisation' },
     { id: 'agent-config', label: 'Agent IA', icon: Sparkles },
+    { id: 'simulator', label: 'Simulateur', icon: MessageCircle },
     { id: 'guardrails', label: 'Garde-fous', icon: Shield },
     { id: 'escalations', label: 'Escalades', icon: AlertTriangle, badge: escalationCount > 0 ? escalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
     { type: 'section', label: 'Outils' },
@@ -503,6 +506,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "referral" && "Parrainage"}
               {activeTab === "integrations" && "Intégrations"}
               {activeTab === "agent-config" && "Agent IA"}
+              {activeTab === "simulator" && "Simulateur"}
               {activeTab === "guardrails" && "Garde-fous"}
               {activeTab === "escalations" && "Escalades"}
             </h1>
@@ -750,6 +754,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "agent-config" && (
             <PromptEditor
               clientId={currentClient?.id}
+              theme={theme}
+            />
+          )}
+
+          {activeTab === "simulator" && (
+            <ConversationSimulator
+              clientId={currentClient?.id}
+              clientType={currentClient?.client_type}
               theme={theme}
             />
           )}
