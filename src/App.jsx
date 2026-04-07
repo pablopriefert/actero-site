@@ -24,6 +24,7 @@ import { PartnerLandingPage } from "./pages/PartnerLandingPage";
 import { AmbassadorLandingPage } from "./pages/AmbassadorLandingPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { SupportGuidePage } from "./pages/SupportGuidePage";
+import { LegalPage } from "./pages/LegalPage";
 import { AmbassadorLogin } from "./pages/AmbassadorLogin";
 import { AmbassadorDashboard } from "./pages/AmbassadorDashboard";
 import AmbassadorSetupPassword from "./pages/AmbassadorSetupPassword";
@@ -89,6 +90,7 @@ function MainRouter() {
   else if (currentRoute === "/audit") page = <AuditPage onNavigate={navigate} />;
   else if (currentRoute === "/confidentialite") page = <PrivacyPage onNavigate={navigate} />;
   else if (currentRoute === "/support") page = <SupportGuidePage onNavigate={navigate} />;
+  else if (currentRoute === "/mentions-legales") page = <LegalPage onNavigate={navigate} />;
   else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
   else if (currentRoute.startsWith("/r/")) {
@@ -115,11 +117,11 @@ function MainRouter() {
     page = <SuccessPage onNavigate={navigate} />;
   } else {
     page = (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F0] text-[#262626]">
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+          <AlertCircle className="w-16 h-16 text-[#716D5C] mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Page introuvable</h2>
-          <button onClick={() => navigate("/")} className="mt-4 text-emerald-400 font-bold">Retour à l'accueil</button>
+          <button onClick={() => navigate("/")} className="mt-4 text-[#003725] font-bold underline underline-offset-4">Retour a l'accueil</button>
         </div>
       </div>
     );

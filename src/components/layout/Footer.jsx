@@ -60,7 +60,7 @@ export const Footer = ({ onNavigate }) => {
             Support
           </button>
           <button
-            onClick={() => alert("Page à venir prochainement !")}
+            onClick={() => onNavigate("/mentions-legales")}
             className="hover:text-[#262626] transition-colors"
           >
             Mentions légales
