@@ -518,7 +518,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const isLight = theme === "light";
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#F5F5F0] text-[#262626]">
+    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-white text-[#262626]">
       {/* Mobile Header */}
       <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 ${isLight ? "bg-white border-b border-gray-200" : "bg-white border-b border-gray-100"}`}>
         <div className="flex items-center gap-2">
@@ -570,9 +570,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className={`sticky top-0 z-40 backdrop-blur-md px-4 md:px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b ${isLight ? "bg-white/80 border-gray-200" : "bg-[#F9F7F1]/80 border-gray-200"}`}>
+        <header className="sticky top-0 z-40 bg-white px-4 md:px-8 py-3 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#e5e5e5]">
           <div className="flex items-center gap-6">
-            <h1 className={`text-xl font-bold tracking-tight whitespace-nowrap ${isLight ? "text-[#262626]" : "text-[#262626]"}`}>
+            <h1 className="text-[15px] font-semibold tracking-tight whitespace-nowrap text-[#1a1a1a]">
               {activeTab === "overview" && "Accueil"}
               {activeTab === "activity" && "Activite temps reel"}
               {activeTab === "systems" && "Mes Systemes"}
@@ -624,20 +624,15 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           </button>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:px-10 md:py-8 bg-white">
           {activeTab === "overview" && (
-            <div className="max-w-5xl mx-auto space-y-8 animate-fade-in-up">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="max-w-6xl mx-auto">
+              {/* ── Header: Aujourd'hui ── */}
+              <div className="flex items-end justify-between mb-8">
                 <div>
-                  <h2 className={`text-3xl font-bold mb-2 tracking-tight ${isLight ? "text-[#262626]" : "text-[#262626]"}`}>
-                    Bonjour{currentClient ? ` ${currentClient.brand_name}` : ""}, voici vos performances.
-                  </h2>
-                  <p className={`font-medium text-lg ${isLight ? "text-[#716D5C]" : "text-[#716D5C]"}`}>
-                    {selectedPeriod === "this_month" ? "Synthèse du mois en cours." : selectedPeriod === "last_month" ? "Détails du mois dernier." : "Rapport des 30 derniers jours."}
-                  </p>
+                  <h2 className="text-[28px] font-semibold text-[#1a1a1a] tracking-tight">Aujourd'hui</h2>
                 </div>
-
-                <div className={`flex p-1 rounded-xl border ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-gray-200'}`}>
+                <div className="flex items-center gap-1 p-0.5 rounded-lg bg-[#f6f6f6]">
                   {[
                     { id: 'this_month', label: 'Ce mois' },
                     { id: 'last_month', label: 'Mois dernier' },
@@ -646,9 +641,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     <button
                       key={p.id}
                       onClick={() => setSelectedPeriod(p.id)}
-                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${selectedPeriod === p.id
-                        ? (isLight ? 'bg-white text-[#003725] shadow-sm' : 'bg-gray-50 text-[#262626] shadow-lg')
-                        : (isLight ? 'text-[#716D5C] hover:text-[#262626]' : 'text-[#716D5C] hover:text-[#716D5C]')
+                      className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
+                        selectedPeriod === p.id
+                          ? 'bg-white text-[#1a1a1a] shadow-sm'
+                          : 'text-[#6b7280] hover:text-[#1a1a1a]'
                       }`}
                     >
                       {p.label}
@@ -657,26 +653,46 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 </div>
               </div>
 
-              {/* Escalation alert */}
-              {escalationCount > 0 && (
-                <div
-                  className="flex items-center gap-4 p-4 rounded-xl bg-amber-50 border border-amber-200 cursor-pointer hover:bg-amber-100 transition-colors"
-                  onClick={() => setActiveTab('escalations')}
-                >
-                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
-                  <div className="flex-1">
-                    <p className="font-bold text-sm text-amber-800">
-                      {escalationCount} ticket{escalationCount > 1 ? 's' : ''} en attente de reponse humaine
-                    </p>
-                    <p className="text-xs text-amber-600">
-                      L'IA n'a pas pu resoudre ces demandes. Cliquez pour voir et repondre.
-                    </p>
+              {/* ── Top metrics row (Stripe style) ── */}
+              <div className="flex items-start gap-8 pb-8 border-b border-[#e5e5e5]">
+                <div className="flex-1">
+                  <p className="text-[13px] text-[#6b7280] font-medium mb-1">Tickets resolus</p>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-[32px] font-semibold text-[#1a1a1a] tabular-nums">{eventCounts.ticket_resolved || 0}</span>
+                    {periodStats?.tasks_executed_var !== undefined && periodStats.tasks_executed_var !== 0 && (
+                      <span className={`text-[13px] font-medium ${periodStats.tasks_executed_var > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {periodStats.tasks_executed_var > 0 ? '+' : ''}{periodStats.tasks_executed_var}%
+                      </span>
+                    )}
                   </div>
-                  <ArrowRight className="w-4 h-4 text-amber-600 shrink-0" />
                 </div>
+                <div className="w-px h-12 bg-[#e5e5e5]" />
+                <div className="flex-1">
+                  <p className="text-[13px] text-[#6b7280] font-medium mb-1">Temps economise</p>
+                  <span className="text-[32px] font-semibold text-[#1a1a1a] tabular-nums">{periodStats?.time_saved || 0}h</span>
+                </div>
+                <div className="w-px h-12 bg-[#e5e5e5]" />
+                <div className="flex-1">
+                  <p className="text-[13px] text-[#6b7280] font-medium mb-1">ROI genere</p>
+                  <span className="text-[32px] font-semibold text-[#1a1a1a] tabular-nums">{(periodStats?.roi || 0).toLocaleString('fr-FR')}€</span>
+                </div>
+              </div>
+
+              {/* ── Escalation alert (if any) ── */}
+              {escalationCount > 0 && (
+                <button
+                  onClick={() => setActiveTab('escalations')}
+                  className="w-full mt-6 flex items-center gap-3 px-4 py-3 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors text-left"
+                >
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span className="text-[13px] font-medium text-amber-800 flex-1">
+                    {escalationCount} escalade{escalationCount > 1 ? 's' : ''} en attente
+                  </span>
+                  <span className="text-[13px] text-amber-600">Voir →</span>
+                </button>
               )}
 
-              {/* Onboarding Wizard (replaces old checklist) */}
+              {/* ── Onboarding (only if not completed) ── */}
               <OnboardingWizard
                 clientId={currentClient?.id}
                 clientType={currentClient?.client_type}
@@ -685,116 +701,62 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 onNavigate={onNavigate}
               />
 
-              {/* Legacy Onboarding Checklist (shown if wizard dismissed) */}
-              <OnboardingChecklist
-                clientId={currentClient?.id}
-                clientType={currentClient?.client_type}
-                setActiveTab={setActiveTab}
-                theme={theme}
-              />
-
-              {/* Agent Improvement Suggestions */}
-              <AgentImprovementWidget clientId={currentClient?.id} theme={theme} />
-
-              {/* Auto Diagnostic */}
-              <AutoDiagnostic
-                clientId={currentClient?.id}
-                clientType={currentClient?.client_type}
-                theme={theme}
-              />
-
-              <MilestoneBadge hoursSaved={periodStats?.time_saved || 0} theme={theme} />
-
-              {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                   {[...Array(4)].map((_, i) => <SkeletonRow key={i} height="h-40" className="rounded-2xl" />)}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                  <MetricCard
-                    title="Temps economise"
-                    value={`${periodStats?.time_saved || 0}h`}
-                    variation={periodStats?.time_saved_var}
-                    icon={Clock}
-                    color="emerald"
-                    theme={theme}
-                  />
-                  <MetricCard
-                    title="ROI Genere"
-                    value={`${(periodStats?.roi || 0).toLocaleString()}€`}
-                    variation={periodStats?.roi_var}
-                    icon={DollarSign}
-                    color="amber"
-                    theme={theme}
-                  />
-                  {currentClient?.client_type === 'immobilier' ? (
-                    <MetricCard
-                      title="Leads qualifies"
-                      value={eventCounts.lead_qualified || 0}
-                      icon={UserCheck}
-                      color="violet"
-                      theme={theme}
-                    />
-                  ) : (
-                    <MetricCard
-                      title="Tickets resolus"
-                      value={eventCounts.ticket_resolved || 0}
-                      icon={Ticket}
-                      color="emerald"
-                      theme={theme}
-                    />
-                  )}
-                  <MetricCard
-                    title="Actions IA"
-                    value={(periodStats?.tasks_executed || 0).toLocaleString()}
-                    icon={TerminalSquare}
-                    color="zinc"
-                    theme={theme}
-                  />
-                  {currentClient?.id && (
-                    <SatisfactionKPI clientId={currentClient.id} theme={theme} />
-                  )}
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-12">
-                <div className="h-[400px]">
-                  <ActivityChart theme={theme} supabase={supabase} selectedPeriod={selectedPeriod} />
-                </div>
-                <div className="h-[400px]">
-                  <ROIGlowChart
-                    theme={theme}
-                    metrics={metrics}
-                    growthPct={growthPct}
-                    dailyMetrics={dailyMetrics}
-                    selectedPeriod={selectedPeriod}
-                  />
+              {/* ── Section: Votre apercu ── */}
+              <div className="mt-10 mb-6 flex items-center justify-between">
+                <h3 className="text-[20px] font-semibold text-[#1a1a1a]">Votre apercu</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] text-[#6b7280]">Plage de dates</span>
+                  <span className="text-[12px] text-[#6b7280] bg-[#f6f6f6] px-2 py-1 rounded">
+                    {selectedPeriod === 'this_month' ? 'Ce mois' : selectedPeriod === 'last_month' ? 'Mois dernier' : '30 derniers jours'}
+                  </span>
                 </div>
               </div>
 
-              {/* Live Activity Feed Widget */}
-              <div className="mt-12">
-                <LiveActivityWidget supabase={supabase} setActiveTab={setActiveTab} isLight={isLight} />
+              {/* ── KPI Cards (3 columns, Stripe-style) ── */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Card 1: Actions IA */}
+                <div className="border border-[#e5e5e5] rounded-lg p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[13px] text-[#6b7280] font-medium">Actions IA</p>
+                  </div>
+                  <p className="text-[24px] font-semibold text-[#1a1a1a] tabular-nums">{(periodStats?.tasks_executed || 0).toLocaleString()}</p>
+                  {periodStats?.tasks_executed_var !== undefined && periodStats.tasks_executed_var !== 0 && (
+                    <p className={`text-[12px] mt-1 ${periodStats.tasks_executed_var > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {periodStats.tasks_executed_var > 0 ? '↑' : '↓'} {Math.abs(periodStats.tasks_executed_var)}% vs periode precedente
+                    </p>
+                  )}
+                </div>
+
+                {/* Card 2: Activity chart mini */}
+                <div className="border border-[#e5e5e5] rounded-lg p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[13px] text-[#6b7280] font-medium">Activite</p>
+                  </div>
+                  <div className="h-[80px]">
+                    <ActivityChart theme={theme} supabase={supabase} selectedPeriod={selectedPeriod} mini={true} />
+                  </div>
+                </div>
+
+                {/* Card 3: Escalades */}
+                <div className="border border-[#e5e5e5] rounded-lg p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[13px] text-[#6b7280] font-medium">Escalades</p>
+                  </div>
+                  <p className="text-[24px] font-semibold text-[#1a1a1a] tabular-nums">{eventCounts.ticket_escalated || 0}</p>
+                  <p className="text-[12px] text-[#6b7280] mt-1">
+                    {escalationCount > 0 ? `${escalationCount} en attente` : 'Aucune en attente'}
+                  </p>
+                </div>
               </div>
 
-              {/* Satisfaction Score + SLA Tracking (Features 5 & 6) */}
-              {currentClient?.id && (
-                <ClientSatisfactionScore clientId={currentClient.id} theme={theme} />
-              )}
+              {/* ── Live Activity Feed ── */}
+              <div className="mt-8">
+                <LiveActivityWidget supabase={supabase} setActiveTab={setActiveTab} isLight={true} />
+              </div>
 
-              <HealthScoreWidget metricsData={dailyMetrics.slice(-7)} eventsData={events} theme={theme} />
-
-              <div className={`mt-12 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between shadow-xl ${isLight ? "bg-[#F9F7F1] text-[#262626]" : "bg-white"}`}>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2">Un besoin d'aide ?</h3>
-                  <p className="opacity-60">Contactez notre support ou soumettez une demande.</p>
-                </div>
-                <button
-                   onClick={() => setActiveTab("support")}
-                   className="mt-6 md:mt-0 bg-white text-[#262626] px-6 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-100 transition-all"
-                >
-                  Support & Demandes <ArrowUpRight className="w-5 h-5" />
-                </button>
+              {/* ── Agent Improvement (compact) ── */}
+              <div className="mt-6">
+                <AgentImprovementWidget clientId={currentClient?.id} theme={theme} />
               </div>
             </div>
           )}
