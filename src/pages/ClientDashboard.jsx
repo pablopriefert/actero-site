@@ -39,6 +39,13 @@ import {
   BookOpen,
   AlertTriangle,
   Shield,
+  Mic,
+  Network,
+  Brain,
+  Heart,
+  Volume2,
+  Handshake,
+  ShieldCheck,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -68,6 +75,14 @@ import { ConversationSimulator } from '../components/client/ConversationSimulato
 import { TeamManager, canAccessTab } from '../components/client/TeamManager'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ClientSatisfactionScore, SatisfactionKPI } from '../components/client/ClientSatisfactionScore'
+import { VoiceAgentView } from '../components/client/VoiceAgentView'
+import { MultiAgentView } from '../components/client/MultiAgentView'
+import { PromptInjectionView } from '../components/client/PromptInjectionView'
+import { ClientMemoryView } from '../components/client/ClientMemoryView'
+import { SentimentAnalysisView } from '../components/client/SentimentAnalysisView'
+import { VoiceStudioView } from '../components/client/VoiceStudioView'
+import { SupplierNegotiationView } from '../components/client/SupplierNegotiationView'
+import { VoiceReportView } from '../components/client/VoiceReportView'
 
 const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
   const [feedback, setFeedback] = useState(currentFeedback || null);
@@ -183,6 +198,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/simulator") return "simulator";
     if (route === "/client/guardrails") return "guardrails";
     if (route === "/client/escalations") return "escalations";
+    if (route === "/client/voice-agent") return "voice-agent";
+    if (route === "/client/multi-agent") return "multi-agent";
+    if (route === "/client/prompt-injection") return "prompt-injection";
+    if (route === "/client/client-memory") return "client-memory";
+    if (route === "/client/sentiment") return "sentiment";
+    if (route === "/client/voice-studio") return "voice-studio";
+    if (route === "/client/supplier-negotiation") return "supplier-negotiation";
+    if (route === "/client/voice-report") return "voice-report";
     if (route === "/client/profile") return "profile";
     return "overview";
   };
@@ -430,7 +453,16 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'agent-config', label: 'Agent IA', icon: Sparkles },
     { id: 'simulator', label: 'Simulateur', icon: MessageCircle },
     { id: 'guardrails', label: 'Garde-fous', icon: Shield },
+    { id: 'prompt-injection', label: 'Securite IA', icon: ShieldCheck },
+    { id: 'multi-agent', label: 'Multi-Agents', icon: Network },
+    { id: 'client-memory', label: 'Memoire Client', icon: Brain },
     { id: 'escalations', label: 'Escalades', icon: AlertTriangle, badge: escalationCount > 0 ? escalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
+    { id: 'sentiment', label: 'Sentiment', icon: Heart },
+    { id: 'supplier-negotiation', label: 'Negociation', icon: Handshake },
+    { type: 'section', label: 'Vocal' },
+    { id: 'voice-agent', label: 'Agent Vocal', icon: Phone },
+    { id: 'voice-studio', label: 'Studio de Voix', icon: Mic },
+    { id: 'voice-report', label: 'Rapport Vocal', icon: Volume2 },
     { type: 'section', label: 'Outils' },
     { id: 'systems', label: 'Mes Systemes', icon: Database },
     { id: 'integrations', label: 'Integrations', icon: Plug },
@@ -529,6 +561,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "team" && "Equipe"}
               {activeTab === "guardrails" && "Garde-fous"}
               {activeTab === "escalations" && "Escalades"}
+              {activeTab === "voice-agent" && "Agent Vocal IA"}
+              {activeTab === "multi-agent" && "Multi-Agents"}
+              {activeTab === "prompt-injection" && "Securite IA"}
+              {activeTab === "client-memory" && "Memoire Client"}
+              {activeTab === "sentiment" && "Analyse de Sentiment"}
+              {activeTab === "voice-studio" && "Studio de Voix"}
+              {activeTab === "supplier-negotiation" && "Negociation Fournisseur"}
+              {activeTab === "voice-report" && "Rapport Vocal"}
             </h1>
 
             <div className="hidden lg:flex items-center gap-3">
@@ -795,6 +835,38 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               clientId={currentClient?.id}
               theme={theme}
             />
+          )}
+
+          {activeTab === "voice-agent" && (
+            <VoiceAgentView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "multi-agent" && (
+            <MultiAgentView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "prompt-injection" && (
+            <PromptInjectionView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "client-memory" && (
+            <ClientMemoryView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "sentiment" && (
+            <SentimentAnalysisView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "voice-studio" && (
+            <VoiceStudioView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "supplier-negotiation" && (
+            <SupplierNegotiationView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "voice-report" && (
+            <VoiceReportView clientId={currentClient?.id} theme={theme} />
           )}
 
         </main>
