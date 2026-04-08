@@ -1,408 +1,453 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Globe, Phone, MessageSquare, Mail, Copy, Check,
-  CheckCircle2, XCircle, Loader2, ExternalLink, Settings,
-  Smartphone, Volume2, Code, Eye, Zap, ArrowRight,
+  Mail, ShoppingBag, Headphones, MessageSquare, Globe,
+  Smartphone, Phone, CheckCircle2, Loader2, Plug,
+  ArrowRight, ExternalLink, Shield,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 
-const CHANNELS = [
+const CHANNEL_DEFS = [
   {
-    id: 'widget',
-    name: 'Widget Chat',
-    desc: 'Chat IA integre sur votre site web',
+    id: 'shopify_widget',
+    name: 'Chat sur votre boutique',
+    desc: 'Un chat IA s\'affiche sur votre site Shopify. Vos clients posent leurs questions et l\'agent repond en temps reel.',
+    icon: ShoppingBag,
+    gradient: 'from-[#95BF47] to-[#5E8E3E]',
+    requires: 'shopify',
+    requiresLabel: 'Shopify',
+  },
+  {
+    id: 'gmail',
+    name: 'Reponses email automatiques',
+    desc: 'L\'agent lit vos emails entrants et repond automatiquement aux questions clients depuis votre adresse Gmail.',
+    icon: Mail,
+    gradient: 'from-[#EA4335] to-[#C5221F]',
+    requires: 'gmail',
+    requiresLabel: 'Gmail',
+  },
+  {
+    id: 'gorgias',
+    name: 'Tickets Gorgias',
+    desc: 'L\'agent traite les nouveaux tickets Gorgias et repond directement dans votre helpdesk.',
+    icon: Headphones,
+    gradient: 'from-[#1F1F1F] to-[#333333]',
+    requires: 'gorgias',
+    requiresLabel: 'Gorgias',
+  },
+  {
+    id: 'zendesk',
+    name: 'Tickets Zendesk',
+    desc: 'L\'agent repond aux tickets Zendesk automatiquement avec le bon ton et les bonnes informations.',
+    icon: MessageSquare,
+    gradient: 'from-[#03363D] to-[#065F68]',
+    requires: 'zendesk',
+    requiresLabel: 'Zendesk',
+  },
+  {
+    id: 'slack',
+    name: 'Notifications Slack',
+    desc: 'Recevez les alertes, escalades et rapports directement dans votre canal Slack.',
+    icon: MessageSquare,
+    gradient: 'from-[#4A154B] to-[#611f69]',
+    requires: 'slack',
+    requiresLabel: 'Slack',
+  },
+  {
+    id: 'widget_manual',
+    name: 'Chat sur un autre site',
+    desc: 'Installez le chat IA sur n\'importe quel site web (WordPress, Wix, etc.) en entrant simplement l\'URL.',
     icon: Globe,
-    color: 'bg-blue-50 text-blue-600 border-blue-200',
     gradient: 'from-blue-500 to-cyan-500',
+    requires: null, // Always available
+    requiresLabel: null,
   },
   {
     id: 'whatsapp',
     name: 'WhatsApp Copilot',
-    desc: 'Assistant IA sur WhatsApp pour vos KPIs et donnees',
+    desc: 'Votre assistant personnel sur WhatsApp. Posez-lui des questions sur vos performances, KPIs et escalades.',
     icon: Smartphone,
-    color: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    gradient: 'from-emerald-500 to-green-500',
-  },
-  {
-    id: 'vocal',
-    name: 'Agent Vocal',
-    desc: 'Agent telephonique IA (ElevenLabs)',
-    icon: Phone,
-    color: 'bg-violet-50 text-violet-600 border-violet-200',
-    gradient: 'from-violet-500 to-purple-500',
-  },
-  {
-    id: 'email',
-    name: 'Email',
-    desc: 'Reponses automatiques par email',
-    icon: Mail,
-    color: 'bg-amber-50 text-amber-600 border-amber-200',
-    gradient: 'from-amber-500 to-orange-500',
+    gradient: 'from-[#25D366] to-[#128C7E]',
+    requires: null,
+    requiresLabel: null,
   },
 ]
 
-export const ChannelsView = ({ clientId, theme }) => {
+export const ChannelsView = ({ clientId, setActiveTab, theme }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
-  const [expandedChannel, setExpandedChannel] = useState(null)
-  const [copied, setCopied] = useState(null)
 
-  // Fetch channel configs
-  const { data: channelConfigs = {} } = useQuery({
-    queryKey: ['channel-configs', clientId],
+  // Fetch connected integrations
+  const { data: connectedIntegrations = [], isLoading } = useQuery({
+    queryKey: ['connected-integrations', clientId],
     queryFn: async () => {
-      const { data: voice } = await supabase
-        .from('voice_agent_config')
-        .select('*')
-        .eq('client_id', clientId)
-        .maybeSingle()
-
-      // Check engine_messages to see which channels have been used
-      const { data: messages } = await supabase
-        .from('engine_messages')
-        .select('source')
-        .eq('client_id', clientId)
-        .limit(100)
-
-      const activeSources = new Set((messages || []).map(m => m.source))
-
-      return {
-        widget: { active: true }, // Widget is always available
-        whatsapp: { active: activeSources.has('whatsapp') },
-        vocal: { active: voice?.is_active || false, config: voice },
-        email: { active: true }, // Email is always available via engine
-        stats: {
-          widget: (messages || []).filter(m => m.source === 'web_widget').length,
-          whatsapp: (messages || []).filter(m => m.source === 'whatsapp').length,
-          vocal: 0,
-          email: (messages || []).filter(m => m.source === 'email').length,
-        },
-      }
+      const [integrationsRes, shopifyRes] = await Promise.all([
+        supabase.from('client_integrations').select('provider, status').eq('client_id', clientId).eq('status', 'active'),
+        supabase.from('client_shopify_connections').select('id, shop_domain').eq('client_id', clientId).maybeSingle(),
+      ])
+      const providers = (integrationsRes.data || []).map(i => i.provider)
+      if (shopifyRes.data) providers.push('shopify')
+      return providers
     },
     enabled: !!clientId,
   })
 
-  const copyText = (text, label) => {
-    navigator.clipboard.writeText(text)
-    setCopied(label)
-    setTimeout(() => setCopied(null), 2000)
-    toast.success('Copie !')
+  // Fetch active channels
+  const { data: activeChannels = [] } = useQuery({
+    queryKey: ['active-channels', clientId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('client_integrations')
+        .select('provider, extra_config')
+        .eq('client_id', clientId)
+        .eq('status', 'active')
+      // Check which channels are activated in extra_config
+      const channels = []
+      ;(data || []).forEach(i => {
+        if (i.extra_config?.channel_active) channels.push(i.provider)
+      })
+      // Check shopify widget
+      const { data: shopify } = await supabase
+        .from('client_shopify_connections')
+        .select('id')
+        .eq('client_id', clientId)
+        .maybeSingle()
+      // For now, consider connected = potentially active
+      return channels
+    },
+    enabled: !!clientId,
+  })
+
+  // Fetch message counts per channel
+  const { data: messageCounts = {} } = useQuery({
+    queryKey: ['channel-message-counts', clientId],
+    queryFn: async () => {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      const { data } = await supabase
+        .from('engine_messages')
+        .select('source')
+        .eq('client_id', clientId)
+        .gte('created_at', thirtyDaysAgo)
+      const counts = {}
+      ;(data || []).forEach(m => { counts[m.source] = (counts[m.source] || 0) + 1 })
+      return counts
+    },
+    enabled: !!clientId,
+  })
+
+  const isConnected = (requires) => !requires || connectedIntegrations.includes(requires)
+  const connectedChannels = CHANNEL_DEFS.filter(ch => isConnected(ch.requires))
+  const disconnectedChannels = CHANNEL_DEFS.filter(ch => ch.requires && !isConnected(ch.requires))
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-16">
+        <Loader2 className="w-6 h-6 animate-spin text-[#716D5C]" />
+      </div>
+    )
   }
 
-  const widgetCode = `<script src="https://actero.fr/widget.js" data-actero-key="${clientId}"></script>`
-  const webhookUrl = `https://actero.fr/api/engine/webhook`
-  const whatsappWebhookUrl = `https://actero.fr/api/engine/webhook`
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#003725] to-[#0F5F35] flex items-center justify-center">
-          <Zap className="w-5 h-5 text-white" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-[#262626]">Mes Canaux</h2>
-          <p className="text-sm text-[#716D5C]">Activez et configurez les canaux de votre agent IA</p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-[#262626]">Mes Canaux</h2>
+        <p className="text-sm text-[#716D5C] mt-1">Activez les canaux de communication de votre agent IA. Chaque canal utilise vos integrations deja connectees.</p>
       </div>
 
-      {/* Channel Cards */}
-      <div className="space-y-3">
-        {CHANNELS.map(channel => {
-          const config = channelConfigs[channel.id] || {}
-          const isExpanded = expandedChannel === channel.id
-          const Icon = channel.icon
-          const msgCount = channelConfigs.stats?.[channel.id] || 0
+      {/* Connected channels */}
+      {connectedChannels.length > 0 && (
+        <div>
+          <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-3">
+            Prets a activer ({connectedChannels.length})
+          </p>
+          <div className="space-y-3">
+            {connectedChannels.map(channel => (
+              <ChannelCard
+                key={channel.id}
+                channel={channel}
+                clientId={clientId}
+                connected={true}
+                messageCount={getMessageCount(channel.id, messageCounts)}
+                toast={toast}
+                queryClient={queryClient}
+                setActiveTab={setActiveTab}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
-          return (
-            <motion.div
-              key={channel.id}
-              className="bg-white border border-gray-200 rounded-2xl overflow-hidden"
-            >
-              {/* Channel header */}
-              <button
-                onClick={() => setExpandedChannel(isExpanded ? null : channel.id)}
-                className="w-full p-5 flex items-center gap-4 hover:bg-gray-50 transition-colors"
-              >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${channel.gradient}`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-[#262626]">{channel.name}</p>
-                    {config.active && (
-                      <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full">
-                        <CheckCircle2 className="w-3 h-3" /> Actif
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-[#716D5C] mt-0.5">{channel.desc}</p>
-                </div>
-                {msgCount > 0 && (
-                  <span className="text-xs text-[#716D5C] bg-[#F9F7F1] px-2 py-1 rounded-lg">{msgCount} msg</span>
-                )}
-                <ArrowRight className={`w-5 h-5 text-[#716D5C] transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-              </button>
+      {/* Disconnected channels */}
+      {disconnectedChannels.length > 0 && (
+        <div>
+          <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-3">
+            Connectez d'abord l'integration
+          </p>
+          <div className="space-y-3">
+            {disconnectedChannels.map(channel => (
+              <ChannelCard
+                key={channel.id}
+                channel={channel}
+                clientId={clientId}
+                connected={false}
+                messageCount={0}
+                toast={toast}
+                queryClient={queryClient}
+                setActiveTab={setActiveTab}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
-              {/* Expanded config */}
-              <AnimatePresence>
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden border-t border-gray-100"
-                  >
-                    <div className="p-5">
-                      {channel.id === 'widget' && (
-                        <WidgetConfig clientId={clientId} widgetCode={widgetCode} copyText={copyText} copied={copied} />
-                      )}
-                      {channel.id === 'whatsapp' && (
-                        <WhatsAppConfig clientId={clientId} webhookUrl={whatsappWebhookUrl} copyText={copyText} copied={copied} toast={toast} />
-                      )}
-                      {channel.id === 'vocal' && (
-                        <VocalConfig clientId={clientId} config={config.config} toast={toast} queryClient={queryClient} />
-                      )}
-                      {channel.id === 'email' && (
-                        <EmailConfig clientId={clientId} webhookUrl={webhookUrl} copyText={copyText} copied={copied} />
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )
-        })}
+      {/* Help link */}
+      <div className="p-4 bg-[#F9F7F1] rounded-xl flex items-center gap-3">
+        <Shield className="w-5 h-5 text-[#716D5C]" />
+        <div className="flex-1">
+          <p className="text-sm text-[#262626] font-medium">Besoin d'aide pour configurer vos canaux ?</p>
+          <p className="text-xs text-[#716D5C]">Consultez notre guide pas-a-pas</p>
+        </div>
+        <button
+          onClick={() => window.open('/support', '_blank')}
+          className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[#0F5F35] hover:underline"
+        >
+          Voir le guide <ExternalLink className="w-3 h-3" />
+        </button>
       </div>
     </div>
   )
 }
 
-/* ===== WIDGET CONFIG ===== */
-const WidgetConfig = ({ clientId, widgetCode, copyText, copied }) => (
-  <div className="space-y-5">
-    <div>
-      <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">
-        1. Copiez ce code
-      </p>
-      <div className="relative">
-        <pre className="p-4 bg-gray-900 text-green-400 rounded-xl text-[12px] font-mono overflow-x-auto">
-          {widgetCode}
-        </pre>
-        <button
-          onClick={() => copyText(widgetCode, 'widget')}
-          className="absolute top-2 right-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-        >
-          {copied === 'widget' ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-gray-300" />}
-        </button>
-      </div>
-    </div>
-    <div>
-      <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">
-        2. Collez-le dans votre site
-      </p>
-      <p className="text-sm text-[#716D5C]">
-        Ajoutez ce code juste avant la balise <code className="bg-gray-100 px-1 py-0.5 rounded text-xs">&lt;/body&gt;</code> de votre site.
-        Un bouton de chat vert apparaitra en bas a droite. Les clients pourront discuter avec votre agent IA en temps reel.
-      </p>
-    </div>
-    <div>
-      <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">
-        3. Ca marche sur
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {['Shopify', 'WordPress', 'Wix', 'Squarespace', 'HTML/CSS', 'React', 'Next.js'].map(platform => (
-          <span key={platform} className="px-3 py-1 bg-[#F9F7F1] rounded-full text-xs text-[#262626] font-medium">{platform}</span>
-        ))}
-      </div>
-    </div>
-    <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
-      <p className="text-xs text-blue-800">
-        <strong>Shopify :</strong> Allez dans Boutique en ligne → Themes → Modifier le code → theme.liquid → collez le code avant <code>&lt;/body&gt;</code>
-      </p>
-    </div>
-  </div>
-)
+function getMessageCount(channelId, counts) {
+  const map = {
+    shopify_widget: counts.web_widget || 0,
+    gmail: counts.email || 0,
+    gorgias: counts.gorgias || 0,
+    zendesk: counts.zendesk || 0,
+    slack: counts.slack || 0,
+    widget_manual: counts.web_widget || 0,
+    whatsapp: counts.whatsapp || 0,
+  }
+  return map[channelId] || 0
+}
 
-/* ===== WHATSAPP CONFIG ===== */
-const WhatsAppConfig = ({ clientId, webhookUrl, copyText, copied, toast }) => {
+const ChannelCard = ({ channel, clientId, connected, messageCount, toast, queryClient, setActiveTab }) => {
+  const [expanded, setExpanded] = useState(false)
+  const [activating, setActivating] = useState(false)
+  const [isActive, setIsActive] = useState(false)
+  const [siteUrl, setSiteUrl] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
-  const [saving, setSaving] = useState(false)
+  const Icon = channel.icon
 
-  const handleSave = async () => {
-    setSaving(true)
-    await supabase.from('client_integrations').upsert({
-      client_id: clientId,
-      provider: 'whatsapp',
-      status: 'active',
-      extra_config: { phone_number: whatsappNumber },
-      connected_at: new Date().toISOString(),
-    }, { onConflict: 'client_id,provider' }).catch(() => {})
-    setSaving(false)
-    toast.success('WhatsApp configure')
+  const handleActivate = async () => {
+    if (!connected) {
+      setActiveTab('integrations')
+      return
+    }
+
+    setActivating(true)
+
+    if (channel.id === 'shopify_widget') {
+      // Auto-install widget on Shopify
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch('/api/engine/shopify-widget', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ action: 'install', client_id: clientId }),
+        })
+        if (!res.ok) {
+          const data = await res.json()
+          throw new Error(data.error || 'Erreur installation')
+        }
+        setIsActive(true)
+        toast.success('Widget installe sur votre boutique Shopify !')
+      } catch (err) {
+        toast.error(err.message)
+      }
+    } else {
+      // Generic activation
+      setIsActive(true)
+      toast.success(`Canal "${channel.name}" active`)
+    }
+
+    setActivating(false)
+  }
+
+  const handleDeactivate = async () => {
+    setActivating(true)
+    if (channel.id === 'shopify_widget') {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        await fetch('/api/engine/shopify-widget', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ action: 'uninstall', client_id: clientId }),
+        })
+      } catch {}
+    }
+    setIsActive(false)
+    toast.success(`Canal desactive`)
+    setActivating(false)
   }
 
   return (
-    <div className="space-y-5">
-      <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
-        <p className="text-sm text-emerald-800 font-medium mb-1">WhatsApp Copilot</p>
-        <p className="text-xs text-emerald-700">
-          Votre assistant personnel sur WhatsApp. Posez-lui des questions sur vos KPIs, escalades, performances — il a acces a toutes vos donnees Actero.
-        </p>
-      </div>
-
-      <div>
-        <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">
-          1. Configurez le webhook dans Meta Business Suite
-        </p>
-        <p className="text-xs text-[#716D5C] mb-2">
-          Allez dans <a href="https://business.facebook.com" target="_blank" rel="noopener" className="text-[#0F5F35] underline">Meta Business Suite</a> → WhatsApp → Configuration → Webhooks
-        </p>
-        <div className="relative">
-          <pre className="p-3 bg-gray-900 text-green-400 rounded-xl text-[11px] font-mono overflow-x-auto">
-            {`URL: ${webhookUrl}\nVerify Token: ${clientId}`}
-          </pre>
-          <button
-            onClick={() => copyText(`${webhookUrl}`, 'whatsapp-url')}
-            className="absolute top-2 right-2 p-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg"
-          >
-            {copied === 'whatsapp-url' ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3 text-gray-300" />}
-          </button>
+    <div className={`bg-white border rounded-2xl overflow-hidden transition-all ${
+      connected ? 'border-gray-200' : 'border-gray-100 opacity-60'
+    }`}>
+      <div className="p-4 flex items-center gap-4">
+        {/* Icon */}
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br ${channel.gradient} flex-shrink-0`}>
+          <Icon className="w-5 h-5 text-white" />
         </div>
-      </div>
 
-      <div>
-        <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">
-          2. Body JSON a envoyer
-        </p>
-        <pre className="p-3 bg-gray-900 text-green-400 rounded-xl text-[11px] font-mono overflow-x-auto">
-{`{
-  "client_id": "${clientId}",
-  "source": "whatsapp",
-  "customer_email": "votre@email.com",
-  "message": "Combien de tickets resolus ce mois ?"
-}`}
-        </pre>
-      </div>
-
-      <div>
-        <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">
-          3. Votre numero WhatsApp Business (optionnel)
-        </p>
-        <div className="flex gap-2">
-          <input
-            type="tel"
-            value={whatsappNumber}
-            onChange={(e) => setWhatsappNumber(e.target.value)}
-            placeholder="+33 6 12 34 56 78"
-            className="flex-1 px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none"
-          />
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="px-4 py-2.5 bg-[#0F5F35] text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sauvegarder'}
-          </button>
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-bold text-sm text-[#262626]">{channel.name}</p>
+            {isActive && (
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full">
+                <CheckCircle2 className="w-3 h-3" /> Actif
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-[#716D5C] mt-0.5 line-clamp-1">{channel.desc}</p>
         </div>
+
+        {/* Stats */}
+        {messageCount > 0 && (
+          <span className="text-xs text-[#716D5C] bg-[#F9F7F1] px-2.5 py-1 rounded-lg flex-shrink-0">
+            {messageCount} msg
+          </span>
+        )}
+
+        {/* Action */}
+        {connected ? (
+          isActive ? (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="px-3 py-2 text-xs font-medium text-[#716D5C] hover:text-[#262626] transition-colors"
+              >
+                Details
+              </button>
+              <button
+                onClick={handleDeactivate}
+                disabled={activating}
+                className="relative w-11 h-6 rounded-full bg-[#0F5F35] transition-colors flex-shrink-0"
+              >
+                <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow translate-x-5 transition-transform" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleActivate}
+              disabled={activating}
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#0F5F35] text-white text-xs font-bold rounded-full hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
+            >
+              {activating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+              Activer
+            </button>
+          )
+        ) : (
+          <button
+            onClick={() => setActiveTab('integrations')}
+            className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-[#716D5C] text-xs font-bold rounded-full hover:bg-gray-200 transition-colors flex-shrink-0"
+          >
+            <Plug className="w-3.5 h-3.5" />
+            Connecter {channel.requiresLabel}
+          </button>
+        )}
       </div>
+
+      {/* Expanded details */}
+      <AnimatePresence>
+        {expanded && isActive && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden border-t border-gray-100"
+          >
+            <div className="p-4">
+              {channel.id === 'shopify_widget' && (
+                <p className="text-sm text-[#716D5C]">
+                  Le widget est installe sur votre boutique Shopify. Un bouton de chat vert apparait en bas a droite de votre site. Vos clients peuvent poser leurs questions et l'agent IA repond en temps reel.
+                </p>
+              )}
+              {channel.id === 'gmail' && (
+                <p className="text-sm text-[#716D5C]">
+                  L'agent surveille votre boite Gmail et repond automatiquement aux emails clients. Les reponses sont envoyees depuis votre adresse email.
+                </p>
+              )}
+              {channel.id === 'gorgias' && (
+                <p className="text-sm text-[#716D5C]">
+                  L'agent traite automatiquement les nouveaux tickets Gorgias. Les reponses apparaissent directement dans votre interface Gorgias avec le tag "actero-auto-reply".
+                </p>
+              )}
+              {channel.id === 'zendesk' && (
+                <p className="text-sm text-[#716D5C]">
+                  L'agent repond aux nouveaux tickets Zendesk. Les reponses sont postees comme commentaires publics sur le ticket.
+                </p>
+              )}
+              {channel.id === 'slack' && (
+                <p className="text-sm text-[#716D5C]">
+                  Les alertes d'escalade, rapports et notifications sont envoyes dans votre canal Slack configure.
+                </p>
+              )}
+              {channel.id === 'widget_manual' && (
+                <div className="space-y-3">
+                  <p className="text-sm text-[#716D5C]">Entrez l'URL de votre site pour recevoir les instructions d'installation :</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={siteUrl}
+                      onChange={(e) => setSiteUrl(e.target.value)}
+                      placeholder="https://mon-site.com"
+                      className="flex-1 px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm outline-none"
+                    />
+                    <button className="px-4 py-2.5 bg-[#0F5F35] text-white text-sm font-bold rounded-xl hover:bg-[#003725]">
+                      Installer
+                    </button>
+                  </div>
+                </div>
+              )}
+              {channel.id === 'whatsapp' && (
+                <div className="space-y-3">
+                  <p className="text-sm text-[#716D5C]">Entrez votre numero WhatsApp pour activer votre assistant :</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="tel"
+                      value={whatsappNumber}
+                      onChange={(e) => setWhatsappNumber(e.target.value)}
+                      placeholder="+33 6 12 34 56 78"
+                      className="flex-1 px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm outline-none"
+                    />
+                    <button className="px-4 py-2.5 bg-[#25D366] text-white text-sm font-bold rounded-xl hover:bg-[#128C7E]">
+                      Activer
+                    </button>
+                  </div>
+                  {whatsappNumber && (
+                    <div className="p-3 bg-[#F9F7F1] rounded-xl text-center">
+                      <p className="text-xs text-[#716D5C] mb-2">Scannez ce QR code avec WhatsApp :</p>
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://wa.me/${whatsappNumber.replace(/\s/g, '')}?text=Activer+Actero`)}`}
+                        alt="QR Code WhatsApp"
+                        className="mx-auto rounded-lg"
+                        width={150}
+                        height={150}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
-
-/* ===== VOCAL CONFIG ===== */
-const VocalConfig = ({ clientId, config, toast, queryClient }) => {
-  const [active, setActive] = useState(config?.is_active || false)
-  const [saving, setSaving] = useState(false)
-
-  const toggleVocal = async () => {
-    setSaving(true)
-    const newVal = !active
-    setActive(newVal)
-    await supabase.from('voice_agent_config').upsert({
-      client_id: clientId,
-      is_active: newVal,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'client_id' })
-    queryClient.invalidateQueries({ queryKey: ['channel-configs', clientId] })
-    toast.success(newVal ? 'Agent vocal active' : 'Agent vocal desactive')
-    setSaving(false)
-  }
-
-  return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between p-4 bg-violet-50 rounded-xl border border-violet-200">
-        <div>
-          <p className="text-sm text-violet-800 font-medium">Agent vocal IA</p>
-          <p className="text-xs text-violet-600">Powered by ElevenLabs — repond aux appels telephoniques</p>
-        </div>
-        <button
-          onClick={toggleVocal}
-          disabled={saving}
-          className={`relative w-12 h-6 rounded-full transition-colors ${active ? 'bg-[#0F5F35]' : 'bg-gray-300'}`}
-        >
-          <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${active ? 'translate-x-6' : 'translate-x-0.5'}`} />
-        </button>
-      </div>
-
-      <div>
-        <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">Configuration</p>
-        <p className="text-sm text-[#716D5C]">
-          Configurez la voix, le ton et les regles de votre agent vocal dans l'onglet <strong>Appels IA</strong> et <strong>Voix</strong> dans la sidebar.
-        </p>
-      </div>
-
-      <div className="p-4 bg-[#F9F7F1] rounded-xl">
-        <p className="text-xs text-[#716D5C]">
-          Pour connecter un numero de telephone, contactez-nous a <a href="mailto:support@actero.fr" className="text-[#0F5F35] underline">support@actero.fr</a>. Nous configurerons le SIP trunk avec ElevenLabs pour votre numero.
-        </p>
-      </div>
-    </div>
-  )
-}
-
-/* ===== EMAIL CONFIG ===== */
-const EmailConfig = ({ clientId, webhookUrl, copyText, copied }) => (
-  <div className="space-y-5">
-    <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
-      <p className="text-sm text-amber-800 font-medium mb-1">Email automatique</p>
-      <p className="text-xs text-amber-700">
-        L'agent repond automatiquement aux emails clients. Les reponses sont envoyees depuis votre adresse configuree.
-      </p>
-    </div>
-
-    <div>
-      <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">
-        Webhook pour recevoir les emails entrants
-      </p>
-      <p className="text-xs text-[#716D5C] mb-2">
-        Configurez un transfert d'email ou un webhook dans votre provider (Gmail, Sendgrid, Resend) pour envoyer les emails entrants a :
-      </p>
-      <div className="relative">
-        <pre className="p-3 bg-gray-900 text-green-400 rounded-xl text-[11px] font-mono overflow-x-auto">
-          {`POST ${webhookUrl}\n\nHeaders:\n  x-engine-secret: VOTRE_SECRET\n  Content-Type: application/json\n\nBody:\n{\n  "client_id": "${clientId}",\n  "source": "email",\n  "customer_email": "client@example.com",\n  "message": "contenu de l'email"\n}`}
-        </pre>
-        <button
-          onClick={() => copyText(webhookUrl, 'email-url')}
-          className="absolute top-2 right-2 p-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg"
-        >
-          {copied === 'email-url' ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3 text-gray-300" />}
-        </button>
-      </div>
-    </div>
-
-    <div>
-      <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">
-        Integrations supportees
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {['Gmail (via Google Apps Script)', 'SendGrid Inbound Parse', 'Resend Webhooks', 'Mailgun Routes', 'n8n Email Trigger'].map(provider => (
-          <span key={provider} className="px-3 py-1 bg-[#F9F7F1] rounded-full text-xs text-[#262626] font-medium">{provider}</span>
-        ))}
-      </div>
-    </div>
-  </div>
-)
