@@ -84,6 +84,7 @@ import { SentimentAnalysisView } from '../components/client/SentimentAnalysisVie
 import { VoiceStudioView } from '../components/client/VoiceStudioView'
 import { SupplierNegotiationView } from '../components/client/SupplierNegotiationView'
 import { VoiceReportView } from '../components/client/VoiceReportView'
+import { NotificationCenterView } from '../components/client/NotificationCenterView'
 
 const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
   const [feedback, setFeedback] = useState(currentFeedback || null);
@@ -207,6 +208,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/voice-studio") return "voice-studio";
     if (route === "/client/supplier-negotiation") return "supplier-negotiation";
     if (route === "/client/voice-report") return "voice-report";
+    if (route === "/client/notifications") return "notifications";
     if (route === "/client/profile") return "profile";
     return "overview";
   };
@@ -476,6 +478,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     ]},
 
     { type: 'section', label: 'Compte' },
+    { id: 'notifications', label: 'Notifications', icon: Volume2 },
     { id: 'support', label: 'Aide', icon: MessageSquare },
     { id: 'team', label: 'Equipe', icon: Users },
     { id: 'referral', label: 'Parrainage', icon: Gift },
@@ -585,6 +588,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "voice-studio" && "Voix"}
               {activeTab === "supplier-negotiation" && "Negociation Fournisseur"}
               {activeTab === "voice-report" && "Rapports audio"}
+              {activeTab === "notifications" && "Notifications"}
             </h1>
 
             <div className="hidden lg:flex items-center gap-3">
@@ -892,6 +896,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "voice-report" && (
             <VoiceReportView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "notifications" && (
+            <NotificationCenterView clientId={currentClient?.id} theme={theme} />
           )}
 
         </main>
