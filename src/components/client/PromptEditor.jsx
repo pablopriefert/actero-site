@@ -323,63 +323,6 @@ export const PromptEditor = ({ clientId, theme }) => {
         </div>
       </div>
 
-      {/* Template Selector */}
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-        <button
-          onClick={() => setShowTemplates(!showTemplates)}
-          className="w-full p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#003725] to-[#0F5F35] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-left">
-              <p className="font-bold text-sm text-[#262626]">
-                {activeTemplate ? `Modele : ${AGENT_TEMPLATES.find(t => t.id === activeTemplate)?.label}` : 'Partir d\'un modele pre-configure'}
-              </p>
-              <p className="text-xs text-[#716D5C]">
-                {activeTemplate ? 'Cliquez pour changer de modele' : '5 templates optimises pour demarrer en 30 secondes'}
-              </p>
-            </div>
-          </div>
-          <ChevronDown className={`w-5 h-5 text-[#716D5C] transition-transform ${showTemplates ? 'rotate-180' : ''}`} />
-        </button>
-
-        {showTemplates && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            className="border-t border-gray-100 p-5 space-y-2"
-          >
-            {AGENT_TEMPLATES.map(template => {
-              const Icon = template.icon
-              return (
-                <button
-                  key={template.id}
-                  onClick={() => handleApplyTemplate(template)}
-                  className={`w-full flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
-                    activeTemplate === template.id
-                      ? 'border-[#0F5F35] bg-emerald-50/50'
-                      : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center border ${template.color}`}>
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-[#262626]">{template.label}</p>
-                    <p className="text-xs text-[#716D5C] truncate">{template.desc}</p>
-                  </div>
-                  {activeTemplate === template.id && (
-                    <CheckCircle2 className="w-5 h-5 text-[#0F5F35] flex-shrink-0" />
-                  )}
-                </button>
-              )
-            })}
-          </motion.div>
-        )}
-      </div>
-
       {/* Tone preset */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-4">
