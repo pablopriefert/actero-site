@@ -56,6 +56,7 @@ import { AdminNegativeRatingsView } from '../components/admin/AdminNegativeRatin
 import { AdminAmbassadorsView } from '../components/admin/AdminAmbassadorsView'
 import { AdminPartnersView } from '../components/admin/AdminPartnersView'
 import { AdminShopifyView } from '../components/admin/AdminShopifyView'
+import { AdminEngineTestView } from '../components/admin/AdminEngineTestView'
 import { useToast } from '../components/ui/Toast'
 
 const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigateTab }) => {
@@ -154,6 +155,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/partners") return "partners";
     if (route === "/admin/ratings") return "ratings";
     if (route === "/admin/shopify") return "shopify";
+    if (route === "/admin/engine") return "engine";
     return "overview";
   };
 
@@ -321,6 +323,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: "ambassadors", label: "Ambassadeurs", icon: Award },
     { id: "partners", label: "Partenaires", icon: Handshake },
     { type: 'section', label: 'IA' },
+    { id: "engine", label: "Engine Test", icon: Zap },
     { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
     { id: "ratings", label: "Notations IA", icon: FileText },
   ];
@@ -453,6 +456,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "partners" && <AdminPartnersView />}
 
           {activeTab === "shopify" && <AdminShopifyView />}
+
+          {activeTab === "engine" && <AdminEngineTestView />}
 
           {activeTab === "ratings" && <AdminNegativeRatingsView />}
 
