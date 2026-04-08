@@ -71,13 +71,21 @@ Reponds UNIQUEMENT en JSON valide:
 
     if (!claudeRes.ok) throw new Error(`Claude ${claudeRes.status}`)
     const claudeData = await claudeRes.json()
-    const rawText = claudeData?.content?.[0]?.text || '[]'
+    let rawText = claudeData?.content?.[0]?.text || '[]'
+
+    rawText = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+    const jsonMatch = rawText.match(/\[[\s\S]*\]/)
+    if (jsonMatch) rawText = jsonMatch[0]
 
     let entries
     try {
       entries = JSON.parse(rawText)
     } catch {
-      return res.status(500).json({ error: 'Erreur parsing des resultats' })
+      try {
+        entries = JSON.parse(rawText.replace(/,\s*]/g, ']').replace(/,\s*}/g, '}'))
+      } catch {
+        return res.status(500).json({ error: 'Erreur parsing des resultats. Essayez un autre fichier.' })
+      }
     }
 
     if (!Array.isArray(entries) || entries.length === 0) {

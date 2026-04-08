@@ -114,13 +114,29 @@ Pas de markdown, pas de commentaires, juste le JSON.`,
 
     if (!claudeRes.ok) throw new Error(`Claude ${claudeRes.status}`)
     const claudeData = await claudeRes.json()
-    const rawText = claudeData?.content?.[0]?.text || '[]'
+    let rawText = claudeData?.content?.[0]?.text || '[]'
+
+    // Clean Claude response — sometimes wraps JSON in ```json blocks
+    rawText = rawText
+      .replace(/^```json\s*/i, '')
+      .replace(/^```\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .trim()
+
+    // Try to extract JSON array from the response
+    const jsonMatch = rawText.match(/\[[\s\S]*\]/)
+    if (jsonMatch) rawText = jsonMatch[0]
 
     let entries
     try {
       entries = JSON.parse(rawText)
     } catch {
-      return res.status(500).json({ error: 'Erreur parsing des resultats Claude' })
+      // Last resort: try to fix common JSON issues
+      try {
+        entries = JSON.parse(rawText.replace(/,\s*]/g, ']').replace(/,\s*}/g, '}'))
+      } catch {
+        return res.status(500).json({ error: 'Erreur parsing des resultats. Essayez une autre URL.' })
+      }
     }
 
     if (!Array.isArray(entries) || entries.length === 0) {
