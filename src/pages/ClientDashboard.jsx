@@ -87,7 +87,7 @@ import { VoiceReportView } from '../components/client/VoiceReportView'
 import { NotificationCenterView } from '../components/client/NotificationCenterView'
 import { AgentImprovementWidget } from '../components/client/AgentImprovementWidget'
 import { ChannelsView } from '../components/client/ChannelsView'
-import { WorkflowBuilder } from '../components/client/WorkflowBuilder'
+import { PlaybooksView } from '../components/client/PlaybooksView'
 
 const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
   const [feedback, setFeedback] = useState(currentFeedback || null);
@@ -213,7 +213,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/voice-report") return "voice-report";
     if (route === "/client/notifications") return "notifications";
     if (route === "/client/channels") return "channels";
-    if (route === "/client/workflows") return "workflows";
+    if (route === "/client/playbooks") return "playbooks";
     if (route === "/client/profile") return "profile";
     return "overview";
   };
@@ -458,7 +458,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'overview', label: 'Accueil', icon: LayoutDashboard },
     { id: 'activity', label: 'Activite', icon: Activity },
     { id: 'channels', label: 'Mes Canaux', icon: Plug },
-    { id: 'workflows', label: 'Workflows', icon: Activity },
+    { id: 'playbooks', label: 'Playbooks', icon: Activity },
 
     { type: 'section', label: 'Mon Agent' },
     { id: 'agent-config', label: 'Configurer', icon: Sparkles },
@@ -596,7 +596,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {activeTab === "voice-report" && "Rapports audio"}
               {activeTab === "notifications" && "Notifications"}
               {activeTab === "channels" && "Mes Canaux"}
-              {activeTab === "workflows" && "Workflows"}
+              {activeTab === "playbooks" && "Playbooks"}
             </h1>
 
             <div className="hidden lg:flex items-center gap-3">
@@ -917,8 +917,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <ChannelsView clientId={currentClient?.id} setActiveTab={setActiveTab} theme={theme} />
           )}
 
-          {activeTab === "workflows" && (
-            <WorkflowBuilder clientId={currentClient?.id} theme={theme} />
+          {activeTab === "playbooks" && (
+            <PlaybooksView clientId={currentClient?.id} theme={theme} />
           )}
 
         </main>

@@ -57,6 +57,9 @@ import { AdminAmbassadorsView } from '../components/admin/AdminAmbassadorsView'
 import { AdminPartnersView } from '../components/admin/AdminPartnersView'
 import { AdminShopifyView } from '../components/admin/AdminShopifyView'
 import { AdminEngineTestView } from '../components/admin/AdminEngineTestView'
+import { AdminEngineRunsView } from '../components/admin/AdminEngineRunsView'
+import { AdminManualReviewView } from '../components/admin/AdminManualReviewView'
+import { AdminPlaybooksView } from '../components/admin/AdminPlaybooksView'
 import { useToast } from '../components/ui/Toast'
 
 const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigateTab }) => {
@@ -156,6 +159,9 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/ratings") return "ratings";
     if (route === "/admin/shopify") return "shopify";
     if (route === "/admin/engine") return "engine";
+    if (route === "/admin/engine-runs") return "engine-runs";
+    if (route === "/admin/engine-reviews") return "engine-reviews";
+    if (route === "/admin/engine-playbooks") return "engine-playbooks";
     return "overview";
   };
 
@@ -314,8 +320,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: "health", label: "Sante Clients", icon: Heart },
     { id: "pipeline", label: "Pipeline", icon: GitBranch },
     { id: "funnel", label: "Nouveau client", icon: UserPlus },
+    { type: 'section', label: 'Engine' },
+    { id: "engine-runs", label: "Runs", icon: Zap },
+    { id: "engine-reviews", label: "Manual Review", icon: AlertCircle },
+    { id: "engine-playbooks", label: "Playbooks", icon: Activity },
+    { id: "engine", label: "Webhook Test", icon: TerminalSquare },
     { type: 'section', label: 'Operations' },
-    { id: "monitoring", label: "Monitoring n8n", icon: Wifi },
     { id: "billing", label: "Facturation", icon: Receipt },
     { id: "shopify", label: "App Shopify", icon: ShoppingBag },
     { type: 'section', label: 'Reseau' },
@@ -458,6 +468,9 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "shopify" && <AdminShopifyView />}
 
           {activeTab === "engine" && <AdminEngineTestView />}
+          {activeTab === "engine-runs" && <AdminEngineRunsView />}
+          {activeTab === "engine-reviews" && <AdminManualReviewView />}
+          {activeTab === "engine-playbooks" && <AdminPlaybooksView />}
 
           {activeTab === "ratings" && <AdminNegativeRatingsView />}
 
