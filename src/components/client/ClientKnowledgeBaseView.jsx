@@ -5,7 +5,7 @@ import {
   BookOpen, FileText, HelpCircle, Package, Palette, CalendarClock,
   Plus, Save, Trash2, GripVertical, Loader2, CheckCircle2, AlertCircle,
   ChevronRight, Clock, X, Globe, Link2, ShoppingBag, Zap, BarChart3,
-  MessageCircle,
+  MessageCircle, Upload,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
@@ -321,6 +321,8 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
   const [importing, setImporting] = useState(false)
   const [showImport, setShowImport] = useState(false)
   const [showQA, setShowQA] = useState(false)
+  const [showFileUpload, setShowFileUpload] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [qaQuestion, setQaQuestion] = useState('')
   const [qaAnswer, setQaAnswer] = useState('')
 
@@ -334,47 +336,69 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
     setImporting(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      // Use Claude to extract FAQ content from the URL description
-      const res = await fetch('/api/simulator-chat', {
+      const res = await fetch('/api/knowledge/import-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ url: importUrl.trim(), client_id: clientId }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erreur import')
+      queryClient.invalidateQueries({ queryKey: ['knowledge-base', clientId] })
+      showToast(`${data.imported} entrees importees depuis l'URL`)
+      setImportUrl('')
+      setShowImport(false)
+    } catch (err) {
+      showToast(err.message || 'Erreur lors de l\'import', 'error')
+    }
+    setImporting(false)
+  }
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const maxSize = 4 * 1024 * 1024 // 4MB
+    if (file.size > maxSize) {
+      showToast('Fichier trop volumineux (max 4 Mo)', 'error')
+      return
+    }
+
+    setUploading(true)
+    try {
+      // Read file content
+      const text = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = reject
+        reader.readAsText(file)
+      })
+
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/knowledge/import-file', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
-          prompt: `Genere 5-8 paires question/reponse FAQ a partir de cette URL: ${importUrl}. Reponds UNIQUEMENT en JSON valide: [{"question": "...", "answer": "..."}]`,
-          systemPrompt: 'Tu es un extracteur de FAQ. Genere des paires question/reponse pertinentes pour un agent de support client. JSON uniquement, pas de markdown.',
-          history: [],
+          content: text.substring(0, 50000),
+          filename: file.name,
+          client_id: clientId,
         }),
       })
       const data = await res.json()
-      if (res.ok && data.text) {
-        try {
-          const faqs = JSON.parse(data.text)
-          // Insert each FAQ as a knowledge base entry
-          for (const faq of faqs) {
-            await supabase.from('client_knowledge_base').insert({
-              client_id: clientId,
-              category: 'faq',
-              title: faq.question,
-              content: faq.answer,
-              sort_order: entries.length,
-            })
-          }
-          await syncBrandContext(clientId)
-          queryClient.invalidateQueries({ queryKey: ['knowledge-base', clientId] })
-          showToast(`${faqs.length} FAQ importees depuis l'URL`)
-          setImportUrl('')
-          setShowImport(false)
-          setSelectedCategory('faq')
-        } catch {
-          showToast('Erreur lors du parsing des FAQ', 'error')
-        }
-      }
+      if (!res.ok) throw new Error(data.error || 'Erreur import')
+      queryClient.invalidateQueries({ queryKey: ['knowledge-base', clientId] })
+      showToast(`${data.imported} entrees importees depuis "${file.name}"`)
+      setShowFileUpload(false)
     } catch (err) {
-      showToast('Erreur lors de l\'import', 'error')
+      showToast(err.message || 'Erreur lors de l\'import du fichier', 'error')
     }
-    setImporting(false)
+    setUploading(false)
+    e.target.value = '' // Reset file input
   }
 
   const handleAddQA = async () => {
@@ -547,8 +571,8 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
         </div>
       )}
 
-      {/* Quick Actions: Import URL + Q&A Builder */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* Quick Actions: Import URL + File Upload + Q&A Builder */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* URL Import */}
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
           <button
@@ -632,6 +656,49 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                   <Plus className="w-4 h-4" />
                   Ajouter la FAQ
                 </button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* File Upload */}
+        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+          <button
+            onClick={() => { setShowFileUpload(!showFileUpload); setShowImport(false); setShowQA(false) }}
+            className="w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
+          >
+            <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center">
+              <Upload className="w-4 h-4 text-violet-600" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-[#262626]">Importer un fichier</p>
+              <p className="text-[11px] text-[#716D5C]">PDF, TXT, CSV, DOCX</p>
+            </div>
+          </button>
+          {showFileUpload && (
+            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="overflow-hidden border-t border-gray-100">
+              <div className="p-4 space-y-3">
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-[#0F5F35]/30 transition-colors">
+                  <Upload className="w-6 h-6 text-[#716D5C] mx-auto mb-2" />
+                  <p className="text-sm text-[#262626] font-medium">
+                    {uploading ? 'Analyse en cours...' : 'Glissez un fichier ou cliquez'}
+                  </p>
+                  <p className="text-[10px] text-[#716D5C] mt-1">PDF, TXT, CSV — max 4 Mo</p>
+                  <input
+                    type="file"
+                    accept=".pdf,.txt,.csv,.md,.doc,.docx"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    style={{ position: 'relative' }}
+                  />
+                </div>
+                {uploading && (
+                  <div className="flex items-center justify-center gap-2 py-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-violet-600" />
+                    <span className="text-xs text-[#716D5C]">L'IA analyse le fichier et extrait les informations...</span>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
