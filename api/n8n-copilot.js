@@ -671,6 +671,15 @@ function sanitizeWorkflow(workflow) {
 // ── Main handler ───────────────────────────────────────────
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Auth: admin only
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Non autorise' });
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  if (authError || !user) return res.status(401).json({ error: 'Non autorise' });
+  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  if (!isAdmin) return res.status(403).json({ error: 'Acces refuse — admin uniquement' });
+
   if (!N8N_URL || !N8N_KEY) return res.status(500).json({ error: 'N8N credentials missing' });
   if (!GEMINI_KEY) return res.status(500).json({ error: 'GEMINI_API_KEY missing' });
 

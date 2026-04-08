@@ -28,15 +28,13 @@ export default async function handler(req, res) {
   // --- Authentication ---
   const engineSecret = req.headers['x-engine-secret']
   const internalSecret = req.headers['x-internal-secret']
-  const apiKey = req.query?.api_key
 
   const isAuthenticated =
     (ENGINE_SECRET && engineSecret === ENGINE_SECRET) ||
-    (INTERNAL_SECRET && internalSecret === INTERNAL_SECRET) ||
-    !!apiKey // API key is validated below against client data
+    (INTERNAL_SECRET && internalSecret === INTERNAL_SECRET)
 
-  if (!isAuthenticated && !apiKey) {
-    return res.status(401).json({ error: 'Non autorise. Fournissez x-engine-secret, x-internal-secret, ou api_key.' })
+  if (!isAuthenticated) {
+    return res.status(401).json({ error: 'Non autorise. Header x-engine-secret requis.' })
   }
 
   // --- Parse body ---

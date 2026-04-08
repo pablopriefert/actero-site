@@ -3,10 +3,19 @@
  * Creates a deployment request for the admin to review.
  * Body: { client_id: string, shop_domain: string }
  */
+import { createClient } from '@supabase/supabase-js';
+const _supabase = createClient(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // Auth: requires authenticated user
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Non autorise' });
+  const { error: authErr } = await _supabase.auth.getUser(token);
+  if (authErr) return res.status(401).json({ error: 'Non autorise' });
 
   const { client_id, shop_domain } = req.body;
 

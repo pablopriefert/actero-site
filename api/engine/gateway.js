@@ -27,9 +27,8 @@ export default async function handler(req, res) {
 
   // --- Auth ---
   const secret = req.headers['x-engine-secret'] || req.headers['x-internal-secret']
-  const apiKey = req.query?.api_key
-  if (secret !== ENGINE_SECRET && secret !== INTERNAL_SECRET && !apiKey) {
-    return res.status(401).json({ error: 'Non autorise' })
+  if (secret !== ENGINE_SECRET && secret !== INTERNAL_SECRET) {
+    return res.status(401).json({ error: 'Non autorise. Header x-engine-secret requis.' })
   }
 
   const { client_id, event_type, source, ...payload } = req.body || {}

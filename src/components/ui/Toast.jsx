@@ -40,13 +40,6 @@ export const ToastProvider = ({ children }) => {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
 
-  const toast = useCallback({
-    success: (msg, dur) => addToast(msg, 'success', dur),
-    error: (msg, dur) => addToast(msg, 'error', dur || 6000),
-    info: (msg, dur) => addToast(msg, 'info', dur),
-  }, [addToast])
-
-  // Fix: useCallback can't be called with an object, use useMemo pattern
   const toastFns = {
     success: (msg, dur) => addToast(msg, 'success', dur),
     error: (msg, dur) => addToast(msg, 'error', dur || 6000),

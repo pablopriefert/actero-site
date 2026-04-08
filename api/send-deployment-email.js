@@ -120,6 +120,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Auth: internal secret only
+  const secret = req.headers['x-internal-secret'];
+  if (secret !== process.env.INTERNAL_API_SECRET) {
+    return res.status(401).json({ error: 'Non autorise' });
+  }
+
   const { email, company_name } = req.body;
 
   if (!email || !company_name) {
