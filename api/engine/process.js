@@ -9,6 +9,7 @@ import { buildSystemPrompt, buildMessages } from './lib/prompt-builder.js'
 import { callClaude } from './lib/claude-client.js'
 import { findOrCreateThread, appendMessage, getConversationHistory, resolveThread, escalateThread } from './lib/conversation-manager.js'
 import { routeResponse } from './respond.js'
+import { lookupOrder } from './lib/shopify-client.js'
 
 /**
  * Process a single customer message end-to-end.
@@ -51,7 +52,30 @@ export async function processMessage(supabase, {
   // --- 3. Get conversation history ---
   const history = getConversationHistory(thread)
 
+  // --- 3b. Shopify order lookup (if e-commerce client) ---
+  let orderContext = ''
+  if (config.client.client_type === 'ecommerce') {
+    // Extract order reference from message (e.g., #4521, commande 4521)
+    const orderMatch = messageBody.match(/#?\b(\d{3,8})\b/)
+    const detectedOrderId = orderId || (orderMatch ? orderMatch[1] : null)
+
+    const orders = await lookupOrder(supabase, {
+      clientId,
+      orderId: detectedOrderId,
+      customerEmail,
+    }).catch(() => null)
+
+    if (orders && orders.length > 0) {
+      orderContext = '\n\nDONNEES COMMANDE SHOPIFY (utilisez ces infos pour repondre precisement):\n'
+        + orders.map(o => o.contextText).join('\n---\n')
+    }
+  }
+
   // --- 4. Build prompts ---
+  // Inject order context into the config for prompt building
+  if (orderContext) {
+    config.knowledge = (config.knowledge || '') + orderContext
+  }
   const systemPrompt = buildSystemPrompt(config)
   const messages = buildMessages(history, messageBody)
 
