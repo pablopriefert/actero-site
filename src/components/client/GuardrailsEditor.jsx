@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShieldAlert, Plus, Trash2, Loader2, CheckCircle2, GripVertical,
   ToggleLeft, ToggleRight, AlertTriangle, Sliders, Save,
+  Zap, ArrowRight, X, ChevronDown,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
@@ -195,8 +196,269 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
         </div>
       )}
 
+      {/* Visual Rule Builder */}
+      <VisualRuleBuilder clientId={clientId} onRuleCreated={() => queryClient.invalidateQueries({ queryKey: ['guardrails', clientId] })} />
+
       {/* Escalation Thresholds */}
       <EscalationThresholds clientId={clientId} />
+    </div>
+  )
+}
+
+const CONDITIONS = [
+  { id: 'order_value', label: 'Valeur commande', type: 'number', unit: '€', operators: ['>', '<', '>=', '<=', '='] },
+  { id: 'customer_type', label: 'Type de client', type: 'select', options: ['Nouveau', 'Fidele', 'VIP', 'Tous'] },
+  { id: 'contact_count', label: 'Nb contacts (7j)', type: 'number', unit: '', operators: ['>', '>=', '='] },
+  { id: 'keyword', label: 'Mot-cle detecte', type: 'text', placeholder: 'avocat, procès, arnaque...' },
+  { id: 'sentiment', label: 'Sentiment', type: 'select', options: ['Tres negatif', 'Negatif', 'Neutre'] },
+  { id: 'topic', label: 'Sujet', type: 'select', options: ['Remboursement', 'Retour', 'Livraison', 'Reclamation', 'Autre'] },
+]
+
+const ACTIONS = [
+  { id: 'escalate', label: 'Escalader vers un humain', icon: '🧑‍💼', color: 'bg-red-50 border-red-200 text-red-700' },
+  { id: 'promo', label: 'Proposer un code promo', icon: '🎁', color: 'bg-violet-50 border-violet-200 text-violet-700' },
+  { id: 'template', label: 'Reponse standard', icon: '📋', color: 'bg-blue-50 border-blue-200 text-blue-700' },
+  { id: 'notify', label: 'Notifier l\'equipe', icon: '🔔', color: 'bg-amber-50 border-amber-200 text-amber-700' },
+  { id: 'tag', label: 'Ajouter un tag', icon: '🏷️', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
+]
+
+const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
+  const toast = useToast()
+  const [expanded, setExpanded] = useState(false)
+  const [conditions, setConditions] = useState([{ conditionId: '', operator: '>', value: '' }])
+  const [action, setAction] = useState('')
+  const [actionValue, setActionValue] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const addCondition = () => {
+    setConditions(prev => [...prev, { conditionId: '', operator: '>', value: '' }])
+  }
+
+  const removeCondition = (index) => {
+    setConditions(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const updateCondition = (index, field, value) => {
+    setConditions(prev => prev.map((c, i) => i === index ? { ...c, [field]: value } : c))
+  }
+
+  const buildRuleText = () => {
+    const parts = conditions
+      .filter(c => c.conditionId && c.value)
+      .map(c => {
+        const cond = CONDITIONS.find(x => x.id === c.conditionId)
+        if (!cond) return ''
+        if (cond.type === 'select') return `${cond.label} = ${c.value}`
+        if (cond.type === 'text') return `Mot-cle "${c.value}" detecte`
+        return `${cond.label} ${c.operator} ${c.value}${cond.unit}`
+      })
+      .filter(Boolean)
+
+    const act = ACTIONS.find(a => a.id === action)
+    if (parts.length === 0 || !act) return ''
+
+    const actionText = actionValue ? `${act.label} (${actionValue})` : act.label
+    return `SI ${parts.join(' ET ')} → ${actionText}`
+  }
+
+  const handleSave = async () => {
+    const ruleText = buildRuleText()
+    if (!ruleText) {
+      toast.error('Completez au moins une condition et une action')
+      return
+    }
+    setSaving(true)
+    try {
+      const { error } = await supabase.from('client_guardrails').insert({
+        client_id: clientId,
+        rule_text: ruleText,
+        is_enabled: true,
+        priority: 0,
+      })
+      if (error) throw error
+      toast.success('Regle creee')
+      setConditions([{ conditionId: '', operator: '>', value: '' }])
+      setAction('')
+      setActionValue('')
+      setExpanded(false)
+      onRuleCreated()
+    } catch (err) {
+      toast.error('Erreur: ' + err.message)
+    }
+    setSaving(false)
+  }
+
+  const rulePreview = buildRuleText()
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+          <div className="text-left">
+            <p className="font-bold text-sm text-[#262626]">Creer une regle visuelle</p>
+            <p className="text-xs text-[#716D5C]">SI [condition] → ALORS [action] — sans code</p>
+          </div>
+        </div>
+        <ChevronDown className={`w-5 h-5 text-[#716D5C] transition-transform ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+
+      {expanded && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          className="border-t border-gray-100"
+        >
+          <div className="p-5 space-y-5">
+            {/* Conditions */}
+            <div>
+              <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-3">
+                SI (conditions)
+              </p>
+              <div className="space-y-2">
+                {conditions.map((cond, i) => {
+                  const condConfig = CONDITIONS.find(c => c.id === cond.conditionId)
+                  return (
+                    <div key={i} className="flex items-center gap-2 flex-wrap">
+                      {i > 0 && (
+                        <span className="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">ET</span>
+                      )}
+                      <select
+                        value={cond.conditionId}
+                        onChange={(e) => updateCondition(i, 'conditionId', e.target.value)}
+                        className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none"
+                      >
+                        <option value="">Choisir...</option>
+                        {CONDITIONS.map(c => (
+                          <option key={c.id} value={c.id}>{c.label}</option>
+                        ))}
+                      </select>
+
+                      {condConfig?.type === 'number' && (
+                        <>
+                          <select
+                            value={cond.operator}
+                            onChange={(e) => updateCondition(i, 'operator', e.target.value)}
+                            className="px-2 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none w-16"
+                          >
+                            {(condConfig.operators || ['>']).map(op => (
+                              <option key={op} value={op}>{op}</option>
+                            ))}
+                          </select>
+                          <input
+                            type="number"
+                            value={cond.value}
+                            onChange={(e) => updateCondition(i, 'value', e.target.value)}
+                            placeholder="0"
+                            className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none w-24"
+                          />
+                          {condConfig.unit && <span className="text-xs text-[#716D5C]">{condConfig.unit}</span>}
+                        </>
+                      )}
+
+                      {condConfig?.type === 'select' && (
+                        <select
+                          value={cond.value}
+                          onChange={(e) => updateCondition(i, 'value', e.target.value)}
+                          className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none"
+                        >
+                          <option value="">Choisir...</option>
+                          {condConfig.options.map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      )}
+
+                      {condConfig?.type === 'text' && (
+                        <input
+                          type="text"
+                          value={cond.value}
+                          onChange={(e) => updateCondition(i, 'value', e.target.value)}
+                          placeholder={condConfig.placeholder || 'Valeur...'}
+                          className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none flex-1 min-w-[140px]"
+                        />
+                      )}
+
+                      {conditions.length > 1 && (
+                        <button onClick={() => removeCondition(i)} className="p-1 text-gray-300 hover:text-red-500">
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+              <button
+                onClick={addCondition}
+                className="mt-2 text-xs font-bold text-violet-600 hover:text-violet-800 flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" /> Ajouter une condition
+              </button>
+            </div>
+
+            {/* Arrow */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-px bg-gray-200" />
+              <ArrowRight className="w-5 h-5 text-[#716D5C]" />
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+
+            {/* Actions */}
+            <div>
+              <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-3">
+                ALORS (action)
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {ACTIONS.map(act => (
+                  <button
+                    key={act.id}
+                    onClick={() => setAction(act.id)}
+                    className={`p-3 rounded-xl border-2 text-left transition-all ${
+                      action === act.id ? 'border-[#0F5F35] ring-1 ring-[#0F5F35]/20' : 'border-gray-100 hover:border-gray-200'
+                    }`}
+                  >
+                    <span className="text-lg">{act.icon}</span>
+                    <p className="text-xs font-bold text-[#262626] mt-1">{act.label}</p>
+                  </button>
+                ))}
+              </div>
+
+              {(action === 'promo' || action === 'template' || action === 'tag') && (
+                <input
+                  type="text"
+                  value={actionValue}
+                  onChange={(e) => setActionValue(e.target.value)}
+                  placeholder={action === 'promo' ? 'Code: SORRY10' : action === 'tag' ? 'Nom du tag' : 'Texte de la reponse'}
+                  className="mt-3 w-full px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                />
+              )}
+            </div>
+
+            {/* Preview */}
+            {rulePreview && (
+              <div className="p-3 bg-[#F9F7F1] rounded-xl border border-gray-100">
+                <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-1">Apercu de la regle</p>
+                <p className="text-sm text-[#262626] font-medium">{rulePreview}</p>
+              </div>
+            )}
+
+            {/* Save */}
+            <button
+              onClick={handleSave}
+              disabled={!rulePreview || saving}
+              className="w-full py-3 bg-[#0F5F35] text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              Creer la regle
+            </button>
+          </div>
+        </motion.div>
+      )}
     </div>
   )
 }
