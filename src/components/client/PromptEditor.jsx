@@ -138,6 +138,24 @@ export const PromptEditor = ({ clientId, theme }) => {
   const [importing, setImporting] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [editingKb, setEditingKb] = useState(null)
+  const [showAddManual, setShowAddManual] = useState(false)
+  const [manualTitle, setManualTitle] = useState('')
+  const [manualContent, setManualContent] = useState('')
+
+  const handleAddManual = async () => {
+    if (!manualTitle.trim() || !manualContent.trim()) return
+    await supabase.from('client_knowledge_base').insert({
+      client_id: clientId,
+      category: 'faq',
+      title: manualTitle.trim(),
+      content: manualContent.trim(),
+    })
+    queryClient.invalidateQueries({ queryKey: ['kb-entries', clientId] })
+    setManualTitle('')
+    setManualContent('')
+    setShowAddManual(false)
+    toast.success('Entree ajoutee')
+  }
 
   // Fetch existing KB entries
   const { data: kbEntries = [] } = useQuery({
@@ -467,6 +485,48 @@ export const PromptEditor = ({ clientId, theme }) => {
             </label>
             <p className="text-[10px] text-[#716D5C]">L'IA extrait les informations utiles du fichier</p>
           </div>
+        </div>
+
+        {/* Add manually */}
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          {!showAddManual ? (
+            <button
+              onClick={() => setShowAddManual(true)}
+              className="flex items-center gap-2 text-sm font-medium text-[#0F5F35] hover:underline"
+            >
+              <Plus className="w-4 h-4" />
+              Ajouter une entree manuellement
+            </button>
+          ) : (
+            <div className="space-y-2 p-3 bg-[#F9F7F1] rounded-xl">
+              <input
+                type="text"
+                value={manualTitle}
+                onChange={(e) => setManualTitle(e.target.value)}
+                placeholder="Titre (ex: Delais de livraison)"
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#262626] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
+              />
+              <textarea
+                value={manualContent}
+                onChange={(e) => setManualContent(e.target.value)}
+                placeholder="Contenu (ex: La livraison est gratuite a partir de 50€. Delai: 2-5 jours ouvres.)"
+                rows={3}
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#262626] outline-none resize-y focus:ring-1 focus:ring-[#0F5F35]/30"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleAddManual}
+                  disabled={!manualTitle.trim() || !manualContent.trim()}
+                  className="px-4 py-1.5 bg-[#0F5F35] text-white text-xs font-bold rounded-lg hover:bg-[#003725] disabled:opacity-50"
+                >
+                  Ajouter
+                </button>
+                <button onClick={() => { setShowAddManual(false); setManualTitle(''); setManualContent('') }} className="px-3 py-1.5 text-xs text-[#716D5C] hover:text-[#262626]">
+                  Annuler
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Entries list */}
