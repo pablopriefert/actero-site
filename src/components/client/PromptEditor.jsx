@@ -5,7 +5,7 @@ import {
   Wand2, Save, Loader2, CheckCircle2, AlertCircle,
   Globe, MessageCircle, ShieldAlert, Package, Sparkles,
   ShoppingBag, Crown, Building2, Headphones, Zap, ChevronDown,
-  Upload, Link2, FileText, Plus,
+  Upload, Link2, FileText, Plus, Trash2, Pencil, X,
 } from 'lucide-react'
 import { useToast } from '../ui/Toast'
 import { supabase } from '../../lib/supabase'
@@ -101,6 +101,31 @@ const AGENT_TEMPLATES = [
   },
 ]
 
+const EditKbEntry = ({ entry, onSave, onCancel }) => {
+  const [title, setTitle] = useState(entry.title)
+  const [content, setContent] = useState(entry.content)
+  return (
+    <div className="space-y-2">
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#262626] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
+      />
+      <textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        rows={3}
+        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#262626] outline-none resize-y focus:ring-1 focus:ring-[#0F5F35]/30"
+      />
+      <div className="flex gap-2">
+        <button onClick={() => onSave(title, content)} className="px-3 py-1.5 bg-[#0F5F35] text-white text-xs font-bold rounded-lg hover:bg-[#003725]">Sauvegarder</button>
+        <button onClick={onCancel} className="px-3 py-1.5 text-xs font-medium text-[#716D5C] hover:text-[#262626]">Annuler</button>
+      </div>
+    </div>
+  )
+}
+
 export const PromptEditor = ({ clientId, theme }) => {
   const queryClient = useQueryClient()
   const toast = useToast()
@@ -112,20 +137,35 @@ export const PromptEditor = ({ clientId, theme }) => {
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [kbEntries, setKbEntries] = useState([])
+  const [editingKb, setEditingKb] = useState(null)
 
-  // Fetch existing KB entries count
-  const { data: kbCount = 0 } = useQuery({
-    queryKey: ['kb-count', clientId],
+  // Fetch existing KB entries
+  const { data: kbEntries = [] } = useQuery({
+    queryKey: ['kb-entries', clientId],
     queryFn: async () => {
-      const { count } = await supabase
+      const { data, error } = await supabase
         .from('client_knowledge_base')
-        .select('*', { count: 'exact', head: true })
+        .select('*')
         .eq('client_id', clientId)
-      return count || 0
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data || []
     },
     enabled: !!clientId,
   })
+
+  const handleDeleteKb = async (id) => {
+    await supabase.from('client_knowledge_base').delete().eq('id', id)
+    queryClient.invalidateQueries({ queryKey: ['kb-entries', clientId] })
+    toast.success('Entree supprimee')
+  }
+
+  const handleUpdateKb = async (id, title, content) => {
+    await supabase.from('client_knowledge_base').update({ title, content, updated_at: new Date().toISOString() }).eq('id', id)
+    queryClient.invalidateQueries({ queryKey: ['kb-entries', clientId] })
+    setEditingKb(null)
+    toast.success('Entree modifiee')
+  }
 
   const handleImportUrl = async () => {
     if (!importUrl.trim()) return
@@ -141,7 +181,7 @@ export const PromptEditor = ({ clientId, theme }) => {
       if (!res.ok) throw new Error(data.error || 'Erreur')
       toast.success(`${data.imported} entrees importees`)
       setImportUrl('')
-      queryClient.invalidateQueries({ queryKey: ['kb-count', clientId] })
+      queryClient.invalidateQueries({ queryKey: ['kb-entries', clientId] })
     } catch (err) {
       toast.error(err.message)
     }
@@ -164,7 +204,7 @@ export const PromptEditor = ({ clientId, theme }) => {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erreur')
       toast.success(`${data.imported} entrees importees depuis "${file.name}"`)
-      queryClient.invalidateQueries({ queryKey: ['kb-count', clientId] })
+      queryClient.invalidateQueries({ queryKey: ['kb-entries', clientId] })
     } catch (err) {
       toast.error(err.message)
     }
@@ -381,8 +421,8 @@ export const PromptEditor = ({ clientId, theme }) => {
             <FileText className="w-4 h-4 text-[#003725]" />
             <h3 className="text-sm font-bold text-[#262626]">Base de connaissances</h3>
           </div>
-          {kbCount > 0 && (
-            <span className="text-xs text-[#716D5C] bg-[#F9F7F1] px-2 py-0.5 rounded-full">{kbCount} entree{kbCount > 1 ? 's' : ''}</span>
+          {kbEntries.length > 0 && (
+            <span className="text-xs text-[#716D5C] bg-[#F9F7F1] px-2 py-0.5 rounded-full">{kbEntries.length} entree{kbEntries.length > 1 ? 's' : ''}</span>
           )}
         </div>
         <p className="text-xs text-[#716D5C]">Importez vos FAQ, politiques et infos produits. L'agent les utilisera pour repondre aux clients.</p>
@@ -428,6 +468,41 @@ export const PromptEditor = ({ clientId, theme }) => {
             <p className="text-[10px] text-[#716D5C]">L'IA extrait les informations utiles du fichier</p>
           </div>
         </div>
+
+        {/* Entries list */}
+        {kbEntries.length > 0 && (
+          <div className="space-y-2 mt-4 pt-4 border-t border-gray-100">
+            {kbEntries.map(entry => (
+              <div key={entry.id} className="p-3 bg-[#F9F7F1] rounded-xl">
+                {editingKb === entry.id ? (
+                  <EditKbEntry
+                    entry={entry}
+                    onSave={(title, content) => handleUpdateKb(entry.id, title, content)}
+                    onCancel={() => setEditingKb(null)}
+                  />
+                ) : (
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-200 text-[#716D5C]">{entry.category}</span>
+                        <p className="text-sm font-semibold text-[#262626] truncate">{entry.title}</p>
+                      </div>
+                      <p className="text-xs text-[#716D5C] line-clamp-2">{entry.content}</p>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button onClick={() => setEditingKb(entry.id)} className="p-1.5 rounded-lg text-[#716D5C] hover:bg-white hover:text-[#262626] transition-colors">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => handleDeleteKb(entry.id)} className="p-1.5 rounded-lg text-[#716D5C] hover:bg-red-50 hover:text-red-500 transition-colors">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Save */}
