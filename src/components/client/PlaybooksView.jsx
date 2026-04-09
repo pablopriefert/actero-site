@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Zap, ShoppingBag, Headphones, Loader2, Play,
   CheckCircle2, AlertTriangle, Plug, Star, Shield,
   Heart, Search, TrendingUp, Package, Gift, Mail,
-  MessageSquare, ArrowRight,
+  MessageSquare, ArrowRight, Copy, Check, Phone,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
@@ -108,8 +108,10 @@ const PLAYBOOK_META = {
   },
   agent_vocal: {
     icon: Headphones, color: 'from-violet-500 to-violet-600',
-    simpleDesc: 'Un agent telephonique IA qui repond aux appels et qualifie les demandes automatiquement.',
+    simpleDesc: 'Un agent vocal IA qui repond aux questions de vos clients par la voix, directement sur votre site.',
     requires: [],
+    hasConfig: true,
+    configType: 'vocal',
   },
 }
 
@@ -290,6 +292,13 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                         <Plug className="w-3 h-3" /> Connecter
                       </button>
                     )}
+
+                    {/* Vocal agent config — shown when active */}
+                    {active && meta.configType === 'vocal' && (
+                      <div className="col-span-full mt-3 pt-3 border-t border-[#f0f0f0]">
+                        <VocalAgentConfig clientId={clientId} />
+                      </div>
+                    )}
                   </div>
                 )
               })}
@@ -297,6 +306,68 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
           </div>
         )
       })}
+    </div>
+  )
+}
+
+/* ═══════════ VOCAL AGENT CONFIG ═══════════ */
+
+const ELEVENLABS_AGENT_ID = 'agent_6901kns1pd7yfxz9nk6cq0f7gaq4'
+
+const VocalAgentConfig = ({ clientId }) => {
+  const [copied, setCopied] = useState(false)
+
+  const widgetCode = `<elevenlabs-convai agent-id="${ELEVENLABS_AGENT_ID}"></elevenlabs-convai>
+<script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>`
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(widgetCode)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Phone className="w-4 h-4 text-violet-600" />
+        <p className="text-[13px] font-semibold text-[#1a1a1a]">Configuration de l'agent vocal</p>
+      </div>
+
+      <div className="p-4 bg-violet-50 rounded-xl border border-violet-100">
+        <p className="text-[12px] text-violet-800 font-medium mb-1">Votre agent vocal est pret</p>
+        <p className="text-[11px] text-violet-600">
+          Il repond aux questions de vos clients par la voix : suivi commande, retours, reclamations, questions produits. Il escalade vers vous si necessaire.
+        </p>
+      </div>
+
+      <div>
+        <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Integrez sur votre site</p>
+        <p className="text-[11px] text-[#9ca3af] mb-2">Copiez ce code et collez-le dans votre site web. Un bouton d'appel apparaitra.</p>
+        <div className="relative">
+          <pre className="p-3 bg-[#1a1a1a] text-green-400 rounded-lg text-[11px] font-mono overflow-x-auto">
+            {widgetCode}
+          </pre>
+          <button
+            onClick={handleCopy}
+            className="absolute top-2 right-2 p-1.5 bg-[#333] hover:bg-[#444] rounded-md transition-colors"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5 text-gray-400" />}
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Tester maintenant</p>
+        <p className="text-[11px] text-[#9ca3af] mb-3">Cliquez pour demarrer un appel test avec votre agent vocal.</p>
+        <a
+          href={`https://elevenlabs.io/app/conversational-ai/agents/${ELEVENLABS_AGENT_ID}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white text-[12px] font-semibold rounded-lg hover:bg-violet-700 transition-colors"
+        >
+          <Phone className="w-3.5 h-3.5" /> Tester l'agent vocal
+        </a>
+      </div>
     </div>
   )
 }
