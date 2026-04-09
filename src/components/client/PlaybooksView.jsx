@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
+import { VocalAgentWizard } from './VocalAgentWizard'
 
 /* ═══════════ CATEGORIES ═══════════ */
 
@@ -120,6 +121,7 @@ const PLAYBOOK_META = {
 export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
+  const [showVocalWizard, setShowVocalWizard] = useState(false)
 
   const { data: playbooks = [], isLoading } = useQuery({
     queryKey: ['playbooks-list'],
@@ -174,6 +176,11 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
     const reqs = checkReqs(playbookName)
     if (!reqs.met) {
       toast.error(`Connectez d'abord : ${reqs.missing.join(', ')}`)
+      return
+    }
+    // Open wizard for vocal agent
+    if (playbookName === 'agent_vocal' && !isActive(playbookName)) {
+      setShowVocalWizard(true)
       return
     }
     const existing = clientPlaybooks.find(cp => cp.playbook_id === pb.id)
@@ -306,6 +313,29 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
           </div>
         )
       })}
+      {/* Vocal Agent Wizard Modal */}
+      {showVocalWizard && (
+        <VocalAgentWizard
+          clientId={clientId}
+          onComplete={() => {
+            setShowVocalWizard(false)
+            // Activate the playbook
+            const pb = playbooks.find(p => p.name === 'agent_vocal')
+            if (pb) {
+              supabase.from('engine_client_playbooks').upsert({
+                client_id: clientId,
+                playbook_id: pb.id,
+                is_active: true,
+                activated_at: new Date().toISOString(),
+              }, { onConflict: 'client_id,playbook_id' }).then(() => {
+                queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
+              })
+            }
+            toast.success('Agent vocal configure et installe !')
+          }}
+          onCancel={() => setShowVocalWizard(false)}
+        />
+      )}
     </div>
   )
 }
