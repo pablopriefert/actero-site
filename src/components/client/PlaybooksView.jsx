@@ -47,7 +47,7 @@ const PLAYBOOK_META = {
     requires: [],
     channels: [
       { id: 'email', label: 'Email', desc: 'Repond aux emails entrants', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
-      { id: 'widget', label: 'Chat sur le site', desc: 'Widget de chat sur votre boutique', icon: MessageSquare, needsIntegration: [] },
+      { id: 'widget', label: 'Chat sur le site', desc: 'Widget de chat sur votre boutique', icon: MessageSquare, needsIntegration: ['shopify'] },
       { id: 'gorgias', label: 'Gorgias', desc: 'Repond aux tickets Gorgias', icon: Headphones, needsIntegration: ['gorgias'] },
       { id: 'zendesk', label: 'Zendesk', desc: 'Repond aux tickets Zendesk', icon: Headphones, needsIntegration: ['zendesk'] },
     ],
@@ -128,7 +128,7 @@ const PLAYBOOK_META = {
     hasConfig: true,
     configType: 'vocal',
     channels: [
-      { id: 'widget_vocal', label: 'Widget vocal sur le site', desc: 'Bouton d\'appel sur votre boutique', icon: Phone, needsIntegration: [] },
+      { id: 'widget_vocal', label: 'Widget vocal sur le site', desc: 'Bouton d\'appel sur votre boutique', icon: Phone, needsIntegration: ['shopify'] },
     ],
   },
 }
@@ -249,6 +249,21 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
       toast.error(`Connectez d'abord : ${reqs.missing.join(', ')}`)
       return
     }
+
+    // Check at least one channel is selected with its integration connected
+    const meta = PLAYBOOK_META[playbookName]
+    if (meta?.channels && !isActive(playbookName)) {
+      const activeChannels = meta.channels.filter(ch => {
+        const isSelected = selectedChannels[`${playbookName}_${ch.id}`]
+        const isConnected = ch.needsIntegration.length === 0 || ch.needsIntegration.some(p => connectedProviders.includes(p))
+        return isSelected && isConnected
+      })
+      if (activeChannels.length === 0) {
+        toast.error('Selectionnez au moins un canal (Email, Chat, etc.) et connectez l\'integration correspondante')
+        return
+      }
+    }
+
     // Open wizard for vocal agent
     if (playbookName === 'agent_vocal' && !isActive(playbookName)) {
       setShowVocalWizard(true)
