@@ -56,12 +56,21 @@ export default async function handler(req, res) {
     const { asset } = await assetRes.json()
     let content = asset.value
 
-    const widgetScript = `\n${WIDGET_TAG}\n<script src="https://actero.fr/widget.js" data-actero-key="${client_id}"></script>\n${WIDGET_TAG}`
+    const cacheBuster = Date.now()
+    const widgetScript = `\n${WIDGET_TAG}\n<script src="https://actero.fr/widget.js?v=${cacheBuster}" data-actero-key="${client_id}"></script>\n${WIDGET_TAG}`
 
     if (action === 'install') {
-      // Check if already installed
+      // Check if already installed — update the widget script to latest version
       if (content.includes(WIDGET_TAG)) {
-        return res.status(200).json({ success: true, message: 'Widget deja installe' })
+        // Replace existing widget with fresh cache-busted version
+        const existingRegex = new RegExp(`\\n${WIDGET_TAG}\\n[\\s\\S]*?\\n${WIDGET_TAG}`)
+        content = content.replace(existingRegex, widgetScript)
+        await fetch(`https://${shop}/admin/api/2024-01/themes/${themeId}/assets.json`, {
+          method: 'PUT',
+          headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ asset: { key: 'layout/theme.liquid', value: content } }),
+        })
+        return res.status(200).json({ success: true, message: 'Widget mis a jour' })
       }
 
       // Inject before </body>

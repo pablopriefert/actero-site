@@ -11,6 +11,13 @@
     ],
     "headers": [
         {
+            "source": "/widget.js",
+            "headers": [
+                { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+                { "key": "Pragma", "value": "no-cache" }
+            ]
+        },
+        {
             "source": "/(.*)",
             "headers": [
                 { "key": "X-Robots-Tag", "value": "index, follow" }
