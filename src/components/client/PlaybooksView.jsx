@@ -212,6 +212,33 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
       } catch {} // Non-blocking
     }
 
+    // Auto-install chat widget on Shopify when widget channel is activated
+    if (channelId === 'widget' && isSelected) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const widgetRes = await fetch('/api/engine/shopify-widget', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ action: 'install', client_id: clientId }),
+        })
+        if (widgetRes.ok) {
+          toast.success('Widget chat installe sur votre boutique Shopify !')
+        }
+      } catch {} // Non-blocking
+    }
+
+    // Auto-uninstall chat widget when widget channel is deactivated
+    if (channelId === 'widget' && !isSelected) {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        await fetch('/api/engine/shopify-widget', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ action: 'uninstall', client_id: clientId }),
+        })
+      } catch {}
+    }
+
     if (cp) {
       await supabase.from('engine_client_playbooks').update({
         custom_config: { ...(cp.custom_config || {}), channels: newChannels },
