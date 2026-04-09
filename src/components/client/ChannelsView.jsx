@@ -144,7 +144,7 @@ export const ChannelsView = ({ clientId, setActiveTab, theme }) => {
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-[#716D5C]" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" />
       </div>
     )
   }
@@ -153,14 +153,14 @@ export const ChannelsView = ({ clientId, setActiveTab, theme }) => {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-[#262626]">Mes Canaux</h2>
-        <p className="text-sm text-[#716D5C] mt-1">Activez les canaux de communication de votre agent IA. Chaque canal utilise vos integrations deja connectees.</p>
+        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Mes Canaux</h2>
+        <p className="text-sm text-[#9ca3af] mt-1">Activez les canaux de communication de votre agent IA. Chaque canal utilise vos integrations deja connectees.</p>
       </div>
 
       {/* Connected channels */}
       {connectedChannels.length > 0 && (
         <div>
-          <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-3">
+          <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3">
             Prets a activer ({connectedChannels.length})
           </p>
           <div className="space-y-3">
@@ -183,7 +183,7 @@ export const ChannelsView = ({ clientId, setActiveTab, theme }) => {
       {/* Disconnected channels */}
       {disconnectedChannels.length > 0 && (
         <div>
-          <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-3">
+          <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3">
             Connectez d'abord l'integration
           </p>
           <div className="space-y-3">
@@ -204,11 +204,11 @@ export const ChannelsView = ({ clientId, setActiveTab, theme }) => {
       )}
 
       {/* Help link */}
-      <div className="p-4 bg-[#F9F7F1] rounded-xl flex items-center gap-3">
-        <Shield className="w-5 h-5 text-[#716D5C]" />
+      <div className="p-4 bg-[#fafafa] rounded-xl flex items-center gap-3">
+        <Shield className="w-5 h-5 text-[#9ca3af]" />
         <div className="flex-1">
-          <p className="text-sm text-[#262626] font-medium">Besoin d'aide pour configurer vos canaux ?</p>
-          <p className="text-xs text-[#716D5C]">Consultez notre guide pas-a-pas</p>
+          <p className="text-sm text-[#1a1a1a] font-medium">Besoin d'aide pour configurer vos canaux ?</p>
+          <p className="text-xs text-[#9ca3af]">Consultez notre guide pas-a-pas</p>
         </div>
         <button
           onClick={() => window.open('/support', '_blank')}
@@ -295,8 +295,8 @@ const ChannelCard = ({ channel, clientId, connected, messageCount, toast, queryC
   }
 
   return (
-    <div className={`bg-white border rounded-2xl overflow-hidden transition-all ${
-      connected ? 'border-gray-200' : 'border-gray-100 opacity-60'
+    <div className={`bg-white border rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] overflow-hidden transition-all ${
+      connected ? 'border-[#f0f0f0]' : 'border-[#f0f0f0] opacity-60'
     }`}>
       <div className="p-4 flex items-center gap-4">
         {/* Icon */}
@@ -307,19 +307,19 @@ const ChannelCard = ({ channel, clientId, connected, messageCount, toast, queryC
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="font-bold text-sm text-[#262626]">{channel.name}</p>
+            <p className="font-bold text-sm text-[#1a1a1a]">{channel.name}</p>
             {isActive && (
               <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full">
                 <CheckCircle2 className="w-3 h-3" /> Actif
               </span>
             )}
           </div>
-          <p className="text-xs text-[#716D5C] mt-0.5 line-clamp-1">{channel.desc}</p>
+          <p className="text-xs text-[#9ca3af] mt-0.5 line-clamp-1">{channel.desc}</p>
         </div>
 
         {/* Stats */}
         {messageCount > 0 && (
-          <span className="text-xs text-[#716D5C] bg-[#F9F7F1] px-2.5 py-1 rounded-lg flex-shrink-0">
+          <span className="text-xs text-[#9ca3af] bg-[#fafafa] px-2.5 py-1 rounded-lg flex-shrink-0">
             {messageCount} msg
           </span>
         )}
@@ -330,7 +330,7 @@ const ChannelCard = ({ channel, clientId, connected, messageCount, toast, queryC
             <div className="flex items-center gap-2 flex-shrink-0">
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="px-3 py-2 text-xs font-medium text-[#716D5C] hover:text-[#262626] transition-colors"
+                className="px-3 py-2 text-xs font-medium text-[#9ca3af] hover:text-[#1a1a1a] transition-colors"
               >
                 Details
               </button>
@@ -346,7 +346,7 @@ const ChannelCard = ({ channel, clientId, connected, messageCount, toast, queryC
             <button
               onClick={handleActivate}
               disabled={activating}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#0F5F35] text-white text-xs font-bold rounded-full hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
             >
               {activating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
               Activer
@@ -355,7 +355,7 @@ const ChannelCard = ({ channel, clientId, connected, messageCount, toast, queryC
         ) : (
           <button
             onClick={() => setActiveTab('integrations')}
-            className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-[#716D5C] text-xs font-bold rounded-full hover:bg-gray-200 transition-colors flex-shrink-0"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#f5f5f5] text-[#71717a] text-[12px] font-semibold rounded-lg hover:bg-[#ebebeb] transition-colors flex-shrink-0"
           >
             <Plug className="w-3.5 h-3.5" />
             Connecter {channel.requiresLabel}
@@ -370,46 +370,46 @@ const ChannelCard = ({ channel, clientId, connected, messageCount, toast, queryC
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden border-t border-gray-100"
+            className="overflow-hidden border-t border-[#f0f0f0]"
           >
             <div className="p-4">
               {channel.id === 'shopify_widget' && (
-                <p className="text-sm text-[#716D5C]">
+                <p className="text-sm text-[#9ca3af]">
                   Le widget est installe sur votre boutique Shopify. Un bouton de chat vert apparait en bas a droite de votre site. Vos clients peuvent poser leurs questions et l'agent IA repond en temps reel.
                 </p>
               )}
               {channel.id === 'gmail' && (
-                <p className="text-sm text-[#716D5C]">
+                <p className="text-sm text-[#9ca3af]">
                   L'agent surveille votre boite Gmail et repond automatiquement aux emails clients. Les reponses sont envoyees depuis votre adresse email.
                 </p>
               )}
               {channel.id === 'gorgias' && (
-                <p className="text-sm text-[#716D5C]">
+                <p className="text-sm text-[#9ca3af]">
                   L'agent traite automatiquement les nouveaux tickets Gorgias. Les reponses apparaissent directement dans votre interface Gorgias avec le tag "actero-auto-reply".
                 </p>
               )}
               {channel.id === 'zendesk' && (
-                <p className="text-sm text-[#716D5C]">
+                <p className="text-sm text-[#9ca3af]">
                   L'agent repond aux nouveaux tickets Zendesk. Les reponses sont postees comme commentaires publics sur le ticket.
                 </p>
               )}
               {channel.id === 'slack' && (
-                <p className="text-sm text-[#716D5C]">
+                <p className="text-sm text-[#9ca3af]">
                   Les alertes d'escalade, rapports et notifications sont envoyes dans votre canal Slack configure.
                 </p>
               )}
               {channel.id === 'widget_manual' && (
                 <div className="space-y-3">
-                  <p className="text-sm text-[#716D5C]">Entrez l'URL de votre site pour recevoir les instructions d'installation :</p>
+                  <p className="text-sm text-[#9ca3af]">Entrez l'URL de votre site pour recevoir les instructions d'installation :</p>
                   <div className="flex gap-2">
                     <input
                       type="url"
                       value={siteUrl}
                       onChange={(e) => setSiteUrl(e.target.value)}
                       placeholder="https://mon-site.com"
-                      className="flex-1 px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm outline-none"
+                      className="flex-1 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] outline-none"
                     />
-                    <button className="px-4 py-2.5 bg-[#0F5F35] text-white text-sm font-bold rounded-xl hover:bg-[#003725]">
+                    <button className="px-4 py-2.5 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725]">
                       Installer
                     </button>
                   </div>
@@ -417,22 +417,22 @@ const ChannelCard = ({ channel, clientId, connected, messageCount, toast, queryC
               )}
               {channel.id === 'whatsapp' && (
                 <div className="space-y-3">
-                  <p className="text-sm text-[#716D5C]">Entrez votre numero WhatsApp pour activer votre assistant :</p>
+                  <p className="text-sm text-[#9ca3af]">Entrez votre numero WhatsApp pour activer votre assistant :</p>
                   <div className="flex gap-2">
                     <input
                       type="tel"
                       value={whatsappNumber}
                       onChange={(e) => setWhatsappNumber(e.target.value)}
                       placeholder="+33 6 12 34 56 78"
-                      className="flex-1 px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm outline-none"
+                      className="flex-1 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] outline-none"
                     />
-                    <button className="px-4 py-2.5 bg-[#25D366] text-white text-sm font-bold rounded-xl hover:bg-[#128C7E]">
+                    <button className="px-4 py-2.5 bg-[#25D366] text-white text-[12px] font-semibold rounded-lg hover:bg-[#128C7E]">
                       Activer
                     </button>
                   </div>
                   {whatsappNumber && (
-                    <div className="p-3 bg-[#F9F7F1] rounded-xl text-center">
-                      <p className="text-xs text-[#716D5C] mb-2">Scannez ce QR code avec WhatsApp :</p>
+                    <div className="p-3 bg-[#fafafa] rounded-xl text-center">
+                      <p className="text-xs text-[#9ca3af] mb-2">Scannez ce QR code avec WhatsApp :</p>
                       <img
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://wa.me/${whatsappNumber.replace(/\s/g, '')}?text=Activer+Actero`)}`}
                         alt="QR Code WhatsApp"

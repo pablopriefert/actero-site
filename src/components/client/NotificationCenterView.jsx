@@ -58,7 +58,7 @@ const Toggle = ({ isOn, onToggle, small }) => (
   <button
     onClick={onToggle}
     className={`relative rounded-full transition-colors flex-shrink-0 ${
-      isOn ? 'bg-[#0F5F35]' : 'bg-gray-200'
+      isOn ? 'bg-[#0F5F35]' : 'bg-[#e5e5e5]'
     } ${small ? 'w-8 h-[18px]' : 'w-11 h-6'}`}
   >
     <div className={`absolute top-0.5 rounded-full bg-white shadow transition-transform ${
@@ -177,7 +177,7 @@ export const NotificationCenterView = ({ clientId, theme }) => {
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-[#716D5C]" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" />
       </div>
     )
   }
@@ -186,12 +186,12 @@ export const NotificationCenterView = ({ clientId, theme }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#003725]/10 flex items-center justify-center">
-          <Bell className="w-5 h-5 text-[#003725]" />
+        <div className="w-10 h-10 rounded-xl bg-[#0F5F35]/10 flex items-center justify-center">
+          <Bell className="w-5 h-5 text-[#0F5F35]" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-[#262626]">Notifications</h2>
-          <p className="text-sm text-[#716D5C]">{activeCount} notification{activeCount > 1 ? 's' : ''} active{activeCount > 1 ? 's' : ''} — choisissez quoi recevoir et ou</p>
+          <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Notifications</h2>
+          <p className="text-sm text-[#9ca3af]">{activeCount} notification{activeCount > 1 ? 's' : ''} active{activeCount > 1 ? 's' : ''} — choisissez quoi recevoir et ou</p>
         </div>
       </div>
 
@@ -200,9 +200,9 @@ export const NotificationCenterView = ({ clientId, theme }) => {
         {CHANNELS.map(ch => {
           const Icon = ch.icon
           return (
-            <div key={ch.id} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-100 rounded-lg">
-              <Icon className="w-3.5 h-3.5 text-[#716D5C]" />
-              <span className="text-xs font-medium text-[#262626]">{ch.label}</span>
+            <div key={ch.id} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#f0f0f0] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+              <Icon className="w-3.5 h-3.5 text-[#9ca3af]" />
+              <span className="text-xs font-medium text-[#1a1a1a]">{ch.label}</span>
             </div>
           )
         })}
@@ -217,19 +217,19 @@ export const NotificationCenterView = ({ clientId, theme }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: sIdx * 0.05 }}
-            className="bg-white border border-gray-200 rounded-2xl overflow-hidden"
+            className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden"
           >
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
+            <div className="px-5 py-4 border-b border-[#f0f0f0] flex items-center gap-2">
               <SectionIcon className={`w-4 h-4 ${section.color}`} />
-              <h3 className="text-sm font-bold text-[#262626]">{section.section}</h3>
+              <h3 className="text-sm font-bold text-[#1a1a1a]">{section.section}</h3>
             </div>
 
             <div className="divide-y divide-gray-50">
               {section.items.map(item => (
                 <div key={item.key} className="px-5 py-4 flex items-center gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#262626]">{item.label}</p>
-                    <p className="text-xs text-[#716D5C] mt-0.5">{item.desc}</p>
+                    <p className="text-sm font-medium text-[#1a1a1a]">{item.label}</p>
+                    <p className="text-xs text-[#9ca3af] mt-0.5">{item.desc}</p>
                   </div>
 
                   {/* Channel toggles */}
@@ -244,7 +244,7 @@ export const NotificationCenterView = ({ clientId, theme }) => {
                           className={`p-2 rounded-lg border transition-all ${
                             enabled
                               ? 'bg-[#0F5F35]/10 border-[#0F5F35]/30 text-[#0F5F35]'
-                              : 'bg-gray-50 border-gray-100 text-gray-300 hover:text-[#716D5C] hover:border-gray-200'
+                              : 'bg-[#fafafa] border-[#f0f0f0] text-[#e5e5e5] hover:text-[#9ca3af] hover:border-[#ebebeb]'
                           }`}
                           title={`${CHANNELS.find(c => c.id === ch)?.label}: ${enabled ? 'Actif' : 'Inactif'}`}
                         >
@@ -261,16 +261,16 @@ export const NotificationCenterView = ({ clientId, theme }) => {
       })}
 
       {/* Timing preferences */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-5">
+      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-5 space-y-5">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-[#003725]" />
-          <h3 className="text-sm font-bold text-[#262626]">Horaires</h3>
+          <Clock className="w-4 h-4 text-[#0F5F35]" />
+          <h3 className="text-sm font-bold text-[#1a1a1a]">Horaires</h3>
         </div>
 
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-[#262626]">Heure d'envoi des rapports</p>
-            <p className="text-xs text-[#716D5C]">Les resumes quotidiens et hebdomadaires seront envoyes a cette heure</p>
+            <p className="text-sm font-medium text-[#1a1a1a]">Heure d'envoi des rapports</p>
+            <p className="text-xs text-[#9ca3af]">Les resumes quotidiens et hebdomadaires seront envoyes a cette heure</p>
           </div>
           <select
             value={preferredHour}
@@ -279,7 +279,7 @@ export const NotificationCenterView = ({ clientId, theme }) => {
               setPreferredHour(val)
               updatePref.mutate({ preferred_hour: val })
             }}
-            className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none"
+            className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-xl text-sm text-[#1a1a1a] outline-none"
           >
             {HOURS.map(h => (
               <option key={h} value={h}>{h}h00</option>
@@ -287,11 +287,11 @@ export const NotificationCenterView = ({ clientId, theme }) => {
           </select>
         </div>
 
-        <div className="border-t border-gray-100 pt-4">
+        <div className="border-t border-[#f0f0f0] pt-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm font-medium text-[#262626]">Mode silencieux</p>
-              <p className="text-xs text-[#716D5C]">Pas de notifications push entre ces heures</p>
+              <p className="text-sm font-medium text-[#1a1a1a]">Mode silencieux</p>
+              <p className="text-xs text-[#9ca3af]">Pas de notifications push entre ces heures</p>
             </div>
             <Toggle
               isOn={quietHoursEnabled}
@@ -305,7 +305,7 @@ export const NotificationCenterView = ({ clientId, theme }) => {
 
           {quietHoursEnabled && (
             <div className="flex items-center gap-3 pl-4">
-              <span className="text-xs text-[#716D5C]">De</span>
+              <span className="text-xs text-[#9ca3af]">De</span>
               <select
                 value={quietStart}
                 onChange={(e) => {
@@ -313,13 +313,13 @@ export const NotificationCenterView = ({ clientId, theme }) => {
                   setQuietStart(val)
                   updatePref.mutate({ quiet_hours_start: val })
                 }}
-                className="px-2 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none"
+                className="px-2 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i} value={i}>{i}h00</option>
                 ))}
               </select>
-              <span className="text-xs text-[#716D5C]">a</span>
+              <span className="text-xs text-[#9ca3af]">a</span>
               <select
                 value={quietEnd}
                 onChange={(e) => {
@@ -327,7 +327,7 @@ export const NotificationCenterView = ({ clientId, theme }) => {
                   setQuietEnd(val)
                   updatePref.mutate({ quiet_hours_end: val })
                 }}
-                className="px-2 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none"
+                className="px-2 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i} value={i}>{i}h00</option>

@@ -81,8 +81,8 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
             <ShieldAlert className="w-5 h-5 text-red-500" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#262626]">Regles d'exclusion</h2>
-            <p className="text-sm text-[#716D5C]">
+            <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Regles d'exclusion</h2>
+            <p className="text-sm text-[#9ca3af]">
               {activeCount} regle{activeCount !== 1 ? 's' : ''} active{activeCount !== 1 ? 's' : ''} — appliquee{activeCount !== 1 ? 's' : ''} avant chaque reponse IA
             </p>
           </div>
@@ -99,8 +99,8 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
       </div>
 
       {/* Add rule */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5">
-        <p className="text-xs font-bold text-[#716D5C] uppercase tracking-widest mb-3">Ajouter une regle</p>
+      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-5">
+        <p className="text-xs font-bold text-[#9ca3af] uppercase tracking-widest mb-3">Ajouter une regle</p>
         <div className="flex gap-2">
           <input
             type="text"
@@ -108,12 +108,12 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
             onChange={(e) => setNewRule(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addRule()}
             placeholder="Ex: Ne jamais proposer de remboursement sans escalade humaine"
-            className="flex-1 px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300 placeholder-gray-400"
+            className="flex-1 px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20 placeholder-gray-400"
           />
           <button
             onClick={addRule}
             disabled={!newRule.trim() || adding}
-            className="flex items-center gap-2 px-5 py-3 bg-[#0F5F35] text-white rounded-xl text-sm font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-3 bg-[#0F5F35] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
           >
             {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Ajouter
@@ -123,13 +123,13 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
         {/* Example suggestions */}
         {guardrails.length === 0 && (
           <div className="mt-4">
-            <p className="text-xs text-[#716D5C] mb-2">Exemples :</p>
+            <p className="text-xs text-[#9ca3af] mb-2">Exemples :</p>
             <div className="flex flex-wrap gap-2">
               {EXAMPLES.slice(0, 3).map((ex, i) => (
                 <button
                   key={i}
                   onClick={() => setNewRule(ex)}
-                  className="text-xs px-3 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-[#716D5C] hover:border-gray-300 hover:text-[#262626] transition-colors"
+                  className="text-xs px-3 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[#9ca3af] hover:border-gray-300 hover:text-[#1a1a1a] transition-colors"
                 >
                   + {ex}
                 </button>
@@ -142,10 +142,10 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
       {/* Rules list */}
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-[#716D5C]" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" />
         </div>
       ) : guardrails.length === 0 ? (
-        <div className="text-center py-12 text-[#716D5C]">
+        <div className="text-center py-12 text-[#9ca3af]">
           <ShieldAlert className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p className="text-sm">Aucune regle definie. Ajoutez votre premiere regle ci-dessus.</p>
         </div>
@@ -160,8 +160,8 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
                 exit={{ opacity: 0, x: -20 }}
                 className={`flex items-center gap-3 p-4 rounded-xl border transition-colors ${
                   rule.is_enabled
-                    ? 'bg-white border-gray-200'
-                    : 'bg-gray-50 border-gray-100 opacity-50'
+                    ? 'bg-white border-[#ebebeb]'
+                    : 'bg-[#fafafa] border-[#f0f0f0] opacity-50'
                 }`}
               >
                 {/* Toggle */}
@@ -173,19 +173,19 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
                   {rule.is_enabled ? (
                     <ToggleRight className="w-6 h-6 text-[#0F5F35]" />
                   ) : (
-                    <ToggleLeft className="w-6 h-6 text-gray-300" />
+                    <ToggleLeft className="w-6 h-6 text-[#e5e5e5]" />
                   )}
                 </button>
 
                 {/* Rule text */}
-                <p className={`flex-1 text-sm ${rule.is_enabled ? 'text-[#262626]' : 'text-[#716D5C] line-through'}`}>
+                <p className={`flex-1 text-sm ${rule.is_enabled ? 'text-[#1a1a1a]' : 'text-[#9ca3af] line-through'}`}>
                   {rule.rule_text}
                 </p>
 
                 {/* Delete */}
                 <button
                   onClick={() => deleteRule(rule.id)}
-                  className="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
+                  className="p-1.5 rounded-lg text-[#e5e5e5] hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
                   title="Supprimer"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -291,33 +291,33 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
   const rulePreview = buildRuleText()
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        className="w-full p-5 flex items-center justify-between hover:bg-[#fafafa] transition-colors"
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <div className="text-left">
-            <p className="font-bold text-sm text-[#262626]">Creer une regle visuelle</p>
-            <p className="text-xs text-[#716D5C]">SI [condition] → ALORS [action] — sans code</p>
+            <p className="font-bold text-sm text-[#1a1a1a]">Creer une regle visuelle</p>
+            <p className="text-xs text-[#9ca3af]">SI [condition] → ALORS [action] — sans code</p>
           </div>
         </div>
-        <ChevronDown className={`w-5 h-5 text-[#716D5C] transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-5 h-5 text-[#9ca3af] transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
       {expanded && (
         <motion.div
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
-          className="border-t border-gray-100"
+          className="border-t border-[#f0f0f0]"
         >
           <div className="p-5 space-y-5">
             {/* Conditions */}
             <div>
-              <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-3">
+              <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3">
                 SI (conditions)
               </p>
               <div className="space-y-2">
@@ -331,7 +331,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                       <select
                         value={cond.conditionId}
                         onChange={(e) => updateCondition(i, 'conditionId', e.target.value)}
-                        className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none"
+                        className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
                       >
                         <option value="">Choisir...</option>
                         {CONDITIONS.map(c => (
@@ -344,7 +344,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                           <select
                             value={cond.operator}
                             onChange={(e) => updateCondition(i, 'operator', e.target.value)}
-                            className="px-2 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none w-16"
+                            className="px-2 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-16"
                           >
                             {(condConfig.operators || ['>']).map(op => (
                               <option key={op} value={op}>{op}</option>
@@ -355,9 +355,9 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                             value={cond.value}
                             onChange={(e) => updateCondition(i, 'value', e.target.value)}
                             placeholder="0"
-                            className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none w-24"
+                            className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-24"
                           />
-                          {condConfig.unit && <span className="text-xs text-[#716D5C]">{condConfig.unit}</span>}
+                          {condConfig.unit && <span className="text-xs text-[#9ca3af]">{condConfig.unit}</span>}
                         </>
                       )}
 
@@ -365,7 +365,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                         <select
                           value={cond.value}
                           onChange={(e) => updateCondition(i, 'value', e.target.value)}
-                          className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none"
+                          className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
                         >
                           <option value="">Choisir...</option>
                           {condConfig.options.map(opt => (
@@ -380,12 +380,12 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                           value={cond.value}
                           onChange={(e) => updateCondition(i, 'value', e.target.value)}
                           placeholder={condConfig.placeholder || 'Valeur...'}
-                          className="px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm text-[#262626] outline-none flex-1 min-w-[140px]"
+                          className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none flex-1 min-w-[140px]"
                         />
                       )}
 
                       {conditions.length > 1 && (
-                        <button onClick={() => removeCondition(i)} className="p-1 text-gray-300 hover:text-red-500">
+                        <button onClick={() => removeCondition(i)} className="p-1 text-[#e5e5e5] hover:text-red-500">
                           <X className="w-4 h-4" />
                         </button>
                       )}
@@ -404,13 +404,13 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
             {/* Arrow */}
             <div className="flex items-center gap-2">
               <div className="flex-1 h-px bg-gray-200" />
-              <ArrowRight className="w-5 h-5 text-[#716D5C]" />
+              <ArrowRight className="w-5 h-5 text-[#9ca3af]" />
               <div className="flex-1 h-px bg-gray-200" />
             </div>
 
             {/* Actions */}
             <div>
-              <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-3">
+              <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3">
                 ALORS (action)
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -419,11 +419,11 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                     key={act.id}
                     onClick={() => setAction(act.id)}
                     className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      action === act.id ? 'border-[#0F5F35] ring-1 ring-[#0F5F35]/20' : 'border-gray-100 hover:border-gray-200'
+                      action === act.id ? 'border-[#0F5F35] ring-1 ring-[#0F5F35]/20' : 'border-[#f0f0f0] hover:border-[#ebebeb]'
                     }`}
                   >
                     <span className="text-lg">{act.icon}</span>
-                    <p className="text-xs font-bold text-[#262626] mt-1">{act.label}</p>
+                    <p className="text-xs font-bold text-[#1a1a1a] mt-1">{act.label}</p>
                   </button>
                 ))}
               </div>
@@ -434,16 +434,16 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                   value={actionValue}
                   onChange={(e) => setActionValue(e.target.value)}
                   placeholder={action === 'promo' ? 'Code: SORRY10' : action === 'tag' ? 'Nom du tag' : 'Texte de la reponse'}
-                  className="mt-3 w-full px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                  className="mt-3 w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20"
                 />
               )}
             </div>
 
             {/* Preview */}
             {rulePreview && (
-              <div className="p-3 bg-[#F9F7F1] rounded-xl border border-gray-100">
-                <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-1">Apercu de la regle</p>
-                <p className="text-sm text-[#262626] font-medium">{rulePreview}</p>
+              <div className="p-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+                <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1">Apercu de la regle</p>
+                <p className="text-sm text-[#1a1a1a] font-medium">{rulePreview}</p>
               </div>
             )}
 
@@ -531,56 +531,56 @@ const EscalationThresholds = ({ clientId }) => {
   if (isLoading || !form) return null
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-5">
+    <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6 space-y-5">
       <div className="flex items-center gap-3 mb-1">
         <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
           <Sliders className="w-5 h-5 text-amber-600" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-[#262626]">Seuils d'escalade</h3>
-          <p className="text-xs text-[#716D5C]">Definissez quand l'IA doit passer la main a un humain</p>
+          <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Seuils d'escalade</h3>
+          <p className="text-xs text-[#9ca3af]">Definissez quand l'IA doit passer la main a un humain</p>
         </div>
       </div>
 
       <div className="space-y-5">
         {/* Order value */}
         <div>
-          <label className="block text-sm font-medium text-[#262626] mb-1">
+          <label className="block text-sm font-medium text-[#1a1a1a] mb-1">
             Montant de commande (EUR)
           </label>
-          <p className="text-xs text-[#716D5C] mb-2">Escalader si la commande depasse ce montant. 0 = desactive.</p>
+          <p className="text-xs text-[#9ca3af] mb-2">Escalader si la commande depasse ce montant. 0 = desactive.</p>
           <input
             type="number"
             min="0"
             value={form.order_value_threshold}
             onChange={(e) => setForm(f => ({ ...f, order_value_threshold: e.target.value }))}
-            className="w-full max-w-xs px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20"
             placeholder="Ex: 150"
           />
         </div>
 
         {/* Repeat customer */}
         <div>
-          <label className="block text-sm font-medium text-[#262626] mb-1">
+          <label className="block text-sm font-medium text-[#1a1a1a] mb-1">
             Client fidele (nombre de commandes)
           </label>
-          <p className="text-xs text-[#716D5C] mb-2">Escalader si le client a passe plus de X commandes. 0 = desactive.</p>
+          <p className="text-xs text-[#9ca3af] mb-2">Escalader si le client a passe plus de X commandes. 0 = desactive.</p>
           <input
             type="number"
             min="0"
             value={form.repeat_customer_orders}
             onChange={(e) => setForm(f => ({ ...f, repeat_customer_orders: e.target.value }))}
-            className="w-full max-w-xs px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20"
             placeholder="Ex: 5"
           />
         </div>
 
         {/* Confidence threshold */}
         <div>
-          <label className="block text-sm font-medium text-[#262626] mb-1">
+          <label className="block text-sm font-medium text-[#1a1a1a] mb-1">
             Seuil de confiance IA (%)
           </label>
-          <p className="text-xs text-[#716D5C] mb-2">Escalader si la confiance de l'IA est inferieure a ce pourcentage.</p>
+          <p className="text-xs text-[#9ca3af] mb-2">Escalader si la confiance de l'IA est inferieure a ce pourcentage.</p>
           <div className="flex items-center gap-3 max-w-xs">
             <input
               type="range"
@@ -591,15 +591,15 @@ const EscalationThresholds = ({ clientId }) => {
               onChange={(e) => setForm(f => ({ ...f, low_confidence_threshold: e.target.value }))}
               className="flex-1 accent-[#0F5F35]"
             />
-            <span className="text-sm font-bold text-[#262626] w-12 text-center">{form.low_confidence_threshold}%</span>
+            <span className="text-sm font-bold text-[#1a1a1a] w-12 text-center">{form.low_confidence_threshold}%</span>
           </div>
         </div>
 
         {/* Aggressive tone */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-[#262626]">Ton agressif detecte</p>
-            <p className="text-xs text-[#716D5C]">Escalader automatiquement si le message est detecte comme agressif</p>
+            <p className="text-sm font-medium text-[#1a1a1a]">Ton agressif detecte</p>
+            <p className="text-xs text-[#9ca3af]">Escalader automatiquement si le message est detecte comme agressif</p>
           </div>
           <button
             onClick={() => setForm(f => ({ ...f, aggressive_tone_enabled: !f.aggressive_tone_enabled }))}
@@ -608,22 +608,22 @@ const EscalationThresholds = ({ clientId }) => {
             {form.aggressive_tone_enabled ? (
               <ToggleRight className="w-8 h-8 text-[#0F5F35]" />
             ) : (
-              <ToggleLeft className="w-8 h-8 text-gray-300" />
+              <ToggleLeft className="w-8 h-8 text-[#e5e5e5]" />
             )}
           </button>
         </div>
 
         {/* Keywords */}
         <div>
-          <label className="block text-sm font-medium text-[#262626] mb-1">
+          <label className="block text-sm font-medium text-[#1a1a1a] mb-1">
             Mots-cles d'escalade
           </label>
-          <p className="text-xs text-[#716D5C] mb-2">Escalader si le message contient ces mots (separes par des virgules).</p>
+          <p className="text-xs text-[#9ca3af] mb-2">Escalader si le message contient ces mots (separes par des virgules).</p>
           <input
             type="text"
             value={form.keywords}
             onChange={(e) => setForm(f => ({ ...f, keywords: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+            className="w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20"
             placeholder="Ex: avocat, juridique, DGCCRF, plainte"
           />
         </div>
@@ -634,13 +634,13 @@ const EscalationThresholds = ({ clientId }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#0F5F35] text-white rounded-xl text-sm font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#0F5F35] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Enregistrer les seuils
         </button>
         {saved && (
-          <span className="text-xs text-[#003725] flex items-center gap-1">
+          <span className="text-xs text-[#0F5F35] flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" /> Enregistre
           </span>
         )}

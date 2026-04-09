@@ -110,17 +110,17 @@ const EditKbEntry = ({ entry, onSave, onCancel }) => {
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#262626] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
+        className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
       />
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={3}
-        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#262626] outline-none resize-y focus:ring-1 focus:ring-[#0F5F35]/30"
+        className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-[#0F5F35]/30"
       />
       <div className="flex gap-2">
-        <button onClick={() => onSave(title, content)} className="px-3 py-1.5 bg-[#0F5F35] text-white text-xs font-bold rounded-lg hover:bg-[#003725]">Sauvegarder</button>
-        <button onClick={onCancel} className="px-3 py-1.5 text-xs font-medium text-[#716D5C] hover:text-[#262626]">Annuler</button>
+        <button onClick={() => onSave(title, content)} className="px-3 py-1.5 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725]">Sauvegarder</button>
+        <button onClick={onCancel} className="px-3 py-1.5 text-xs font-medium text-[#9ca3af] hover:text-[#1a1a1a]">Annuler</button>
       </div>
     </div>
   )
@@ -301,12 +301,12 @@ export const PromptEditor = ({ clientId, theme }) => {
   if (isLoading) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-[#716D5C]" />
+        <Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" />
       </div>
     )
   }
 
-  const inputClass = "w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300 placeholder-gray-400"
+  const inputClass = "w-full px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20 placeholder-gray-400"
 
   return (
     <div className="space-y-8">
@@ -392,15 +392,15 @@ export const PromptEditor = ({ clientId, theme }) => {
       </div>
 
       {/* Language */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Globe className="w-4 h-4 text-[#003725]" />
-          <h3 className="text-sm font-bold text-[#262626]">Langue de l'agent</h3>
+          <Globe className="w-4 h-4 text-[#0F5F35]" />
+          <h3 className="text-sm font-bold text-[#1a1a1a]">Langue de l'agent</h3>
         </div>
         <select
           value={form.brand_language}
           onChange={(e) => setForm(f => ({ ...f, brand_language: e.target.value }))}
-          className="w-full max-w-xs px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300 appearance-none cursor-pointer"
+          className="w-full max-w-xs px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20 appearance-none cursor-pointer"
         >
           {LANGUAGES.map(l => (
             <option key={l.value} value={l.value}>{l.label}</option>
@@ -409,22 +409,22 @@ export const PromptEditor = ({ clientId, theme }) => {
       </div>
 
       {/* Base de connaissances — Import */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-[#003725]" />
-            <h3 className="text-sm font-bold text-[#262626]">Base de connaissances</h3>
+            <FileText className="w-4 h-4 text-[#0F5F35]" />
+            <h3 className="text-sm font-bold text-[#1a1a1a]">Base de connaissances</h3>
           </div>
           {kbEntries.length > 0 && (
-            <span className="text-xs text-[#716D5C] bg-[#F9F7F1] px-2 py-0.5 rounded-full">{kbEntries.length} entree{kbEntries.length > 1 ? 's' : ''}</span>
+            <span className="text-xs text-[#9ca3af] bg-[#fafafa] px-2 py-0.5 rounded-full">{kbEntries.length} entree{kbEntries.length > 1 ? 's' : ''}</span>
           )}
         </div>
-        <p className="text-xs text-[#716D5C]">Importez vos FAQ, politiques et infos produits. L'agent les utilisera pour repondre aux clients.</p>
+        <p className="text-xs text-[#9ca3af]">Importez vos FAQ, politiques et infos produits. L'agent les utilisera pour repondre aux clients.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* URL Import */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider flex items-center gap-1">
               <Link2 className="w-3 h-3" /> Importer depuis une URL
             </label>
             <div className="flex gap-2">
@@ -438,28 +438,28 @@ export const PromptEditor = ({ clientId, theme }) => {
               <button
                 onClick={handleImportUrl}
                 disabled={!importUrl.trim() || importing}
-                className="px-4 py-3 bg-[#0F5F35] text-white rounded-xl text-sm font-bold hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
+                className="px-4 py-3 bg-[#0F5F35] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
               >
                 {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
               </button>
             </div>
-            <p className="text-[10px] text-[#716D5C]">L'IA scrape la page et genere des FAQ automatiquement</p>
+            <p className="text-[10px] text-[#9ca3af]">L'IA scrape la page et genere des FAQ automatiquement</p>
           </div>
 
           {/* File Upload */}
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider flex items-center gap-1">
+            <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider flex items-center gap-1">
               <Upload className="w-3 h-3" /> Importer un fichier
             </label>
-            <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#0F5F35]/30 hover:bg-[#F9F7F1] transition-all">
+            <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#ebebeb] rounded-xl cursor-pointer hover:border-[#0F5F35]/30 hover:bg-[#f5f5f5] transition-all">
               {uploading ? (
-                <><Loader2 className="w-4 h-4 animate-spin text-[#716D5C]" /><span className="text-sm text-[#716D5C]">Analyse...</span></>
+                <><Loader2 className="w-4 h-4 animate-spin text-[#9ca3af]" /><span className="text-sm text-[#9ca3af]">Analyse...</span></>
               ) : (
-                <><Upload className="w-4 h-4 text-[#716D5C]" /><span className="text-sm text-[#716D5C]">PDF, TXT, CSV — max 4 Mo</span></>
+                <><Upload className="w-4 h-4 text-[#9ca3af]" /><span className="text-sm text-[#9ca3af]">PDF, TXT, CSV — max 4 Mo</span></>
               )}
               <input type="file" accept=".pdf,.txt,.csv,.md,.doc,.docx" onChange={handleFileUpload} disabled={uploading} className="hidden" />
             </label>
-            <p className="text-[10px] text-[#716D5C]">L'IA extrait les informations utiles du fichier</p>
+            <p className="text-[10px] text-[#9ca3af]">L'IA extrait les informations utiles du fichier</p>
           </div>
         </div>
 
@@ -474,30 +474,30 @@ export const PromptEditor = ({ clientId, theme }) => {
               Ajouter une entree manuellement
             </button>
           ) : (
-            <div className="space-y-2 p-3 bg-[#F9F7F1] rounded-xl">
+            <div className="space-y-2 p-3 bg-[#fafafa] rounded-xl">
               <input
                 type="text"
                 value={manualTitle}
                 onChange={(e) => setManualTitle(e.target.value)}
                 placeholder="Titre (ex: Delais de livraison)"
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#262626] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
+                className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
               />
               <textarea
                 value={manualContent}
                 onChange={(e) => setManualContent(e.target.value)}
                 placeholder="Contenu (ex: La livraison est gratuite a partir de 50€. Delai: 2-5 jours ouvres.)"
                 rows={3}
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#262626] outline-none resize-y focus:ring-1 focus:ring-[#0F5F35]/30"
+                className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-[#0F5F35]/30"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleAddManual}
                   disabled={!manualTitle.trim() || !manualContent.trim()}
-                  className="px-4 py-1.5 bg-[#0F5F35] text-white text-xs font-bold rounded-lg hover:bg-[#003725] disabled:opacity-50"
+                  className="px-4 py-1.5 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50"
                 >
                   Ajouter
                 </button>
-                <button onClick={() => { setShowAddManual(false); setManualTitle(''); setManualContent('') }} className="px-3 py-1.5 text-xs text-[#716D5C] hover:text-[#262626]">
+                <button onClick={() => { setShowAddManual(false); setManualTitle(''); setManualContent('') }} className="px-3 py-1.5 text-xs text-[#9ca3af] hover:text-[#1a1a1a]">
                   Annuler
                 </button>
               </div>
@@ -509,7 +509,7 @@ export const PromptEditor = ({ clientId, theme }) => {
         {kbEntries.length > 0 && (
           <div className="space-y-2 mt-4 pt-4 border-t border-gray-100">
             {kbEntries.map(entry => (
-              <div key={entry.id} className="p-3 bg-[#F9F7F1] rounded-xl">
+              <div key={entry.id} className="p-3 bg-[#fafafa] rounded-xl">
                 {editingKb === entry.id ? (
                   <EditKbEntry
                     entry={entry}
@@ -520,16 +520,16 @@ export const PromptEditor = ({ clientId, theme }) => {
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-200 text-[#716D5C]">{entry.category}</span>
-                        <p className="text-sm font-semibold text-[#262626] truncate">{entry.title}</p>
+                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#f5f5f5] text-[#9ca3af]">{entry.category}</span>
+                        <p className="text-sm font-semibold text-[#1a1a1a] truncate">{entry.title}</p>
                       </div>
-                      <p className="text-xs text-[#716D5C] line-clamp-2">{entry.content}</p>
+                      <p className="text-xs text-[#9ca3af] line-clamp-2">{entry.content}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <button onClick={() => setEditingKb(entry.id)} className="p-1.5 rounded-lg text-[#716D5C] hover:bg-white hover:text-[#262626] transition-colors">
+                      <button onClick={() => setEditingKb(entry.id)} className="p-1.5 rounded-lg text-[#9ca3af] hover:bg-white hover:text-[#1a1a1a] transition-colors">
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => handleDeleteKb(entry.id)} className="p-1.5 rounded-lg text-[#716D5C] hover:bg-red-50 hover:text-red-500 transition-colors">
+                      <button onClick={() => handleDeleteKb(entry.id)} className="p-1.5 rounded-lg text-[#9ca3af] hover:bg-red-50 hover:text-red-500 transition-colors">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -546,13 +546,13 @@ export const PromptEditor = ({ clientId, theme }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-6 py-3 bg-[#0F5F35] text-white rounded-full text-sm font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-3 bg-[#0F5F35] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Enregistrer la configuration
         </button>
         {saved && (
-          <span className="text-sm text-[#003725] flex items-center gap-1 font-medium">
+          <span className="text-sm text-[#0F5F35] flex items-center gap-1 font-medium">
             <CheckCircle2 className="w-4 h-4" /> Configuration sauvegardee
           </span>
         )}

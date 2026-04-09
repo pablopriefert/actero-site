@@ -110,33 +110,33 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-white border border-gray-100 rounded-2xl shadow-sm w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-white border border-[#f0f0f0] rounded-2xl shadow-sm w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-[#f0f0f0]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-amber-400" />
             </div>
             <div>
-              <h3 className="text-[#262626] font-bold">Ticket escalade</h3>
+              <h3 className="text-[#1a1a1a] font-bold">Ticket escalade</h3>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
                   {reason}
                 </span>
-                <span className={`text-xs ${isOverdue(conversation.created_at) ? 'text-red-400' : 'text-[#716D5C]'}`}>
+                <span className={`text-xs ${isOverdue(conversation.created_at) ? 'text-red-400' : 'text-[#9ca3af]'}`}>
                   <Clock className="w-3 h-3 inline mr-1" />
                   {formatTimeAgo(conversation.created_at)}
                 </span>
               </div>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#716D5C] hover:text-[#262626]"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="text-[#9ca3af] hover:text-[#1a1a1a]"><X className="w-5 h-5" /></button>
         </div>
 
         {/* Client info */}
-        <div className="px-6 py-4 border-b border-gray-100">
-          <div className="flex flex-wrap gap-4 text-xs text-[#716D5C]">
+        <div className="px-6 py-4 border-b border-[#f0f0f0]">
+          <div className="flex flex-wrap gap-4 text-xs text-[#9ca3af]">
             {conversation.customer_name && (
               <span className="flex items-center gap-1"><User className="w-3 h-3" /> {conversation.customer_name}</span>
             )}
@@ -155,15 +155,15 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
         {/* Conversation */}
         <div className="p-6 space-y-4">
           <div>
-            <p className="text-xs font-bold text-[#716D5C] uppercase tracking-wider mb-2">Message du client</p>
-            <div className="bg-gray-50 rounded-xl px-4 py-3 text-sm text-[#716D5C] whitespace-pre-wrap">
+            <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Message du client</p>
+            <div className="bg-[#fafafa] rounded-xl px-4 py-3 text-sm text-[#9ca3af] whitespace-pre-wrap">
               {conversation.customer_message}
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-bold text-[#716D5C] uppercase tracking-wider mb-2">Reponse IA</p>
-            <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl px-4 py-3 text-sm text-[#716D5C] italic">
+            <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Reponse IA</p>
+            <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl px-4 py-3 text-sm text-[#9ca3af] italic">
               {conversation.ai_response || 'L\'IA n\'a pas pu repondre a ce message.'}
             </div>
           </div>
@@ -171,15 +171,15 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
 
         {/* Response area */}
         {!conversation.human_response ? (
-          <div className="p-6 border-t border-gray-200 space-y-4">
+          <div className="p-6 border-t border-[#f0f0f0] space-y-4">
             <div>
-              <label className="block text-xs font-bold text-[#716D5C] uppercase tracking-wider mb-2">Votre reponse</label>
+              <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Votre reponse</label>
               <textarea
                 value={response}
                 onChange={(e) => setResponse(e.target.value)}
                 rows={5}
                 placeholder="Redigez votre reponse..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#262626] outline-none resize-none focus:border-gray-400"
+                className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-4 py-3 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-[#0F5F35]/30"
               />
             </div>
 
@@ -188,13 +188,13 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 type="checkbox"
                 checked={addToKb}
                 onChange={(e) => setAddToKb(e.target.checked)}
-                className="mt-0.5 rounded border-white/20 bg-gray-50 text-blue-500"
+                className="mt-0.5 rounded border-white/20 bg-[#fafafa] text-blue-500"
               />
               <div>
-                <span className="text-sm text-[#716D5C] group-hover:text-[#262626] transition-colors">
+                <span className="text-sm text-[#9ca3af] group-hover:text-[#1a1a1a] transition-colors">
                   Ajouter cette reponse a ma base de connaissances
                 </span>
-                <p className="text-xs text-[#716D5C] mt-0.5">
+                <p className="text-xs text-[#9ca3af] mt-0.5">
                   L&apos;IA saura repondre a cette question la prochaine fois
                 </p>
               </div>
@@ -204,7 +204,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               <button
                 onClick={() => respondMutation.mutate()}
                 disabled={!response.trim() || respondMutation.isPending}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-[#262626] hover:bg-gray-100 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-[12px] font-semibold bg-[#0F5F35] text-white hover:bg-[#003725] transition-all disabled:opacity-50"
               >
                 {respondMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Envoyer la reponse
@@ -212,22 +212,22 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               <button
                 onClick={() => ignoreMutation.mutate()}
                 disabled={ignoreMutation.isPending}
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-[#716D5C] hover:text-[#262626] transition-colors"
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-[#9ca3af] hover:text-[#1a1a1a] transition-colors"
               >
                 Ignorer
               </button>
             </div>
           </div>
         ) : (
-          <div className="p-6 border-t border-gray-200">
+          <div className="p-6 border-t border-[#f0f0f0]">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Repondu</p>
             </div>
-            <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-4 py-3 text-sm text-[#716D5C] whitespace-pre-wrap">
+            <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-4 py-3 text-sm text-[#9ca3af] whitespace-pre-wrap">
               {conversation.human_response}
             </div>
-            <p className="text-xs text-[#716D5C] mt-2">
+            <p className="text-xs text-[#9ca3af] mt-2">
               Repondu le {new Date(conversation.human_responded_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
@@ -333,32 +333,32 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up">
       <div>
-        <h2 className={`text-2xl font-bold tracking-tight ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>
+        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">
           Escalades
         </h2>
-        <p className={`text-sm mt-1 ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>
+        <p className="text-[13px] text-[#9ca3af] mt-1">
           Tickets necessitant votre intervention.
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
-          <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>Escalades ce mois</p>
-          <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>{stats?.monthCount || 0}</p>
+        <div className={`rounded-xl border p-4 bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>
+          <p className={`text-xs font-bold uppercase tracking-wider text-[#9ca3af]`}>Escalades ce mois</p>
+          <p className={`text-2xl font-bold mt-1 text-[#1a1a1a]`}>{stats?.monthCount || 0}</p>
         </div>
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
-          <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>Temps moyen de reponse</p>
-          <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>{stats?.avgResponseHours || 0}h</p>
+        <div className={`rounded-xl border p-4 bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>
+          <p className={`text-xs font-bold uppercase tracking-wider text-[#9ca3af]`}>Temps moyen de reponse</p>
+          <p className={`text-2xl font-bold mt-1 text-[#1a1a1a]`}>{stats?.avgResponseHours || 0}h</p>
         </div>
-        <div className={`rounded-xl border p-4 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
-          <p className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>Taux d&apos;escalade</p>
-          <p className={`text-2xl font-bold mt-1 ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>{stats?.escalationRate || 0}%</p>
+        <div className={`rounded-xl border p-4 bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>
+          <p className={`text-xs font-bold uppercase tracking-wider text-[#9ca3af]`}>Taux d&apos;escalade</p>
+          <p className={`text-2xl font-bold mt-1 text-[#1a1a1a]`}>{stats?.escalationRate || 0}%</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className={`flex p-1 rounded-xl border w-fit ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-gray-50 border-gray-200'}`}>
+      <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-[#fafafa] w-fit">
         {[
           { id: 'pending', label: 'A traiter', count: pendingCount },
           { id: 'resolved', label: 'Traites' },
@@ -367,10 +367,10 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
           <button
             key={f.id}
             onClick={() => setFilter(f.id)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition-all flex items-center gap-2 ${
               filter === f.id
-                ? (isLight ? 'bg-white text-[#003725] shadow-sm' : 'bg-gray-50 text-[#262626]')
-                : (isLight ? 'text-[#716D5C] hover:text-[#262626]' : 'text-[#716D5C] hover:text-[#716D5C]')
+                ? 'bg-white text-[#1a1a1a] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                : 'text-[#9ca3af] hover:text-[#1a1a1a]'
             }`}
           >
             {f.label}
@@ -391,12 +391,12 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
       {/* List */}
       {isLoading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-[#716D5C]" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}>
-          <CheckCircle2 className={`w-10 h-10 mx-auto mb-3 ${isLight ? 'text-slate-300' : 'text-[#716D5C]'}`} />
-          <p className={`text-sm ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>
+        <div className={`text-center py-16 rounded-2xl border bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>
+          <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-[#9ca3af] opacity-40" />
+          <p className="text-[13px] text-[#9ca3af]">
             {filter === 'pending' ? 'Aucun ticket en attente.' : 'Aucune escalade trouvee.'}
           </p>
         </div>
@@ -410,11 +410,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                 key={conv.id}
                 layout
                 onClick={() => setSelectedConversation(conv)}
-                className={`rounded-2xl border p-5 cursor-pointer transition-all ${
-                  isLight
-                    ? 'bg-white border-gray-200 hover:border-slate-300'
-                    : 'bg-white border-gray-100 shadow-sm hover:border-gray-300'
-                } ${overdue ? 'border-l-2 border-l-red-500' : ''}`}
+                className={`rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] bg-white p-5 cursor-pointer transition-all hover:border-gray-300 ${overdue ? 'border-l-2 border-l-red-500' : ''}`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
@@ -428,19 +424,19 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                           En attente
                         </span>
                       )}
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-50 text-[#716D5C] border border-gray-200">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#fafafa] text-[#9ca3af] border border-[#f0f0f0]">
                         {reason}
                       </span>
-                      <span className={`text-xs flex items-center gap-1 ${overdue ? 'text-red-400' : 'text-[#716D5C]'}`}>
+                      <span className={`text-xs flex items-center gap-1 ${overdue ? 'text-red-400' : 'text-[#9ca3af]'}`}>
                         <Clock className="w-3 h-3" />
                         {formatTimeAgo(conv.created_at)}
                       </span>
                     </div>
-                    <p className={`text-sm font-medium ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>
+                    <p className={`text-sm font-medium text-[#1a1a1a]`}>
                       {conv.customer_name || conv.customer_email || 'Client'}
                       {conv.subject ? ` — ${conv.subject}` : ''}
                     </p>
-                    <p className={`text-xs mt-1 line-clamp-1 ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>
+                    <p className={`text-xs mt-1 line-clamp-1 text-[#9ca3af]`}>
                       {conv.customer_message}
                     </p>
                   </div>

@@ -24,7 +24,7 @@ const ProviderIcon = ({ provider, connected, size = 40 }) => {
         />
       ) : (
         <div
-          className="w-full h-full rounded-xl flex items-center justify-center font-bold text-[#262626]"
+          className="w-full h-full rounded-xl flex items-center justify-center font-bold text-[#1a1a1a]"
           style={{ backgroundColor: config.color || '#3f3f46', fontSize: size * 0.4 }}
         >
           {config.name?.[0] || '?'}
@@ -35,11 +35,11 @@ const ProviderIcon = ({ provider, connected, size = 40 }) => {
 };
 
 const STATUS_BADGES = {
-  active: { label: 'Connecté', className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-  expired: { label: 'Expiré', className: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
-  error: { label: 'Erreur', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
-  revoked: { label: 'Révoqué', className: 'bg-gray-100 text-[#716D5C] border-gray-200' },
-  pending: { label: 'En attente', className: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+  active: { label: 'Connecté', className: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+  expired: { label: 'Expiré', className: 'bg-amber-50 text-amber-700 border-amber-200' },
+  error: { label: 'Erreur', className: 'bg-red-50 text-red-600 border-red-200' },
+  revoked: { label: 'Révoqué', className: 'bg-[#f5f5f5] text-[#9ca3af] border-[#ebebeb]' },
+  pending: { label: 'En attente', className: 'bg-blue-50 text-blue-600 border-blue-200' },
 };
 
 const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain, onOAuthConnect, onDisconnect, onTest, isLight }) => {
@@ -51,11 +51,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
   const [testResult, setTestResult] = useState(null);
 
   return (
-    <div className={`relative rounded-2xl border p-5 transition-all hover:border-gray-300 ${
-      isLight
-        ? `bg-white border-gray-200 ${isConnected ? 'ring-1 ring-emerald-200' : ''}`
-        : `bg-[#F9F7F1] border-gray-200 ${isConnected ? 'ring-1 ring-emerald-500/20' : ''}`
-    }`}>
+    <div className={`relative rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] bg-white p-5 transition-all hover:border-gray-300 ${isConnected ? 'ring-1 ring-emerald-200' : ''}`}>
       {provider.popular && (
         <div className="absolute -top-2.5 right-4">
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
@@ -68,7 +64,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
         <ProviderIcon provider={provider} connected={isConnected} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className={`font-bold text-sm ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>{provider.name}</h4>
+            <h4 className={`font-bold text-sm text-[#1a1a1a]`}>{provider.name}</h4>
             {badge && (
               <motion.span
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -79,7 +75,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
               </motion.span>
             )}
           </div>
-          <p className={`text-xs ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>{provider.description}</p>
+          <p className={`text-xs text-[#9ca3af]`}>{provider.description}</p>
 
           {isShopify && shopifyDomain && (
             <p className="text-xs text-emerald-400 mt-1">{shopifyDomain}</p>
@@ -108,7 +104,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                       if (result?.ok) setTimeout(() => setTestResult(null), 3000);
                     }}
                     disabled={testing}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#003725] bg-[#F9F7F1] hover:bg-gray-100 border border-gray-200 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#0F5F35] bg-[#f5f5f5] hover:bg-[#ebebeb] border border-[#ebebeb] transition-colors disabled:opacity-50"
                   >
                     {testing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     {testing ? 'Test...' : 'Tester'}
@@ -123,19 +119,19 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                   </button>
                 )}
                 {isShopify && (
-                  <span className="text-xs text-[#003725] font-medium flex items-center gap-1">
+                  <span className="text-xs text-[#0F5F35] font-medium flex items-center gap-1">
                     <CheckCircle className="w-3.5 h-3.5" /> App installée
                   </span>
                 )}
                 {testResult && (
-                  <span className={`text-xs font-medium flex items-center gap-1 ${testResult.ok ? 'text-[#003725]' : 'text-red-500'}`}>
+                  <span className={`text-xs font-medium flex items-center gap-1 ${testResult.ok ? 'text-[#0F5F35]' : 'text-red-500'}`}>
                     {testResult.ok ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                     {testResult.message}
                   </span>
                 )}
               </>
             ) : provider.authType === 'coming_soon' ? (
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-[#716D5C] bg-gray-50 cursor-not-allowed">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#9ca3af] bg-[#f5f5f5] cursor-not-allowed">
                 <Plug className="w-3 h-3" /> Bientot
               </span>
             ) : provider.authType === 'api_key' ? (
@@ -232,32 +228,28 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className={`relative w-full max-w-md mx-4 rounded-2xl border shadow-2xl p-6 max-h-[85vh] overflow-y-auto ${
-          isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'
-        }`}
+        className="relative w-full max-w-md mx-4 rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] bg-white p-6 max-h-[85vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <ProviderIcon provider={provider} connected={false} size={36} />
             <div>
-              <h3 className={`font-bold ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>
+              <h3 className={`font-bold text-[#1a1a1a]`}>
                 Connecter {provider.name}
               </h3>
-              <p className={`text-xs ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>
+              <p className={`text-xs text-[#9ca3af]`}>
                 Entrez vos identifiants pour activer l'intégration
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#716D5C] hover:text-[#262626] transition-colors">
+          <button onClick={onClose} className="text-[#9ca3af] hover:text-[#1a1a1a] transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Instructions */}
         {provider.apiKeyInstructions && (
-          <div className={`rounded-xl p-4 mb-5 text-sm ${
-            isLight ? 'bg-blue-50 text-blue-800 border border-blue-100' : 'bg-blue-500/10 text-blue-300 border border-blue-500/20'
-          }`}>
+          <div className="rounded-xl p-4 mb-5 text-[13px] bg-blue-50 text-blue-800 border border-blue-100">
             <p>{provider.apiKeyInstructions}</p>
             {provider.docsUrl && (
               <a
@@ -276,7 +268,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
         <div className="space-y-4 mb-5">
           {provider.apiKeyFields?.map(field => (
             <div key={field.key}>
-              <label className={`block text-xs font-bold mb-1.5 ${isLight ? 'text-slate-700' : 'text-[#716D5C]'}`}>
+              <label className={`block text-xs font-bold mb-1.5 text-[#9ca3af]`}>
                 {field.label}
               </label>
               <input
@@ -284,11 +276,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
                 value={credentials[field.key] || ''}
                 onChange={(e) => handleFieldChange(field.key, e.target.value)}
                 placeholder={field.placeholder}
-                className={`w-full px-4 py-3 rounded-xl text-sm outline-none transition-all ${
-                  isLight
-                    ? 'bg-[#F9F7F1] border border-gray-200 text-[#262626] focus:ring-2 focus:ring-blue-500'
-                    : 'bg-white border border-gray-200 text-[#262626] focus:ring-2 focus:ring-gray-300'
-                }`}
+                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-[#0F5F35]/20`}
               />
             </div>
           ))}
@@ -301,11 +289,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className={`flex items-center gap-2 p-3 rounded-xl mb-4 text-sm font-medium ${
-                testResult.ok
-                  ? (isLight ? 'bg-emerald-50 text-emerald-700' : 'bg-emerald-500/10 text-emerald-400')
-                  : (isLight ? 'bg-red-50 text-red-700' : 'bg-red-500/10 text-red-400')
-              }`}
+              className={`flex items-center gap-2 p-3 rounded-xl mb-4 text-sm font-medium ${testResult.ok ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}
             >
               {testResult.ok ? <CheckCircle className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
               {testResult.message}
@@ -318,11 +302,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
           <button
             onClick={handleTest}
             disabled={!allFieldsFilled || testing}
-            className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 ${
-              isLight
-                ? 'bg-gray-100 text-[#262626] hover:bg-gray-200'
-                : 'bg-gray-50 text-[#262626] hover:bg-gray-100 border border-gray-200'
-            }`}
+            className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] rounded-lg`}
           >
             {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             Tester
@@ -347,20 +327,16 @@ const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight 
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`relative w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6 ${
-        isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'
-      }`}
+      className="relative w-full max-w-sm mx-4 rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] bg-white p-6"
     >
-      <h3 className={`font-bold mb-2 ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>Déconnecter {provider}?</h3>
-      <p className={`text-sm mb-5 ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>
+      <h3 className={`font-bold mb-2 text-[#1a1a1a]`}>Déconnecter {provider}?</h3>
+      <p className={`text-sm mb-5 text-[#9ca3af]`}>
         Vos automatisations liées à {provider} seront désactivées.
       </p>
       <div className="flex gap-3">
         <button
           onClick={onClose}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-            isLight ? 'bg-gray-100 text-slate-700 hover:bg-gray-200' : 'bg-gray-50 text-[#262626] hover:bg-gray-100'
-          }`}
+          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]`}
         >
           Annuler
         </button>
@@ -550,25 +526,21 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className={`text-2xl font-bold ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>
+          <h2 className="text-[22px] font-semibold text-[#1a1a1a]">
             Intégrations
           </h2>
-          <p className={`text-sm mt-1 ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>
+          <p className={`text-sm mt-1 text-[#9ca3af]`}>
             {connectedCount} intégration{connectedCount !== 1 ? 's' : ''} connectée{connectedCount !== 1 ? 's' : ''}
           </p>
         </div>
         <div className={`relative max-w-xs w-full ${isLight ? '' : ''}`}>
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`} />
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]`} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher..."
-            className={`w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all ${
-              isLight
-                ? 'bg-white border border-gray-200 text-[#262626] focus:ring-2 focus:ring-blue-500'
-                : 'bg-[#F9F7F1] border border-gray-200 text-[#262626] focus:ring-2 focus:ring-gray-300'
-            }`}
+            className="w-full pl-9 pr-4 py-2.5 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-[#0F5F35]/20"
           />
         </div>
       </div>
@@ -582,8 +554,8 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
             exit={{ opacity: 0 }}
             className={`flex items-center justify-between gap-3 p-4 rounded-xl ${
               oauthMessage.type === 'success'
-                ? (isLight ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20')
-                : (isLight ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-red-500/10 text-red-400 border border-red-500/20')
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-red-50 text-red-600 border border-red-200'
             }`}
           >
             <div className="flex items-center gap-2 text-sm font-medium">
@@ -599,7 +571,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
 
       {isLoading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className={`w-6 h-6 animate-spin ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`} />
+          <Loader2 className={`w-6 h-6 animate-spin text-[#9ca3af]`} />
         </div>
       ) : (
         categories.map(cat => {
@@ -621,7 +593,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
 
           return (
             <div key={cat.key}>
-              <h3 className={`text-sm font-bold mb-4 ${isLight ? 'text-slate-700' : 'text-[#716D5C]'}`}>
+              <h3 className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-4">
                 {cat.label}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -653,19 +625,17 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className={`relative w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6 ${
-                isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'
-              }`}
+              className="relative w-full max-w-sm mx-4 rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] bg-white p-6"
             >
               <div className="flex items-center gap-3 mb-5">
                 <ProviderIcon provider={oauthPromptProvider} connected={false} size={36} />
                 <div>
-                  <h3 className={`font-bold ${isLight ? 'text-[#262626]' : 'text-[#262626]'}`}>
+                  <h3 className={`font-bold text-[#1a1a1a]`}>
                     Connecter {oauthPromptProvider.name}
                   </h3>
                 </div>
               </div>
-              <label className={`block text-xs font-bold mb-2 ${isLight ? 'text-slate-700' : 'text-[#716D5C]'}`}>
+              <label className={`block text-xs font-bold mb-2 text-[#9ca3af]`}>
                 {oauthPromptProvider.oauthPromptLabel}
               </label>
               <input
@@ -675,14 +645,10 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                 onKeyDown={(e) => e.key === 'Enter' && handleOAuthPromptSubmit()}
                 autoFocus
                 placeholder={oauthPromptProvider.oauthPromptPlaceholder || 'ma-boutique'}
-                className={`w-full px-4 py-3 rounded-xl text-sm outline-none transition-all ${
-                  isLight
-                    ? 'bg-[#F9F7F1] border border-gray-200 text-[#262626] focus:ring-2 focus:ring-blue-500'
-                    : 'bg-white border border-gray-200 text-[#262626] focus:ring-2 focus:ring-gray-300'
-                }`}
+                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-[#0F5F35]/20`}
               />
               {oauthPromptProvider.oauthPromptHint && (
-                <p className={`text-xs mt-1.5 mb-4 ${isLight ? 'text-[#716D5C]' : 'text-[#716D5C]'}`}>
+                <p className={`text-xs mt-1.5 mb-4 text-[#9ca3af]`}>
                   {oauthPromptProvider.oauthPromptHint}
                 </p>
               )}
@@ -691,7 +657,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                 <button
                   onClick={() => setOauthPromptProvider(null)}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-                    isLight ? 'bg-gray-100 text-slate-700 hover:bg-gray-200' : 'bg-gray-50 text-[#262626] hover:bg-gray-100'
+                    'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
                   }`}
                 >
                   Annuler
@@ -699,7 +665,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                 <button
                   onClick={handleOAuthPromptSubmit}
                   disabled={!oauthPromptValue.trim()}
-                  className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold text-[#262626] disabled:opacity-50 transition-colors"
+                  className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold text-[#1a1a1a] disabled:opacity-50 transition-colors"
                   style={{ backgroundColor: oauthPromptProvider.color || '#10b981' }}
                 >
                   <ExternalLink className="w-4 h-4" /> Connecter
@@ -717,16 +683,16 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6 bg-white border-gray-200"
+            className="relative w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6 bg-white border-[#ebebeb]"
           >
             <div className="flex items-center gap-3 mb-5">
               <ProviderIcon provider={apiKeyProvider} connected={false} size={36} />
               <div>
-                <h3 className="font-bold text-[#262626]">Connecter {apiKeyProvider.name}</h3>
-                <p className="text-xs text-[#716D5C]">{apiKeyProvider.description}</p>
+                <h3 className="font-bold text-[#1a1a1a]">Connecter {apiKeyProvider.name}</h3>
+                <p className="text-xs text-[#9ca3af]">{apiKeyProvider.description}</p>
               </div>
             </div>
-            <label className="block text-xs font-bold mb-2 text-[#716D5C]">
+            <label className="block text-xs font-bold mb-2 text-[#9ca3af]">
               {apiKeyProvider.apiKeyLabel || 'Cle API'}
             </label>
             <input
@@ -736,16 +702,16 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
               onKeyDown={(e) => e.key === 'Enter' && handleApiKeySubmit()}
               autoFocus
               placeholder={apiKeyProvider.apiKeyPlaceholder || 'Votre cle API...'}
-              className="w-full px-4 py-3 rounded-xl text-sm outline-none bg-[#F9F7F1] border border-gray-200 text-[#262626] focus:ring-2 focus:ring-[#0F5F35]/30"
+              className="w-full px-4 py-3 rounded-lg text-[13px] outline-none bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-[#0F5F35]/20"
             />
             {apiKeyProvider.apiKeyHint && (
-              <p className="text-xs mt-1.5 mb-4 text-[#716D5C]">{apiKeyProvider.apiKeyHint}</p>
+              <p className="text-xs mt-1.5 mb-4 text-[#9ca3af]">{apiKeyProvider.apiKeyHint}</p>
             )}
             {!apiKeyProvider.apiKeyHint && <div className="mb-5" />}
             <div className="flex gap-3">
               <button
                 onClick={() => setApiKeyProvider(null)}
-                className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-gray-100 text-[#262626] hover:bg-gray-200 transition-colors"
+                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] transition-colors"
               >
                 Annuler
               </button>
