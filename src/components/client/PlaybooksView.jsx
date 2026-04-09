@@ -141,53 +141,6 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
   const [showVocalWizard, setShowVocalWizard] = useState(false)
   const [selectedChannels, setSelectedChannels] = useState({})
 
-  // Load saved channels from client_playbooks custom_config
-  useEffect(() => {
-    if (clientPlaybooks.length > 0 && playbooks.length > 0) {
-      const saved = {}
-      clientPlaybooks.forEach(cp => {
-        const pb = playbooks.find(p => p.id === cp.playbook_id)
-        if (pb && cp.custom_config?.channels) {
-          cp.custom_config.channels.forEach(ch => {
-            saved[`${pb.name}_${ch}`] = true
-          })
-        }
-      })
-      setSelectedChannels(prev => ({ ...prev, ...saved }))
-    }
-  }, [clientPlaybooks, playbooks])
-
-  // Save selected channels to DB
-  const saveChannels = async (playbookName, channelId, isSelected) => {
-    const pb = playbooks.find(p => p.name === playbookName)
-    if (!pb) return
-    const cp = clientPlaybooks.find(c => c.playbook_id === pb.id)
-
-    // Get current channels for this playbook
-    const currentChannels = Object.entries(selectedChannels)
-      .filter(([key, val]) => key.startsWith(`${playbookName}_`) && val)
-      .map(([key]) => key.replace(`${playbookName}_`, ''))
-
-    const newChannels = isSelected
-      ? [...currentChannels, channelId]
-      : currentChannels.filter(c => c !== channelId)
-
-    if (cp) {
-      await supabase.from('engine_client_playbooks').update({
-        custom_config: { ...(cp.custom_config || {}), channels: newChannels },
-        updated_at: new Date().toISOString(),
-      }).eq('id', cp.id)
-    } else {
-      await supabase.from('engine_client_playbooks').insert({
-        client_id: clientId,
-        playbook_id: pb.id,
-        is_active: false,
-        custom_config: { channels: newChannels },
-      })
-    }
-    queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
-  }
-
   const { data: playbooks = [], isLoading } = useQuery({
     queryKey: ['playbooks-list'],
     queryFn: async () => {
@@ -218,6 +171,46 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
     },
     enabled: !!clientId,
   })
+
+  // Load saved channels from client_playbooks custom_config
+  useEffect(() => {
+    if (clientPlaybooks.length > 0 && playbooks.length > 0) {
+      const saved = {}
+      clientPlaybooks.forEach(cp => {
+        const pb = playbooks.find(p => p.id === cp.playbook_id)
+        if (pb && cp.custom_config?.channels) {
+          cp.custom_config.channels.forEach(ch => {
+            saved[`${pb.name}_${ch}`] = true
+          })
+        }
+      })
+      setSelectedChannels(prev => ({ ...prev, ...saved }))
+    }
+  }, [clientPlaybooks, playbooks])
+
+  // Save selected channels to DB
+  const saveChannels = async (playbookName, channelId, isSelected) => {
+    const pb = playbooks.find(p => p.name === playbookName)
+    if (!pb) return
+    const cp = clientPlaybooks.find(c => c.playbook_id === pb.id)
+    const currentChannels = Object.entries(selectedChannels)
+      .filter(([key, val]) => key.startsWith(`${playbookName}_`) && val)
+      .map(([key]) => key.replace(`${playbookName}_`, ''))
+    const newChannels = isSelected
+      ? [...currentChannels, channelId]
+      : currentChannels.filter(c => c !== channelId)
+    if (cp) {
+      await supabase.from('engine_client_playbooks').update({
+        custom_config: { ...(cp.custom_config || {}), channels: newChannels },
+        updated_at: new Date().toISOString(),
+      }).eq('id', cp.id)
+    } else {
+      await supabase.from('engine_client_playbooks').insert({
+        client_id: clientId, playbook_id: pb.id, is_active: false, custom_config: { channels: newChannels },
+      })
+    }
+    queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
+  }
 
   const isActive = (playbookName) => {
     const pb = playbooks.find(p => p.name === playbookName)
