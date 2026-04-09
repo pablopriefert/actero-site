@@ -102,12 +102,19 @@ export async function logRun(supabase, {
   // For follow-up messages: don't create new events/metrics
   // But: update the existing ai_conversation with new info (email, escalation, response)
   if (isFollowUp) {
+    const sessionId = normalized?.session_id
     try {
-      // Find the most recent ai_conversation for this client
-      const { data: existing } = await supabase
+      // Find the ai_conversation for THIS session (not just any recent one)
+      let query = supabase
         .from('ai_conversations')
         .select('id, status, customer_email')
         .eq('client_id', clientId)
+
+      if (sessionId) {
+        query = query.eq('session_id', sessionId)
+      }
+
+      const { data: existing } = await query
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
@@ -215,6 +222,7 @@ export async function logRun(supabase, {
 
     const { error: aiError } = await supabase.from('ai_conversations').insert({
       client_id: clientId,
+      session_id: normalized?.session_id || null,
       customer_email: normalized?.customer_email || null,
       customer_name: normalized?.customer_name || null,
       subject: normalized?.subject || classification || 'general',

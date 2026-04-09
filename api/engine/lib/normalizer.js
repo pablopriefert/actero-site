@@ -24,6 +24,7 @@ export function normalizeEvent(source, payload) {
     subject: normalized.subject || payload.subject || '',
     order_id: normalized.order_id || payload.order_id || null,
     ticket_id: normalized.ticket_id || payload.ticket_id || null,
+    session_id: payload.session_id || normalized.metadata?.session_id || null,
     channel: source,
     metadata: normalized.metadata || {},
   }
