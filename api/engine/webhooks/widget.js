@@ -161,10 +161,13 @@ export default async function handler(req, res) {
     }).select().single()
 
     // Determine if this is a follow-up message (not the first in the conversation)
-    // A follow-up means there's at least 1 previous user message in the history
+    // If history was rebuilt from DB, it contains ONLY previous messages (current not yet inserted)
+    // If history came from widget, it includes the current message too
     const previousUserMessages = conversationHistory.filter(m => m.role === 'user').length
-    // The current message is included in history, so >1 means there were previous messages
-    const isFollowUp = previousUserMessages > 1
+    const historyFromDB = !Array.isArray(history) || history.length === 0
+    // DB history: any user message = there were previous messages (current isn't in DB yet)
+    // Widget history: >1 user messages means there were previous ones (current is included)
+    const isFollowUp = historyFromDB ? previousUserMessages >= 1 : previousUserMessages > 1
 
     // Run Brain (with conversation history for memory)
     const brainResult = await runBrain(supabase, {

@@ -170,17 +170,22 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
     }
   }
 
-  // --- Step 4: Check escalation signals from Claude ---
+  // --- Step 4: Check escalation signals ---
+  // Detect explicit human request from message text
+  const msgLower = (normalized?.message || '').toLowerCase()
+  const asksForHuman = /\b(parler.*humain|parler.*conseiller|parler.*responsable|parler.*agent|parler.*personne|transferer|escalad|vrai.*(humain|personne|conseiller)|besoin.*humain|responsable.*humain)\b/i.test(msgLower)
+
   // Escalate when:
-  // - Sentiment very negative (<=2) = truly angry/aggressive customer
+  // - Customer explicitly asks for a human (keyword detection) — ALWAYS escalate
+  // - Sentiment very negative (<=2) = truly angry/aggressive
   // - Classification is 'aggressive' or 'reclamation'
-  // - should_escalate + sentiment <= 4 = Claude flags AND customer unhappy
-  // - Claude explicitly flags should_escalate (customer asked for human)
+  // - Claude flags should_escalate (any sentiment)
   const shouldForceEscalate =
+    asksForHuman ||
+    shouldEscalate ||
     sentimentScore <= 2 ||
     classification === 'aggressive' ||
-    classification === 'reclamation' ||
-    (shouldEscalate && sentimentScore <= 6)
+    classification === 'reclamation'
 
   if (shouldForceEscalate) {
     if (!actionPlan.includes('escalate')) {
