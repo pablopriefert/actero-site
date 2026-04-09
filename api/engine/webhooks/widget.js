@@ -55,6 +55,7 @@ export default async function handler(req, res) {
 
   // Conversation history from widget (array of {role, content})
   const conversationHistory = Array.isArray(history) ? history.slice(-20) : []
+  console.log(`[widget] session=${session_id} message="${message.substring(0,50)}" history_length=${conversationHistory.length} email=${email || 'none'}`)
 
   // Extract email from current message or use provided one
   const emailFromMessage = message.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0]
@@ -94,6 +95,13 @@ export default async function handler(req, res) {
   const startTime = Date.now()
 
   try {
+    // Find the first real user message from conversation history (for ticket display)
+    let firstUserMessage = message
+    if (conversationHistory.length > 0) {
+      const firstUser = conversationHistory.find(m => m.role === 'user' && m.content && !m.content.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/))
+      if (firstUser) firstUserMessage = firstUser.content
+    }
+
     // Use Engine V2 pipeline (Brain → Executor → Logger)
     const normalized = normalizeEvent('widget_message', {
       customer_email: customerEmail,
@@ -101,6 +109,9 @@ export default async function handler(req, res) {
       message,
       session_id,
     })
+    // Override for logger: use first real message + detected email
+    normalized.first_message = firstUserMessage
+    normalized.customer_email = customerEmail
 
     // Find playbook
     const playbook = await loadPlaybook(supabase, clientId, 'widget_message')

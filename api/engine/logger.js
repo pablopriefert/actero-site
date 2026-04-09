@@ -166,12 +166,15 @@ export async function logRun(supabase, {
         ? 'aggressive'
         : null
 
+    // Use first_message if available (from widget conversations with history)
+    const displayMessage = normalized?.first_message || normalized?.message || 'N/A'
+
     const { error: aiError } = await supabase.from('ai_conversations').insert({
       client_id: clientId,
       customer_email: normalized?.customer_email || null,
       customer_name: normalized?.customer_name || null,
       subject: normalized?.subject || classification || 'general',
-      customer_message: normalized?.message || 'N/A',
+      customer_message: displayMessage,
       ai_response: aiResponse || 'Pas de reponse generee',
       status: conversationStatus,
       ticket_type: classification || 'general',
