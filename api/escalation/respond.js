@@ -5,9 +5,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'support@actero.fr';
-
 /**
  * Send email via client's own SMTP (their custom email address).
  * Returns { sent: true, from: 'xxx@xxx.com' } or { sent: false, error: '...' }
@@ -38,30 +35,6 @@ async function sendViaSMTP(smtpConfig, { to, subject, html, brandName }) {
   });
 
   return { sent: true, from: fromEmail };
-}
-
-/**
- * Fallback: send via Resend (Actero's email infrastructure).
- */
-async function sendViaResend({ to, subject, html, brandName }) {
-  if (!RESEND_API_KEY) return { sent: false, error: 'No RESEND_API_KEY' };
-
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: `${brandName || 'Actero'} <${RESEND_FROM}>`,
-      to: [to],
-      subject,
-      html,
-    }),
-  });
-
-  if (res.ok) return { sent: true, from: RESEND_FROM };
-  return { sent: false, error: await res.text() };
 }
 
 export default async function handler(req, res) {
@@ -143,28 +116,11 @@ export default async function handler(req, res) {
           sentVia = 'smtp';
         } catch (smtpErr) {
           console.error('[escalation] SMTP send failed:', smtpErr.message);
-          // Fallback to Resend
-          try {
-            emailResult = await sendViaResend({
-              to: conversation.customer_email,
-              subject, html, brandName,
-            });
-            sentVia = 'resend_fallback';
-          } catch (resendErr) {
-            console.error('[escalation] Resend fallback also failed:', resendErr.message);
-          }
         }
-      } else {
-        // No SMTP configured — use Resend
-        try {
-          emailResult = await sendViaResend({
-            to: conversation.customer_email,
-            subject, html, brandName,
-          });
-          sentVia = 'resend';
-        } catch (err) {
-          console.error('[escalation] Resend send failed:', err.message);
-        }
+      }
+      // No SMTP configured → email won't be sent (client must configure SMTP/IMAP)
+      if (!emailResult.sent && !smtpConfig?.smtp_host) {
+        console.log('[escalation] No SMTP configured — email not sent. Client must connect SMTP/IMAP integration.');
       }
     }
 

@@ -246,6 +246,7 @@ export async function logRun(supabase, {
   }
 
   // 3. Write to ai_conversations (feeds "A traiter" tab + activity feed)
+  // IMPORTANT: Check if a ticket already exists for this session → update instead of create
   try {
     const conversationStatus = isEscalated ? 'escalated' : 'resolved'
     const escalationReason = status === 'needs_review'
@@ -254,24 +255,58 @@ export async function logRun(supabase, {
         ? 'aggressive'
         : null
 
-    // Use first_message if available (from widget conversations with history)
     const displayMessage = normalized?.first_message || normalized?.message || 'N/A'
+    const sessionId = normalized?.session_id
 
-    const { error: aiError } = await supabase.from('ai_conversations').insert({
-      client_id: clientId,
-      session_id: normalized?.session_id || null,
-      customer_email: normalized?.customer_email || null,
-      customer_name: normalized?.customer_name || null,
-      subject: normalized?.subject || classification || 'general',
-      customer_message: displayMessage,
-      ai_response: aiResponse || 'Pas de reponse generee',
-      status: conversationStatus,
-      ticket_type: classification || 'general',
-      confidence_score: confidence,
-      response_time_ms: durationMs,
-      escalation_reason: escalationReason,
-    })
-    if (aiError) console.error('[logger] ai_conversations insert error:', aiError.message)
+    // Check for existing ticket in this session
+    let existingTicket = null
+    if (sessionId) {
+      const { data } = await supabase
+        .from('ai_conversations')
+        .select('id, status, customer_email')
+        .eq('client_id', clientId)
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      existingTicket = data
+    }
+
+    if (existingTicket) {
+      // Update existing ticket instead of creating a duplicate
+      const hasRealEmail = normalized?.customer_email && !normalized.customer_email.includes('@anonymous.actero.fr')
+      const updates = {}
+      if (isEscalated && existingTicket.status !== 'escalated') {
+        updates.status = 'escalated'
+        updates.escalation_reason = escalationReason
+      }
+      if (hasRealEmail && existingTicket.customer_email?.includes('@anonymous.actero.fr')) {
+        updates.customer_email = normalized.customer_email
+      }
+      if (aiResponse && aiResponse.length > 20) {
+        updates.ai_response = aiResponse
+      }
+      if (Object.keys(updates).length > 0) {
+        await supabase.from('ai_conversations').update(updates).eq('id', existingTicket.id)
+      }
+    } else {
+      // Create new ticket (first message of session)
+      const { error: aiError } = await supabase.from('ai_conversations').insert({
+        client_id: clientId,
+        session_id: sessionId,
+        customer_email: normalized?.customer_email || null,
+        customer_name: normalized?.customer_name || null,
+        subject: normalized?.subject || classification || 'general',
+        customer_message: displayMessage,
+        ai_response: aiResponse || 'Pas de reponse generee',
+        status: conversationStatus,
+        ticket_type: classification || 'general',
+        confidence_score: confidence,
+        response_time_ms: durationMs,
+        escalation_reason: escalationReason,
+      })
+      if (aiError) console.error('[logger] ai_conversations insert error:', aiError.message)
+    }
   } catch (err) {
     console.error('[logger] ai_conversations insert exception:', err.message)
   }
