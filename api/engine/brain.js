@@ -175,11 +175,11 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
   const msgLower = (normalized?.message || '').toLowerCase()
   const asksForHuman = /\b(parler.*humain|parler.*conseiller|parler.*responsable|parler.*agent|parler.*personne|transferer|escalad|vrai.*(humain|personne|conseiller)|besoin.*humain|responsable.*humain)\b/i.test(msgLower)
 
-  // Escalate when:
-  // - Customer explicitly asks for a human (keyword detection) — ALWAYS escalate
-  // - Sentiment very negative (<=2) = truly angry/aggressive
+  // Escalate when ANY of these is true:
+  // - Customer explicitly asks for a human (keyword detection)
+  // - Claude flags should_escalate (AI detects escalation needed)
+  // - Sentiment very negative (<=2) = angry/aggressive
   // - Classification is 'aggressive' or 'reclamation'
-  // - Claude flags should_escalate (any sentiment)
   const shouldForceEscalate =
     asksForHuman ||
     shouldEscalate ||
