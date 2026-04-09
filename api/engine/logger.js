@@ -100,19 +100,19 @@ export async function logRun(supabase, {
   if (runError) console.error('[logger] Run insert error:', runError.message)
 
   // For follow-up messages: don't create new events/metrics
-  // But: update the existing ai_conversation with new info (email, escalation, response)
+  // But: update the existing ai_conversation + automation_event + metrics when escalating
   if (isFollowUp) {
     const sessionId = normalized?.session_id
+    const isEscalatedNow = status === 'needs_review' || actionPlan?.includes('escalate')
+    const hasRealEmail = normalized?.customer_email && !normalized.customer_email.includes('@anonymous.actero.fr')
+
     try {
-      // Find the ai_conversation for THIS session (not just any recent one)
+      // Find the ai_conversation for THIS session
       let query = supabase
         .from('ai_conversations')
         .select('id, status, customer_email')
         .eq('client_id', clientId)
-
-      if (sessionId) {
-        query = query.eq('session_id', sessionId)
-      }
+      if (sessionId) query = query.eq('session_id', sessionId)
 
       const { data: existing } = await query
         .order('created_at', { ascending: false })
@@ -120,33 +120,70 @@ export async function logRun(supabase, {
         .maybeSingle()
 
       if (existing) {
-        const isEscalatedNow = status === 'needs_review' || actionPlan?.includes('escalate')
-        const hasRealEmail = normalized?.customer_email && !normalized.customer_email.includes('@anonymous.actero.fr')
         const updates = {}
-
-        // Update email if a real one was detected
         if (hasRealEmail && existing.customer_email?.includes('@anonymous.actero.fr')) {
           updates.customer_email = normalized.customer_email
         }
-
-        // Update to escalated if this follow-up triggers escalation
         if (isEscalatedNow && existing.status !== 'escalated') {
           updates.status = 'escalated'
           updates.escalation_reason = confidence < 0.6 ? 'low_confidence' : 'out_of_policy'
         }
-
-        // Update AI response if we have a better one
         if (aiResponse && aiResponse.length > 20) {
           updates.ai_response = aiResponse
         }
-
         if (Object.keys(updates).length > 0) {
           await supabase.from('ai_conversations').update(updates).eq('id', existing.id)
         }
       }
     } catch (err) {
-      console.error('[logger] follow-up update error:', err.message)
+      console.error('[logger] follow-up ai_conversations update error:', err.message)
     }
+
+    // If this follow-up escalates, also update automation_event and metrics_daily
+    // Convert the "ticket_resolved" into "ticket_escalated"
+    if (isEscalatedNow) {
+      try {
+        // Update the automation_event from ticket_resolved → ticket_escalated
+        const { data: existingEvent } = await supabase
+          .from('automation_events')
+          .select('id, event_category')
+          .eq('client_id', clientId)
+          .eq('event_category', 'ticket_resolved')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (existingEvent) {
+          await supabase.from('automation_events')
+            .update({ event_category: 'ticket_escalated' })
+            .eq('id', existingEvent.id)
+        }
+      } catch (err) {
+        console.error('[logger] follow-up automation_event update error:', err.message)
+      }
+
+      // Update metrics_daily: move from tickets_auto to tickets_escalated
+      try {
+        const today = new Date().toISOString().split('T')[0]
+        const { data: todayMetrics } = await supabase
+          .from('metrics_daily')
+          .select('*')
+          .eq('client_id', clientId)
+          .eq('date', today)
+          .maybeSingle()
+
+        if (todayMetrics) {
+          await supabase.from('metrics_daily').update({
+            tickets_auto: Math.max(0, (todayMetrics.tickets_auto || 0) - 1),
+            tickets_escalated: (todayMetrics.tickets_escalated || 0) + 1,
+            estimated_roi: Math.max(0, (todayMetrics.estimated_roi || 0) - ((todayMetrics.time_saved_minutes || 0) > 0 ? Math.round(((todayMetrics.time_saved_minutes || 0) / (todayMetrics.tickets_auto || 1)) / 60 * 25 * 100) / 100 : 0)),
+          }).eq('id', todayMetrics.id)
+        }
+      } catch (err) {
+        console.error('[logger] follow-up metrics update error:', err.message)
+      }
+    }
+
     return run
   }
 
