@@ -14,29 +14,28 @@ import { useToast } from '../ui/Toast'
 
 const CATEGORIES = [
   {
-    id: 'essentials',
-    label: 'Recommande pour vous',
-    desc: 'Activez ces automatisations en premier pour un impact immediat.',
-    playbooks: ['sav_ecommerce', 'abandoned_cart', 'shipping_tracker'],
-    highlight: true,
+    id: 'support',
+    label: 'Support & SAV',
+    desc: 'Repondez aux demandes de vos clients automatiquement, 24h/24.',
+    playbooks: ['sav_ecommerce'],
   },
   {
     id: 'sales',
     label: 'Ventes & Conversion',
-    desc: 'Augmentez votre chiffre d\'affaires automatiquement.',
-    playbooks: ['abandoned_cart', 'promo_code_handler', 'post_purchase_followup', 'review_collector'],
+    desc: 'Recuperez les ventes perdues et augmentez votre chiffre d\'affaires.',
+    playbooks: ['abandoned_cart'],
   },
   {
-    id: 'support',
-    label: 'Support Client',
-    desc: 'Repondez aux demandes de vos clients 24h/24.',
-    playbooks: ['sav_ecommerce', 'shipping_tracker', 'order_issue_handler', 'support_technique'],
+    id: 'finance',
+    label: 'Comptabilite & Finance',
+    desc: 'Automatisez vos taches comptables et suivez votre tresorerie.',
+    playbooks: ['comptabilite_auto'],
   },
   {
-    id: 'retention',
-    label: 'Fidelisation',
-    desc: 'Gardez vos clients et augmentez leur valeur.',
-    playbooks: ['vip_customer_care', 'anti_churn', 'winback_inactive'],
+    id: 'vocal',
+    label: 'Agents Vocaux',
+    desc: 'Un agent telephonique IA qui repond a vos appels.',
+    playbooks: ['agent_vocal'],
   },
 ]
 
@@ -101,6 +100,16 @@ const PLAYBOOK_META = {
     icon: Headphones, color: 'from-gray-500 to-gray-600',
     simpleDesc: 'Repond aux questions techniques et cree des tickets si besoin.',
     requires: [{ type: 'any', providers: ['gmail', 'gorgias', 'zendesk'], label: 'Gmail, Gorgias ou Zendesk' }],
+  },
+  comptabilite_auto: {
+    icon: TrendingUp, color: 'from-indigo-500 to-indigo-600',
+    simpleDesc: 'Automatise vos relances de factures, exports comptables et alertes de tresorerie.',
+    requires: [{ type: 'all', providers: ['shopify'], label: 'Shopify' }],
+  },
+  agent_vocal: {
+    icon: Headphones, color: 'from-violet-500 to-violet-600',
+    simpleDesc: 'Un agent telephonique IA qui repond aux appels et qualifie les demandes automatiquement.',
+    requires: [],
   },
 }
 
@@ -209,11 +218,8 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
 
         return (
           <div key={cat.id}>
-            <div className="mb-4">
-              <h3 className={`text-[15px] font-semibold ${cat.highlight ? 'text-[#0F5F35]' : 'text-[#1a1a1a]'}`}>
-                {cat.highlight && <span className="inline-block w-2 h-2 rounded-full bg-[#0F5F35] mr-2 mb-0.5" />}
-                {cat.label}
-              </h3>
+            <div className="mb-3">
+              <h3 className="text-[15px] font-semibold text-[#1a1a1a]">{cat.label}</h3>
               <p className="text-[12px] text-[#9ca3af] mt-0.5">{cat.desc}</p>
             </div>
 
@@ -226,19 +232,17 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
 
                 return (
                   <div
-                    key={`${cat.id}-${pb.id}`}
+                    key={pb.id}
                     className={`flex items-center gap-4 px-5 py-4 rounded-xl transition-all ${
                       active
                         ? 'bg-[#0F5F35]/[0.04] border border-[#0F5F35]/20'
                         : 'bg-white border border-[#f0f0f0] shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
                     }`}
                   >
-                    {/* Icon */}
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${meta.color || 'from-gray-400 to-gray-500'} flex-shrink-0`}>
                       <Icon className="w-5 h-5 text-white" />
                     </div>
 
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-[13px] font-semibold text-[#1a1a1a]">{pb.display_name}</p>
@@ -249,7 +253,6 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                         )}
                       </div>
                       <p className="text-[11px] text-[#9ca3af] mt-0.5 leading-relaxed">{meta.simpleDesc || pb.description}</p>
-                      {/* Required integrations */}
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {(meta.requires || []).map((req, ri) => {
                           const isMet = req.type === 'all'
@@ -264,10 +267,14 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                             </span>
                           )
                         })}
+                        {(!meta.requires || meta.requires.length === 0) && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-600">
+                            <CheckCircle2 className="w-2.5 h-2.5" /> Aucune integration requise
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {/* Toggle or Connect */}
                     {reqs.met ? (
                       <button
                         onClick={() => handleToggle(pb.name)}
