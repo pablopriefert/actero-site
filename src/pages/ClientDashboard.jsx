@@ -213,6 +213,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/voice-report") return "voice-report";
     if (route === "/client/notifications") return "notifications";
     if (route === "/client/channels") return "channels";
+    if (route === "/client/billing") return "billing";
     if (route === "/client/playbooks") return "playbooks";
     if (route === "/client/profile") return "profile";
     return "overview";
@@ -722,6 +723,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} />}
 
           {activeTab === "profile" && <ClientProfileView theme={theme} />}
+
+          {activeTab === "billing" && <ClientProfileView theme={theme} />}
 
           {activeTab === "support" && (
             <SupportTicketsView
