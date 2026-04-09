@@ -65,9 +65,18 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
           if (msg.role === 'user') {
             lowConfMessages.push({ role: 'user', content: msg.content })
           } else if (msg.role === 'assistant') {
-            lowConfMessages.push({ role: 'assistant', content: JSON.stringify({ response: msg.content, confidence: 0.9 }) })
+            lowConfMessages.push({ role: 'assistant', content: JSON.stringify({ response: msg.content, confidence: 0.9, should_escalate: false, detected_intent: 'general', sentiment_score: 7, injection_detected: false }) })
           }
         }
+        // Ensure messages start with a user message
+        while (lowConfMessages.length > 0 && lowConfMessages[0].role !== 'user') {
+          lowConfMessages.shift()
+        }
+        // Remove consecutive same-role messages
+        lowConfMessages = lowConfMessages.filter((msg, i) => {
+          if (i === 0) return true
+          return msg.role !== lowConfMessages[i - 1].role
+        })
       }
       lowConfMessages.push({ role: 'user', content: normalized.message })
       const respResult = await callClaude({
@@ -110,10 +119,19 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
           if (msg.role === 'user') {
             claudeMessages.push({ role: 'user', content: msg.content })
           } else if (msg.role === 'assistant') {
-            // Wrap assistant responses as JSON like Claude expects
-            claudeMessages.push({ role: 'assistant', content: JSON.stringify({ response: msg.content, confidence: 0.9 }) })
+            // Send as plain text wrapped in JSON (Claude's expected output format)
+            claudeMessages.push({ role: 'assistant', content: JSON.stringify({ response: msg.content, confidence: 0.9, should_escalate: false, detected_intent: 'general', sentiment_score: 7, injection_detected: false }) })
           }
         }
+        // Ensure messages start with a user message (Claude API requirement)
+        while (claudeMessages.length > 0 && claudeMessages[0].role !== 'user') {
+          claudeMessages.shift()
+        }
+        // Ensure no two consecutive messages have the same role
+        claudeMessages = claudeMessages.filter((msg, i) => {
+          if (i === 0) return true
+          return msg.role !== claudeMessages[i - 1].role
+        })
       }
       // Add current message
       claudeMessages.push({ role: 'user', content: normalized.message })
