@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import nodemailer from 'nodemailer';
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -14,6 +13,7 @@ const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'support@actero.fr';
  * Returns { sent: true, from: 'xxx@xxx.com' } or { sent: false, error: '...' }
  */
 async function sendViaSMTP(smtpConfig, { to, subject, html, brandName }) {
+  const nodemailer = await import('nodemailer').then(m => m.default || m);
   const transporter = nodemailer.createTransport({
     host: smtpConfig.smtp_host,
     port: parseInt(smtpConfig.smtp_port) || 587,
