@@ -116,7 +116,7 @@ const PLAYBOOK_META = {
   comptabilite_auto: {
     icon: TrendingUp, color: 'from-indigo-500 to-indigo-600',
     simpleDesc: 'Automatise vos relances de factures, exports comptables et alertes de tresorerie.',
-    requires: [],
+    requires: [{ type: 'any', providers: ['axonaut', 'pennylane', 'ipaidthat'], label: 'Axonaut, Pennylane ou iPaidThat' }],
     hasConfig: true,
     configType: 'comptabilite',
     channels: [
