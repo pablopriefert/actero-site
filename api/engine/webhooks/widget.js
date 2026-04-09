@@ -201,8 +201,23 @@ export default async function handler(req, res) {
       }
     }
 
+    // Safety net: ensure response is clean text, not JSON
+    let cleanResponse = brainResult.aiResponse || 'Merci pour votre message. Un membre de notre equipe va vous repondre rapidement.'
+    // If response looks like JSON, try to extract the text
+    if (cleanResponse.includes('"response"') && cleanResponse.includes('{')) {
+      try {
+        let jsonStr = cleanResponse
+        const codeBlock = cleanResponse.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/)
+        if (codeBlock) jsonStr = codeBlock[1]
+        const parsed = JSON.parse(jsonStr.match(/\{[\s\S]*\}/)?.[0] || jsonStr)
+        if (parsed.response) cleanResponse = parsed.response
+      } catch {}
+    }
+    // Strip any remaining markdown/code artifacts
+    cleanResponse = cleanResponse.replace(/^```(?:json)?\s*/gm, '').replace(/```\s*$/gm, '').trim()
+
     return res.status(200).json({
-      response: brainResult.aiResponse || 'Merci pour votre message. Un membre de notre equipe va vous repondre rapidement.',
+      response: cleanResponse,
       escalated: brainResult.needsReview,
       confidence: brainResult.confidence,
     })

@@ -65,7 +65,7 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
           if (msg.role === 'user') {
             lowConfMessages.push({ role: 'user', content: msg.content })
           } else if (msg.role === 'assistant') {
-            lowConfMessages.push({ role: 'assistant', content: JSON.stringify({ response: msg.content, confidence: 0.9, should_escalate: false, detected_intent: 'general', sentiment_score: 7, injection_detected: false }) })
+            lowConfMessages.push({ role: 'assistant', content: msg.content })
           }
         }
         // Ensure messages start with a user message
@@ -119,8 +119,8 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
           if (msg.role === 'user') {
             claudeMessages.push({ role: 'user', content: msg.content })
           } else if (msg.role === 'assistant') {
-            // Send as plain text wrapped in JSON (Claude's expected output format)
-            claudeMessages.push({ role: 'assistant', content: JSON.stringify({ response: msg.content, confidence: 0.9, should_escalate: false, detected_intent: 'general', sentiment_score: 7, injection_detected: false }) })
+            // Send previous assistant responses as plain text (not JSON) to avoid Claude mimicking JSON format
+            claudeMessages.push({ role: 'assistant', content: msg.content })
           }
         }
         // Ensure messages start with a user message (Claude API requirement)
