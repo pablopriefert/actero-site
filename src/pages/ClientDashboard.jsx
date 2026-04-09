@@ -460,30 +460,17 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'overview', label: 'Accueil', icon: LayoutDashboard },
     { id: 'activity', label: 'Activite', icon: Activity },
     { id: 'channels', label: 'Mes Canaux', icon: Plug },
-    { id: 'playbooks', label: 'Playbooks', icon: Activity },
+    { id: 'playbooks', label: 'Automatisations', icon: Sparkles },
 
     { type: 'section', label: 'Mon Agent' },
-    { id: 'agent-config', label: 'Configurer', icon: Sparkles },
-    { id: 'simulator', label: 'Tester', icon: MessageCircle },
-    { id: 'escalations', label: 'Escalades', icon: AlertTriangle, badge: escalationCount > 0 ? escalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
-    { id: 'guardrails', label: 'Regles & Limites', icon: Shield },
-
-    { type: 'section', label: 'Vocal' },
-    { id: 'voice-agent', label: 'Appels IA', icon: Phone },
-    { id: 'voice-studio', label: 'Voix', icon: Mic },
-    { id: 'voice-report', label: 'Rapports audio', icon: Volume2 },
+    { id: 'agent-config', label: 'Mon Agent', icon: MessageCircle },
+    { id: 'simulator', label: 'Tester', icon: Activity },
+    { id: 'escalations', label: 'A traiter', icon: AlertTriangle, badge: escalationCount > 0 ? escalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
+    { id: 'guardrails', label: 'Regles', icon: Shield },
 
     { type: 'section', label: 'Connexions' },
     { id: 'integrations', label: 'Integrations', icon: Plug },
-
-    { type: 'expandable', label: 'Avance', icon: Database, defaultOpen: false, children: [
-      { id: 'multi-agent', label: 'Multi-Agents', icon: Network },
-      { id: 'prompt-injection', label: 'Securite', icon: ShieldCheck },
-      { id: 'client-memory', label: 'Memoire', icon: Brain },
-      { id: 'sentiment', label: 'Sentiment', icon: Heart },
-      { id: 'supplier-negotiation', label: 'Negociation', icon: Handshake },
-      { id: 'systems', label: 'Systemes', icon: Database },
-    ]},
+    { id: 'knowledge', label: 'Base de savoir', icon: BookOpen },
 
     { id: 'support', label: 'Aide', icon: MessageSquare },
   ];
@@ -582,11 +569,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "support" && "Aide"}
             {activeTab === "referral" && "Parrainage"}
             {activeTab === "integrations" && "Integrations"}
-            {activeTab === "agent-config" && "Configurer"}
+            {activeTab === "agent-config" && "Mon Agent"}
             {activeTab === "simulator" && "Tester"}
             {activeTab === "team" && "Equipe"}
-            {activeTab === "guardrails" && "Regles & Limites"}
-            {activeTab === "escalations" && "Escalades"}
+            {activeTab === "guardrails" && "Regles"}
+            {activeTab === "escalations" && "A traiter"}
             {activeTab === "voice-agent" && "Appels IA"}
             {activeTab === "multi-agent" && "Multi-Agents"}
             {activeTab === "prompt-injection" && "Securite IA"}
@@ -597,7 +584,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "voice-report" && "Rapports audio"}
             {activeTab === "notifications" && "Notifications"}
             {activeTab === "channels" && "Mes Canaux"}
-            {activeTab === "playbooks" && "Playbooks"}
+            {activeTab === "playbooks" && "Automatisations"}
           </h1>
           <div className="flex items-center gap-3">
             {escalationCount > 0 && (

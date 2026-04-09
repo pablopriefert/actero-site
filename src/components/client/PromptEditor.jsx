@@ -317,44 +317,77 @@ export const PromptEditor = ({ clientId, theme }) => {
             <Wand2 className="w-5 h-5 text-violet-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-[#262626]">Configuration de l'agent</h2>
-            <p className="text-sm text-[#716D5C]">Personnalisez le comportement de votre agent IA sans code</p>
+            <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Mon Agent</h2>
+            <p className="text-[13px] text-[#9ca3af]">Definissez la personnalite et les connaissances de votre agent</p>
           </div>
         </div>
       </div>
 
-      {/* Tone preset */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <MessageCircle className="w-4 h-4 text-[#003725]" />
-          <h3 className="text-sm font-bold text-[#262626]">Ton de marque</h3>
+      {/* Tone sliders (3 axes) */}
+      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <MessageCircle className="w-4 h-4 text-[#0F5F35]" />
+          <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Ton de votre agent</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {TONE_PRESETS.map((preset) => (
-            <button
-              key={preset.value}
-              onClick={() => setForm(f => ({ ...f, brand_tone: preset.value }))}
-              className={`p-4 rounded-xl border text-left transition-all ${
-                form.brand_tone === preset.value
-                  ? 'bg-[#003725] text-white border-[#003725]'
-                  : 'bg-white border-gray-200 hover:border-gray-300 text-[#262626]'
-              }`}
-            >
-              <p className="font-bold text-sm">{preset.label}</p>
-              <p className={`text-xs mt-1 ${form.brand_tone === preset.value ? 'text-white/70' : 'text-[#716D5C]'}`}>
-                {preset.desc}
-              </p>
-            </button>
-          ))}
+        <p className="text-[12px] text-[#9ca3af] mb-6">Ajustez les curseurs pour definir la personnalite de votre agent. La previsualisation se met a jour en temps reel.</p>
+
+        <div className="space-y-6">
+          {/* Slider 1: Formel ↔ Casual */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-semibold text-[#9ca3af]">Formel</span>
+              <span className="text-[11px] font-semibold text-[#9ca3af]">Casual</span>
+            </div>
+            <input
+              type="range" min="0" max="100" step="1"
+              value={form.tone_formality || 30}
+              onChange={(e) => setForm(f => ({ ...f, tone_formality: parseInt(e.target.value) }))}
+              className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
+            />
+          </div>
+
+          {/* Slider 2: Froid ↔ Chaleureux */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-semibold text-[#9ca3af]">Froid</span>
+              <span className="text-[11px] font-semibold text-[#9ca3af]">Chaleureux</span>
+            </div>
+            <input
+              type="range" min="0" max="100" step="1"
+              value={form.tone_warmth || 70}
+              onChange={(e) => setForm(f => ({ ...f, tone_warmth: parseInt(e.target.value) }))}
+              className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
+            />
+          </div>
+
+          {/* Slider 3: Court ↔ Détaillé */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-semibold text-[#9ca3af]">Court</span>
+              <span className="text-[11px] font-semibold text-[#9ca3af]">Detaille</span>
+            </div>
+            <input
+              type="range" min="0" max="100" step="1"
+              value={form.tone_detail || 50}
+              onChange={(e) => setForm(f => ({ ...f, tone_detail: parseInt(e.target.value) }))}
+              className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
+            />
+          </div>
         </div>
-        <div className="mt-3">
-          <input
-            type="text"
-            value={form.brand_tone}
-            onChange={(e) => setForm(f => ({ ...f, brand_tone: e.target.value }))}
-            placeholder="Ou ecrivez votre propre ton..."
-            className={inputClass}
-          />
+
+        {/* Live preview */}
+        <div className="mt-6 p-4 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+          <p className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Previsualisation</p>
+          <p className="text-[13px] text-[#1a1a1a] leading-relaxed italic">
+            "{(form.tone_formality || 30) < 40
+              ? (form.tone_warmth || 70) > 60
+                ? 'Bonjour, merci pour votre message. Nous comprenons votre situation et allons faire le necessaire pour resoudre cela rapidement. N\'hesitez pas si vous avez d\'autres questions.'
+                : 'Bonjour. Nous avons bien recu votre demande. Notre equipe la traite dans les meilleurs delais. Cordialement.'
+              : (form.tone_warmth || 70) > 60
+                ? 'Hey ! Merci de nous avoir contactes ! On s\'occupe de ca tout de suite, pas de souci. Tu as besoin d\'autre chose ?'
+                : 'Salut ! On a bien recu ton message. On regarde ca et on te tient au courant. A bientot !'
+            }"
+          </p>
         </div>
       </div>
 
