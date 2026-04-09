@@ -318,7 +318,7 @@ const VocalAgentConfig = ({ clientId }) => {
   const [copied, setCopied] = useState(false)
 
   const widgetCode = `<elevenlabs-convai agent-id="${ELEVENLABS_AGENT_ID}"></elevenlabs-convai>
-<script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>`
+<script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>`
 
   const handleCopy = () => {
     navigator.clipboard.writeText(widgetCode)
