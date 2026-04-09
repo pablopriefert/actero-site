@@ -608,6 +608,16 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "overview" && (
             <div className="max-w-6xl mx-auto">
 
+              {/* ── Onboarding Wizard (shows for new clients) ── */}
+              <div className="mb-8">
+                <OnboardingWizard
+                  clientId={currentClient?.id}
+                  clientType={currentClient?.client_type}
+                  setActiveTab={setActiveTab}
+                  theme={theme}
+                />
+              </div>
+
               {/* ── KPI Row (Instantly-style) ── */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
                 {[
