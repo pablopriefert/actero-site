@@ -427,6 +427,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       const { error } = await supabase.from('client_integrations').upsert({
         client_id: clientId,
         provider: smtpProvider.id,
+        provider_label: 'Email personnalise (SMTP/IMAP)',
         auth_type: 'smtp',
         status: 'active',
         api_key: String(smtpValues.password),
