@@ -306,6 +306,23 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
       })
     }
     queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
+
+    // Auto-uninstall widget when playbook is deactivated
+    if (currentlyActive) {
+      const channels = selectedChannels
+      const hasWidget = Object.entries(channels).some(([key, val]) => key.startsWith(`${playbookName}_widget`) && val)
+      if (hasWidget) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          await fetch('/api/engine/shopify-widget', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+            body: JSON.stringify({ action: 'uninstall', client_id: clientId }),
+          })
+        } catch {}
+      }
+    }
+
     toast.success(!currentlyActive ? `"${pb.display_name}" active` : `"${pb.display_name}" desactive`)
   }
 
