@@ -47,20 +47,38 @@ export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKEN
       const rawText = data?.content?.[0]?.text || ''
       const processingTimeMs = Date.now() - startTime
 
-      // Parse JSON response
+      // Parse JSON response — handle markdown code blocks and other wrapping
       let parsed
       try {
         parsed = JSON.parse(rawText)
       } catch {
-        // If Claude didn't return valid JSON, wrap it
-        parsed = {
-          response: rawText.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim(),
-          confidence: 0.5,
-          should_escalate: false,
-          escalation_reason: null,
-          detected_intent: 'general',
-          sentiment_score: 5,
-          injection_detected: false,
+        // Try extracting JSON from markdown code blocks or surrounding text
+        let jsonStr = rawText
+        // Remove ```json ... ``` wrapper
+        const codeBlockMatch = rawText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/)
+        if (codeBlockMatch) {
+          jsonStr = codeBlockMatch[1].trim()
+        } else {
+          // Try to find JSON object in the text
+          const jsonMatch = rawText.match(/\{[\s\S]*\}/)
+          if (jsonMatch) {
+            jsonStr = jsonMatch[0]
+          }
+        }
+
+        try {
+          parsed = JSON.parse(jsonStr)
+        } catch {
+          // Final fallback: If Claude didn't return valid JSON, wrap it
+          parsed = {
+            response: rawText.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim(),
+            confidence: 0.5,
+            should_escalate: false,
+            escalation_reason: null,
+            detected_intent: 'general',
+            sentiment_score: 5,
+            injection_detected: false,
+          }
         }
       }
 
