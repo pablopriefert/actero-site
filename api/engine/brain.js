@@ -164,9 +164,17 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
   }
 
   // --- Step 4: Check escalation signals from Claude ---
-  // Escalate if: Claude flagged should_escalate, or sentiment is very negative (<=2),
-  // or classification is 'aggressive', or injection detected
-  if (shouldEscalate || sentimentScore <= 2 || classification === 'aggressive') {
+  // Only escalate on STRONG signals:
+  // - Sentiment very negative (<=2) = truly angry/aggressive customer
+  // - Classification is 'aggressive' or 'reclamation' (explicit complaint)
+  // - should_escalate + low sentiment (<=4) = Claude flags AND customer is unhappy
+  const shouldForceEscalate =
+    sentimentScore <= 2 ||
+    classification === 'aggressive' ||
+    classification === 'reclamation' ||
+    (shouldEscalate && sentimentScore <= 4)
+
+  if (shouldForceEscalate) {
     if (!actionPlan.includes('escalate')) {
       actionPlan = [...actionPlan, 'escalate']
     }
@@ -176,7 +184,7 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
       actionPlan,
       aiResponse,
       needsReview: true,
-      reviewReason: shouldEscalate ? (escalationReason || 'aggressive') : 'aggressive',
+      reviewReason: sentimentScore <= 2 ? 'aggressive' : (escalationReason || 'out_of_policy'),
     }
   }
 
