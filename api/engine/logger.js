@@ -6,6 +6,71 @@
  */
 
 /**
+ * Map a free-text classification to a valid ticket_type enum value.
+ * Valid values: order_tracking, address_change, return_exchange, product_info,
+ *              other, lead_qualification, visit_request, property_matching, billing, general
+ */
+function mapTicketType(classification) {
+  if (!classification) return 'general'
+  const c = classification.toLowerCase()
+
+  // Direct matches
+  const directMap = {
+    order_tracking: 'order_tracking',
+    suivi_commande: 'order_tracking',
+    tracking: 'order_tracking',
+    livraison: 'order_tracking',
+    shipping: 'order_tracking',
+    colis: 'order_tracking',
+
+    address_change: 'address_change',
+    changement_adresse: 'address_change',
+    adresse: 'address_change',
+
+    return_exchange: 'return_exchange',
+    retour: 'return_exchange',
+    echange: 'return_exchange',
+    remboursement: 'return_exchange',
+    refund: 'return_exchange',
+
+    product_info: 'product_info',
+    question_produit: 'product_info',
+    produit: 'product_info',
+    product: 'product_info',
+    info_produit: 'product_info',
+
+    billing: 'billing',
+    facturation: 'billing',
+    paiement: 'billing',
+    facture: 'billing',
+    payment: 'billing',
+
+    lead_qualification: 'lead_qualification',
+    qualification: 'lead_qualification',
+    lead: 'lead_qualification',
+
+    general: 'general',
+    autre: 'general',
+    greeting: 'general',
+    bonjour: 'general',
+    aggressive: 'other',
+    complaint: 'other',
+    plainte: 'other',
+    error: 'other',
+  }
+
+  // Check for direct match
+  if (directMap[c]) return directMap[c]
+
+  // Check for partial match
+  for (const [key, value] of Object.entries(directMap)) {
+    if (c.includes(key) || key.includes(c)) return value
+  }
+
+  return 'general'
+}
+
+/**
  * Log a complete run.
  * Also accepts optional normalized event data for ai_conversations logging.
  */
@@ -42,6 +107,9 @@ export async function logRun(supabase, {
       ? 'ticket_escalated'
       : 'ticket_error'
 
+  // Map classification to valid ticket_type enum
+  const ticketType = mapTicketType(classification)
+
   // Get client's settings (avg ticket time + hourly cost for ROI)
   let avgTicketTimeSec = 300 // default 5 min
   let hourlyCost = 25 // default 25€/h
@@ -66,11 +134,11 @@ export async function logRun(supabase, {
   const estimatedRoi = isResolved ? Math.round((timeSaved / 3600) * hourlyCost * 100) / 100 : 0
 
   try {
-    await supabase.from('automation_events').insert({
+    const { error: aeError } = await supabase.from('automation_events').insert({
       client_id: clientId,
       event_category: eventCategory,
       event_type: classification || 'engine_run',
-      ticket_type: classification || 'general',
+      ticket_type: ticketType,
       time_saved_seconds: timeSaved,
       description: `[Engine] ${classification} — ${status} (${Math.round((confidence || 0) * 100)}% confiance, ${durationMs}ms)`,
       metadata: {
@@ -84,8 +152,9 @@ export async function logRun(supabase, {
         source: 'engine_v2',
       },
     })
+    if (aeError) console.error('[logger] automation_events insert error:', aeError.message)
   } catch (err) {
-    console.error('[logger] automation_events insert error:', err.message)
+    console.error('[logger] automation_events insert exception:', err.message)
   }
 
   // 3. Write to ai_conversations (feeds "A traiter" tab + activity feed)
@@ -97,21 +166,22 @@ export async function logRun(supabase, {
         ? 'aggressive'
         : null
 
-    await supabase.from('ai_conversations').insert({
+    const { error: aiError } = await supabase.from('ai_conversations').insert({
       client_id: clientId,
       customer_email: normalized?.customer_email || null,
       customer_name: normalized?.customer_name || null,
       subject: normalized?.subject || classification || 'general',
       customer_message: normalized?.message || 'N/A',
-      ai_response: aiResponse || 'Pas de réponse générée',
+      ai_response: aiResponse || 'Pas de reponse generee',
       status: conversationStatus,
       ticket_type: classification || 'general',
       confidence_score: confidence,
       response_time_ms: durationMs,
       escalation_reason: escalationReason,
     })
+    if (aiError) console.error('[logger] ai_conversations insert error:', aiError.message)
   } catch (err) {
-    console.error('[logger] ai_conversations insert error:', err.message)
+    console.error('[logger] ai_conversations insert exception:', err.message)
   }
 
   // 4. Update metrics_daily (upsert for today)
@@ -131,7 +201,7 @@ export async function logRun(supabase, {
       const newTimeSaved = (existing.time_saved_minutes || 0) + timeSavedMinutes
       const newRoi = (existing.estimated_roi || 0) + estimatedRoi
 
-      await supabase.from('metrics_daily').update({
+      const { error: updateError } = await supabase.from('metrics_daily').update({
         tickets_total: newTicketsTotal,
         tickets_auto: newTicketsAuto,
         tasks_executed: newTasksExecuted,
@@ -142,8 +212,9 @@ export async function logRun(supabase, {
           ? Math.round(newTicketsAuto / newTicketsTotal * 100)
           : 0,
       }).eq('id', existing.id)
+      if (updateError) console.error('[logger] metrics_daily update error:', updateError.message)
     } else {
-      await supabase.from('metrics_daily').insert({
+      const { error: insertError } = await supabase.from('metrics_daily').insert({
         client_id: clientId,
         date: today,
         tickets_total: 1,
@@ -154,9 +225,10 @@ export async function logRun(supabase, {
         estimated_roi: estimatedRoi,
         resolution_rate: isResolved ? 100 : 0,
       })
+      if (insertError) console.error('[logger] metrics_daily insert error:', insertError.message)
     }
   } catch (err) {
-    console.error('[logger] metrics_daily upsert error:', err.message)
+    console.error('[logger] metrics_daily exception:', err.message)
   }
 
   return run
