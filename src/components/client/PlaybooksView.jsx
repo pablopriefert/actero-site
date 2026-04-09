@@ -44,12 +44,22 @@ const PLAYBOOK_META = {
   sav_ecommerce: {
     icon: Headphones, color: 'from-emerald-500 to-emerald-600',
     simpleDesc: 'Repond automatiquement aux questions de vos clients (commandes, retours, produits).',
-    requires: [{ type: 'any', providers: ['gmail', 'gorgias', 'zendesk'], label: 'Gmail, Gorgias ou Zendesk' }],
+    requires: [],
+    channels: [
+      { id: 'email', label: 'Email', desc: 'Repond aux emails entrants', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
+      { id: 'widget', label: 'Chat sur le site', desc: 'Widget de chat sur votre boutique', icon: MessageSquare, needsIntegration: [] },
+      { id: 'gorgias', label: 'Gorgias', desc: 'Repond aux tickets Gorgias', icon: Headphones, needsIntegration: ['gorgias'] },
+      { id: 'zendesk', label: 'Zendesk', desc: 'Repond aux tickets Zendesk', icon: Headphones, needsIntegration: ['zendesk'] },
+    ],
   },
   abandoned_cart: {
     icon: ShoppingBag, color: 'from-amber-500 to-amber-600',
     simpleDesc: 'Relance les clients qui ont abandonne leur panier avec un email personnalise.',
     requires: [{ type: 'all', providers: ['shopify'], label: 'Shopify' }],
+    channels: [
+      { id: 'email', label: 'Email', desc: 'Envoie un email de relance', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
+      { id: 'sms', label: 'SMS', desc: 'Envoie un SMS de relance', icon: MessageSquare, needsIntegration: ['klaviyo'] },
+    ],
   },
   shipping_tracker: {
     icon: Package, color: 'from-blue-500 to-blue-600',
@@ -106,6 +116,10 @@ const PLAYBOOK_META = {
     icon: TrendingUp, color: 'from-indigo-500 to-indigo-600',
     simpleDesc: 'Automatise vos relances de factures, exports comptables et alertes de tresorerie.',
     requires: [{ type: 'all', providers: ['shopify'], label: 'Shopify' }],
+    channels: [
+      { id: 'email', label: 'Email', desc: 'Relances et exports par email', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
+      { id: 'slack', label: 'Slack', desc: 'Alertes de tresorerie dans Slack', icon: MessageSquare, needsIntegration: ['slack'] },
+    ],
   },
   agent_vocal: {
     icon: Headphones, color: 'from-violet-500 to-violet-600',
@@ -113,6 +127,9 @@ const PLAYBOOK_META = {
     requires: [],
     hasConfig: true,
     configType: 'vocal',
+    channels: [
+      { id: 'widget_vocal', label: 'Widget vocal sur le site', desc: 'Bouton d\'appel sur votre boutique', icon: Phone, needsIntegration: [] },
+    ],
   },
 }
 
@@ -122,6 +139,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const [showVocalWizard, setShowVocalWizard] = useState(false)
+  const [selectedChannels, setSelectedChannels] = useState({})
 
   const { data: playbooks = [], isLoading } = useQuery({
     queryKey: ['playbooks-list'],
@@ -262,26 +280,35 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                         )}
                       </div>
                       <p className="text-[11px] text-[#9ca3af] mt-0.5 leading-relaxed">{meta.simpleDesc || pb.description}</p>
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        {(meta.requires || []).map((req, ri) => {
-                          const isMet = req.type === 'all'
-                            ? req.providers.every(p => connectedProviders.includes(p))
-                            : req.providers.some(p => connectedProviders.includes(p))
-                          return (
-                            <span key={ri} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                              isMet ? 'bg-emerald-50 text-emerald-600' : 'bg-[#f5f5f5] text-[#9ca3af]'
-                            }`}>
-                              {isMet ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Plug className="w-2.5 h-2.5" />}
-                              {req.label}
-                            </span>
-                          )
-                        })}
-                        {(!meta.requires || meta.requires.length === 0) && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-600">
-                            <CheckCircle2 className="w-2.5 h-2.5" /> Aucune integration requise
-                          </span>
-                        )}
-                      </div>
+                      {/* Channel selector */}
+                      {meta.channels && meta.channels.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2.5">
+                          <span className="text-[9px] text-[#c4c4c4] font-semibold uppercase tracking-wider self-center mr-1">Canaux :</span>
+                          {meta.channels.map(ch => {
+                            const ChIcon = ch.icon || MessageSquare
+                            const channelConnected = ch.needsIntegration.length === 0 || ch.needsIntegration.some(p => connectedProviders.includes(p))
+                            const isSelected = selectedChannels[`${pb.name}_${ch.id}`]
+                            return (
+                              <button
+                                key={ch.id}
+                                onClick={(e) => { e.stopPropagation(); setSelectedChannels(prev => ({ ...prev, [`${pb.name}_${ch.id}`]: !prev[`${pb.name}_${ch.id}`] })) }}
+                                disabled={!channelConnected}
+                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all ${
+                                  isSelected
+                                    ? 'bg-[#0F5F35] text-white'
+                                    : channelConnected
+                                      ? 'bg-white text-[#71717a] border border-[#e5e5e5] hover:border-[#0F5F35] hover:text-[#0F5F35]'
+                                      : 'bg-[#f5f5f5] text-[#d4d4d4] cursor-not-allowed border border-transparent'
+                                }`}
+                                title={channelConnected ? ch.desc : `Connectez ${ch.needsIntegration.join(' ou ')} d'abord`}
+                              >
+                                <ChIcon className="w-3 h-3" />
+                                {ch.label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
 
                     {reqs.met ? (

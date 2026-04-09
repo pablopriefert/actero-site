@@ -134,6 +134,13 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#9ca3af] bg-[#f5f5f5] cursor-not-allowed">
                 <Plug className="w-3 h-3" /> Bientot
               </span>
+            ) : provider.authType === 'smtp' ? (
+              <button
+                onClick={() => onOAuthConnect(provider)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors bg-[#0F5F35] text-white hover:bg-[#003725]"
+              >
+                <Plug className="w-3 h-3" /> Configurer
+              </button>
             ) : provider.authType === 'api_key' ? (
               <button
                 onClick={() => onOAuthConnect(provider)}
@@ -401,7 +408,46 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const [apiKeyValue, setApiKeyValue] = useState('');
   const [apiKeySaving, setApiKeySaving] = useState(false);
 
+  const [smtpProvider, setSmtpProvider] = useState(null);
+  const [smtpValues, setSmtpValues] = useState({});
+  const [smtpSaving, setSmtpSaving] = useState(false);
+
+  const handleSmtpSubmit = async () => {
+    if (!smtpProvider) return;
+    const fields = smtpProvider.smtpFields || [];
+    const missing = fields.filter(f => f.required && !smtpValues[f.key]?.trim());
+    if (missing.length > 0) return;
+
+    setSmtpSaving(true);
+    try {
+      await supabase.from('client_integrations').upsert({
+        client_id: clientId,
+        provider: smtpProvider.id,
+        status: 'active',
+        credentials: smtpValues,
+        extra_config: {
+          email: smtpValues.email,
+          smtp_host: smtpValues.smtp_host,
+          smtp_port: smtpValues.smtp_port,
+          imap_host: smtpValues.imap_host,
+          imap_port: smtpValues.imap_port,
+          use_ssl: smtpValues.use_ssl !== false,
+        },
+        connected_at: new Date().toISOString(),
+      }, { onConflict: 'client_id,provider' });
+      queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
+      setSmtpProvider(null);
+      setSmtpValues({});
+    } catch {}
+    setSmtpSaving(false);
+  };
+
   const handleOAuthConnect = async (provider) => {
+    if (provider.authType === 'smtp') {
+      setSmtpProvider(provider);
+      setSmtpValues({});
+      return;
+    }
     if (provider.authType === 'api_key') {
       setApiKeyProvider(provider);
       setApiKeyValue('');
@@ -721,6 +767,72 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                 className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-[#0F5F35] text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
               >
                 {apiKeySaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plug className="w-4 h-4" />}
+                Connecter
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* SMTP Config Modal */}
+      {smtpProvider && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setSmtpProvider(null)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative w-full max-w-md mx-4 rounded-2xl shadow-2xl p-6 bg-white border border-[#f0f0f0]"
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+                <Mail className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-[14px] text-[#1a1a1a]">Email personnalise</h3>
+                <p className="text-[11px] text-[#9ca3af]">Connectez votre adresse email professionnelle</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {(smtpProvider.smtpFields || []).map(field => (
+                <div key={field.key}>
+                  <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider">{field.label}</label>
+                  {field.type === 'toggle' ? (
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-[12px] text-[#1a1a1a]">{field.label}</span>
+                      <button
+                        onClick={() => setSmtpValues(v => ({ ...v, [field.key]: !(v[field.key] ?? field.defaultValue) }))}
+                        className={`relative w-10 h-5 rounded-full transition-colors ${(smtpValues[field.key] ?? field.defaultValue) ? 'bg-[#0F5F35]' : 'bg-[#e5e5e5]'}`}
+                      >
+                        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${(smtpValues[field.key] ?? field.defaultValue) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type={field.type || 'text'}
+                      value={smtpValues[field.key] || ''}
+                      onChange={(e) => setSmtpValues(v => ({ ...v, [field.key]: e.target.value }))}
+                      placeholder={field.placeholder}
+                      className="mt-1 w-full px-3 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-indigo-300"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => setSmtpProvider(null)}
+                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleSmtpSubmit}
+                disabled={smtpSaving}
+                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold bg-[#0F5F35] text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
+              >
+                {smtpSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plug className="w-4 h-4" />}
                 Connecter
               </button>
             </div>

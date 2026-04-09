@@ -217,6 +217,26 @@ export const INTEGRATIONS = {
       docsUrl: 'https://developers.google.com/gmail/api',
       color: '#EA4335',
     },
+    {
+      id: 'smtp_imap',
+      name: 'Email personnalise (SMTP/IMAP)',
+      description: 'Connectez n\'importe quelle adresse email professionnelle (contact@votreboutique.com)',
+      icon: null,
+      authType: 'smtp',
+      smtpFields: [
+        { key: 'email', label: 'Adresse email', type: 'email', placeholder: 'contact@votreboutique.com', required: true },
+        { key: 'smtp_host', label: 'Serveur SMTP', type: 'text', placeholder: 'smtp.votrefournisseur.com', required: true },
+        { key: 'smtp_port', label: 'Port SMTP', type: 'number', placeholder: '587', required: true },
+        { key: 'imap_host', label: 'Serveur IMAP', type: 'text', placeholder: 'imap.votrefournisseur.com', required: true },
+        { key: 'imap_port', label: 'Port IMAP', type: 'number', placeholder: '993', required: true },
+        { key: 'username', label: 'Identifiant', type: 'text', placeholder: 'contact@votreboutique.com', required: true },
+        { key: 'password', label: 'Mot de passe', type: 'password', placeholder: '••••••••', required: true },
+        { key: 'use_ssl', label: 'Utiliser SSL/TLS', type: 'toggle', defaultValue: true },
+      ],
+      category: 'general',
+      color: '#6366f1',
+      popular: true,
+    },
   ],
 };
 
