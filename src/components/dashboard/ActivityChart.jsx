@@ -12,7 +12,7 @@ import {
 } from 'recharts'
 import { Activity } from 'lucide-react'
 
-export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this_month" }) => {
+export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this_month", mini = false }) => {
   const isLight = theme === "light";
 
   const { data: events = [], isLoading } = useQuery({
@@ -75,34 +75,64 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
     );
   }
 
+  // When used as mini widget inside overview, render compact version
+  if (mini) {
+    return (
+      <div className="w-full h-full">
+        {chartData.length === 0 ? (
+          <div className="h-full flex items-center justify-center">
+            <p className="text-xs text-[#999]">Aucune activite.</p>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.04)" />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#aaa" }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#aaa" }} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '8px', fontSize: '11px' }}
+                itemStyle={{ fontSize: '10px', padding: '1px 0' }}
+                cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+              />
+              <Bar dataKey="ticket_resolved" stackId="a" name="Resolus" fill="#10B981" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="ticket_escalated" stackId="a" name="Escalades" fill="#F59E0B" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="cart_email_sent" stackId="a" name="Emails" fill="#3B82F6" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="cart_recovered" stackId="a" name="Paniers" fill="#8B5CF6" radius={[2, 2, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className={`rounded-2xl border p-6 shadow-sm flex flex-col h-full transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}>
-      <div className="flex items-center justify-between mb-6">
-        <h3 className={`text-sm font-bold uppercase tracking-widest flex items-center gap-2 ${isLight ? "text-[#262626]" : "text-[#262626]"}`}>
-          Graphique d'activité <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+    <div className={`rounded-2xl border p-6 shadow-sm flex flex-col transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-[#1a1a1a] flex items-center gap-2">
+          Graphique d'activite <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
         </h3>
       </div>
 
       {chartData.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center">
-          <Activity className="w-8 h-8 text-[#716D5C] mb-2 opacity-30" />
-          <p className="text-sm font-medium text-[#716D5C]">Aucune activité pour le moment.</p>
+        <div className="h-[200px] flex flex-col items-center justify-center text-center">
+          <Activity className="w-8 h-8 text-[#ccc] mb-2" />
+          <p className="text-sm text-[#999]">Aucune activite pour le moment.</p>
         </div>
       ) : (
-        <div className="flex-1 w-full min-h-[250px] mt-2">
+        <div className="w-full h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isLight ? "rgba(0,0,0,0.05)" : "rgba(255,255,255,0.05)"} />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: isLight ? "#94a3b8" : "#6b7280" }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: isLight ? "#94a3b8" : "#6b7280" }} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} allowDecimals={false} />
               <Tooltip
-                contentStyle={{ backgroundColor: isLight ? '#fff' : '#0a0a0a', border: isLight ? '1px solid #e2e8f0' : '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '12px' }}
+                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '10px', fontSize: '12px' }}
                 itemStyle={{ fontSize: '11px', padding: '2px 0' }}
-                cursor={{ fill: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)' }}
+                cursor={{ fill: 'rgba(0,0,0,0.02)' }}
               />
-              <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '15px' }} />
-              <Bar dataKey="ticket_resolved" stackId="a" name="Résolus" fill="#10B981" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="ticket_escalated" stackId="a" name="Escaladés" fill="#F59E0B" radius={[0, 0, 0, 0]} />
+              <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '12px' }} />
+              <Bar dataKey="ticket_resolved" stackId="a" name="Resolus" fill="#10B981" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="ticket_escalated" stackId="a" name="Escalades" fill="#F59E0B" radius={[0, 0, 0, 0]} />
               <Bar dataKey="cart_email_sent" stackId="a" name="Emails" fill="#3B82F6" radius={[0, 0, 0, 0]} />
               <Bar dataKey="cart_recovered" stackId="a" name="Paniers" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
             </BarChart>

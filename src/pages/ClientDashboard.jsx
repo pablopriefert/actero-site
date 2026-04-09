@@ -161,12 +161,15 @@ const LiveActivityWidget = ({ supabase, setActiveTab, isLight }) => {
         ) : (
           recent.map((event, i) => {
             const formatted = formatEvent(event);
+            const Icon = formatted.IconComponent;
             return (
-              <div key={event.id || i} className="flex items-center gap-3 px-5 py-3 hover:bg-[#F9F7F1] transition-colors">
-                <span className="text-lg flex-shrink-0">{formatted.icon}</span>
-                <p className="text-sm text-[#262626] flex-1 truncate">{formatted.message}</p>
+              <div key={event.id || i} className="flex items-center gap-3 px-5 py-3 hover:bg-[#fafafa] transition-colors">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${formatted.bg}`}>
+                  <Icon className={`w-3.5 h-3.5 ${formatted.color}`} />
+                </div>
+                <p className="text-[13px] text-[#1a1a1a] flex-1 truncate">{formatted.message}</p>
                 <FeedbackButtons eventId={event.id} currentFeedback={event.feedback} supabase={supabase} />
-                <span className="text-[10px] text-[#716D5C] flex-shrink-0 whitespace-nowrap">
+                <span className="text-[10px] text-[#999] flex-shrink-0 whitespace-nowrap">
                   {formatRelativeTime(event.created_at)}
                 </span>
               </div>
