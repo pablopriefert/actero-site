@@ -413,34 +413,46 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const [smtpSaving, setSmtpSaving] = useState(false);
 
   const handleSmtpSubmit = async () => {
-    if (!smtpProvider) return;
-    const fields = smtpProvider.smtpFields || [];
-    const missing = fields.filter(f => f.required && !smtpValues[f.key]?.trim());
-    if (missing.length > 0) return;
+    if (!smtpProvider || !clientId) return;
+    // Validate required fields
+    const required = ['email', 'smtp_host', 'smtp_port', 'imap_host', 'imap_port', 'username', 'password'];
+    const missing = required.filter(key => !smtpValues[key] || String(smtpValues[key]).trim() === '');
+    if (missing.length > 0) {
+      alert('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
 
     setSmtpSaving(true);
     try {
-      await supabase.from('client_integrations').upsert({
+      const { error } = await supabase.from('client_integrations').upsert({
         client_id: clientId,
         provider: smtpProvider.id,
         auth_type: 'smtp',
         status: 'active',
-        api_key: smtpValues.password,
+        api_key: String(smtpValues.password),
         extra_config: {
-          email: smtpValues.email,
-          smtp_host: smtpValues.smtp_host,
+          email: String(smtpValues.email),
+          smtp_host: String(smtpValues.smtp_host),
           smtp_port: parseInt(smtpValues.smtp_port) || 587,
-          imap_host: smtpValues.imap_host,
+          imap_host: String(smtpValues.imap_host),
           imap_port: parseInt(smtpValues.imap_port) || 993,
-          username: smtpValues.username,
+          username: String(smtpValues.username),
           use_ssl: smtpValues.use_ssl !== false,
         },
         connected_at: new Date().toISOString(),
       }, { onConflict: 'client_id,provider' });
-      queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
-      setSmtpProvider(null);
-      setSmtpValues({});
-    } catch {}
+      if (error) {
+        console.error('SMTP save error:', error);
+        alert('Erreur: ' + error.message);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
+        setSmtpProvider(null);
+        setSmtpValues({});
+      }
+    } catch (err) {
+      console.error('SMTP error:', err);
+      alert('Erreur: ' + err.message);
+    }
     setSmtpSaving(false);
   };
 
