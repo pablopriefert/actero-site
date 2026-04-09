@@ -39,7 +39,20 @@ export async function logRun(supabase, {
       ? 'ticket_escalated'
       : 'ticket_error'
 
-  const timeSaved = status === 'completed' && !actionPlan?.includes('escalate') ? 300 : 0 // 5 min saved per auto-resolved
+  // Get client's avg ticket time from settings
+  let avgTicketTimeSec = 300 // default 5 min
+  try {
+    const { data: clientSettings } = await supabase
+      .from('client_settings')
+      .select('avg_ticket_time_min')
+      .eq('client_id', clientId)
+      .maybeSingle()
+    if (clientSettings?.avg_ticket_time_min) {
+      avgTicketTimeSec = clientSettings.avg_ticket_time_min * 60
+    }
+  } catch {}
+
+  const timeSaved = status === 'completed' && !actionPlan?.includes('escalate') ? avgTicketTimeSec : 0
 
   try {
     await supabase.from('automation_events').insert({

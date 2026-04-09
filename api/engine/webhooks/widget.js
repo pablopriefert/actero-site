@@ -7,7 +7,11 @@
  * Widget authenticates via api_key query param which maps to a client.
  */
 import { createClient } from '@supabase/supabase-js'
-import { processMessage } from '../process.js'
+import { normalizeEvent } from '../lib/normalizer.js'
+import { loadPlaybook } from '../lib/playbook-loader.js'
+import { runBrain } from '../brain.js'
+import { runExecutor } from '../executor.js'
+import { logRun } from '../logger.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -71,24 +75,94 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to store message' })
   }
 
+  const startTime = Date.now()
+
   try {
-    const result = await processMessage(supabase, {
-      messageId: engineMessage.id,
-      clientId,
-      source: 'web_widget',
-      customerEmail,
-      customerName: name,
-      messageBody: message,
-      externalTicketId: session_id,
-      metadata: {},
+    // Use Engine V2 pipeline (Brain → Executor → Logger)
+    const normalized = normalizeEvent('widget_message', {
+      customer_email: customerEmail,
+      customer_name: name,
+      message,
+      session_id,
     })
 
-    // Widget gets the response directly (synchronous)
+    // Find playbook
+    const playbook = await loadPlaybook(supabase, clientId, 'widget_message')
+
+    if (!playbook) {
+      // No playbook — use simple simulator-chat as fallback
+      const { data: { session: authSession } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }))
+      return res.status(200).json({
+        response: 'Merci pour votre message. Un membre de notre equipe va vous repondre rapidement.',
+        escalated: true,
+      })
+    }
+
+    // Store event
+    const { data: event } = await supabase.from('engine_events').insert({
+      client_id: clientId,
+      event_type: 'widget_message',
+      source: 'web_widget',
+      payload: { message, session_id },
+      normalized,
+      playbook_id: playbook.id,
+      status: 'processing',
+    }).select().single()
+
+    // Run Brain
+    const brainResult = await runBrain(supabase, {
+      event: event || { id: engineMessage.id, source: 'web_widget' },
+      playbook,
+      clientId,
+      normalized,
+    })
+
+    // Execute
+    if (!brainResult.needsReview) {
+      const executorResult = await runExecutor(supabase, {
+        event: event || engineMessage,
+        playbook,
+        clientId,
+        normalized,
+        brainResult,
+      })
+
+      // Log run
+      await logRun(supabase, {
+        clientId,
+        eventId: event?.id,
+        playbookId: playbook.id,
+        status: executorResult.success ? 'completed' : 'failed',
+        classification: brainResult.classification,
+        confidence: brainResult.confidence,
+        actionPlan: brainResult.actionPlan,
+        steps: executorResult.steps,
+        durationMs: Date.now() - startTime,
+        error: executorResult.error,
+      })
+
+      if (event) {
+        await supabase.from('engine_events').update({ status: 'completed', processed_at: new Date().toISOString() }).eq('id', event.id)
+      }
+    } else {
+      // Needs review
+      await logRun(supabase, {
+        clientId,
+        eventId: event?.id,
+        playbookId: playbook.id,
+        status: 'needs_review',
+        classification: brainResult.classification,
+        confidence: brainResult.confidence,
+        actionPlan: brainResult.actionPlan,
+        steps: [],
+        durationMs: Date.now() - startTime,
+      })
+    }
+
     return res.status(200).json({
-      response: result.response || 'Un membre de notre equipe va vous repondre rapidement.',
-      escalated: result.escalated,
-      confidence: result.confidence,
-      thread_id: result.threadId,
+      response: brainResult.aiResponse || 'Merci pour votre message. Un membre de notre equipe va vous repondre rapidement.',
+      escalated: brainResult.needsReview,
+      confidence: brainResult.confidence,
     })
   } catch (err) {
     console.error('[engine/webhooks/widget] Error:', err)

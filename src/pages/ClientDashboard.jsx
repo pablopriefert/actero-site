@@ -89,6 +89,7 @@ import { AgentImprovementWidget } from '../components/client/AgentImprovementWid
 import { ChannelsView } from '../components/client/ChannelsView'
 import { PlaybooksView } from '../components/client/PlaybooksView'
 import { ClientBillingView } from '../components/client/ClientBillingView'
+import { ROISettingsView } from '../components/client/ROISettingsView'
 
 const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
   const [feedback, setFeedback] = useState(currentFeedback || null);
@@ -215,6 +216,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/notifications") return "notifications";
     if (route === "/client/channels") return "channels";
     if (route === "/client/billing") return "billing";
+    if (route === "/client/roi") return "roi";
     if (route === "/client/playbooks") return "playbooks";
     if (route === "/client/profile") return "profile";
     return "overview";
@@ -460,6 +462,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'overview', label: 'Accueil', icon: LayoutDashboard },
     { id: 'activity', label: 'Activite', icon: Activity },
     { id: 'playbooks', label: 'Automatisations', icon: Sparkles },
+    { id: 'roi', label: 'ROI', icon: Activity },
 
     { type: 'section', label: 'Mon Agent' },
     { id: 'agent-config', label: 'Mon Agent', icon: MessageCircle },
@@ -658,14 +661,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
               {/* Escalation alert moved to header */}
 
-              {/* ── Onboarding ── */}
-              <OnboardingWizard
-                clientId={currentClient?.id}
-                clientType={currentClient?.client_type}
-                setActiveTab={setActiveTab}
-                theme={theme}
-                onNavigate={onNavigate}
-              />
+              {/* Onboarding removed from homepage */}
 
               {/* ── Cards row (Instantly-style with shadows) ── */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
@@ -712,6 +708,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "profile" && <ClientProfileView theme={theme} />}
 
           {activeTab === "billing" && <ClientBillingView theme={theme} />}
+
+          {activeTab === "roi" && <ROISettingsView clientId={currentClient?.id} theme={theme} />}
 
           {activeTab === "support" && (
             <SupportTicketsView
