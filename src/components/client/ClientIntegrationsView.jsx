@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plug, X, Loader2, CheckCircle, AlertCircle, ExternalLink,
-  RefreshCw, Trash2, Star, Search
+  RefreshCw, Trash2, Star, Search, Mail
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { INTEGRATIONS, ALL_INTEGRATIONS, getIntegrationById } from '../../config/integrations'
