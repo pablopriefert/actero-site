@@ -10,10 +10,48 @@ import { supabase } from '../../lib/supabase'
 
 const ESCALATION_REASONS = {
   aggressive: 'Message agressif detecte',
-  low_confidence: 'Confiance IA < 60%',
+  low_confidence: 'Confiance IA insuffisante',
   out_of_policy: 'Demande hors politique',
   legal_mention: 'Mention juridique',
+  error: 'Erreur de traitement',
   default: 'Escalade automatique',
+}
+
+const SUBJECT_LABELS = {
+  autre: 'Demande generale',
+  general: 'Demande generale',
+  suivi_commande: 'Suivi de commande',
+  order_tracking: 'Suivi de commande',
+  retour_produit: 'Retour produit',
+  return_exchange: 'Retour / Echange',
+  remboursement: 'Demande de remboursement',
+  question_produit: 'Question sur un produit',
+  product_info: 'Information produit',
+  reclamation: 'Reclamation client',
+  aggressive: 'Client mecontent',
+  billing: 'Facturation',
+  livraison: 'Livraison',
+  error: 'Erreur de traitement',
+}
+
+function formatCustomerName(conv) {
+  // If real email exists, show name or email
+  if (conv.customer_email && !conv.customer_email.includes('@anonymous.actero.fr')) {
+    return conv.customer_name || conv.customer_email
+  }
+  // Anonymous widget visitors
+  if (conv.customer_name) return conv.customer_name
+  return 'Visiteur du site'
+}
+
+function formatSubject(conv) {
+  if (!conv.subject) return null
+  // Check if it's a technical classification key
+  const label = SUBJECT_LABELS[conv.subject.toLowerCase()]
+  if (label) return label
+  // If it looks like a real subject, return it
+  if (conv.subject.length > 3 && !conv.subject.match(/^[a-z_]+$/)) return conv.subject
+  return SUBJECT_LABELS[conv.subject] || 'Demande generale'
 }
 
 const formatTimeAgo = (dateStr) => {
@@ -148,11 +186,12 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
         {/* Client info */}
         <div className="px-6 py-4 border-b border-[#f0f0f0]">
           <div className="flex flex-wrap gap-4 text-xs text-[#9ca3af]">
-            {conversation.customer_name && (
-              <span className="flex items-center gap-1"><User className="w-3 h-3" /> {conversation.customer_name}</span>
-            )}
-            {conversation.customer_email && (
+            <span className="flex items-center gap-1"><User className="w-3 h-3" /> {formatCustomerName(conversation)}</span>
+            {conversation.customer_email && !conversation.customer_email.includes('@anonymous.actero.fr') && (
               <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {conversation.customer_email}</span>
+            )}
+            {formatSubject(conversation) && (
+              <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" /> {formatSubject(conversation)}</span>
             )}
             {conversation.order_id && (
               <span className="flex items-center gap-1"><ShoppingCart className="w-3 h-3" /> {conversation.order_id}</span>
@@ -471,8 +510,8 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <p className={`text-sm font-medium text-[#1a1a1a]`}>
-                        {conv.customer_name || conv.customer_email || 'Client'}
-                        {conv.subject ? ` — ${conv.subject}` : ''}
+                        {formatCustomerName(conv)}
+                        {formatSubject(conv) ? ` — ${formatSubject(conv)}` : ''}
                       </p>
                       {conv.customer_email && !conv.customer_email.includes('@anonymous.actero.fr') && (
                         <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-blue-50 text-blue-600 border border-blue-100">
