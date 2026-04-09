@@ -5,7 +5,7 @@ import {
   Zap, ShoppingBag, Headphones, Loader2, Play,
   CheckCircle2, AlertTriangle, Plug, Star, Shield,
   Heart, Search, TrendingUp, Package, Gift, Mail,
-  MessageSquare, ArrowRight, Copy, Check, Phone,
+  MessageSquare, ArrowRight, Copy, Check, Phone, HelpCircle,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
@@ -45,6 +45,7 @@ const PLAYBOOK_META = {
   sav_ecommerce: {
     icon: Headphones, color: 'from-emerald-500 to-emerald-600',
     simpleDesc: 'Repond automatiquement aux questions de vos clients (commandes, retours, produits).',
+    helpId: 'sav-ecommerce',
     requires: [],
     channels: [
       { id: 'email', label: 'Email', desc: 'Repond aux emails entrants', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
@@ -56,6 +57,7 @@ const PLAYBOOK_META = {
   abandoned_cart: {
     icon: ShoppingBag, color: 'from-amber-500 to-amber-600',
     simpleDesc: 'Relance les clients qui ont abandonne leur panier avec un email personnalise.',
+    helpId: 'relance-paniers',
     requires: [{ type: 'all', providers: ['shopify'], label: 'Shopify' }],
     channels: [
       { id: 'email', label: 'Email', desc: 'Envoie un email de relance', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
@@ -116,6 +118,7 @@ const PLAYBOOK_META = {
   comptabilite_auto: {
     icon: TrendingUp, color: 'from-indigo-500 to-indigo-600',
     simpleDesc: 'Automatise vos relances de factures, exports comptables et alertes de tresorerie.',
+    helpId: 'comptabilite-comment-ca-marche',
     requires: [{ type: 'any', providers: ['axonaut', 'pennylane', 'ipaidthat'], label: 'Axonaut, Pennylane ou iPaidThat' }],
     hasConfig: true,
     configType: 'comptabilite',
@@ -127,6 +130,7 @@ const PLAYBOOK_META = {
   agent_vocal: {
     icon: Headphones, color: 'from-violet-500 to-violet-600',
     simpleDesc: 'Un agent vocal IA qui repond aux questions de vos clients par la voix. Bientot disponible.',
+    helpId: 'agent-vocal',
     requires: [],
     comingSoon: true,
     channels: [],
@@ -399,7 +403,14 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-[#9ca3af] mt-0.5 leading-relaxed">{meta.simpleDesc || pb.description}</p>
+                      <p className="text-[11px] text-[#9ca3af] mt-0.5 leading-relaxed">
+                        {meta.simpleDesc || pb.description}
+                        {meta.helpId && (
+                          <button onClick={(e) => { e.stopPropagation(); setActiveTab('support') }} className="inline-flex items-center gap-0.5 ml-1 text-[#0F5F35] hover:underline">
+                            <HelpCircle className="w-3 h-3" /> Comment ca marche ?
+                          </button>
+                        )}
+                      </p>
                       {/* Channel selector */}
                       {meta.channels && meta.channels.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mt-2.5">
