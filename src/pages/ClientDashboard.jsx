@@ -680,15 +680,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "overview" && (
             <div className="max-w-6xl mx-auto">
 
-              {/* ── Onboarding: setup checklist + quick test ── */}
+              {/* ── Onboarding: setup checklist ── */}
               {currentClient?.id && (
-                <div className="mb-6 flex flex-col md:flex-row md:items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <SetupChecklist clientId={currentClient.id} setActiveTab={setActiveTab} />
-                  </div>
-                  <div className="md:pt-1 flex-shrink-0">
-                    <QuickTestButton clientId={currentClient.id} setActiveTab={setActiveTab} />
-                  </div>
+                <div className="mb-6">
+                  <SetupChecklist clientId={currentClient.id} setActiveTab={setActiveTab} />
                 </div>
               )}
 

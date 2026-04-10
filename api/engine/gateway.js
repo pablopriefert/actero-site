@@ -42,11 +42,12 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Non autorise.' })
   }
 
-  const { client_id, event_type, source, ...payload } = req.body || {}
+  const { client_id, event_type, source, is_test, ...payload } = req.body || {}
   if (!client_id) return res.status(400).json({ error: 'client_id requis' })
 
   const eventType = event_type || source || 'api_direct'
   const eventSource = source || 'api_direct'
+  const isTest = is_test === true
 
   // --- Rate limit ---
   const rateCheck = await checkRateLimit(supabase, { clientId: client_id, customerEmail: payload.customer_email })
@@ -68,6 +69,27 @@ export default async function handler(req, res) {
       return res.status(200).json({
         status: 'no_playbook',
         message: `Aucun playbook actif pour le type "${eventType}". Activez un playbook dans votre dashboard.`,
+      })
+    }
+
+    // --- Test mode: run Brain only, skip all persistence (events, runs, metrics, memory) ---
+    if (isTest) {
+      const brainResult = await runBrain(supabase, {
+        event: { id: 'test', source: eventSource },
+        playbook,
+        clientId: client_id,
+        normalized: { ...normalized, _is_test: true },
+      })
+      return res.status(200).json({
+        event_id: 'test',
+        run_id: 'test',
+        status: brainResult.needsReview ? 'needs_review' : 'completed',
+        classification: brainResult.classification,
+        confidence: brainResult.confidence,
+        response: brainResult.aiResponse,
+        steps_executed: 0,
+        duration_ms: Date.now() - startTime,
+        is_test: true,
       })
     }
 

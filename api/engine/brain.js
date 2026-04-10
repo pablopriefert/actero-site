@@ -251,7 +251,8 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
 
       // --- Actero Memory: persist this exchange as a new memory ---
       // Fire-and-forget; storeMemory is a no-op for anonymous emails.
-      if (aiResponse && normalized?.customer_email) {
+      // Skip entirely in test mode.
+      if (aiResponse && normalized?.customer_email && !normalized?._is_test) {
         const memoryContent = `Client a demande: "${normalized.message}"\nReponse donnee: "${aiResponse}"`
         storeMemory(supabase, {
           clientId,

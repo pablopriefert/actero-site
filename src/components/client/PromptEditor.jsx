@@ -10,6 +10,7 @@ import {
 import { useToast } from '../ui/Toast'
 import { supabase } from '../../lib/supabase'
 import { HelpTooltip } from '../ui/HelpTooltip'
+import { QuickTestButton } from './QuickTestButton'
 
 const LANGUAGES = [
   { value: 'fr', label: 'Francais' },
@@ -380,12 +381,13 @@ export const PromptEditor = ({ clientId, theme }) => {
             <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Mon Agent</h2>
             <p className="text-[13px] text-[#9ca3af]">Configurez votre agent en {STEPS.length} etapes simples</p>
           </div>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-3">
             {saved && (
               <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-600">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Sauvegarde
               </span>
             )}
+            <QuickTestButton clientId={clientId} />
           </div>
         </div>
       </div>

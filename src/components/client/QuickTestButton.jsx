@@ -62,6 +62,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
           message: scenario.message,
           subject: scenario.label,
           session_id: `quicktest-${Date.now()}`,
+          is_test: true,
         }),
       })
 
