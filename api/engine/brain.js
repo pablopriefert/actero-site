@@ -10,7 +10,6 @@
 import { callClaude } from './lib/claude-client.js'
 import { loadClientConfig } from './lib/config-loader.js'
 import { buildSystemPrompt } from './lib/prompt-builder.js'
-import { evaluateRules, buildRuleContext } from './lib/rule-engine.js'
 
 /**
  * Run the Brain on a normalized event.
@@ -28,19 +27,6 @@ ${clientConfig.settings.brand_tone ? `Ton: ${clientConfig.settings.brand_tone}` 
 ${clientConfig.knowledge ? `\nBASE DE CONNAISSANCES:\n${clientConfig.knowledge}` : ''}
 ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map((r, i) => `${i + 1}. ${r}`).join('\n')}` : ''}
 `
-
-  // Inject custom client classifications if any
-  const customClassifications = clientConfig.customClassifications || []
-  if (customClassifications.length > 0) {
-    const customCats = customClassifications.map(c => {
-      const base = `- ${c.category_key} : ${c.category_label}${c.category_description ? ' — ' + c.category_description : ''}`
-      const examples = Array.isArray(c.example_messages) && c.example_messages.length > 0
-        ? `\n    exemples: ${c.example_messages.slice(0, 3).map(e => `"${e}"`).join(', ')}`
-        : ''
-      return base + examples
-    }).join('\n')
-    classificationPrompt += `\n\nCATEGORIES PERSONNALISEES DU CLIENT (a privilegier si match):\n${customCats}`
-  }
 
   let classification, confidence, summary
   try {
@@ -104,15 +90,15 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
     return {
       classification,
       confidence,
-      actionPlan: getActionPlan(playbook, classification, customClassifications),
+      actionPlan: getActionPlan(playbook, classification),
       aiResponse: proposedResponse,
       needsReview: true,
       reviewReason: 'low_confidence',
     }
   }
 
-  // --- Step 2: Decision (get action plan from playbook rules or custom classification) ---
-  let actionPlan = getActionPlan(playbook, classification, customClassifications)
+  // --- Step 2: Decision (get action plan from playbook rules) ---
+  let actionPlan = getActionPlan(playbook, classification)
 
   // --- Step 3: Generate AI response if action plan includes send_reply ---
   let aiResponse = null
@@ -184,32 +170,6 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
     }
   }
 
-  // --- Step 3.5: Evaluate client business rules ("IF X THEN Y") ---
-  let ruleMatches = { actions: [], rules: [] }
-  try {
-    const businessRules = clientConfig.businessRules || []
-    if (businessRules.length > 0) {
-      const ruleContext = buildRuleContext({
-        normalized,
-        classification,
-        confidence,
-        sentimentScore,
-      })
-      ruleMatches = evaluateRules(businessRules, ruleContext)
-      if (ruleMatches.actions && ruleMatches.actions.length > 0) {
-        for (const ruleAction of ruleMatches.actions) {
-          // If this is a simple action type in the existing action vocabulary,
-          // add it to the action plan so the executor picks it up.
-          if (ruleAction.type && !actionPlan.includes(ruleAction.type)) {
-            actionPlan = [...actionPlan, ruleAction.type]
-          }
-        }
-      }
-    }
-  } catch (err) {
-    console.error('[brain] rule engine error:', err.message)
-  }
-
   // --- Step 4: Check escalation signals ---
   // Detect explicit human request from message text
   const msgLower = (normalized?.message || '').toLowerCase()
@@ -238,8 +198,6 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
       aiResponse,
       needsReview: true,
       reviewReason: sentimentScore <= 2 ? 'aggressive' : (escalationReason || 'out_of_policy'),
-      matchedRules: ruleMatches.rules || [],
-      ruleActions: ruleMatches.actions || [],
     }
   }
 
@@ -250,23 +208,13 @@ ${clientConfig.guardrails.length > 0 ? `\nREGLES:\n${clientConfig.guardrails.map
     aiResponse,
     needsReview: false,
     reviewReason: null,
-    matchedRules: ruleMatches.rules || [],
-    ruleActions: ruleMatches.actions || [],
   }
 }
 
 /**
  * Get the action plan from playbook decision rules based on classification.
- * If classification matches a custom client classification, prefer its default_actions.
  */
-function getActionPlan(playbook, classification, customClassifications = []) {
-  // Prefer custom classification action plan if any
-  if (Array.isArray(customClassifications) && customClassifications.length > 0) {
-    const match = customClassifications.find(c => c.category_key === classification)
-    if (match && Array.isArray(match.default_actions) && match.default_actions.length > 0) {
-      return [...match.default_actions]
-    }
-  }
+function getActionPlan(playbook, classification) {
   const rules = playbook.decision_rules || {}
   return rules[classification] || rules['autre'] || ['send_reply']
 }

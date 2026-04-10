@@ -11,8 +11,6 @@ export async function loadClientConfig(supabase, clientId) {
     kbRes,
     integrationsRes,
     thresholdsRes,
-    classificationsRes,
-    rulesRes,
   ] = await Promise.all([
     supabase
       .from('clients')
@@ -51,19 +49,6 @@ export async function loadClientConfig(supabase, clientId) {
       .select('*')
       .eq('client_id', clientId)
       .maybeSingle(),
-
-    supabase
-      .from('client_classifications')
-      .select('category_key, category_label, category_description, example_messages, default_actions')
-      .eq('client_id', clientId)
-      .eq('is_active', true),
-
-    supabase
-      .from('client_business_rules')
-      .select('id, name, is_active, conditions, actions, priority')
-      .eq('client_id', clientId)
-      .eq('is_active', true)
-      .order('priority', { ascending: false }),
   ])
 
   const client = clientRes.data
@@ -74,8 +59,6 @@ export async function loadClientConfig(supabase, clientId) {
   const knowledge = (kbRes.data || []).map(k => `[${k.category}] ${k.title}: ${k.content}`).join('\n')
   const activeIntegrations = (integrationsRes.data || []).map(i => i.provider)
   const thresholds = thresholdsRes.data || {}
-  const customClassifications = classificationsRes.data || []
-  const businessRules = rulesRes.data || []
 
   return {
     client,
@@ -84,8 +67,6 @@ export async function loadClientConfig(supabase, clientId) {
     knowledge,
     activeIntegrations,
     thresholds,
-    customClassifications,
-    businessRules,
     confidenceThreshold: thresholds.min_confidence || 0.7,
     timeSavedPerTicket: (settings.avg_ticket_time_min || 5) * 60, // in seconds
   }

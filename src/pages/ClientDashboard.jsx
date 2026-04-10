@@ -41,8 +41,6 @@ import {
   Volume2,
   Handshake,
   ShieldCheck,
-  Tag,
-  GitBranch,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -68,8 +66,6 @@ import { OnboardingChecklist } from '../components/client/OnboardingChecklist'
 import { AutoDiagnostic } from '../components/client/AutoDiagnostic'
 import { GuardrailsEditor } from '../components/client/GuardrailsEditor'
 import { PromptEditor } from '../components/client/PromptEditor'
-import { CustomClassificationsView } from '../components/client/CustomClassificationsView'
-import { BusinessRulesView } from '../components/client/BusinessRulesView'
 import { ConversationSimulator } from '../components/client/ConversationSimulator'
 import { TeamManager, canAccessTab } from '../components/client/TeamManager'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
@@ -518,8 +514,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
     { type: 'section', label: 'Mon Agent' },
     { id: 'agent-config', label: 'Mon Agent', icon: MessageCircle },
-    { id: 'classifications', label: 'Categories', icon: Tag },
-    { id: 'business-rules', label: 'Regles metier', icon: GitBranch },
     { id: 'simulator', label: 'Tester', icon: Activity },
     { id: 'escalations', label: 'A traiter', icon: AlertTriangle, badge: urgentEscalationCount > 0 ? urgentEscalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
     { id: 'response-templates', label: 'Templates', icon: FileText },
@@ -632,8 +626,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "referral" && "Parrainage"}
             {activeTab === "integrations" && "Integrations"}
             {activeTab === "agent-config" && "Mon Agent"}
-            {activeTab === "classifications" && "Categories"}
-            {activeTab === "business-rules" && "Regles metier"}
             {activeTab === "simulator" && "Tester"}
             {activeTab === "team" && "Equipe"}
             {activeTab === "guardrails" && "Regles"}
@@ -879,20 +871,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "agent-config" && (
             <PromptEditor
-              clientId={currentClient?.id}
-              theme={theme}
-            />
-          )}
-
-          {activeTab === "classifications" && (
-            <CustomClassificationsView
-              clientId={currentClient?.id}
-              theme={theme}
-            />
-          )}
-
-          {activeTab === "business-rules" && (
-            <BusinessRulesView
               clientId={currentClient?.id}
               theme={theme}
             />
