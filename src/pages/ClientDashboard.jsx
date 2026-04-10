@@ -36,12 +36,10 @@ import {
   Shield,
   Mic,
   Network,
-  Brain,
   Heart,
   Volume2,
   Handshake,
   ShieldCheck,
-  TrendingDown,
   Store,
   Package,
 } from 'lucide-react'
@@ -81,7 +79,6 @@ import { VoiceCallsView } from '../components/client/VoiceCallsView'
 import { MultiAgentView } from '../components/client/MultiAgentView'
 import { PromptInjectionView } from '../components/client/PromptInjectionView'
 import { ClientMemoryView } from '../components/client/ClientMemoryView'
-import { CustomerMemoryView } from '../components/client/CustomerMemoryView'
 import { SentimentAnalysisView } from '../components/client/SentimentAnalysisView'
 import { VoiceStudioView } from '../components/client/VoiceStudioView'
 import { SupplierNegotiationView } from '../components/client/SupplierNegotiationView'
@@ -97,7 +94,6 @@ import { WeeklySummary } from '../components/client/WeeklySummary'
 import { PeakHoursChart } from '../components/client/PeakHoursChart'
 import { SetupChecklist } from '../components/client/SetupChecklist'
 import { QuickTestButton } from '../components/client/QuickTestButton'
-import { ChurnPredictionsView } from '../components/client/ChurnPredictionsView'
 import { MyMarketplaceTemplatesView } from '../components/client/MyMarketplaceTemplatesView'
 import { HelpTooltip } from '../components/ui/HelpTooltip'
 
@@ -210,7 +206,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/simulator") return "simulator";
     if (route === "/client/guardrails") return "guardrails";
     if (route === "/client/escalations") return "escalations";
-    if (route === "/client/churn") return "churn";
     if (route === "/client/response-templates") return "response-templates";
     if (route === "/client/voice-agent") return "voice-agent";
     if (route === "/client/voice-calls") return "voice-calls";
@@ -534,10 +529,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { id: 'agent-config', label: 'Mon Agent', icon: MessageCircle },
     { id: 'simulator', label: 'Tester', icon: Activity },
     { id: 'escalations', label: 'A traiter', icon: AlertTriangle, badge: urgentEscalationCount > 0 ? urgentEscalationCount : null, badgeColor: 'bg-red-100 text-red-600' },
-    { id: 'churn', label: 'Predictions', icon: TrendingDown },
     { id: 'voice-calls', label: 'Appels vocaux', icon: Phone },
     { id: 'response-templates', label: 'Templates', icon: FileText },
-    { id: 'customer-memory', label: 'Memoire client', icon: Brain },
     { id: 'guardrails', label: 'Regles', icon: Shield },
 
     { type: 'section', label: 'Connexions' },
@@ -656,14 +649,12 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "team" && "Equipe"}
             {activeTab === "guardrails" && "Regles"}
             {activeTab === "escalations" && "A traiter"}
-            {activeTab === "churn" && "Predictions de churn"}
             {activeTab === "response-templates" && "Templates de reponses"}
             {activeTab === "voice-agent" && "Appels IA"}
             {activeTab === "voice-calls" && "Appels vocaux"}
             {activeTab === "multi-agent" && "Multi-Agents"}
             {activeTab === "prompt-injection" && "Securite IA"}
             {activeTab === "client-memory" && "Memoire Client"}
-            {activeTab === "customer-memory" && "Memoire client"}
             {activeTab === "sentiment" && "Sentiment"}
             {activeTab === "voice-studio" && "Voix"}
             {activeTab === "supplier-negotiation" && "Negociation"}
@@ -896,13 +887,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             />
           )}
 
-          {activeTab === "churn" && (
-            <ChurnPredictionsView
-              clientId={currentClient?.id}
-              theme={theme}
-            />
-          )}
-
           {activeTab === "response-templates" && (
             <ResponseTemplatesView
               clientId={currentClient?.id}
@@ -954,10 +938,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "client-memory" && (
             <ClientMemoryView clientId={currentClient?.id} theme={theme} />
-          )}
-
-          {activeTab === "customer-memory" && (
-            <CustomerMemoryView clientId={currentClient?.id} />
           )}
 
           {activeTab === "sentiment" && (
