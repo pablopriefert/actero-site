@@ -608,15 +608,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <div className="max-w-6xl mx-auto">
 
               {/* ── KPI Row (Instantly-style) ── */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
                 {[
                   { label: 'Tickets resolus', value: eventCounts.ticket_resolved || 0, var: periodStats?.tasks_executed_var, suffix: '' },
                   { label: 'Escalades', value: eventCounts.ticket_escalated || 0, suffix: '' },
                   { label: 'Temps economise', value: periodStats?.time_saved || 0, var: periodStats?.time_saved_var, suffix: 'h' },
-                  { label: 'Actions IA', value: periodStats?.tasks_executed || 0, var: periodStats?.active_automations_var, suffix: '' },
                   { label: 'ROI genere', value: `${(periodStats?.roi || 0).toLocaleString('fr-FR')}`, suffix: '€' },
                 ].map((kpi, i) => (
-                  <div key={i} className={`px-5 py-5 ${i < 4 ? 'border-r border-[#f0f0f0]' : ''}`}>
+                  <div key={i} className={`px-5 py-5 ${i < 3 ? 'border-r border-[#f0f0f0]' : ''}`}>
                     <p className="text-[12px] text-[#9ca3af] font-medium mb-2">{kpi.label}</p>
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-[28px] font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none">
