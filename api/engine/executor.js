@@ -33,24 +33,63 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
       switch (action) {
         case 'send_reply':
         case 'send_email':
-          if (aiResponse && normalized.customer_email && RESEND_API_KEY) {
+          if (aiResponse && normalized.customer_email && !normalized.customer_email.includes('@anonymous.actero.fr')) {
             const subject = normalized.subject ? `Re: ${normalized.subject}` : `${brandName} — Reponse a votre demande`
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                from: `${brandName} <${RESEND_FROM}>`,
-                to: [normalized.customer_email],
-                subject,
-                html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px">
-                  <p style="color:#262626;font-size:15px;line-height:1.6">${normalized.customer_name ? `Bonjour ${normalized.customer_name},` : 'Bonjour,'}</p>
-                  <p style="color:#262626;font-size:15px;line-height:1.6">${aiResponse.replace(/\n/g, '<br/>')}</p>
-                  <hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0"/>
-                  <p style="color:#999;font-size:12px">${brandName} — Service client</p>
-                </div>`,
-              }),
-            })
-            stepResult.result = { email_sent: true, to: normalized.customer_email }
+            const html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px">
+              <p style="color:#262626;font-size:15px;line-height:1.6">${normalized.customer_name ? `Bonjour ${normalized.customer_name},` : 'Bonjour,'}</p>
+              <p style="color:#262626;font-size:15px;line-height:1.6">${aiResponse.replace(/\n/g, '<br/>')}</p>
+              <hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0"/>
+              <p style="color:#999;font-size:12px">${brandName} — Service client</p>
+            </div>`
+
+            // Priority 1: Client's SMTP
+            const { data: smtpInt } = await supabase
+              .from('client_integrations')
+              .select('extra_config, api_key')
+              .eq('client_id', clientId)
+              .eq('provider', 'smtp_imap')
+              .eq('status', 'active')
+              .maybeSingle()
+
+            const smtpConfig = smtpInt?.extra_config
+            if (smtpConfig?.smtp_host && smtpInt?.api_key) {
+              try {
+                let nodemailer
+                try { nodemailer = (await import('nodemailer')).default } catch { nodemailer = require('nodemailer') }
+                const transporter = nodemailer.createTransport({
+                  host: smtpConfig.smtp_host,
+                  port: parseInt(smtpConfig.smtp_port) || 587,
+                  secure: parseInt(smtpConfig.smtp_port) === 465,
+                  auth: { user: smtpConfig.username, pass: smtpInt.api_key },
+                  tls: { rejectUnauthorized: false },
+                  connectionTimeout: 8000,
+                })
+                const fromEmail = smtpConfig.email || smtpConfig.username
+                await transporter.sendMail({
+                  from: `${brandName} <${fromEmail}>`,
+                  to: normalized.customer_email,
+                  subject, html,
+                })
+                stepResult.result = { email_sent: true, via: 'smtp', to: normalized.customer_email, from: fromEmail }
+                break
+              } catch (smtpErr) {
+                console.error('[executor] SMTP send failed, falling back to Resend:', smtpErr.message)
+              }
+            }
+
+            // Fallback: Resend (only if SMTP not configured)
+            if (RESEND_API_KEY) {
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  from: `${brandName} <${RESEND_FROM}>`,
+                  to: [normalized.customer_email],
+                  subject, html,
+                }),
+              })
+              stepResult.result = { email_sent: true, via: 'resend', to: normalized.customer_email }
+            }
           }
           break
 

@@ -70,20 +70,20 @@ export default async function handler(req, res) {
     // 3. Check if workflow already exists
     const { data: existingWorkflow } = await supabase
       .from('client_n8n_workflows')
-      .select('workflow_id')
+      .select('n8n_workflow_id')
       .eq('client_id', client_id)
       .eq('category', 'email_polling')
       .maybeSingle()
 
-    if (existingWorkflow?.workflow_id) {
+    if (existingWorkflow?.n8n_workflow_id) {
       // Activate existing workflow
       try {
-        await fetch(`${N8N_API_URL}/api/v1/workflows/${existingWorkflow.workflow_id}/activate`, {
+        await fetch(`${N8N_API_URL}/api/v1/workflows/${existingWorkflow.n8n_workflow_id}/activate`, {
           method: 'POST',
           headers: { 'X-N8N-API-KEY': N8N_API_KEY },
         })
       } catch {}
-      return res.status(200).json({ success: true, message: 'Workflow email deja existant, reactive', workflow_id: existingWorkflow.workflow_id })
+      return res.status(200).json({ success: true, message: 'Workflow email deja existant, reactive', workflow_id: existingWorkflow.n8n_workflow_id })
     }
 
     // 4. Create n8n workflow
@@ -224,11 +224,13 @@ export default async function handler(req, res) {
     })
 
     // 7. Save workflow reference
-    await supabase.from('client_n8n_workflows').insert({
+    const { error: saveError } = await supabase.from('client_n8n_workflows').insert({
       client_id,
-      workflow_id: String(workflowId),
+      n8n_workflow_id: String(workflowId),
+      label: `Email Polling - ${clientName}`,
       category: 'email_polling',
     })
+    if (saveError) console.error('[setup-email-polling] DB save error:', saveError.message)
 
     return res.status(200).json({
       success: true,
