@@ -276,10 +276,12 @@ export default async function handler(req, res) {
     })
   } catch (err) {
     console.error('[engine/webhooks/widget] Error:', err)
-    return res.status(200).json({
+    // Return 500 so monitoring catches the failure, but keep the widget UX
+    // working by still sending a safe fallback response body.
+    return res.status(500).json({
+      error: 'internal_error',
       response: 'Merci pour votre message. Un membre de notre equipe va vous repondre rapidement.',
       escalated: true,
-      error: true,
     })
   }
 }

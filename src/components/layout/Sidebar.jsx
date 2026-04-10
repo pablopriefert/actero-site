@@ -55,13 +55,21 @@ export const Sidebar = ({
           </div>
           <span className="font-semibold text-[14px] text-[#1a1a1a] tracking-tight">{title}</span>
         </div>
-        <button className="md:hidden text-[#9ca3af] hover:text-[#1a1a1a]" onClick={onClose} aria-label="Fermer">
+        <button
+          className="md:hidden text-[#9ca3af] hover:text-[#1a1a1a]"
+          onClick={onClose}
+          aria-label="Fermer le menu de navigation"
+        >
           <X className="w-5 h-5" />
         </button>
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 py-2 px-3 space-y-[1px] overflow-y-auto">
+      <nav
+        role="navigation"
+        aria-label="Navigation principale"
+        className="flex-1 py-2 px-3 space-y-[1px] overflow-y-auto"
+      >
         {items.map((item, idx) => {
           if (item.type === 'section') {
             return (
@@ -98,6 +106,7 @@ export const Sidebar = ({
                         <button
                           key={child.id}
                           onClick={() => { setActiveTab(child.id); if (onClose) onClose() }}
+                          aria-current={isActive ? 'page' : undefined}
                           className={`w-full flex items-center justify-between px-2.5 py-[5px] rounded-lg text-[12px] font-medium transition-all duration-150 ${
                             isActive ? "text-[#0F5F35] bg-[#0F5F35]/[0.06]" : "text-[#71717a] hover:text-[#1a1a1a] hover:bg-[#f5f5f5]"
                           }`}
@@ -125,6 +134,7 @@ export const Sidebar = ({
             <button
               key={item.id}
               onClick={() => { setActiveTab(item.id); if (onClose) onClose() }}
+              aria-current={isActive ? 'page' : undefined}
               className={`w-full flex items-center justify-between px-2.5 py-[7px] rounded-lg text-[13px] font-medium transition-all duration-150 group ${
                 isActive ? "text-[#0F5F35] bg-[#0F5F35]/[0.06]" : "text-[#71717a] hover:text-[#1a1a1a] hover:bg-[#f5f5f5]"
               }`}
@@ -145,7 +155,7 @@ export const Sidebar = ({
             </button>
           );
         })}
-      </div>
+      </nav>
 
       {/* Footer — User profile with dropdown */}
       <div className="relative border-t border-[#f0f0f0]" ref={accountRef}>

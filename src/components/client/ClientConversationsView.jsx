@@ -12,7 +12,8 @@ import {
   Loader2,
   ThumbsUp,
   ThumbsDown,
-  X,
+  RefreshCw,
+  Sparkles,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
@@ -284,7 +285,11 @@ export const ClientConversationsView = ({ clientId }) => {
   const queryClient = useQueryClient()
 
   // Fetch from ai_conversations table first (preferred)
-  const { data: aiConversations = [], isLoading: aiLoading } = useQuery({
+  const {
+    data: aiConversations = [],
+    isLoading: aiLoading,
+    refetch: refetchAi,
+  } = useQuery({
     queryKey: ['ai-conversations', clientId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -294,8 +299,7 @@ export const ClientConversationsView = ({ clientId }) => {
         .order('created_at', { ascending: false })
         .limit(100)
       if (error) {
-        // Table might not exist yet, fall back
-        console.warn('ai_conversations not available:', error.message)
+        // Table might not exist yet, silently fall back to automation_events.
         return []
       }
       return data
@@ -304,7 +308,13 @@ export const ClientConversationsView = ({ clientId }) => {
   })
 
   // Fallback: fetch from automation_events if ai_conversations is empty
-  const { data: eventConversations = [], isLoading: eventsLoading } = useQuery({
+  const {
+    data: eventConversations = [],
+    isLoading: eventsLoading,
+    isError: eventsError,
+    refetch: refetchEvents,
+    isFetching: eventsFetching,
+  } = useQuery({
     queryKey: ['client-conversations-events', clientId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -319,6 +329,11 @@ export const ClientConversationsView = ({ clientId }) => {
     },
     enabled: !!clientId && aiConversations.length === 0,
   });
+
+  const handleRetry = () => {
+    refetchAi()
+    refetchEvents()
+  }
 
   const rateMutation = useMutation({
     mutationFn: async ({ id, rating, comment }) => {
@@ -383,13 +398,59 @@ export const ClientConversationsView = ({ clientId }) => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16">
+        <div className="flex justify-center py-16" role="status" aria-label="Chargement des conversations">
           <Loader2 className="w-6 h-6 animate-spin text-[#716D5C]" />
         </div>
+      ) : eventsError ? (
+        <div
+          className="bg-white border border-gray-200 rounded-2xl p-10 text-center"
+          role="alert"
+        >
+          <div className="w-14 h-14 rounded-full bg-red-50 border border-red-100 flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-6 h-6 text-red-500" />
+          </div>
+          <p className="text-sm font-semibold text-[#262626] mb-1">
+            Impossible de charger les conversations
+          </p>
+          <p className="text-xs text-[#716D5C] mb-5">
+            Verifiez votre connexion et reessayez.
+          </p>
+          <button
+            type="button"
+            onClick={handleRetry}
+            disabled={eventsFetching}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#262626] text-white text-xs font-semibold hover:bg-[#1a1a1a] transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${eventsFetching ? 'animate-spin' : ''}`} />
+            {eventsFetching ? 'Rechargement...' : 'Reessayer'}
+          </button>
+        </div>
       ) : conversations.length === 0 ? (
-        <div className="text-center py-16">
-          <MessageCircle className="w-10 h-10 text-[#716D5C] mx-auto mb-3" />
-          <p className="text-[#716D5C] text-sm">Aucune conversation IA pour le moment.</p>
+        <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+          <div className="relative w-20 h-20 mx-auto mb-5">
+            <div className="absolute inset-0 rounded-full bg-[#0F5F35]/5" />
+            <div className="absolute inset-2 rounded-full bg-[#0F5F35]/10 flex items-center justify-center">
+              <MessageCircle className="w-8 h-8 text-[#0F5F35]" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+              <Sparkles className="w-3 h-3 text-[#0F5F35]" />
+            </div>
+          </div>
+          <p className="text-base font-semibold text-[#262626] mb-1">
+            Aucune conversation pour le moment
+          </p>
+          <p className="text-sm text-[#716D5C] max-w-sm mx-auto mb-6">
+            Des que votre agent IA traitera ses premiers echanges, ils apparaitront ici avec leurs notes et statuts.
+          </p>
+          <button
+            type="button"
+            onClick={handleRetry}
+            disabled={eventsFetching}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-[#262626] hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${eventsFetching ? 'animate-spin' : ''}`} />
+            Rafraichir
+          </button>
         </div>
       ) : (
         <div className="space-y-3">

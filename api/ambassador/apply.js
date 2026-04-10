@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { checkRateLimit, getClientIp } from '../lib/rate-limit.js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -18,11 +19,20 @@ function generateCode() {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('X-RateLimit-Limit', '10');
-  res.setHeader('X-RateLimit-Window', '3600');
+  res.setHeader('X-RateLimit-Limit', '5');
+  res.setHeader('X-RateLimit-Window', '60');
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Rate limit: 5 requests/min per IP
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`ambassador_apply:${ip}`, 5, 60_000);
+  res.setHeader('X-RateLimit-Remaining', String(rl.remaining));
+  if (!rl.allowed) {
+    res.setHeader('Retry-After', String(Math.ceil((rl.resetAt - Date.now()) / 1000)));
+    return res.status(429).json({ error: 'Trop de tentatives. Merci de reessayer dans un instant.' });
   }
 
   const { first_name, last_name, email, phone, network_type, message } = req.body || {};

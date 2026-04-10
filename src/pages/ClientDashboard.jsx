@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react'
-// eslint-disable-next-line no-unused-vars
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -10,10 +9,6 @@ import {
   Activity,
   Lightbulb,
   Download,
-
-  Moon,
-
-  Sun,
   Plus,
   FileText,
   AlertCircle,
@@ -181,18 +176,9 @@ const LiveActivityWidget = ({ supabase, setActiveTab, isLight }) => {
 };
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
-  // eslint-disable-next-line no-unused-vars
-  const queryClient = useQueryClient();
-  const [theme, setTheme] = useState(() => localStorage.getItem("actero-theme") || "light");
+  const [theme] = useState(() => localStorage.getItem("actero-theme") || "light");
   const [selectedPeriod, setSelectedPeriod] = useState("this_month");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // eslint-disable-next-line no-unused-vars
-  const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    localStorage.setItem("actero-theme", newTheme);
-  };
 
   const getTabFromRoute = (route) => {
     if (route === "/client/activity") return "activity";
@@ -402,8 +388,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     }
 
     const calcSum = (arr, field) => arr.reduce((sum, d) => sum + (Number(d[field]) || 0), 0);
-    // eslint-disable-next-line no-unused-vars
-    const calcAvg = (arr, field) => arr.length > 0 ? calcSum(arr, field) / arr.length : 0;
     const getLast = (arr, field) => arr.length > 0 ? Number(arr[arr.length - 1][field]) || 0 : 0;
 
     const computeVar = (currentVal, prevVal) => {
@@ -514,7 +498,12 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           <Logo className={`w-6 h-6 ${isLight ? "text-[#003725]" : "text-[#262626]"}`} />
           <span className={`font-bold text-lg ${isLight ? "text-[#262626]" : "text-[#262626]"}`}>Actero OS</span>
         </div>
-        <button onClick={() => setIsMobileMenuOpen(true)}>
+        <button
+          onClick={() => setIsMobileMenuOpen(true)}
+          aria-label="Ouvrir le menu de navigation"
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-sidebar"
+        >
           <Menu className={`w-6 h-6 ${isLight ? "text-[#716D5C]" : "text-[#716D5C]"}`} />
         </button>
       </div>
@@ -536,7 +525,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-50 flex">
+          <div id="mobile-sidebar" className="md:hidden fixed inset-0 z-50 flex">
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 bg-gray-500 backdrop-blur-sm"
@@ -640,24 +629,36 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     {selectedPeriod === 'this_month' ? 'Ce mois' : selectedPeriod === 'last_month' ? 'Mois dernier' : '30 jours'}
                   </span>
                 </div>
-                <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f5f5f5]">
+                <div
+                  role="tablist"
+                  aria-label="Période d'analyse"
+                  className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f5f5f5]"
+                >
                   {[
                     { id: 'this_month', label: 'Ce mois' },
                     { id: 'last_month', label: 'Mois dernier' },
                     { id: 'last_30_days', label: '30 jours' }
-                  ].map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setSelectedPeriod(p.id)}
-                      className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${
-                        selectedPeriod === p.id
-                          ? 'bg-white text-[#1a1a1a] shadow-sm'
-                          : 'text-[#9ca3af] hover:text-[#1a1a1a]'
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
+                  ].map((p) => {
+                    const isSelected = selectedPeriod === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        role="tab"
+                        id={`period-tab-${p.id}`}
+                        aria-selected={isSelected}
+                        aria-controls="period-panel"
+                        tabIndex={isSelected ? 0 : -1}
+                        onClick={() => setSelectedPeriod(p.id)}
+                        className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${
+                          isSelected
+                            ? 'bg-white text-[#1a1a1a] shadow-sm'
+                            : 'text-[#9ca3af] hover:text-[#1a1a1a]'
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

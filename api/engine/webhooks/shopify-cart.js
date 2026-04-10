@@ -9,13 +9,29 @@ const supabase = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  // Verify Shopify HMAC
-  const hmac = req.headers['x-shopify-hmac-sha256']
+  // Verify Shopify HMAC — strict. Never skip silently.
   const secret = process.env.SHOPIFY_CLIENT_SECRET
-  if (hmac && secret) {
-    const body = JSON.stringify(req.body)
-    const computed = crypto.createHmac('sha256', secret).update(body, 'utf8').digest('base64')
-    if (computed !== hmac) return res.status(401).json({ error: 'Invalid HMAC' })
+  if (!secret) {
+    console.error('[shopify-cart] SHOPIFY_CLIENT_SECRET is not set — refusing webhook')
+    return res.status(500).json({ error: 'Webhook secret not configured' })
+  }
+  const hmac = req.headers['x-shopify-hmac-sha256']
+  if (!hmac) {
+    return res.status(401).json({ error: 'Missing HMAC header' })
+  }
+  const body = JSON.stringify(req.body)
+  const computed = crypto.createHmac('sha256', secret).update(body, 'utf8').digest('base64')
+  // Use timing-safe comparison when buffer lengths match
+  let hmacValid = false
+  try {
+    const a = Buffer.from(computed)
+    const b = Buffer.from(hmac)
+    hmacValid = a.length === b.length && crypto.timingSafeEqual(a, b)
+  } catch {
+    hmacValid = false
+  }
+  if (!hmacValid) {
+    return res.status(401).json({ error: 'Invalid HMAC' })
   }
 
   const shop = req.headers['x-shopify-shop-domain']

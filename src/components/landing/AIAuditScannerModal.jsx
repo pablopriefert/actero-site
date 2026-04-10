@@ -27,41 +27,21 @@ const logs = [
 
 export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
   const [url, setUrl] = useState("");
-  const [scanState, setScanState] = useState("idle"); // idle, scanning, complete
+  const [scanState, setScanState] = useState("idle"); // idle, scanning, complete, error
   const [progress, setProgress] = useState(0);
   const [currentLog, setCurrentLog] = useState("");
   const [auditData, setAuditData] = useState(null);
   const [isRealScanDone, setIsRealScanDone] = useState(false);
+  const [scanError, setScanError] = useState(null);
 
   useEffect(() => {
     if (progress >= 95 && isRealScanDone && scanState === "scanning") {
       setProgress(100);
-      setTimeout(() => setScanState("complete"), 600);
+      setTimeout(() => setScanState(scanError ? "error" : "complete"), 600);
     }
-  }, [progress, isRealScanDone, scanState]);
+  }, [progress, isRealScanDone, scanState, scanError]);
 
   const fetchRealAudit = async (targetUrl) => {
-    const defaultFallback = {
-      timeSaved: "25h+ / semaine",
-      bottlenecks: [
-        {
-          title: "Support de niveau 1 saturé",
-          description: "Déploiement d'un agent IA multilingue connecté à votre base de données pour absorber 80% des tickets en temps réel.",
-          icon: "bot",
-        },
-        {
-          title: "Abandon de panier inexploité",
-          description: "Automatisation d'un Voice Agent IA qui rappelle instantanément les paniers premium avec une offre personnalisée.",
-          icon: "refresh",
-        },
-        {
-          title: "Saisie manuelle CRM / Facturation",
-          description: "Synchronisation Make instantanée entre vos paiements (Stripe) et votre comptabilité ou votre CRM de vente.",
-          icon: "database",
-        },
-      ],
-    };
-
     try {
       // 1. Scrape with Jina
       const jinaUrl = targetUrl.startsWith("http") ? targetUrl : `https://${targetUrl}`;
@@ -77,12 +57,16 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
 
       if (result) {
         setAuditData(result);
+        setScanError(null);
       } else {
         throw new Error("No valid JSON from Gemini");
       }
     } catch (err) {
-      console.error("Real Audit Failed, using fallback:", err);
-      setAuditData(defaultFallback);
+      console.error("Real Audit Failed:", err);
+      setScanError(
+        "Impossible d'analyser ce site pour le moment. Vérifiez l'URL ou réessayez dans quelques instants."
+      );
+      setAuditData(null);
     } finally {
       setIsRealScanDone(true);
     }
@@ -95,6 +79,8 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
     setScanState("scanning");
     setProgress(0);
     setIsRealScanDone(false);
+    setScanError(null);
+    setAuditData(null);
 
     let currentLogIndex = 0;
     setCurrentLog(logs[0]);
@@ -284,10 +270,51 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
                       setProgress(0);
                       setIsRealScanDone(false);
                       setAuditData(null);
+                      setScanError(null);
                     }}
                     className="flex-1 bg-gray-50 border border-gray-200 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-100 transition-colors"
                   >
                     Scanner un autre site
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {scanState === "error" && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="max-w-xl mx-auto text-center relative z-10"
+                role="alert"
+              >
+                <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <X className="w-8 h-8 text-red-500" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2 tracking-tight">
+                  Analyse impossible
+                </h3>
+                <p className="text-gray-600 font-medium mb-8 leading-relaxed">
+                  {scanError || "Une erreur est survenue pendant l'analyse de votre site."}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={() => {
+                      setScanState("idle");
+                      setProgress(0);
+                      setIsRealScanDone(false);
+                      setAuditData(null);
+                      setScanError(null);
+                    }}
+                    className="flex-1 bg-[#1B7D3A] text-white font-bold py-4 rounded-xl hover:bg-[#166B32] transition-colors flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-5 h-5" /> Reessayer
+                  </button>
+                  <button
+                    onClick={() => onNavigate("/audit")}
+                    className="flex-1 bg-gray-50 border border-gray-200 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    Contacter l'equipe
                   </button>
                 </div>
               </motion.div>

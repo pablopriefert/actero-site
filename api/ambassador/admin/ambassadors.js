@@ -1,20 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '../../lib/admin-auth.js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-async function checkAdmin(req) {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return false;
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return false;
-  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
-}
-
 export default async function handler(req, res) {
-  const isAdmin = await checkAdmin(req);
-  if (!isAdmin) return res.status(403).json({ error: 'Acces refuse' });
+  const adminUser = await requireAdmin(req, res, supabase);
+  if (!adminUser) return;
 
   if (req.method === 'GET') {
     try {

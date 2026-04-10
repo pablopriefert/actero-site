@@ -73,6 +73,12 @@ export const PrivacyPage = ({ onNavigate }) => {
         <main className="pt-28 md:pt-36 pb-24 px-6">
           <div className="max-w-3xl mx-auto">
 
+            {/* Update banner */}
+            <div className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5F35]/10 border border-[#0F5F35]/20 text-[#0F5F35] text-xs font-bold">
+              <span className="w-2 h-2 rounded-full bg-[#0F5F35] animate-pulse" />
+              Dernière mise à jour : 10 avril 2026
+            </div>
+
             {/* Header */}
             <div className="mb-16">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F9F7F1] border border-gray-200 text-[#716D5C] text-xs font-bold uppercase tracking-widest mb-6">
@@ -89,7 +95,7 @@ export const PrivacyPage = ({ onNavigate }) => {
                 Actero s'engage a proteger la vie privee de ses utilisateurs. Cette politique decrit comment nous collectons, utilisons et protegeons vos donnees personnelles, conformement au Reglement General sur la Protection des Donnees (RGPD).
               </p>
               <p className="text-sm text-[#716D5C] mt-4">
-                Derniere mise a jour : 5 avril 2026
+                Derniere mise a jour : 10 avril 2026
               </p>
             </div>
 

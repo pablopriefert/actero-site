@@ -20,9 +20,13 @@ export const MetricCard = ({
   };
 
   const c = colors[color] || colors.zinc;
+  const isLoading = value === null || value === undefined;
 
   return (
-    <div className={`group bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-all duration-300 ${className}`}>
+    <div
+      className={`group bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-all duration-300 ${className}`}
+      aria-busy={isLoading || undefined}
+    >
       {/* Header: title left, icon right */}
       <div className="flex items-start justify-between mb-4">
         <p className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">
@@ -35,10 +39,18 @@ export const MetricCard = ({
         )}
       </div>
 
-      {/* Value */}
-      <p className={`text-3xl font-bold tracking-tight ${c.val} mb-1`}>
-        {value}
-      </p>
+      {/* Value (or skeleton) */}
+      {isLoading ? (
+        <div
+          role="status"
+          aria-label="Chargement de la valeur"
+          className="h-8 w-24 rounded-md bg-gray-100 animate-pulse mb-1"
+        />
+      ) : (
+        <p className={`text-3xl font-bold tracking-tight ${c.val} mb-1`}>
+          {value}
+        </p>
+      )}
 
       {/* Variation */}
       {variation !== null && variation !== undefined && variation !== "—" ? (

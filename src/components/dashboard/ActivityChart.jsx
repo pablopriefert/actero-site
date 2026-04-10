@@ -10,12 +10,13 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts'
-import { Activity } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Activity, AlertTriangle, RefreshCw } from 'lucide-react'
 
 export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this_month", mini = false }) => {
   const isLight = theme === "light";
 
-  const { data: events = [], isLoading } = useQuery({
+  const { data: events = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["client-activity-events", selectedPeriod],
     queryFn: async () => {
       if (!supabase) return [];
@@ -68,40 +69,83 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
 
   if (isLoading) {
     return (
-      <div className={`h-full rounded-2xl border p-6 animate-pulse ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}>
+      <motion.div
+        key="loading"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className={`h-full rounded-2xl border p-6 animate-pulse ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}
+      >
         <div className="h-6 w-1/3 bg-gray-50 mb-4 rounded" />
-        <div className="flex-1 bg-gray-50 rounded-xl" />
-      </div>
+        <div className="h-[200px] bg-gray-50 rounded-xl" />
+      </motion.div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <motion.div
+        key="error"
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        role="alert"
+        className={`rounded-2xl border p-6 shadow-sm ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}
+      >
+        <div className="h-[200px] flex flex-col items-center justify-center text-center">
+          <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
+          <p className="text-sm font-medium text-[#262626] mb-1">Impossible de charger l'activite</p>
+          <p className="text-xs text-[#999] mb-4">Une erreur est survenue en recuperant les donnees.</p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-[#262626] hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+            {isFetching ? 'Rechargement...' : 'Reessayer'}
+          </button>
+        </div>
+      </motion.div>
     );
   }
 
   // When used as mini widget inside overview, render compact version
   if (mini) {
     return (
-      <div className="w-full h-full">
-        {chartData.length === 0 ? (
-          <div className="h-full flex items-center justify-center">
-            <p className="text-xs text-[#999]">Aucune activite.</p>
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.04)" />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#aaa" }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#aaa" }} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '8px', fontSize: '11px' }}
-                itemStyle={{ fontSize: '10px', padding: '1px 0' }}
-                cursor={{ fill: 'rgba(0,0,0,0.02)' }}
-              />
-              <Bar dataKey="ticket_resolved" stackId="a" name="Resolus" fill="#10B981" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="ticket_escalated" stackId="a" name="Escalades" fill="#F59E0B" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="cart_email_sent" stackId="a" name="Emails" fill="#3B82F6" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="cart_recovered" stackId="a" name="Paniers" fill="#8B5CF6" radius={[2, 2, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={chartData.length === 0 ? 'empty' : 'chart'}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="w-full h-full"
+        >
+          {chartData.length === 0 ? (
+            <div className="h-full flex items-center justify-center">
+              <p className="text-xs text-[#999]">Aucune activite.</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.04)" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#aaa" }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#aaa" }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '8px', fontSize: '11px' }}
+                  itemStyle={{ fontSize: '10px', padding: '1px 0' }}
+                  cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                />
+                <Bar dataKey="ticket_resolved" stackId="a" name="Resolus" fill="#10B981" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="ticket_escalated" stackId="a" name="Escalades" fill="#F59E0B" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="cart_email_sent" stackId="a" name="Emails" fill="#3B82F6" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="cart_recovered" stackId="a" name="Paniers" fill="#8B5CF6" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -113,32 +157,48 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
         </h3>
       </div>
 
-      {chartData.length === 0 ? (
-        <div className="h-[200px] flex flex-col items-center justify-center text-center">
-          <Activity className="w-8 h-8 text-[#ccc] mb-2" />
-          <p className="text-sm text-[#999]">Aucune activite pour le moment.</p>
-        </div>
-      ) : (
-        <div className="w-full h-[280px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '10px', fontSize: '12px' }}
-                itemStyle={{ fontSize: '11px', padding: '2px 0' }}
-                cursor={{ fill: 'rgba(0,0,0,0.02)' }}
-              />
-              <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '12px' }} />
-              <Bar dataKey="ticket_resolved" stackId="a" name="Resolus" fill="#10B981" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="ticket_escalated" stackId="a" name="Escalades" fill="#F59E0B" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="cart_email_sent" stackId="a" name="Emails" fill="#3B82F6" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="cart_recovered" stackId="a" name="Paniers" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {chartData.length === 0 ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="h-[200px] flex flex-col items-center justify-center text-center"
+          >
+            <Activity className="w-8 h-8 text-[#ccc] mb-2" />
+            <p className="text-sm text-[#999]">Aucune activite pour le moment.</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="chart"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="w-full h-[280px]"
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#94a3b8" }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: '10px', fontSize: '12px' }}
+                  itemStyle={{ fontSize: '11px', padding: '2px 0' }}
+                  cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '12px' }} />
+                <Bar dataKey="ticket_resolved" stackId="a" name="Resolus" fill="#10B981" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="ticket_escalated" stackId="a" name="Escalades" fill="#F59E0B" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="cart_email_sent" stackId="a" name="Emails" fill="#3B82F6" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="cart_recovered" stackId="a" name="Paniers" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

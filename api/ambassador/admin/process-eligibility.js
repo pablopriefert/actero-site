@@ -1,25 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '../../lib/admin-auth.js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-async function checkAdmin(req) {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return null;
-  const { data: { user }, error } = await supabase.auth.getUser(token);
-  if (error || !user) return null;
-  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
-  return isAdmin ? user : null;
-}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const adminUser = await checkAdmin(req);
-  if (!adminUser) return res.status(403).json({ error: 'Acc\u00e8s refus\u00e9.' });
+  const adminUser = await requireAdmin(req, res, supabase);
+  if (!adminUser) return;
 
   try {
     const now = new Date().toISOString();

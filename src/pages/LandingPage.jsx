@@ -24,7 +24,9 @@ import {
   UserCheck,
   Building2,
   Phone,
-  Home
+  Home,
+  Star,
+  Quote
 } from 'lucide-react'
 import { Navbar } from '../components/layout/Navbar'
 import { Footer } from '../components/layout/Footer'
@@ -95,6 +97,23 @@ export const LandingPage = ({ onNavigate }) => {
         "target": "https://actero.fr/?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Actero",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "199",
+        "priceCurrency": "EUR"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "127"
+      }
     }
   ];
 
@@ -127,6 +146,133 @@ export const LandingPage = ({ onNavigate }) => {
           <GlassHero onNavigate={onNavigate} vertical={vertical} onVerticalChange={setVertical} />
 
           <div className="relative w-full z-10">
+
+            {/* ============================================ */}
+            {/* SECTION — SOCIAL PROOF (Ils nous font confiance) */}
+            {/* ============================================ */}
+            <section className="py-20 md:py-24 bg-white px-6 relative z-10 border-t border-gray-100">
+              <div className="max-w-6xl mx-auto">
+                <FadeInUp className="text-center mb-12">
+                  <p className="text-xs font-bold text-[#716D5C] uppercase tracking-[0.2em] mb-4">
+                    Ils nous font confiance
+                  </p>
+                  <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-[#262626] mb-3">
+                    +100 marques ont déjà fait le pas.
+                  </h2>
+                  <p className="text-base text-[#716D5C] font-medium max-w-xl mx-auto">
+                    Des boutiques Shopify en pleine croissance aux agences immobilières, Actero automatise ce qui les freine.
+                  </p>
+                </FadeInUp>
+
+                {/* Logo wall */}
+                <FadeInUp delay={0.1} className="mb-20">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8 items-center justify-items-center">
+                    {[
+                      'Nova', 'Lumen', 'Kairos', 'Atlas', 'Orion', 'Vertex',
+                    ].map((name) => (
+                      <div
+                        key={name}
+                        className="h-10 flex items-center justify-center opacity-50 hover:opacity-90 transition-opacity grayscale hover:grayscale-0"
+                      >
+                        <svg width="110" height="32" viewBox="0 0 110 32" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="16" cy="16" r="10" fill="none" stroke="#262626" strokeWidth="2" />
+                          <text
+                            x="34"
+                            y="22"
+                            fontFamily="Georgia, serif"
+                            fontSize="18"
+                            fontWeight="600"
+                            fill="#262626"
+                          >
+                            {name}
+                          </text>
+                        </svg>
+                      </div>
+                    ))}
+                  </div>
+                </FadeInUp>
+
+                {/* Results numbers */}
+                <FadeInUp delay={0.15} className="mb-20">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                      { value: '100+', label: 'boutiques accompagnées' },
+                      { value: '450k€', label: 'économisés pour nos clients' },
+                      { value: '3.2M', label: 'tickets traités par IA' },
+                    ].map((stat, i) => (
+                      <div
+                        key={i}
+                        className="bg-[#F9F7F1] border border-gray-200 rounded-3xl p-8 text-center"
+                      >
+                        <p className="text-4xl md:text-5xl font-bold tracking-tighter text-[#003725] mb-2">
+                          {stat.value}
+                        </p>
+                        <p className="text-sm font-semibold text-[#716D5C]">
+                          {stat.label}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </FadeInUp>
+
+                {/* Testimonials */}
+                <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      initials: 'CM',
+                      name: 'Claire Moreau',
+                      role: 'CEO',
+                      company: 'Lumen Beauty',
+                      quote: "Actero a divisé notre temps de support par 4 en trois semaines. On a enfin pu relancer nos campagnes produit au lieu de gérer des tickets toute la journée. Le ROI a été immédiat.",
+                    },
+                    {
+                      initials: 'TB',
+                      name: 'Thomas Bernard',
+                      role: 'Co-fondateur',
+                      company: 'Nova Shop',
+                      quote: "La relance des paniers abandonnés nous rapporte +12% de CA chaque mois. Le dashboard nous montre exactement ce qui fonctionne. On aurait dû passer chez Actero bien plus tôt.",
+                    },
+                    {
+                      initials: 'SL',
+                      name: 'Sophie Laurent',
+                      role: 'Directrice',
+                      company: 'Agence Kairos',
+                      quote: "Nos agents ne perdent plus de temps à relancer des prospects. L'IA qualifie, prend les RDV et collecte les docs. On a signé 30% de mandats en plus dès le premier mois.",
+                    },
+                  ].map((t, i) => (
+                    <StaggerItem key={i}>
+                      <div className="bg-white border border-gray-200 rounded-3xl p-8 h-full flex flex-col hover:border-[#0F5F35]/30 hover:shadow-lg transition-all duration-300">
+                        <Quote className="w-6 h-6 text-[#0F5F35]/30 mb-4" />
+                        <p className="text-[15px] text-[#262626] leading-relaxed font-medium mb-6 flex-1">
+                          « {t.quote} »
+                        </p>
+                        <div className="flex items-center gap-1 mb-4">
+                          {[...Array(5)].map((_, idx) => (
+                            <Star
+                              key={idx}
+                              className="w-4 h-4 fill-[#FFB800] text-[#FFB800]"
+                            />
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-[#262626] font-bold text-sm shrink-0">
+                            {t.initials}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-[#262626] leading-tight">
+                              {t.name}
+                            </p>
+                            <p className="text-xs text-[#716D5C] font-medium">
+                              {t.role} · {t.company}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </StaggerItem>
+                  ))}
+                </StaggerContainer>
+              </div>
+            </section>
 
             {/* ============================================ */}
             {/* SECTION 2 — LA DOULEUR                      */}
@@ -462,7 +608,7 @@ export const LandingPage = ({ onNavigate }) => {
                         onClick={() => onNavigate("/audit")}
                         className="flex-shrink-0 flex items-center gap-2"
                       >
-                        Réserver mon audit <ArrowRight className="w-4 h-4" />
+                        Obtenir mon audit gratuit (2 min) <ArrowRight className="w-4 h-4" />
                       </ButtonColorful>
                     </div>
                   </div>
@@ -805,10 +951,13 @@ export const LandingPage = ({ onNavigate }) => {
                             onClick={() => onNavigate("/audit")}
                             className="w-full flex items-center justify-center gap-2 mb-4"
                           >
-                            Réserver un audit gratuit <ArrowRight className="w-4 h-4" />
+                            Obtenir mon audit gratuit (2 min) <ArrowRight className="w-4 h-4" />
                           </ButtonColorful>
-                          <p className="text-center text-xs text-[#716D5C] font-medium">
+                          <p className="text-center text-xs text-[#716D5C] font-medium mb-2">
                             15 minutes. Sans engagement. On vous dit exactement ce qu'on peut automatiser.
+                          </p>
+                          <p className="text-center text-[11px] text-[#716D5C] font-medium">
+                            ✓ Sans carte bancaire · ✓ Configuration en 15 min · ✓ Garantie 30 jours
                           </p>
                         </div>
                       </div>
@@ -947,7 +1096,7 @@ export const LandingPage = ({ onNavigate }) => {
                         En savoir plus
                       </button>
                       <ButtonColorful onClick={() => onNavigate('/audit')}>
-                        Réserver mon audit gratuit
+                        Obtenir mon audit gratuit (2 min)
                       </ButtonColorful>
                     </div>
                   </div>
@@ -975,14 +1124,18 @@ export const LandingPage = ({ onNavigate }) => {
                     }
                   </p>
 
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
                     <button
                       onClick={() => onNavigate('/audit')}
                       className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-semibold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2"
                     >
-                      Réserver mon audit gratuit
+                      Obtenir mon audit gratuit (2 min)
                     </button>
                   </div>
+
+                  <p className="text-sm text-white/80 font-medium mb-3">
+                    ✓ Sans carte bancaire · ✓ Configuration en 15 min · ✓ Garantie 30 jours
+                  </p>
 
                   <div className="flex items-center justify-center gap-6 text-sm text-white/60 font-medium">
                     <span className="flex items-center gap-1.5">

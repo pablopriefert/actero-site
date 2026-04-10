@@ -20,6 +20,12 @@ export const TermsPage = ({ onNavigate }) => {
         <main className="pt-28 md:pt-36 pb-24 px-6">
           <div className="max-w-3xl mx-auto">
 
+            {/* Update banner */}
+            <div className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0F5F35]/10 border border-[#0F5F35]/20 text-[#0F5F35] text-xs font-bold">
+              <span className="w-2 h-2 rounded-full bg-[#0F5F35] animate-pulse" />
+              Dernière mise à jour : 10 avril 2026
+            </div>
+
             <div className="mb-16">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F9F7F1] border border-gray-200 text-[#716D5C] text-xs font-bold uppercase tracking-widest mb-6">
                 <FileText className="w-3.5 h-3.5" />
@@ -31,7 +37,7 @@ export const TermsPage = ({ onNavigate }) => {
               >
                 Conditions generales d'utilisation
               </h1>
-              <p className="text-sm text-[#716D5C]">Derniere mise a jour : 7 avril 2026</p>
+              <p className="text-sm text-[#716D5C]">Derniere mise a jour : 10 avril 2026</p>
             </div>
 
             <div className="space-y-12">

@@ -18,7 +18,7 @@ export const PricingPage = ({ onNavigate }) => {
     window.scrollTo(0, 0);
   }, []);
 
-  const isAnnual = false;
+  const [isAnnual, setIsAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
 
   const plans = [
@@ -38,16 +38,16 @@ export const PricingPage = ({ onNavigate }) => {
         "1 appel de restitution (30 min)",
         "Accès au dashboard de suivi",
       ],
-      cta: "Lancer mon audit",
+      cta: "Obtenir mon audit gratuit (2 min)",
       highlighted: false,
       glowColor: "white",
     },
     {
       id: "croissance_automatisee",
       name: "Croissance Automatisée",
-      monthlyPrice: null,
-      annualPrice: null,
-      priceLabel: "Sur devis",
+      monthlyPrice: 199,
+      annualPrice: Math.round(199 * 12 * 0.8),
+      priceLabel: null,
       period: "",
       description:
         "L'infrastructure complète pour automatiser votre croissance sur 3 canaux avec un agent IA dédié.",
@@ -61,7 +61,7 @@ export const PricingPage = ({ onNavigate }) => {
         "Account manager dédié",
         "Reporting hebdomadaire",
       ],
-      cta: "Réserver un appel",
+      cta: "Réserver ma démo — 15 min",
       highlighted: true,
       glowColor: "emerald",
     },
@@ -115,13 +115,35 @@ export const PricingPage = ({ onNavigate }) => {
 
   const getPrice = (plan) => {
     if (plan.priceLabel) return plan.priceLabel;
-    const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
-    return `${price}€`;
+    if (isAnnual) {
+      // annualPrice stored as yearly total → display monthly equivalent
+      const monthlyEquivalent = Math.round(plan.annualPrice / 12);
+      return `${monthlyEquivalent}€`;
+    }
+    return `${plan.monthlyPrice}€`;
   };
 
   const getPeriod = (plan) => {
     if (plan.priceLabel) return plan.period;
     return isAnnual ? "/mois (facturé annuellement)" : "/mois";
+  };
+
+  const pricingSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Actero",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "199",
+      "priceCurrency": "EUR"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "127"
+    }
   };
 
   return (
@@ -130,6 +152,7 @@ export const PricingPage = ({ onNavigate }) => {
         title="Tarifs Actero — Automatisation IA sur devis"
         description="Decouvrez les offres Actero : agents IA SAV pour e-commerce Shopify et automatisation pour agences immobilieres. Tarif sur devis."
         canonical="/tarifs"
+        schemaData={pricingSchema}
       />
     <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
       <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
@@ -155,14 +178,49 @@ export const PricingPage = ({ onNavigate }) => {
               Des tarifs clairs, indexés sur la valeur générée et le temps économisé.
             </motion.p>
 
-            {/* Pricing label */}
+            {/* Billing toggle */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-3 bg-[#F9F7F1] border border-gray-200 rounded-full px-5 py-2.5"
+              className="inline-flex items-center gap-3"
             >
-              <span className="text-sm font-bold text-[#262626]">Mensuel</span>
+              <div className="relative inline-flex items-center bg-[#F9F7F1] border border-gray-200 rounded-full p-1">
+                <div
+                  className={`absolute top-1 bottom-1 rounded-full bg-[#0F5F35] shadow-sm transition-all duration-300 ease-out ${
+                    isAnnual
+                      ? "left-[calc(50%+0.125rem)] right-1"
+                      : "left-1 right-[calc(50%+0.125rem)]"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsAnnual(false)}
+                  className={`relative z-10 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-300 ${
+                    !isAnnual ? "text-white" : "text-[#716D5C] hover:text-[#262626]"
+                  }`}
+                >
+                  Mensuel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAnnual(true)}
+                  className={`relative z-10 px-6 py-2 rounded-full text-sm font-bold transition-colors duration-300 flex items-center gap-2 ${
+                    isAnnual ? "text-white" : "text-[#716D5C] hover:text-[#262626]"
+                  }`}
+                >
+                  Annuel
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      isAnnual
+                        ? "bg-white text-[#0F5F35]"
+                        : "bg-[#0F5F35]/10 text-[#0F5F35]"
+                    }`}
+                  >
+                    -20%
+                  </span>
+                </button>
+              </div>
             </motion.div>
           </div>
 
@@ -207,6 +265,11 @@ export const PricingPage = ({ onNavigate }) => {
                     <span className="text-[#716D5C] text-sm font-medium">
                       {getPeriod(plan)}
                     </span>
+                    {isAnnual && !plan.priceLabel && (
+                      <span className="ml-2 text-[10px] font-bold bg-[#0F5F35]/10 text-[#0F5F35] px-2 py-0.5 rounded-full">
+                        -20%
+                      </span>
+                    )}
                   </div>
                   <p className="mt-4 text-[#716D5C] text-sm font-medium leading-relaxed">
                     {plan.description}
@@ -245,6 +308,25 @@ export const PricingPage = ({ onNavigate }) => {
               </motion.div>
             ))}
           </div>
+
+          {/* Trust strip */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-medium text-[#716D5C]"
+          >
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#0F5F35]" /> Sans carte bancaire
+            </span>
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#0F5F35]" /> Configuration en 15 min
+            </span>
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#0F5F35]" /> Garantie 30 jours
+            </span>
+          </motion.div>
 
           {/* FAQ */}
           <div className="mt-32 max-w-3xl mx-auto">

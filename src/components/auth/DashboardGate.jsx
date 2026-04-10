@@ -10,8 +10,8 @@ import { RealEstateDashboard } from '../../pages/RealEstateDashboard'
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_URL !== "REPLACE_ME");
 
-const dLog = (..._args) => {
-  // if (true) console.log("[GATE]", ...args);
+const dLog = () => {
+  // Debug logger — silent in production. Re-enable by logging args here during local dev.
 };
 
 export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {

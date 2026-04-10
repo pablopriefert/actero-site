@@ -72,7 +72,11 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                 {/* Hero text — centered like Shine hero */}
                 <div className="max-w-3xl mx-auto text-center mb-12">
                     {/* Badge */}
-                    <FadeInUp className="mb-6">
+                    <FadeInUp className="mb-6 flex flex-col items-center gap-3">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0F5F35]/10 border border-[#0F5F35]/20 text-xs font-bold text-[#0F5F35]">
+                            <span aria-hidden="true">🚀</span>
+                            <span>+100 marques nous font déjà confiance</span>
+                        </div>
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-[#716D5C]">
                             <span>Powered by</span>
                             <img src="/elevenlabs-grants.webp" alt="ElevenLabs Grants" className="h-3.5 w-auto" />
@@ -103,7 +107,7 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                     {/* CTAs */}
                     <FadeInUp delay={0.15} className="flex flex-wrap items-center justify-center gap-4">
                         <ButtonColorful onClick={() => onNavigate('/audit')}>
-                            {vertical === 'immobilier' ? 'Demander une démo' : 'Réserver un audit gratuit'} <ArrowRight className="w-4 h-4" />
+                            {vertical === 'immobilier' ? 'Réserver ma démo — 15 min' : 'Obtenir mon audit gratuit (2 min)'} <ArrowRight className="w-4 h-4" />
                         </ButtonColorful>
                         <button
                             onClick={() => {
@@ -114,6 +118,21 @@ export const GlassHero = ({ onNavigate, vertical = 'ecommerce', onVerticalChange
                         >
                             Voir comment ça marche
                         </button>
+                    </FadeInUp>
+
+                    {/* Trust strip */}
+                    <FadeInUp delay={0.17} className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-[#716D5C]">
+                        <span className="flex items-center gap-1.5">
+                            <span className="text-[#0F5F35] font-bold">✓</span> Sans carte bancaire
+                        </span>
+                        <span className="text-gray-300">·</span>
+                        <span className="flex items-center gap-1.5">
+                            <span className="text-[#0F5F35] font-bold">✓</span> Configuration en 15 min
+                        </span>
+                        <span className="text-gray-300">·</span>
+                        <span className="flex items-center gap-1.5">
+                            <span className="text-[#0F5F35] font-bold">✓</span> Garantie 30 jours
+                        </span>
                     </FadeInUp>
 
                     {/* Ambassador CTA */}

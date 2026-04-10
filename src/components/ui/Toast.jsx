@@ -82,12 +82,9 @@ export const ToastProvider = ({ children }) => {
 export const useToast = () => {
   const ctx = useContext(ToastContext)
   if (!ctx) {
-    // Fallback if outside provider — use alert as last resort
-    return {
-      success: (msg) => console.log('[toast]', msg),
-      error: (msg) => console.error('[toast]', msg),
-      info: (msg) => console.log('[toast]', msg),
-    }
+    // Silent fallback when used outside the provider — avoids noisy logs in prod.
+    const noop = () => {}
+    return { success: noop, error: noop, info: noop }
   }
   return ctx
 }
