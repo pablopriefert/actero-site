@@ -3,9 +3,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Wand2, Save, Loader2, CheckCircle2, AlertCircle,
-  Globe, MessageCircle, ShieldAlert, Package, Sparkles,
-  ShoppingBag, Crown, Building2, Headphones, Zap, ChevronDown, ChevronUp,
-  Upload, Link2, FileText, Plus, Trash2, Pencil, X, Building, BookOpen, Eye,
+  Globe, MessageCircle, ShieldAlert, Sparkles,
+  ChevronLeft, ChevronRight,
+  Upload, Link2, FileText, Plus, Trash2, Pencil, Building, BookOpen, Eye, Zap,
 } from 'lucide-react'
 import { useToast } from '../ui/Toast'
 import { supabase } from '../../lib/supabase'
@@ -22,84 +22,12 @@ const LANGUAGES = [
   { value: 'multi', label: 'Multilingue (auto-detect)' },
 ]
 
-const TONE_PRESETS = [
-  { value: 'professionnel et chaleureux', label: 'Professionnel & Chaleureux', desc: 'Ton equilibre, ideal pour la plupart des marques' },
-  { value: 'casual et amical', label: 'Casual & Amical', desc: 'Tutoiement, emojis, proche du client' },
-  { value: 'formel et premium', label: 'Formel & Premium', desc: 'Vouvoiement strict, vocabulaire soigne, luxe' },
-  { value: 'technique et precis', label: 'Technique & Precis', desc: 'Reponses concises, factuelles, orientees solution' },
-]
-
-const AGENT_TEMPLATES = [
-  {
-    id: 'sav_standard',
-    label: 'SAV E-commerce Standard',
-    desc: 'Retours, suivi colis, remboursements, FAQ produits',
-    icon: ShoppingBag,
-    color: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    config: {
-      brand_tone: 'professionnel et chaleureux',
-      brand_language: 'fr',
-      return_policy: 'Retour gratuit sous 30 jours. Le client doit fournir le numero de commande. Remboursement sous 5-7 jours ouvrés apres reception du colis retour.',
-      custom_instructions: 'Tu es un agent SAV pour une boutique e-commerce. Tes priorites :\n1. Toujours demander le numero de commande en premier\n2. Verifier le statut de la commande avant de repondre\n3. Proposer une solution concrete (remboursement, echange, avoir)\n4. Si le probleme est complexe, escalader vers un humain\n5. Toujours terminer en demandant si le client a besoin d\'autre chose',
-      greeting_template: 'Bonjour ! Merci de contacter notre service client. Comment puis-je vous aider aujourd\'hui ?',
-    },
-  },
-  {
-    id: 'sav_premium',
-    label: 'SAV Premium + Upsell',
-    desc: 'SAV complet + recommandations produits, fidelite, codes promo',
-    icon: Crown,
-    color: 'bg-violet-50 text-violet-600 border-violet-200',
-    config: {
-      brand_tone: 'formel et premium',
-      brand_language: 'fr',
-      return_policy: 'Retour gratuit sous 30 jours avec etiquette prepayee. Echange prioritaire. Remboursement immediat pour les clients fideles.',
-      custom_instructions: 'Tu es un agent SAV premium. En plus du support classique :\n1. Recommande des produits complementaires quand c\'est pertinent\n2. Propose un code promo -10% si le client est mecontent (code: SORRY10)\n3. Mentionne le programme de fidelite si le client a 3+ commandes\n4. Traite chaque client comme un VIP\n5. Utilise le vouvoiement exclusivement',
-      greeting_template: 'Bonjour et bienvenue ! C\'est un plaisir de vous accompagner. En quoi puis-je vous etre utile ?',
-    },
-  },
-  {
-    id: 'immo_leads',
-    label: 'Immobilier - Qualification Leads',
-    desc: 'Qualification leads, disponibilites, prise de RDV visite',
-    icon: Building2,
-    color: 'bg-blue-50 text-blue-600 border-blue-200',
-    config: {
-      brand_tone: 'professionnel et chaleureux',
-      brand_language: 'fr',
-      return_policy: '',
-      custom_instructions: 'Tu es un agent IA pour une agence immobiliere. Tes missions :\n1. Qualifier les leads : budget, secteur recherche, type de bien, delai\n2. Verifier la disponibilite des biens demandes\n3. Proposer des creneaux de visite\n4. Repondre aux questions sur les biens (surface, prix, charges, DPE)\n5. Si le lead est qualifie, proposer un RDV avec un agent humain\n6. Ne jamais inventer d\'informations sur un bien',
-      greeting_template: 'Bonjour ! Bienvenue dans notre agence. Vous recherchez un bien a l\'achat ou a la location ?',
-    },
-  },
-  {
-    id: 'immo_gestion',
-    label: 'Immobilier - Gestion Locative',
-    desc: 'Incidents locataires, relances loyer, etats des lieux',
-    icon: Headphones,
-    color: 'bg-amber-50 text-amber-600 border-amber-200',
-    config: {
-      brand_tone: 'professionnel et chaleureux',
-      brand_language: 'fr',
-      return_policy: '',
-      custom_instructions: 'Tu es un agent IA pour la gestion locative. Tes missions :\n1. Enregistrer les signalements d\'incidents (fuite, panne, bruit)\n2. Donner les delais d\'intervention estimés\n3. Repondre aux questions sur le bail et les charges\n4. Informer sur les procedures (etat des lieux, conge, depot de garantie)\n5. Escalader vers le gestionnaire pour les urgences (degat des eaux, serrure)\n6. Rester neutre et factuel, ne pas prendre parti',
-      greeting_template: 'Bonjour ! Service de gestion locative. Comment puis-je vous aider ?',
-    },
-  },
-  {
-    id: 'support_technique',
-    label: 'Support Technique / SaaS',
-    desc: 'Troubleshooting, tickets, documentation, onboarding',
-    icon: Zap,
-    color: 'bg-cyan-50 text-cyan-600 border-cyan-200',
-    config: {
-      brand_tone: 'technique et precis',
-      brand_language: 'fr',
-      return_policy: '',
-      custom_instructions: 'Tu es un agent de support technique. Tes priorites :\n1. Identifier le probleme exact (reproduire les etapes)\n2. Proposer des solutions etape par etape\n3. Rediriger vers la documentation si pertinent\n4. Creer un ticket si le probleme necessite une investigation\n5. Fournir un numero de ticket pour le suivi\n6. Pas de jargon inutile, etre clair et actionnable',
-      greeting_template: 'Bonjour ! Support technique ici. Decrivez le probleme que vous rencontrez et je vous aide a le resoudre.',
-    },
-  },
+const STEPS = [
+  { id: 'identity', label: 'Identite', icon: Building, desc: 'Marque & langue' },
+  { id: 'tone', label: 'Ton', icon: MessageCircle, desc: 'Personnalite' },
+  { id: 'rules', label: 'Regles', icon: ShieldAlert, desc: 'Garde-fous' },
+  { id: 'knowledge', label: 'Connaissances', icon: BookOpen, desc: 'FAQ & infos' },
+  { id: 'preview', label: 'Apercu', icon: Eye, desc: 'Prompt final' },
 ]
 
 const EditKbEntry = ({ entry, onSave, onCancel }) => {
@@ -130,11 +58,10 @@ const EditKbEntry = ({ entry, onSave, onCancel }) => {
 export const PromptEditor = ({ clientId, theme }) => {
   const queryClient = useQueryClient()
   const toast = useToast()
+  const [currentStep, setCurrentStep] = useState(0)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState(null)
-  const [showTemplates, setShowTemplates] = useState(false)
-  const [activeTemplate, setActiveTemplate] = useState(null)
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -142,7 +69,121 @@ export const PromptEditor = ({ clientId, theme }) => {
   const [showAddManual, setShowAddManual] = useState(false)
   const [manualTitle, setManualTitle] = useState('')
   const [manualContent, setManualContent] = useState('')
+  const [newAbsoluteRule, setNewAbsoluteRule] = useState('')
 
+  const inputClass = "w-full px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20 placeholder-gray-400"
+
+  // -------- Data fetching --------
+  const { data: settings, isLoading } = useQuery({
+    queryKey: ['client-prompt-settings', clientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('client_settings')
+        .select('*')
+        .eq('client_id', clientId)
+        .maybeSingle()
+      if (error) throw error
+      return data
+    },
+    enabled: !!clientId,
+  })
+
+  const { data: kbEntries = [] } = useQuery({
+    queryKey: ['kb-entries', clientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('client_knowledge_base')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data || []
+    },
+    enabled: !!clientId,
+  })
+
+  const { data: guardrails = [] } = useQuery({
+    queryKey: ['pe-guardrails', clientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('client_guardrails')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('priority', { ascending: true })
+      if (error) throw error
+      return data || []
+    },
+    enabled: !!clientId,
+  })
+
+  // -------- Form state --------
+  const [form, setForm] = useState({
+    brand_tone: '',
+    brand_language: 'fr',
+    return_policy: '',
+    excluded_products: '',
+    custom_instructions: '',
+    greeting_template: '',
+    brand_identity: '',
+    tone_style: '',
+    example_responses: [],
+    tone_formality: 30,
+    tone_warmth: 70,
+    tone_detail: 50,
+  })
+
+  useEffect(() => {
+    if (settings) {
+      setForm({
+        brand_tone: settings.brand_tone || 'professionnel et chaleureux',
+        brand_language: settings.brand_language || 'fr',
+        return_policy: settings.return_policy || '',
+        excluded_products: settings.excluded_products || '',
+        custom_instructions: settings.custom_instructions || '',
+        greeting_template: settings.greeting_template || '',
+        tone_formality: settings.tone_formality ?? 30,
+        tone_warmth: settings.tone_warmth ?? 70,
+        tone_detail: settings.tone_detail ?? 50,
+        brand_identity: settings.brand_identity || '',
+        tone_style: settings.tone_style || '',
+        example_responses: Array.isArray(settings.example_responses) ? settings.example_responses : [],
+      })
+    }
+  }, [settings])
+
+  // -------- Auto-save (Feature 18) --------
+  const saveTimer = useRef(null)
+  const isHydratedRef = useRef(false)
+  useEffect(() => {
+    if (!settings) return
+    if (!isHydratedRef.current) {
+      isHydratedRef.current = true
+      return
+    }
+    if (saveTimer.current) clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(async () => {
+      try {
+        await supabase.from('client_settings').upsert({
+          client_id: clientId,
+          brand_identity: form.brand_identity,
+          tone_style: form.tone_style,
+          tone_formality: form.tone_formality,
+          tone_warmth: form.tone_warmth,
+          tone_detail: form.tone_detail,
+          example_responses: form.example_responses,
+          brand_language: form.brand_language,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'client_id' })
+        queryClient.invalidateQueries({ queryKey: ['client-prompt-settings', clientId] })
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      } catch { /* ignore */ }
+    }, 900)
+    return () => { if (saveTimer.current) clearTimeout(saveTimer.current) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.brand_identity, form.tone_style, form.example_responses, form.tone_formality, form.tone_warmth, form.tone_detail, form.brand_language])
+
+  // -------- Knowledge Base actions --------
   const handleAddManual = async () => {
     if (!manualTitle.trim() || !manualContent.trim()) return
     await supabase.from('client_knowledge_base').insert({
@@ -157,21 +198,6 @@ export const PromptEditor = ({ clientId, theme }) => {
     setShowAddManual(false)
     toast.success('Entree ajoutee')
   }
-
-  // Fetch existing KB entries
-  const { data: kbEntries = [] } = useQuery({
-    queryKey: ['kb-entries', clientId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('client_knowledge_base')
-        .select('*')
-        .eq('client_id', clientId)
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return data || []
-    },
-    enabled: !!clientId,
-  })
 
   const handleDeleteKb = async (id) => {
     await supabase.from('client_knowledge_base').delete().eq('id', id)
@@ -231,56 +257,7 @@ export const PromptEditor = ({ clientId, theme }) => {
     e.target.value = ''
   }
 
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ['client-prompt-settings', clientId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('client_settings')
-        .select('*')
-        .eq('client_id', clientId)
-        .maybeSingle()
-      if (error) throw error
-      return data
-    },
-    enabled: !!clientId,
-  })
-
-  const [form, setForm] = useState({
-    brand_tone: '',
-    brand_language: 'fr',
-    return_policy: '',
-    excluded_products: '',
-    custom_instructions: '',
-    greeting_template: '',
-    brand_identity: '',
-    tone_style: '',
-    example_responses: [],
-  })
-  // Section expansion state (Feature 18)
-  const [openSections, setOpenSections] = useState({
-    identity: true,
-    tone: true,
-    rules: false,
-    examples: false,
-    preview: false,
-  })
-  const toggleSection = (key) => setOpenSections(s => ({ ...s, [key]: !s[key] }))
-
-  // Guardrails (absolute rules) loaded via existing table for Feature 18 UI
-  const { data: guardrails = [] } = useQuery({
-    queryKey: ['pe-guardrails', clientId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('client_guardrails')
-        .select('*')
-        .eq('client_id', clientId)
-        .order('priority', { ascending: true })
-      if (error) throw error
-      return data || []
-    },
-    enabled: !!clientId,
-  })
-  const [newAbsoluteRule, setNewAbsoluteRule] = useState('')
+  // -------- Guardrails actions --------
   const handleAddAbsoluteRule = async () => {
     if (!newAbsoluteRule.trim()) return
     const { error } = await supabase.from('client_guardrails').insert({
@@ -299,7 +276,7 @@ export const PromptEditor = ({ clientId, theme }) => {
     queryClient.invalidateQueries({ queryKey: ['pe-guardrails', clientId] })
   }
 
-  // Example responses (few-shot) helpers
+  // -------- Examples actions --------
   const handleAddExample = () => {
     setForm(f => ({ ...f, example_responses: [...(f.example_responses || []), { question: '', answer: '' }] }))
   }
@@ -313,52 +290,30 @@ export const PromptEditor = ({ clientId, theme }) => {
     setForm(f => ({ ...f, example_responses: (f.example_responses || []).filter((_, idx) => idx !== i) }))
   }
 
-  useEffect(() => {
-    if (settings) {
-      setForm({
-        brand_tone: settings.brand_tone || 'professionnel et chaleureux',
-        brand_language: settings.brand_language || 'fr',
-        return_policy: settings.return_policy || '',
-        excluded_products: settings.excluded_products || '',
-        custom_instructions: settings.custom_instructions || '',
-        greeting_template: settings.greeting_template || '',
-        tone_formality: settings.tone_formality ?? 30,
-        tone_warmth: settings.tone_warmth ?? 70,
-        tone_detail: settings.tone_detail ?? 50,
-        brand_identity: settings.brand_identity || '',
-        tone_style: settings.tone_style || '',
-        example_responses: Array.isArray(settings.example_responses) ? settings.example_responses : [],
-      })
-    }
-  }, [settings])
-
-  // Debounced auto-save for Feature 18 fields
-  const saveTimer = useRef(null)
-  const isHydratedRef = useRef(false)
-  useEffect(() => {
-    if (!settings) return
-    if (!isHydratedRef.current) {
-      isHydratedRef.current = true
-      return
-    }
-    if (saveTimer.current) clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(async () => {
-      try {
-        await supabase.from('client_settings').upsert({
+  // -------- Save (manual full save) --------
+  const handleSave = async () => {
+    setSaving(true)
+    setError(null)
+    setSaved(false)
+    try {
+      const { error: err } = await supabase
+        .from('client_settings')
+        .upsert({
           client_id: clientId,
-          brand_identity: form.brand_identity,
-          tone_style: form.tone_style,
-          example_responses: form.example_responses,
+          ...form,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'client_id' })
-        queryClient.invalidateQueries({ queryKey: ['client-prompt-settings', clientId] })
-      } catch { /* ignore */ }
-    }, 900)
-    return () => { if (saveTimer.current) clearTimeout(saveTimer.current) }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.brand_identity, form.tone_style, form.example_responses])
+      if (err) throw err
+      setSaved(true)
+      queryClient.invalidateQueries({ queryKey: ['client-prompt-settings', clientId] })
+      setTimeout(() => setSaved(false), 3000)
+    } catch (err) {
+      setError(err.message)
+    }
+    setSaving(false)
+  }
 
-  // Build a preview of the generated system prompt (client-side approximation)
+  // -------- Preview prompt builder --------
   const buildPreviewPrompt = () => {
     const brandName = 'Votre marque'
     let p = `Tu es un agent de support client IA professionnel pour "${brandName}".`
@@ -382,48 +337,17 @@ export const PromptEditor = ({ clientId, theme }) => {
     }
     if (toneLines.length > 0) p += `\n\nTON DE COMMUNICATION:\n${toneLines.join('\n')}`
     if (form.tone_style?.trim()) p += `\n\nSTYLE PARTICULIER:\n${form.tone_style.trim()}`
-    if (form.return_policy) p += `\n\nPOLITIQUE DE RETOUR:\n${form.return_policy}`
-    if (form.custom_instructions) p += `\n\nINSTRUCTIONS SPECIFIQUES:\n${form.custom_instructions}`
     if (guardrails.length > 0) {
       p += `\n\nREGLES D'EXCLUSION:\n${guardrails.filter(g => g.is_enabled).map((g, i) => `${i + 1}. ${g.rule_text}`).join('\n')}`
+    }
+    if (kbEntries.length > 0) {
+      p += `\n\nBASE DE CONNAISSANCES:\n${kbEntries.slice(0, 50).map(k => `[${k.category}] ${k.title}: ${k.content}`).join('\n')}`
     }
     const exs = (form.example_responses || []).filter(e => e.question && e.answer)
     if (exs.length > 0) {
       p += `\n\nEXEMPLES DE BONNES REPONSES:\n${exs.slice(0, 8).map((ex, i) => `Exemple ${i + 1}:\nQuestion: ${ex.question}\nReponse: ${ex.answer}`).join('\n\n')}`
     }
     return p
-  }
-
-  const handleSave = async () => {
-    setSaving(true)
-    setError(null)
-    setSaved(false)
-    try {
-      const { error: err } = await supabase
-        .from('client_settings')
-        .upsert({
-          client_id: clientId,
-          ...form,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'client_id' })
-      if (err) throw err
-      setSaved(true)
-      queryClient.invalidateQueries({ queryKey: ['client-prompt-settings', clientId] })
-      setTimeout(() => setSaved(false), 3000)
-    } catch (err) {
-      setError(err.message)
-    }
-    setSaving(false)
-  }
-
-  const handleApplyTemplate = (template) => {
-    setForm(f => ({
-      ...f,
-      ...template.config,
-    }))
-    setActiveTemplate(template.id)
-    setShowTemplates(false)
-    toast.success(`Modele "${template.label}" applique — pensez a sauvegarder`)
   }
 
   if (isLoading) {
@@ -434,170 +358,254 @@ export const PromptEditor = ({ clientId, theme }) => {
     )
   }
 
-  const inputClass = "w-full px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20 placeholder-gray-400"
+  const step = STEPS[currentStep]
+  const progress = ((currentStep + 1) / STEPS.length) * 100
+
+  const goNext = () => {
+    if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1)
+  }
+  const goPrev = () => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1)
+  }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div>
+      <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
             <Wand2 className="w-5 h-5 text-violet-600" />
           </div>
           <div>
             <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Mon Agent</h2>
-            <p className="text-[13px] text-[#9ca3af]">Definissez la personnalite et les connaissances de votre agent</p>
+            <p className="text-[13px] text-[#9ca3af]">Configurez votre agent en {STEPS.length} etapes simples</p>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            {saved && (
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-600">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Sauvegarde
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* --- Feature 18: Section — Identite de marque --- */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
-        <button
-          onClick={() => toggleSection('identity')}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-              <Building className="w-4 h-4 text-[#0F5F35]" />
-            </div>
-            <div className="text-left">
-              <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Identite de marque</h3>
-              <p className="text-[11px] text-[#9ca3af]">Nom, secteur, valeurs — le contexte ADN de votre entreprise</p>
-            </div>
-          </div>
-          {openSections.identity ? <ChevronUp className="w-4 h-4 text-[#9ca3af]" /> : <ChevronDown className="w-4 h-4 text-[#9ca3af]" />}
-        </button>
-        <AnimatePresence initial={false}>
-          {openSections.identity && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="px-6 pb-6 pt-1 border-t border-[#f5f5f5]">
-                <textarea
-                  value={form.brand_identity}
-                  onChange={(e) => setForm(f => ({ ...f, brand_identity: e.target.value }))}
-                  rows={4}
-                  placeholder={'ex: Marque de cosmetiques bio fondee en 2018, nos valeurs : transparence, naturel, fait en France. Clientele premium feminine 25-45 ans.'}
-                  className={inputClass + ' resize-y'}
-                />
-                <p className="text-[10px] text-[#9ca3af] mt-2">Sauvegarde automatique</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Tone sliders (3 axes) */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <MessageCircle className="w-4 h-4 text-[#0F5F35]" />
-          <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Ton de votre agent</h3>
-        </div>
-        <p className="text-[12px] text-[#9ca3af] mb-6">Ajustez les curseurs pour definir la personnalite de votre agent. La previsualisation se met a jour en temps reel.</p>
-
-        <div className="space-y-6">
-          {/* Slider 1: Formel ↔ Casual */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-[#9ca3af] inline-flex items-center gap-1">Formel <HelpTooltip text="Niveau de formalité du langage. À gauche : vouvoiement et phrases soutenues. À droite : tutoiement et style décontracté." /></span>
-              <span className="text-[11px] font-semibold text-[#9ca3af]">Casual</span>
-            </div>
-            <input
-              type="range" min="0" max="100" step="1"
-              value={form.tone_formality || 30}
-              onChange={(e) => setForm(f => ({ ...f, tone_formality: parseInt(e.target.value) }))}
-              className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
-            />
-          </div>
-
-          {/* Slider 2: Froid ↔ Chaleureux */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-[#9ca3af] inline-flex items-center gap-1">Froid <HelpTooltip text="Niveau d'empathie affichée. À droite : l'agent reconnaît explicitement les émotions du client et personnalise sa réponse." /></span>
-              <span className="text-[11px] font-semibold text-[#9ca3af]">Chaleureux</span>
-            </div>
-            <input
-              type="range" min="0" max="100" step="1"
-              value={form.tone_warmth || 70}
-              onChange={(e) => setForm(f => ({ ...f, tone_warmth: parseInt(e.target.value) }))}
-              className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
-            />
-          </div>
-
-          {/* Slider 3: Court ↔ Détaillé */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-[#9ca3af] inline-flex items-center gap-1">Court <HelpTooltip text="Longueur des réponses. À gauche : réponses concises (1-2 phrases). À droite : réponses détaillées avec contexte et étapes." /></span>
-              <span className="text-[11px] font-semibold text-[#9ca3af]">Detaille</span>
-            </div>
-            <input
-              type="range" min="0" max="100" step="1"
-              value={form.tone_detail || 50}
-              onChange={(e) => setForm(f => ({ ...f, tone_detail: parseInt(e.target.value) }))}
-              className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
-            />
-          </div>
-        </div>
-
-        {/* Live preview */}
-        <div className="mt-6 p-4 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
-          <p className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Previsualisation</p>
-          <p className="text-[13px] text-[#1a1a1a] leading-relaxed italic">
-            "{(form.tone_formality || 30) < 40
-              ? (form.tone_warmth || 70) > 60
-                ? 'Bonjour, merci pour votre message. Nous comprenons votre situation et allons faire le necessaire pour resoudre cela rapidement. N\'hesitez pas si vous avez d\'autres questions.'
-                : 'Bonjour. Nous avons bien recu votre demande. Notre equipe la traite dans les meilleurs delais. Cordialement.'
-              : (form.tone_warmth || 70) > 60
-                ? 'Hey ! Merci de nous avoir contactes ! On s\'occupe de ca tout de suite, pas de souci. Tu as besoin d\'autre chose ?'
-                : 'Salut ! On a bien recu ton message. On regarde ca et on te tient au courant. A bientot !'
-            }"
-          </p>
-        </div>
-
-        {/* Feature 18: Style particulier freeform */}
-        <div className="mt-6">
-          <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Style particulier (optionnel)</label>
-          <textarea
-            value={form.tone_style}
-            onChange={(e) => setForm(f => ({ ...f, tone_style: e.target.value }))}
-            rows={3}
-            placeholder={'ex: utilise des expressions francaises decontractees, signe toujours par "L\'equipe"'}
-            className={inputClass + ' resize-y'}
+      {/* Progress bar */}
+      <div className="mb-6">
+        <div className="h-1 bg-[#f0f0f0] rounded-full overflow-hidden">
+          <motion.div
+            className="h-full bg-[#0F5F35]"
+            initial={false}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
           />
-          <p className="text-[10px] text-[#9ca3af] mt-1.5">Sauvegarde automatique. Ajoute des indications de style libres.</p>
         </div>
       </div>
 
-      {/* --- Feature 18: Section — Regles absolues --- */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
-        <button
-          onClick={() => toggleSection('rules')}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-              <ShieldAlert className="w-4 h-4 text-red-500" />
-            </div>
-            <div className="text-left">
-              <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Regles absolues</h3>
-              <p className="text-[11px] text-[#9ca3af]">Toujours faire X, ne jamais faire Y — {guardrails.length} regle{guardrails.length > 1 ? 's' : ''}</p>
-            </div>
-          </div>
-          {openSections.rules ? <ChevronUp className="w-4 h-4 text-[#9ca3af]" /> : <ChevronDown className="w-4 h-4 text-[#9ca3af]" />}
-        </button>
-        <AnimatePresence initial={false}>
-          {openSections.rules && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
+      {/* Step pills navigation */}
+      <div className="grid grid-cols-5 gap-2 mb-8">
+        {STEPS.map((s, i) => {
+          const Icon = s.icon
+          const isActive = i === currentStep
+          const isCompleted = i < currentStep
+          return (
+            <button
+              key={s.id}
+              onClick={() => setCurrentStep(i)}
+              className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
+                isActive
+                  ? 'bg-[#0F5F35]/5 border-[#0F5F35]/30 shadow-[0_1px_3px_rgba(0,0,0,0.06)]'
+                  : isCompleted
+                    ? 'bg-white border-[#f0f0f0] hover:border-[#e5e5e5]'
+                    : 'bg-white border-[#f0f0f0] hover:border-[#e5e5e5] opacity-70'
+              }`}
             >
-              <div className="px-6 pb-6 pt-1 border-t border-[#f5f5f5] space-y-3">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                isActive
+                  ? 'bg-[#0F5F35] text-white'
+                  : isCompleted
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : 'bg-[#fafafa] text-[#9ca3af]'
+              }`}>
+                {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+              </div>
+              <div className="text-center">
+                <p className={`text-[11px] font-semibold leading-tight ${isActive ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]'}`}>
+                  {s.label}
+                </p>
+                <p className="text-[9px] text-[#9ca3af] leading-tight mt-0.5 hidden md:block">{s.desc}</p>
+              </div>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Step content */}
+      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6 md:p-8 min-h-[400px]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* ============ STEP 1: IDENTITY ============ */}
+            {step.id === 'identity' && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                    <Building className="w-5 h-5 text-[#0F5F35]" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Identite de marque</h3>
+                    <p className="text-[12px] text-[#9ca3af]">L'ADN de votre entreprise — l'agent va s'en inspirer pour parler comme vous</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                    Decrivez votre marque
+                    <HelpTooltip text="Nom, secteur, valeurs, clientèle cible. Plus c'est précis, plus l'agent répondra de manière cohérente avec votre image." />
+                  </label>
+                  <textarea
+                    value={form.brand_identity}
+                    onChange={(e) => setForm(f => ({ ...f, brand_identity: e.target.value }))}
+                    rows={6}
+                    placeholder={'ex: Marque de cosmetiques bio fondee en 2018, nos valeurs : transparence, naturel, fait en France. Clientele premium feminine 25-45 ans.'}
+                    className={inputClass + ' resize-y'}
+                  />
+                  <p className="text-[10px] text-[#9ca3af] mt-2">Sauvegarde automatique au fil de la frappe</p>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                    <Globe className="w-3 h-3" /> Langue de l'agent
+                    <HelpTooltip text="Langue dans laquelle l'agent répondra. Choisissez 'Multilingue' pour qu'il s'adapte automatiquement à la langue du client." />
+                  </label>
+                  <select
+                    value={form.brand_language}
+                    onChange={(e) => setForm(f => ({ ...f, brand_language: e.target.value }))}
+                    className="w-full max-w-md px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20 appearance-none cursor-pointer"
+                  >
+                    {LANGUAGES.map(l => (
+                      <option key={l.value} value={l.value}>{l.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* ============ STEP 2: TONE ============ */}
+            {step.id === 'tone' && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Ton de votre agent</h3>
+                    <p className="text-[12px] text-[#9ca3af]">Ajustez les curseurs — la previsualisation se met a jour en direct</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Slider 1 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-semibold text-[#9ca3af] inline-flex items-center gap-1">
+                        Formel
+                        <HelpTooltip text="Niveau de formalite du langage. A gauche : vouvoiement et phrases soutenues. A droite : tutoiement et style decontracte." />
+                      </span>
+                      <span className="text-[11px] font-semibold text-[#9ca3af]">Casual</span>
+                    </div>
+                    <input
+                      type="range" min="0" max="100" step="1"
+                      value={form.tone_formality || 30}
+                      onChange={(e) => setForm(f => ({ ...f, tone_formality: parseInt(e.target.value) }))}
+                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
+                    />
+                  </div>
+
+                  {/* Slider 2 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-semibold text-[#9ca3af] inline-flex items-center gap-1">
+                        Froid
+                        <HelpTooltip text="Niveau d'empathie. A droite : l'agent reconnait explicitement les emotions du client et personnalise sa reponse." />
+                      </span>
+                      <span className="text-[11px] font-semibold text-[#9ca3af]">Chaleureux</span>
+                    </div>
+                    <input
+                      type="range" min="0" max="100" step="1"
+                      value={form.tone_warmth || 70}
+                      onChange={(e) => setForm(f => ({ ...f, tone_warmth: parseInt(e.target.value) }))}
+                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
+                    />
+                  </div>
+
+                  {/* Slider 3 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-semibold text-[#9ca3af] inline-flex items-center gap-1">
+                        Court
+                        <HelpTooltip text="Longueur des reponses. A gauche : reponses concises (1-2 phrases). A droite : reponses detaillees avec contexte et etapes." />
+                      </span>
+                      <span className="text-[11px] font-semibold text-[#9ca3af]">Detaille</span>
+                    </div>
+                    <input
+                      type="range" min="0" max="100" step="1"
+                      value={form.tone_detail || 50}
+                      onChange={(e) => setForm(f => ({ ...f, tone_detail: parseInt(e.target.value) }))}
+                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0F5F35]"
+                    />
+                  </div>
+                </div>
+
+                {/* Live preview */}
+                <div className="p-4 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+                  <p className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Previsualisation</p>
+                  <p className="text-[13px] text-[#1a1a1a] leading-relaxed italic">
+                    "{(form.tone_formality || 30) < 40
+                      ? (form.tone_warmth || 70) > 60
+                        ? 'Bonjour, merci pour votre message. Nous comprenons votre situation et allons faire le necessaire pour resoudre cela rapidement. N\'hesitez pas si vous avez d\'autres questions.'
+                        : 'Bonjour. Nous avons bien recu votre demande. Notre equipe la traite dans les meilleurs delais. Cordialement.'
+                      : (form.tone_warmth || 70) > 60
+                        ? 'Hey ! Merci de nous avoir contactes ! On s\'occupe de ca tout de suite, pas de souci. Tu as besoin d\'autre chose ?'
+                        : 'Salut ! On a bien recu ton message. On regarde ca et on te tient au courant. A bientot !'
+                    }"
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2 inline-flex items-center gap-1.5">
+                    Style particulier (optionnel)
+                    <HelpTooltip text="Indications de style libres : signature, expressions favorites, formulations a utiliser/eviter." />
+                  </label>
+                  <textarea
+                    value={form.tone_style}
+                    onChange={(e) => setForm(f => ({ ...f, tone_style: e.target.value }))}
+                    rows={3}
+                    placeholder={'ex: utilise des expressions francaises decontractees, signe toujours par "L\'equipe"'}
+                    className={inputClass + ' resize-y'}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* ============ STEP 3: RULES ============ */}
+            {step.id === 'rules' && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                    <ShieldAlert className="w-5 h-5 text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Regles absolues</h3>
+                    <p className="text-[12px] text-[#9ca3af]">"Toujours faire X, ne jamais faire Y" — l'agent respectera ces regles strictement</p>
+                  </div>
+                </div>
+
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -615,292 +623,268 @@ export const PromptEditor = ({ clientId, theme }) => {
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                {guardrails.length > 0 && (
-                  <div className="space-y-1.5">
-                    {guardrails.map(g => (
-                      <div key={g.id} className="flex items-center gap-2 px-3 py-2 bg-[#fafafa] rounded-lg">
-                        <span className={`text-[12px] flex-1 ${g.is_enabled ? 'text-[#1a1a1a]' : 'text-[#9ca3af] line-through'}`}>{g.rule_text}</span>
-                        <button onClick={() => handleDeleteAbsoluteRule(g.id)} className="p-1 rounded text-[#9ca3af] hover:bg-red-50 hover:text-red-500">
+
+                {guardrails.length > 0 ? (
+                  <div className="space-y-2">
+                    {guardrails.map((g, i) => (
+                      <div key={g.id} className="flex items-center gap-3 px-4 py-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+                        <div className="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[10px] font-bold text-red-500">{i + 1}</span>
+                        </div>
+                        <span className={`text-[13px] flex-1 ${g.is_enabled ? 'text-[#1a1a1a]' : 'text-[#9ca3af] line-through'}`}>{g.rule_text}</span>
+                        <button onClick={() => handleDeleteAbsoluteRule(g.id)} className="p-1.5 rounded text-[#9ca3af] hover:bg-red-50 hover:text-red-500">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <div className="text-center py-12 border border-dashed border-[#ebebeb] rounded-2xl">
+                    <ShieldAlert className="w-8 h-8 text-[#d4d4d4] mx-auto mb-2" />
+                    <p className="text-[12px] text-[#9ca3af]">Aucune regle definie. Ajoutez votre premiere regle ci-dessus.</p>
+                  </div>
                 )}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            )}
 
-      {/* --- Feature 18: Section — Exemples de bonnes reponses --- */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
-        <button
-          onClick={() => toggleSection('examples')}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="text-left">
-              <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Exemples de bonnes reponses</h3>
-              <p className="text-[11px] text-[#9ca3af]">Paires Question/Reponse que l'IA doit imiter — {(form.example_responses || []).length} exemple{(form.example_responses || []).length > 1 ? 's' : ''}</p>
-            </div>
-          </div>
-          {openSections.examples ? <ChevronUp className="w-4 h-4 text-[#9ca3af]" /> : <ChevronDown className="w-4 h-4 text-[#9ca3af]" />}
-        </button>
-        <AnimatePresence initial={false}>
-          {openSections.examples && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="px-6 pb-6 pt-1 border-t border-[#f5f5f5] space-y-3">
-                {(form.example_responses || []).map((ex, i) => (
-                  <div key={i} className="p-3 bg-[#fafafa] rounded-xl space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]">Exemple {i + 1}</span>
-                      <button onClick={() => handleRemoveExample(i)} className="p-1 rounded text-[#9ca3af] hover:bg-red-50 hover:text-red-500">
-                        <Trash2 className="w-3.5 h-3.5" />
+            {/* ============ STEP 4: KNOWLEDGE BASE ============ */}
+            {step.id === 'knowledge' && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <BookOpen className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Base de connaissances</h3>
+                    <p className="text-[12px] text-[#9ca3af]">FAQ, politiques, infos produits — l'agent puise ici pour repondre {kbEntries.length > 0 && <span className="ml-1 text-[#0F5F35] font-semibold">{kbEntries.length} entree{kbEntries.length > 1 ? 's' : ''}</span>}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* URL Import */}
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider flex items-center gap-1">
+                      <Link2 className="w-3 h-3" /> Importer depuis une URL
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={importUrl}
+                        onChange={(e) => setImportUrl(e.target.value)}
+                        placeholder="https://votre-site.com/faq"
+                        className={inputClass}
+                      />
+                      <button
+                        onClick={handleImportUrl}
+                        disabled={!importUrl.trim() || importing}
+                        className="px-4 py-3 bg-[#0F5F35] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
+                      >
+                        {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                       </button>
                     </div>
+                  </div>
+
+                  {/* File Upload */}
+                  <div className="space-y-2">
+                    <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider flex items-center gap-1">
+                      <Upload className="w-3 h-3" /> Importer un fichier
+                    </label>
+                    <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#ebebeb] rounded-xl cursor-pointer hover:border-[#0F5F35]/30 hover:bg-[#f5f5f5] transition-all">
+                      {uploading ? (
+                        <><Loader2 className="w-4 h-4 animate-spin text-[#9ca3af]" /><span className="text-sm text-[#9ca3af]">Analyse...</span></>
+                      ) : (
+                        <><Upload className="w-4 h-4 text-[#9ca3af]" /><span className="text-sm text-[#9ca3af]">PDF, TXT, CSV — max 4 Mo</span></>
+                      )}
+                      <input type="file" accept=".pdf,.txt,.csv,.md,.doc,.docx" onChange={handleFileUpload} disabled={uploading} className="hidden" />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Add manually */}
+                {!showAddManual ? (
+                  <button
+                    onClick={() => setShowAddManual(true)}
+                    className="flex items-center gap-2 text-sm font-medium text-[#0F5F35] hover:underline"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Ajouter une entree manuellement
+                  </button>
+                ) : (
+                  <div className="space-y-2 p-4 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
                     <input
                       type="text"
-                      value={ex.question || ''}
-                      onChange={(e) => handleUpdateExample(i, 'question', e.target.value)}
-                      placeholder="Question du client"
-                      className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
+                      value={manualTitle}
+                      onChange={(e) => setManualTitle(e.target.value)}
+                      placeholder="Titre (ex: Delais de livraison)"
+                      className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
                     />
                     <textarea
-                      value={ex.answer || ''}
-                      onChange={(e) => handleUpdateExample(i, 'answer', e.target.value)}
-                      placeholder="Reponse ideale que l'IA doit imiter"
-                      rows={2}
-                      className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-[#0F5F35]/30 resize-y"
+                      value={manualContent}
+                      onChange={(e) => setManualContent(e.target.value)}
+                      placeholder="Contenu (ex: La livraison est gratuite a partir de 50€. Delai: 2-5 jours ouvres.)"
+                      rows={3}
+                      className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-[#0F5F35]/30"
                     />
-                  </div>
-                ))}
-                <button
-                  onClick={handleAddExample}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2.5 border border-dashed border-[#ebebeb] rounded-xl text-[12px] font-medium text-[#9ca3af] hover:border-[#0F5F35]/30 hover:text-[#0F5F35] hover:bg-[#0F5F35]/5 transition-all"
-                >
-                  <Plus className="w-4 h-4" /> Ajouter un exemple
-                </button>
-                <p className="text-[10px] text-[#9ca3af]">Sauvegarde automatique. Les exemples sont injectes dans le prompt pour guider le ton et le format.</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Language */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Globe className="w-4 h-4 text-[#0F5F35]" />
-          <h3 className="text-sm font-bold text-[#1a1a1a]">Langue de l'agent</h3>
-        </div>
-        <select
-          value={form.brand_language}
-          onChange={(e) => setForm(f => ({ ...f, brand_language: e.target.value }))}
-          className="w-full max-w-xs px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/20 appearance-none cursor-pointer"
-        >
-          {LANGUAGES.map(l => (
-            <option key={l.value} value={l.value}>{l.label}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Base de connaissances — Import */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-[#0F5F35]" />
-            <h3 className="text-sm font-bold text-[#1a1a1a]">Base de connaissances</h3>
-          </div>
-          {kbEntries.length > 0 && (
-            <span className="text-xs text-[#9ca3af] bg-[#fafafa] px-2 py-0.5 rounded-full">{kbEntries.length} entree{kbEntries.length > 1 ? 's' : ''}</span>
-          )}
-        </div>
-        <p className="text-xs text-[#9ca3af]">Importez vos FAQ, politiques et infos produits. L'agent les utilisera pour repondre aux clients.</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {/* URL Import */}
-          <div className="space-y-2">
-            <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider flex items-center gap-1">
-              <Link2 className="w-3 h-3" /> Importer depuis une URL
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={importUrl}
-                onChange={(e) => setImportUrl(e.target.value)}
-                placeholder="https://votre-site.com/faq"
-                className={inputClass}
-              />
-              <button
-                onClick={handleImportUrl}
-                disabled={!importUrl.trim() || importing}
-                className="px-4 py-3 bg-[#0F5F35] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
-              >
-                {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-              </button>
-            </div>
-            <p className="text-[10px] text-[#9ca3af]">L'IA scrape la page et genere des FAQ automatiquement</p>
-          </div>
-
-          {/* File Upload */}
-          <div className="space-y-2">
-            <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider flex items-center gap-1">
-              <Upload className="w-3 h-3" /> Importer un fichier
-            </label>
-            <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#ebebeb] rounded-xl cursor-pointer hover:border-[#0F5F35]/30 hover:bg-[#f5f5f5] transition-all">
-              {uploading ? (
-                <><Loader2 className="w-4 h-4 animate-spin text-[#9ca3af]" /><span className="text-sm text-[#9ca3af]">Analyse...</span></>
-              ) : (
-                <><Upload className="w-4 h-4 text-[#9ca3af]" /><span className="text-sm text-[#9ca3af]">PDF, TXT, CSV — max 4 Mo</span></>
-              )}
-              <input type="file" accept=".pdf,.txt,.csv,.md,.doc,.docx" onChange={handleFileUpload} disabled={uploading} className="hidden" />
-            </label>
-            <p className="text-[10px] text-[#9ca3af]">L'IA extrait les informations utiles du fichier</p>
-          </div>
-        </div>
-
-        {/* Add manually */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          {!showAddManual ? (
-            <button
-              onClick={() => setShowAddManual(true)}
-              className="flex items-center gap-2 text-sm font-medium text-[#0F5F35] hover:underline"
-            >
-              <Plus className="w-4 h-4" />
-              Ajouter une entree manuellement
-            </button>
-          ) : (
-            <div className="space-y-2 p-3 bg-[#fafafa] rounded-xl">
-              <input
-                type="text"
-                value={manualTitle}
-                onChange={(e) => setManualTitle(e.target.value)}
-                placeholder="Titre (ex: Delais de livraison)"
-                className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
-              />
-              <textarea
-                value={manualContent}
-                onChange={(e) => setManualContent(e.target.value)}
-                placeholder="Contenu (ex: La livraison est gratuite a partir de 50€. Delai: 2-5 jours ouvres.)"
-                rows={3}
-                className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-[#0F5F35]/30"
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleAddManual}
-                  disabled={!manualTitle.trim() || !manualContent.trim()}
-                  className="px-4 py-1.5 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50"
-                >
-                  Ajouter
-                </button>
-                <button onClick={() => { setShowAddManual(false); setManualTitle(''); setManualContent('') }} className="px-3 py-1.5 text-xs text-[#9ca3af] hover:text-[#1a1a1a]">
-                  Annuler
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Entries list */}
-        {kbEntries.length > 0 && (
-          <div className="space-y-2 mt-4 pt-4 border-t border-gray-100">
-            {kbEntries.map(entry => (
-              <div key={entry.id} className="p-3 bg-[#fafafa] rounded-xl">
-                {editingKb === entry.id ? (
-                  <EditKbEntry
-                    entry={entry}
-                    onSave={(title, content) => handleUpdateKb(entry.id, title, content)}
-                    onCancel={() => setEditingKb(null)}
-                  />
-                ) : (
-                  <div className="flex items-start gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#f5f5f5] text-[#9ca3af]">{entry.category}</span>
-                        <p className="text-sm font-semibold text-[#1a1a1a] truncate">{entry.title}</p>
-                      </div>
-                      <p className="text-xs text-[#9ca3af] line-clamp-2">{entry.content}</p>
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <button onClick={() => setEditingKb(entry.id)} className="p-1.5 rounded-lg text-[#9ca3af] hover:bg-white hover:text-[#1a1a1a] transition-colors">
-                        <Pencil className="w-3.5 h-3.5" />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleAddManual}
+                        disabled={!manualTitle.trim() || !manualContent.trim()}
+                        className="px-4 py-1.5 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50"
+                      >
+                        Ajouter
                       </button>
-                      <button onClick={() => handleDeleteKb(entry.id)} className="p-1.5 rounded-lg text-[#9ca3af] hover:bg-red-50 hover:text-red-500 transition-colors">
-                        <Trash2 className="w-3.5 h-3.5" />
+                      <button onClick={() => { setShowAddManual(false); setManualTitle(''); setManualContent('') }} className="px-3 py-1.5 text-xs text-[#9ca3af] hover:text-[#1a1a1a]">
+                        Annuler
                       </button>
                     </div>
                   </div>
                 )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* --- Feature 18: Section — Apercu du prompt genere --- */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
-        <button
-          onClick={() => toggleSection('preview')}
-          className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
-              <Eye className="w-4 h-4 text-violet-600" />
-            </div>
-            <div className="text-left">
-              <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Apercu du prompt genere</h3>
-              <p className="text-[11px] text-[#9ca3af]">Le prompt final envoye a Claude pour repondre a vos clients</p>
-            </div>
-          </div>
-          {openSections.preview ? <ChevronUp className="w-4 h-4 text-[#9ca3af]" /> : <ChevronDown className="w-4 h-4 text-[#9ca3af]" />}
-        </button>
-        <AnimatePresence initial={false}>
-          {openSections.preview && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="px-6 pb-6 pt-1 border-t border-[#f5f5f5]">
-                <pre className="p-4 bg-[#0b0b0b] text-[#e5e5e5] rounded-xl text-[11px] font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto max-h-[420px]">{buildPreviewPrompt()}</pre>
-                <p className="text-[10px] text-[#9ca3af] mt-2">Lecture seule. Se met a jour en temps reel au fil de vos modifications.</p>
+                {/* Entries list */}
+                {kbEntries.length > 0 && (
+                  <div className="space-y-2 pt-4 border-t border-[#f0f0f0]">
+                    <p className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Entrees existantes</p>
+                    {kbEntries.map(entry => (
+                      <div key={entry.id} className="p-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+                        {editingKb === entry.id ? (
+                          <EditKbEntry
+                            entry={entry}
+                            onSave={(title, content) => handleUpdateKb(entry.id, title, content)}
+                            onCancel={() => setEditingKb(null)}
+                          />
+                        ) : (
+                          <div className="flex items-start gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-white text-[#9ca3af] border border-[#f0f0f0]">{entry.category}</span>
+                                <p className="text-[13px] font-semibold text-[#1a1a1a] truncate">{entry.title}</p>
+                              </div>
+                              <p className="text-[12px] text-[#9ca3af] line-clamp-2">{entry.content}</p>
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <button onClick={() => setEditingKb(entry.id)} className="p-1.5 rounded-lg text-[#9ca3af] hover:bg-white hover:text-[#1a1a1a] transition-colors">
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                              <button onClick={() => handleDeleteKb(entry.id)} className="p-1.5 rounded-lg text-[#9ca3af] hover:bg-red-50 hover:text-red-500 transition-colors">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </motion.div>
-          )}
+            )}
+
+            {/* ============ STEP 5: PREVIEW + EXAMPLES ============ */}
+            {step.id === 'preview' && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
+                    <Eye className="w-5 h-5 text-violet-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Exemples & Apercu</h3>
+                    <p className="text-[12px] text-[#9ca3af]">Ajoutez des exemples de bonnes reponses, puis verifiez le prompt final</p>
+                  </div>
+                </div>
+
+                {/* Examples */}
+                <div>
+                  <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3 inline-flex items-center gap-1.5">
+                    Exemples de bonnes reponses (few-shot)
+                    <HelpTooltip text="Paires Question/Reponse que l'agent doit imiter en termes de ton et structure. 2-3 exemples suffisent generalement." />
+                  </p>
+
+                  <div className="space-y-3">
+                    {(form.example_responses || []).map((ex, i) => (
+                      <div key={i} className="p-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0] space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]">Exemple {i + 1}</span>
+                          <button onClick={() => handleRemoveExample(i)} className="p-1 rounded text-[#9ca3af] hover:bg-red-50 hover:text-red-500">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={ex.question || ''}
+                          onChange={(e) => handleUpdateExample(i, 'question', e.target.value)}
+                          placeholder="Question du client"
+                          className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
+                        />
+                        <textarea
+                          value={ex.answer || ''}
+                          onChange={(e) => handleUpdateExample(i, 'answer', e.target.value)}
+                          placeholder="Reponse ideale que l'IA doit imiter"
+                          rows={2}
+                          className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-[#0F5F35]/30 resize-y"
+                        />
+                      </div>
+                    ))}
+                    <button
+                      onClick={handleAddExample}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-3 border border-dashed border-[#ebebeb] rounded-xl text-[12px] font-medium text-[#9ca3af] hover:border-[#0F5F35]/30 hover:text-[#0F5F35] hover:bg-[#0F5F35]/5 transition-all"
+                    >
+                      <Plus className="w-4 h-4" /> Ajouter un exemple
+                    </button>
+                  </div>
+                </div>
+
+                {/* Final prompt preview */}
+                <div className="pt-4 border-t border-[#f0f0f0]">
+                  <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3 inline-flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3" /> Apercu du prompt final
+                    <HelpTooltip text="C'est ce qui sera envoye a l'IA pour generer les reponses. Il se met a jour en temps reel selon vos parametres." />
+                  </p>
+                  <pre className="p-4 bg-[#0b0b0b] text-[#e5e5e5] rounded-xl text-[11px] font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto max-h-[300px]">{buildPreviewPrompt()}</pre>
+                </div>
+              </div>
+            )}
+          </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Save */}
-      <div className="flex items-center gap-3">
+      {/* Footer navigation */}
+      <div className="flex items-center justify-between mt-6">
         <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center gap-2 px-6 py-3 bg-[#0F5F35] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          onClick={goPrev}
+          disabled={currentStep === 0}
+          className="flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-medium text-[#9ca3af] hover:text-[#1a1a1a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          Enregistrer la configuration
+          <ChevronLeft className="w-4 h-4" /> Precedent
         </button>
-        {saved && (
-          <span className="text-sm text-[#0F5F35] flex items-center gap-1 font-medium">
-            <CheckCircle2 className="w-4 h-4" /> Configuration sauvegardee
-          </span>
-        )}
-        {error && (
-          <span className="text-sm text-red-500 flex items-center gap-1">
-            <AlertCircle className="w-4 h-4" /> {error}
-          </span>
+
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-[#9ca3af]">Etape {currentStep + 1} / {STEPS.length}</span>
+        </div>
+
+        {currentStep < STEPS.length - 1 ? (
+          <button
+            onClick={goNext}
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-[#0F5F35] text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] transition-colors"
+          >
+            Suivant <ChevronRight className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-[#0F5F35] text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] disabled:opacity-50 transition-colors"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Enregistrer la configuration
+          </button>
         )}
       </div>
+
+      {error && (
+        <div className="mt-4 flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-[12px] text-red-700">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          {error}
+        </div>
+      )}
     </div>
   )
 }
