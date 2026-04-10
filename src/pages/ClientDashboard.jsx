@@ -68,7 +68,6 @@ import { ClientReferralView } from '../components/client/ClientReferralView'
 import { ClientKnowledgeBaseView } from '../components/client/ClientKnowledgeBaseView'
 import { ClientIntegrationsView } from '../components/client/ClientIntegrationsView'
 import { OnboardingChecklist } from '../components/client/OnboardingChecklist'
-import { OnboardingWizard } from '../components/client/OnboardingWizard'
 import { AutoDiagnostic } from '../components/client/AutoDiagnostic'
 import { GuardrailsEditor } from '../components/client/GuardrailsEditor'
 import { PromptEditor } from '../components/client/PromptEditor'
@@ -607,16 +606,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         <main className="flex-1 overflow-y-auto p-4 md:px-10 md:py-8 bg-[#fafafa]">
           {activeTab === "overview" && (
             <div className="max-w-6xl mx-auto">
-
-              {/* ── Onboarding Wizard (shows for new clients) ── */}
-              <div className="mb-8">
-                <OnboardingWizard
-                  clientId={currentClient?.id}
-                  clientType={currentClient?.client_type}
-                  setActiveTab={setActiveTab}
-                  theme={theme}
-                />
-              </div>
 
               {/* ── KPI Row (Instantly-style) ── */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
