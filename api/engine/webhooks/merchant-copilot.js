@@ -1,11 +1,12 @@
+// Renamed from whatsapp-copilot.js — this is an internal merchant KPI assistant, unrelated to WhatsApp Business API.
 /**
- * Actero Engine — WhatsApp Copilot
+ * Actero Engine — Merchant Copilot
  *
  * An AI assistant for the CLIENT (not the end customer).
- * The client asks questions about their Actero data via WhatsApp
+ * The client asks questions about their Actero data
  * and gets real-time answers based on their KPIs, escalations, etc.
  *
- * POST /api/engine/webhooks/whatsapp-copilot
+ * POST /api/engine/webhooks/merchant-copilot
  */
 import { createClient } from '@supabase/supabase-js'
 
@@ -117,7 +118,7 @@ ${dataContext}`,
 
     return res.status(200).json({ response })
   } catch (err) {
-    console.error('[whatsapp-copilot] Error:', err)
+    console.error('[merchant-copilot] Error:', err)
     return res.status(500).json({ error: err.message })
   }
 }

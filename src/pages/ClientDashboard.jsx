@@ -47,6 +47,7 @@ import { ClientEscalationsView } from '../components/client/ClientEscalationsVie
 import { ResponseTemplatesView } from '../components/client/ResponseTemplatesView'
 import { VoiceCallsView } from '../components/client/VoiceCallsView'
 import { VoiceAgentSetupView } from '../components/client/VoiceAgentSetupView'
+import { WhatsAppAgentSetupView } from '../components/client/WhatsAppAgentSetupView'
 import { NotificationCenterView } from '../components/client/NotificationCenterView'
 import { AgentImprovementWidget } from '../components/client/AgentImprovementWidget'
 import { PlaybooksView } from '../components/client/PlaybooksView'
@@ -176,6 +177,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/response-templates") return "response-templates";
     if (route === "/client/voice-calls") return "voice-calls";
     if (route === "/client/voice-agent") return "voice-agent";
+    if (route === "/client/whatsapp-agent") return "whatsapp-agent";
     if (route === "/client/notifications") return "notifications";
     if (route === "/client/billing") return "billing";
     if (route === "/client/roi") return "roi";
@@ -636,6 +638,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       children: [
         { id: 'agent-config', label: 'Configuration', icon: Bot },
         { id: 'playbooks', label: 'Scenarios', icon: Zap },
+        { id: 'whatsapp-agent', label: 'WhatsApp', icon: MessageCircle, badge: 'Nouveau', badgeColor: 'bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/30' },
       ],
     },
 
@@ -803,6 +806,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "response-templates" && "Modeles de reponse"}
             {activeTab === "voice-calls" && "Appels vocaux"}
             {activeTab === "voice-agent" && "Agent vocal"}
+            {activeTab === "whatsapp-agent" && "Agent WhatsApp"}
             {activeTab === "notifications" && "Notifications"}
             {activeTab === "playbooks" && "Scenarios"}
             {activeTab === "marketplace" && "Marketplace"}
@@ -1254,6 +1258,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 </p>
               </div>
             </div>
+          )}
+
+          {activeTab === "whatsapp-agent" && (
+            <WhatsAppAgentSetupView clientId={currentClient?.id} />
           )}
 
           {activeTab === "notifications" && (
