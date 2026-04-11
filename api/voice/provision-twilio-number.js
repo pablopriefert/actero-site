@@ -91,10 +91,12 @@ export default async function handler(req, res) {
       },
     })
     if (!buy.ok || !buy.data?.sid) {
+      console.error('[voice/provision-twilio-number] Twilio purchase failed', buy.status, JSON.stringify(buy.data))
       return res.status(502).json({
-        error: 'Twilio purchase failed',
-        status: buy.status,
-        details: buy.data,
+        error: `Twilio: ${buy.data?.message || buy.data?.detail || 'purchase failed'}`,
+        upstream_status: buy.status,
+        upstream_data: buy.data,
+        step: 'twilio_purchase',
       })
     }
     purchasedSid = buy.data.sid
@@ -111,13 +113,22 @@ export default async function handler(req, res) {
       },
     })
     if (!imported.ok || !imported.data?.phone_number_id) {
+      console.error('[voice/provision-twilio-number] ElevenLabs import failed', imported.status, JSON.stringify(imported.data))
       // Rollback Twilio purchase
       await twilioFetch(`/IncomingPhoneNumbers/${purchasedSid}.json`, { method: 'DELETE' })
         .catch(() => {})
+      const upstreamMsg =
+        imported.data?.detail?.message ||
+        (typeof imported.data?.detail === 'string' ? imported.data.detail : null) ||
+        (Array.isArray(imported.data?.detail) ? imported.data.detail.map(d => d?.msg || JSON.stringify(d)).join(' | ') : null) ||
+        imported.data?.error ||
+        imported.data?.message ||
+        `ElevenLabs returned status ${imported.status}`
       return res.status(502).json({
-        error: 'ElevenLabs phone number import failed',
-        status: imported.status,
-        details: imported.data,
+        error: `ElevenLabs import: ${upstreamMsg}`,
+        upstream_status: imported.status,
+        upstream_data: imported.data,
+        step: 'elevenlabs_import',
       })
     }
     const phoneNumberId = imported.data.phone_number_id
@@ -128,15 +139,24 @@ export default async function handler(req, res) {
       body: { agent_id: settings.elevenlabs_agent_id },
     })
     if (!assign.ok) {
+      console.error('[voice/provision-twilio-number] ElevenLabs assign failed', assign.status, JSON.stringify(assign.data))
       // Rollback ElevenLabs import + Twilio purchase
       await elevenLabsFetch(`/v1/convai/phone-numbers/${phoneNumberId}`, { method: 'DELETE' })
         .catch(() => {})
       await twilioFetch(`/IncomingPhoneNumbers/${purchasedSid}.json`, { method: 'DELETE' })
         .catch(() => {})
+      const upstreamMsg =
+        assign.data?.detail?.message ||
+        (typeof assign.data?.detail === 'string' ? assign.data.detail : null) ||
+        (Array.isArray(assign.data?.detail) ? assign.data.detail.map(d => d?.msg || JSON.stringify(d)).join(' | ') : null) ||
+        assign.data?.error ||
+        assign.data?.message ||
+        `ElevenLabs returned status ${assign.status}`
       return res.status(502).json({
-        error: 'ElevenLabs assignment failed',
-        status: assign.status,
-        details: assign.data,
+        error: `ElevenLabs assign: ${upstreamMsg}`,
+        upstream_status: assign.status,
+        upstream_data: assign.data,
+        step: 'elevenlabs_assign',
       })
     }
 
@@ -174,10 +194,13 @@ export default async function handler(req, res) {
 
 async function searchAvailable(country, twilioType) {
   const path = `/AvailablePhoneNumbers/${country}/${twilioType}.json`
-  const { ok, data } = await twilioFetch(path, {
+  const { ok, status, data } = await twilioFetch(path, {
     method: 'GET',
     query: { VoiceEnabled: 'true', Limit: 5 },
   })
-  if (!ok) return []
+  if (!ok) {
+    console.error(`[voice/provision-twilio-number] Twilio search ${country}/${twilioType} failed`, status, JSON.stringify(data))
+    return []
+  }
   return Array.isArray(data?.available_phone_numbers) ? data.available_phone_numbers : []
 }
