@@ -95,6 +95,8 @@ export default async function handler(req, res) {
       return res.status(502).json({
         error: `ElevenLabs: ${upstreamMsg}`,
         upstream_status: status,
+        upstream_data: data,
+        sent_payload_keys: Object.keys(payload?.conversation_config?.agent?.prompt || {}),
         hint: status === 401
           ? 'Verifie ELEVENLABS_API_KEY (workspace API key valide).'
           : status === 402
