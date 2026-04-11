@@ -51,7 +51,7 @@ export default function AdminROILeaderboardView() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('clients')
-        .select('id, brand_name, email')
+        .select('id, brand_name, contact_email')
       if (error) throw error
       return Array.isArray(data) ? data : []
     },
@@ -92,7 +92,7 @@ export default function AdminROILeaderboardView() {
       return {
         ...r,
         brand_name: client?.brand_name || 'Client',
-        email: client?.email || '—',
+        email: client?.contact_email || '—',
         hours,
         time_savings_euro: timeSavings,
         total_savings: totalSavings,

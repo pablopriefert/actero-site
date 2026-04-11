@@ -222,7 +222,7 @@ export function AdminHallucinationView() {
 
             <SectionCard title="Distribution des scores" icon={BarChart3}>
               <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180}>
                   <BarChart data={histogram}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="name" stroke="#9ca3af" style={{ fontSize: 11 }} />

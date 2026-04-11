@@ -227,7 +227,7 @@ export default function AdminMRRView() {
             </div>
           ) : (
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220}>
                 <LineChart data={timeline} margin={{ top: 8, right: 16, left: 8, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
                   <XAxis
@@ -310,7 +310,7 @@ export default function AdminMRRView() {
               <EmptyState icon={Users} title="Aucune donnée" />
             ) : (
               <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180}>
                   <PieChart>
                     <Pie
                       data={statusBreakdown}

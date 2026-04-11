@@ -75,7 +75,7 @@ export function AdminClientsListView() {
       // 1) Base clients
       const { data: rows, error: cErr } = await supabase
         .from('clients')
-        .select('id, brand_name, email, created_at, status, industry_type')
+        .select('id, brand_name, contact_email, created_at, status, client_type')
         .order('created_at', { ascending: false })
       if (cErr) throw cErr
       const baseClients = rows || []
@@ -231,7 +231,7 @@ export function AdminClientsListView() {
       rows = rows.filter(
         (r) =>
           (r.brand_name || '').toLowerCase().includes(q) ||
-          (r.email || '').toLowerCase().includes(q)
+          (r.contact_email || '').toLowerCase().includes(q)
       )
     }
 
@@ -369,7 +369,7 @@ export function AdminClientsListView() {
                   <tr className="text-left text-[10px] uppercase tracking-wider text-[#9ca3af]">
                     <Th label="Logo" col={null} />
                     <Th label="Brand" col="brand_name" sort={sort} onSort={handleSort} />
-                    <Th label="Email" col="email" sort={sort} onSort={handleSort} />
+                    <Th label="Email" col="contact_email" sort={sort} onSort={handleSort} />
                     <Th label="MRR" col="mrr" sort={sort} onSort={handleSort} align="right" />
                     <Th label="Health" col="health_score" sort={sort} onSort={handleSort} align="right" />
                     <Th label="Dernière activité" col="last_activity_at" sort={sort} onSort={handleSort} />
@@ -394,11 +394,11 @@ export function AdminClientsListView() {
                         <div className="font-semibold text-[#1a1a1a] truncate max-w-[180px]">
                           {c.brand_name || '—'}
                         </div>
-                        {c.industry_type && (
-                          <div className="text-[10px] text-[#9ca3af] truncate">{c.industry_type}</div>
+                        {c.client_type && (
+                          <div className="text-[10px] text-[#9ca3af] truncate">{c.client_type}</div>
                         )}
                       </td>
-                      <td className="px-4 py-2.5 text-[#71717a] truncate max-w-[180px]">{c.email || '—'}</td>
+                      <td className="px-4 py-2.5 text-[#71717a] truncate max-w-[180px]">{c.contact_email || '—'}</td>
                       <td className="px-4 py-2.5 text-right tabular-nums text-[#1a1a1a]">—</td>
                       <td className="px-4 py-2.5 text-right">
                         <HealthDot score={c.health_score} />
@@ -534,7 +534,7 @@ function AddClientModal({ onClose, onCreated }) {
     try {
       const { error } = await supabase.from('clients').insert({
         brand_name: brand.trim(),
-        email: email.trim(),
+        contact_email: email.trim(),
         status: 'onboarding',
       })
       if (error) {
