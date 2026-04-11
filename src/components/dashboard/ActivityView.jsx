@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Activity, CheckCircle2, AlertTriangle, Mail, ShoppingCart, Package, MapPin, RotateCcw, HelpCircle, Eye, MousePointer, Cog } from 'lucide-react'
+import { Activity, CheckCircle2, AlertTriangle, Mail, ShoppingCart, Package, MapPin, RotateCcw, HelpCircle, Eye, MousePointer, Cog, ChevronDown, User as UserIcon, Bot, Loader2, MessageSquare } from 'lucide-react'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const formatRelativeTime = (date) => {
@@ -188,9 +188,21 @@ export const formatEvent = (event) => {
   };
 };
 
+const maskEmail = (email) => {
+  if (!email || typeof email !== 'string') return '';
+  if (email.includes('@anonymous.actero.fr')) return 'Client anonyme (widget)';
+  const [local, domain] = email.split('@');
+  if (!local || !domain) return email;
+  const maskedLocal = local.length > 3 ? `${local.slice(0, 2)}${'*'.repeat(local.length - 2)}` : local;
+  return `${maskedLocal}@${domain}`;
+};
+
 export const ActivityView = ({ supabase, theme = "dark" }) => {
   const { events, isConnected, isLoading } = useLiveActivityFeed(supabase);
   const [filter, setFilter] = useState("all");
+  const [expandedId, setExpandedId] = useState(null);
+  // eventId -> { loading, conversation, error }
+  const [conversationCache, setConversationCache] = useState({});
 
   const filteredEvents = useMemo(() => {
     if (filter === "all") return events;
@@ -199,6 +211,68 @@ export const ActivityView = ({ supabase, theme = "dark" }) => {
     if (filter === "escalations") return events.filter(e => e.event_category === 'ticket_escalated');
     return events;
   }, [events, filter]);
+
+  const fetchConversation = useCallback(async (event) => {
+    if (!supabase || !event?.id || !event?.created_at) return;
+    // Already cached (loaded or loading)
+    if (conversationCache[event.id]) return;
+
+    setConversationCache((prev) => ({ ...prev, [event.id]: { loading: true } }));
+
+    try {
+      // Match by client_id + timestamp window (±8 seconds around the event).
+      // ai_conversations is written ~400ms after the automation_event in the
+      // same run, so this window is safe.
+      const eventTime = new Date(event.created_at + (event.created_at.endsWith('Z') ? '' : 'Z'));
+      const start = new Date(eventTime.getTime() - 8000).toISOString();
+      const end = new Date(eventTime.getTime() + 8000).toISOString();
+
+      let query = supabase
+        .from('ai_conversations')
+        .select('id, subject, customer_message, ai_response, customer_email, customer_name, confidence_score, ticket_type, status, escalation_reason, human_response, created_at')
+        .gte('created_at', start)
+        .lte('created_at', end)
+        .order('created_at', { ascending: true });
+
+      if (event.client_id) query = query.eq('client_id', event.client_id);
+
+      const { data, error } = await query.limit(5);
+      if (error) throw error;
+
+      // Pick the closest conversation in time to the event
+      let best = null;
+      if (Array.isArray(data) && data.length > 0) {
+        let bestDelta = Infinity;
+        for (const c of data) {
+          const t = new Date(c.created_at + (c.created_at.endsWith('Z') ? '' : 'Z')).getTime();
+          const delta = Math.abs(t - eventTime.getTime());
+          if (delta < bestDelta) {
+            bestDelta = delta;
+            best = c;
+          }
+        }
+      }
+
+      setConversationCache((prev) => ({
+        ...prev,
+        [event.id]: { loading: false, conversation: best, error: null },
+      }));
+    } catch (err) {
+      setConversationCache((prev) => ({
+        ...prev,
+        [event.id]: { loading: false, conversation: null, error: err.message || 'Erreur' },
+      }));
+    }
+  }, [supabase, conversationCache]);
+
+  const toggleExpand = useCallback((event) => {
+    if (expandedId === event.id) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(event.id);
+    fetchConversation(event);
+  }, [expandedId, fetchConversation]);
 
   return (
     <div className="space-y-6">
@@ -274,49 +348,183 @@ export const ActivityView = ({ supabase, theme = "dark" }) => {
               {filteredEvents.map((event) => {
                 const details = formatEvent(event);
                 const Icon = details.IconComponent;
+                const isExpanded = expandedId === event.id;
+                const cache = conversationCache[event.id];
                 return (
                   <motion.div
                     layout
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     key={event.id}
-                    className="px-6 py-4 flex items-center justify-between group hover:bg-[#fafafa] transition-colors"
+                    className="group"
                   >
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${details.bg}`}>
-                        <Icon className={`w-[18px] h-[18px] ${details.color}`} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[13px] font-semibold text-[#1a1a1a] truncate">
-                          {details.message}
-                        </p>
-                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                          {details.detail && (
-                            <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                              {details.detail}
-                            </span>
-                          )}
-                          {details.confidence && (
-                            <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-                              {details.confidence} confiance
-                            </span>
-                          )}
-                          {details.source && (
-                            <span className="text-[11px] font-medium text-[#888] bg-[#f5f5f5] px-1.5 py-0.5 rounded capitalize">
-                              {details.source}
-                            </span>
-                          )}
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(event)}
+                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-[#fafafa] transition-colors"
+                    >
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${details.bg}`}>
+                          <Icon className={`w-[18px] h-[18px] ${details.color}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-semibold text-[#1a1a1a] truncate">
+                            {details.message}
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                            {details.detail && (
+                              <span className="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                {details.detail}
+                              </span>
+                            )}
+                            {details.confidence && (
+                              <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                {details.confidence} confiance
+                              </span>
+                            )}
+                            {details.source && (
+                              <span className="text-[11px] font-medium text-[#888] bg-[#f5f5f5] px-1.5 py-0.5 rounded capitalize">
+                                {details.source}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right flex flex-col items-end flex-shrink-0 ml-4">
-                      <span className="text-[12px] text-[#999] font-medium whitespace-nowrap">
-                        {formatRelativeTime(event.created_at)}
-                      </span>
-                      <span className="text-[10px] font-mono text-[#ccc] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {event.id?.split('-')[0]}
-                      </span>
-                    </div>
+                      <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+                        <div className="text-right flex flex-col items-end">
+                          <span className="text-[12px] text-[#999] font-medium whitespace-nowrap">
+                            {formatRelativeTime(event.created_at)}
+                          </span>
+                          <span className="text-[10px] font-mono text-[#ccc] mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {event.id?.split('-')[0]}
+                          </span>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-[#9ca3af] transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                        />
+                      </div>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          key="expansion"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: 'easeOut' }}
+                          className="overflow-hidden bg-[#fafafa] border-t border-[#f0f0f0]"
+                        >
+                          <div className="px-6 py-5">
+                            {cache?.loading && (
+                              <div className="flex items-center gap-2 text-[12px] text-[#9ca3af]">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Chargement de la conversation...
+                              </div>
+                            )}
+
+                            {!cache?.loading && cache?.conversation && (
+                              <div className="space-y-4">
+                                {/* Header meta */}
+                                <div className="flex items-start justify-between flex-wrap gap-2">
+                                  <div>
+                                    <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-0.5">
+                                      Sujet
+                                    </p>
+                                    <p className="text-[13px] font-semibold text-[#1a1a1a]">
+                                      {cache.conversation.subject || 'Sans sujet'}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-0.5">
+                                      Client
+                                    </p>
+                                    <p className="text-[12px] font-medium text-[#71717a]">
+                                      {cache.conversation.customer_name || maskEmail(cache.conversation.customer_email)}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* User message bubble */}
+                                {cache.conversation.customer_message && (
+                                  <div className="flex gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-white border border-[#f0f0f0] flex items-center justify-center flex-shrink-0">
+                                      <UserIcon className="w-4 h-4 text-[#71717a]" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[11px] font-semibold text-[#9ca3af] mb-1">Client</p>
+                                      <div className="bg-white rounded-2xl rounded-tl-sm border border-[#f0f0f0] px-4 py-3">
+                                        <p className="text-[13px] text-[#1a1a1a] leading-relaxed whitespace-pre-wrap">
+                                          {cache.conversation.customer_message}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* AI response bubble */}
+                                {cache.conversation.ai_response && (
+                                  <div className="flex gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-[#0F5F35]/10 border border-[#0F5F35]/20 flex items-center justify-center flex-shrink-0">
+                                      <Bot className="w-4 h-4 text-[#0F5F35]" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[11px] font-semibold text-[#0F5F35] mb-1">Agent IA</p>
+                                      <div className="bg-[#0F5F35]/5 rounded-2xl rounded-tl-sm border border-[#0F5F35]/15 px-4 py-3">
+                                        <p className="text-[13px] text-[#1a1a1a] leading-relaxed whitespace-pre-wrap">
+                                          {cache.conversation.ai_response}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Human response bubble (if escalated + replied) */}
+                                {cache.conversation.human_response && (
+                                  <div className="flex gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0">
+                                      <UserIcon className="w-4 h-4 text-amber-600" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[11px] font-semibold text-amber-600 mb-1">Reponse humaine</p>
+                                      <div className="bg-amber-50/60 rounded-2xl rounded-tl-sm border border-amber-200 px-4 py-3">
+                                        <p className="text-[13px] text-[#1a1a1a] leading-relaxed whitespace-pre-wrap">
+                                          {cache.conversation.human_response}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Escalation reason */}
+                                {cache.conversation.escalation_reason && (
+                                  <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-50/60 border border-amber-200">
+                                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                    <p className="text-[11px] text-amber-700">
+                                      <span className="font-semibold">Raison de l'escalade : </span>
+                                      {cache.conversation.escalation_reason}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {!cache?.loading && !cache?.conversation && !cache?.error && (
+                              <div className="flex items-center gap-2 text-[12px] text-[#9ca3af]">
+                                <MessageSquare className="w-4 h-4" />
+                                Aucune conversation associée à cet événement.
+                              </div>
+                            )}
+
+                            {!cache?.loading && cache?.error && (
+                              <div className="text-[12px] text-red-600">
+                                Erreur de chargement : {cache.error}
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 );
               })}
