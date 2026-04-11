@@ -34,7 +34,24 @@ import {
   Rocket,
   FileText,
   Award,
-  Handshake
+  Handshake,
+  Grid3x3,
+  Shield,
+  BookOpen,
+  TrendingDown,
+  Trophy,
+  CreditCard,
+  Coins,
+  BellRing,
+  ScrollText,
+  UserCog,
+  Inbox,
+  Plug,
+  MessageSquare,
+  Eye,
+  X,
+  Settings,
+  AlertTriangle
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -60,6 +77,19 @@ import { AdminEngineTestView } from '../components/admin/AdminEngineTestView'
 import { AdminEngineRunsView } from '../components/admin/AdminEngineRunsView'
 import { AdminManualReviewView } from '../components/admin/AdminManualReviewView'
 import { AdminPlaybooksView } from '../components/admin/AdminPlaybooksView'
+// Wave 2 components
+import { AdminLiveRunsView } from '../components/admin/AdminLiveRunsView'
+import { AdminAgentHeatmapView } from '../components/admin/AdminAgentHeatmapView'
+import { AdminTopErrorsView } from '../components/admin/AdminTopErrorsView'
+import { AdminCostTrackerView } from '../components/admin/AdminCostTrackerView'
+import { AdminConnectorHealthView } from '../components/admin/AdminConnectorHealthView'
+import { AdminClientsListView } from '../components/admin/AdminClientsListView'
+import { AdminMRRView } from '../components/admin/AdminMRRView'
+import { AdminChurnCohortView } from '../components/admin/AdminChurnCohortView'
+import { AdminROILeaderboardView } from '../components/admin/AdminROILeaderboardView'
+import { AdminTokensView } from '../components/admin/AdminTokensView'
+import { AdminHallucinationView } from '../components/admin/AdminHallucinationView'
+import { AdminAlertBuilderView } from '../components/admin/AdminAlertBuilderView'
 import { useToast } from '../components/ui/Toast'
 
 const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigateTab }) => {
@@ -93,7 +123,7 @@ const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigate
 
   return (
     <div className="relative w-72">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#716D5C]" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
       <input
         ref={inputRef}
         type="text"
@@ -102,14 +132,14 @@ const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigate
         onFocus={() => setFocused(true)}
         onBlur={() => setTimeout(() => setFocused(false), 200)}
         placeholder="Rechercher un client, funnel..."
-        className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] placeholder-gray-400 outline-none focus:ring-1 focus:ring-gray-300"
+        className="w-full pl-9 pr-4 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-[#9ca3af] outline-none focus:bg-white focus:border-[#0F5F35]/30"
       />
       {showResults && (
-        <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50">
+        <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-[#f0f0f0] rounded-xl shadow-lg overflow-hidden z-50">
           {results.map((r, i) => (
             <button
               key={i}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[#F9F7F1] transition-colors text-sm"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[#fafafa] transition-colors text-[13px]"
               onMouseDown={() => {
                 if (r.type === 'client') {
                   onSelectClient(r.data);
@@ -121,14 +151,110 @@ const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigate
               }}
             >
               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${
-                r.type === 'client' ? 'bg-emerald-50 text-[#003725] border-emerald-200' : 'bg-blue-50 text-blue-600 border-blue-200'
+                r.type === 'client' ? 'bg-emerald-50 text-[#0F5F35] border-emerald-200' : 'bg-blue-50 text-blue-600 border-blue-200'
               }`}>{r.type === 'client' ? 'Client' : 'Funnel'}</span>
-              <span className="font-medium text-[#262626] truncate">{r.label}</span>
-              <span className="text-[#716D5C] text-xs ml-auto">{r.sub}</span>
+              <span className="font-medium text-[#1a1a1a] truncate">{r.label}</span>
+              <span className="text-[#71717a] text-[12px] ml-auto">{r.sub}</span>
             </button>
           ))}
         </div>
       )}
+    </div>
+  );
+};
+
+const QuickAddClientModal = ({ onClose, onSubmit }) => {
+  const [brandName, setBrandName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [monthlyPrice, setMonthlyPrice] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!brandName.trim()) return;
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        brand_name: brandName.trim(),
+        contact_email: contactEmail.trim() || null,
+        monthly_price: monthlyPrice ? Number(monthlyPrice) : null,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        className="w-full max-w-md bg-white rounded-2xl border border-[#f0f0f0] shadow-xl overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f0]">
+          <h3 className="text-[15px] font-semibold text-[#1a1a1a]">Ajouter un client</h3>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#fafafa] text-[#71717a]"
+            aria-label="Fermer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <form onSubmit={handleSave} className="p-5 space-y-4">
+          <div>
+            <label className="block text-[12px] font-semibold text-[#1a1a1a] mb-1.5">Nom de l'entreprise</label>
+            <input
+              type="text"
+              value={brandName}
+              onChange={(e) => setBrandName(e.target.value)}
+              placeholder="Actero, Maison Durand..."
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0F5F35]/40 focus:bg-white"
+              autoFocus
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[12px] font-semibold text-[#1a1a1a] mb-1.5">Email du contact</label>
+            <input
+              type="email"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+              placeholder="contact@exemple.com"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0F5F35]/40 focus:bg-white"
+            />
+          </div>
+          <div>
+            <label className="block text-[12px] font-semibold text-[#1a1a1a] mb-1.5">Prix mensuel (EUR)</label>
+            <input
+              type="number"
+              step="1"
+              min="0"
+              value={monthlyPrice}
+              onChange={(e) => setMonthlyPrice(e.target.value)}
+              placeholder="490"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0F5F35]/40 focus:bg-white"
+            />
+          </div>
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl text-[13px] font-semibold text-[#71717a] hover:bg-[#fafafa]"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || !brandName.trim()}
+              className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-[#0F5F35] text-white hover:bg-[#0F5F35]/90 disabled:opacity-50"
+            >
+              {submitting ? 'Creation...' : 'Creer'}
+            </button>
+          </div>
+        </form>
+      </motion.div>
     </div>
   );
 };
@@ -139,9 +265,9 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandKOpen, setIsCommandKOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
-  const [copiedId, setCopiedId] = useState(null);
   const [callNotesClient, setCallNotesClient] = useState(null);
   const [deploymentState, setDeploymentState] = useState(null); // { deploymentId, clientName }
+  const [isAddClientOpen, setIsAddClientOpen] = useState(false);
 
   const getAdminTabFromRoute = (route) => {
     if (route === "/admin/clients") return "clients";
@@ -162,6 +288,25 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/engine-runs") return "engine-runs";
     if (route === "/admin/engine-reviews") return "engine-reviews";
     if (route === "/admin/engine-playbooks") return "engine-playbooks";
+    // Wave 2 routes
+    if (route === "/admin/live-runs") return "live-runs";
+    if (route === "/admin/agent-heatmap") return "agent-heatmap";
+    if (route === "/admin/top-errors") return "top-errors";
+    if (route === "/admin/cost-tracker") return "cost-tracker";
+    if (route === "/admin/connector-health") return "connector-health";
+    if (route === "/admin/mrr") return "mrr";
+    if (route === "/admin/churn-cohort") return "churn-cohort";
+    if (route === "/admin/roi-leaderboard") return "roi-leaderboard";
+    if (route === "/admin/alert-builder") return "alert-builder";
+    if (route === "/admin/tokens") return "tokens";
+    if (route === "/admin/hallucination") return "hallucination";
+    if (route === "/admin/escalations-inbox") return "escalations-inbox";
+    if (route === "/admin/conversations") return "conversations";
+    if (route === "/admin/manual-review") return "manual-review";
+    if (route === "/admin/playbooks") return "playbooks";
+    if (route === "/admin/action-logs") return "action-logs";
+    if (route === "/admin/team") return "team";
+    if (route === "/admin/settings") return "settings";
     return "overview";
   };
 
@@ -196,22 +341,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       return data || [];
     }
   });
-
-  // Fetch integration status for all clients (for badges in client list)
-  const { data: allIntegrations = [] } = useQuery({
-    queryKey: ['admin-all-integrations'],
-    queryFn: async () => {
-      const { data: integrations } = await supabase
-        .from('client_integrations')
-        .select('client_id, provider, status');
-      const { data: shopifyConns } = await supabase
-        .from('client_shopify_connections')
-        .select('client_id, shop_domain');
-      return [...(integrations || []), ...(shopifyConns || []).map(s => ({ client_id: s.client_id, provider: 'shopify', status: 'active' }))];
-    },
-  });
-
-  const getClientIntegrations = (clientId) => allIntegrations.filter(i => i.client_id === clientId);
 
   const { data: requests = [], isLoading: requestsLoading, refetch: refetchRequests } = useQuery({
     queryKey: ['admin-requests'],
@@ -314,37 +443,76 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const isLoading = clientsLoading || requestsLoading || leadsLoading;
 
   const sidebarItems = [
-    { id: "overview", label: "Vue Globale", icon: LayoutDashboard },
+    { type: 'section', label: 'WORKSPACE' },
+    { id: 'overview', label: 'Accueil equipe', icon: LayoutDashboard },
+
     { type: 'section', label: 'Clients' },
-    { id: "clients", label: "Clients", icon: Users },
-    { id: "health", label: "Sante Clients", icon: Heart },
-    { id: "pipeline", label: "Pipeline", icon: GitBranch },
-    { id: "funnel", label: "Nouveau client", icon: UserPlus },
-    { type: 'section', label: 'Engine' },
-    { id: "engine-runs", label: "Runs", icon: Zap },
-    { id: "engine-reviews", label: "Manual Review", icon: AlertCircle },
-    { id: "engine-playbooks", label: "Playbooks", icon: Activity },
-    { id: "engine", label: "Webhook Test", icon: TerminalSquare },
+    { id: 'clients', label: 'Tous les clients', icon: Users },
+    { id: 'conversations', label: 'Conversations live', icon: MessageSquare },
+    { id: 'escalations-inbox', label: 'Inbox escalades', icon: Inbox },
+    { id: 'health', label: 'Sante clients', icon: Heart },
+    { id: 'funnel', label: 'Nouveau client', icon: UserPlus },
+
+    { type: 'section', label: 'AI Engine' },
+    {
+      type: 'expandable',
+      label: 'Monitoring',
+      icon: Activity,
+      defaultOpen: true,
+      children: [
+        { id: 'live-runs', label: 'Live runs', icon: Zap, badge: 'LIVE', badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
+        { id: 'agent-heatmap', label: 'Heatmap agents', icon: Grid3x3 },
+        { id: 'top-errors', label: 'Top erreurs', icon: AlertTriangle },
+        { id: 'connector-health', label: 'Sante connecteurs', icon: Plug },
+        { id: 'engine-runs', label: 'Historique runs', icon: ScrollText },
+      ],
+    },
+    {
+      type: 'expandable',
+      label: 'Qualite IA',
+      icon: Shield,
+      children: [
+        { id: 'hallucination', label: 'Hallucinations', icon: AlertCircle },
+        { id: 'manual-review', label: 'Review manuelle', icon: Eye, badge: requests.length > 0 ? requests.length : null },
+        { id: 'playbooks', label: 'Playbooks', icon: BookOpen },
+        { id: 'ratings', label: 'Notations', icon: FileText },
+        { id: 'engine', label: 'Webhook test', icon: TerminalSquare },
+      ],
+    },
+
+    { type: 'section', label: 'Analytics' },
+    { id: 'mrr', label: 'MRR & Revenus', icon: DollarSign },
+    { id: 'churn-cohort', label: 'Cohortes de retention', icon: TrendingDown },
+    { id: 'roi-leaderboard', label: 'ROI classement', icon: Trophy },
+    { id: 'cost-tracker', label: 'Couts Claude', icon: CreditCard },
+    { id: 'tokens', label: 'Consommation tokens', icon: Coins },
+    { id: 'pipeline', label: 'Pipeline commercial', icon: GitBranch },
+    { id: 'billing', label: 'Facturation', icon: Receipt },
+
     { type: 'section', label: 'Operations' },
-    { id: "billing", label: "Facturation", icon: Receipt },
-    { id: "shopify", label: "App Shopify", icon: ShoppingBag },
+    { id: 'alert-builder', label: 'Alertes Slack', icon: BellRing },
+    { id: 'action-logs', label: 'Journal audit', icon: ScrollText },
+    { id: 'shopify', label: 'App Shopify', icon: ShoppingBag },
+
     { type: 'section', label: 'Reseau' },
-    { id: "referrals", label: "Parrainages", icon: Gift },
-    { id: "ambassadors", label: "Ambassadeurs", icon: Award },
-    { id: "partners", label: "Partenaires", icon: Handshake },
-    { type: 'section', label: 'IA' },
-    { id: "engine", label: "Engine Test", icon: Zap },
-    { id: "requests", label: "Demandes IA", icon: Sparkles, badge: requests.length > 0 ? requests.length : null, badgeColor: "bg-emerald-100 text-emerald-700" },
-    { id: "ratings", label: "Notations IA", icon: FileText },
+    { id: 'referrals', label: 'Parrainages', icon: Gift },
+    { id: 'ambassadors', label: 'Ambassadeurs', icon: Heart },
+    { id: 'partners', label: 'Partenaires', icon: Handshake },
+
+    { type: 'section', label: 'Systeme' },
+    { id: 'team', label: 'Equipe Actero', icon: UserCog },
+    { id: 'settings', label: 'Parametres', icon: Settings },
   ];
 
-  const handleAddClient = async () => {
-    const brandName = prompt("Nom de l'entreprise du nouveau client :");
-    if (!brandName) return;
+  const handleAddClient = () => setIsAddClientOpen(true);
+
+  const handleAddClientSubmit = async (payload) => {
     try {
-      const { error } = await supabase.from("clients").insert([{ brand_name: brandName }]);
+      const { error } = await supabase.from("clients").insert([payload]);
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ['admin-clients'] });
+      setIsAddClientOpen(false);
+      toast.success?.('Client ajoute avec succes');
     } catch (err) {
       toast.error("Erreur: " + err.message);
     }
@@ -371,15 +539,15 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F0] flex flex-col md:flex-row font-sans text-[#262626]">
+    <div className="min-h-screen bg-[#fafafa] flex flex-col md:flex-row font-sans text-[#1a1a1a]">
       {/* Mobile Header */}
-      <div className="md:hidden h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4">
+      <div className="md:hidden h-16 bg-white border-b border-[#f0f0f0] flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <Logo className="w-6 h-6 text-[#262626]" />
-          <span className="font-bold text-lg">Actero Admin</span>
+          <Logo className="w-6 h-6 text-[#1a1a1a]" />
+          <span className="font-semibold text-[15px]">Actero Admin</span>
         </div>
         <button onClick={() => setIsMobileMenuOpen(true)}>
-          <Menu className="w-6 h-6 text-[#716D5C]" />
+          <Menu className="w-6 h-6 text-[#71717a]" />
         </button>
       </div>
 
@@ -409,7 +577,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
-              className="relative w-4/5 max-w-xs bg-[#F9F7F1] h-full shadow-2xl"
+              className="relative w-4/5 max-w-xs bg-[#ffffff] h-full shadow-2xl"
             >
               <Sidebar 
                 title="Actero Admin"
@@ -432,9 +600,43 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="hidden md:flex h-16 bg-white border-b border-gray-100 items-center px-8 justify-between">
-          <h1 className="text-xl font-bold capitalize tracking-tight">
-            {activeTab.replace("-", " ")}
+        <header className="hidden md:flex h-16 bg-white border-b border-[#f0f0f0] items-center px-8 justify-between">
+          <h1 className="text-[18px] font-semibold tracking-tight text-[#1a1a1a]">
+            {{
+              overview: 'Accueil equipe',
+              clients: 'Tous les clients',
+              conversations: 'Conversations live',
+              'escalations-inbox': 'Inbox escalades',
+              health: 'Sante clients',
+              funnel: 'Nouveau client',
+              'live-runs': 'Live runs',
+              'agent-heatmap': 'Heatmap agents',
+              'top-errors': 'Top erreurs',
+              'connector-health': 'Sante connecteurs',
+              'engine-runs': 'Historique runs',
+              hallucination: 'Hallucinations IA',
+              'manual-review': 'Review manuelle',
+              playbooks: 'Playbooks',
+              ratings: 'Notations IA',
+              engine: 'Webhook test',
+              mrr: 'MRR et revenus',
+              'churn-cohort': 'Cohortes de retention',
+              'roi-leaderboard': 'ROI classement',
+              'cost-tracker': 'Couts Claude',
+              tokens: 'Consommation tokens',
+              pipeline: 'Pipeline commercial',
+              billing: 'Facturation',
+              'alert-builder': 'Alertes Slack',
+              'action-logs': 'Journal audit',
+              shopify: 'App Shopify',
+              referrals: 'Parrainages',
+              ambassadors: 'Ambassadeurs',
+              partners: 'Partenaires',
+              team: 'Equipe Actero',
+              settings: 'Parametres',
+              requests: 'Demandes IA',
+              leads: 'Leads captures',
+            }[activeTab] || activeTab.replace('-', ' ')}
           </h1>
           <GlobalSearchBar
             clients={clients}
@@ -522,25 +724,25 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="relative bg-white rounded-2xl border border-gray-100 p-5 shadow-sm overflow-hidden group hover:border-gray-300 transition-colors"
+                    className="relative bg-white rounded-2xl border border-[#f0f0f0] p-5 shadow-sm overflow-hidden group hover:border-gray-300 transition-colors"
                   >
                     <div className={`absolute -top-6 -right-6 w-20 h-20 bg-${kpi.color}-500/10 rounded-full blur-2xl group-hover:bg-${kpi.color}-500/20 transition-colors`} />
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">{kpi.label}</span>
+                      <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">{kpi.label}</span>
                       <kpi.icon className={`w-4 h-4 text-${kpi.color}-400`} />
                     </div>
                     <div className="flex items-end gap-2">
-                      <span className="text-3xl font-bold text-[#262626] font-mono tracking-tight">
+                      <span className="text-[30px] font-bold text-[#1a1a1a] font-mono tracking-tight">
                         {kpi.isPercent ? (
                           <>{overviewData?.autoRate || 0}</>
                         ) : (
                           <AnimatedCounter value={kpi.value} />
                         )}
                       </span>
-                      <span className="text-sm font-medium text-[#716D5C] mb-0.5">{kpi.suffix}</span>
+                      <span className="text-[13px] font-medium text-[#71717a] mb-0.5">{kpi.suffix}</span>
                     </div>
                     {kpi.trend !== undefined && Number(kpi.trend) !== 0 && (
-                      <div className={`flex items-center gap-1 mt-2 text-xs font-medium ${Number(kpi.trend) > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      <div className={`flex items-center gap-1 mt-2 text-[12px] font-medium ${Number(kpi.trend) > 0 ? 'text-emerald-500' : 'text-red-400'}`}>
                         {Number(kpi.trend) > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                         {Math.abs(Number(kpi.trend))}% vs 7j précédents
                       </div>
@@ -552,13 +754,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {/* Row 2: Activity chart + Recent events */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Activity mini-chart */}
-                <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <div className="lg:col-span-2 bg-white rounded-2xl border border-[#f0f0f0] p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="text-sm font-bold text-[#262626]">Activité 14 derniers jours</h3>
-                      <p className="text-xs text-[#716D5C] mt-0.5">Événements traités par jour</p>
+                      <h3 className="text-[13px] font-bold text-[#1a1a1a]">Activité 14 derniers jours</h3>
+                      <p className="text-[12px] text-[#71717a] mt-0.5">Événements traités par jour</p>
                     </div>
-                    <BarChart3 className="w-4 h-4 text-[#716D5C]" />
+                    <BarChart3 className="w-4 h-4 text-[#71717a]" />
                   </div>
                   <div className="flex items-end gap-1.5 h-32">
                     {(overviewData?.dailyActivity || Array.from({ length: 14 }, () => ({ events: 0, label: '' }))).map((day, i) => {
@@ -575,11 +777,11 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           <div
                             className={`w-full h-full rounded-md transition-colors ${
                               day.events > 0
-                                ? 'bg-emerald-500/60 hover:bg-emerald-400/80'
-                                : 'bg-gray-50'
+                                ? 'bg-emerald-500/60 hover:bg-emerald-500/80'
+                                : 'bg-[#fafafa]'
                             }`}
                           />
-                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-[#262626] text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-[#1a1a1a] text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             {day.events} évén.
                           </div>
                         </motion.div>
@@ -588,30 +790,30 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   </div>
                   <div className="flex justify-between mt-2">
                     {(overviewData?.dailyActivity || []).filter((_, i) => i % 2 === 0).map((day, i) => (
-                      <span key={i} className="text-[10px] text-[#716D5C]">{day.label}</span>
+                      <span key={i} className="text-[10px] text-[#71717a]">{day.label}</span>
                     ))}
                   </div>
                 </div>
 
                 {/* Recent events feed */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <div className="bg-white rounded-2xl border border-[#f0f0f0] p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-[#262626]">Derniers événements</h3>
-                    <span className="text-[10px] text-[#716D5C] font-medium">LIVE</span>
+                    <h3 className="text-[13px] font-bold text-[#1a1a1a]">Derniers événements</h3>
+                    <span className="text-[10px] text-[#71717a] font-medium">LIVE</span>
                   </div>
                   <div className="space-y-3">
                     {(overviewData?.recentEvents || []).slice(0, 6).map((event, i) => {
                       const categoryLabels = {
-                        ticket_resolved: { label: 'Ticket résolu', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+                        ticket_resolved: { label: 'Ticket résolu', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
                         ticket_escalated: { label: 'Escaladé', color: 'text-amber-400', bg: 'bg-amber-500/10' },
                         cart_email_sent: { label: 'Email panier', color: 'text-blue-400', bg: 'bg-blue-500/10' },
-                        cart_recovered: { label: 'Panier récupéré', color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+                        cart_recovered: { label: 'Panier récupéré', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
                         visit_scheduled: { label: 'Visite planifiée', color: 'text-violet-400', bg: 'bg-violet-500/10' },
                         lead_qualified: { label: 'Lead qualifié', color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
                         visit_reply_sent: { label: 'Réponse visite', color: 'text-purple-400', bg: 'bg-purple-500/10' },
                         match_found: { label: 'Match trouvé', color: 'text-pink-400', bg: 'bg-pink-500/10' },
                       };
-                      const cat = categoryLabels[event.event_category] || { label: event.event_category, color: 'text-[#716D5C]', bg: 'bg-gray-50' };
+                      const cat = categoryLabels[event.event_category] || { label: event.event_category, color: 'text-[#71717a]', bg: 'bg-[#fafafa]' };
                       const timeAgo = (() => {
                         const diff = (Date.now() - new Date(event.created_at).getTime()) / 1000;
                         if (diff < 60) return "à l'instant";
@@ -629,15 +831,15 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         >
                           <div className={`w-2 h-2 rounded-full ${cat.color.replace('text-', 'bg-')}`} />
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-[#262626] truncate">{cat.label}</p>
-                            <p className="text-[10px] text-[#716D5C] truncate">{event.clients?.brand_name || '—'}</p>
+                            <p className="text-[12px] font-medium text-[#1a1a1a] truncate">{cat.label}</p>
+                            <p className="text-[10px] text-[#71717a] truncate">{event.clients?.brand_name || '—'}</p>
                           </div>
-                          <span className="text-[10px] text-[#716D5C] whitespace-nowrap">{timeAgo}</span>
+                          <span className="text-[10px] text-[#71717a] whitespace-nowrap">{timeAgo}</span>
                         </motion.div>
                       );
                     })}
                     {(!overviewData?.recentEvents || overviewData.recentEvents.length === 0) && (
-                      <p className="text-xs text-[#716D5C] text-center py-4">Aucun événement récent</p>
+                      <p className="text-[12px] text-[#71717a] text-center py-4">Aucun événement récent</p>
                     )}
                   </div>
                 </div>
@@ -646,10 +848,10 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               {/* Row 3: Clients overview + Funnel + Event breakdown */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {/* Clients list */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <div className="bg-white rounded-2xl border border-[#f0f0f0] p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-[#262626]">Clients actifs</h3>
-                    <button onClick={() => setActiveTab('clients')} className="text-[10px] text-emerald-400 font-medium hover:text-emerald-300 transition-colors">Voir tout →</button>
+                    <h3 className="text-[13px] font-bold text-[#1a1a1a]">Clients actifs</h3>
+                    <button onClick={() => setActiveTab('clients')} className="text-[10px] text-emerald-500 font-medium hover:text-emerald-300 transition-colors">Voir tout →</button>
                   </div>
                   <div className="space-y-3">
                     {clients.map((client, i) => (
@@ -658,47 +860,47 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: i * 0.05 }}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-[#F9F7F1] transition-colors cursor-pointer"
+                        className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] hover:bg-[#ffffff] transition-colors cursor-pointer"
                         onClick={() => setSelectedClient(client)}
                       >
-                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold ${
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold ${
                           client.client_type === 'immobilier'
                             ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20'
-                            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                         }`}>
                           {client.client_type === 'immobilier' ? <Building2 className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#262626] truncate">{client.brand_name}</p>
-                          <p className="text-[10px] text-[#716D5C] capitalize">{client.client_type || 'ecommerce'}</p>
+                          <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{client.brand_name}</p>
+                          <p className="text-[10px] text-[#71717a] capitalize">{client.client_type || 'ecommerce'}</p>
                         </div>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                           client.status === 'active'
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                            : 'bg-gray-500/10 text-[#716D5C] border border-gray-500/20'
+                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                            : 'bg-[#fafafa]0/10 text-[#71717a] border border-gray-500/20'
                         }`}>
                           {client.status === 'active' ? 'ACTIF' : 'INACTIF'}
                         </span>
                       </motion.div>
                     ))}
                     {clients.length === 0 && (
-                      <p className="text-xs text-[#716D5C] text-center py-4">Aucun client</p>
+                      <p className="text-[12px] text-[#71717a] text-center py-4">Aucun client</p>
                     )}
                   </div>
                 </div>
 
                 {/* Funnel pipeline */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <div className="bg-white rounded-2xl border border-[#f0f0f0] p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-[#262626]">Pipeline Funnel</h3>
-                    <Target className="w-4 h-4 text-[#716D5C]" />
+                    <h3 className="text-[13px] font-bold text-[#1a1a1a]">Pipeline Funnel</h3>
+                    <Target className="w-4 h-4 text-[#71717a]" />
                   </div>
                   <div className="space-y-3">
                     {(overviewData?.funnel || []).map((f, i) => {
                       const statusColors = {
-                        draft: { label: 'Brouillon', color: 'text-[#716D5C]', bg: 'bg-gray-500/10 border-gray-500/20' },
+                        draft: { label: 'Brouillon', color: 'text-[#71717a]', bg: 'bg-[#fafafa]0/10 border-gray-500/20' },
                         sent: { label: 'Envoyé', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
-                        paid: { label: 'Payé', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+                        paid: { label: 'Payé', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
                         canceled: { label: 'Annulé', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
                       };
                       const s = statusColors[f.status] || statusColors.draft;
@@ -708,11 +910,11 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: i * 0.05 }}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-gray-50"
+                          className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa]"
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[#262626] truncate">{f.company_name}</p>
-                            <p className="text-[10px] text-[#716D5C]">{f.setup_price}€ setup + {f.monthly_price}€/mois</p>
+                            <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{f.company_name}</p>
+                            <p className="text-[10px] text-[#71717a]">{f.setup_price}€ setup + {f.monthly_price}€/mois</p>
                           </div>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${s.bg} ${s.color}`}>
                             {s.label.toUpperCase()}
@@ -721,16 +923,16 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                       );
                     })}
                     {(!overviewData?.funnel || overviewData.funnel.length === 0) && (
-                      <p className="text-xs text-[#716D5C] text-center py-4">Aucun prospect dans le funnel</p>
+                      <p className="text-[12px] text-[#71717a] text-center py-4">Aucun prospect dans le funnel</p>
                     )}
                   </div>
                 </div>
 
                 {/* Event breakdown by type */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <div className="bg-white rounded-2xl border border-[#f0f0f0] p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-[#262626]">Répartition événements</h3>
-                    <TrendingUp className="w-4 h-4 text-[#716D5C]" />
+                    <h3 className="text-[13px] font-bold text-[#1a1a1a]">Répartition événements</h3>
+                    <TrendingUp className="w-4 h-4 text-[#71717a]" />
                   </div>
                   <div className="space-y-2.5">
                     {Object.entries(overviewData?.eventsByCategory || {})
@@ -767,22 +969,22 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         return (
                           <div key={cat}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs text-[#716D5C]">{labels[cat] || cat}</span>
-                              <span className="text-xs font-mono text-[#716D5C]">{count} ({pct}%)</span>
+                              <span className="text-[12px] text-[#71717a]">{labels[cat] || cat}</span>
+                              <span className="text-[12px] font-mono text-[#71717a]">{count} ({pct}%)</span>
                             </div>
-                            <div className="h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                            <div className="h-1.5 bg-[#fafafa] rounded-full overflow-hidden">
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${pct}%` }}
                                 transition={{ delay: i * 0.05, duration: 0.5 }}
-                                className={`h-full rounded-full ${colors[cat] || 'bg-gray-500'}`}
+                                className={`h-full rounded-full ${colors[cat] || 'bg-[#fafafa]0'}`}
                               />
                             </div>
                           </div>
                         );
                       })}
                     {(!overviewData?.eventsByCategory || Object.keys(overviewData.eventsByCategory).length === 0) && (
-                      <p className="text-xs text-[#716D5C] text-center py-4">Aucune donnée</p>
+                      <p className="text-[12px] text-[#71717a] text-center py-4">Aucune donnée</p>
                     )}
                   </div>
                 </div>
@@ -790,13 +992,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
               {/* Row 4: Leads preview */}
               {leads.length > 0 && (
-                <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <div className="bg-white rounded-2xl border border-[#f0f0f0] p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-sm font-bold text-[#262626]">Derniers leads</h3>
+                      <h3 className="text-[13px] font-bold text-[#1a1a1a]">Derniers leads</h3>
                       <span className="text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-md">{leads.length}</span>
                     </div>
-                    <button onClick={() => setActiveTab('leads')} className="text-[10px] text-emerald-400 font-medium hover:text-emerald-300 transition-colors">Voir tout →</button>
+                    <button onClick={() => setActiveTab('leads')} className="text-[10px] text-emerald-500 font-medium hover:text-emerald-300 transition-colors">Voir tout →</button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {leads.slice(0, 3).map((lead, i) => (
@@ -805,11 +1007,11 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: i * 0.05 }}
-                        className="p-3 rounded-xl bg-gray-50 border border-gray-100"
+                        className="p-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0]"
                       >
-                        <p className="text-sm font-medium text-[#262626]">{lead.brand_name}</p>
-                        <p className="text-xs text-[#716D5C] mt-0.5">{lead.email}</p>
-                        <p className="text-[10px] text-[#716D5C] mt-1">{new Date(lead.created_at).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-[13px] font-medium text-[#1a1a1a]">{lead.brand_name}</p>
+                        <p className="text-[12px] text-[#71717a] mt-0.5">{lead.email}</p>
+                        <p className="text-[10px] text-[#71717a] mt-1">{new Date(lead.created_at).toLocaleDateString('fr-FR')}</p>
                       </motion.div>
                     ))}
                   </div>
@@ -819,158 +1021,34 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "clients" && (
-            <div className="max-w-6xl mx-auto animate-fade-in-up space-y-6">
-              {/* Header with search + add */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-[#262626]">Clients</h2>
-                  <p className="text-sm text-[#716D5C] mt-1">{clients.length} client{clients.length > 1 ? 's' : ''} au total</p>
-                </div>
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <div className="relative flex-1 sm:flex-initial">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#716D5C]" />
-                    <input
-                      type="text"
-                      placeholder="Rechercher..."
-                      className="pl-9 pr-4 py-2 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm w-full sm:w-64 outline-none focus:border-gray-300 transition-all"
-                    />
-                  </div>
-                </div>
+            <div className="max-w-7xl mx-auto animate-fade-in-up">
+              <AdminClientsListView />
+            </div>
+          )}
+
+          {/* Wave 2 render blocks */}
+          {activeTab === "live-runs" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminLiveRunsView /></div>}
+          {activeTab === "agent-heatmap" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminAgentHeatmapView /></div>}
+          {activeTab === "top-errors" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminTopErrorsView /></div>}
+          {activeTab === "cost-tracker" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminCostTrackerView /></div>}
+          {activeTab === "connector-health" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminConnectorHealthView /></div>}
+          {activeTab === "mrr" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminMRRView /></div>}
+          {activeTab === "churn-cohort" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminChurnCohortView /></div>}
+          {activeTab === "roi-leaderboard" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminROILeaderboardView /></div>}
+          {activeTab === "tokens" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminTokensView /></div>}
+          {activeTab === "hallucination" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminHallucinationView /></div>}
+          {activeTab === "alert-builder" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminAlertBuilderView /></div>}
+          {activeTab === "manual-review" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminManualReviewView /></div>}
+          {activeTab === "playbooks" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminPlaybooksView /></div>}
+
+          {/* Placeholder routes for items announced in sidebar but not yet wired */}
+          {(activeTab === "conversations" || activeTab === "escalations-inbox" || activeTab === "action-logs" || activeTab === "team" || activeTab === "settings") && (
+            <div className="max-w-4xl mx-auto py-20 text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#fafafa] border border-[#f0f0f0] mb-4">
+                <Sparkles className="w-5 h-5 text-[#71717a]" />
               </div>
-
-              {/* Summary row */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="w-4 h-4 text-emerald-400" />
-                    <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">Actifs</span>
-                  </div>
-                  <p className="text-2xl font-bold font-mono text-emerald-400">{clients.filter(c => c.status === 'active').length}</p>
-                </div>
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ShoppingBag className="w-4 h-4 text-blue-400" />
-                    <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">E-commerce</span>
-                  </div>
-                  <p className="text-2xl font-bold font-mono text-[#262626]">{clients.filter(c => !c.client_type || c.client_type === 'ecommerce').length}</p>
-                </div>
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Building2 className="w-4 h-4 text-violet-400" />
-                    <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">Immobilier</span>
-                  </div>
-                  <p className="text-2xl font-bold font-mono text-[#262626]">{clients.filter(c => c.client_type === 'immobilier').length}</p>
-                </div>
-              </div>
-
-              {isLoading ? (
-                <div className="flex justify-center py-20">
-                  <Sparkles className="w-8 h-8 animate-pulse text-[#716D5C]" />
-                </div>
-              ) : clients.length === 0 ? (
-                <div className="bg-[#F9F7F1] border border-gray-200 rounded-2xl p-16 text-center flex flex-col items-center">
-                  <Users className="w-12 h-12 text-[#716D5C] mb-4" />
-                  <h3 className="text-xl font-bold mb-2">Aucun client pour le moment</h3>
-                  <button onClick={handleAddClient} className="bg-white text-[#262626] px-5 py-2.5 rounded-xl text-sm font-bold mt-4">
-                    Ajouter un client
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {clients.map((client, i) => (
-                    <motion.div
-                      key={client.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04 }}
-                      onClick={() => setSelectedClient(client)}
-                      className="bg-[#F9F7F1] border border-gray-200 rounded-2xl p-5 flex items-center gap-5 hover:border-gray-300 transition-all cursor-pointer group"
-                    >
-                      {/* Icon */}
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        client.client_type === 'immobilier'
-                          ? 'bg-violet-500/10 text-violet-400 border border-violet-500/20'
-                          : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                      }`}>
-                        {client.client_type === 'immobilier' ? <Building2 className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3">
-                          <p className="text-base font-bold text-[#262626] truncate">{client.brand_name}</p>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
-                            client.status === 'active'
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                              : 'bg-gray-500/10 text-[#716D5C] border-gray-500/20'
-                          }`}>
-                            {client.status === 'active' ? 'ACTIF' : 'INACTIF'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-4 mt-1.5 flex-wrap">
-                          <span className="text-xs text-[#716D5C] capitalize">{client.client_type || 'ecommerce'}</span>
-                          <span className="text-xs text-[#716D5C]">{client.contact_email || 'Pas d\'email'}</span>
-                          <span className="text-[10px] text-[#716D5C]">Créé le {new Date(client.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                        </div>
-                        {/* Integration status badges */}
-                        {getClientIntegrations(client.id).length > 0 && (
-                          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                            {getClientIntegrations(client.id).map((integ, j) => (
-                              <span key={j} className={`text-[9px] font-bold px-1.5 py-0.5 rounded border capitalize ${
-                                integ.status === 'active'
-                                  ? 'bg-emerald-50 text-[#003725] border-emerald-200'
-                                  : integ.status === 'error'
-                                  ? 'bg-red-50 text-red-600 border-red-200'
-                                  : integ.status === 'expired'
-                                  ? 'bg-amber-50 text-amber-600 border-amber-200'
-                                  : 'bg-gray-50 text-[#716D5C] border-gray-200'
-                              }`}>
-                                {integ.provider}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        <div className="mt-1 flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-[#716D5C]">{client.id}</span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigator.clipboard.writeText(client.id);
-                              setCopiedId(client.id);
-                              setTimeout(() => setCopiedId(null), 2000);
-                            }}
-                            className="p-0.5 rounded hover:bg-gray-50 transition-colors"
-                            title="Copier l'ID"
-                          >
-                            {copiedId === client.id
-                              ? <Check className="w-3 h-3 text-emerald-400" />
-                              : <Copy className="w-3 h-3 text-[#716D5C] hover:text-[#716D5C]" />
-                            }
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setCallNotesClient(client); }}
-                          className="text-[#716D5C] hover:text-emerald-400 transition-colors p-2 rounded-lg hover:bg-emerald-500/10"
-                          title="Notes de call"
-                        >
-                          <FileText className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setSelectedClient(client); }}
-                          className="text-[#716D5C] hover:text-[#262626] transition-colors p-2 rounded-lg hover:bg-gray-50"
-                          title="Configurer"
-                        >
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
+              <h3 className="text-[18px] font-bold text-[#1a1a1a] mb-2">Bientot disponible</h3>
+              <p className="text-[13px] text-[#71717a]">Cette section sera activee dans une prochaine release.</p>
             </div>
           )}
 
@@ -983,35 +1061,35 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "leads" && (
             <div className="max-w-6xl mx-auto animate-fade-in-up">
               <div className="mb-8">
-                <h2 className="text-3xl font-bold mb-2">Leads Capturés</h2>
-                <p className="text-[#716D5C]">Contacts intéressés via l'Audit IA.</p>
+                <h2 className="text-[30px] font-bold mb-2">Leads Capturés</h2>
+                <p className="text-[#71717a]">Contacts intéressés via l'Audit IA.</p>
               </div>
 
               {isLoading ? (
                 <div className="flex justify-center py-20">
-                  <Sparkles className="w-8 h-8 animate-pulse text-[#716D5C]" />
+                  <Sparkles className="w-8 h-8 animate-pulse text-[#71717a]" />
                 </div>
               ) : leads.length === 0 ? (
-                <div className="text-center py-20 bg-[#F9F7F1] rounded-2xl border border-gray-200">
-                  <Users className="w-12 h-12 text-[#716D5C] mx-auto mb-4" />
-                  <p className="text-[#716D5C]">Aucun lead pour le moment.</p>
+                <div className="text-center py-20 bg-[#ffffff] rounded-2xl border border-[#f0f0f0]">
+                  <Users className="w-12 h-12 text-[#71717a] mx-auto mb-4" />
+                  <p className="text-[#71717a]">Aucun lead pour le moment.</p>
                 </div>
               ) : (
-                <div className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-x-auto">
+                <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead>
-                      <tr className="border-b border-gray-100 bg-white">
-                        <th className="px-6 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Entreprise</th>
-                        <th className="px-6 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Email</th>
-                        <th className="px-6 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Date</th>
+                      <tr className="border-b border-[#f0f0f0] bg-white">
+                        <th className="px-6 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Entreprise</th>
+                        <th className="px-6 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Email</th>
+                        <th className="px-6 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Date</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5 text-sm">
+                    <tbody className="divide-y divide-white/5 text-[13px]">
                       {leads.map((lead) => (
-                        <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={lead.id} className="hover:bg-[#fafafa] transition-colors">
                           <td className="px-6 py-4 font-bold">{lead.brand_name}</td>
-                          <td className="px-6 py-4 text-[#716D5C]">{lead.email}</td>
-                          <td className="px-6 py-4 text-[#716D5C]">
+                          <td className="px-6 py-4 text-[#71717a]">{lead.email}</td>
+                          <td className="px-6 py-4 text-[#71717a]">
                             {new Date(lead.created_at).toLocaleDateString("fr-FR")}
                           </td>
                         </tr>
@@ -1031,6 +1109,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           onClose={() => setSelectedClient(null)}
           onSaved={() => queryClient.invalidateQueries({ queryKey: ['admin-clients'] })}
           onOpenCallNotes={() => { setCallNotesClient(selectedClient); setSelectedClient(null); }}
+        />
+      )}
+
+      {isAddClientOpen && (
+        <QuickAddClientModal
+          onClose={() => setIsAddClientOpen(false)}
+          onSubmit={handleAddClientSubmit}
         />
       )}
 

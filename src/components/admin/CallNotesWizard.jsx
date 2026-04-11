@@ -314,7 +314,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-sm flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#262626] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#1a1a1a] animate-spin" />
       </div>
     );
   }
@@ -333,27 +333,27 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-[#F9F7F1] border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-[#f0f0f0]">
           <div>
-            <h2 className="text-lg font-bold text-[#262626]">Notes de call — {client?.brand_name}</h2>
-            <p className="text-xs text-[#716D5C] mt-0.5">
+            <h2 className="text-[15px] font-bold text-[#1a1a1a]">Notes de call — {client?.brand_name}</h2>
+            <p className="text-[12px] text-[#71717a] mt-0.5">
               {isDeployed ? 'Deploye' : isComplete ? 'Complet — pret pour le deploiement' : 'Brouillon'}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {saving && <Loader2 className="w-4 h-4 text-[#716D5C] animate-spin" />}
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-50 transition-colors">
-              <X className="w-5 h-5 text-[#716D5C]" />
+            {saving && <Loader2 className="w-4 h-4 text-[#71717a] animate-spin" />}
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#fafafa] transition-colors">
+              <X className="w-5 h-5 text-[#71717a]" />
             </button>
           </div>
         </div>
 
         {/* Stepper */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-[#f0f0f0]">
           <div className="flex items-center gap-1">
             {STEPS.map((step, i) => {
               const StepIcon = step.icon;
@@ -363,30 +363,30 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
                 <React.Fragment key={step.id}>
                   <button
                     onClick={() => handleStepChange(i)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
                       isActive
-                        ? 'bg-gray-50 text-[#262626]'
+                        ? 'bg-[#fafafa] text-[#1a1a1a]'
                         : isDone
-                        ? 'text-emerald-400 hover:bg-gray-50'
-                        : 'text-[#716D5C] hover:bg-gray-50'
+                        ? 'text-emerald-500 hover:bg-[#fafafa]'
+                        : 'text-[#71717a] hover:bg-[#fafafa]'
                     }`}
                   >
                     {isDone ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                     ) : (
                       <StepIcon className="w-3.5 h-3.5" />
                     )}
                     <span className="hidden sm:inline">{step.label}</span>
                   </button>
                   {i < STEPS.length - 1 && (
-                    <div className={`flex-1 h-px ${isDone ? 'bg-emerald-500/30' : 'bg-gray-50'}`} />
+                    <div className={`flex-1 h-px ${isDone ? 'bg-emerald-500/30' : 'bg-[#fafafa]'}`} />
                   )}
                 </React.Fragment>
               );
             })}
           </div>
           {/* Progress bar */}
-          <div className="mt-3 h-1 bg-gray-50 rounded-full overflow-hidden">
+          <div className="mt-3 h-1 bg-[#fafafa] rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-emerald-500 rounded-full"
               animate={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
@@ -414,11 +414,11 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 flex items-center justify-between">
+        <div className="p-6 border-t border-[#f0f0f0] flex items-center justify-between">
           <button
             onClick={() => currentStep > 0 && handleStepChange(currentStep - 1)}
             disabled={currentStep === 0}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#716D5C] hover:text-[#262626] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-[#71717a] hover:text-[#1a1a1a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Retour
@@ -428,7 +428,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
             {currentStep < STEPS.length - 1 ? (
               <button
                 onClick={() => handleStepChange(currentStep + 1)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-white text-[#262626] rounded-xl text-sm font-bold hover:bg-gray-200 transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 bg-white text-[#1a1a1a] rounded-xl text-[13px] font-bold hover:bg-gray-200 transition-colors"
               >
                 Suivant
                 <ChevronRight className="w-4 h-4" />
@@ -439,7 +439,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
                   <button
                     onClick={handleComplete}
                     disabled={saving}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-400 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-[13px] font-bold hover:bg-emerald-500 transition-colors disabled:opacity-50"
                   >
                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Sauvegarder les notes
@@ -448,14 +448,14 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
                 {(isComplete && !isDeployed) && (
                   <button
                     onClick={() => onDeployReady?.(client.id)}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-xl text-sm font-bold hover:from-emerald-400 hover:to-cyan-400 transition-all shadow-lg shadow-emerald-500/20"
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-xl text-[13px] font-bold hover:from-emerald-500 hover:to-cyan-400 transition-all shadow-lg shadow-emerald-500/20"
                   >
                     <Rocket className="w-5 h-5" />
                     Lancer le deploiement
                   </button>
                 )}
                 {isDeployed && (
-                  <div className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl text-sm font-bold border border-emerald-500/20">
+                  <div className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 text-emerald-500 rounded-xl text-[13px] font-bold border border-emerald-500/20">
                     <CheckCircle2 className="w-4 h-4" />
                     Deploye
                   </div>
@@ -474,17 +474,17 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
 function InputField({ label, value, onChange, type = 'text', placeholder, suffix, className = '' }) {
   return (
     <div className={className}>
-      <label className="block text-xs font-medium text-[#716D5C] mb-1.5">{label}</label>
+      <label className="block text-[12px] font-medium text-[#71717a] mb-1.5">{label}</label>
       <div className="relative">
         <input
           type={type}
           value={value || ''}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#262626] placeholder-gray-600 outline-none focus:border-gray-300 transition-colors"
+          className="w-full px-3 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-gray-300 transition-colors"
         />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#716D5C]">{suffix}</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[#71717a]">{suffix}</span>
         )}
       </div>
     </div>
@@ -494,13 +494,13 @@ function InputField({ label, value, onChange, type = 'text', placeholder, suffix
 function TextareaField({ label, value, onChange, placeholder, rows = 3 }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-[#716D5C] mb-1.5">{label}</label>
+      <label className="block text-[12px] font-medium text-[#71717a] mb-1.5">{label}</label>
       <textarea
         value={value || ''}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#262626] placeholder-gray-600 outline-none focus:border-gray-300 transition-colors resize-none"
+        className="w-full px-3 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-gray-300 transition-colors resize-none"
       />
     </div>
   );
@@ -526,7 +526,7 @@ function StepBasics({ form, updateField }) {
 
       {/* Vertical selection */}
       <div>
-        <label className="block text-xs font-medium text-[#716D5C] mb-2">Verticale</label>
+        <label className="block text-[12px] font-medium text-[#71717a] mb-2">Verticale</label>
         <div className="grid grid-cols-2 gap-3">
           {[
             { value: 'ecommerce', label: 'E-commerce', icon: ShoppingBag, color: 'emerald' },
@@ -541,11 +541,11 @@ function StepBasics({ form, updateField }) {
                 className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
                   selected
                     ? `border-${opt.color}-500/30 bg-${opt.color}-500/10`
-                    : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                    : 'border-[#f0f0f0] bg-[#fafafa] hover:border-gray-300'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${selected ? `text-${opt.color}-400` : 'text-[#716D5C]'}`} />
-                <span className={`text-sm font-medium ${selected ? 'text-[#262626]' : 'text-[#716D5C]'}`}>{opt.label}</span>
+                <Icon className={`w-5 h-5 ${selected ? `text-${opt.color}-400` : 'text-[#71717a]'}`} />
+                <span className={`text-[13px] font-medium ${selected ? 'text-[#1a1a1a]' : 'text-[#71717a]'}`}>{opt.label}</span>
                 {selected && <Check className={`w-4 h-4 ml-auto text-${opt.color}-400`} />}
               </button>
             );
@@ -568,11 +568,11 @@ function StepBusiness({ form, updateField }) {
         <InputField label="URL boutique Shopify" value={form.shopify_store_url} onChange={v => updateField('shopify_store_url', v)} placeholder="monstore.myshopify.com" />
 
         <div>
-          <label className="block text-xs font-medium text-[#716D5C] mb-1.5">Outil de ticketing</label>
+          <label className="block text-[12px] font-medium text-[#71717a] mb-1.5">Outil de ticketing</label>
           <select
             value={form.ticketing_tool || ''}
             onChange={e => updateField('ticketing_tool', e.target.value || null)}
-            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#262626] outline-none focus:border-gray-300 transition-colors"
+            className="w-full px-3 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:border-gray-300 transition-colors"
           >
             <option value="">Selectionner...</option>
             {TICKETING_OPTIONS.map(opt => (
@@ -588,11 +588,11 @@ function StepBusiness({ form, updateField }) {
 
         <InputField label="Cout horaire support" value={form.hourly_support_cost} onChange={v => updateField('hourly_support_cost', v)} type="number" suffix="EUR/h" />
 
-        <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
-          <span className="text-sm text-[#716D5C]">Chatbot souhaite ?</span>
+        <div className="flex items-center justify-between p-3 bg-[#fafafa] border border-[#f0f0f0] rounded-lg">
+          <span className="text-[13px] text-[#71717a]">Chatbot souhaite ?</span>
           <button
             onClick={() => updateField('wants_chatbot', !form.wants_chatbot)}
-            className={`relative w-10 h-5 rounded-full transition-colors ${form.wants_chatbot ? 'bg-emerald-500' : 'bg-gray-50'}`}
+            className={`relative w-10 h-5 rounded-full transition-colors ${form.wants_chatbot ? 'bg-emerald-500' : 'bg-[#fafafa]'}`}
           >
             <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${form.wants_chatbot ? 'translate-x-5' : 'translate-x-0.5'}`} />
           </button>
@@ -641,7 +641,7 @@ function StepEmail({ form, updateField, onAutoDetect, autoDetecting }) {
       <InputField label="Email de support" value={form.support_email} onChange={v => updateField('support_email', v)} placeholder="support@maboutique.com" type="email" />
 
       <div>
-        <label className="block text-xs font-medium text-[#716D5C] mb-2">Preference d'envoi</label>
+        <label className="block text-[12px] font-medium text-[#71717a] mb-2">Preference d'envoi</label>
         <div className="space-y-2">
           {[
             { value: 'resend', label: 'Resend (recommande)', desc: 'Emails depuis le domaine du client' },
@@ -654,19 +654,19 @@ function StepEmail({ form, updateField, onAutoDetect, autoDetecting }) {
               className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
                 form.email_sending_preference === opt.value
                   ? 'border-emerald-500/30 bg-emerald-500/10'
-                  : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                  : 'border-[#f0f0f0] bg-[#fafafa] hover:border-gray-300'
               }`}
             >
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                form.email_sending_preference === opt.value ? 'border-emerald-400' : 'border-gray-600'
+                form.email_sending_preference === opt.value ? 'border-emerald-500' : 'border-gray-600'
               }`}>
                 {form.email_sending_preference === opt.value && (
-                  <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
                 )}
               </div>
               <div>
-                <p className="text-sm font-medium text-[#262626]">{opt.label}</p>
-                <p className="text-xs text-[#716D5C]">{opt.desc}</p>
+                <p className="text-[13px] font-medium text-[#1a1a1a]">{opt.label}</p>
+                <p className="text-[12px] text-[#71717a]">{opt.desc}</p>
               </div>
             </button>
           ))}
@@ -674,7 +674,7 @@ function StepEmail({ form, updateField, onAutoDetect, autoDetecting }) {
       </div>
 
       {form.email_sending_preference === 'smtp_client' && (
-        <div className="space-y-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="space-y-3 p-4 bg-[#fafafa] border border-[#f0f0f0] rounded-lg">
           <InputField label="Hote SMTP" value={form.smtp_host} onChange={v => updateField('smtp_host', v)} placeholder="smtp.gmail.com" />
           <div className="grid grid-cols-2 gap-3">
             <InputField label="Port" value={form.smtp_port} onChange={v => updateField('smtp_port', v)} type="number" placeholder="587" />
@@ -686,11 +686,11 @@ function StepEmail({ form, updateField, onAutoDetect, autoDetecting }) {
 
       <div className="pt-2">
         <div className="flex items-center justify-between mb-3">
-          <label className="text-xs font-medium text-[#716D5C]">Liens du site (pour le brand context)</label>
+          <label className="text-[12px] font-medium text-[#71717a]">Liens du site (pour le brand context)</label>
           <button
             onClick={onAutoDetect}
             disabled={autoDetecting || !form.website_url}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 rounded-lg hover:bg-emerald-500/20 transition-colors disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-emerald-500 bg-emerald-500/10 rounded-lg hover:bg-emerald-500/20 transition-colors disabled:opacity-40"
           >
             {autoDetecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
             Auto-detecter
@@ -716,7 +716,7 @@ function StepWorkflows({ form, toggleWorkflow, workflows }) {
       exit={{ opacity: 0, x: -20 }}
       className="space-y-3"
     >
-      <p className="text-sm text-[#716D5C] mb-4">
+      <p className="text-[13px] text-[#71717a] mb-4">
         Selectionnez les workflows a deployer pour ce client ({form.vertical === 'ecommerce' ? 'E-commerce' : 'Immobilier'})
       </p>
       {workflows.map(wf => {
@@ -728,17 +728,17 @@ function StepWorkflows({ form, toggleWorkflow, workflows }) {
             className={`w-full flex items-start gap-4 p-4 rounded-xl border transition-all text-left ${
               selected
                 ? 'border-emerald-500/30 bg-emerald-500/10'
-                : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                : 'border-[#f0f0f0] bg-[#fafafa] hover:border-gray-300'
             }`}
           >
             <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-              selected ? 'border-emerald-400 bg-emerald-500' : 'border-gray-600'
+              selected ? 'border-emerald-500 bg-emerald-500' : 'border-gray-600'
             }`}>
-              {selected && <Check className="w-3 h-3 text-[#262626]" />}
+              {selected && <Check className="w-3 h-3 text-[#1a1a1a]" />}
             </div>
             <div>
-              <p className="text-sm font-medium text-[#262626]">{wf.label}</p>
-              <p className="text-xs text-[#716D5C] mt-0.5">{wf.description}</p>
+              <p className="text-[13px] font-medium text-[#1a1a1a]">{wf.label}</p>
+              <p className="text-[12px] text-[#71717a] mt-0.5">{wf.description}</p>
             </div>
           </button>
         );

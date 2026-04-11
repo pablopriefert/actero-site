@@ -108,7 +108,7 @@ export const AdminEngineTestView = () => {
     if (status >= 200 && status < 300) return 'text-emerald-600 bg-emerald-50'
     if (status >= 400 && status < 500) return 'text-amber-600 bg-amber-50'
     if (status >= 500) return 'text-red-600 bg-red-50'
-    return 'text-gray-600 bg-gray-50'
+    return 'text-gray-600 bg-[#fafafa]'
   }
 
   return (
@@ -119,8 +119,8 @@ export const AdminEngineTestView = () => {
           <Zap className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-[#262626]">Webhook Tester</h2>
-          <p className="text-sm text-[#716D5C]">Testez vos endpoints en POST/GET directement</p>
+          <h2 className="text-[24px] font-bold text-[#1a1a1a]">Webhook Tester</h2>
+          <p className="text-[13px] text-[#71717a]">Testez vos endpoints en POST/GET directement</p>
         </div>
       </div>
 
@@ -130,7 +130,7 @@ export const AdminEngineTestView = () => {
           <button
             key={i}
             onClick={() => loadPreset(p)}
-            className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-[#262626] hover:border-gray-300 hover:shadow-sm transition-all"
+            className="px-3 py-1.5 bg-white border border-[#f0f0f0] rounded-lg text-[12px] font-medium text-[#1a1a1a] hover:border-gray-300 hover:shadow-sm transition-all"
           >
             <span className={`font-mono mr-1 ${p.method === 'GET' ? 'text-blue-600' : 'text-emerald-600'}`}>{p.method}</span>
             {p.label}
@@ -139,13 +139,13 @@ export const AdminEngineTestView = () => {
       </div>
 
       {/* Request */}
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-[#f0f0f0] rounded-2xl overflow-hidden">
         {/* URL bar */}
-        <div className="flex items-center gap-2 p-3 border-b border-gray-100">
+        <div className="flex items-center gap-2 p-3 border-b border-[#f0f0f0]">
           <select
             value={method}
             onChange={(e) => setMethod(e.target.value)}
-            className={`px-3 py-2 rounded-lg text-xs font-bold border border-gray-200 outline-none ${
+            className={`px-3 py-2 rounded-lg text-[12px] font-bold border border-[#f0f0f0] outline-none ${
               method === 'GET' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'
             }`}
           >
@@ -159,12 +159,12 @@ export const AdminEngineTestView = () => {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="/api/engine/webhook"
-            className="flex-1 px-4 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm font-mono text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+            className="flex-1 px-4 py-2 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[13px] font-mono text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
           />
           <button
             onClick={handleSend}
             disabled={sending || !url.trim()}
-            className="flex items-center gap-2 px-5 py-2 bg-[#0F5F35] text-white rounded-lg text-sm font-bold hover:bg-[#003725] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-5 py-2 bg-[#0F5F35] text-white rounded-lg text-[13px] font-bold hover:bg-[#003725] disabled:opacity-50 transition-colors"
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             Envoyer
@@ -172,10 +172,10 @@ export const AdminEngineTestView = () => {
         </div>
 
         {/* Headers */}
-        <div className="p-3 border-b border-gray-100">
+        <div className="p-3 border-b border-[#f0f0f0]">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider">Headers</p>
-            <button onClick={addHeader} className="text-xs text-[#0F5F35] font-bold flex items-center gap-1 hover:underline">
+            <p className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Headers</p>
+            <button onClick={addHeader} className="text-[12px] text-[#0F5F35] font-bold flex items-center gap-1 hover:underline">
               <Plus className="w-3 h-3" /> Ajouter
             </button>
           </div>
@@ -187,16 +187,16 @@ export const AdminEngineTestView = () => {
                   value={h.key}
                   onChange={(e) => updateHeader(i, 'key', e.target.value)}
                   placeholder="Key"
-                  className="w-1/3 px-3 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs font-mono text-[#262626] outline-none"
+                  className="w-1/3 px-3 py-1.5 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] font-mono text-[#1a1a1a] outline-none"
                 />
                 <input
                   type="text"
                   value={h.value}
                   onChange={(e) => updateHeader(i, 'value', e.target.value)}
                   placeholder="Value"
-                  className="flex-1 px-3 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs font-mono text-[#262626] outline-none"
+                  className="flex-1 px-3 py-1.5 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] font-mono text-[#1a1a1a] outline-none"
                 />
-                <button onClick={() => removeHeader(i)} className="p-1 text-gray-300 hover:text-red-500">
+                <button onClick={() => removeHeader(i)} className="p-1 text-[#c4c4c4] hover:text-red-500">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -207,7 +207,7 @@ export const AdminEngineTestView = () => {
         {/* Body */}
         {method !== 'GET' && (
           <div className="p-3">
-            <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider mb-2">Body (JSON)</p>
+            <p className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider mb-2">Body (JSON)</p>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -222,7 +222,7 @@ export const AdminEngineTestView = () => {
         <div className="px-3 pb-3">
           <button
             onClick={copyCurl}
-            className="flex items-center gap-1.5 text-xs text-[#716D5C] hover:text-[#262626] transition-colors"
+            className="flex items-center gap-1.5 text-[12px] text-[#71717a] hover:text-[#1a1a1a] transition-colors"
           >
             {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
             {copied ? 'Copie !' : 'Copier en curl'}
@@ -236,14 +236,14 @@ export const AdminEngineTestView = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-gray-200 rounded-2xl overflow-hidden"
+            className="bg-white border border-[#f0f0f0] rounded-2xl overflow-hidden"
           >
-            <div className="flex items-center gap-3 p-4 border-b border-gray-100">
-              <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${statusColor(result.status)}`}>
+            <div className="flex items-center gap-3 p-4 border-b border-[#f0f0f0]">
+              <span className={`px-2.5 py-1 rounded-lg text-[12px] font-bold ${statusColor(result.status)}`}>
                 {result.status || 'ERR'}
               </span>
-              <span className="text-xs text-[#716D5C]">{result.elapsed}ms</span>
-              <span className="text-xs text-[#716D5C] font-mono">{result.method} {result.url}</span>
+              <span className="text-[12px] text-[#71717a]">{result.elapsed}ms</span>
+              <span className="text-[12px] text-[#71717a] font-mono">{result.method} {result.url}</span>
             </div>
             <pre className="p-4 bg-gray-900 text-green-400 text-[12px] font-mono overflow-x-auto max-h-[400px] overflow-y-auto">
               {typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2)}
@@ -254,17 +254,17 @@ export const AdminEngineTestView = () => {
 
       {/* History */}
       {history.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-2xl p-4">
+        <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] font-bold text-[#716D5C] uppercase tracking-wider">Historique</p>
-            <button onClick={() => setHistory([])} className="text-xs text-[#716D5C] hover:text-red-500">Effacer</button>
+            <p className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Historique</p>
+            <button onClick={() => setHistory([])} className="text-[12px] text-[#71717a] hover:text-red-500">Effacer</button>
           </div>
           <div className="space-y-1 max-h-[200px] overflow-y-auto">
             {history.map((entry, i) => (
               <button
                 key={i}
                 onClick={() => setResult(entry)}
-                className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-[#F9F7F1] transition-colors text-left"
+                className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-[#ffffff] transition-colors text-left"
               >
                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${statusColor(entry.status)}`}>
                   {entry.status}
@@ -272,9 +272,9 @@ export const AdminEngineTestView = () => {
                 <span className={`text-[10px] font-mono font-bold ${entry.method === 'GET' ? 'text-blue-600' : 'text-emerald-600'}`}>
                   {entry.method}
                 </span>
-                <span className="text-xs text-[#262626] font-mono truncate flex-1">{entry.url}</span>
-                <span className="text-[10px] text-[#716D5C]">{entry.elapsed}ms</span>
-                <span className="text-[10px] text-[#716D5C]">{new Date(entry.timestamp).toLocaleTimeString('fr-FR')}</span>
+                <span className="text-[12px] text-[#1a1a1a] font-mono truncate flex-1">{entry.url}</span>
+                <span className="text-[10px] text-[#71717a]">{entry.elapsed}ms</span>
+                <span className="text-[10px] text-[#71717a]">{new Date(entry.timestamp).toLocaleTimeString('fr-FR')}</span>
               </button>
             ))}
           </div>

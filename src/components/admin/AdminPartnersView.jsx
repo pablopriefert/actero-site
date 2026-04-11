@@ -51,10 +51,10 @@ const PaymentLinkForm = ({ email, name }) => {
   }
 
   return (
-    <div className="mt-3 pt-3 border-t border-gray-200">
+    <div className="mt-3 pt-3 border-t border-[#f0f0f0]">
       <div className="flex items-center gap-2 mb-2">
         <CreditCard className="w-3.5 h-3.5 text-[#003725]" />
-        <span className="text-xs font-bold text-[#262626]">Envoyer un lien de paiement</span>
+        <span className="text-[12px] font-bold text-[#1a1a1a]">Envoyer un lien de paiement</span>
       </div>
       <div className="flex items-center gap-2 flex-wrap">
         <input
@@ -62,26 +62,26 @@ const PaymentLinkForm = ({ email, name }) => {
           placeholder="Montant (EUR)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-28 px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+          className="w-28 px-2.5 py-1.5 bg-white border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
         />
         <input
           type="text"
           placeholder="Description (optionnel)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="flex-1 min-w-[150px] px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+          className="flex-1 min-w-[150px] px-2.5 py-1.5 bg-white border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
         />
         <button
           onClick={handleSend}
           disabled={!amount || sending}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0F5F35] text-white rounded-lg text-xs font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0F5F35] text-white rounded-lg text-[12px] font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
         >
           {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
           Envoyer
         </button>
       </div>
       {result && (
-        <p className={`text-xs mt-2 font-medium ${result.ok ? 'text-[#003725]' : 'text-red-500'}`}>
+        <p className={`text-[12px] mt-2 font-medium ${result.ok ? 'text-[#003725]' : 'text-red-500'}`}>
           {result.ok ? '✓' : '✗'} {result.message}
         </p>
       )}
@@ -188,17 +188,17 @@ export const AdminPartnersView = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-3">
+          <h2 className="text-[24px] font-bold flex items-center gap-3">
             <Handshake className="w-7 h-7 text-indigo-400" />
             Partenaires
           </h2>
-          <p className="text-sm text-[#716D5C] mt-1">
+          <p className="text-[13px] text-[#71717a] mt-1">
             Candidatures du programme partenaire B2B
           </p>
         </div>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#0F5F35] text-white rounded-full text-sm font-semibold hover:bg-[#003725] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#0F5F35] text-white rounded-full text-[13px] font-semibold hover:bg-[#003725] transition-colors"
         >
           <Plus className="w-4 h-4" />
           Ajouter
@@ -214,64 +214,64 @@ export const AdminPartnersView = () => {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="p-6 rounded-xl bg-[#F9F7F1] border border-gray-200 space-y-4">
-              <h3 className="text-sm font-bold text-[#262626]">Nouveau partenaire</h3>
+            <div className="p-6 rounded-xl bg-[#ffffff] border border-[#f0f0f0] space-y-4">
+              <h3 className="text-[13px] font-bold text-[#1a1a1a]">Nouveau partenaire</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <input
                   type="text"
                   placeholder="Prenom *"
                   value={newPartner.first_name}
                   onChange={(e) => setNewPartner(p => ({ ...p, first_name: e.target.value }))}
-                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                  className="px-3 py-2.5 bg-white border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
                 />
                 <input
                   type="text"
                   placeholder="Nom *"
                   value={newPartner.last_name}
                   onChange={(e) => setNewPartner(p => ({ ...p, last_name: e.target.value }))}
-                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                  className="px-3 py-2.5 bg-white border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
                 />
                 <input
                   type="email"
                   placeholder="Email *"
                   value={newPartner.email}
                   onChange={(e) => setNewPartner(p => ({ ...p, email: e.target.value }))}
-                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                  className="px-3 py-2.5 bg-white border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
                 />
                 <input
                   type="text"
                   placeholder="Societe"
                   value={newPartner.company_name}
                   onChange={(e) => setNewPartner(p => ({ ...p, company_name: e.target.value }))}
-                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                  className="px-3 py-2.5 bg-white border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
                 />
                 <input
                   type="text"
                   placeholder="Telephone"
                   value={newPartner.phone}
                   onChange={(e) => setNewPartner(p => ({ ...p, phone: e.target.value }))}
-                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                  className="px-3 py-2.5 bg-white border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
                 />
                 <input
                   type="text"
                   placeholder="Type d'activite"
                   value={newPartner.activity_type}
                   onChange={(e) => setNewPartner(p => ({ ...p, activity_type: e.target.value }))}
-                  className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:ring-1 focus:ring-gray-300"
+                  className="px-3 py-2.5 bg-white border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
                 />
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={handleCreate}
                   disabled={creating || !newPartner.first_name || !newPartner.last_name || !newPartner.email}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#0F5F35] text-white rounded-xl text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#0F5F35] text-white rounded-xl text-[13px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
                 >
                   {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                   Creer le partenaire
                 </button>
                 <button
                   onClick={() => setShowCreateForm(false)}
-                  className="px-4 py-2.5 text-sm font-semibold text-[#716D5C] hover:text-[#262626] transition-colors"
+                  className="px-4 py-2.5 text-[13px] font-semibold text-[#71717a] hover:text-[#1a1a1a] transition-colors"
                 >
                   Annuler
                 </button>
@@ -284,17 +284,17 @@ export const AdminPartnersView = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total', value: statCounts.total, icon: Users, color: 'text-[#716D5C]' },
+          { label: 'Total', value: statCounts.total, icon: Users, color: 'text-[#71717a]' },
           { label: 'Nouveaux', value: statCounts.new, icon: Clock, color: 'text-blue-400' },
           { label: 'Contactés', value: statCounts.contacted, icon: Mail, color: 'text-amber-400' },
           { label: 'Qualifiés', value: statCounts.qualified, icon: CheckCircle2, color: 'text-green-400' },
         ].map((stat, i) => (
-          <div key={i} className="p-4 rounded-xl bg-gray-50 border border-gray-200">
+          <div key={i} className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
             <div className="flex items-center gap-2 mb-2">
               <stat.icon className={`w-4 h-4 ${stat.color}`} />
-              <span className="text-xs text-[#716D5C]">{stat.label}</span>
+              <span className="text-[12px] text-[#71717a]">{stat.label}</span>
             </div>
-            <div className="text-2xl font-bold">{stat.value}</div>
+            <div className="text-[24px] font-bold">{stat.value}</div>
           </div>
         ))}
       </div>
@@ -302,23 +302,23 @@ export const AdminPartnersView = () => {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#716D5C]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717a]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par nom, email, société..."
-            className="w-full pl-10 pr-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-indigo-500/40"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:border-indigo-500/40 appearance-none cursor-pointer"
+          className="px-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:border-indigo-500/40 appearance-none cursor-pointer"
         >
-          <option value="all" className="bg-[#F9F7F1]">Tous les statuts</option>
+          <option value="all" className="bg-[#ffffff]">Tous les statuts</option>
           {Object.entries(STATUS_MAP).map(([key, val]) => (
-            <option key={key} value={key} className="bg-[#F9F7F1]">{val.label}</option>
+            <option key={key} value={key} className="bg-[#ffffff]">{val.label}</option>
           ))}
         </select>
       </div>
@@ -329,41 +329,41 @@ export const AdminPartnersView = () => {
           <Loader2 className="w-6 h-6 text-indigo-400 animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-[#716D5C]">
+        <div className="text-center py-20 text-[#71717a]">
           <AlertCircle className="w-10 h-10 mx-auto mb-3 opacity-50" />
           <p>Aucune candidature trouvée.</p>
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 overflow-hidden">
+        <div className="rounded-xl border border-[#f0f0f0] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#716D5C] uppercase tracking-wider">Candidat</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#716D5C] uppercase tracking-wider">Société</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#716D5C] uppercase tracking-wider">Activité</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#716D5C] uppercase tracking-wider">Potentiel</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#716D5C] uppercase tracking-wider">Statut</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#716D5C] uppercase tracking-wider">Date</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-[#716D5C] uppercase tracking-wider">Actions</th>
+                <tr className="border-b border-[#f0f0f0] bg-[#fafafa]">
+                  <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Candidat</th>
+                  <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Société</th>
+                  <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Activité</th>
+                  <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Potentiel</th>
+                  <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Statut</th>
+                  <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Date</th>
+                  <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((p) => (
                   <React.Fragment key={p.id}>
                     <tr
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors cursor-pointer"
                       onClick={() => setExpandedRow(expandedRow === p.id ? null : p.id)}
                     >
                       <td className="px-4 py-3">
                         <div className="font-medium">{p.first_name} {p.last_name}</div>
-                        <div className="text-xs text-[#716D5C]">{p.email}</div>
+                        <div className="text-[12px] text-[#71717a]">{p.email}</div>
                       </td>
-                      <td className="px-4 py-3 text-[#716D5C]">{p.company_name}</td>
-                      <td className="px-4 py-3 text-[#716D5C]">{p.activity_type || '—'}</td>
-                      <td className="px-4 py-3 text-[#716D5C]">{p.potential_clients || '—'}</td>
+                      <td className="px-4 py-3 text-[#71717a]">{p.company_name}</td>
+                      <td className="px-4 py-3 text-[#71717a]">{p.activity_type || '—'}</td>
+                      <td className="px-4 py-3 text-[#71717a]">{p.potential_clients || '—'}</td>
                       <td className="px-4 py-3"><StatusBadge status={p.status} /></td>
-                      <td className="px-4 py-3 text-[#716D5C] text-xs">
+                      <td className="px-4 py-3 text-[#71717a] text-[12px]">
                         {new Date(p.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="px-4 py-3">
@@ -375,10 +375,10 @@ export const AdminPartnersView = () => {
                               updateStatusMutation.mutate({ id: p.id, status: e.target.value })
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            className="px-2 py-1 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs text-[#262626] outline-none cursor-pointer"
+                            className="px-2 py-1 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none cursor-pointer"
                           >
                             {Object.entries(STATUS_MAP).map(([key, val]) => (
-                              <option key={key} value={key} className="bg-[#F9F7F1]">{val.label}</option>
+                              <option key={key} value={key} className="bg-[#ffffff]">{val.label}</option>
                             ))}
                           </select>
                           <button
@@ -386,7 +386,7 @@ export const AdminPartnersView = () => {
                               e.stopPropagation()
                               handleDelete(p.id, `${p.first_name} ${p.last_name}`)
                             }}
-                            className="p-1.5 rounded-lg text-[#716D5C] hover:text-red-500 hover:bg-red-50 transition-colors"
+                            className="p-1.5 rounded-lg text-[#71717a] hover:text-red-500 hover:bg-red-50 transition-colors"
                             title="Supprimer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -405,19 +405,19 @@ export const AdminPartnersView = () => {
                               transition={{ duration: 0.2 }}
                               className="overflow-hidden"
                             >
-                              <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-200 space-y-2">
+                              <div className="px-6 py-4 bg-[#fafafa]/50 border-b border-[#f0f0f0] space-y-2">
                                 {p.phone && (
-                                  <div className="flex items-center gap-2 text-sm text-[#716D5C]">
+                                  <div className="flex items-center gap-2 text-[13px] text-[#71717a]">
                                     <Phone className="w-3.5 h-3.5" />
                                     {p.phone}
                                   </div>
                                 )}
                                 {p.message && (
-                                  <div className="text-sm text-[#716D5C]">
-                                    <span className="text-[#716D5C] font-medium">Message :</span> {p.message}
+                                  <div className="text-[13px] text-[#71717a]">
+                                    <span className="text-[#71717a] font-medium">Message :</span> {p.message}
                                   </div>
                                 )}
-                                <div className="text-xs text-[#716D5C]">
+                                <div className="text-[12px] text-[#71717a]">
                                   Source : {p.source} — Mis à jour : {new Date(p.updated_at).toLocaleString('fr-FR')}
                                 </div>
                                 <PaymentLinkForm email={p.email} name={p.first_name} />

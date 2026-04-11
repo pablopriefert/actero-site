@@ -146,34 +146,34 @@ export const AdminClientHealthView = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6 animate-fade-in-up">
       <div>
-        <h2 className="text-2xl font-bold text-[#262626]">Santé Clients</h2>
-        <p className="text-sm text-[#716D5C] mt-1">Score basé sur l'activité, les métriques et le statut</p>
+        <h2 className="text-[24px] font-bold text-[#1a1a1a]">Santé Clients</h2>
+        <p className="text-[13px] text-[#71717a] mt-1">Score basé sur l'activité, les métriques et le statut</p>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-5">
+        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
-            <Heart className="w-4 h-4 text-emerald-400" />
-            <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">Score moyen</span>
+            <Heart className="w-4 h-4 text-emerald-500" />
+            <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">Score moyen</span>
           </div>
-          <p className={`text-3xl font-bold font-mono ${avgScore >= 70 ? 'text-emerald-400' : avgScore >= 40 ? 'text-amber-400' : 'text-red-400'}`}>
+          <p className={`text-[30px] font-bold font-mono ${avgScore >= 70 ? 'text-emerald-500' : avgScore >= 40 ? 'text-amber-400' : 'text-red-400'}`}>
             {avgScore}%
           </p>
         </div>
-        <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-5">
+        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="w-4 h-4 text-red-400" />
-            <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">À risque</span>
+            <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">À risque</span>
           </div>
-          <p className="text-3xl font-bold font-mono text-red-400">{atRisk.length}</p>
+          <p className="text-[30px] font-bold font-mono text-red-400">{atRisk.length}</p>
         </div>
-        <div className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-5">
+        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">En bonne santé</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">En bonne santé</span>
           </div>
-          <p className="text-3xl font-bold font-mono text-emerald-400">{healthy.length}</p>
+          <p className="text-[30px] font-bold font-mono text-emerald-500">{healthy.length}</p>
         </div>
       </div>
 
@@ -181,7 +181,7 @@ export const AdminClientHealthView = () => {
       <div className="space-y-3">
         {clientHealth.map((client, i) => {
           const scoreClasses = client.health.score >= 70
-            ? { box: 'bg-emerald-500/10 border-emerald-500/20', text: 'text-emerald-400', bar: 'bg-emerald-500' }
+            ? { box: 'bg-emerald-500/10 border-emerald-500/20', text: 'text-emerald-500', bar: 'bg-emerald-500' }
             : client.health.score >= 40
             ? { box: 'bg-amber-500/10 border-amber-500/20', text: 'text-amber-400', bar: 'bg-amber-500' }
             : { box: 'bg-red-500/10 border-red-500/20', text: 'text-red-400', bar: 'bg-red-500' }
@@ -191,22 +191,22 @@ export const AdminClientHealthView = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="bg-[#F9F7F1] border border-gray-200 rounded-xl p-4 flex items-center gap-4 hover:border-gray-300 transition-colors"
+              className="bg-[#ffffff] border border-[#f0f0f0] rounded-xl p-4 flex items-center gap-4 hover:border-gray-300 transition-colors"
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${scoreClasses.box}`}>
-                <span className={`text-lg font-bold font-mono ${scoreClasses.text}`}>{client.health.score}</span>
+                <span className={`text-[15px] font-bold font-mono ${scoreClasses.text}`}>{client.health.score}</span>
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-[#262626] truncate">{client.brand_name}</p>
+                  <p className="text-[13px] font-bold text-[#1a1a1a] truncate">{client.brand_name}</p>
                   {client.client_type === 'immobilier'
                     ? <Building2 className="w-3 h-3 text-violet-400" />
-                    : <ShoppingBag className="w-3 h-3 text-emerald-400" />}
+                    : <ShoppingBag className="w-3 h-3 text-emerald-500" />}
                 </div>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
                   {client.health.factors.map((f, j) => (
-                    <span key={j} className={`text-[10px] flex items-center gap-1 ${f.ok ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <span key={j} className={`text-[10px] flex items-center gap-1 ${f.ok ? 'text-emerald-500' : 'text-red-400'}`}>
                       {f.ok ? <CheckCircle2 className="w-2.5 h-2.5" /> : <AlertTriangle className="w-2.5 h-2.5" />}
                       {f.label}
                     </span>
@@ -216,13 +216,13 @@ export const AdminClientHealthView = () => {
 
               <div className="flex items-center gap-3">
                 <div className="text-right hidden md:block">
-                  <div className="flex items-center gap-1 text-xs text-[#716D5C]">
+                  <div className="flex items-center gap-1 text-[12px] text-[#71717a]">
                     <Zap className="w-3 h-3" /> {client.recentEvents} évén. 48h
                   </div>
                 </div>
 
                 {/* Health bar */}
-                <div className="w-20 h-2 bg-gray-50 rounded-full overflow-hidden hidden lg:block">
+                <div className="w-20 h-2 bg-[#fafafa] rounded-full overflow-hidden hidden lg:block">
                   <div
                     className={`h-full rounded-full ${scoreClasses.bar} transition-all`}
                     style={{ width: `${client.health.score}%` }}
@@ -233,10 +233,10 @@ export const AdminClientHealthView = () => {
                 <button
                   onClick={() => sendReport(client.id)}
                   disabled={sending === client.id}
-                  className="p-2 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50"
+                  className="p-2 rounded-lg bg-[#fafafa] border border-[#f0f0f0] hover:bg-[#fafafa] hover:border-gray-300 transition-all disabled:opacity-50"
                   title="Envoyer rapport mensuel"
                 >
-                  <Send className={`w-3.5 h-3.5 ${sending === client.id ? 'animate-pulse text-blue-400' : 'text-[#716D5C]'}`} />
+                  <Send className={`w-3.5 h-3.5 ${sending === client.id ? 'animate-pulse text-blue-400' : 'text-[#71717a]'}`} />
                 </button>
               </div>
             </motion.div>

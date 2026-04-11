@@ -8,12 +8,12 @@ import {
 import { supabase } from '../../lib/supabase'
 
 const STAGES = [
-  { id: 'draft', label: 'Brouillon', icon: FileText, iconClass: 'text-[#716D5C]', bgClass: 'bg-gray-500/10 border-gray-500/20', badgeClass: 'bg-gray-500/10 text-[#716D5C]' },
+  { id: 'draft', label: 'Brouillon', icon: FileText, iconClass: 'text-[#71717a]', bgClass: 'bg-[#fafafa]0/10 border-gray-500/20', badgeClass: 'bg-[#fafafa]0/10 text-[#71717a]' },
   { id: 'sent', label: 'Email envoyé', icon: Mail, iconClass: 'text-blue-400', bgClass: 'bg-blue-500/10 border-blue-500/20', badgeClass: 'bg-blue-500/10 text-blue-400' },
-  { id: 'paid', label: 'Payé', icon: CreditCard, iconClass: 'text-emerald-400', bgClass: 'bg-emerald-500/10 border-emerald-500/20', badgeClass: 'bg-emerald-500/10 text-emerald-400' },
+  { id: 'paid', label: 'Payé', icon: CreditCard, iconClass: 'text-emerald-500', bgClass: 'bg-emerald-500/10 border-emerald-500/20', badgeClass: 'bg-emerald-500/10 text-emerald-500' },
   { id: 'app_installed', label: 'App installée', icon: Download, iconClass: 'text-violet-400', bgClass: 'bg-violet-500/10 border-violet-500/20', badgeClass: 'bg-violet-500/10 text-violet-400' },
   { id: 'deployed', label: 'Workflow déployé', icon: Rocket, iconClass: 'text-amber-400', bgClass: 'bg-amber-500/10 border-amber-500/20', badgeClass: 'bg-amber-500/10 text-amber-400' },
-  { id: 'live', label: 'Live', icon: CheckCircle2, iconClass: 'text-emerald-400', bgClass: 'bg-emerald-500/10 border-emerald-500/20', badgeClass: 'bg-emerald-500/10 text-emerald-400' },
+  { id: 'live', label: 'Live', icon: CheckCircle2, iconClass: 'text-emerald-500', bgClass: 'bg-emerald-500/10 border-emerald-500/20', badgeClass: 'bg-emerald-500/10 text-emerald-500' },
 ]
 
 function timeAgo(dateStr) {
@@ -106,8 +106,8 @@ export const AdminPipelineView = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in-up">
       <div>
-        <h2 className="text-2xl font-bold text-[#262626]">Pipeline Onboarding</h2>
-        <p className="text-sm text-[#716D5C] mt-1">Suivez chaque client de la prospection au go-live</p>
+        <h2 className="text-[24px] font-bold text-[#1a1a1a]">Pipeline Onboarding</h2>
+        <p className="text-[13px] text-[#71717a] mt-1">Suivez chaque client de la prospection au go-live</p>
       </div>
 
       {/* Summary */}
@@ -119,10 +119,10 @@ export const AdminPipelineView = () => {
             <React.Fragment key={stage.id}>
               <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border whitespace-nowrap ${stage.bgClass}`}>
                 <StageIcon className={`w-3.5 h-3.5 ${stage.iconClass}`} />
-                <span className={`text-xs font-bold ${stage.iconClass}`}>{count}</span>
-                <span className="text-[10px] text-[#716D5C]">{stage.label}</span>
+                <span className={`text-[12px] font-bold ${stage.iconClass}`}>{count}</span>
+                <span className="text-[10px] text-[#71717a]">{stage.label}</span>
               </div>
-              {i < STAGES.length - 1 && <ArrowRight className="w-3 h-3 text-[#716D5C] flex-shrink-0" />}
+              {i < STAGES.length - 1 && <ArrowRight className="w-3 h-3 text-[#71717a] flex-shrink-0" />}
             </React.Fragment>
           )
         })}
@@ -137,7 +137,7 @@ export const AdminPipelineView = () => {
             <div key={stage.id} className="space-y-3">
               <div className="flex items-center gap-2 mb-2">
                 <StageIcon className={`w-4 h-4 ${stage.iconClass}`} />
-                <span className="text-xs font-bold text-[#716D5C] uppercase tracking-wider">{stage.label}</span>
+                <span className="text-[12px] font-bold text-[#71717a] uppercase tracking-wider">{stage.label}</span>
                 {items.length > 0 && (
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${stage.badgeClass}`}>
                     {items.length}
@@ -146,8 +146,8 @@ export const AdminPipelineView = () => {
               </div>
 
               {items.length === 0 ? (
-                <div className="bg-[#F9F7F1] rounded-xl border border-gray-100 p-4 text-center">
-                  <p className="text-[10px] text-[#716D5C]">Aucun</p>
+                <div className="bg-[#ffffff] rounded-xl border border-[#f0f0f0] p-4 text-center">
+                  <p className="text-[10px] text-[#71717a]">Aucun</p>
                 </div>
               ) : (
                 items.map((entry, i) => (
@@ -156,19 +156,19 @@ export const AdminPipelineView = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="bg-[#F9F7F1] rounded-xl border border-gray-200 p-3 hover:border-gray-300 transition-colors"
+                    className="bg-[#ffffff] rounded-xl border border-[#f0f0f0] p-3 hover:border-gray-300 transition-colors"
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <User className="w-3 h-3 text-[#716D5C]" />
-                      <p className="text-xs font-bold text-[#262626] truncate">{entry.company_name}</p>
+                      <User className="w-3 h-3 text-[#71717a]" />
+                      <p className="text-[12px] font-bold text-[#1a1a1a] truncate">{entry.company_name}</p>
                     </div>
-                    <p className="text-[10px] text-[#716D5C] truncate">{entry.email}</p>
+                    <p className="text-[10px] text-[#71717a] truncate">{entry.email}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-[10px] text-[#716D5C] capitalize">{entry.client_type || 'ecommerce'}</span>
-                      <span className="text-[10px] text-[#716D5C]">{timeAgo(entry.created_at)}</span>
+                      <span className="text-[10px] text-[#71717a] capitalize">{entry.client_type || 'ecommerce'}</span>
+                      <span className="text-[10px] text-[#71717a]">{timeAgo(entry.created_at)}</span>
                     </div>
                     {entry.monthly_price && (
-                      <div className="mt-2 text-[10px] text-[#716D5C]">
+                      <div className="mt-2 text-[10px] text-[#71717a]">
                         {entry.setup_price}€ + {entry.monthly_price}€/mois
                       </div>
                     )}

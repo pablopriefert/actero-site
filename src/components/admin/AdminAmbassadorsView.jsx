@@ -32,7 +32,7 @@ async function getAuthToken() {
 // J+30 Countdown Badge
 const J30Badge = ({ eligibilityDate }) => {
   const { daysLeft, isEligible, label } = getJ30Countdown(eligibilityDate)
-  if (daysLeft === null) return <span className="text-[10px] text-[#716D5C]">—</span>
+  if (daysLeft === null) return <span className="text-[10px] text-[#71717a]">—</span>
   if (isEligible) {
     return <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Éligible</span>
   }
@@ -53,7 +53,7 @@ const InlineNoteEditor = ({ leadId, currentNote, onSave }) => {
     return (
       <button
         onClick={() => setEditing(true)}
-        className="flex items-center gap-1 text-[10px] text-[#716D5C] hover:text-[#716D5C] transition-colors"
+        className="flex items-center gap-1 text-[10px] text-[#71717a] hover:text-[#71717a] transition-colors"
         title="Ajouter une note interne"
       >
         <StickyNote className="w-3 h-3" />
@@ -69,14 +69,14 @@ const InlineNoteEditor = ({ leadId, currentNote, onSave }) => {
         value={note}
         onChange={(e) => setNote(e.target.value)}
         onKeyDown={(e) => { if (e.key === 'Enter') { onSave(leadId, note); setEditing(false) } }}
-        className="px-2 py-1 bg-[#F9F7F1] border border-gray-200 rounded-lg text-[10px] text-[#262626] w-40 outline-none focus:border-gray-300"
+        className="px-2 py-1 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[10px] text-[#1a1a1a] w-40 outline-none focus:border-gray-300"
         placeholder="Note interne..."
         autoFocus
       />
-      <button onClick={() => { onSave(leadId, note); setEditing(false) }} className="text-emerald-400 hover:text-emerald-300">
+      <button onClick={() => { onSave(leadId, note); setEditing(false) }} className="text-emerald-500 hover:text-emerald-300">
         <Check className="w-3 h-3" />
       </button>
-      <button onClick={() => setEditing(false)} className="text-[#716D5C] hover:text-[#716D5C]">
+      <button onClick={() => setEditing(false)} className="text-[#71717a] hover:text-[#71717a]">
         <X className="w-3 h-3" />
       </button>
     </div>
@@ -301,7 +301,7 @@ export const AdminAmbassadorsView = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 text-[#716D5C] animate-spin" />
+        <Loader2 className="w-6 h-6 text-[#71717a] animate-spin" />
       </div>
     )
   }
@@ -357,18 +357,18 @@ export const AdminAmbassadorsView = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[#262626]">Programme Ambassadeurs</h2>
-          <p className="text-sm text-[#716D5C] mt-1">{totalAmbassadors} ambassadeur{totalAmbassadors > 1 ? 's' : ''} &middot; {totalLeads} lead{totalLeads > 1 ? 's' : ''}</p>
+          <h2 className="text-[24px] font-bold text-[#1a1a1a]">Programme Ambassadeurs</h2>
+          <p className="text-[13px] text-[#71717a] mt-1">{totalAmbassadors} ambassadeur{totalAmbassadors > 1 ? 's' : ''} &middot; {totalLeads} lead{totalLeads > 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#716D5C]" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a]" />
             <input
               type="text"
               placeholder="Rechercher..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm w-64 outline-none focus:border-gray-300 transition-all text-[#262626]"
+              className="pl-9 pr-4 py-2 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] w-64 outline-none focus:border-gray-300 transition-all text-[#1a1a1a]"
             />
           </div>
         </div>
@@ -387,57 +387,57 @@ export const AdminAmbassadorsView = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="relative bg-[#F9F7F1] rounded-2xl border border-gray-200 p-5 overflow-hidden group hover:border-gray-300 transition-colors"
+            className="relative bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5 overflow-hidden group hover:border-gray-300 transition-colors"
           >
             <div className={`absolute -top-6 -right-6 w-20 h-20 bg-${kpi.color}-500/10 rounded-full blur-2xl group-hover:bg-${kpi.color}-500/20 transition-colors`} />
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-semibold text-[#716D5C] uppercase tracking-wider">{kpi.label}</span>
+              <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">{kpi.label}</span>
               <kpi.icon className={`w-4 h-4 text-${kpi.color}-400`} />
             </div>
             <div className="flex items-end gap-2">
-              <span className="text-3xl font-bold text-[#262626] font-mono tracking-tight">{kpi.value}</span>
-              {kpi.suffix && <span className="text-sm font-medium text-[#716D5C] mb-0.5">{kpi.suffix}</span>}
-              {kpi.total !== undefined && <span className="text-sm font-medium text-[#716D5C] mb-0.5">/ {kpi.total}</span>}
+              <span className="text-[30px] font-bold text-[#1a1a1a] font-mono tracking-tight">{kpi.value}</span>
+              {kpi.suffix && <span className="text-[13px] font-medium text-[#71717a] mb-0.5">{kpi.suffix}</span>}
+              {kpi.total !== undefined && <span className="text-[13px] font-medium text-[#71717a] mb-0.5">/ {kpi.total}</span>}
             </div>
-            {kpi.sub && <p className="text-xs text-[#716D5C] mt-1">{kpi.sub}</p>}
+            {kpi.sub && <p className="text-[12px] text-[#71717a] mt-1">{kpi.sub}</p>}
           </motion.div>
         ))}
       </div>
 
       {/* Applications section (if any pending) */}
       {pendingApplications > 0 && (
-        <div className="bg-[#F9F7F1] rounded-2xl border border-amber-500/20 p-6">
+        <div className="bg-[#ffffff] rounded-2xl border border-amber-500/20 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
               <UserPlus className="w-4 h-4 text-amber-400" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#262626]">Candidatures en attente</h3>
-              <p className="text-xs text-[#716D5C]">{pendingApplications} nouvelle{pendingApplications > 1 ? 's' : ''} candidature{pendingApplications > 1 ? 's' : ''}</p>
+              <h3 className="text-[13px] font-bold text-[#1a1a1a]">Candidatures en attente</h3>
+              <p className="text-[12px] text-[#71717a]">{pendingApplications} nouvelle{pendingApplications > 1 ? 's' : ''} candidature{pendingApplications > 1 ? 's' : ''}</p>
             </div>
           </div>
           <div className="space-y-3">
             {applications.filter(a => a.status === 'new').map((app) => (
-              <div key={app.id} className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+              <div key={app.id} className="flex items-center gap-4 p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#262626]">{app.first_name} {app.last_name}</p>
-                  <p className="text-xs text-[#716D5C]">{app.email}{app.phone ? ` | ${app.phone}` : ''}</p>
-                  {app.network_type && <p className="text-xs text-[#716D5C] mt-0.5">Réseau: {app.network_type}</p>}
-                  {app.message && <p className="text-xs text-[#716D5C] mt-1 line-clamp-2">{app.message}</p>}
-                  <p className="text-[10px] text-[#716D5C] mt-1">{new Date(app.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                  <p className="text-[13px] font-medium text-[#1a1a1a]">{app.first_name} {app.last_name}</p>
+                  <p className="text-[12px] text-[#71717a]">{app.email}{app.phone ? ` | ${app.phone}` : ''}</p>
+                  {app.network_type && <p className="text-[12px] text-[#71717a] mt-0.5">Réseau: {app.network_type}</p>}
+                  {app.message && <p className="text-[12px] text-[#71717a] mt-1 line-clamp-2">{app.message}</p>}
+                  <p className="text-[10px] text-[#71717a] mt-1">{new Date(app.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => approveApplicationMutation.mutate(app.id)}
                     disabled={approveApplicationMutation.isPending}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[12px] font-bold hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
                   >
                     {approveApplicationMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Approuver'}
                   </button>
                   <button
                     onClick={() => rejectApplicationMutation.mutate(app.id)}
                     disabled={rejectApplicationMutation.isPending}
-                    className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 text-[12px] font-bold hover:bg-red-500/20 transition-colors disabled:opacity-50"
                   >
                     Rejeter
                   </button>
@@ -449,15 +449,15 @@ export const AdminAmbassadorsView = () => {
       )}
 
       {/* Sub-tabs */}
-      <div className="flex items-center gap-1 bg-[#F9F7F1] rounded-xl border border-gray-200 p-1 w-fit">
+      <div className="flex items-center gap-1 bg-[#ffffff] rounded-xl border border-[#f0f0f0] p-1 w-fit">
         {SUB_TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setSubTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${
               subTab === tab.id
-                ? 'bg-gray-50 text-[#262626]'
-                : 'text-[#716D5C] hover:text-[#716D5C]'
+                ? 'bg-[#fafafa] text-[#1a1a1a]'
+                : 'text-[#71717a] hover:text-[#71717a]'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -473,13 +473,13 @@ export const AdminAmbassadorsView = () => {
         <div className="space-y-4">
           {/* Filter bar */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs text-[#716D5C]">
+            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a]">
               <Filter className="w-3.5 h-3.5" /> Filtrer:
             </div>
             <select
               value={ambassadorStatusFilter}
               onChange={(e) => setAmbassadorStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs text-[#262626] outline-none focus:border-gray-300"
+              className="px-3 py-1.5 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none focus:border-gray-300"
             >
               <option value="all">Tous les statuts</option>
               {Object.entries(AMBASSADOR_STATUS_MAP).map(([key, cfg]) => (
@@ -497,34 +497,34 @@ export const AdminAmbassadorsView = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="bg-[#F9F7F1] border border-gray-200 rounded-2xl p-5 hover:border-gray-300 transition-all"
+                  className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-5 hover:border-gray-300 transition-all"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-emerald-400">{amb.first_name?.[0]}{amb.last_name?.[0]}</span>
+                      <span className="text-[13px] font-bold text-emerald-500">{amb.first_name?.[0]}{amb.last_name?.[0]}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3">
-                        <p className="text-sm font-bold text-[#262626]">{amb.first_name} {amb.last_name}</p>
+                        <p className="text-[13px] font-bold text-[#1a1a1a]">{amb.first_name} {amb.last_name}</p>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${st.color}`}>
                           {st.label.toUpperCase()}
                         </span>
                       </div>
                       <div className="flex items-center gap-4 mt-1 flex-wrap">
-                        <span className="text-xs text-[#716D5C] flex items-center gap-1"><Mail className="w-3 h-3" /> {amb.email}</span>
-                        {amb.phone && <span className="text-xs text-[#716D5C] flex items-center gap-1"><Phone className="w-3 h-3" /> {amb.phone}</span>}
-                        <span className="text-xs text-[#716D5C]">{amb.network_type || '—'}</span>
+                        <span className="text-[12px] text-[#71717a] flex items-center gap-1"><Mail className="w-3 h-3" /> {amb.email}</span>
+                        {amb.phone && <span className="text-[12px] text-[#71717a] flex items-center gap-1"><Phone className="w-3 h-3" /> {amb.phone}</span>}
+                        <span className="text-[12px] text-[#71717a]">{amb.network_type || '—'}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                        <span className="text-xs font-mono text-emerald-400/80 bg-emerald-500/5 px-2 py-0.5 rounded">{amb.ambassador_code}</span>
+                        <span className="text-[12px] font-mono text-emerald-500/80 bg-emerald-500/5 px-2 py-0.5 rounded">{amb.ambassador_code}</span>
                         <button
                           onClick={() => { navigator.clipboard.writeText(amb.ambassador_code); setCopiedCode(amb.id); setTimeout(() => setCopiedCode(null), 2000); }}
-                          className="p-0.5 rounded hover:bg-gray-50 transition-colors"
+                          className="p-0.5 rounded hover:bg-[#fafafa] transition-colors"
                         >
-                          {copiedCode === amb.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-[#716D5C]" />}
+                          {copiedCode === amb.id ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-[#71717a]" />}
                         </button>
                         {amb.iban ? (
-                          <span className="text-[10px] font-mono text-emerald-400/60 bg-emerald-500/5 border border-emerald-500/10 px-2 py-0.5 rounded flex items-center gap-1">
+                          <span className="text-[10px] font-mono text-emerald-500/60 bg-emerald-500/5 border border-emerald-500/10 px-2 py-0.5 rounded flex items-center gap-1">
                             <Landmark className="w-3 h-3" /> IBAN {amb.iban.slice(0, 4)}...{amb.iban.slice(-4)}
                           </span>
                         ) : (
@@ -536,35 +536,35 @@ export const AdminAmbassadorsView = () => {
                     </div>
                     <div className="flex items-center gap-6 flex-shrink-0 text-center">
                       <div>
-                        <p className="text-lg font-bold font-mono text-[#262626]">{amb.stats?.leads_count || 0}</p>
-                        <p className="text-[10px] text-[#716D5C]">Leads</p>
+                        <p className="text-[15px] font-bold font-mono text-[#1a1a1a]">{amb.stats?.leads_count || 0}</p>
+                        <p className="text-[10px] text-[#71717a]">Leads</p>
                       </div>
                       <div>
-                        <p className="text-lg font-bold font-mono text-emerald-400">{amb.stats?.won_count || 0}</p>
-                        <p className="text-[10px] text-[#716D5C]">Gagnés</p>
+                        <p className="text-[15px] font-bold font-mono text-emerald-500">{amb.stats?.won_count || 0}</p>
+                        <p className="text-[10px] text-[#71717a]">Gagnés</p>
                       </div>
                       <div>
-                        <p className="text-lg font-bold font-mono text-violet-400">{(amb.stats?.commissions_total || 0).toLocaleString('fr-FR')}</p>
-                        <p className="text-[10px] text-[#716D5C]">Commissions</p>
+                        <p className="text-[15px] font-bold font-mono text-violet-400">{(amb.stats?.commissions_total || 0).toLocaleString('fr-FR')}</p>
+                        <p className="text-[10px] text-[#71717a]">Commissions</p>
                       </div>
                       <div>
-                        <p className="text-lg font-bold font-mono text-amber-400">{(amb.stats?.commissions_paid || 0).toLocaleString('fr-FR')}</p>
-                        <p className="text-[10px] text-[#716D5C]">Payé</p>
+                        <p className="text-[15px] font-bold font-mono text-amber-400">{(amb.stats?.commissions_paid || 0).toLocaleString('fr-FR')}</p>
+                        <p className="text-[10px] text-[#71717a]">Payé</p>
                       </div>
                     </div>
                     <div className="relative flex-shrink-0">
                       <button
                         onClick={() => setActionMenuId(actionMenuId === amb.id ? null : amb.id)}
-                        className="p-2 rounded-lg hover:bg-gray-50 transition-colors text-[#716D5C]"
+                        className="p-2 rounded-lg hover:bg-[#fafafa] transition-colors text-[#71717a]"
                       >
                         <MoreVertical className="w-5 h-5" />
                       </button>
                       {actionMenuId === amb.id && (
-                        <div className="absolute right-0 top-10 bg-[#F9F7F1] border border-gray-200 rounded-xl shadow-xl z-20 py-1 min-w-[160px]">
+                        <div className="absolute right-0 top-10 bg-[#ffffff] border border-[#f0f0f0] rounded-xl shadow-xl z-20 py-1 min-w-[160px]">
                           {amb.status !== 'active' && (
                             <button
                               onClick={() => updateAmbassadorMutation.mutate({ id: amb.id, status: 'active' })}
-                              className="w-full text-left px-4 py-2 text-sm text-emerald-400 hover:bg-gray-50 transition-colors"
+                              className="w-full text-left px-4 py-2 text-[13px] text-emerald-500 hover:bg-[#fafafa] transition-colors"
                             >
                               Activer
                             </button>
@@ -572,7 +572,7 @@ export const AdminAmbassadorsView = () => {
                           {amb.status !== 'suspended' && (
                             <button
                               onClick={() => updateAmbassadorMutation.mutate({ id: amb.id, status: 'suspended' })}
-                              className="w-full text-left px-4 py-2 text-sm text-amber-400 hover:bg-gray-50 transition-colors"
+                              className="w-full text-left px-4 py-2 text-[13px] text-amber-400 hover:bg-[#fafafa] transition-colors"
                             >
                               Suspendre
                             </button>
@@ -580,7 +580,7 @@ export const AdminAmbassadorsView = () => {
                           {amb.status !== 'inactive' && (
                             <button
                               onClick={() => updateAmbassadorMutation.mutate({ id: amb.id, status: 'inactive' })}
-                              className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-50 transition-colors"
+                              className="w-full text-left px-4 py-2 text-[13px] text-red-400 hover:bg-[#fafafa] transition-colors"
                             >
                               Désactiver
                             </button>
@@ -593,9 +593,9 @@ export const AdminAmbassadorsView = () => {
               )
             })}
             {filteredAmbassadors.length === 0 && (
-              <div className="bg-[#F9F7F1] border border-gray-200 rounded-2xl p-16 text-center">
-                <Users className="w-12 h-12 text-[#716D5C] mx-auto mb-4" />
-                <p className="text-[#716D5C]">Aucun ambassadeur trouvé</p>
+              <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-16 text-center">
+                <Users className="w-12 h-12 text-[#71717a] mx-auto mb-4" />
+                <p className="text-[#71717a]">Aucun ambassadeur trouvé</p>
               </div>
             )}
           </div>
@@ -609,13 +609,13 @@ export const AdminAmbassadorsView = () => {
         <div className="space-y-4">
           {/* Filter bar */}
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs text-[#716D5C]">
+            <div className="flex items-center gap-1.5 text-[12px] text-[#71717a]">
               <Filter className="w-3.5 h-3.5" /> Filtrer:
             </div>
             <select
               value={leadStatusFilter}
               onChange={(e) => setLeadStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs text-[#262626] outline-none focus:border-gray-300"
+              className="px-3 py-1.5 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none focus:border-gray-300"
             >
               <option value="all">Tous les statuts</option>
               {Object.entries(LEAD_STATUS_MAP).map(([key, cfg]) => (
@@ -625,49 +625,49 @@ export const AdminAmbassadorsView = () => {
             <select
               value={leadAmbassadorFilter}
               onChange={(e) => setLeadAmbassadorFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs text-[#262626] outline-none focus:border-gray-300"
+              className="px-3 py-1.5 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none focus:border-gray-300"
             >
               <option value="all">Tous les ambassadeurs</option>
               {ambassadorOptions.map(a => (
                 <option key={a.id} value={a.id}>{a.name}</option>
               ))}
             </select>
-            <span className="text-[10px] text-[#716D5C]">{filteredLeads.length} résultat{filteredLeads.length > 1 ? 's' : ''}</span>
+            <span className="text-[10px] text-[#71717a]">{filteredLeads.length} résultat{filteredLeads.length > 1 ? 's' : ''}</span>
           </div>
 
-          <div className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-hidden">
+          <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-white">
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Ambassadeur</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Prospect</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Entreprise</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Niche</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Source</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Statut</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Date</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Note</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Actions</th>
+                  <tr className="border-b border-[#f0f0f0] bg-white">
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Ambassadeur</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Prospect</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Entreprise</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Niche</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Source</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Statut</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Date</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Note</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 text-sm">
+                <tbody className="divide-y divide-white/5 text-[13px]">
                   {filteredLeads.map((lead) => {
                     const st = LEAD_STATUS_MAP[lead.status] || LEAD_STATUS_MAP.submitted
                     const ambName = lead.ambassadors ? `${lead.ambassadors.first_name} ${lead.ambassadors.last_name}` : '—'
                     return (
-                      <tr key={lead.id} className="hover:bg-gray-50 transition-colors">
+                      <tr key={lead.id} className="hover:bg-[#fafafa] transition-colors">
                         <td className="px-5 py-3">
-                          <p className="font-medium text-[#262626] text-xs">{ambName}</p>
-                          <p className="text-[10px] text-[#716D5C]">{lead.ambassadors?.ambassador_code || ''}</p>
+                          <p className="font-medium text-[#1a1a1a] text-[12px]">{ambName}</p>
+                          <p className="text-[10px] text-[#71717a]">{lead.ambassadors?.ambassador_code || ''}</p>
                         </td>
                         <td className="px-5 py-3">
-                          <p className="font-medium text-[#262626] text-xs">{lead.prospect_name}</p>
-                          {lead.prospect_email && <p className="text-[10px] text-[#716D5C]">{lead.prospect_email}</p>}
+                          <p className="font-medium text-[#1a1a1a] text-[12px]">{lead.prospect_name}</p>
+                          {lead.prospect_email && <p className="text-[10px] text-[#71717a]">{lead.prospect_email}</p>}
                         </td>
-                        <td className="px-5 py-3 text-xs text-[#716D5C]">{lead.company_name}</td>
-                        <td className="px-5 py-3 text-xs text-[#716D5C] capitalize">{lead.company_niche || '—'}</td>
-                        <td className="px-5 py-3 text-xs text-[#716D5C]">{lead.source}</td>
+                        <td className="px-5 py-3 text-[12px] text-[#71717a]">{lead.company_name}</td>
+                        <td className="px-5 py-3 text-[12px] text-[#71717a] capitalize">{lead.company_niche || '—'}</td>
+                        <td className="px-5 py-3 text-[12px] text-[#71717a]">{lead.source}</td>
                         <td className="px-5 py-3">
                           <div className="relative">
                             <button
@@ -678,12 +678,12 @@ export const AdminAmbassadorsView = () => {
                               <ChevronDown className="w-3 h-3" />
                             </button>
                             {showLeadStatusMenu === lead.id && (
-                              <div className="absolute left-0 top-7 bg-[#F9F7F1] border border-gray-200 rounded-xl shadow-xl z-20 py-1 min-w-[170px]">
+                              <div className="absolute left-0 top-7 bg-[#ffffff] border border-[#f0f0f0] rounded-xl shadow-xl z-20 py-1 min-w-[170px]">
                                 {Object.entries(LEAD_STATUS_MAP).map(([key, cfg]) => (
                                   <button
                                     key={key}
                                     onClick={() => updateLeadMutation.mutate({ id: lead.id, status: key })}
-                                    className={`w-full text-left px-4 py-1.5 text-xs hover:bg-gray-50 transition-colors ${key === lead.status ? 'text-[#262626] font-bold' : 'text-[#716D5C]'}`}
+                                    className={`w-full text-left px-4 py-1.5 text-[12px] hover:bg-[#fafafa] transition-colors ${key === lead.status ? 'text-[#1a1a1a] font-bold' : 'text-[#71717a]'}`}
                                   >
                                     {cfg.label}
                                   </button>
@@ -692,7 +692,7 @@ export const AdminAmbassadorsView = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-5 py-3 text-xs text-[#716D5C]">{new Date(lead.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</td>
+                        <td className="px-5 py-3 text-[12px] text-[#71717a]">{new Date(lead.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</td>
                         <td className="px-5 py-3">
                           <InlineNoteEditor leadId={lead.id} currentNote={lead.admin_note} onSave={saveLeadNote} />
                         </td>
@@ -707,7 +707,7 @@ export const AdminAmbassadorsView = () => {
                               </button>
                             )}
                             {commissions.find(c => c.lead_id === lead.id) && (
-                              <span className="text-[10px] font-bold text-emerald-400/60 px-2 py-1">Commission créée</span>
+                              <span className="text-[10px] font-bold text-emerald-500/60 px-2 py-1">Commission créée</span>
                             )}
                           </div>
                         </td>
@@ -716,7 +716,7 @@ export const AdminAmbassadorsView = () => {
                   })}
                   {filteredLeads.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="px-5 py-16 text-center text-[#716D5C] text-sm">Aucun lead trouvé</td>
+                      <td colSpan={9} className="px-5 py-16 text-center text-[#71717a] text-[13px]">Aucun lead trouvé</td>
                     </tr>
                   )}
                 </tbody>
@@ -734,57 +734,57 @@ export const AdminAmbassadorsView = () => {
           <div className="flex items-center justify-between flex-wrap gap-3">
             {/* Filter bar */}
             <div className="flex items-center gap-3 flex-wrap">
-              <div className="flex items-center gap-1.5 text-xs text-[#716D5C]">
+              <div className="flex items-center gap-1.5 text-[12px] text-[#71717a]">
                 <Filter className="w-3.5 h-3.5" /> Filtrer:
               </div>
               <select
                 value={commissionStatusFilter}
                 onChange={(e) => setCommissionStatusFilter(e.target.value)}
-                className="px-3 py-1.5 bg-[#F9F7F1] border border-gray-200 rounded-lg text-xs text-[#262626] outline-none focus:border-gray-300"
+                className="px-3 py-1.5 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none focus:border-gray-300"
               >
                 <option value="all">Tous les statuts</option>
                 {Object.entries(COMMISSION_STATUS_MAP).map(([key, cfg]) => (
                   <option key={key} value={key}>{cfg.label}</option>
                 ))}
               </select>
-              <span className="text-[10px] text-[#716D5C]">{filteredCommissions.length} résultat{filteredCommissions.length > 1 ? 's' : ''}</span>
+              <span className="text-[10px] text-[#71717a]">{filteredCommissions.length} résultat{filteredCommissions.length > 1 ? 's' : ''}</span>
             </div>
             <button
               onClick={() => processEligibilityMutation.mutate()}
               disabled={processEligibilityMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold hover:bg-cyan-500/20 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[12px] font-bold hover:bg-cyan-500/20 transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${processEligibilityMutation.isPending ? 'animate-spin' : ''}`} />
               Traiter éligibilité J+30
             </button>
           </div>
-          <div className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-hidden">
+          <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-white">
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Ambassadeur</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Prospect</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Montant</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Paiement client</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">J+30</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Statut</th>
-                    <th className="px-5 py-4 text-xs font-bold text-[#716D5C] uppercase tracking-widest">Actions</th>
+                  <tr className="border-b border-[#f0f0f0] bg-white">
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Ambassadeur</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Prospect</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Montant</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Paiement client</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">J+30</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Statut</th>
+                    <th className="px-5 py-4 text-[12px] font-bold text-[#71717a] uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 text-sm">
+                <tbody className="divide-y divide-white/5 text-[13px]">
                   {filteredCommissions.map((comm) => {
                     const st = COMMISSION_STATUS_MAP[comm.status] || COMMISSION_STATUS_MAP.pending
                     const ambName = comm.ambassadors ? `${comm.ambassadors.first_name} ${comm.ambassadors.last_name}` : '—'
                     return (
-                      <tr key={comm.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-3 text-xs font-medium text-[#262626]">{ambName}</td>
+                      <tr key={comm.id} className="hover:bg-[#fafafa] transition-colors">
+                        <td className="px-5 py-3 text-[12px] font-medium text-[#1a1a1a]">{ambName}</td>
                         <td className="px-5 py-3">
-                          <p className="text-xs text-[#262626]">{comm.ambassador_leads?.prospect_name || '—'}</p>
-                          <p className="text-[10px] text-[#716D5C]">{comm.ambassador_leads?.company_name || ''}</p>
+                          <p className="text-[12px] text-[#1a1a1a]">{comm.ambassador_leads?.prospect_name || '—'}</p>
+                          <p className="text-[10px] text-[#71717a]">{comm.ambassador_leads?.company_name || ''}</p>
                         </td>
-                        <td className="px-5 py-3 text-sm font-bold font-mono text-[#262626]">{Number(comm.amount).toLocaleString('fr-FR')} {comm.currency}</td>
-                        <td className="px-5 py-3 text-xs text-[#716D5C]">
+                        <td className="px-5 py-3 text-[13px] font-bold font-mono text-[#1a1a1a]">{Number(comm.amount).toLocaleString('fr-FR')} {comm.currency}</td>
+                        <td className="px-5 py-3 text-[12px] text-[#71717a]">
                           {comm.client_payment_date ? new Date(comm.client_payment_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                         </td>
                         <td className="px-5 py-3">
@@ -799,16 +799,16 @@ export const AdminAmbassadorsView = () => {
                           <div className="relative">
                             <button
                               onClick={() => setActionMenuId(actionMenuId === comm.id ? null : comm.id)}
-                              className="p-1.5 rounded-lg hover:bg-gray-50 transition-colors text-[#716D5C]"
+                              className="p-1.5 rounded-lg hover:bg-[#fafafa] transition-colors text-[#71717a]"
                             >
                               <MoreVertical className="w-4 h-4" />
                             </button>
                             {actionMenuId === comm.id && (
-                              <div className="absolute right-0 top-8 bg-[#F9F7F1] border border-gray-200 rounded-xl shadow-xl z-20 py-1 min-w-[160px]">
+                              <div className="absolute right-0 top-8 bg-[#ffffff] border border-[#f0f0f0] rounded-xl shadow-xl z-20 py-1 min-w-[160px]">
                                 {(comm.status === 'eligible' || comm.status === 'pending') && (
                                   <button
                                     onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'approved' })}
-                                    className="w-full text-left px-4 py-2 text-xs text-blue-400 hover:bg-gray-50 transition-colors"
+                                    className="w-full text-left px-4 py-2 text-[12px] text-blue-400 hover:bg-[#fafafa] transition-colors"
                                   >
                                     Approuver
                                   </button>
@@ -816,7 +816,7 @@ export const AdminAmbassadorsView = () => {
                                 {(comm.status === 'approved' || comm.status === 'eligible') && (
                                   <button
                                     onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'paid' })}
-                                    className="w-full text-left px-4 py-2 text-xs text-emerald-400 hover:bg-gray-50 transition-colors"
+                                    className="w-full text-left px-4 py-2 text-[12px] text-emerald-500 hover:bg-[#fafafa] transition-colors"
                                   >
                                     Marquer payé
                                   </button>
@@ -824,7 +824,7 @@ export const AdminAmbassadorsView = () => {
                                 {comm.status !== 'cancelled' && comm.status !== 'paid' && (
                                   <button
                                     onClick={() => updateCommissionMutation.mutate({ id: comm.id, status: 'cancelled' })}
-                                    className="w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-gray-50 transition-colors"
+                                    className="w-full text-left px-4 py-2 text-[12px] text-red-400 hover:bg-[#fafafa] transition-colors"
                                   >
                                     Annuler
                                   </button>
@@ -838,7 +838,7 @@ export const AdminAmbassadorsView = () => {
                   })}
                   {filteredCommissions.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-5 py-16 text-center text-[#716D5C] text-sm">Aucune commission trouvée</td>
+                      <td colSpan={7} className="px-5 py-16 text-center text-[#71717a] text-[13px]">Aucune commission trouvée</td>
                     </tr>
                   )}
                 </tbody>
@@ -862,37 +862,37 @@ export const AdminAmbassadorsView = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#F9F7F1] border border-gray-200 rounded-2xl p-6 max-w-md w-full"
+              className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-6 max-w-md w-full"
               onClick={e => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-[#262626]">Créer une commission</h3>
-                <button onClick={() => setShowCommissionModal(null)} className="text-[#716D5C] hover:text-[#262626] transition-colors">
+                <h3 className="text-[15px] font-bold text-[#1a1a1a]">Créer une commission</h3>
+                <button onClick={() => setShowCommissionModal(null)} className="text-[#71717a] hover:text-[#1a1a1a] transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs text-[#716D5C] mb-1">Lead</p>
-                  <p className="text-sm text-[#262626] font-medium">{showCommissionModal.prospect_name} — {showCommissionModal.company_name}</p>
+                  <p className="text-[12px] text-[#71717a] mb-1">Lead</p>
+                  <p className="text-[13px] text-[#1a1a1a] font-medium">{showCommissionModal.prospect_name} — {showCommissionModal.company_name}</p>
                 </div>
                 <div>
-                  <label className="text-xs text-[#716D5C] mb-1 block">Montant (EUR)</label>
+                  <label className="text-[12px] text-[#71717a] mb-1 block">Montant (EUR)</label>
                   <input
                     type="number"
                     value={commissionForm.amount}
                     onChange={(e) => setCommissionForm({ ...commissionForm, amount: e.target.value })}
                     placeholder="500"
-                    className="w-full px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:border-gray-300"
+                    className="w-full px-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:border-gray-300"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-[#716D5C] mb-1 block">Date paiement client (optionnel)</label>
+                  <label className="text-[12px] text-[#71717a] mb-1 block">Date paiement client (optionnel)</label>
                   <input
                     type="date"
                     value={commissionForm.client_payment_date}
                     onChange={(e) => setCommissionForm({ ...commissionForm, client_payment_date: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] outline-none focus:border-gray-300"
+                    className="w-full px-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:border-gray-300"
                   />
                 </div>
                 <button
@@ -907,7 +907,7 @@ export const AdminAmbassadorsView = () => {
                     })
                   }}
                   disabled={createCommissionMutation.isPending}
-                  className="w-full py-2.5 rounded-xl bg-white text-[#262626] font-bold text-sm hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  className="w-full py-2.5 rounded-xl bg-white text-[#1a1a1a] font-bold text-[13px] hover:bg-gray-200 transition-colors disabled:opacity-50"
                 >
                   {createCommissionMutation.isPending ? 'Création...' : 'Créer la commission'}
                 </button>

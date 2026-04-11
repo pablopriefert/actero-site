@@ -21,9 +21,9 @@ const STEP_ICONS = {
 };
 
 const STATUS_STYLES = {
-  pending: { color: 'text-[#716D5C]', bg: 'bg-gray-500/10', border: 'border-gray-500/20', label: 'En attente' },
+  pending: { color: 'text-[#71717a]', bg: 'bg-[#fafafa]0/10', border: 'border-gray-500/20', label: 'En attente' },
   running: { color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', label: 'En cours' },
-  success: { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Succes' },
+  success: { color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Succes' },
   warning: { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'Warning' },
   failed: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Echec' },
 };
@@ -98,7 +98,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
   if (isLoading && !deployment) {
     return (
       <div className="fixed inset-0 z-50 bg-white/60 backdrop-blur-sm flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-[#262626] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#1a1a1a] animate-spin" />
       </div>
     );
   }
@@ -113,27 +113,27 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-[#F9F7F1] border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-[#f0f0f0]">
           <div>
-            <h2 className="text-lg font-bold text-[#262626] flex items-center gap-2">
-              <Rocket className="w-5 h-5 text-emerald-400" />
+            <h2 className="text-[15px] font-bold text-[#1a1a1a] flex items-center gap-2">
+              <Rocket className="w-5 h-5 text-emerald-500" />
               Deploiement — {clientName}
             </h2>
-            <p className="text-xs text-[#716D5C] mt-0.5">
+            <p className="text-[12px] text-[#71717a] mt-0.5">
               {isRunning ? 'En cours...' : isCompleted ? 'Termine' : isFailed ? 'Echec' : 'Initialisation...'}
             </p>
           </div>
           <div className="flex items-center gap-4">
             {/* Timer */}
-            <div className={`font-mono text-lg font-bold ${isRunning ? 'text-blue-400' : isCompleted ? 'text-emerald-400' : 'text-red-400'}`}>
+            <div className={`font-mono text-[15px] font-bold ${isRunning ? 'text-blue-400' : isCompleted ? 'text-emerald-500' : 'text-red-400'}`}>
               {formatDuration(elapsed)}
             </div>
             {!isRunning && (
-              <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                <X className="w-5 h-5 text-[#716D5C]" />
+              <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#fafafa] transition-colors">
+                <X className="w-5 h-5 text-[#71717a]" />
               </button>
             )}
           </div>
@@ -142,10 +142,10 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
         {/* Global progress bar */}
         <div className="px-6 pt-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-[#716D5C]">{completedSteps}/{totalSteps} etapes</span>
-            <span className="text-xs text-[#716D5C]">{totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%</span>
+            <span className="text-[12px] text-[#71717a]">{completedSteps}/{totalSteps} etapes</span>
+            <span className="text-[12px] text-[#71717a]">{totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%</span>
           </div>
-          <div className="h-2 bg-gray-50 rounded-full overflow-hidden">
+          <div className="h-2 bg-[#fafafa] rounded-full overflow-hidden">
             <motion.div
               className={`h-full rounded-full ${isFailed ? 'bg-red-500' : 'bg-emerald-500'}`}
               animate={{ width: `${totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0}%` }}
@@ -189,18 +189,18 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#262626]">{step.label}</p>
+                    <p className="text-[13px] font-medium text-[#1a1a1a]">{step.label}</p>
                     {step.details && !isExpanded && (
-                      <p className="text-xs text-[#716D5C] truncate mt-0.5">{step.details}</p>
+                      <p className="text-[12px] text-[#71717a] truncate mt-0.5">{step.details}</p>
                     )}
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {duration && (
-                      <span className="text-[10px] font-mono text-[#716D5C]">{duration}</span>
+                      <span className="text-[10px] font-mono text-[#71717a]">{duration}</span>
                     )}
                     {(step.details || step.error) && (
-                      isExpanded ? <ChevronUp className="w-4 h-4 text-[#716D5C]" /> : <ChevronDown className="w-4 h-4 text-[#716D5C]" />
+                      isExpanded ? <ChevronUp className="w-4 h-4 text-[#71717a]" /> : <ChevronDown className="w-4 h-4 text-[#71717a]" />
                     )}
                   </div>
                 </button>
@@ -213,12 +213,12 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="px-4 py-3 mx-3 mt-1 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="px-4 py-3 mx-3 mt-1 bg-[#fafafa] rounded-lg border border-[#f0f0f0]">
                         {step.details && (
-                          <p className="text-xs text-[#716D5C]">{step.details}</p>
+                          <p className="text-[12px] text-[#71717a]">{step.details}</p>
                         )}
                         {step.error && (
-                          <p className="text-xs text-red-400 mt-1">{step.error}</p>
+                          <p className="text-[12px] text-red-400 mt-1">{step.error}</p>
                         )}
                       </div>
                     </motion.div>
@@ -231,7 +231,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
 
         {/* Completion summary */}
         {(isCompleted || isFailed) && (
-          <div className="p-6 border-t border-gray-200">
+          <div className="p-6 border-t border-[#f0f0f0]">
             {isCompleted && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -240,11 +240,11 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                    <PartyPopper className="w-5 h-5 text-emerald-400" />
+                    <PartyPopper className="w-5 h-5 text-emerald-500" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#262626]">Deploiement termine !</p>
-                    <p className="text-xs text-[#716D5C]">
+                    <p className="text-[13px] font-bold text-[#1a1a1a]">Deploiement termine !</p>
+                    <p className="text-[12px] text-[#71717a]">
                       {workflowsDeployed.filter(w => w.n8n_id).length} workflows deployes, {deployment?.tests_passed || 0} tests passes
                       {deployment?.tests_failed > 0 && `, ${deployment.tests_failed} echecs`}
                     </p>
@@ -254,21 +254,21 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                 {/* Deployed workflows */}
                 {workflowsDeployed.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-medium text-[#716D5C] uppercase tracking-wider">Workflows deployes</p>
+                    <p className="text-[12px] font-medium text-[#71717a] uppercase tracking-wider">Workflows deployes</p>
                     {workflowsDeployed.map((wf, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                        <div className={`w-2 h-2 rounded-full ${wf.error ? 'bg-red-400' : wf.skipped ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+                      <div key={i} className="flex items-center gap-3 p-3 bg-[#fafafa] rounded-lg border border-[#f0f0f0]">
+                        <div className={`w-2 h-2 rounded-full ${wf.error ? 'bg-red-400' : wf.skipped ? 'bg-amber-400' : 'bg-emerald-500'}`} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-[#262626] truncate">{wf.name}</p>
-                          {wf.error && <p className="text-xs text-red-400 mt-0.5">{wf.error}</p>}
-                          {wf.skipped && <p className="text-xs text-amber-400 mt-0.5">Deja existant — ignore</p>}
+                          <p className="text-[13px] text-[#1a1a1a] truncate">{wf.name}</p>
+                          {wf.error && <p className="text-[12px] text-red-400 mt-0.5">{wf.error}</p>}
+                          {wf.skipped && <p className="text-[12px] text-amber-400 mt-0.5">Deja existant — ignore</p>}
                         </div>
                         {wf.webhook_url && (
                           <button
                             onClick={() => copyToClipboard(wf.webhook_url)}
-                            className="flex items-center gap-1 px-2 py-1 text-[10px] text-[#716D5C] bg-gray-50 rounded-md hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-[10px] text-[#71717a] bg-[#fafafa] rounded-md hover:bg-[#fafafa] transition-colors"
                           >
-                            {copiedUrl === wf.webhook_url ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            {copiedUrl === wf.webhook_url ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                             Webhook
                           </button>
                         )}
@@ -277,7 +277,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                             href={`${import.meta.env.VITE_N8N_URL || '#'}/workflow/${wf.n8n_id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 text-[#716D5C] hover:text-[#262626] transition-colors"
+                            className="p-1.5 text-[#71717a] hover:text-[#1a1a1a] transition-colors"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
@@ -289,7 +289,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
 
                 <button
                   onClick={onClose}
-                  className="w-full py-3 bg-white text-[#262626] rounded-xl text-sm font-bold hover:bg-gray-200 transition-colors"
+                  className="w-full py-3 bg-white text-[#1a1a1a] rounded-xl text-[13px] font-bold hover:bg-gray-200 transition-colors"
                 >
                   Fermer
                 </button>
@@ -305,13 +305,13 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                 <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                   <XCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                   <div>
-                    <p className="text-sm font-bold text-red-400">Deploiement echoue</p>
-                    <p className="text-xs text-[#716D5C] mt-0.5">Verifiez les details des etapes ci-dessus pour comprendre l'erreur.</p>
+                    <p className="text-[13px] font-bold text-red-400">Deploiement echoue</p>
+                    <p className="text-[12px] text-[#71717a] mt-0.5">Verifiez les details des etapes ci-dessus pour comprendre l'erreur.</p>
                   </div>
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-full py-3 bg-gray-50 text-[#262626] rounded-xl text-sm font-bold hover:bg-gray-100 transition-colors"
+                  className="w-full py-3 bg-[#fafafa] text-[#1a1a1a] rounded-xl text-[13px] font-bold hover:bg-[#f5f5f5] transition-colors"
                 >
                   Fermer
                 </button>

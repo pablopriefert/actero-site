@@ -12,10 +12,10 @@ import {
 
 
 const statusConfig = {
-  active_ok: { label: 'Actif', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20', dot: 'bg-emerald-400', icon: CheckCircle2 },
+  active_ok: { label: 'Actif', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20', dot: 'bg-emerald-500', icon: CheckCircle2 },
   active_error: { label: 'Erreur', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20', dot: 'bg-red-400', icon: AlertTriangle },
   active_idle: { label: 'Inactif', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', dot: 'bg-amber-400', icon: Clock },
-  inactive: { label: 'Désactivé', color: 'text-[#716D5C]', bg: 'bg-gray-500/10 border-gray-500/20', dot: 'bg-gray-500', icon: Pause },
+  inactive: { label: 'Désactivé', color: 'text-[#71717a]', bg: 'bg-[#fafafa]0/10 border-gray-500/20', dot: 'bg-[#fafafa]0', icon: Pause },
 }
 
 const CATEGORIES = [
@@ -24,8 +24,8 @@ const CATEGORIES = [
   { id: 'leads', label: 'Leads', color: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
   { id: 'metrics', label: 'Métriques', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
   { id: 'prospection', label: 'Prospection', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
-  { id: 'immobilier', label: 'Immobilier', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-  { id: 'autre', label: 'Autre', color: 'bg-gray-500/10 text-[#716D5C] border-gray-500/20' },
+  { id: 'immobilier', label: 'Immobilier', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+  { id: 'autre', label: 'Autre', color: 'bg-[#fafafa]0/10 text-[#71717a] border-gray-500/20' },
 ]
 
 function getStatus(wf) {
@@ -81,39 +81,39 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={e => e.stopPropagation()}
-        className="bg-[#F9F7F1] border border-gray-200 rounded-2xl p-6 max-w-lg w-full shadow-2xl"
+        className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
       >
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-base font-bold text-[#262626]">Associer à un client</h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-50 rounded-lg transition-colors">
-            <X className="w-4 h-4 text-[#716D5C]" />
+          <h3 className="text-[14px] font-bold text-[#1a1a1a]">Associer à un client</h3>
+          <button onClick={onClose} className="p-1 hover:bg-[#fafafa] rounded-lg transition-colors">
+            <X className="w-4 h-4 text-[#71717a]" />
           </button>
         </div>
 
-        <div className="mb-4 p-3 bg-[#F9F7F1] rounded-xl border border-gray-100">
-          <p className="text-xs text-[#716D5C]">Workflow</p>
-          <p className="text-sm text-[#262626] font-medium">{workflow.name}</p>
-          <p className="text-[10px] text-[#716D5C] font-mono">{workflow.id}</p>
+        <div className="mb-4 p-3 bg-[#ffffff] rounded-xl border border-[#f0f0f0]">
+          <p className="text-[12px] text-[#71717a]">Workflow</p>
+          <p className="text-[13px] text-[#1a1a1a] font-medium">{workflow.name}</p>
+          <p className="text-[10px] text-[#71717a] font-mono">{workflow.id}</p>
         </div>
 
         {/* Existing associations */}
         {currentAssoc.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs text-[#716D5C] mb-2">Clients associés :</p>
+            <p className="text-[12px] text-[#71717a] mb-2">Clients associés :</p>
             <div className="space-y-2">
               {currentAssoc.map(a => {
                 const client = clients.find(c => c.id === a.client_id)
                 const catConfig = CATEGORIES.find(c => c.id === a.category)
                 return (
-                  <div key={a.id} className="flex items-center justify-between p-2.5 bg-[#F9F7F1] rounded-lg border border-gray-100">
+                  <div key={a.id} className="flex items-center justify-between p-2.5 bg-[#ffffff] rounded-lg border border-[#f0f0f0]">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded bg-violet-500/10 flex items-center justify-center text-[10px] font-bold text-violet-400">
                         {client?.brand_name?.charAt(0) || '?'}
                       </div>
                       <div>
-                        <p className="text-xs text-[#262626] font-medium">{client?.brand_name || 'Client inconnu'}</p>
+                        <p className="text-[12px] text-[#1a1a1a] font-medium">{client?.brand_name || 'Client inconnu'}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[10px] text-[#716D5C]">{a.label}</span>
+                          <span className="text-[10px] text-[#71717a]">{a.label}</span>
                           {catConfig && (
                             <span className={`text-[9px] px-1.5 py-0.5 rounded border ${catConfig.color}`}>{catConfig.label}</span>
                           )}
@@ -122,7 +122,7 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
                     </div>
                     <button
                       onClick={() => onUnassociate(a.id)}
-                      className="p-1 rounded hover:bg-red-500/10 text-[#716D5C] hover:text-red-400 transition-colors"
+                      className="p-1 rounded hover:bg-red-500/10 text-[#71717a] hover:text-red-400 transition-colors"
                       title="Dissocier"
                     >
                       <Unlink className="w-3.5 h-3.5" />
@@ -137,37 +137,37 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
         {/* New association form */}
         <div className="space-y-3">
           <div>
-            <label className="text-[10px] text-[#716D5C] uppercase tracking-wider block mb-1">Client</label>
+            <label className="text-[10px] text-[#71717a] uppercase tracking-wider block mb-1">Client</label>
             <select
               value={selectedClient}
               onChange={e => setSelectedClient(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-[#262626] focus:outline-none focus:border-violet-500/30"
+              className="w-full bg-[#fafafa] border border-[#f0f0f0] rounded-lg px-3 py-2 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-violet-500/30"
             >
               <option value="">Sélectionner un client...</option>
               {clients.map(c => (
-                <option key={c.id} value={c.id} className="bg-[#F9F7F1]">{c.brand_name} ({c.client_type})</option>
+                <option key={c.id} value={c.id} className="bg-[#ffffff]">{c.brand_name} ({c.client_type})</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="text-[10px] text-[#716D5C] uppercase tracking-wider block mb-1">Label (nom affiché au client)</label>
+            <label className="text-[10px] text-[#71717a] uppercase tracking-wider block mb-1">Label (nom affiché au client)</label>
             <input
               type="text"
               value={label}
               onChange={e => setLabel(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-[#262626] focus:outline-none focus:border-violet-500/30"
+              className="w-full bg-[#fafafa] border border-[#f0f0f0] rounded-lg px-3 py-2 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-violet-500/30"
               placeholder="Ex: SAV Support Client"
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#716D5C] uppercase tracking-wider block mb-1">Catégorie</label>
+            <label className="text-[10px] text-[#71717a] uppercase tracking-wider block mb-1">Catégorie</label>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map(cat => (
                 <button
                   key={cat.id}
                   onClick={() => setCategory(cat.id)}
                   className={`px-2.5 py-1 rounded-lg border text-[10px] font-medium transition-all ${
-                    category === cat.id ? cat.color : 'border-gray-100 text-[#716D5C] hover:border-gray-200'
+                    category === cat.id ? cat.color : 'border-[#f0f0f0] text-[#71717a] hover:border-[#f0f0f0]'
                   }`}
                 >
                   {cat.label}
@@ -178,7 +178,7 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
           <button
             onClick={handleAssociate}
             disabled={!selectedClient || saving}
-            className="w-full mt-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:bg-gray-700 disabled:text-[#716D5C] text-white text-sm font-medium transition-all flex items-center justify-center gap-2"
+            className="w-full mt-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:bg-gray-700 disabled:text-[#71717a] text-white text-[13px] font-medium transition-all flex items-center justify-center gap-2"
           >
             {saving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Link2 className="w-3.5 h-3.5" />}
             {saving ? 'Association...' : 'Associer'}
@@ -282,20 +282,20 @@ export const AdminMonitoringView = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {[
           { label: 'Total workflows', value: workflows.length, icon: Wifi, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-          { label: 'Actifs', value: activeCount, icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-          { label: 'En erreur', value: errorCount, icon: AlertTriangle, color: errorCount > 0 ? 'text-red-400' : 'text-[#716D5C]', bg: errorCount > 0 ? 'bg-red-500/10' : 'bg-gray-500/10' },
-          { label: 'Désactivés', value: inactiveCount, icon: Pause, color: 'text-[#716D5C]', bg: 'bg-gray-500/10' },
+          { label: 'Actifs', value: activeCount, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+          { label: 'En erreur', value: errorCount, icon: AlertTriangle, color: errorCount > 0 ? 'text-red-400' : 'text-[#71717a]', bg: errorCount > 0 ? 'bg-red-500/10' : 'bg-[#fafafa]0/10' },
+          { label: 'Désactivés', value: inactiveCount, icon: Pause, color: 'text-[#71717a]', bg: 'bg-[#fafafa]0/10' },
           { label: 'Exécutions', value: totalExecs, icon: Activity, color: 'text-violet-400', bg: 'bg-violet-500/10' },
-          { label: 'Taux succès', value: `${successRate}%`, icon: ShieldCheck, color: successRate >= 90 ? 'text-emerald-400' : 'text-amber-400', bg: successRate >= 90 ? 'bg-emerald-500/10' : 'bg-amber-500/10' },
+          { label: 'Taux succès', value: `${successRate}%`, icon: ShieldCheck, color: successRate >= 90 ? 'text-emerald-500' : 'text-amber-400', bg: successRate >= 90 ? 'bg-emerald-500/10' : 'bg-amber-500/10' },
         ].map(kpi => (
-          <div key={kpi.label} className="bg-[#F9F7F1] border border-gray-100 rounded-2xl p-4">
+          <div key={kpi.label} className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className={`w-7 h-7 rounded-lg ${kpi.bg} flex items-center justify-center`}>
                 <kpi.icon className={`w-3.5 h-3.5 ${kpi.color}`} />
               </div>
             </div>
-            <div className={`text-xl font-bold font-mono ${kpi.color}`}>{kpi.value}</div>
-            <div className="text-[10px] text-[#716D5C] uppercase tracking-wider mt-1">{kpi.label}</div>
+            <div className={`text-[18px] font-bold font-mono ${kpi.color}`}>{kpi.value}</div>
+            <div className="text-[10px] text-[#71717a] uppercase tracking-wider mt-1">{kpi.label}</div>
           </div>
         ))}
       </div>
@@ -312,10 +312,10 @@ export const AdminMonitoringView = () => {
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+              className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border ${
                 filter === f.id
                   ? 'bg-violet-500/10 border-violet-500/20 text-violet-400'
-                  : 'bg-transparent border-gray-100 text-[#716D5C] hover:text-[#716D5C] hover:border-gray-200'
+                  : 'bg-transparent border-[#f0f0f0] text-[#71717a] hover:text-[#71717a] hover:border-[#f0f0f0]'
               }`}
             >
               {f.label} <span className="ml-1 font-mono">{f.count}</span>
@@ -324,18 +324,18 @@ export const AdminMonitoringView = () => {
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#716D5C]" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#71717a]" />
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Rechercher..."
-              className="pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs text-[#262626] placeholder-gray-600 focus:outline-none focus:border-violet-500/30 w-48"
+              className="pl-8 pr-3 py-1.5 bg-[#fafafa] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] placeholder-gray-600 focus:outline-none focus:border-violet-500/30 w-48"
             />
           </div>
           <button
             onClick={() => refetch()}
-            className="p-1.5 rounded-lg bg-gray-50 border border-gray-200 text-[#716D5C] hover:text-[#262626] hover:border-gray-300 transition-all"
+            className="p-1.5 rounded-lg bg-[#fafafa] border border-[#f0f0f0] text-[#71717a] hover:text-[#1a1a1a] hover:border-gray-300 transition-all"
             title="Rafraîchir"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
@@ -344,9 +344,9 @@ export const AdminMonitoringView = () => {
       </div>
 
       {/* Workflow table */}
-      <div className="bg-[#F9F7F1] border border-gray-100 rounded-2xl overflow-hidden">
+      <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-hidden">
         {/* Table header */}
-        <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-gray-100 text-[10px] uppercase tracking-wider text-[#716D5C] font-bold">
+        <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-[#f0f0f0] text-[10px] uppercase tracking-wider text-[#71717a] font-bold">
           <div className="col-span-1">Statut</div>
           <div className="col-span-3">Workflow</div>
           <div className="col-span-2">Client</div>
@@ -369,8 +369,8 @@ export const AdminMonitoringView = () => {
           return (
             <div key={wf.id}>
               <div
-                className={`grid grid-cols-12 gap-4 px-5 py-3.5 border-b border-gray-100 hover:bg-gray-50 transition-colors items-center cursor-pointer ${
-                  isExpanded ? 'bg-gray-50' : ''
+                className={`grid grid-cols-12 gap-4 px-5 py-3.5 border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors items-center cursor-pointer ${
+                  isExpanded ? 'bg-[#fafafa]' : ''
                 }`}
                 onClick={() => setExpanded(isExpanded ? null : wf.id)}
               >
@@ -388,8 +388,8 @@ export const AdminMonitoringView = () => {
                     <Icon className={`w-3.5 h-3.5 ${c.color}`} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-[#262626] truncate">{wf.name}</p>
-                    <p className="text-[10px] text-[#716D5C] font-mono truncate">{wf.id}</p>
+                    <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{wf.name}</p>
+                    <p className="text-[10px] text-[#71717a] font-mono truncate">{wf.id}</p>
                   </div>
                 </div>
 
@@ -404,23 +404,23 @@ export const AdminMonitoringView = () => {
                       ))}
                     </div>
                   ) : (
-                    <span className="text-[10px] text-[#716D5C] italic">Non associé</span>
+                    <span className="text-[10px] text-[#71717a] italic">Non associé</span>
                   )}
                 </div>
 
                 {/* Last execution */}
                 <div className="col-span-1">
-                  <p className="text-[11px] text-[#716D5C]">{timeAgo(wf.lastExecution?.startedAt)}</p>
+                  <p className="text-[11px] text-[#71717a]">{timeAgo(wf.lastExecution?.startedAt)}</p>
                 </div>
 
                 {/* Success */}
                 <div className="col-span-1 text-center">
-                  <span className="text-sm font-bold font-mono text-emerald-400">{wf.recentSuccessCount}</span>
+                  <span className="text-[13px] font-bold font-mono text-emerald-500">{wf.recentSuccessCount}</span>
                 </div>
 
                 {/* Errors */}
                 <div className="col-span-1 text-center">
-                  <span className={`text-sm font-bold font-mono ${wf.recentErrorCount > 0 ? 'text-red-400' : 'text-[#716D5C]'}`}>
+                  <span className={`text-[13px] font-bold font-mono ${wf.recentErrorCount > 0 ? 'text-red-400' : 'text-[#71717a]'}`}>
                     {wf.recentErrorCount}
                   </span>
                 </div>
@@ -429,17 +429,17 @@ export const AdminMonitoringView = () => {
                 <div className="col-span-1 text-center">
                   {health !== null ? (
                     <div className="inline-flex flex-col items-center">
-                      <span className={`text-xs font-bold font-mono ${
-                        health >= 90 ? 'text-emerald-400' : health >= 70 ? 'text-amber-400' : 'text-red-400'
+                      <span className={`text-[12px] font-bold font-mono ${
+                        health >= 90 ? 'text-emerald-500' : health >= 70 ? 'text-amber-400' : 'text-red-400'
                       }`}>{health}%</span>
                       <div className="w-10 h-1 rounded-full bg-gray-800 mt-1">
                         <div className={`h-full rounded-full ${
-                          health >= 90 ? 'bg-emerald-400' : health >= 70 ? 'bg-amber-400' : 'bg-red-400'
+                          health >= 90 ? 'bg-emerald-500' : health >= 70 ? 'bg-amber-400' : 'bg-red-400'
                         }`} style={{ width: `${health}%` }} />
                       </div>
                     </div>
                   ) : (
-                    <span className="text-[10px] text-[#716D5C]">—</span>
+                    <span className="text-[10px] text-[#71717a]">—</span>
                   )}
                 </div>
 
@@ -463,7 +463,7 @@ export const AdminMonitoringView = () => {
                     className={`px-2 py-1 rounded-lg border text-[10px] font-medium transition-all ${
                       wf.active
                         ? 'border-red-500/20 text-red-400 hover:bg-red-500/10'
-                        : 'border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10'
+                        : 'border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10'
                     } ${toggling === wf.id ? 'opacity-50' : ''}`}
                   >
                     <Power className={`w-3 h-3 inline ${toggling === wf.id ? 'animate-spin' : ''}`} />
@@ -473,11 +473,11 @@ export const AdminMonitoringView = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={e => e.stopPropagation()}
-                    className="px-2 py-1 rounded-lg border border-gray-200 text-[10px] font-medium text-[#716D5C] hover:text-[#262626] hover:border-gray-300 transition-all"
+                    className="px-2 py-1 rounded-lg border border-[#f0f0f0] text-[10px] font-medium text-[#71717a] hover:text-[#1a1a1a] hover:border-gray-300 transition-all"
                   >
                     <ExternalLink className="w-3 h-3 inline" />
                   </a>
-                  {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-[#716D5C]" /> : <ChevronDown className="w-3.5 h-3.5 text-[#716D5C]" />}
+                  {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-[#71717a]" /> : <ChevronDown className="w-3.5 h-3.5 text-[#71717a]" />}
                 </div>
               </div>
 
@@ -488,49 +488,49 @@ export const AdminMonitoringView = () => {
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden border-b border-gray-100"
+                    className="overflow-hidden border-b border-[#f0f0f0]"
                   >
-                    <div className="px-5 py-4 bg-[#F9F7F1] grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="px-5 py-4 bg-[#ffffff] grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
-                        <p className="text-[10px] text-[#716D5C] uppercase tracking-wider mb-1">ID Workflow</p>
-                        <p className="text-xs text-[#262626] font-mono">{wf.id}</p>
+                        <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">ID Workflow</p>
+                        <p className="text-[12px] text-[#1a1a1a] font-mono">{wf.id}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#716D5C] uppercase tracking-wider mb-1">Créé le</p>
-                        <p className="text-xs text-[#716D5C]">{formatDate(wf.createdAt)}</p>
+                        <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Créé le</p>
+                        <p className="text-[12px] text-[#71717a]">{formatDate(wf.createdAt)}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#716D5C] uppercase tracking-wider mb-1">Modifié le</p>
-                        <p className="text-xs text-[#716D5C]">{formatDate(wf.updatedAt)}</p>
+                        <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Modifié le</p>
+                        <p className="text-[12px] text-[#71717a]">{formatDate(wf.updatedAt)}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#716D5C] uppercase tracking-wider mb-1">Exécutions</p>
-                        <p className="text-xs text-[#262626] font-mono font-bold">{wf.recentTotal}</p>
+                        <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Exécutions</p>
+                        <p className="text-[12px] text-[#1a1a1a] font-mono font-bold">{wf.recentTotal}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#716D5C] uppercase tracking-wider mb-1">Taux de succès</p>
-                        <p className={`text-xs font-mono font-bold ${
-                          health === null ? 'text-[#716D5C]' : health >= 90 ? 'text-emerald-400' : health >= 70 ? 'text-amber-400' : 'text-red-400'
+                        <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Taux de succès</p>
+                        <p className={`text-[12px] font-mono font-bold ${
+                          health === null ? 'text-[#71717a]' : health >= 90 ? 'text-emerald-500' : health >= 70 ? 'text-amber-400' : 'text-red-400'
                         }`}>{health !== null ? `${health}%` : 'Aucune'}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#716D5C] uppercase tracking-wider mb-1">Statut dernière exéc.</p>
-                        <p className={`text-xs font-medium ${
-                          wf.lastExecution?.status === 'success' ? 'text-emerald-400' :
-                          wf.lastExecution?.status === 'error' ? 'text-red-400' : 'text-[#716D5C]'
+                        <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Statut dernière exéc.</p>
+                        <p className={`text-[12px] font-medium ${
+                          wf.lastExecution?.status === 'success' ? 'text-emerald-500' :
+                          wf.lastExecution?.status === 'error' ? 'text-red-400' : 'text-[#71717a]'
                         }`}>{wf.lastExecution?.status || 'Aucune'}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#716D5C] uppercase tracking-wider mb-1">Clients associés</p>
-                        <p className="text-xs text-[#262626]">{linkedClients.length > 0 ? linkedClients.map(c => c.brand_name).join(', ') : 'Aucun'}</p>
+                        <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Clients associés</p>
+                        <p className="text-[12px] text-[#1a1a1a]">{linkedClients.length > 0 ? linkedClients.map(c => c.brand_name).join(', ') : 'Aucun'}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-[#716D5C] uppercase tracking-wider mb-1">Lien direct</p>
+                        <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Lien direct</p>
                         <a
                           href={`https://n8n.srv1403284.hstgr.cloud/workflow/${wf.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                          className="text-[12px] text-violet-400 hover:text-violet-300 transition-colors"
                         >
                           Ouvrir dans n8n →
                         </a>
@@ -546,7 +546,7 @@ export const AdminMonitoringView = () => {
         {filtered.length === 0 && (
           <div className="text-center py-16">
             <WifiOff className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-            <p className="text-sm text-[#716D5C]">
+            <p className="text-[13px] text-[#71717a]">
               {search ? 'Aucun workflow trouvé' : 'Aucun workflow'}
             </p>
           </div>
