@@ -11,10 +11,22 @@
   if (!apiKey) return console.warn('[Actero] Missing data-actero-key attribute')
 
   const sessionId = 'actero_' + Math.random().toString(36).substring(2, 10)
+  const STORAGE_KEY = 'actero_customer_' + apiKey
   let isOpen = false
   let messages = []
   let customerEmail = null
   let customerName = null
+  let step = 'email' // 'email' | 'chat'
+
+  // Try to restore from localStorage so returning visitors skip the email step
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')
+    if (saved.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(saved.email)) {
+      customerEmail = saved.email
+      customerName = saved.name || null
+      step = 'chat'
+    }
+  } catch {}
 
   // Styles
   const style = document.createElement('style')
@@ -116,7 +128,13 @@
     isOpen = !isOpen
     panel.classList.toggle('open', isOpen)
     if (isOpen && messages.length === 0) {
-      addBotMessage('Bonjour ! Comment puis-je vous aider ?')
+      if (step === 'email') {
+        addBotMessage('Bonjour ! 👋 Pour mieux vous aider et pouvoir vous recontacter, pouvez-vous me laisser votre email ?')
+        inputEl.placeholder = 'votre@email.com'
+        inputEl.type = 'email'
+      } else {
+        addBotMessage('Bonjour ! Comment puis-je vous aider ?')
+      }
     }
   }
   document.body.appendChild(btn)
@@ -227,11 +245,46 @@
     inputEl.value = ''
     addUserMessage(text)
 
-    // Extract email/name from user messages
+    // Step 1 — collect email before starting the real chat
+    if (step === 'email') {
+      const email = extractEmail(text) || (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text) ? text : null)
+      if (!email) {
+        addBotMessage("Cet email ne semble pas valide. Pouvez-vous le verifier et reessayer ? Exemple : prenom@domaine.com")
+        inputEl.focus()
+        return
+      }
+      customerEmail = email
+      const foundName = extractName(text)
+      if (foundName) customerName = foundName
+
+      // Persist for returning visitors
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: customerEmail, name: customerName }))
+      } catch {}
+
+      step = 'chat'
+      inputEl.placeholder = 'Votre message...'
+      inputEl.type = 'text'
+      addBotMessage('Merci ! Comment puis-je vous aider aujourd\'hui ?')
+      inputEl.focus()
+      return
+    }
+
+    // Step 2 — normal chat: also extract any email/name if present in the text
     const foundEmail = extractEmail(text)
-    if (foundEmail) customerEmail = foundEmail
+    if (foundEmail && !customerEmail) {
+      customerEmail = foundEmail
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: customerEmail, name: customerName }))
+      } catch {}
+    }
     const foundName = extractName(text)
-    if (foundName) customerName = foundName
+    if (foundName && !customerName) {
+      customerName = foundName
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: customerEmail, name: customerName }))
+      } catch {}
+    }
 
     sending = true
     sendBtn.disabled = true
