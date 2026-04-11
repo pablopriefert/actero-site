@@ -637,7 +637,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
     { type: 'section', label: 'Connexions' },
     { id: 'integrations', label: 'Integrations', icon: Plug },
-    { id: 'voice-agent', label: 'Agent vocal', icon: Phone },
+    { id: 'voice-agent', label: 'Agent vocal', icon: Phone, badge: 'Bientot', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' },
     { id: 'marketplace', label: 'Marketplace', icon: Store },
 
     {
@@ -648,7 +648,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'weekly-summary', label: 'Resume hebdo', icon: BarChart3 },
         { id: 'roi', label: 'ROI', icon: TrendingUp },
         { id: 'peak-hours', label: 'Heures de pic', icon: Clock },
-        { id: 'voice-calls', label: 'Appels vocaux', icon: PhoneCall },
+        { id: 'voice-calls', label: 'Appels vocaux', icon: PhoneCall, badge: 'Bientot', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' },
         { id: 'achievements', label: 'Recompenses', icon: Trophy },
       ],
     },
@@ -1214,7 +1214,39 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "voice-agent" && (
-            <VoiceAgentSetupView clientId={currentClient?.id} />
+            <div className="max-w-2xl mx-auto py-12">
+              <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-10 text-center">
+                <div className="w-20 h-20 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-6">
+                  <Phone className="w-9 h-9 text-amber-600" />
+                </div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold uppercase tracking-wider mb-4">
+                  Bientot disponible
+                </span>
+                <h2 className="text-[24px] font-semibold text-[#1a1a1a] mb-3">
+                  Agent vocal telephonique
+                </h2>
+                <p className="text-[14px] text-[#71717a] leading-relaxed max-w-md mx-auto">
+                  Bientot, vos clients pourront appeler un vrai numero francais et parler en temps reel a votre agent IA. Il utilisera la meme intelligence que votre agent texte (memoire client, lookup commande Shopify, escalades automatiques).
+                </p>
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto text-left">
+                  <div className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
+                    <p className="text-[12px] font-semibold text-[#1a1a1a]">Numero FR dedie</p>
+                    <p className="text-[11px] text-[#9ca3af] mt-1">Votre propre numero professionnel</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
+                    <p className="text-[12px] font-semibold text-[#1a1a1a]">Voix naturelle</p>
+                    <p className="text-[11px] text-[#9ca3af] mt-1">ElevenLabs en francais</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
+                    <p className="text-[12px] font-semibold text-[#1a1a1a]">24/7</p>
+                    <p className="text-[11px] text-[#9ca3af] mt-1">Disponible jour et nuit</p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-[#9ca3af] mt-8 italic">
+                  Disponible sous peu - inclus dans votre abonnement Actero.
+                </p>
+              </div>
+            </div>
           )}
 
           {activeTab === "notifications" && (
