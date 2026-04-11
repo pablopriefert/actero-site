@@ -12,6 +12,20 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY
 const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'support@actero.fr'
 
 /**
+ * Escape HTML special chars to prevent injection when interpolating
+ * customer-facing strings into email HTML bodies.
+ */
+function escapeHtml(str) {
+  if (str == null) return ''
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+/**
  * Execute an action plan step by step.
  * Returns: { success, steps: [{action, status, duration_ms, error}], error }
  */
@@ -20,6 +34,16 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
   const steps = []
   let overallSuccess = true
   let overallError = null
+
+  // TEST MODE: never hit real integrations (email, Slack, Shopify writes, accounting API, etc).
+  // Returns an empty-steps success so the caller can still log a dry-run result.
+  if (normalized?._is_test === true) {
+    return {
+      success: true,
+      steps: (actionPlan || []).map(a => ({ action: a, status: 'skipped_test', result: { test_mode: true }, duration_ms: 0 })),
+      error: null,
+    }
+  }
 
   // Load client info for actions
   const { data: client } = await supabase.from('clients').select('brand_name, contact_email').eq('id', clientId).single()
@@ -34,12 +58,15 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
         case 'send_reply':
         case 'send_email':
           if (aiResponse && normalized.customer_email && !normalized.customer_email.includes('@anonymous.actero.fr')) {
-            const subject = normalized.subject ? `Re: ${normalized.subject}` : `${brandName} — Reponse a votre demande`
+            const subject = normalized.subject ? `Re: ${escapeHtml(normalized.subject)}` : `${escapeHtml(brandName)} — Reponse a votre demande`
+            const safeBody = escapeHtml(aiResponse).replace(/\n/g, '<br/>')
+            const safeName = escapeHtml(normalized.customer_name)
+            const safeBrand = escapeHtml(brandName)
             const html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px">
-              <p style="color:#262626;font-size:15px;line-height:1.6">${normalized.customer_name ? `Bonjour ${normalized.customer_name},` : 'Bonjour,'}</p>
-              <p style="color:#262626;font-size:15px;line-height:1.6">${aiResponse.replace(/\n/g, '<br/>')}</p>
+              <p style="color:#262626;font-size:15px;line-height:1.6">${safeName ? `Bonjour ${safeName},` : 'Bonjour,'}</p>
+              <p style="color:#262626;font-size:15px;line-height:1.6">${safeBody}</p>
               <hr style="border:none;border-top:1px solid #e5e5e5;margin:24px 0"/>
-              <p style="color:#999;font-size:12px">${brandName} — Service client</p>
+              <p style="color:#999;font-size:12px">${safeBrand} — Service client</p>
             </div>`
 
             // Priority 1: Client's SMTP
@@ -79,7 +106,7 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
 
             // Fallback: Resend (only if SMTP not configured)
             if (RESEND_API_KEY) {
-              await fetch('https://api.resend.com/emails', {
+              const resendRes = await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -88,7 +115,13 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
                   subject, html,
                 }),
               })
+              if (!resendRes.ok) {
+                const errText = await resendRes.text().catch(() => '')
+                throw new Error(`Resend ${resendRes.status}: ${errText}`)
+              }
               stepResult.result = { email_sent: true, via: 'resend', to: normalized.customer_email }
+            } else {
+              stepResult.result = { email_sent: false, reason: 'no_mail_provider_configured' }
             }
           }
           break

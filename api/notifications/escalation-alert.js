@@ -17,9 +17,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Internal-only: called from n8n workflows
+  // Internal-only: called from n8n workflows. Fail closed if neither the
+  // secret nor a valid JWT is provided.
   const internalSecret = process.env.INTERNAL_API_SECRET;
-  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
+  const hasValidSecret = !!(internalSecret && req.headers['x-internal-secret'] === internalSecret);
+  if (!hasValidSecret) {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) return res.status(403).json({ error: 'Accès refusé.' });
     const { data: { user }, error } = await supabase.auth.getUser(token);

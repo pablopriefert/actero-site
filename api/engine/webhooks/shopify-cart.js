@@ -6,6 +6,22 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
+// Shopify HMAC must be computed against the RAW request body.
+// Disable Vercel body parsing so we can read the raw bytes.
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
+
+async function getRawBody(req) {
+  const chunks = []
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
+  }
+  return Buffer.concat(chunks)
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
@@ -19,8 +35,16 @@ export default async function handler(req, res) {
   if (!hmac) {
     return res.status(401).json({ error: 'Missing HMAC header' })
   }
-  const body = JSON.stringify(req.body)
-  const computed = crypto.createHmac('sha256', secret).update(body, 'utf8').digest('base64')
+
+  let rawBody
+  try {
+    rawBody = await getRawBody(req)
+  } catch (err) {
+    console.error('[shopify-cart] getRawBody error:', err.message)
+    return res.status(400).json({ error: 'Unable to read request body' })
+  }
+
+  const computed = crypto.createHmac('sha256', secret).update(rawBody).digest('base64')
   // Use timing-safe comparison when buffer lengths match
   let hmacValid = false
   try {
@@ -34,9 +58,19 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Invalid HMAC' })
   }
 
+  // Parse the JSON body now that the signature is verified
+  let parsedBody
+  try {
+    parsedBody = JSON.parse(rawBody.toString('utf8'))
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid JSON body' })
+  }
+  req.body = parsedBody
+
   const shop = req.headers['x-shopify-shop-domain']
   if (!shop) return res.status(400).json({ error: 'Missing shop domain' })
 
+  try {
   // Find client by shop domain
   const { data: connection } = await supabase
     .from('client_shopify_connections')
@@ -99,4 +133,8 @@ export default async function handler(req, res) {
   })
 
   return res.status(200).json({ success: true, scheduled_in: `${delayMinutes} minutes` })
+  } catch (err) {
+    console.error('[shopify-cart] Handler error:', err)
+    return res.status(500).json({ error: err.message })
+  }
 }

@@ -247,7 +247,7 @@ export const MarketplacePage = ({ onNavigate }) => {
             </div>
             {isLoggedIn && (
               <button
-                onClick={() => onNavigate('/client/my-marketplace')}
+                onClick={() => onNavigate('/client/marketplace')}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#003725] text-white text-[13px] font-bold hover:bg-[#002a1c] transition-colors whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />

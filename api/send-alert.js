@@ -4,9 +4,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Internal-only endpoint: require internal secret
+  // Internal-only endpoint: require internal secret. Fail closed if not configured.
   const internalSecret = process.env.INTERNAL_API_SECRET;
-  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
+  if (!internalSecret) {
+    console.error('[send-alert] INTERNAL_API_SECRET not set — refusing request');
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+  if (req.headers['x-internal-secret'] !== internalSecret) {
     return res.status(403).json({ error: 'Accès non autorisé' });
   }
 

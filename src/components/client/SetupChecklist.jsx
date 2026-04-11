@@ -138,7 +138,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
       id: 'conversation',
       label: 'Recevoir votre 1er message client',
       icon: MessageCircle,
-      tab: 'conversations',
+      tab: 'escalations',
       done: completion.conversation,
     },
   ]

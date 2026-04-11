@@ -11,13 +11,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Internal only — check for internal secret or service key
+  // Internal only — fail closed if no secret is configured.
   const internalSecret = process.env.INTERNAL_API_SECRET;
-  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
-    // Also allow calls from within our own serverless functions (no header check needed for direct imports)
-    if (req.headers['x-internal-secret'] !== undefined) {
-      return res.status(403).json({ error: 'Accès non autorisé' });
-    }
+  if (!internalSecret) {
+    console.error('[referral/validate] INTERNAL_API_SECRET not set — refusing request');
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+  if (req.headers['x-internal-secret'] !== internalSecret) {
+    return res.status(403).json({ error: 'Accès non autorisé' });
   }
 
   const { referral_code, referee_client_id, stripe_customer_id } = req.body;

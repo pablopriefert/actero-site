@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
   FileText,
-  AlertCircle,
   Sparkles,
   Menu,
   MessageSquare,
@@ -22,7 +21,6 @@ import {
   Inbox,
   Zap,
   ArrowRight,
-  CheckCircle2,
   ShoppingBag,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -54,7 +52,6 @@ import { WeeklySummary } from '../components/client/WeeklySummary'
 import { PeakHoursChart } from '../components/client/PeakHoursChart'
 import { SetupChecklist } from '../components/client/SetupChecklist'
 import { MyMarketplaceTemplatesView } from '../components/client/MyMarketplaceTemplatesView'
-import { HelpTooltip } from '../components/ui/HelpTooltip'
 
 const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
   const [feedback, setFeedback] = useState(currentFeedback || null);
@@ -533,7 +530,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     refetchInterval: 60 * 1000, // refresh urgency every minute
   })
 
-  const escalationCount = pendingEscalations.length;
   const urgentEscalationCount = useMemo(() => {
     const cutoff = Date.now() - 2 * 60 * 60 * 1000 // >2h
     return pendingEscalations.filter(e => {

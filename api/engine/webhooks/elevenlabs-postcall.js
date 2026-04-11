@@ -15,24 +15,64 @@ const supabase = createClient(
 
 const ELEVENLABS_WEBHOOK_SECRET = process.env.ELEVENLABS_WEBHOOK_SECRET
 
+// Disable body parsing so we can verify the HMAC against the raw request body.
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
+
+async function getRawBody(req) {
+  const chunks = []
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
+  }
+  return Buffer.concat(chunks)
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+
+  let rawBody
+  try {
+    rawBody = await getRawBody(req)
+  } catch (err) {
+    console.error('[elevenlabs-postcall] getRawBody error:', err.message)
+    return res.status(400).json({ error: 'Unable to read request body' })
+  }
 
   // Verify HMAC signature if secret is configured
   if (ELEVENLABS_WEBHOOK_SECRET) {
     const signature = req.headers['elevenlabs-signature']
     if (signature) {
       const crypto = await import('crypto')
-      const body = JSON.stringify(req.body)
-      const expected = crypto.createHmac('sha256', ELEVENLABS_WEBHOOK_SECRET).update(body).digest('hex')
-      if (signature !== expected) {
+      const expected = crypto.createHmac('sha256', ELEVENLABS_WEBHOOK_SECRET).update(rawBody).digest('hex')
+      // Strip common prefixes like "sha256=" or "t=...,v1=..."
+      const parts = String(signature).split(',').map(s => s.trim())
+      const provided = parts.find(p => p.startsWith('v1=') || p.startsWith('sha256='))?.split('=')[1] || signature
+      let valid = false
+      try {
+        const a = Buffer.from(expected)
+        const b = Buffer.from(provided)
+        valid = a.length === b.length && crypto.timingSafeEqual(a, b)
+      } catch {
+        valid = false
+      }
+      if (!valid) {
         console.warn('[elevenlabs-postcall] Invalid HMAC signature')
         return res.status(401).json({ error: 'Invalid signature' })
       }
     }
   }
 
-  const data = req.body
+  // Parse the JSON body now that the signature is verified (or skipped)
+  let data
+  try {
+    data = JSON.parse(rawBody.toString('utf8'))
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid JSON body' })
+  }
+  req.body = data
 
   try {
     const conversationId = data.conversation_id || data.id

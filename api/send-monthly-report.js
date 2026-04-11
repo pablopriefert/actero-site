@@ -95,8 +95,10 @@ export default async function handler(req, res) {
 
   // Internal/admin-only: triggers monthly report emails
   const internalSecret = process.env.INTERNAL_API_SECRET;
-  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
-    // Also allow admin users via JWT
+  const secretHeader = req.headers['x-internal-secret'];
+  const hasValidSecret = !!(internalSecret && secretHeader === internalSecret);
+  if (!hasValidSecret) {
+    // Fall back to admin JWT
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) return res.status(403).json({ error: 'Accès refusé.' });
     const { data: { user }, error } = await supabase.auth.getUser(token);

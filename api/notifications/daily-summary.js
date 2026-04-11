@@ -17,9 +17,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Internal/cron-only endpoint
+  // Internal/cron-only endpoint. Fail closed if secret is missing from the
+  // request (but still allow Vercel Cron + admin JWT as fallbacks).
   const internalSecret = process.env.INTERNAL_API_SECRET;
-  if (internalSecret && req.headers['x-internal-secret'] !== internalSecret) {
+  const hasValidSecret = !!(internalSecret && req.headers['x-internal-secret'] === internalSecret);
+  if (!hasValidSecret) {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (token) {
       const { data: { user }, error } = await supabase.auth.getUser(token);

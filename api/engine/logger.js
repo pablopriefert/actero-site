@@ -347,7 +347,7 @@ export async function logRun(supabase, {
         customer_message: displayMessage,
         ai_response: aiResponse || 'Pas de reponse generee',
         status: conversationStatus,
-        ticket_type: classification || 'general',
+        ticket_type: ticketType,
         confidence_score: confidence,
         response_time_ms: durationMs,
         escalation_reason: escalationReason,
