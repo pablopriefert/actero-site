@@ -115,6 +115,7 @@ export const ClientCopilotBubble = ({ clientId, clientType, theme = 'dark' }) =>
       <AnimatePresence>
         {!isOpen && (
           <motion.button
+            data-tour="help-button"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}

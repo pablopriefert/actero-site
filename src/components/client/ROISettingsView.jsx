@@ -81,9 +81,11 @@ export const ROISettingsView = ({ clientId, theme }) => {
   const totalTimeSavedHours = totalTimeSavedSec / 3600
   const ticketsResolved = (monthMetrics || []).length
   const hourlyCost = parseFloat(form.hourly_cost) || 25
-  const monthlyPrice = parseFloat(form.actero_monthly_price) || 1199
+  const rawMonthlyPrice = parseFloat(form.actero_monthly_price)
+  const hasMonthlyPrice = Number.isFinite(rawMonthlyPrice) && rawMonthlyPrice > 0
+  const monthlyPrice = hasMonthlyPrice ? rawMonthlyPrice : 0
   const valueSaved = totalTimeSavedHours * hourlyCost
-  const roi = valueSaved - monthlyPrice
+  const roi = hasMonthlyPrice ? valueSaved - monthlyPrice : null
 
   if (isLoading) return <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" /></div>
 
@@ -114,8 +116,17 @@ export const ROISettingsView = ({ clientId, theme }) => {
             <p className="text-[11px] text-[#9ca3af]">Valeur economisee</p>
           </div>
           <div>
-            <p className={`text-[28px] font-bold tabular-nums ${roi >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{roi >= 0 ? '+' : ''}{roi.toFixed(0)}€</p>
-            <p className="text-[11px] text-[#9ca3af]">ROI net</p>
+            {roi === null ? (
+              <>
+                <p className="text-[28px] font-bold tabular-nums text-[#c4c4c4]">—</p>
+                <p className="text-[11px] text-[#9ca3af]">Configurez votre prix Actero</p>
+              </>
+            ) : (
+              <>
+                <p className={`text-[28px] font-bold tabular-nums ${roi >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{roi >= 0 ? '+' : ''}{roi.toFixed(0)}€</p>
+                <p className="text-[11px] text-[#9ca3af]">ROI net</p>
+              </>
+            )}
           </div>
         </div>
         <p className="text-[10px] text-[#c4c4c4] mt-3">ROI = (Temps economise × Cout horaire) - Abonnement Actero</p>
@@ -163,7 +174,7 @@ export const ROISettingsView = ({ clientId, theme }) => {
               type="number"
               value={form.actero_monthly_price}
               onChange={(e) => setForm(f => ({ ...f, actero_monthly_price: e.target.value }))}
-              placeholder="1199"
+              placeholder="0"
               className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0F5F35]/30"
             />
             <span className="text-[13px] text-[#9ca3af]">€ / mois</span>

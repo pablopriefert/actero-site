@@ -224,8 +224,12 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
     )
   }
 
-  const price = Number(template.price_eur || 0)
+  const price = Number(template.price_eur ?? template.price ?? 0)
   const isFree = price === 0
+  const installsCount = template.installs_count ?? template.install_count ?? 0
+  const ratingValue = template.avg_rating ?? template.rating ?? 0
+  const ratingCount = template.ratings_count ?? template.rating_count ?? 0
+  const isActeroPick = template.is_actero_pick === true
   const contents = template.contents || template.included || {}
   const promptsCount = contents.prompts_count || (Array.isArray(contents.prompts) ? contents.prompts.length : 0)
   const rulesCount = contents.rules_count || (Array.isArray(contents.rules) ? contents.rules.length : 0)
@@ -262,6 +266,12 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mb-3">
+              {isActeroPick && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#0F5F35] text-white text-[11px] font-medium">
+                  <span>⭐</span>
+                  <span>Actero Pick</span>
+                </span>
+              )}
               {template.category && (
                 <span className="px-2.5 py-1 rounded-full bg-[#003725]/5 text-[#003725] text-[11px] font-bold uppercase tracking-wider">
                   {template.category}
@@ -283,16 +293,36 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                 <User className="w-4 h-4" />
                 <span className="font-semibold text-[#1a1a1a]">{template.creator_name || 'Createur Actero'}</span>
               </div>
+              {ratingCount > 0 ? (
+                <div className="flex items-center gap-1.5">
+                  <StarRow rating={ratingValue} />
+                  <span>
+                    {Number(ratingValue).toFixed(1)} ({ratingCount} avis)
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-[#9ca3af]">
+                  <Star className="w-4 h-4" />
+                  <span>Non noté</span>
+                </div>
+              )}
               <div className="flex items-center gap-1.5">
-                <StarRow rating={template.avg_rating || 0} />
-                <span>
-                  {template.avg_rating ? Number(template.avg_rating).toFixed(1) : '—'}
-                  {template.ratings_count ? ` (${template.ratings_count} avis)` : ''}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Download className="w-4 h-4" />
-                <span>{template.installs_count || 0} installations</span>
+                {installsCount >= 50 ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-50 text-red-700 border border-red-200">
+                    <span>🔥</span>
+                    <span>Populaire · {installsCount}</span>
+                  </span>
+                ) : installsCount >= 10 ? (
+                  <span className="inline-flex items-center gap-1 text-[#716D5C]">
+                    <Download className="w-4 h-4" />
+                    <span>{installsCount} installations</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                    <span>🆕</span>
+                    <span>Nouveau</span>
+                  </span>
+                )}
               </div>
             </div>
 

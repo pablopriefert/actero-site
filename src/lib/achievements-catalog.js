@@ -1,0 +1,82 @@
+import { Sparkles, Rocket, Target, Trophy, Zap, Crown, Flame, Award } from 'lucide-react'
+
+export const ACHIEVEMENTS = [
+  {
+    key: 'setup_starter',
+    name: 'Setup Starter',
+    description: 'Complétez 3 étapes du setup initial',
+    icon: Sparkles,
+    color: '#10b981',
+    tier: 'bronze',
+    check: (stats) => stats.completedSetupSteps >= 3,
+  },
+  {
+    key: 'agent_ready',
+    name: 'Agent Ready',
+    description: 'Activez votre premier playbook et testez votre agent',
+    icon: Rocket,
+    color: '#0F5F35',
+    tier: 'bronze',
+    check: (stats) => stats.activePlaybooks >= 1 && stats.testedAgent === true,
+  },
+  {
+    key: 'first_resolution',
+    name: 'Première résolution',
+    description: 'Votre agent a traité automatiquement sa première demande',
+    icon: Zap,
+    color: '#f59e0b',
+    tier: 'silver',
+    check: (stats) => stats.resolvedTickets >= 1,
+  },
+  {
+    key: 'ten_resolutions',
+    name: '10 demandes traitées',
+    description: '10 demandes résolues automatiquement par votre agent',
+    icon: Target,
+    color: '#3b82f6',
+    tier: 'silver',
+    check: (stats) => stats.resolvedTickets >= 10,
+  },
+  {
+    key: 'roi_hunter',
+    name: 'ROI Hunter',
+    description: 'Premier euro économisé grâce à Actero',
+    icon: Trophy,
+    color: '#0F5F35',
+    tier: 'silver',
+    check: (stats) => stats.totalSavings > 0,
+  },
+  {
+    key: '100h_saved',
+    name: '100h économisées',
+    description: '100 heures de support économisées',
+    icon: Flame,
+    color: '#ef4444',
+    tier: 'gold',
+    check: (stats) => stats.timeSavedHours >= 100,
+  },
+  {
+    key: 'shopify_connected',
+    name: 'Boutique connectée',
+    description: 'Shopify intégré avec succès',
+    icon: Award,
+    color: '#0F5F35',
+    tier: 'bronze',
+    check: (stats) => stats.shopifyConnected === true,
+  },
+  {
+    key: 'multi_playbook',
+    name: 'Stratège',
+    description: '3 playbooks actifs simultanément',
+    icon: Crown,
+    color: '#8b5cf6',
+    tier: 'gold',
+    check: (stats) => stats.activePlaybooks >= 3,
+  },
+]
+
+export const TIER_COLORS = {
+  bronze: '#cd7f32',
+  silver: '#c0c0c0',
+  gold: '#ffd700',
+}

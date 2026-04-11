@@ -112,9 +112,19 @@ export const HelpCenterView = ({ theme }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Centre d'aide</h2>
-        <p className="text-[13px] text-[#9ca3af] mt-1">{GUIDES.length} guides pour vous aider a utiliser Actero</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Centre d'aide</h2>
+          <p className="text-[13px] text-[#9ca3af] mt-1">{GUIDES.length} guides pour vous aider a utiliser Actero</p>
+        </div>
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('actero:restart-tour'))}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#0F5F35] bg-[#0F5F35]/[0.08] hover:bg-[#0F5F35]/[0.12] transition-colors"
+          title="Relancer le tour produit"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          Relancer le tour produit
+        </button>
       </div>
 
       {/* Search */}

@@ -179,8 +179,10 @@ export const MyMarketplaceTemplatesView = ({ clientId }) => {
       ) : (
         <div className="space-y-3">
           {myTemplates.map((template) => {
-            const price = Number(template.price_eur || 0)
-            const installs = template.installs_count || 0
+            const price = Number(template.price_eur ?? template.price ?? 0)
+            const installs = template.installs_count ?? template.install_count ?? 0
+            const ratingValue = template.avg_rating ?? template.rating ?? 0
+            const ratingCount = template.ratings_count ?? template.rating_count ?? 0
             const revenue = price * installs * REVENUE_SHARE
             const isPublished = template.is_published !== false
             return (
@@ -220,10 +222,14 @@ export const MyMarketplaceTemplatesView = ({ clientId }) => {
                     </div>
                     <div>
                       <p className="text-[10px] text-[#9ca3af] font-semibold uppercase tracking-wider">Rating</p>
-                      <p className="text-[15px] font-bold text-[#1a1a1a] flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        {template.avg_rating ? Number(template.avg_rating).toFixed(1) : '—'}
-                      </p>
+                      {ratingCount > 0 ? (
+                        <p className="text-[15px] font-bold text-[#1a1a1a] flex items-center gap-1">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                          {Number(ratingValue).toFixed(1)}
+                        </p>
+                      ) : (
+                        <p className="text-[13px] font-medium text-[#9ca3af]">Non noté</p>
+                      )}
                     </div>
                     <div>
                       <p className="text-[10px] text-[#9ca3af] font-semibold uppercase tracking-wider">Revenus</p>

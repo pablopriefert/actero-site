@@ -62,16 +62,80 @@ const StarRating = ({ rating = 0, size = 'sm' }) => {
   )
 }
 
+// Returns a credible social-proof badge based on install count
+export const getInstallBadge = (count = 0) => {
+  const n = Number(count) || 0
+  if (n >= 50) {
+    return {
+      label: 'Populaire',
+      icon: '🔥',
+      className: 'bg-red-50 text-red-700 border border-red-200',
+      showCount: true,
+      count: n,
+    }
+  }
+  if (n >= 10) {
+    return {
+      label: `${n} installs`,
+      icon: null,
+      className: 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]',
+      showCount: false,
+      count: n,
+    }
+  }
+  return {
+    label: 'Nouveau',
+    icon: '🆕',
+    className: 'bg-amber-50 text-amber-700 border border-amber-200',
+    showCount: false,
+    count: n,
+  }
+}
+
+// Returns rating display info — StarRating or "Non noté" when no ratings
+export const getRatingDisplay = (rating = 0, count = 0) => {
+  const rCount = Number(count) || 0
+  const rValue = Number(rating) || 0
+  if (rCount === 0) {
+    return { hasRating: false, label: 'Non noté', value: null }
+  }
+  return { hasRating: true, label: rValue.toFixed(1), value: rValue, count: rCount }
+}
+
+const InstallBadge = ({ count }) => {
+  const badge = getInstallBadge(count)
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${badge.className}`}
+    >
+      {badge.icon && <span>{badge.icon}</span>}
+      <span>{badge.label}</span>
+      {badge.showCount && <span className="opacity-70">· {badge.count}</span>}
+    </span>
+  )
+}
+
 const TemplateCard = ({ template, onOpen }) => {
-  const price = Number(template.price_eur || 0)
+  const price = Number(template.price_eur ?? template.price ?? 0)
   const isFree = price === 0
+  const installsCount = template.installs_count ?? template.install_count ?? 0
+  const ratingValue = template.avg_rating ?? template.rating ?? 0
+  const ratingCount = template.ratings_count ?? template.rating_count ?? 0
+  const ratingDisplay = getRatingDisplay(ratingValue, ratingCount)
+  const isActeroPick = template.is_actero_pick === true
   return (
     <motion.button
       type="button"
       onClick={() => onOpen(template)}
       whileHover={{ y: -2 }}
-      className="group text-left bg-white border border-[#f0f0f0] rounded-2xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.08)] hover:border-[#e5e5e5] transition-all"
+      className="group relative text-left bg-white border border-[#f0f0f0] rounded-2xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.08)] hover:border-[#e5e5e5] transition-all"
     >
+      {isActeroPick && (
+        <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#0F5F35] text-white text-[10px] font-medium shadow-sm">
+          <span>⭐</span>
+          <span>Actero Pick</span>
+        </span>
+      )}
       <div className="aspect-[16/9] bg-gradient-to-br from-[#F9F7F1] to-[#eceae2] relative overflow-hidden">
         {template.preview_image ? (
           <img
@@ -91,15 +155,17 @@ const TemplateCard = ({ template, onOpen }) => {
             </span>
           )}
         </div>
-        <div className="absolute top-3 right-3">
-          <span
-            className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-              isFree ? 'bg-emerald-500 text-white' : 'bg-[#003725] text-white'
-            }`}
-          >
-            {isFree ? 'Gratuit' : `${price.toFixed(0)}€`}
-          </span>
-        </div>
+        {!isActeroPick && (
+          <div className="absolute top-3 right-3">
+            <span
+              className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                isFree ? 'bg-emerald-500 text-white' : 'bg-[#003725] text-white'
+              }`}
+            >
+              {isFree ? 'Gratuit' : `${price.toFixed(0)}€`}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="p-4">
@@ -113,15 +179,18 @@ const TemplateCard = ({ template, onOpen }) => {
 
         <div className="flex items-center justify-between pt-2 border-t border-[#f0f0f0]">
           <div className="flex items-center gap-1.5">
-            <StarRating rating={template.avg_rating || 0} />
-            <span className="text-[11px] text-[#716D5C] font-medium">
-              {template.avg_rating ? Number(template.avg_rating).toFixed(1) : '—'}
-            </span>
+            {ratingDisplay.hasRating ? (
+              <>
+                <StarRating rating={ratingDisplay.value} />
+                <span className="text-[11px] text-[#716D5C] font-medium">
+                  {ratingDisplay.label}
+                </span>
+              </>
+            ) : (
+              <span className="text-[11px] text-[#9ca3af] font-medium">Non noté</span>
+            )}
           </div>
-          <div className="flex items-center gap-1 text-[11px] text-[#716D5C] font-medium">
-            <Download className="w-3 h-3" />
-            <span>{template.installs_count || 0}</span>
-          </div>
+          <InstallBadge count={installsCount} />
         </div>
       </div>
     </motion.button>
@@ -167,7 +236,8 @@ export const MarketplacePage = ({ onNavigate }) => {
         .from('marketplace_templates')
         .select('*')
         .eq('is_published', true)
-        .order('installs_count', { ascending: false })
+        .order('is_actero_pick', { ascending: false })
+        .order('install_count', { ascending: false })
       if (error) {
         console.warn('Marketplace templates query error:', error.message)
         return []
@@ -188,11 +258,13 @@ export const MarketplacePage = ({ onNavigate }) => {
       }
       if (selectedCategory !== 'all' && t.category !== selectedCategory) return false
       if (selectedIndustry !== 'all' && t.industry !== selectedIndustry) return false
-      if (selectedPrice === 'free' && Number(t.price_eur || 0) > 0) return false
-      if (selectedPrice === 'paid' && Number(t.price_eur || 0) === 0) return false
+      const tPrice = Number(t.price_eur ?? t.price ?? 0)
+      if (selectedPrice === 'free' && tPrice > 0) return false
+      if (selectedPrice === 'paid' && tPrice === 0) return false
       if (selectedRating !== 'all') {
         const min = parseInt(selectedRating, 10)
-        if (Number(t.avg_rating || 0) < min) return false
+        const tRating = Number(t.avg_rating ?? t.rating ?? 0)
+        if (tRating < min) return false
       }
       return true
     })

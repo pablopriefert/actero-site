@@ -47,7 +47,7 @@ export const Sidebar = ({
   ]
 
   return (
-    <div className="w-full md:w-[230px] flex flex-col h-full bg-white">
+    <div data-tour="sidebar" className="w-full md:w-[230px] flex flex-col h-full bg-white">
       {/* Header */}
       <div className="h-[52px] flex items-center px-4 justify-between md:justify-start">
         <div className="flex items-center gap-2.5">
@@ -86,7 +86,7 @@ export const Sidebar = ({
             const isExpanded = expandedSections[item.label] ?? item.defaultOpen ?? false
             const hasActiveChild = (item.children || []).some(c => c.id === activeTab)
             return (
-              <div key={idx}>
+              <div key={idx} data-tour={item.dataTour}>
                 <button
                   onClick={() => toggleSection(item.label)}
                   className={`w-full flex items-center justify-between px-2.5 py-[7px] rounded-lg text-[13px] font-medium transition-all duration-150 ${
@@ -134,6 +134,7 @@ export const Sidebar = ({
           return (
             <button
               key={item.id}
+              data-tour={item.dataTour}
               onClick={() => { setActiveTab(item.id); if (onClose) onClose() }}
               aria-current={isActive ? 'page' : undefined}
               className={`w-full flex items-center justify-between px-2.5 py-[7px] rounded-lg text-[13px] font-medium transition-all duration-150 group ${

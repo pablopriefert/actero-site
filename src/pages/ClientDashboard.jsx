@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -22,6 +22,7 @@ import {
   Zap,
   ArrowRight,
   ShoppingBag,
+  Trophy,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -52,6 +53,9 @@ import { WeeklySummary } from '../components/client/WeeklySummary'
 import { PeakHoursChart } from '../components/client/PeakHoursChart'
 import { SetupChecklist } from '../components/client/SetupChecklist'
 import { MyMarketplaceTemplatesView } from '../components/client/MyMarketplaceTemplatesView'
+import { AchievementsView, AchievementsBanner, AchievementsToast } from '../components/client/AchievementsView'
+import ProductTour from '../components/client/ProductTour'
+import { IndustryPicker } from '../components/client/IndustryPicker'
 
 const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
   const [feedback, setFeedback] = useState(currentFeedback || null);
@@ -150,6 +154,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [theme] = useState(() => localStorage.getItem("actero-theme") || "light");
   const [selectedPeriod, setSelectedPeriod] = useState("this_month");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const queryClient = useQueryClient();
 
   const getTabFromRoute = (route) => {
     if (route === "/client/activity") return "activity";
@@ -173,6 +179,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/marketplace") return "marketplace";
     if (route === "/client/weekly-summary") return "weekly-summary";
     if (route === "/client/peak-hours") return "peak-hours";
+    if (route === "/client/achievements") return "achievements";
     if (route === "/client/account") return "profile";
     return "overview";
   };
@@ -219,6 +226,53 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     },
     enabled: !!supabase,
   });
+
+  // 1b. Fetch product tour completion flag
+  const { data: tourCompleted } = useQuery({
+    queryKey: ["client-product-tour", currentClient?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('client_settings')
+        .select('product_tour_completed')
+        .eq('client_id', currentClient.id)
+        .maybeSingle();
+      return !!data?.product_tour_completed;
+    },
+    enabled: !!supabase && !!currentClient?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Auto-open tour at first login (1.5s after dashboard is ready)
+  useEffect(() => {
+    if (!currentClient?.id) return;
+    if (tourCompleted === undefined) return;
+    if (tourCompleted) return;
+    const t = setTimeout(() => setShowTour(true), 1500);
+    return () => clearTimeout(t);
+  }, [currentClient?.id, tourCompleted]);
+
+  // Allow any child component to restart the product tour via a custom event
+  useEffect(() => {
+    const onRestart = () => setShowTour(true);
+    window.addEventListener('actero:restart-tour', onRestart);
+    return () => window.removeEventListener('actero:restart-tour', onRestart);
+  }, []);
+
+  const handleCloseTour = async () => {
+    setShowTour(false);
+    try {
+      if (!currentClient?.id) return;
+      await supabase
+        .from('client_settings')
+        .upsert(
+          { client_id: currentClient.id, product_tour_completed: true },
+          { onConflict: 'client_id' }
+        );
+      queryClient.setQueryData(["client-product-tour", currentClient.id], true);
+    } catch (_) {
+      /* noop */
+    }
+  };
 
   // 2. Fetch Metrics (legacy/global)
   const { data: metrics, isLoading: metricsLoading } = useQuery({
@@ -281,6 +335,22 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   });
 
   const showShopifyBanner = currentClient?.client_type === 'ecommerce' && shopifyConnected === false;
+
+  // 5b-bis. Industry preset applied (null = never chosen, 'skipped' = user passed, or preset id)
+  const { data: industryPresetApplied, refetch: refetchIndustryPreset } = useQuery({
+    queryKey: ['industry-preset-applied', currentClient?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('client_settings')
+        .select('industry_preset_applied')
+        .eq('client_id', currentClient.id)
+        .maybeSingle();
+      return data?.industry_preset_applied ?? null;
+    },
+    enabled: !!currentClient?.id,
+    refetchOnWindowFocus: false,
+  });
+  const [industryPickerDismissed, setIndustryPickerDismissed] = useState(false);
 
   // 5c. Setup completion — shared cache with SetupChecklist (same queryKey)
   const { data: setupCompletion } = useQuery({
@@ -539,12 +609,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   }, [pendingEscalations]);
 
   const sidebarItems = [
-    { id: 'overview', label: 'Tableau de bord', icon: LayoutDashboard },
+    { id: 'overview', label: 'Tableau de bord', icon: LayoutDashboard, dataTour: 'overview-tab' },
 
     {
       type: 'expandable',
       label: 'Mon Agent',
       icon: Bot,
+      dataTour: 'agent-section',
       defaultOpen: true,
       children: [
         { id: 'agent-config', label: 'Mon Agent', icon: MessageCircle },
@@ -572,6 +643,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'weekly-summary', label: 'Resume hebdo', icon: BarChart3 },
         { id: 'roi', label: 'ROI', icon: TrendingUp },
         { id: 'peak-hours', label: 'Heures de pic', icon: Clock },
+        { id: 'achievements', label: 'Recompenses', icon: Trophy },
       ],
     },
 
@@ -614,8 +686,32 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const isLoading = clientLoading || metricsLoading || dailyMetricsLoading;
   const isLight = theme === "light";
 
+  // Show IndustryPicker only for brand-new clients still in setup mode,
+  // who have never chosen/skipped a preset, and haven't dismissed it this session.
+  const shouldShowIndustryPicker =
+    !!currentClient?.id &&
+    industryPresetApplied === null &&
+    !industryPickerDismissed &&
+    isSetupMode &&
+    completedSetupSteps < 3;
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#fafafa] text-[#1a1a1a]">
+      {shouldShowIndustryPicker && (
+        <IndustryPicker
+          clientId={currentClient.id}
+          onClose={() => {
+            setIndustryPickerDismissed(true);
+            refetchIndustryPreset();
+          }}
+          onApplied={() => {
+            setIndustryPickerDismissed(true);
+            refetchIndustryPreset();
+            queryClient.invalidateQueries({ queryKey: ['setup-checklist', currentClient.id] });
+            queryClient.invalidateQueries({ queryKey: ['industry-preset-applied', currentClient.id] });
+          }}
+        />
+      )}
       {/* Mobile Header */}
       <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 ${isLight ? "bg-white border-b border-gray-200" : "bg-white border-b border-gray-100"}`}>
         <div className="flex items-center gap-2">
@@ -698,6 +794,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "marketplace" && "Marketplace"}
             {activeTab === "weekly-summary" && "Resume hebdo"}
             {activeTab === "peak-hours" && "Heures de pic"}
+            {activeTab === "achievements" && "Recompenses"}
             {activeTab === "roi" && "ROI"}
             {activeTab === "profile" && "Compte"}
             {activeTab === "billing" && "Facturation"}
@@ -768,7 +865,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
                   {/* ── Setup checklist (non dismissible) ── */}
                   {currentClient?.id && (
-                    <div className="mb-8">
+                    <div data-tour="setup-checklist" className="mb-8">
                       <SetupChecklist clientId={currentClient.id} setActiveTab={setActiveTab} dismissible={false} />
                     </div>
                   )}
@@ -873,13 +970,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
                   {/* ── Setup checklist (dismissible, shows only if not fully done) ── */}
                   {currentClient?.id && completedSetupSteps < 7 && (
-                    <div className="mb-6">
+                    <div data-tour="setup-checklist" className="mb-6">
                       <SetupChecklist clientId={currentClient.id} setActiveTab={setActiveTab} />
                     </div>
                   )}
 
                   {/* ── KPI Row (Instantly-style) ── */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
+                  <div data-tour="kpi-row" className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
                     {[
                       {
                         label: 'Demandes traitées automatiquement',
@@ -1013,6 +1110,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
                   {/* ── Suggestions ── */}
                   <AgentImprovementWidget clientId={currentClient?.id} theme={theme} />
+
+                  {/* ── Achievements banner (only if at least 1 unlocked) ── */}
+                  <div className="mt-6">
+                    <AchievementsBanner
+                      clientId={currentClient?.id}
+                      onViewAll={() => setActiveTab('achievements')}
+                    />
+                  </div>
                 </>
               )}
             </div>
@@ -1125,6 +1230,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             </div>
           )}
 
+          {activeTab === "achievements" && (
+            <AchievementsView clientId={currentClient?.id} />
+          )}
+
         </main>
       </div>
 
@@ -1133,6 +1242,12 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       {/* Onboarding Concierge — auto-hides once the 7 setup steps are done */}
       {currentClient?.id && <OnboardingConcierge clientId={currentClient.id} setActiveTab={setActiveTab} />}
+
+      {/* Achievements celebration toast */}
+      {currentClient?.id && <AchievementsToast clientId={currentClient.id} />}
+
+      {/* Interactive Product Tour (Linear-style spotlight) */}
+      <ProductTour isOpen={showTour} onClose={handleCloseTour} />
     </div>
   );
 };
