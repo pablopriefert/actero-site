@@ -51,12 +51,23 @@ export default async function handler(req, res) {
       clientConfig.settings?.elevenlabs_voice_id ||
       process.env.ELEVENLABS_DEFAULT_VOICE_ID
 
+    // Re-send the full prompt structure (including custom_llm) so PATCH does
+    // not accidentally wipe the LLM wiring that was set during creation.
+    const customLlmUrl = `${(process.env.PUBLIC_API_URL || '').replace(/\/$/, '')}/api/voice/custom-llm?client_id=${clientId}`
     const payload = {
       conversation_config: {
         agent: {
-          prompt: { prompt: voicePrompt },
           ...(finalGreeting ? { first_message: finalGreeting } : {}),
           language: 'fr',
+          prompt: {
+            prompt: voicePrompt,
+            llm: 'custom-llm',
+            custom_llm: {
+              url: customLlmUrl,
+              model_id: 'actero-brain',
+              api_key: process.env.VOICE_LLM_SECRET,
+            },
+          },
         },
         ...(finalVoiceId ? { tts: { voice_id: finalVoiceId } } : {}),
       },
@@ -68,10 +79,16 @@ export default async function handler(req, res) {
     })
 
     if (!ok) {
+      const upstreamMsg =
+        data?.detail?.message ||
+        (typeof data?.detail === 'string' ? data.detail : null) ||
+        data?.error ||
+        data?.message ||
+        (data?.raw ? String(data.raw).slice(0, 200) : null) ||
+        `ElevenLabs returned status ${status}`
       return res.status(502).json({
-        error: 'ElevenLabs agent update failed',
-        status,
-        details: data,
+        error: `ElevenLabs: ${upstreamMsg}`,
+        upstream_status: status,
       })
     }
 

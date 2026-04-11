@@ -48,23 +48,26 @@ export default async function handler(req, res) {
 
     const customLlmUrl = `${process.env.PUBLIC_API_URL.replace(/\/$/, '')}/api/voice/custom-llm?client_id=${clientId}`
 
+    // ElevenLabs Conv AI agent payload — `llm` and `custom_llm` MUST be
+    // nested inside `agent.prompt` (NOT at conversation_config root).
+    // Ref: https://elevenlabs.io/docs/conversational-ai/customization/llm/custom-llm
     const payload = {
       name: `${clientConfig.client.brand_name} - Agent Vocal`,
       conversation_config: {
         agent: {
-          prompt: { prompt: voicePrompt },
           first_message: greeting,
           language: 'fr',
-        },
-        tts: { voice_id: voiceId },
-        llm: {
-          model: 'custom-llm',
-          custom_llm: {
-            url: customLlmUrl,
-            model_id: 'actero-brain',
-            api_key: process.env.VOICE_LLM_SECRET,
+          prompt: {
+            prompt: voicePrompt,
+            llm: 'custom-llm',
+            custom_llm: {
+              url: customLlmUrl,
+              model_id: 'actero-brain',
+              api_key: process.env.VOICE_LLM_SECRET,
+            },
           },
         },
+        tts: { voice_id: voiceId },
       },
     }
 
