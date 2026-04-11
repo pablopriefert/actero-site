@@ -73,7 +73,8 @@ export default async function handler(req, res) {
             },
           },
         },
-        ...(finalVoiceId ? { tts: { voice_id: finalVoiceId } } : {}),
+        // Non-english agents MUST use turbo or flash v2_5 (we pick flash).
+        ...(finalVoiceId ? { tts: { voice_id: finalVoiceId, model_id: 'eleven_flash_v2_5' } } : {}),
       },
     }
 

@@ -73,7 +73,9 @@ export default async function handler(req, res) {
             },
           },
         },
-        tts: { voice_id: voiceId },
+        // Non-english agents MUST use turbo or flash v2_5.
+        // We pick flash for the lowest phone latency.
+        tts: { voice_id: voiceId, model_id: 'eleven_flash_v2_5' },
       },
     }
 
