@@ -104,7 +104,7 @@ export const PeakHoursChart = ({ clientId }) => {
       </div>
 
       <div className="h-[180px] -ml-2">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={150}>
           <BarChart data={hourly} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
             <XAxis
               dataKey="label"

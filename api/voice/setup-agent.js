@@ -74,16 +74,32 @@ export default async function handler(req, res) {
     })
 
     if (!ok) {
+      const upstreamMsg =
+        data?.detail?.message ||
+        (typeof data?.detail === 'string' ? data.detail : null) ||
+        data?.error ||
+        data?.message ||
+        (data?.raw ? String(data.raw).slice(0, 200) : null) ||
+        `ElevenLabs returned status ${status}`
       return res.status(502).json({
-        error: 'ElevenLabs agent creation failed',
-        status,
-        details: data,
+        error: `ElevenLabs: ${upstreamMsg}`,
+        upstream_status: status,
+        hint: status === 401
+          ? 'Verifie ELEVENLABS_API_KEY (workspace API key valide).'
+          : status === 402
+          ? 'Ton plan ElevenLabs ne couvre pas Conversational AI. Passe en plan Creator/Pro.'
+          : status === 422
+          ? 'ELEVENLABS_DEFAULT_VOICE_ID invalide ou prompt mal forme.'
+          : undefined,
       })
     }
 
     const agentId = data?.agent_id || data?.id
     if (!agentId) {
-      return res.status(502).json({ error: 'ElevenLabs response missing agent_id', details: data })
+      return res.status(502).json({
+        error: 'ElevenLabs response missing agent_id',
+        details: data,
+      })
     }
 
     const { error: upsertErr } = await supabaseAdmin

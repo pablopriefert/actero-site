@@ -23,7 +23,9 @@ const apiCall = async (path, body) => {
   })
   const json = await res.json().catch(() => ({}))
   if (!res.ok) {
-    throw new Error(json?.error || `Erreur ${res.status}`)
+    const base = json?.error || `Erreur ${res.status}`
+    const hint = json?.hint ? ` — ${json.hint}` : ''
+    throw new Error(base + hint)
   }
   return json
 }

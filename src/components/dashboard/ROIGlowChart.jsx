@@ -180,7 +180,7 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
           </div>
 
           <div className="flex-1 w-full min-h-[160px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={140}>
               <AreaChart data={combinedChartData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorCumulative" x1="0" y1="0" x2="0" y2="100%">

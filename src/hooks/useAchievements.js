@@ -49,7 +49,7 @@ export function useAchievements(clientId) {
       // Resolved tickets + savings via automation_events
       const { data: resolvedRows } = await supabase
         .from('automation_events')
-        .select('time_saved_seconds, euros_saved')
+        .select('time_saved_seconds, revenue_amount')
         .eq('client_id', clientId)
         .eq('event_category', 'ticket_resolved')
 
@@ -61,7 +61,7 @@ export function useAchievements(clientId) {
       const timeSavedHours = totalTimeSavedSec / 3600
       const hourlyCost = Number(settings?.hourly_cost) || 25
       const eurosReported = (resolvedRows || []).reduce(
-        (s, e) => s + (Number(e.euros_saved) || 0),
+        (s, e) => s + (Number(e.revenue_amount) || 0),
         0
       )
       const totalSavings = eurosReported > 0 ? eurosReported : timeSavedHours * hourlyCost

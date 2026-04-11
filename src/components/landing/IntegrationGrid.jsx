@@ -48,7 +48,10 @@ export const IntegrationGrid = ({ vertical }) => {
           className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col gap-3 cursor-default transition-all duration-300 group hover:border-gray-300"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors">
+            <div
+              className="w-9 h-9 rounded-xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors text-[11px] font-bold"
+              style={{ color: `#${integ.color || '262626'}` }}
+            >
               <img
                 src={integ.src
                   ? integ.src
@@ -56,6 +59,12 @@ export const IntegrationGrid = ({ vertical }) => {
                 alt={integ.name}
                 className="w-5 h-5 object-contain"
                 loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  if (e.currentTarget.parentElement) {
+                    e.currentTarget.parentElement.textContent = integ.name.slice(0, 2).toUpperCase()
+                  }
+                }}
               />
             </div>
             <span className="font-bold text-[#262626] text-sm leading-tight">{integ.name}</span>
