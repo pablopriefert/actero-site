@@ -86,15 +86,27 @@ export default async function handler(req, res) {
     const escalated = data.analysis?.call_successful === false || data.metadata?.transferred === true
 
     // Try to identify the client from the agent_id
-    // For now, use a mapping or default to the first client with vocal agent active
-    const { data: voiceConfig } = await supabase
-      .from('voice_agent_config')
-      .select('client_id')
-      .eq('is_active', true)
-      .limit(1)
-      .maybeSingle()
+    // Preferred: look up client_settings.elevenlabs_agent_id (V1 voice agent flow)
+    // Fallback: legacy voice_agent_config table.
+    let clientId = null
+    if (agentId) {
+      const { data: byAgent } = await supabase
+        .from('client_settings')
+        .select('client_id')
+        .eq('elevenlabs_agent_id', agentId)
+        .maybeSingle()
+      clientId = byAgent?.client_id || null
+    }
 
-    const clientId = voiceConfig?.client_id
+    if (!clientId) {
+      const { data: voiceConfig } = await supabase
+        .from('voice_agent_config')
+        .select('client_id')
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle()
+      clientId = voiceConfig?.client_id
+    }
 
     if (!clientId) {
       console.warn('[elevenlabs-postcall] No active voice agent config found')
@@ -207,23 +219,68 @@ export default async function handler(req, res) {
     // 6. Persist full call record in voice_calls (powers the dashboard)
     const recordingUrl = data.recording_url || data.audio_url || data.metadata?.recording_url || null
     const customerName = data.metadata?.caller_name || data.caller_name || null
+    const costUsd =
+      typeof data.cost_usd === 'number'
+        ? data.cost_usd
+        : typeof data.metadata?.cost_usd === 'number'
+          ? data.metadata.cost_usd
+          : null
+    const sentimentScore =
+      typeof satisfaction === 'number'
+        ? satisfaction
+        : typeof data.analysis?.sentiment_score === 'number'
+          ? data.analysis.sentiment_score
+          : null
+    const classification =
+      data.analysis?.classification ||
+      data.analysis?.intent ||
+      (escalated ? 'escalated' : 'voice_call')
+    const endedAt = data.ended_at || data.metadata?.ended_at || new Date().toISOString()
+
     await supabase.from('voice_calls').insert({
       client_id: clientId,
       conversation_id: conversationId,
+      elevenlabs_call_id: conversationId,
       customer_phone: customerNumber || null,
+      caller_phone: customerNumber || null,
       customer_name: customerName,
       duration_seconds: duration,
       transcript: transcriptText,
       summary: summary || null,
       sentiment: typeof satisfaction === 'string' ? satisfaction : (satisfaction != null ? String(satisfaction) : null),
+      sentiment_score: sentimentScore,
+      classification,
+      cost_usd: costUsd,
+      audio_url: recordingUrl,
       status: escalated ? 'escalated' : (status || 'completed'),
       recording_url: recordingUrl,
+      ended_at: endedAt,
       metadata: {
         agent_id: agentId,
         raw_status: status,
         transferred: data.metadata?.transferred || false,
         call_successful: data.analysis?.call_successful,
         analysis: data.analysis || null,
+      },
+    })
+
+    // 7. Dedicated voice_call_completed event so dashboard KPIs pick it up
+    await supabase.from('automation_events').insert({
+      client_id: clientId,
+      event_category: escalated ? 'ticket_escalated' : 'ticket_resolved',
+      event_type: 'voice_call_completed',
+      ticket_type: 'voice',
+      time_saved_seconds: escalated ? 0 : Math.max(duration, 180),
+      description: `[Vocal] Appel ${duration}s termine — ${classification}`,
+      metadata: {
+        conversation_id: conversationId,
+        agent_id: agentId,
+        duration_secs: duration,
+        sentiment_score: sentimentScore,
+        classification,
+        cost_usd: costUsd,
+        escalated,
+        source: 'elevenlabs_postcall',
       },
     })
 

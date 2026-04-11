@@ -23,6 +23,8 @@ import {
   ArrowRight,
   ShoppingBag,
   Trophy,
+  Phone,
+  PhoneCall,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -43,6 +45,7 @@ import { TeamManager, canAccessTab } from '../components/client/TeamManager'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ResponseTemplatesView } from '../components/client/ResponseTemplatesView'
 import { VoiceCallsView } from '../components/client/VoiceCallsView'
+import { VoiceAgentSetupView } from '../components/client/VoiceAgentSetupView'
 import { NotificationCenterView } from '../components/client/NotificationCenterView'
 import { AgentImprovementWidget } from '../components/client/AgentImprovementWidget'
 import { PlaybooksView } from '../components/client/PlaybooksView'
@@ -171,6 +174,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/escalations") return "escalations";
     if (route === "/client/response-templates") return "response-templates";
     if (route === "/client/voice-calls") return "voice-calls";
+    if (route === "/client/voice-agent") return "voice-agent";
     if (route === "/client/notifications") return "notifications";
     if (route === "/client/billing") return "billing";
     if (route === "/client/roi") return "roi";
@@ -633,6 +637,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
     { type: 'section', label: 'Connexions' },
     { id: 'integrations', label: 'Integrations', icon: Plug },
+    { id: 'voice-agent', label: 'Agent vocal', icon: Phone },
     { id: 'marketplace', label: 'Marketplace', icon: Store },
 
     {
@@ -643,6 +648,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'weekly-summary', label: 'Resume hebdo', icon: BarChart3 },
         { id: 'roi', label: 'ROI', icon: TrendingUp },
         { id: 'peak-hours', label: 'Heures de pic', icon: Clock },
+        { id: 'voice-calls', label: 'Appels vocaux', icon: PhoneCall },
         { id: 'achievements', label: 'Recompenses', icon: Trophy },
       ],
     },
@@ -789,6 +795,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "escalations" && "A traiter"}
             {activeTab === "response-templates" && "Modeles de reponse"}
             {activeTab === "voice-calls" && "Appels vocaux"}
+            {activeTab === "voice-agent" && "Agent vocal"}
             {activeTab === "notifications" && "Notifications"}
             {activeTab === "playbooks" && "Scenarios"}
             {activeTab === "marketplace" && "Marketplace"}
@@ -1204,6 +1211,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "voice-calls" && (
             <VoiceCallsView clientId={currentClient?.id} theme={theme} />
+          )}
+
+          {activeTab === "voice-agent" && (
+            <VoiceAgentSetupView clientId={currentClient?.id} />
           )}
 
           {activeTab === "notifications" && (
