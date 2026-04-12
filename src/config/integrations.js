@@ -77,7 +77,7 @@ export const INTEGRATIONS = {
       id: 'woocommerce',
       name: 'WooCommerce',
       description: 'Connectez votre boutique WooCommerce en 1 clic — commandes, clients, produits',
-      icon: '/integrations/woocommerce.png',
+      icon: 'https://ejgdwjjcpjtwaqcxptke.supabase.co/storage/v1/object/public/logo/WooCommerce.png',
       authType: 'oauth',
       oauthPrompt: 'store_url',
       oauthPromptLabel: 'URL de votre boutique WooCommerce',
