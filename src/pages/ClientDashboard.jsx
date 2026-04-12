@@ -644,7 +644,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       label: 'Mon Agent',
       icon: Bot,
       dataTour: 'agent-section',
-      defaultOpen: true,
+      defaultOpen: false,
       children: [
         { id: 'agent-config', label: 'Configuration', icon: Bot },
         { id: 'playbooks', label: 'Scenarios', icon: Zap },
@@ -663,7 +663,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       type: 'expandable',
       label: 'Insights',
       icon: TrendingUp,
-      defaultOpen: true,
+      defaultOpen: false,
       children: [
         { id: 'weekly-summary', label: 'Performance', icon: BarChart3 },
         { id: 'roi', label: 'ROI', icon: TrendingUp },
