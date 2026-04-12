@@ -45,7 +45,7 @@ const plans = [
     monthlyPrice: 99,
     annualPrice: 79,
     trial: true,
-    cta: "Essai gratuit 14 jours",
+    cta: "Essai gratuit 7 jours",
     ctaLink: "/signup?plan=starter",
     highlighted: false,
     cardClass: "border-[#f0f0f0] bg-white",
@@ -70,7 +70,7 @@ const plans = [
     monthlyPrice: 399,
     annualPrice: 319,
     trial: true,
-    cta: "Essai gratuit 14 jours",
+    cta: "Essai gratuit 7 jours",
     ctaLink: "/signup?plan=pro",
     highlighted: true,
     cardClass: "border-[#0F5F35] bg-white ring-2 ring-[#0F5F35]/20 shadow-lg",
@@ -179,7 +179,7 @@ const faqs = [
   },
   {
     q: "L'essai gratuit est-il sans engagement ?",
-    a: "Oui, l'essai de 14 jours est 100% gratuit et sans engagement. Aucune carte bancaire requise pour le plan Free. Pour Starter et Pro, vous pouvez annuler a tout moment pendant l'essai sans etre debite.",
+    a: "Oui, l'essai de 7 jours est 100% gratuit et sans engagement. Aucune carte bancaire requise pour le plan Free. Pour Starter et Pro, vous pouvez annuler a tout moment pendant l'essai sans etre debite.",
   },
   {
     q: "Comment fonctionne l'agent vocal ?",
@@ -335,7 +335,7 @@ export const PricingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Tarifs Actero — Plans SaaS pour automatiser votre support e-commerce"
-        description="Des prix simples et transparents. Commencez gratuitement, upgradez quand vous grandissez. Essai gratuit 14 jours."
+        description="Des prix simples et transparents. Commencez gratuitement, upgradez quand vous grandissez. Essai gratuit 7 jours."
         canonical="/pricing"
       />
 
@@ -549,7 +549,7 @@ export const PricingPage = ({ onNavigate }) => {
                     }}
                     className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2"
                   >
-                    Essai gratuit 14 jours <ChevronRight className="w-4 h-4" />
+                    Essai gratuit 7 jours <ChevronRight className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => {

@@ -57,7 +57,7 @@ export const GlassHero = ({ onNavigate }) => {
                     {/* CTAs */}
                     <FadeInUp delay={0.15} className="flex flex-wrap items-center justify-center gap-4">
                         <ButtonColorful onClick={() => onNavigate('/signup?plan=pro')}>
-                            Essai gratuit 14 jours <ArrowRight className="w-4 h-4" />
+                            Essai gratuit 7 jours <ArrowRight className="w-4 h-4" />
                         </ButtonColorful>
                         <button
                             onClick={() => onNavigate('/pricing')}

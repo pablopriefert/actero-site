@@ -462,7 +462,7 @@ export const LandingPage = ({ onNavigate }) => {
                         onClick={() => onNavigate("/signup?plan=pro")}
                         className="flex-shrink-0 flex items-center gap-2"
                       >
-                        Essai gratuit 14 jours <ArrowRight className="w-4 h-4" />
+                        Essai gratuit 7 jours <ArrowRight className="w-4 h-4" />
                       </ButtonColorful>
                     </div>
                   </div>
@@ -743,8 +743,8 @@ export const LandingPage = ({ onNavigate }) => {
                           </div>
                           <p className="text-sm text-[#716D5C] font-medium">
                             {vertical === 'ecommerce'
-                              ? "Plan Free gratuit. Starter 99€/mois, Pro 399€/mois. Essai 14 jours sans engagement."
-                              : "Plan Free gratuit. Starter 99€/mois, Pro 399€/mois. Essai 14 jours sans engagement."
+                              ? "Plan Free gratuit. Starter 99€/mois, Pro 399€/mois. Essai 7 jours sans engagement."
+                              : "Plan Free gratuit. Starter 99€/mois, Pro 399€/mois. Essai 7 jours sans engagement."
                             }
                           </p>
                         </div>
@@ -805,7 +805,7 @@ export const LandingPage = ({ onNavigate }) => {
                             onClick={() => onNavigate("/signup?plan=pro")}
                             className="w-full flex items-center justify-center gap-2 mb-4"
                           >
-                            Essai gratuit 14 jours <ArrowRight className="w-4 h-4" />
+                            Essai gratuit 7 jours <ArrowRight className="w-4 h-4" />
                           </ButtonColorful>
                           <p className="text-center text-xs text-[#716D5C] font-medium">
                             Sans engagement. Annulez a tout moment.
@@ -855,7 +855,7 @@ export const LandingPage = ({ onNavigate }) => {
                     },
                     {
                       q: "Combien ça coûte ?",
-                      a: "Actero propose 4 plans : Free (0€), Starter (99€/mois), Pro (399€/mois) et Enterprise (sur devis). Essai gratuit de 14 jours sur Starter et Pro. -20% en facturation annuelle."
+                      a: "Actero propose 4 plans : Free (0€), Starter (99€/mois), Pro (399€/mois) et Enterprise (sur devis). Essai gratuit de 7 jours sur Starter et Pro. -20% en facturation annuelle."
                     },
                   ] : [
                     {
@@ -947,7 +947,7 @@ export const LandingPage = ({ onNavigate }) => {
                         Voir les tarifs
                       </button>
                       <ButtonColorful onClick={() => onNavigate('/signup?plan=pro')}>
-                        Essai gratuit 14 jours
+                        Essai gratuit 7 jours
                       </ButtonColorful>
                     </div>
                   </div>
@@ -980,7 +980,7 @@ export const LandingPage = ({ onNavigate }) => {
                       onClick={() => onNavigate('/signup?plan=pro')}
                       className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-semibold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2"
                     >
-                      Essai gratuit 14 jours
+                      Essai gratuit 7 jours
                     </button>
                     <button
                       onClick={() => onNavigate('/pricing')}

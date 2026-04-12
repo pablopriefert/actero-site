@@ -154,7 +154,7 @@ export default async function handler(req, res) {
         customer: customer.id,
         line_items: [{ price: priceId, quantity: 1 }],
         subscription_data: {
-          trial_period_days: 14,
+          trial_period_days: 7,
           metadata: { client_id: clientId, plan: selectedPlan },
         },
         metadata: { client_id: clientId, plan: selectedPlan, kind: 'saas_signup' },

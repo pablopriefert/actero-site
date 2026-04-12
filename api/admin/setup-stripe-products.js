@@ -130,7 +130,7 @@ export default async function handler(req, res) {
         '2. Va sur Vercel → Settings → Environment Variables',
         '3. Ajoute les 4 variables (STRIPE_PRICE_STARTER_MONTHLY, etc.)',
         '4. Redéploie',
-        '5. Le signup self-service avec trial 14j est prêt',
+        '5. Le signup self-service avec trial 7j est prêt',
       ],
     })
   } catch (err) {

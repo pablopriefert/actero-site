@@ -51,7 +51,7 @@ export const PLANS = {
     name: 'Starter',
     tagline: 'Automatiser les premières tâches',
     price: { monthly: 99, annual: 79 },
-    trial: { days: 14, requires_card: true },
+    trial: { days: 7, requires_card: true },
     limits: {
       tickets_per_month: 1000,
       workflows_active: 3,
@@ -82,7 +82,7 @@ export const PLANS = {
       price_id_monthly: null, // À remplir après création dans Stripe Dashboard
       price_id_annual: null,
     },
-    cta: 'Essai gratuit 14 jours',
+    cta: 'Essai gratuit 7 jours',
     popular: false,
   },
   pro: {
@@ -90,7 +90,7 @@ export const PLANS = {
     name: 'Pro',
     tagline: 'Automatisation complète + agent vocal',
     price: { monthly: 399, annual: 319 },
-    trial: { days: 14, requires_card: true },
+    trial: { days: 7, requires_card: true },
     limits: {
       tickets_per_month: 5000,
       workflows_active: Infinity,
@@ -121,7 +121,7 @@ export const PLANS = {
       price_id_monthly: null,
       price_id_annual: null,
     },
-    cta: 'Essai gratuit 14 jours',
+    cta: 'Essai gratuit 7 jours',
     popular: true,
   },
   enterprise: {

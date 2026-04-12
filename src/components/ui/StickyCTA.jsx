@@ -26,7 +26,7 @@ export const StickyCTA = ({ onNavigate, vertical }) => {
             onClick={() => onNavigate('/signup?plan=pro')}
             className="w-full py-4 px-6 rounded-full font-bold text-base flex items-center justify-center gap-2 shadow-xl transition-all active:scale-[0.98] bg-[#0F5F35] text-white"
           >
-            Essai gratuit 14 jours
+            Essai gratuit 7 jours
             <ArrowRight className="w-4 h-4" />
           </button>
         </motion.div>

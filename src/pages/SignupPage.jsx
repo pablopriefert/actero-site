@@ -30,7 +30,7 @@ const PLANS = [
       "Rapports avancés",
       "Support prioritaire",
     ],
-    cta: "Commencer mon essai gratuit de 14 jours",
+    cta: "Commencer mon essai gratuit de 7 jours",
     highlighted: false,
     trial: true,
   },
@@ -48,7 +48,7 @@ const PLANS = [
       "Account manager dédié",
       "SLA garanti",
     ],
-    cta: "Commencer mon essai gratuit de 14 jours",
+    cta: "Commencer mon essai gratuit de 7 jours",
     highlighted: true,
     badge: "Populaire",
     trial: true,
@@ -166,7 +166,7 @@ export const SignupPage = ({ onNavigate }) => {
   const getCta = () => {
     if (selectedPlan === "free") return "Créer mon compte gratuit";
     if (selectedPlan === "enterprise") return "Demander une démo";
-    return "Commencer mon essai gratuit de 14 jours";
+    return "Commencer mon essai gratuit de 7 jours";
   };
 
   return (
@@ -190,7 +190,7 @@ export const SignupPage = ({ onNavigate }) => {
                 Créez votre compte Actero
               </h1>
               <p className="text-[#71717a] text-lg max-w-xl mx-auto">
-                Automatisez votre e-commerce avec l'IA. Commencez gratuitement ou essayez un plan payant pendant 14 jours.
+                Automatisez votre e-commerce avec l'IA. Commencez gratuitement ou essayez un plan payant pendant 7 jours.
               </p>
             </motion.div>
 
@@ -261,7 +261,7 @@ export const SignupPage = ({ onNavigate }) => {
                         <span className="text-2xl font-bold text-[#1a1a1a]">Sur devis</span>
                       )}
                       {plan.trial && (
-                        <p className="text-xs text-[#0F5F35] font-medium mt-1">14 jours d'essai gratuit</p>
+                        <p className="text-xs text-[#0F5F35] font-medium mt-1">7 jours d'essai gratuit</p>
                       )}
                     </div>
 
@@ -300,7 +300,7 @@ export const SignupPage = ({ onNavigate }) => {
                 {activePlan?.trial && (
                   <p className="text-sm text-[#71717a] mb-6">
                     <ShieldCheck className="w-4 h-4 inline mr-1 text-[#0F5F35]" />
-                    14 jours gratuits, sans engagement. Carte bancaire requise.
+                    7 jours gratuits, sans engagement. Carte bancaire requise.
                   </p>
                 )}
                 {!activePlan?.trial && selectedPlan !== "enterprise" && (

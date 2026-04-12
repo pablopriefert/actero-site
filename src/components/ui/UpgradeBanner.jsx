@@ -65,7 +65,7 @@ export const UpgradeBanner = ({ feature, requiredPlan, compact = false, onNaviga
         </button>
 
         <p className="text-[11px] text-[#9ca3af] mt-4">
-          Essai gratuit 14 jours, sans engagement
+          Essai gratuit 7 jours, sans engagement
         </p>
       </div>
     </div>
