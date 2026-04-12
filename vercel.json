@@ -17,6 +17,18 @@
             "destination": "/api/mcp/oauth-resource"
         },
         {
+            "source": "/authorize",
+            "destination": "/api/mcp/authorize"
+        },
+        {
+            "source": "/token",
+            "destination": "/api/mcp/token"
+        },
+        {
+            "source": "/register",
+            "destination": "/api/mcp/register"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/$1"
         },

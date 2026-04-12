@@ -12,12 +12,14 @@ export default function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
 
   return res.status(200).json({
-    issuer: `${siteUrl}/api/mcp`,
-    authorization_endpoint: `${siteUrl}/api/mcp/authorize`,
-    token_endpoint: `${siteUrl}/api/mcp/token`,
+    issuer: siteUrl,
+    authorization_endpoint: `${siteUrl}/authorize`,
+    token_endpoint: `${siteUrl}/token`,
+    registration_endpoint: `${siteUrl}/register`,
     response_types_supported: ['code'],
     grant_types_supported: ['authorization_code'],
-    code_challenge_methods_supported: ['S256'],
+    code_challenge_methods_supported: ['S256', 'plain'],
     token_endpoint_auth_methods_supported: ['none'],
+    scopes_supported: ['actero'],
   })
 }
