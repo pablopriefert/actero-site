@@ -36,7 +36,7 @@ export const AdminTopErrorsView = () => {
       const { data, error } = await supabase
         .from('engine_runs_v2')
         .select('id, error_message, error, client_id, created_at, classification, agent_used, status')
-        .eq('status', 'failed')
+        .not('error', 'is', null)
         .gte('created_at', start)
         .limit(1000)
       if (error) throw error

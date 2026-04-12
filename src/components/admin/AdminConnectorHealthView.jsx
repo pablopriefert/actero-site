@@ -18,7 +18,6 @@ import { EmptyState } from '../ui/EmptyState'
 const STATUS_VARIANT = {
   active: 'success',
   expired: 'warning',
-  error: 'danger',
   revoked: 'neutral',
   pending: 'info',
 }
@@ -26,7 +25,6 @@ const STATUS_VARIANT = {
 const STATUS_LABEL = {
   active: 'Connected',
   expired: 'Expired',
-  error: 'Error',
   revoked: 'Revoked',
   pending: 'Pending',
 }
@@ -133,12 +131,12 @@ export const AdminConnectorHealthView = () => {
       .map(([provider, items]) => ({
         provider,
         items: items.sort((a, b) => {
-          const order = { error: 0, expired: 1, pending: 2, active: 3, revoked: 4 }
+          const order = { expired: 0, pending: 1, revoked: 2, active: 3 }
           return (order[a.status] ?? 9) - (order[b.status] ?? 9)
         }),
         total: items.length,
         healthy: items.filter((x) => x.status === 'active').length,
-        errors: items.filter((x) => x.status === 'error').length,
+        errors: items.filter((x) => x.status !== 'active' && x.status_message != null).length,
         expired: items.filter((x) => x.status === 'expired').length,
       }))
       .sort((a, b) => b.total - a.total)
@@ -147,7 +145,7 @@ export const AdminConnectorHealthView = () => {
   const globals = useMemo(() => {
     const total = integrations.length
     const healthy = integrations.filter((i) => i.status === 'active').length
-    const errors = integrations.filter((i) => i.status === 'error').length
+    const errors = integrations.filter((i) => i.status !== 'active' && i.status_message != null).length
     const expired = integrations.filter((i) => i.status === 'expired').length
     return { total, healthy, errors, expired }
   }, [integrations])

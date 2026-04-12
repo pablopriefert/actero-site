@@ -22,59 +22,64 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' })
   }
 
-  const auth = await authenticateAdmin(req, res)
-  if (!auth) return
+  try {
+    const auth = await authenticateAdmin(req, res)
+    if (!auth) return
 
-  const { user: admin } = auth
-  const body = await readJsonBody(req)
-  const { client_id } = body || {}
+    const { user: admin } = auth
+    const body = await readJsonBody(req)
+    const { client_id } = body || {}
 
-  if (!client_id || typeof client_id !== 'string') {
-    return res.status(400).json({ error: 'client_id is required' })
-  }
+    if (!client_id || typeof client_id !== 'string') {
+      return res.status(400).json({ error: 'client_id is required' })
+    }
 
-  // Confirm client exists
-  const { data: client, error: clientError } = await supabaseAdmin
-    .from('clients')
-    .select('id, brand_name')
-    .eq('id', client_id)
-    .maybeSingle()
+    // Confirm client exists
+    const { data: client, error: clientError } = await supabaseAdmin
+      .from('clients')
+      .select('id, brand_name')
+      .eq('id', client_id)
+      .maybeSingle()
 
-  if (clientError || !client) {
-    return res.status(404).json({ error: 'Client not found' })
-  }
+    if (clientError || !client) {
+      return res.status(404).json({ error: 'Client not found' })
+    }
 
-  const token = crypto.randomBytes(32).toString('hex')
-  const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString() // +1h
+    const token = crypto.randomBytes(32).toString('hex')
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString() // +1h
 
-  const { error: insertError } = await supabaseAdmin
-    .from('admin_impersonation_tokens')
-    .insert({
-      admin_id: admin.id,
+    const { error: insertError } = await supabaseAdmin
+      .from('admin_impersonation_tokens')
+      .insert({
+        admin_id: admin.id,
+        client_id,
+        token,
+        expires_at: expiresAt,
+      })
+
+    if (insertError) {
+      console.error('[admin/impersonate] insert error:', insertError)
+      return res.status(500).json({ error: 'Failed to create impersonation token' })
+    }
+
+    await logAdminAction(
+      admin.id,
+      admin.email,
+      'impersonate_start',
+      'client',
       client_id,
+      client_id,
+      { brand_name: client.brand_name, expires_at: expiresAt }
+    )
+
+    return res.status(200).json({
+      success: true,
       token,
       expires_at: expiresAt,
+      impersonate_url: `/client/overview?impersonate=${token}`,
     })
-
-  if (insertError) {
-    console.error('[admin/impersonate] insert error:', insertError)
-    return res.status(500).json({ error: 'Failed to create impersonation token' })
+  } catch (err) {
+    console.error('[admin/impersonate] Error:', err.message)
+    return res.status(500).json({ error: 'Internal error', message: err.message })
   }
-
-  await logAdminAction(
-    admin.id,
-    admin.email,
-    'impersonate_start',
-    'client',
-    client_id,
-    client_id,
-    { brand_name: client.brand_name, expires_at: expiresAt }
-  )
-
-  return res.status(200).json({
-    success: true,
-    token,
-    expires_at: expiresAt,
-    impersonate_url: `/client/overview?impersonate=${token}`,
-  })
 }

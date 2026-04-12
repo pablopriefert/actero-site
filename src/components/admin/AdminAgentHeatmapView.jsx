@@ -57,7 +57,7 @@ export const AdminAgentHeatmapView = () => {
       if (slot < 0 || slot > 23) continue
       const cell = map[agent][slot]
       cell.total += 1
-      if (run.status === 'failed') {
+      if (run.error != null) {
         cell.errors += 1
         cell.runs.push(run)
       }
@@ -73,7 +73,7 @@ export const AdminAgentHeatmapView = () => {
 
   // Global stats
   const totalRuns = runs.length
-  const totalErrors = runs.filter((r) => r.status === 'failed').length
+  const totalErrors = runs.filter((r) => r.error != null).length
   const globalRate = totalRuns ? ((totalErrors / totalRuns) * 100).toFixed(1) : '0.0'
 
   return (

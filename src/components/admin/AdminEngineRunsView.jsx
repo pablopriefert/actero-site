@@ -10,7 +10,7 @@ import { RunTagFlagButton } from './RunTagFlagButton'
 
 const STATUS_BADGES = {
   completed: { label: 'Complete', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-  failed: { label: 'Echoue', color: 'bg-red-50 text-red-600 border-red-200' },
+  error: { label: 'Echoue', color: 'bg-red-50 text-red-600 border-red-200' },
   needs_review: { label: 'Review', color: 'bg-amber-50 text-amber-600 border-amber-200' },
   running: { label: 'En cours', color: 'bg-blue-50 text-blue-600 border-blue-200' },
 }
@@ -28,7 +28,11 @@ export const AdminEngineRunsView = () => {
         .order('created_at', { ascending: false })
         .limit(100)
 
-      if (statusFilter !== 'all') query = query.eq('status', statusFilter)
+      if (statusFilter === 'error') {
+        query = query.not('error', 'is', null)
+      } else if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter)
+      }
 
       const { data, error } = await query
       if (error) throw error
@@ -40,7 +44,7 @@ export const AdminEngineRunsView = () => {
   // Stats
   const total = runs.length
   const completed = runs.filter(r => r.status === 'completed').length
-  const failed = runs.filter(r => r.status === 'failed').length
+  const failed = runs.filter(r => r.error != null).length
   const needsReview = runs.filter(r => r.status === 'needs_review').length
   const avgDuration = total > 0 ? Math.round(runs.reduce((s, r) => s + (r.duration_ms || 0), 0) / total) : 0
   const avgConfidence = total > 0 ? (runs.reduce((s, r) => s + (r.confidence || 0), 0) / total).toFixed(2) : 0
@@ -74,7 +78,7 @@ export const AdminEngineRunsView = () => {
 
       {/* Filters */}
       <div className="flex gap-2">
-        {['all', 'completed', 'failed', 'needs_review'].map(s => (
+        {['all', 'completed', 'error', 'needs_review'].map(s => (
           <button key={s} onClick={() => setStatusFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors ${statusFilter === s ? 'bg-[#0F5F35] text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-gray-200'}`}>
             {s === 'all' ? 'Tous' : STATUS_BADGES[s]?.label || s}
@@ -90,7 +94,8 @@ export const AdminEngineRunsView = () => {
       ) : (
         <div className="space-y-2">
           {runs.map(run => {
-            const badge = STATUS_BADGES[run.status] || STATUS_BADGES.running
+            const displayStatus = run.error != null ? 'error' : run.status
+            const badge = STATUS_BADGES[displayStatus] || STATUS_BADGES.running
             const isExpanded = expandedRun === run.id
             return (
               <div key={run.id} className="bg-white border border-[#f0f0f0] rounded-xl overflow-hidden">

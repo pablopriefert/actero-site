@@ -52,19 +52,19 @@ export function AdminConversionPipelineView() {
         // Fetch usage counters for current month
         if (freeList.length > 0) {
           const now = new Date()
-          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+          const currentPeriod = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
           const clientIds = freeList.map(c => c.id)
 
           const { data: counters } = await supabase
             .from('usage_counters')
-            .select('client_id, counter_value, last_reset, updated_at')
+            .select('client_id, tickets_used, period, updated_at')
             .in('client_id', clientIds)
-            .gte('last_reset', monthStart)
+            .eq('period', currentPeriod)
 
           const usageMap = {}
           ;(counters || []).forEach(c => {
             usageMap[c.client_id] = {
-              tickets: c.counter_value || 0,
+              tickets: c.tickets_used || 0,
               lastActivity: c.updated_at,
             }
           })

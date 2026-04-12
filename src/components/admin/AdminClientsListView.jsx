@@ -75,7 +75,7 @@ export function AdminClientsListView() {
       // 1) Base clients
       const { data: rows, error: cErr } = await supabase
         .from('clients')
-        .select('id, brand_name, contact_email, created_at, status, client_type, plan')
+        .select('id, brand_name, contact_email, created_at, status, client_type, plan, owner_user_id')
         .order('created_at', { ascending: false })
       if (cErr) throw cErr
       const baseClients = rows || []
@@ -107,12 +107,12 @@ export function AdminClientsListView() {
         })
       }
 
-      // 3) Client settings (agent_enabled, owner)
+      // 3) Client settings (whatsapp/voice agent flags)
       let settingsMap = {}
       if (ids.length > 0) {
         const { data: settings } = await supabase
           .from('client_settings')
-          .select('client_id, agent_enabled, owner_user_id')
+          .select('client_id, whatsapp_agent_enabled, voice_agent_enabled')
           .in('client_id', ids)
         ;(settings || []).forEach((s) => {
           settingsMap[s.client_id] = s
@@ -140,8 +140,7 @@ export function AdminClientsListView() {
         const settings = settingsMap[c.id]
         return {
           ...c,
-          agent_enabled: settings?.agent_enabled ?? true,
-          owner_user_id: settings?.owner_user_id || null,
+          agent_enabled: settings?.whatsapp_agent_enabled || settings?.voice_agent_enabled || false,
           last_activity_at: runs?.last || null,
           runs_7d: runs?.count || 0,
           escalations_count: escalationMap[c.id] || 0,

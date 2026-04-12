@@ -95,7 +95,7 @@ export default async function handler(req, res) {
     if (resend) {
       try {
         await resend.emails.send({
-          from: process.env.RESEND_FROM || 'Actero Academy <academy@actero.fr>',
+          from: process.env.RESEND_FROM_EMAIL || 'Actero Academy <academy@actero.fr>',
           to: normalizedEmail,
           subject: `Bienvenue dans Actero Academy - ${course.title}`,
           html: buildWelcomeHtml({ courseTitle: course.title, courseSlug: course.slug }),

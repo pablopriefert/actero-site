@@ -26,7 +26,6 @@ import {
   Trophy,
   Phone,
   PhoneCall,
-  Lock,
   BookOpen,
   Shield,
   Users,

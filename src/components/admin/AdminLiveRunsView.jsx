@@ -13,7 +13,7 @@ const FILTERS = [
   { id: 'all', label: 'Tous' },
   { id: 'completed', label: 'Success' },
   { id: 'needs_review', label: 'Needs Review' },
-  { id: 'failed', label: 'Errors' },
+  { id: 'error', label: 'Errors' },
 ]
 
 function iconForStatus(status) {
@@ -21,7 +21,7 @@ function iconForStatus(status) {
     return <CheckCircle2 className="w-4 h-4 text-[#10b981]" />
   if (status === 'needs_review')
     return <AlertTriangle className="w-4 h-4 text-[#f59e0b]" />
-  if (status === 'failed' || status === 'error')
+  if (status === 'error')
     return <XCircle className="w-4 h-4 text-[#ef4444]" />
   return <Activity className="w-4 h-4 text-[#9ca3af]" />
 }
@@ -97,6 +97,7 @@ export const AdminLiveRunsView = () => {
 
   const filtered = useMemo(() => {
     if (filter === 'all') return runs
+    if (filter === 'error') return runs.filter((r) => r.error != null)
     return runs.filter((r) => r.status === filter)
   }, [runs, filter])
 
@@ -119,7 +120,7 @@ export const AdminLiveRunsView = () => {
         {FILTERS.map((f) => {
           const active = filter === f.id
           const count =
-            f.id === 'all' ? runs.length : runs.filter((r) => r.status === f.id).length
+            f.id === 'all' ? runs.length : f.id === 'error' ? runs.filter((r) => r.error != null).length : runs.filter((r) => r.status === f.id).length
           return (
             <button
               key={f.id}
