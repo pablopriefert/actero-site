@@ -1,0 +1,23 @@
+/**
+ * OAuth Authorization Server Metadata (RFC 8414)
+ * Tells MCP clients the OAuth endpoints for authorization
+ */
+export default function handler(req, res) {
+  const siteUrl = process.env.PUBLIC_API_URL || 'https://actero.fr'
+
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+  if (req.method === 'OPTIONS') return res.status(200).end()
+
+  return res.status(200).json({
+    issuer: `${siteUrl}/api/mcp`,
+    authorization_endpoint: `${siteUrl}/api/mcp/authorize`,
+    token_endpoint: `${siteUrl}/api/mcp/token`,
+    response_types_supported: ['code'],
+    grant_types_supported: ['authorization_code'],
+    code_challenge_methods_supported: ['S256'],
+    token_endpoint_auth_methods_supported: ['none'],
+  })
+}

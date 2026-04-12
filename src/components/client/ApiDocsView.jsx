@@ -257,20 +257,20 @@ export function ApiDocsView({ clientId }) {
       </SectionCard>
 
       {/* MCP Server */}
-      {firstKey && (
+      {(
         <SectionCard title="MCP Server (Claude Desktop, Cursor...)" icon={Server}>
           <div className="space-y-4">
             <p className="text-[13px] text-[#71717a] leading-relaxed">
-              Connectez votre agent IA a Claude Desktop, Cursor, ou tout client MCP compatible. Les tools disponibles : envoyer un message, consulter l'usage, lister les escalades, voir les conversations.
+              Connectez votre agent IA a Claude Desktop, Cursor, ou tout client MCP compatible. L'authentification se fait automatiquement via votre compte Actero (comme Slack).
             </p>
 
             <div>
               <p className="text-[12px] font-semibold text-[#1a1a1a] mb-2">URL du serveur MCP :</p>
               <div className="flex items-center gap-3">
                 <code className="flex-1 bg-[#fafafa] border border-[#f0f0f0] rounded-xl px-4 py-2.5 text-[13px] font-mono text-[#1a1a1a] truncate">
-                  {`https://actero.fr/api/mcp/${firstKey}`}
+                  {`https://actero.fr/api/mcp`}
                 </code>
-                <button onClick={() => handleCopy(`https://actero.fr/api/mcp/${firstKey}`, 'mcp')} className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#0F5F35] text-white text-[13px] font-medium hover:bg-[#003725] transition-colors">
+                <button onClick={() => handleCopy(`https://actero.fr/api/mcp`, 'mcp')} className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#0F5F35] text-white text-[13px] font-medium hover:bg-[#003725] transition-colors">
                   {copiedId === 'mcp' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                   Copier
                 </button>
@@ -284,11 +284,11 @@ export function ApiDocsView({ clientId }) {
 {
   "mcpServers": {
     "actero": {
-      "url": "https://actero.fr/api/mcp/${firstKey}"
+      "url": "https://actero.fr/api/mcp"
     }
   }
 }`}</pre>
-                <button onClick={() => handleCopy(`{\n  "mcpServers": {\n    "actero": {\n      "url": "https://actero.fr/api/mcp/${firstKey}"\n    }\n  }\n}`, 'mcp-config')} className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors">
+                <button onClick={() => handleCopy(`{\n  "mcpServers": {\n    "actero": {\n      "url": "https://actero.fr/api/mcp"\n    }\n  }\n}`, 'mcp-config')} className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors">
                   {copiedId === 'mcp-config' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white/70" />}
                 </button>
               </div>
