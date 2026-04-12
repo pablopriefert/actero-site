@@ -28,7 +28,6 @@ import { PartnersLandingPage } from "./pages/PartnersLandingPage";
 import { PartnerApplyPage } from "./pages/PartnerApplyPage";
 import { PartnersDirectoryPage } from "./pages/PartnersDirectoryPage";
 import { PartnerProfilePage } from "./pages/PartnerProfilePage";
-import { AmbassadorLandingPage } from "./pages/AmbassadorLandingPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { SupportGuidePage } from "./pages/SupportGuidePage";
 import { LegalPage } from "./pages/LegalPage";
@@ -38,10 +37,6 @@ import { MarketplaceTemplatePage } from "./pages/MarketplaceTemplatePage";
 import { AcademyPage } from "./pages/AcademyPage";
 import { AcademyCoursePage } from "./pages/AcademyCoursePage";
 import { AcademyModulePage } from "./pages/AcademyModulePage";
-import { AmbassadorLogin } from "./pages/AmbassadorLogin";
-import { AmbassadorDashboard } from "./pages/AmbassadorDashboard";
-import AmbassadorSetupPassword from "./pages/AmbassadorSetupPassword";
-import AmbassadorSetupIban from "./pages/AmbassadorSetupIban";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
 import { ToastProvider } from "./components/ui/Toast";
@@ -142,13 +137,6 @@ function MainRouter() {
   else if (currentRoute.startsWith("/partners/")) {
     const partnerSlug = currentRoute.replace("/partners/", "").split("?")[0];
     page = <PartnerProfilePage slug={partnerSlug} onNavigate={navigate} />;
-  }
-  else if (currentRoute === "/ambassadeurs") page = <AmbassadorLandingPage onNavigate={navigate} />;
-  else if (currentRoute === "/ambassador/login") page = <AmbassadorLogin onNavigate={navigate} />;
-  else if (currentRoute === "/ambassador/setup-password") page = <AmbassadorSetupPassword />;
-  else if (currentRoute === "/ambassador/setup-iban") page = <AmbassadorSetupIban />;
-  else if (currentRoute.startsWith("/ambassador")) {
-    page = <AmbassadorDashboard currentRoute={currentRoute} onNavigate={navigate} />;
   }
   else if (currentRoute === "/app" || currentRoute.startsWith("/admin") || currentRoute.startsWith("/client")) {
     page = <DashboardGate currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;

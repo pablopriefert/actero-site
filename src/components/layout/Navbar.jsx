@@ -79,10 +79,10 @@ export const Navbar = ({ onNavigate, onAuditOpen, trackEvent }) => {
               <ButtonColorful
                 onClick={() => {
                   trackEvent?.("Header_CTA_Clicked", { location: "navbar" });
-                  onAuditOpen?.();
+                  onNavigate('/tarifs');
                 }}
               >
-                Demander un audit
+                Demarrer gratuitement
               </ButtonColorful>
             </div>
             <button

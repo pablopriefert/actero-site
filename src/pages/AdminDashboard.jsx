@@ -29,7 +29,6 @@ import {
   Wifi,
   GitBranch,
   Receipt,
-  Heart,
   Gift,
   Rocket,
   FileText,
@@ -70,7 +69,6 @@ import { AdminReferralsView } from '../components/admin/AdminReferralsView'
 import { CallNotesWizard } from '../components/admin/CallNotesWizard'
 import { DeploymentProgress } from '../components/admin/DeploymentProgress'
 import { AdminNegativeRatingsView } from '../components/admin/AdminNegativeRatingsView'
-import { AdminAmbassadorsView } from '../components/admin/AdminAmbassadorsView'
 import { AdminPartnersView } from '../components/admin/AdminPartnersView'
 import { AdminShopifyView } from '../components/admin/AdminShopifyView'
 import { AdminEngineTestView } from '../components/admin/AdminEngineTestView'
@@ -284,7 +282,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/billing") return "billing";
     if (route === "/admin/health") return "health";
     if (route === "/admin/referrals") return "referrals";
-    if (route === "/admin/ambassadors") return "ambassadors";
     if (route === "/admin/partners") return "partners";
     if (route === "/admin/ratings") return "ratings";
     if (route === "/admin/shopify") return "shopify";
@@ -480,7 +477,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       icon: Settings,
       children: [
         { id: 'referrals', label: 'Parrainages', icon: Gift },
-        { id: 'ambassadors', label: 'Ambassadeurs', icon: Heart },
         { id: 'partners', label: 'Partenaires', icon: Handshake },
         { id: 'alert-builder', label: 'Alertes Slack', icon: BellRing },
         { id: 'billing', label: 'Facturation', icon: Receipt },
@@ -617,7 +613,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               'action-logs': 'Journal audit',
               shopify: 'App Shopify',
               referrals: 'Parrainages',
-              ambassadors: 'Ambassadeurs',
               partners: 'Partenaires',
               team: 'Equipe Actero',
               settings: 'Parametres',
@@ -649,8 +644,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "health" && <AdminClientHealthView />}
 
           {activeTab === "referrals" && <AdminReferralsView />}
-
-          {activeTab === "ambassadors" && <AdminAmbassadorsView />}
 
           {activeTab === "partners" && <AdminPartnersView />}
 

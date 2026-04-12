@@ -60,22 +60,13 @@ export const GlassHero = ({ onNavigate }) => {
                             Essai gratuit 7 jours <ArrowRight className="w-4 h-4" />
                         </ButtonColorful>
                         <button
-                            onClick={() => onNavigate('/pricing')}
+                            onClick={() => onNavigate('/tarifs')}
                             className="text-sm font-semibold text-[#003725] underline underline-offset-4 decoration-[#003725]/40 hover:decoration-[#003725] transition-colors"
                         >
                             Voir les tarifs
                         </button>
                     </FadeInUp>
 
-                    {/* Ambassador CTA */}
-                    <FadeInUp delay={0.18} className="flex justify-center">
-                        <button
-                            onClick={() => onNavigate('/ambassadeurs')}
-                            className="text-xs font-medium text-[#716D5C] hover:text-[#003725] transition-colors mt-3"
-                        >
-                            Devenir ambassadeur Actero →
-                        </button>
-                    </FadeInUp>
                 </div>
 
                 {/* Feature cards — 4-column grid BELOW the CTA (Shine style) */}
