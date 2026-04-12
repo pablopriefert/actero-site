@@ -480,7 +480,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       setOauthPromptProvider(provider);
       setOauthPromptValue('');
     } else if (provider.oauthUrl) {
-      const url = provider.oauthUrl({ token: session.access_token });
+      const url = provider.oauthUrl({ token: session.access_token, client_id: clientId });
       window.location.href = url;
     }
   };
