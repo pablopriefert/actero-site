@@ -11,9 +11,18 @@ const PLANS = [
     name: "Free",
     monthlyPrice: 0,
     annualPrice: 0,
-    description: "Pour découvrir Actero sans engagement.",
-    features: ["Dashboard de suivi", "1 utilisateur", "Rapports basiques", "Support email"],
-    cta: "Créer mon compte gratuit",
+    description: "Decouvrir Actero sans engagement.",
+    features: [
+      "50 tickets traites / mois",
+      "1 workflow actif (SAV ou panier)",
+      "Integration Shopify native",
+      "Dashboard ROI basique",
+      "Historique 7 jours",
+      "1 utilisateur",
+      "Base de connaissances (10 entrees)",
+      "Support documentation",
+    ],
+    cta: "Creer mon compte gratuit",
     highlighted: false,
     trial: false,
   },
@@ -22,52 +31,73 @@ const PLANS = [
     name: "Starter",
     monthlyPrice: 99,
     annualPrice: 79,
-    description: "Pour les boutiques en croissance.",
+    description: "Automatiser les premieres taches.",
     features: [
-      "Tout de Free",
-      "Agents IA illimités",
-      "Intégration Shopify",
-      "Rapports avancés",
-      "Support prioritaire",
+      "1 000 tickets traites / mois",
+      "3 workflows actifs",
+      "Shopify + 2 integrations",
+      "5 agents IA specialises (Order, Return, Product...)",
+      "Editeur ton de marque (sliders)",
+      "Garde-fous & regles metier",
+      "Dashboard ROI complet",
+      "Historique 3 mois",
+      "Base de connaissances (100 entrees)",
+      "2 membres d'equipe",
+      "Support email 48h",
     ],
-    cta: "Commencer mon essai gratuit de 7 jours",
+    cta: "Essai gratuit 7 jours",
     highlighted: false,
     trial: true,
+    overage: "0,10 EUR/ticket supplementaire",
   },
   {
     id: "pro",
     name: "Pro",
     monthlyPrice: 399,
     annualPrice: 319,
-    description: "Pour les marques ambitieuses.",
+    description: "Automatisation complete + agent vocal.",
     features: [
-      "Tout de Starter",
-      "Workflows personnalisés",
-      "API & webhooks",
-      "Multi-boutiques",
-      "Account manager dédié",
-      "SLA garanti",
+      "5 000 tickets traites / mois",
+      "Workflows illimites",
+      "Toutes les integrations disponibles",
+      "Agent vocal telephone (200 min incluses)",
+      "Agent WhatsApp Business",
+      "Simulateur de conversation",
+      "Regles metier avancees (conditionnel)",
+      "Seuils d'escalade configurables",
+      "Historique illimite",
+      "Base de connaissances illimitee",
+      "5 membres d'equipe",
+      "API + webhooks configurables",
+      "Support prioritaire 24h",
     ],
-    cta: "Commencer mon essai gratuit de 7 jours",
+    cta: "Essai gratuit 7 jours",
     highlighted: true,
-    badge: "Populaire",
+    badge: "Recommande",
     trial: true,
+    overage: "0,10 EUR/ticket supplementaire",
   },
   {
     id: "enterprise",
     name: "Enterprise",
     monthlyPrice: null,
     annualPrice: null,
-    description: "Infrastructure sur mesure.",
+    description: "Sur mesure pour les grands comptes.",
     features: [
-      "Tout de Pro",
-      "Déploiement dédié",
-      "Intégrations custom",
-      "Formation équipe",
-      "Support 24/7",
-      "SLA personnalisé",
+      "Tickets illimites",
+      "Workflows illimites",
+      "Multi-boutiques (jusqu'a 10 stores)",
+      "Agent vocal avance (voix custom)",
+      "White-label disponible",
+      "API avancee + integrations custom",
+      "SLA 99,9% garanti",
+      "Membres illimites",
+      "Account manager dedie",
+      "Onboarding white-glove",
+      "Rapport sur mesure",
+      "Formation equipe incluse",
     ],
-    cta: "Demander une démo",
+    cta: "Contacter l'equipe",
     highlighted: false,
     trial: false,
   },
@@ -221,19 +251,31 @@ export const SignupPage = ({ onNavigate }) => {
               )}
             </div>
 
-            {/* Plan cards */}
+            {/* Plan cards — each with CTA button */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
-              {PLANS.map((plan) => {
+              {PLANS.map((plan, idx) => {
                 const isSelected = selectedPlan === plan.id;
                 const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
 
+                const handleCardCta = (e) => {
+                  e.stopPropagation();
+                  setSelectedPlan(plan.id);
+                  if (plan.id === "enterprise") {
+                    window.open("https://calendly.com/actero/demo", "_blank");
+                  } else {
+                    // Scroll to form
+                    document.getElementById("signup-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }
+                };
+
                 return (
-                  <motion.button
+                  <motion.div
                     key={plan.id}
-                    onClick={() => setSelectedPlan(plan.id)}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`relative text-left p-6 rounded-2xl border-2 transition-all ${
+                    transition={{ delay: idx * 0.05 }}
+                    onClick={() => setSelectedPlan(plan.id)}
+                    className={`relative text-left rounded-2xl border-2 transition-all flex flex-col cursor-pointer ${
                       isSelected
                         ? "border-[#0F5F35] shadow-lg bg-white"
                         : plan.highlighted
@@ -242,50 +284,88 @@ export const SignupPage = ({ onNavigate }) => {
                     } hover:shadow-md`}
                   >
                     {plan.badge && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0F5F35] text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0F5F35] text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 z-10">
                         <Sparkles className="w-3 h-3" />
                         {plan.badge}
                       </span>
                     )}
 
-                    <h3 className="text-lg font-bold text-[#1a1a1a] mb-1">{plan.name}</h3>
-                    <p className="text-[#71717a] text-sm mb-4">{plan.description}</p>
+                    <div className="p-6 flex-1 flex flex-col">
+                      <h3 className="text-xl font-bold text-[#1a1a1a] mb-1">{plan.name}</h3>
+                      <p className="text-[#71717a] text-[13px] mb-4">{plan.description}</p>
 
-                    <div className="mb-4">
-                      {price !== null ? (
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-bold text-[#1a1a1a]">{price}€</span>
-                          <span className="text-[#71717a] text-sm">/mois</span>
-                        </div>
-                      ) : (
-                        <span className="text-2xl font-bold text-[#1a1a1a]">Sur devis</span>
-                      )}
-                      {plan.trial && (
-                        <p className="text-xs text-[#0F5F35] font-medium mt-1">7 jours d'essai gratuit</p>
+                      <div className="mb-5">
+                        {price !== null ? (
+                          <>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-4xl font-bold text-[#1a1a1a]">{price}€</span>
+                              <span className="text-[#71717a] text-sm">/mois</span>
+                            </div>
+                            {isAnnual && plan.monthlyPrice > 0 && (
+                              <p className="text-[11px] text-[#9ca3af] mt-0.5">
+                                soit {price * 12}€/an au lieu de {plan.monthlyPrice * 12}€
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-3xl font-bold text-[#1a1a1a]">Sur devis</span>
+                        )}
+                        {plan.trial && (
+                          <p className="text-[12px] text-[#0F5F35] font-semibold mt-1.5">7 jours d'essai gratuit</p>
+                        )}
+                      </div>
+
+                      {/* Divider */}
+                      <div className="border-t border-[#f0f0f0] mb-4" />
+
+                      <p className="text-[11px] font-bold text-[#9ca3af] uppercase tracking-wider mb-3">Ce qui est inclus :</p>
+
+                      <ul className="space-y-2.5 flex-1">
+                        {plan.features.map((f, i) => (
+                          <li key={i} className="flex items-start gap-2 text-[13px] text-[#1a1a1a] leading-snug">
+                            <Check className="w-4 h-4 text-[#0F5F35] mt-0.5 shrink-0" />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+
+                      {plan.overage && (
+                        <p className="text-[11px] text-[#9ca3af] mt-3 pt-3 border-t border-[#f0f0f0]">
+                          Depassement : {plan.overage}
+                        </p>
                       )}
                     </div>
 
-                    <ul className="space-y-2">
-                      {plan.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-[#1a1a1a]">
-                          <Check className="w-4 h-4 text-[#0F5F35] mt-0.5 shrink-0" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
+                    {/* CTA button at bottom of card */}
+                    <div className="px-6 pb-6">
+                      <button
+                        onClick={handleCardCta}
+                        className={`w-full py-3 rounded-full text-[13px] font-semibold transition-colors flex items-center justify-center gap-2 ${
+                          plan.highlighted || isSelected
+                            ? "bg-[#0F5F35] text-white hover:bg-[#003725]"
+                            : plan.id === "enterprise"
+                            ? "bg-white text-[#1a1a1a] border border-[#f0f0f0] hover:bg-[#fafafa]"
+                            : "bg-[#0F5F35]/10 text-[#0F5F35] hover:bg-[#0F5F35]/20"
+                        }`}
+                      >
+                        {plan.cta}
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
 
                     {isSelected && (
                       <div className="absolute top-4 right-4 w-5 h-5 bg-[#0F5F35] rounded-full flex items-center justify-center">
                         <Check className="w-3 h-3 text-white" />
                       </div>
                     )}
-                  </motion.button>
+                  </motion.div>
                 );
               })}
             </div>
 
             {/* Signup form */}
             <motion.div
+              id="signup-form"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
