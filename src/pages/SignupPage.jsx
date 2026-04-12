@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Check, ArrowRight, Loader2, ShieldCheck, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ArrowRight, ArrowLeft, Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { SEO } from "../components/SEO";
@@ -104,6 +104,7 @@ const PLANS = [
 ];
 
 export const SignupPage = ({ onNavigate }) => {
+  const [step, setStep] = useState(1); // 1 = choose plan, 2 = signup form
   const [selectedPlan, setSelectedPlan] = useState("starter");
   const [isAnnual, setIsAnnual] = useState(false);
   const [email, setEmail] = useState("");
@@ -251,6 +252,10 @@ export const SignupPage = ({ onNavigate }) => {
               )}
             </div>
 
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+            <motion.div key="step-plans" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+
             {/* Plan cards — each with CTA button */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
               {PLANS.map((plan, idx) => {
@@ -263,8 +268,8 @@ export const SignupPage = ({ onNavigate }) => {
                   if (plan.id === "enterprise") {
                     window.open("https://calendly.com/actero/demo", "_blank");
                   } else {
-                    // Scroll to form
-                    document.getElementById("signup-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    window.scrollTo(0, 0);
+                    setStep(2);
                   }
                 };
 
@@ -363,12 +368,27 @@ export const SignupPage = ({ onNavigate }) => {
               })}
             </div>
 
+            </motion.div>
+            )}
+
+            {step === 2 && (
+            <motion.div key="step-form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.25 }}>
+
+            {/* Back button */}
+            <button
+              onClick={() => { setStep(1); window.scrollTo(0, 0); }}
+              className="flex items-center gap-2 text-[13px] font-semibold text-[#71717a] hover:text-[#1a1a1a] mb-6 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Changer de plan
+            </button>
+
             {/* Signup form */}
             <motion.div
               id="signup-form"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.1 }}
               className="max-w-lg mx-auto"
             >
               <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-8">
@@ -507,6 +527,9 @@ export const SignupPage = ({ onNavigate }) => {
                 </div>
               </div>
             </motion.div>
+            </motion.div>
+            )}
+          </AnimatePresence>
           </div>
         </main>
 
