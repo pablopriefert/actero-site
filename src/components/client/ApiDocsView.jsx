@@ -258,19 +258,49 @@ export function ApiDocsView({ clientId }) {
 
       {/* MCP Server */}
       {firstKey && (
-        <SectionCard title="MCP Server" icon={Server}>
-          <div className="space-y-3">
+        <SectionCard title="MCP Server (Claude Desktop, Cursor...)" icon={Server}>
+          <div className="space-y-4">
             <p className="text-[13px] text-[#71717a] leading-relaxed">
-              Connectez votre agent IA a Claude Desktop, Cursor, ou tout client MCP compatible.
+              Connectez votre agent IA a Claude Desktop, Cursor, ou tout client MCP compatible. Les tools disponibles : envoyer un message, consulter l'usage, lister les escalades, voir les conversations.
             </p>
-            <div className="flex items-center gap-3">
-              <code className="flex-1 bg-[#fafafa] border border-[#f0f0f0] rounded-xl px-4 py-2.5 text-[13px] font-mono text-[#1a1a1a] truncate">
-                {`https://actero.fr/api/mcp/${firstKey}`}
-              </code>
-              <button onClick={() => handleCopy(`https://actero.fr/api/mcp/${firstKey}`, 'mcp')} className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#0F5F35] text-white text-[13px] font-medium hover:bg-[#003725] transition-colors">
-                {copiedId === 'mcp' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                Copier
-              </button>
+
+            <div>
+              <p className="text-[12px] font-semibold text-[#1a1a1a] mb-2">URL du serveur MCP :</p>
+              <div className="flex items-center gap-3">
+                <code className="flex-1 bg-[#fafafa] border border-[#f0f0f0] rounded-xl px-4 py-2.5 text-[13px] font-mono text-[#1a1a1a] truncate">
+                  {`https://actero.fr/api/mcp/${firstKey}`}
+                </code>
+                <button onClick={() => handleCopy(`https://actero.fr/api/mcp/${firstKey}`, 'mcp')} className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#0F5F35] text-white text-[13px] font-medium hover:bg-[#003725] transition-colors">
+                  {copiedId === 'mcp' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                  Copier
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[12px] font-semibold text-[#1a1a1a] mb-2">Configuration Claude Desktop :</p>
+              <div className="relative">
+                <pre className="bg-[#1a1a1a] text-[#e4e4e7] rounded-xl p-4 text-[12px] font-mono overflow-x-auto leading-relaxed">{`// claude_desktop_config.json
+{
+  "mcpServers": {
+    "actero": {
+      "url": "https://actero.fr/api/mcp/${firstKey}"
+    }
+  }
+}`}</pre>
+                <button onClick={() => handleCopy(`{\n  "mcpServers": {\n    "actero": {\n      "url": "https://actero.fr/api/mcp/${firstKey}"\n    }\n  }\n}`, 'mcp-config')} className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors">
+                  {copiedId === 'mcp-config' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white/70" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-3">
+              <p className="text-[11px] font-semibold text-[#71717a] mb-1.5">Tools disponibles :</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {['actero_send_message', 'actero_get_usage', 'actero_list_escalations', 'actero_get_conversations'].map(t => (
+                  <code key={t} className="text-[10px] font-mono text-[#0F5F35] bg-[#0F5F35]/5 px-2 py-1 rounded">{t}</code>
+                ))}
+              </div>
             </div>
           </div>
         </SectionCard>
