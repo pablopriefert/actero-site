@@ -17,6 +17,7 @@ import { retrieveMemories, buildMemoryContext } from './lib/memory.js'
 import { searchShopifyProducts } from './lib/shopify-products.js'
 import { getAgentForClassification } from './agents/index.js'
 import { calculateCost } from './lib/claude-pricing.js'
+import { canAccessFeature } from '../lib/plan-limits.js'
 
 // Keywords hinting the customer is asking for a product recommendation.
 const PRODUCT_INTENT_PATTERNS = /\b(recommand|suggest|conseill(?:e|ez|er)|cherch(?:e|es|ez|er)|besoin d[eu'’]|je veux|j'aimerais|j'?ai envie|je voudrais|acheter|commander|similaire|equivalent|alternative|montre-?moi|montrez-?moi|propose[rz]?|avez-?vous.*(produit|article|modele|reference))\b/i
@@ -224,7 +225,10 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
   let toolsUsed = []
 
   if (actionPlan.includes('send_reply') || actionPlan.includes('send_email')) {
-    const agent = getAgentForClassification(classification)
+    // Gate specialized agents by plan — Free clients use general-agent only
+    const clientPlan = clientConfig?.settings?.plan || clientConfig?.client?.plan || 'free'
+    const useSpecialized = canAccessFeature(clientPlan, 'specialized_agents')
+    const agent = useSpecialized ? getAgentForClassification(classification) : getAgentForClassification('general')
     agentUsed = agent.name
 
     try {

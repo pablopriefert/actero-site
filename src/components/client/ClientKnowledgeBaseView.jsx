@@ -403,6 +403,17 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
 
   const handleAddQA = async () => {
     if (!qaQuestion.trim() || !qaAnswer.trim()) return
+    // Check KB entries limit
+    try {
+      const { getLimit, getPlanConfig } = await import('../../lib/plans.js')
+      const { data: clientRow } = await supabase.from('clients').select('plan').eq('id', clientId).maybeSingle()
+      const plan = clientRow?.plan || 'free'
+      const kbLimit = getLimit(plan, 'knowledge_entries')
+      if (kbLimit !== Infinity && entries.length >= kbLimit) {
+        showToast(`Limite atteinte : ${kbLimit} entrees sur le plan ${getPlanConfig(plan).name}. Passez au plan superieur.`)
+        return
+      }
+    } catch { /* skip */ }
     await supabase.from('client_knowledge_base').insert({
       client_id: clientId,
       category: 'faq',

@@ -70,6 +70,19 @@ export const TeamManager = ({ clientId }) => {
 
   const handleInvite = async () => {
     if (!inviteEmail.trim()) return
+
+    // Check team member limit
+    try {
+      const { getLimit, getPlanConfig } = await import('../../lib/plans.js')
+      const { data: clientRow } = await supabase.from('clients').select('plan').eq('id', clientId).maybeSingle()
+      const plan = clientRow?.plan || 'free'
+      const teamLimit = getLimit(plan, 'team_members')
+      if (teamLimit !== Infinity && members.length >= teamLimit) {
+        toast.error(`Limite atteinte : ${teamLimit} membre${teamLimit > 1 ? 's' : ''} sur le plan ${getPlanConfig(plan).name}. Passez au plan superieur.`)
+        return
+      }
+    } catch { /* skip */ }
+
     setInviting(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()

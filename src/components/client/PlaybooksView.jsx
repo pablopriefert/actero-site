@@ -285,6 +285,24 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
       return
     }
 
+    // Check workflow limit before activating
+    const currentlyActivePlaybook = clientPlaybooks.find(cp => cp.playbook_id === pb.id)
+    if (!currentlyActivePlaybook?.is_active) {
+      // Trying to activate — check limit
+      try {
+        const { getPlanConfig, getLimit } = await import('../../lib/plans.js')
+        const { data: clientRow } = await supabase.from('clients').select('plan').eq('id', clientId).maybeSingle()
+        const plan = clientRow?.plan || 'free'
+        const workflowLimit = getLimit(plan, 'workflows_active')
+        const activeCount = clientPlaybooks.filter(cp => cp.is_active).length
+        if (workflowLimit !== Infinity && activeCount >= workflowLimit) {
+          const planName = getPlanConfig(plan).name
+          toast.error(`Limite atteinte : ${workflowLimit} workflow${workflowLimit > 1 ? 's' : ''} actif${workflowLimit > 1 ? 's' : ''} sur le plan ${planName}. Passez au plan superieur.`)
+          return
+        }
+      } catch { /* skip limit check if plans.js not available */ }
+    }
+
     // Channels are now selected AFTER activation via toggles inside the card
     const meta = PLAYBOOK_META[playbookName]
 

@@ -204,6 +204,25 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Check voice minutes quota
+    const { data: clientRow } = await supabaseAdmin.from('clients').select('plan').eq('id', clientId).maybeSingle()
+    const clientPlan = clientRow?.plan || 'free'
+    const voiceLimits = { free: 0, starter: 0, pro: 200, enterprise: Infinity }
+    const voiceLimit = voiceLimits[clientPlan] ?? 0
+
+    if (voiceLimit !== Infinity) {
+      const period = new Date().toISOString().slice(0, 7)
+      const { data: usageRow } = await supabaseAdmin.from('usage_counters').select('voice_minutes_used').eq('client_id', clientId).eq('period', period).maybeSingle()
+      const minutesUsed = Number(usageRow?.voice_minutes_used || 0)
+      if (minutesUsed >= voiceLimit) {
+        const quotaMsg = voiceLimit === 0
+          ? 'L agent vocal n est pas inclus dans votre plan. Veuillez passer au plan Pro pour l utiliser.'
+          : 'Votre quota de minutes vocales est atteint pour ce mois. Veuillez contacter le support ou passer au plan superieur.'
+        if (stream) return streamResponse(res, callId, quotaMsg)
+        return res.status(200).json(buildCompletionResponse(callId, quotaMsg))
+      }
+    }
+
     const playbook = await getVoicePlaybook(clientId)
 
     const normalized = {

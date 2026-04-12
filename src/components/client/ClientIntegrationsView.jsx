@@ -448,6 +448,20 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   };
 
   const handleOAuthConnect = async (provider) => {
+    // Check integration limit before connecting
+    try {
+      const { getLimit, getPlanConfig } = await import('../../lib/plans.js')
+      const { data: clientRow } = await supabase.from('clients').select('plan').eq('id', clientId).maybeSingle()
+      const plan = clientRow?.plan || 'free'
+      const integLimit = getLimit(plan, 'integrations')
+      const connectedCount = connectedProviders?.length || 0
+      if (integLimit !== Infinity && connectedCount >= integLimit) {
+        const planName = getPlanConfig(plan).name
+        toast?.error?.(`Limite atteinte : ${integLimit} integration${integLimit > 1 ? 's' : ''} sur le plan ${planName}. Passez au plan superieur.`)
+        return
+      }
+    } catch { /* skip if plans.js not available */ }
+
     if (provider.authType === 'smtp') {
       setSmtpProvider(provider);
       setSmtpValues({});

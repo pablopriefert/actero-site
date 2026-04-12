@@ -175,7 +175,7 @@ const faqs = [
   },
   {
     q: "Que se passe-t-il si je depasse mon quota de tickets ?",
-    a: "Au-dela de votre quota mensuel, chaque ticket supplementaire est facture 0,10\u20AC. Vous recevez une alerte a 80% et 100% de votre quota pour anticiper. Aucune coupure de service.",
+    a: "Au-dela de votre quota mensuel, chaque ticket supplementaire est facture a l'usage : 0,15\u20AC/ticket sur le plan Starter, 0,10\u20AC/ticket sur le plan Pro. Vous recevez une alerte a 80% et 100% de votre quota pour anticiper. Aucune coupure de service.",
   },
   {
     q: "L'essai gratuit est-il sans engagement ?",
