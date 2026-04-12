@@ -63,14 +63,18 @@ export default async function handler(req, res) {
   const limits = getLimits(plan)
   const inTrial = client.trial_ends_at && new Date(client.trial_ends_at) > new Date()
 
-  // Increment usage counter
-  const { data: ticketsUsed } = await supabase.rpc('increment_ticket_usage', {
-    p_client_id: client_id,
-    p_period: new Date().toISOString().slice(0, 7),
-  })
+  // Check current usage (brain.js will increment the counter itself)
+  const period = new Date().toISOString().slice(0, 7)
+  const { data: usageRow } = await supabase
+    .from('usage_counters')
+    .select('tickets_used')
+    .eq('client_id', client_id)
+    .eq('period', period)
+    .maybeSingle()
+  const ticketsUsed = usageRow?.tickets_used || 0
 
-  // Check if over limit
-  if (ticketsUsed > limits.tickets && !inTrial && limits.tickets !== Infinity) {
+  // Check if over limit (before processing)
+  if (ticketsUsed >= limits.tickets && !inTrial && limits.tickets !== Infinity) {
     if (limits.overage !== null) {
       // Overage allowed — log but continue
       console.log(`[gateway] Client ${client_id} over limit (${ticketsUsed}/${limits.tickets}), overage applied`)

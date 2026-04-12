@@ -89,6 +89,18 @@ async function maybeFetchProductRecommendations(supabase, { clientConfig, client
  * Returns: { classification, confidence, actionPlan, aiResponse, needsReview, reviewReason, productRecommendations, agentUsed }
  */
 export async function runBrain(supabase, { event, playbook, clientId, normalized, conversationHistory }) {
+  // --- Increment ticket usage counter (single source of truth for ALL callers) ---
+  // Skip for test mode
+  if (!normalized?._is_test) {
+    try {
+      const period = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
+      await supabase.rpc('increment_ticket_usage', { p_client_id: clientId, p_period: period })
+    } catch (err) {
+      // Don't block the Brain if the counter fails (table/function may not exist yet)
+      console.warn('[brain] increment_ticket_usage failed:', err.message)
+    }
+  }
+
   // Load full client context
   const clientConfig = await loadClientConfig(supabase, clientId)
 
