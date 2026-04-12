@@ -1,66 +1,103 @@
 import React, { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Key, Copy, Check, Terminal, Webhook, Server, RefreshCw, Shield, Eye, EyeOff } from 'lucide-react'
+import { Key, Copy, Check, Terminal, Webhook, Server, Plus, Trash2, Eye, EyeOff, Shield } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { SectionCard } from '../ui/SectionCard'
 import { usePlan } from '../../hooks/usePlan'
 import { useToast } from '../ui/Toast'
 
+function generateApiKey() {
+  const bytes = crypto.getRandomValues(new Uint8Array(16))
+  return 'ak_' + Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
 export function ApiDocsView({ clientId }) {
   const toast = useToast()
   const queryClient = useQueryClient()
-  const { planId, planName, canAccess } = usePlan(clientId)
-  const [copiedKey, setCopiedKey] = useState(null)
-  const [showKey, setShowKey] = useState(false)
-  const [rotating, setRotating] = useState(false)
+  const { planName, canAccess } = usePlan(clientId)
+  const [copiedId, setCopiedId] = useState(null)
+  const [visibleKeys, setVisibleKeys] = useState({})
+  const [creating, setCreating] = useState(false)
+  const [newLabel, setNewLabel] = useState('')
+  const [showCreateForm, setShowCreateForm] = useState(false)
 
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ['client-settings-api', clientId],
+  const { data: apiKeys = [], isLoading } = useQuery({
+    queryKey: ['client-api-keys', clientId],
     queryFn: async () => {
       const { data } = await supabase
-        .from('client_settings')
-        .select('widget_api_key, client_id')
+        .from('client_api_keys')
+        .select('*')
         .eq('client_id', clientId)
-        .maybeSingle()
-      return data
+        .eq('is_active', true)
+        .order('created_at', { ascending: true })
+      return data || []
     },
     enabled: !!clientId,
   })
 
-  // Use widget_api_key if available, fallback to client_id
-  const apiKey = settings?.widget_api_key || clientId || ''
-  const maskedKey = apiKey ? apiKey.slice(0, 8) + '••••••••••••••••' + apiKey.slice(-4) : ''
+  const firstKey = apiKeys[0]?.key_value || ''
 
   const handleCopy = async (text, id) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedKey(id)
-      setTimeout(() => setCopiedKey(null), 2000)
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(null), 2000)
     } catch {}
   }
 
-  const handleRotateKey = async () => {
-    if (!window.confirm('Etes-vous sur ? L\'ancienne cle sera immediatement invalidee. Vous devrez mettre a jour tous vos scripts et integrations.')) return
-    setRotating(true)
+  const toggleVisibility = (id) => {
+    setVisibleKeys(prev => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  const maskKey = (key) => {
+    if (!key) return ''
+    return key.slice(0, 8) + '••••••••••••' + key.slice(-4)
+  }
+
+  const handleCreate = async () => {
+    const label = newLabel.trim() || `Cle ${apiKeys.length + 1}`
+    setCreating(true)
     try {
-      // Generate new key client-side (crypto.randomUUID is available in modern browsers)
-      const newKey = 'ak_' + Array.from(crypto.getRandomValues(new Uint8Array(16)))
-        .map(b => b.toString(16).padStart(2, '0')).join('')
-
-      const { error } = await supabase
-        .from('client_settings')
-        .update({ widget_api_key: newKey, updated_at: new Date().toISOString() })
-        .eq('client_id', clientId)
-
+      const key = generateApiKey()
+      const { error } = await supabase.from('client_api_keys').insert({
+        client_id: clientId,
+        key_value: key,
+        label,
+      })
       if (error) throw error
 
-      queryClient.invalidateQueries({ queryKey: ['client-settings-api', clientId] })
-      toast.success('Cle API regeneree avec succes')
-      setShowKey(true) // Show the new key
+      // Also set as widget_api_key if it's the first key
+      if (apiKeys.length === 0) {
+        await supabase.from('client_settings')
+          .update({ widget_api_key: key })
+          .eq('client_id', clientId)
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['client-api-keys', clientId] })
+      toast.success(`Cle "${label}" creee`)
+      setNewLabel('')
+      setShowCreateForm(false)
+      // Show the new key
+      setTimeout(() => {
+        setVisibleKeys(prev => ({ ...prev, [key]: true }))
+      }, 300)
     } catch (err) {
       toast.error('Erreur: ' + err.message)
     } finally {
-      setRotating(false)
+      setCreating(false)
+    }
+  }
+
+  const handleDelete = async (keyId, label) => {
+    if (!window.confirm(`Supprimer la cle "${label}" ? Elle sera immediatement invalidee.`)) return
+    try {
+      await supabase.from('client_api_keys')
+        .update({ is_active: false })
+        .eq('id', keyId)
+      queryClient.invalidateQueries({ queryKey: ['client-api-keys', clientId] })
+      toast.success(`Cle "${label}" supprimee`)
+    } catch (err) {
+      toast.error('Erreur: ' + err.message)
     }
   }
 
@@ -72,7 +109,7 @@ export function ApiDocsView({ clientId }) {
       curl: `curl -X POST https://actero.fr/api/engine/webhooks/widget \\
   -H "Content-Type: application/json" \\
   -d '{
-    "api_key": "${apiKey || 'VOTRE_CLE_API'}",
+    "api_key": "${firstKey || 'VOTRE_CLE_API'}",
     "message": "Ou est ma commande #1234 ?",
     "session_id": "session_001"
   }'`,
@@ -88,75 +125,113 @@ export function ApiDocsView({ clientId }) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
       <div>
         <h2 className="text-[22px] font-semibold text-[#1a1a1a]">API Actero</h2>
         <p className="text-[13px] text-[#9ca3af] mt-1">Integrez Actero dans vos outils et workflows</p>
       </div>
 
-      {/* Cle API */}
-      <SectionCard title="Votre cle API" icon={Key}>
+      {/* API Keys */}
+      <SectionCard title="Cles API" icon={Key}>
         <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <code className="flex-1 bg-[#fafafa] border border-[#f0f0f0] rounded-xl px-4 py-3 text-[13px] font-mono text-[#1a1a1a] truncate">
-              {isLoading ? 'Chargement...' : showKey ? apiKey : maskedKey}
-            </code>
-            <button
-              onClick={() => setShowKey(!showKey)}
-              className="p-2.5 rounded-lg border border-[#f0f0f0] hover:bg-[#fafafa] transition-colors"
-              title={showKey ? 'Masquer' : 'Afficher'}
-            >
-              {showKey ? <EyeOff className="w-4 h-4 text-[#71717a]" /> : <Eye className="w-4 h-4 text-[#71717a]" />}
-            </button>
-            <button
-              onClick={() => handleCopy(apiKey, 'main')}
-              disabled={!apiKey || isLoading}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#0F5F35] text-white text-[13px] font-medium hover:bg-[#003725] transition-colors disabled:opacity-50"
-            >
-              {copiedKey === 'main' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copiedKey === 'main' ? 'Copie !' : 'Copier'}
-            </button>
-          </div>
+          {isLoading ? (
+            <div className="text-[13px] text-[#9ca3af] py-4">Chargement...</div>
+          ) : apiKeys.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 rounded-2xl bg-[#fafafa] border border-[#f0f0f0] flex items-center justify-center mx-auto mb-3">
+                <Key className="w-6 h-6 text-[#9ca3af]" />
+              </div>
+              <p className="text-[14px] font-semibold text-[#1a1a1a]">Aucune cle API</p>
+              <p className="text-[12px] text-[#9ca3af] mt-1 mb-4">Creez votre premiere cle pour integrer Actero dans vos outils.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {apiKeys.map((k) => (
+                <div key={k.id} className="flex items-center gap-3 bg-[#fafafa] border border-[#f0f0f0] rounded-xl px-4 py-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] font-semibold text-[#71717a] mb-1">{k.label}</p>
+                    <code className="text-[13px] font-mono text-[#1a1a1a] truncate block">
+                      {visibleKeys[k.key_value] ? k.key_value : maskKey(k.key_value)}
+                    </code>
+                  </div>
+                  <button onClick={() => toggleVisibility(k.key_value)} className="p-2 rounded-lg hover:bg-white transition-colors" title={visibleKeys[k.key_value] ? 'Masquer' : 'Afficher'}>
+                    {visibleKeys[k.key_value] ? <EyeOff className="w-4 h-4 text-[#71717a]" /> : <Eye className="w-4 h-4 text-[#71717a]" />}
+                  </button>
+                  <button onClick={() => handleCopy(k.key_value, k.id)} className="p-2 rounded-lg hover:bg-white transition-colors" title="Copier">
+                    {copiedId === k.id ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-[#71717a]" />}
+                  </button>
+                  <button onClick={() => handleDelete(k.id, k.label)} className="p-2 rounded-lg hover:bg-red-50 transition-colors" title="Supprimer">
+                    <Trash2 className="w-4 h-4 text-red-400 hover:text-red-600" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
-          <div className="flex items-center justify-between">
-            <p className="text-[12px] text-[#9ca3af]">
-              <Shield className="w-3 h-3 inline mr-1" />
-              Ne partagez jamais cette cle publiquement. Elle donne acces a votre agent IA.
-            </p>
+          {/* Create form */}
+          {showCreateForm ? (
+            <div className="flex items-center gap-2 pt-2">
+              <input
+                type="text"
+                value={newLabel}
+                onChange={(e) => setNewLabel(e.target.value)}
+                placeholder="Nom de la cle (ex: Production, Staging...)"
+                className="flex-1 px-3 py-2 rounded-xl border border-[#f0f0f0] bg-white text-[13px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0F5F35]/20 focus:border-[#0F5F35]/30"
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                autoFocus
+              />
+              <button
+                onClick={handleCreate}
+                disabled={creating}
+                className="px-4 py-2 rounded-xl bg-[#0F5F35] text-white text-[13px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+              >
+                {creating ? 'Creation...' : 'Creer'}
+              </button>
+              <button
+                onClick={() => { setShowCreateForm(false); setNewLabel('') }}
+                className="px-3 py-2 rounded-xl text-[13px] font-semibold text-[#71717a] hover:bg-[#fafafa] transition-colors"
+              >
+                Annuler
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={handleRotateKey}
-              disabled={rotating}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 text-red-600 text-[11px] font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-[#f0f0f0] text-[13px] font-semibold text-[#71717a] hover:border-[#0F5F35]/30 hover:text-[#0F5F35] transition-colors w-full justify-center"
             >
-              <RefreshCw className={`w-3 h-3 ${rotating ? 'animate-spin' : ''}`} />
-              {rotating ? 'Regeneration...' : 'Regenerer la cle'}
+              <Plus className="w-4 h-4" />
+              Creer une cle API
             </button>
-          </div>
+          )}
+
+          <p className="text-[11px] text-[#9ca3af] flex items-center gap-1">
+            <Shield className="w-3 h-3" />
+            Chaque cle donne acces complet a votre agent IA. Ne les partagez jamais publiquement.
+          </p>
         </div>
       </SectionCard>
 
       {/* Widget snippet */}
-      <SectionCard title="Integrer le widget chat" icon={Terminal}>
-        <div className="space-y-3">
-          <p className="text-[13px] text-[#71717a]">
-            Ajoutez cette ligne dans le code de votre site (avant {'</body>'}) pour activer le chat IA :
-          </p>
-          <div className="relative">
-            <pre className="bg-[#1a1a1a] text-[#e4e4e7] rounded-xl p-4 text-[12px] font-mono overflow-x-auto">
-{`<script src="https://actero.fr/widget.js" data-actero-key="${apiKey || 'VOTRE_CLE_API'}"></script>`}
-            </pre>
-            <button
-              onClick={() => handleCopy(`<script src="https://actero.fr/widget.js" data-actero-key="${apiKey}"></script>`, 'widget')}
-              className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors"
-            >
-              {copiedKey === 'widget' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white/70" />}
-            </button>
+      {firstKey && (
+        <SectionCard title="Integrer le widget chat" icon={Terminal}>
+          <div className="space-y-3">
+            <p className="text-[13px] text-[#71717a]">
+              Ajoutez cette ligne dans le code de votre site (avant {'</body>'}) pour activer le chat IA :
+            </p>
+            <div className="relative">
+              <pre className="bg-[#1a1a1a] text-[#e4e4e7] rounded-xl p-4 text-[12px] font-mono overflow-x-auto">
+{`<script src="https://actero.fr/widget.js" data-actero-key="${firstKey}"></script>`}
+              </pre>
+              <button
+                onClick={() => handleCopy(`<script src="https://actero.fr/widget.js" data-actero-key="${firstKey}"></script>`, 'widget')}
+                className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                {copiedId === 'widget' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white/70" />}
+              </button>
+            </div>
+            <p className="text-[11px] text-[#9ca3af]">Compatible Shopify, WooCommerce, Webflow, et tout site web.</p>
           </div>
-          <p className="text-[11px] text-[#9ca3af]">
-            Compatible Shopify, WooCommerce, Webflow, et tout site web.
-          </p>
-        </div>
-      </SectionCard>
+        </SectionCard>
+      )}
 
       {/* Endpoints */}
       <SectionCard title="Endpoints API" icon={Terminal}>
@@ -166,21 +241,14 @@ export function ApiDocsView({ clientId }) {
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${
                   ep.method === 'POST' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700'
-                }`}>
-                  {ep.method}
-                </span>
+                }`}>{ep.method}</span>
                 <code className="text-[13px] font-mono text-[#1a1a1a] font-medium">{ep.url}</code>
               </div>
               <p className="text-[13px] text-[#71717a]">{ep.description}</p>
               <div className="relative">
-                <pre className="bg-[#1a1a1a] text-[#e4e4e7] rounded-xl p-4 text-[12px] font-mono overflow-x-auto leading-relaxed">
-                  {ep.curl}
-                </pre>
-                <button
-                  onClick={() => handleCopy(ep.curl, ep.url)}
-                  className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors"
-                >
-                  {copiedKey === ep.url ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white/70" />}
+                <pre className="bg-[#1a1a1a] text-[#e4e4e7] rounded-xl p-4 text-[12px] font-mono overflow-x-auto leading-relaxed">{ep.curl}</pre>
+                <button onClick={() => handleCopy(ep.curl, ep.url)} className="absolute top-2 right-2 p-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors">
+                  {copiedId === ep.url ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-white/70" />}
                 </button>
               </div>
             </div>
@@ -189,28 +257,26 @@ export function ApiDocsView({ clientId }) {
       </SectionCard>
 
       {/* MCP Server */}
-      <SectionCard title="MCP Server" icon={Server}>
-        <div className="space-y-3">
-          <p className="text-[13px] text-[#71717a] leading-relaxed">
-            Connectez votre agent IA a Claude Desktop, Cursor, ou tout client MCP compatible.
-          </p>
-          <div className="flex items-center gap-3">
-            <code className="flex-1 bg-[#fafafa] border border-[#f0f0f0] rounded-xl px-4 py-2.5 text-[13px] font-mono text-[#1a1a1a] truncate">
-              {`https://actero.fr/api/mcp/${apiKey || '{api_key}'}`}
-            </code>
-            <button
-              onClick={() => handleCopy(`https://actero.fr/api/mcp/${apiKey}`, 'mcp')}
-              disabled={!apiKey}
-              className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#0F5F35] text-white text-[13px] font-medium hover:bg-[#003725] transition-colors disabled:opacity-50"
-            >
-              {copiedKey === 'mcp' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              Copier
-            </button>
+      {firstKey && (
+        <SectionCard title="MCP Server" icon={Server}>
+          <div className="space-y-3">
+            <p className="text-[13px] text-[#71717a] leading-relaxed">
+              Connectez votre agent IA a Claude Desktop, Cursor, ou tout client MCP compatible.
+            </p>
+            <div className="flex items-center gap-3">
+              <code className="flex-1 bg-[#fafafa] border border-[#f0f0f0] rounded-xl px-4 py-2.5 text-[13px] font-mono text-[#1a1a1a] truncate">
+                {`https://actero.fr/api/mcp/${firstKey}`}
+              </code>
+              <button onClick={() => handleCopy(`https://actero.fr/api/mcp/${firstKey}`, 'mcp')} className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#0F5F35] text-white text-[13px] font-medium hover:bg-[#003725] transition-colors">
+                {copiedId === 'mcp' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                Copier
+              </button>
+            </div>
           </div>
-        </div>
-      </SectionCard>
+        </SectionCard>
+      )}
 
-      {/* Webhooks sortants */}
+      {/* Webhooks */}
       <SectionCard title="Webhooks sortants" icon={Webhook}>
         <div className="space-y-3">
           <p className="text-[13px] text-[#71717a] leading-relaxed">
@@ -225,9 +291,7 @@ export function ApiDocsView({ clientId }) {
             </div>
           ) : (
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0F5F35]/10 border border-[#0F5F35]/20">
-              <span className="text-[12px] font-medium text-[#0F5F35]">
-                Disponible sur votre plan ({planName}) — contactez le support pour activer
-              </span>
+              <span className="text-[12px] font-medium text-[#0F5F35]">Disponible a partir du plan Starter</span>
             </div>
           )}
         </div>
