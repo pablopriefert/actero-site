@@ -1,16 +1,13 @@
 /**
- * Actero MCP Server — SSE endpoint for Claude Desktop / Cursor / any MCP client
+ * Actero MCP Server — Streamable HTTP transport
  *
- * URL: GET /api/mcp/{api_key}
+ * Single endpoint: /api/mcp/{api_key}
+ * Supports both POST (JSON-RPC requests) and GET (SSE stream for server-initiated messages)
  *
- * This is a Model Context Protocol (MCP) server that exposes Actero tools
- * to AI assistants. The client connects via SSE, sends JSON-RPC requests,
- * and receives responses.
+ * Protocol: MCP 2025-03-26 (Streamable HTTP)
+ * Auth: API key in URL path
  *
- * Protocol: MCP over SSE (Server-Sent Events)
- * Auth: API key in the URL path (validated against client_api_keys table)
- *
- * Tools exposed:
+ * Tools:
  * - actero_send_message: Send a message to the AI agent
  * - actero_get_usage: Get current month usage stats
  * - actero_list_escalations: List pending escalations
@@ -23,7 +20,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-// MCP tool definitions
+const SERVER_INFO = {
+  protocolVersion: '2025-03-26',
+  capabilities: { tools: {} },
+  serverInfo: { name: 'actero-mcp', version: '1.0.0' },
+}
+
 const TOOLS = [
   {
     name: 'actero_send_message',
@@ -39,7 +41,7 @@ const TOOLS = [
   },
   {
     name: 'actero_get_usage',
-    description: 'Retourne les statistiques de consommation du mois en cours (tickets utilises, limite, plan)',
+    description: 'Retourne les statistiques de consommation du mois en cours (tickets, plan, limites)',
     inputSchema: { type: 'object', properties: {} },
   },
   {
@@ -48,7 +50,7 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        limit: { type: 'number', description: 'Nombre max de resultats (defaut 10)' },
+        limit: { type: 'number', description: 'Nombre max (defaut 10)' },
       },
     },
   },
@@ -58,110 +60,82 @@ const TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {
-        limit: { type: 'number', description: 'Nombre max de resultats (defaut 10)' },
+        limit: { type: 'number', description: 'Nombre max (defaut 10)' },
       },
     },
   },
 ]
 
-// Resolve client from API key
 async function resolveClient(apiKey) {
   if (!apiKey) return null
-
-  // Check client_api_keys table first
   const { data: keyRow } = await supabase
     .from('client_api_keys')
     .select('client_id')
     .eq('key_value', apiKey)
     .eq('is_active', true)
     .maybeSingle()
-
   if (keyRow) return keyRow.client_id
 
-  // Fallback: check client_settings.widget_api_key
   const { data: settings } = await supabase
     .from('client_settings')
     .select('client_id')
     .eq('widget_api_key', apiKey)
     .maybeSingle()
-
   if (settings) return settings.client_id
 
-  // Fallback: check if it's a client_id directly
   const { data: client } = await supabase
     .from('clients')
     .select('id')
     .eq('id', apiKey)
     .maybeSingle()
-
   return client?.id || null
 }
 
-// Tool implementations
 async function executeTool(toolName, args, clientId) {
   switch (toolName) {
     case 'actero_send_message': {
       const sessionId = args.session_id || `mcp-${Date.now()}`
-      const res = await fetch(`${process.env.PUBLIC_API_URL || 'https://actero.fr'}/api/engine/webhooks/widget?api_key=${clientId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: args.message,
-          session_id: sessionId,
-        }),
-      })
-      const data = await res.json()
-      return { response: data.response || data.error || 'Pas de reponse', session_id: sessionId }
+      try {
+        const res = await fetch(`${process.env.PUBLIC_API_URL || 'https://actero.fr'}/api/engine/webhooks/widget?api_key=${clientId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: args.message, session_id: sessionId }),
+        })
+        const data = await res.json()
+        return JSON.stringify({ response: data.response || 'Pas de reponse', session_id: sessionId })
+      } catch (err) {
+        return JSON.stringify({ error: err.message })
+      }
     }
-
     case 'actero_get_usage': {
       const period = new Date().toISOString().slice(0, 7)
       const [{ data: usage }, { data: client }] = await Promise.all([
         supabase.from('usage_counters').select('*').eq('client_id', clientId).eq('period', period).maybeSingle(),
         supabase.from('clients').select('plan').eq('id', clientId).maybeSingle(),
       ])
-      return {
-        plan: client?.plan || 'free',
-        period,
-        tickets_used: usage?.tickets_used || 0,
-        voice_minutes_used: usage?.voice_minutes_used || 0,
-      }
+      return JSON.stringify({ plan: client?.plan || 'free', period, tickets_used: usage?.tickets_used || 0, voice_minutes_used: usage?.voice_minutes_used || 0 })
     }
-
     case 'actero_list_escalations': {
       const limit = args.limit || 10
-      const { data } = await supabase
-        .from('escalation_tickets')
-        .select('id, customer_email, subject, status, created_at')
-        .eq('client_id', clientId)
-        .order('created_at', { ascending: false })
-        .limit(limit)
-      return { escalations: data || [], count: data?.length || 0 }
+      const { data } = await supabase.from('escalation_tickets').select('id, customer_email, subject, status, created_at').eq('client_id', clientId).order('created_at', { ascending: false }).limit(limit)
+      return JSON.stringify({ escalations: data || [], count: data?.length || 0 })
     }
-
     case 'actero_get_conversations': {
       const limit = args.limit || 10
-      const { data } = await supabase
-        .from('ai_conversations')
-        .select('id, customer_email, customer_message, ai_response, status, created_at')
-        .eq('client_id', clientId)
-        .order('created_at', { ascending: false })
-        .limit(limit)
-      return { conversations: data || [], count: data?.length || 0 }
+      const { data } = await supabase.from('ai_conversations').select('id, customer_email, customer_message, ai_response, status, created_at').eq('client_id', clientId).order('created_at', { ascending: false }).limit(limit)
+      return JSON.stringify({ conversations: data || [], count: data?.length || 0 })
     }
-
     default:
-      return { error: `Unknown tool: ${toolName}` }
+      return JSON.stringify({ error: `Unknown tool: ${toolName}` })
   }
 }
 
-// JSON-RPC response helper
-function jsonRpc(id, result) {
-  return JSON.stringify({ jsonrpc: '2.0', id, result })
+function jsonRpcResponse(id, result) {
+  return { jsonrpc: '2.0', id, result }
 }
 
 function jsonRpcError(id, code, message) {
-  return JSON.stringify({ jsonrpc: '2.0', id, error: { code, message } })
+  return { jsonrpc: '2.0', id, error: { code, message } }
 }
 
 export default async function handler(req, res) {
@@ -173,73 +147,109 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Invalid API key' })
   }
 
-  // SSE mode (GET) — MCP over SSE
+  // CORS for Claude Desktop
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Mcp-Session-Id, MCP-Protocol-Version')
+  res.setHeader('Access-Control-Expose-Headers', 'Mcp-Session-Id')
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end()
+  }
+
+  // DELETE — session termination (acknowledge)
+  if (req.method === 'DELETE') {
+    return res.status(200).json({ ok: true })
+  }
+
+  // GET — SSE stream for server-initiated messages
   if (req.method === 'GET') {
+    const accept = req.headers.accept || ''
+    if (!accept.includes('text/event-stream')) {
+      return res.status(405).json({ error: 'Accept: text/event-stream required for GET' })
+    }
+
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache, no-transform')
     res.setHeader('Connection', 'keep-alive')
-    res.setHeader('Access-Control-Allow-Origin', '*')
     res.flushHeaders?.()
 
-    // Send server info
-    const serverInfo = jsonRpc(null, {
-      protocolVersion: '2024-11-05',
-      capabilities: { tools: {} },
-      serverInfo: { name: 'actero-mcp', version: '1.0.0' },
-    })
-    res.write(`data: ${serverInfo}\n\n`)
+    // Keep alive
+    const ping = setInterval(() => {
+      try { res.write(': ping\n\n') } catch { clearInterval(ping) }
+    }, 25000)
 
-    // Keep connection alive with ping every 30s
-    const pingInterval = setInterval(() => {
-      try { res.write(': ping\n\n') } catch { clearInterval(pingInterval) }
-    }, 30000)
-
-    // Close after 5 min (Vercel timeout)
-    setTimeout(() => {
-      clearInterval(pingInterval)
-      try { res.end() } catch {}
-    }, 290000)
-
-    req.on('close', () => clearInterval(pingInterval))
+    // Close after 4.5 min (Vercel ~5min timeout)
+    setTimeout(() => { clearInterval(ping); try { res.end() } catch {} }, 270000)
+    req.on('close', () => clearInterval(ping))
     return
   }
 
-  // POST mode — handle JSON-RPC requests
+  // POST — handle JSON-RPC messages
   if (req.method === 'POST') {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+    let body
+    try {
+      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+    } catch {
+      return res.status(400).json(jsonRpcError(null, -32700, 'Parse error'))
+    }
+
     const { id, method, params } = body || {}
 
+    // Notifications (no id = no response expected, but we acknowledge with 202)
+    if (id === undefined || id === null) {
+      return res.status(202).end()
+    }
+
+    // initialize
     if (method === 'initialize') {
-      return res.status(200).json(JSON.parse(jsonRpc(id, {
-        protocolVersion: '2024-11-05',
-        capabilities: { tools: {} },
-        serverInfo: { name: 'actero-mcp', version: '1.0.0' },
-      })))
+      return res.status(200).json(jsonRpcResponse(id, SERVER_INFO))
     }
 
+    // tools/list
     if (method === 'tools/list') {
-      return res.status(200).json(JSON.parse(jsonRpc(id, { tools: TOOLS })))
+      return res.status(200).json(jsonRpcResponse(id, { tools: TOOLS }))
     }
 
+    // tools/call
     if (method === 'tools/call') {
       const toolName = params?.name
       const toolArgs = params?.arguments || {}
+
+      if (!toolName) {
+        return res.status(200).json(jsonRpcError(id, -32602, 'Missing tool name'))
+      }
+
+      const knownTool = TOOLS.find(t => t.name === toolName)
+      if (!knownTool) {
+        return res.status(200).json(jsonRpcError(id, -32602, `Unknown tool: ${toolName}`))
+      }
+
       try {
-        const result = await executeTool(toolName, toolArgs, clientId)
-        return res.status(200).json(JSON.parse(jsonRpc(id, {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-        })))
+        const resultText = await executeTool(toolName, toolArgs, clientId)
+        return res.status(200).json(jsonRpcResponse(id, {
+          content: [{ type: 'text', text: resultText }],
+        }))
       } catch (err) {
-        return res.status(200).json(JSON.parse(jsonRpcError(id, -32000, err.message)))
+        return res.status(200).json(jsonRpcError(id, -32000, err.message))
       }
     }
 
-    // notifications (no response needed)
-    if (method === 'notifications/initialized' || method === 'initialized') {
-      return res.status(200).json({ jsonrpc: '2.0' })
+    // ping
+    if (method === 'ping') {
+      return res.status(200).json(jsonRpcResponse(id, {}))
     }
 
-    return res.status(200).json(JSON.parse(jsonRpcError(id || null, -32601, `Method not found: ${method}`)))
+    // resources/list, prompts/list — empty
+    if (method === 'resources/list') {
+      return res.status(200).json(jsonRpcResponse(id, { resources: [] }))
+    }
+    if (method === 'prompts/list') {
+      return res.status(200).json(jsonRpcResponse(id, { prompts: [] }))
+    }
+
+    // Unknown method
+    return res.status(200).json(jsonRpcError(id, -32601, `Method not found: ${method}`))
   }
 
   return res.status(405).json({ error: 'Method not allowed' })
