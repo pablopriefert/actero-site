@@ -823,6 +823,16 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "roi" && "ROI"}
             {activeTab === "profile" && "Compte"}
             {activeTab === "billing" && "Facturation"}
+            {planName && (
+              <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                planId === 'free' ? 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]' :
+                planId === 'starter' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                planId === 'pro' ? 'bg-[#0F5F35]/10 text-[#0F5F35] border border-[#0F5F35]/20' :
+                'bg-amber-50 text-amber-700 border border-amber-200'
+              }`}>
+                {planName}
+              </span>
+            )}
           </h1>
           <div className="flex items-center gap-3">
             {urgentEscalationCount > 0 && (
@@ -835,6 +845,17 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             )}
           </div>
         </header>
+
+        {inTrial && (
+          <div className="bg-[#0F5F35] text-white px-4 py-2 flex items-center justify-between text-[12px]">
+            <span>
+              Essai gratuit — <b>{trialDaysLeft} jour{trialDaysLeft > 1 ? 's' : ''} restant{trialDaysLeft > 1 ? 's' : ''}</b>
+            </span>
+            <a href="/pricing" className="bg-white text-[#0F5F35] px-3 py-1 rounded-full text-[11px] font-bold hover:bg-white/90 transition">
+              Choisir un plan
+            </a>
+          </div>
+        )}
 
         <main className="flex-1 overflow-y-auto p-4 md:px-10 md:py-8 bg-[#fafafa]">
           {activeTab === "overview" && (
@@ -1076,6 +1097,23 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     ))}
                   </div>
 
+                  {/* ── Free plan usage warning ── */}
+                  {planId === 'free' && ticketsPercent >= 80 && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between mb-8">
+                      <div>
+                        <p className="text-[13px] font-semibold text-amber-900">
+                          Vous avez utilise {ticketsUsed}/{ticketsLimit} tickets ce mois
+                        </p>
+                        <p className="text-[11px] text-amber-700 mt-0.5">
+                          Passez au Starter pour 1 000 tickets/mois et debloquer les agents IA specialises.
+                        </p>
+                      </div>
+                      <a href="/signup?plan=starter" className="px-4 py-2 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
+                        Passer au Starter — 99 EUR/mois
+                      </a>
+                    </div>
+                  )}
+
                   {/* ── Period selector ── */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
@@ -1172,6 +1210,23 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                       onViewAll={() => setActiveTab('achievements')}
                     />
                   </div>
+
+                  {/* ── Starter → Pro upsell ── */}
+                  {planId === 'starter' && (
+                    <div className="bg-[#0F5F35]/5 border border-[#0F5F35]/20 rounded-2xl p-4 flex items-center justify-between mt-6">
+                      <div>
+                        <p className="text-[13px] font-semibold text-[#1a1a1a]">
+                          Debloquez l'agent vocal + WhatsApp
+                        </p>
+                        <p className="text-[11px] text-[#71717a] mt-0.5">
+                          Le plan Pro inclut l'agent vocal telephone, WhatsApp, le simulateur et 5 000 tickets/mois.
+                        </p>
+                      </div>
+                      <a href="/signup?plan=pro" className="px-4 py-2 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
+                        Essai Pro gratuit 7 jours
+                      </a>
+                    </div>
+                  )}
                 </>
               )}
             </div>

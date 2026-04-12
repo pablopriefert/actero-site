@@ -90,6 +90,10 @@ import { AdminROILeaderboardView } from '../components/admin/AdminROILeaderboard
 import { AdminTokensView } from '../components/admin/AdminTokensView'
 import { AdminHallucinationView } from '../components/admin/AdminHallucinationView'
 import { AdminAlertBuilderView } from '../components/admin/AdminAlertBuilderView'
+import { AdminAddEnterpriseView } from '../components/admin/AdminAddEnterpriseView'
+import { KpiCard, KpiRow } from '../components/ui/KpiCard'
+import { SectionCard } from '../components/ui/SectionCard'
+import { StatusPill } from '../components/ui/StatusPill'
 import { useToast } from '../components/ui/Toast'
 
 const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigateTab }) => {
@@ -307,6 +311,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/action-logs") return "action-logs";
     if (route === "/admin/team") return "team";
     if (route === "/admin/settings") return "settings";
+    if (route === "/admin/add-enterprise") return "add-enterprise";
     return "overview";
   };
 
@@ -448,6 +453,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { type: 'section', label: 'ACCUEIL' },
     { id: 'overview', label: 'Vue d\'ensemble', icon: LayoutDashboard },
     { id: 'clients', label: 'Clients', icon: Users },
+    { id: 'add-enterprise', label: 'Ajout Enterprise', icon: UserPlus },
 
     { type: 'section', label: 'ENGINE IA' },
     {
@@ -585,6 +591,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {{
               overview: 'Accueil equipe',
               clients: 'Tous les clients',
+              'add-enterprise': 'Ajout client Enterprise',
               conversations: 'Conversations live',
               'escalations-inbox': 'Inbox escalades',
               health: 'Sante clients',
@@ -662,74 +669,85 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             </div>
           )}
 
-          {activeTab === "overview" && (
+          {activeTab === "overview" && (() => {
+            // SaaS KPI calculations
+            const PLAN_PRICES = { free: 0, starter: 99, pro: 399, enterprise: 999 };
+            const planCounts = { free: 0, starter: 0, pro: 0, enterprise: 0 };
+            clients.forEach(c => {
+              const p = c.plan || 'free';
+              if (planCounts[p] !== undefined) planCounts[p]++;
+              else planCounts.free++;
+            });
+            const mrr = Object.entries(planCounts).reduce((s, [p, n]) => s + (PLAN_PRICES[p] || 0) * n, 0);
+            const paidCount = planCounts.starter + planCounts.pro + planCounts.enterprise;
+            const freeCount = planCounts.free;
+            const totalClients = clients.length;
+            const conversionRate = totalClients > 0 ? ((paidCount / totalClients) * 100).toFixed(1) : '0.0';
+
+            return (
             <div className="max-w-7xl mx-auto space-y-6 animate-fade-in-up">
-              {/* Row 1: Key KPIs */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  {
-                    label: "Revenus récupérés",
-                    value: overviewData?.totalRevenue || 0,
-                    suffix: "€",
-                    icon: DollarSign,
-                    color: "emerald",
-                    trend: overviewData?.revenueTrend,
-                  },
-                  {
-                    label: "Heures économisées",
-                    value: overviewData?.totalHoursSaved || 0,
-                    suffix: "h",
-                    icon: Clock,
-                    color: "blue",
-                    trend: overviewData?.hoursTrend,
-                  },
-                  {
-                    label: "Taux d'automatisation",
-                    value: overviewData?.autoRate || 0,
-                    suffix: "%",
-                    icon: Zap,
-                    color: "violet",
-                    isPercent: true,
-                  },
-                  {
-                    label: "Événements traités",
-                    value: overviewData?.totalEvents || 0,
-                    suffix: "",
-                    icon: Activity,
-                    color: "amber",
-                  },
-                ].map((kpi, i) => (
-                  <motion.div
-                    key={kpi.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="relative bg-white rounded-2xl border border-[#f0f0f0] p-5 shadow-sm overflow-hidden group hover:border-gray-300 transition-colors"
-                  >
-                    <div className={`absolute -top-6 -right-6 w-20 h-20 bg-${kpi.color}-500/10 rounded-full blur-2xl group-hover:bg-${kpi.color}-500/20 transition-colors`} />
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">{kpi.label}</span>
-                      <kpi.icon className={`w-4 h-4 text-${kpi.color}-400`} />
-                    </div>
-                    <div className="flex items-end gap-2">
-                      <span className="text-[30px] font-bold text-[#1a1a1a] font-mono tracking-tight">
-                        {kpi.isPercent ? (
-                          <>{overviewData?.autoRate || 0}</>
-                        ) : (
-                          <AnimatedCounter value={kpi.value} />
-                        )}
-                      </span>
-                      <span className="text-[13px] font-medium text-[#71717a] mb-0.5">{kpi.suffix}</span>
-                    </div>
-                    {kpi.trend !== undefined && Number(kpi.trend) !== 0 && (
-                      <div className={`flex items-center gap-1 mt-2 text-[12px] font-medium ${Number(kpi.trend) > 0 ? 'text-emerald-500' : 'text-red-400'}`}>
-                        {Number(kpi.trend) > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                        {Math.abs(Number(kpi.trend))}% vs 7j précédents
+              {/* Row 1: SaaS KPIs */}
+              <KpiRow>
+                <KpiCard
+                  label="MRR"
+                  value={`${mrr.toLocaleString('fr-FR')} EUR`}
+                  sublabel="Revenus mensuels recurrents"
+                  icon={DollarSign}
+                  color="brand"
+                />
+                <KpiCard
+                  label="Clients payants"
+                  value={paidCount}
+                  sublabel="Starter + Pro + Enterprise"
+                  icon={Users}
+                  color="success"
+                />
+                <KpiCard
+                  label="Clients Free"
+                  value={freeCount}
+                  sublabel="Plan gratuit"
+                  icon={Users}
+                  color="neutral"
+                />
+                <KpiCard
+                  label="Taux de conversion"
+                  value={`${conversionRate}%`}
+                  sublabel="Payants / Total"
+                  icon={TrendingUp}
+                  color="info"
+                />
+              </KpiRow>
+
+              {/* Row 1b: Plan distribution */}
+              <SectionCard title="Repartition par plan" icon={BarChart3}>
+                <div className="space-y-3">
+                  {[
+                    { plan: 'Free', count: planCounts.free, variant: 'neutral' },
+                    { plan: 'Starter', count: planCounts.starter, variant: 'info' },
+                    { plan: 'Pro', count: planCounts.pro, variant: 'success' },
+                    { plan: 'Enterprise', count: planCounts.enterprise, variant: 'warning' },
+                  ].map(({ plan, count, variant }) => {
+                    const pct = totalClients > 0 ? ((count / totalClients) * 100).toFixed(0) : 0;
+                    return (
+                      <div key={plan} className="flex items-center gap-3">
+                        <StatusPill variant={variant} size="md">{plan}</StatusPill>
+                        <div className="flex-1 h-2 bg-[#fafafa] rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              variant === 'neutral' ? 'bg-[#9ca3af]' :
+                              variant === 'info' ? 'bg-[#3b82f6]' :
+                              variant === 'success' ? 'bg-[#0F5F35]' :
+                              'bg-[#f59e0b]'
+                            }`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="text-[12px] font-mono text-[#71717a] w-20 text-right">{count} ({pct}%)</span>
                       </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              </SectionCard>
 
               {/* Row 2: Activity chart + Recent events */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -825,80 +843,44 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 </div>
               </div>
 
-              {/* Row 3: Clients overview + Funnel + Event breakdown */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {/* Clients list */}
+              {/* Row 3: Clients overview + Event breakdown */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Clients list with plan badges */}
                 <div className="bg-white rounded-2xl border border-[#f0f0f0] p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-[13px] font-bold text-[#1a1a1a]">Clients actifs</h3>
-                    <button onClick={() => setActiveTab('clients')} className="text-[10px] text-emerald-500 font-medium hover:text-emerald-300 transition-colors">Voir tout →</button>
+                    <button onClick={() => setActiveTab('clients')} className="text-[10px] text-emerald-500 font-medium hover:text-emerald-300 transition-colors">Voir tout &rarr;</button>
                   </div>
                   <div className="space-y-3">
-                    {clients.map((client, i) => (
-                      <motion.div
-                        key={client.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] hover:bg-[#ffffff] transition-colors cursor-pointer"
-                        onClick={() => setSelectedClient(client)}
-                      >
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                          <ShoppingBag className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{client.brand_name}</p>
-                        </div>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                          client.status === 'active'
-                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
-                            : 'bg-[#fafafa]0/10 text-[#71717a] border border-gray-500/20'
-                        }`}>
-                          {client.status === 'active' ? 'ACTIF' : 'INACTIF'}
-                        </span>
-                      </motion.div>
-                    ))}
-                    {clients.length === 0 && (
-                      <p className="text-[12px] text-[#71717a] text-center py-4">Aucun client</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Funnel pipeline */}
-                <div className="bg-white rounded-2xl border border-[#f0f0f0] p-6 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[13px] font-bold text-[#1a1a1a]">Pipeline Funnel</h3>
-                    <Target className="w-4 h-4 text-[#71717a]" />
-                  </div>
-                  <div className="space-y-3">
-                    {(overviewData?.funnel || []).map((f, i) => {
-                      const statusColors = {
-                        draft: { label: 'Brouillon', color: 'text-[#71717a]', bg: 'bg-[#fafafa]0/10 border-gray-500/20' },
-                        sent: { label: 'Envoyé', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
-                        paid: { label: 'Payé', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-                        canceled: { label: 'Annulé', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
+                    {clients.map((client, i) => {
+                      const planBadge = {
+                        free: { label: 'FREE', variant: 'neutral' },
+                        starter: { label: 'STARTER', variant: 'info' },
+                        pro: { label: 'PRO', variant: 'brand' },
+                        enterprise: { label: 'ENTERPRISE', variant: 'warning' },
                       };
-                      const s = statusColors[f.status] || statusColors.draft;
+                      const badge = planBadge[client.plan] || planBadge.free;
                       return (
                         <motion.div
-                          key={f.id}
+                          key={client.id}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: i * 0.05 }}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa]"
+                          className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] hover:bg-[#ffffff] transition-colors cursor-pointer"
+                          onClick={() => setSelectedClient(client)}
                         >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{f.company_name}</p>
-                            <p className="text-[10px] text-[#71717a]">{f.setup_price}€ setup + {f.monthly_price}€/mois</p>
+                          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                            <ShoppingBag className="w-4 h-4" />
                           </div>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${s.bg} ${s.color}`}>
-                            {s.label.toUpperCase()}
-                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{client.brand_name}</p>
+                          </div>
+                          <StatusPill variant={badge.variant} size="sm">{badge.label}</StatusPill>
                         </motion.div>
                       );
                     })}
-                    {(!overviewData?.funnel || overviewData.funnel.length === 0) && (
-                      <p className="text-[12px] text-[#71717a] text-center py-4">Aucun prospect dans le funnel</p>
+                    {clients.length === 0 && (
+                      <p className="text-[12px] text-[#71717a] text-center py-4">Aucun client</p>
                     )}
                   </div>
                 </div>
@@ -992,6 +974,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   </div>
                 </div>
               )}
+            </div>
+            );
+          })()}
+
+          {activeTab === "add-enterprise" && (
+            <div className="max-w-7xl mx-auto animate-fade-in-up">
+              <AdminAddEnterpriseView onNavigateToClients={() => setActiveTab('clients')} />
             </div>
           )}
 
