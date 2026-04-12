@@ -459,10 +459,10 @@ export const LandingPage = ({ onNavigate }) => {
                         </p>
                       </div>
                       <ButtonColorful
-                        onClick={() => onNavigate("/audit")}
+                        onClick={() => onNavigate("/signup?plan=pro")}
                         className="flex-shrink-0 flex items-center gap-2"
                       >
-                        Réserver mon audit <ArrowRight className="w-4 h-4" />
+                        Essai gratuit 14 jours <ArrowRight className="w-4 h-4" />
                       </ButtonColorful>
                     </div>
                   </div>
@@ -558,7 +558,7 @@ export const LandingPage = ({ onNavigate }) => {
                               <p className="text-xs font-bold text-[#716D5C] uppercase tracking-widest mb-3">Impact net en 30 jours</p>
                               <p className="text-5xl font-bold text-[#003725] tracking-tighter mb-2">+ 12 400 €</p>
                               <p className="text-sm text-[#716D5C] font-medium mb-6">de revenus supplémentaires récupérés</p>
-                              <button onClick={() => onNavigate("/audit")} className="text-sm font-bold text-[#262626] border-b-2 border-gray-300 hover:border-gray-900 transition-colors pb-0.5 inline-flex items-center gap-1">
+                              <button onClick={() => onNavigate("/signup?plan=pro")} className="text-sm font-bold text-[#262626] border-b-2 border-gray-300 hover:border-gray-900 transition-colors pb-0.5 inline-flex items-center gap-1">
                                 Obtenir le même résultat <ArrowRight className="w-3 h-3" />
                               </button>
                             </div>
@@ -595,7 +595,7 @@ export const LandingPage = ({ onNavigate }) => {
                               <p className="text-xs font-bold text-[#716D5C] uppercase tracking-widest mb-3">Impact en 30 jours</p>
                               <p className="text-5xl font-bold text-[#003725] tracking-tighter mb-2">+58%</p>
                               <p className="text-sm text-[#716D5C] font-medium mb-6">de rendez-vous qualifiés supplémentaires</p>
-                              <button onClick={() => onNavigate("/audit")} className="text-sm font-bold text-[#262626] border-b-2 border-gray-300 hover:border-gray-900 transition-colors pb-0.5 inline-flex items-center gap-1">
+                              <button onClick={() => onNavigate("/signup?plan=pro")} className="text-sm font-bold text-[#262626] border-b-2 border-gray-300 hover:border-gray-900 transition-colors pb-0.5 inline-flex items-center gap-1">
                                 Obtenir le même résultat <ArrowRight className="w-3 h-3" />
                               </button>
                             </div>
@@ -739,12 +739,12 @@ export const LandingPage = ({ onNavigate }) => {
 
                         <div className="pt-6 border-t border-gray-200">
                           <div className="flex items-baseline gap-2 mb-3">
-                            <span className="text-4xl font-bold tracking-tight text-[#003725]">Sur devis</span>
+                            <span className="text-4xl font-bold tracking-tight text-[#003725]">A partir de 99€/mois</span>
                           </div>
                           <p className="text-sm text-[#716D5C] font-medium">
                             {vertical === 'ecommerce'
-                              ? "Tarif adapté à votre boutique et vos objectifs. L'audit initial est gratuit et sans engagement."
-                              : "Tarif adapté à votre agence et au nombre d'agents déployés. La démo est gratuite."
+                              ? "Plan Free gratuit. Starter 99€/mois, Pro 399€/mois. Essai 14 jours sans engagement."
+                              : "Plan Free gratuit. Starter 99€/mois, Pro 399€/mois. Essai 14 jours sans engagement."
                             }
                           </p>
                         </div>
@@ -802,13 +802,13 @@ export const LandingPage = ({ onNavigate }) => {
 
                         <div>
                           <ButtonColorful
-                            onClick={() => onNavigate("/audit")}
+                            onClick={() => onNavigate("/signup?plan=pro")}
                             className="w-full flex items-center justify-center gap-2 mb-4"
                           >
-                            Réserver un audit gratuit <ArrowRight className="w-4 h-4" />
+                            Essai gratuit 14 jours <ArrowRight className="w-4 h-4" />
                           </ButtonColorful>
                           <p className="text-center text-xs text-[#716D5C] font-medium">
-                            15 minutes. Sans engagement. On vous dit exactement ce qu'on peut automatiser.
+                            Sans engagement. Annulez a tout moment.
                           </p>
                         </div>
                       </div>
@@ -855,7 +855,7 @@ export const LandingPage = ({ onNavigate }) => {
                     },
                     {
                       q: "Combien ça coûte ?",
-                      a: "Tarif sur devis, adapté à votre périmètre d'automatisation. L'audit initial est gratuit et inclut une estimation du ROI attendu avant tout engagement."
+                      a: "Actero propose 4 plans : Free (0€), Starter (99€/mois), Pro (399€/mois) et Enterprise (sur devis). Essai gratuit de 14 jours sur Starter et Pro. -20% en facturation annuelle."
                     },
                   ] : [
                     {
@@ -941,13 +941,13 @@ export const LandingPage = ({ onNavigate }) => {
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                       <button
-                        onClick={() => onNavigate('/audit')}
+                        onClick={() => onNavigate('/pricing')}
                         className="text-sm font-semibold text-[#003725] underline underline-offset-4 decoration-[#003725]/40 hover:decoration-[#003725] transition-colors"
                       >
-                        En savoir plus
+                        Voir les tarifs
                       </button>
-                      <ButtonColorful onClick={() => onNavigate('/audit')}>
-                        Réserver mon audit gratuit
+                      <ButtonColorful onClick={() => onNavigate('/signup?plan=pro')}>
+                        Essai gratuit 14 jours
                       </ButtonColorful>
                     </div>
                   </div>
@@ -977,10 +977,16 @@ export const LandingPage = ({ onNavigate }) => {
 
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
                     <button
-                      onClick={() => onNavigate('/audit')}
+                      onClick={() => onNavigate('/signup?plan=pro')}
                       className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-semibold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2"
                     >
-                      Réserver mon audit gratuit
+                      Essai gratuit 14 jours
+                    </button>
+                    <button
+                      onClick={() => onNavigate('/pricing')}
+                      className="inline-flex items-center justify-center h-12 px-8 rounded-full border border-white/30 text-white font-semibold text-[15px] hover:bg-white/10 transition-colors gap-2"
+                    >
+                      Voir les tarifs
                     </button>
                   </div>
 

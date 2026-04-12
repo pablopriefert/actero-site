@@ -13,6 +13,7 @@ import { runBrain } from './brain.js'
 import { runExecutor } from './executor.js'
 import { logRun } from './logger.js'
 import { checkRateLimit } from './lib/rate-limiter.js'
+import { getLimits } from '../lib/plan-limits.js'
 
 const ENGINE_SECRET = process.env.ENGINE_WEBHOOK_SECRET
 const INTERNAL_SECRET = process.env.INTERNAL_API_SECRET
@@ -54,8 +55,35 @@ export default async function handler(req, res) {
   if (!rateCheck.allowed) return res.status(429).json({ error: rateCheck.reason })
 
   // --- Verify client ---
-  const { data: client } = await supabase.from('clients').select('id, brand_name, client_type').eq('id', client_id).single()
+  const { data: client } = await supabase.from('clients').select('id, brand_name, client_type, plan, trial_ends_at').eq('id', client_id).single()
   if (!client) return res.status(404).json({ error: 'Client non trouve' })
+
+  // --- Plan limits enforcement ---
+  const plan = client.plan || 'free'
+  const limits = getLimits(plan)
+  const inTrial = client.trial_ends_at && new Date(client.trial_ends_at) > new Date()
+
+  // Increment usage counter
+  const { data: ticketsUsed } = await supabase.rpc('increment_ticket_usage', {
+    p_client_id: client_id,
+    p_period: new Date().toISOString().slice(0, 7),
+  })
+
+  // Check if over limit
+  if (ticketsUsed > limits.tickets && !inTrial && limits.tickets !== Infinity) {
+    if (limits.overage !== null) {
+      // Overage allowed — log but continue
+      console.log(`[gateway] Client ${client_id} over limit (${ticketsUsed}/${limits.tickets}), overage applied`)
+    } else {
+      // Hard cap (free plan) — reject
+      return res.status(429).json({
+        error: 'Quota de tickets épuisé pour ce mois',
+        tickets_used: ticketsUsed,
+        tickets_limit: limits.tickets,
+        upgrade_url: `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/pricing`,
+      })
+    }
+  }
 
   const startTime = Date.now()
 

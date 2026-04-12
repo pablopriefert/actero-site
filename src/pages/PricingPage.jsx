@@ -1,296 +1,574 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle2,
+  Check,
+  Minus,
   Plus,
   ChevronRight,
+  ChevronDown,
   Sparkles,
 } from "lucide-react";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { SEO } from "../components/SEO";
-import { GptBadge } from "../components/ui/GptBadge";
-import { MagneticButton } from "../components/ui/magnetic-button";
 import { trackEvent } from "../lib/analytics";
+
+/* ──────────────────────────────────────────────
+   DATA
+   ────────────────────────────────────────────── */
+
+const plans = [
+  {
+    id: "free",
+    name: "Free",
+    tagline: "Decouvrez Actero sans risque",
+    monthlyPrice: 0,
+    annualPrice: 0,
+    trial: false,
+    cta: "Commencer gratuitement",
+    ctaLink: "/signup?plan=free",
+    highlighted: false,
+    cardClass: "border-[#f0f0f0] bg-white",
+    features: [
+      "50 tickets / mois",
+      "1 workflow actif",
+      "Integration Shopify",
+      "Dashboard ROI basique",
+      "Pas de carte bancaire",
+    ],
+    overage: null,
+  },
+  {
+    id: "starter",
+    name: "Starter",
+    tagline: "Pour les boutiques en croissance",
+    monthlyPrice: 99,
+    annualPrice: 79,
+    trial: true,
+    cta: "Essai gratuit 14 jours",
+    ctaLink: "/signup?plan=starter",
+    highlighted: false,
+    cardClass: "border-[#f0f0f0] bg-white",
+    features: [
+      "1 000 tickets / mois",
+      "3 workflows actifs",
+      "Shopify + 2 integrations",
+      "Editeur ton de marque",
+      "Garde-fous & regles metier",
+      "Agents IA specialises",
+      "Dashboard ROI complet",
+      "Historique 3 mois",
+      "2 membres d'equipe",
+      "Support email 48h",
+    ],
+    overage: "0,10\u20AC / ticket",
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    tagline: "Le choix des marques ambitieuses",
+    monthlyPrice: 399,
+    annualPrice: 319,
+    trial: true,
+    cta: "Essai gratuit 14 jours",
+    ctaLink: "/signup?plan=pro",
+    highlighted: true,
+    cardClass: "border-[#0F5F35] bg-white ring-2 ring-[#0F5F35]/20 shadow-lg",
+    features: [
+      "5 000 tickets / mois",
+      "Workflows illimites",
+      "Toutes les integrations",
+      "Agent vocal (200 min incluses)",
+      "WhatsApp Agent",
+      "Simulateur de conversation",
+      "Regles metier avancees",
+      "5 membres d'equipe",
+      "API + webhooks",
+      "Historique illimite",
+      "Support prioritaire 24h",
+    ],
+    overage: "0,10\u20AC / ticket",
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    tagline: "Infrastructure sur mesure",
+    monthlyPrice: null,
+    annualPrice: null,
+    trial: false,
+    cta: "Contacter l'equipe",
+    ctaLink: "mailto:contact@actero.fr",
+    highlighted: false,
+    cardClass: "border-[#f0f0f0] bg-[#fafafa]",
+    features: [
+      "Tickets illimites",
+      "Workflows illimites",
+      "Multi-boutiques (10 stores)",
+      "Agent vocal avance (voix custom)",
+      "White-label disponible",
+      "API avancee + integrations custom",
+      "SLA 99,9% garanti",
+      "Membres illimites",
+      "Rapport sur mesure",
+      "Account manager dedie",
+      "Formation equipe incluse",
+    ],
+    overage: null,
+  },
+];
+
+const comparisonCategories = [
+  {
+    name: "Volume & Workflows",
+    rows: [
+      { label: "Tickets / mois", values: ["50", "1 000", "5 000", "Illimite"] },
+      { label: "Workflows actifs", values: ["1", "3", "Illimite", "Illimite"] },
+      { label: "Membres d'equipe", values: ["1", "2", "5", "Illimite"] },
+      { label: "Historique", values: ["\u2014", "3 mois", "Illimite", "Illimite"] },
+    ],
+  },
+  {
+    name: "Integrations",
+    rows: [
+      { label: "Shopify", values: [true, true, true, true] },
+      { label: "Gorgias / Zendesk", values: [false, true, true, true] },
+      { label: "Klaviyo / HubSpot", values: [false, true, true, true] },
+      { label: "API + Webhooks", values: [false, false, true, true] },
+      { label: "Integrations custom", values: [false, false, false, true] },
+    ],
+  },
+  {
+    name: "Agents IA",
+    rows: [
+      { label: "Agent email / chat", values: [true, true, true, true] },
+      { label: "Agents specialises", values: [false, true, true, true] },
+      { label: "Agent vocal", values: [false, false, "200 min", "Custom"] },
+      { label: "WhatsApp Agent", values: [false, false, true, true] },
+      { label: "Simulateur conversation", values: [false, false, true, true] },
+    ],
+  },
+  {
+    name: "Personnalisation",
+    rows: [
+      { label: "Editeur ton de marque", values: [false, true, true, true] },
+      { label: "Garde-fous & regles metier", values: [false, true, true, true] },
+      { label: "Regles metier avancees", values: [false, false, true, true] },
+      { label: "White-label", values: [false, false, false, true] },
+      { label: "Multi-boutiques", values: [false, false, false, "10 stores"] },
+    ],
+  },
+  {
+    name: "Support & Reporting",
+    rows: [
+      { label: "Dashboard ROI", values: ["Basique", "Complet", "Complet", "Sur mesure"] },
+      { label: "Support", values: ["\u2014", "Email 48h", "Prioritaire 24h", "Account manager"] },
+      { label: "SLA garanti", values: [false, false, false, "99,9%"] },
+      { label: "Formation equipe", values: [false, false, false, true] },
+    ],
+  },
+];
+
+const faqs = [
+  {
+    q: "Puis-je changer de plan a tout moment ?",
+    a: "Oui, vous pouvez upgrader ou downgrader a tout moment depuis votre dashboard. Le changement prend effet immediatement et le prorata est calcule automatiquement sur votre prochain cycle de facturation.",
+  },
+  {
+    q: "Que se passe-t-il si je depasse mon quota de tickets ?",
+    a: "Au-dela de votre quota mensuel, chaque ticket supplementaire est facture 0,10\u20AC. Vous recevez une alerte a 80% et 100% de votre quota pour anticiper. Aucune coupure de service.",
+  },
+  {
+    q: "L'essai gratuit est-il sans engagement ?",
+    a: "Oui, l'essai de 14 jours est 100% gratuit et sans engagement. Aucune carte bancaire requise pour le plan Free. Pour Starter et Pro, vous pouvez annuler a tout moment pendant l'essai sans etre debite.",
+  },
+  {
+    q: "Comment fonctionne l'agent vocal ?",
+    a: "L'agent vocal utilise ElevenLabs pour une voix naturelle en francais. Vous obtenez un numero FR dedie. Le plan Pro inclut 200 minutes/mois. Au-dela, les minutes supplementaires sont facturees a l'usage. Le plan Enterprise permet une voix custom a votre marque.",
+  },
+  {
+    q: "Quelles integrations sont disponibles ?",
+    a: "Actero se connecte nativement a Shopify, Gorgias, Zendesk, Klaviyo, HubSpot, Intercom, Stripe, Slack et bien d'autres. Le plan Pro ajoute l'acces API et webhooks. Le plan Enterprise permet des integrations custom sur mesure.",
+  },
+  {
+    q: "Proposez-vous un discount annuel ?",
+    a: "Oui, la facturation annuelle vous fait economiser 20% par rapport au tarif mensuel. Par exemple, le plan Pro passe de 399\u20AC/mois a 319\u20AC/mois (facture annuellement).",
+  },
+];
+
+/* ──────────────────────────────────────────────
+   COMPONENTS
+   ────────────────────────────────────────────── */
+
+const CellValue = ({ value }) => {
+  if (value === true) return <Check className="w-5 h-5 text-[#0F5F35] mx-auto" />;
+  if (value === false) return <Minus className="w-4 h-4 text-gray-300 mx-auto" />;
+  return <span className="text-sm font-medium text-[#262626]">{value}</span>;
+};
+
+const ComparisonTable = () => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mt-24 max-w-6xl mx-auto">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-center gap-2 text-lg font-bold text-[#262626] mb-8 hover:text-[#0F5F35] transition-colors"
+      >
+        Comparatif detaille
+        <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <div className="overflow-x-auto rounded-2xl border border-gray-200">
+              <table className="w-full min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left p-4 text-sm font-bold text-[#262626] w-[220px] sticky left-0 bg-white z-10" />
+                    {plans.map((plan) => (
+                      <th
+                        key={plan.id}
+                        className={`p-4 text-center text-sm font-bold text-[#262626] ${
+                          plan.highlighted ? "bg-[#0F5F35]/5" : ""
+                        }`}
+                      >
+                        {plan.name}
+                        {plan.highlighted && (
+                          <span className="ml-2 text-[10px] bg-[#0F5F35] text-white px-2 py-0.5 rounded-full font-bold uppercase">
+                            Populaire
+                          </span>
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparisonCategories.map((cat) => (
+                    <React.Fragment key={cat.name}>
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="px-4 pt-6 pb-2 text-xs font-bold text-[#716D5C] uppercase tracking-wider"
+                        >
+                          {cat.name}
+                        </td>
+                      </tr>
+                      {cat.rows.map((row, idx) => (
+                        <tr
+                          key={row.label}
+                          className={idx % 2 === 0 ? "bg-white" : "bg-[#fafafa]"}
+                        >
+                          <td className="p-4 text-sm font-medium text-[#262626] sticky left-0 bg-inherit z-10">
+                            {row.label}
+                          </td>
+                          {row.values.map((val, i) => (
+                            <td
+                              key={i}
+                              className={`p-4 text-center ${
+                                plans[i].highlighted ? "bg-[#0F5F35]/5" : ""
+                              }`}
+                            >
+                              <CellValue value={val} />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* ──────────────────────────────────────────────
+   PAGE
+   ────────────────────────────────────────────── */
 
 export const PricingPage = ({ onNavigate }) => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const isAnnual = false;
+  const [isAnnual, setIsAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
 
-  const plans = [
-    {
-      id: "free",
-      name: "Audit System",
-      monthlyPrice: null,
-      annualPrice: null,
-      priceLabel: "Gratuit",
-      period: "",
-      description:
-        "Un diagnostic complet de vos opérations e-commerce et des quick wins immédiats.",
-      features: [
-        "Audit IA de votre site en temps réel",
-        "Rapport d'opportunités automatisé",
-        "Recommandations stratégiques personnalisées",
-        "1 appel de restitution (30 min)",
-        "Accès au dashboard de suivi",
-      ],
-      cta: "Lancer mon audit",
-      highlighted: false,
-      glowColor: "white",
-    },
-    {
-      id: "croissance_automatisee",
-      name: "Croissance Automatisée",
-      monthlyPrice: null,
-      annualPrice: null,
-      priceLabel: "Sur devis",
-      period: "",
-      description:
-        "L'infrastructure complète pour automatiser votre croissance sur 3 canaux avec un agent IA dédié.",
-      features: [
-        "Tout dans Audit System",
-        { text: "Agent IA support client Niveau 1", badge: true },
-        { text: "Automatisations Make/Zapier illimitées", badge: true },
-        "Intégration Shopify + CRM + Klaviyo",
-        "Relances panier abandonné IA",
-        "Dashboard de performance en temps réel",
-        "Account manager dédié",
-        "Reporting hebdomadaire",
-      ],
-      cta: "Réserver un appel",
-      highlighted: true,
-      glowColor: "emerald",
-    },
-    {
-      id: "contact",
-      name: "Scale sur Mesure",
-      monthlyPrice: null,
-      annualPrice: null,
-      priceLabel: "Sur devis",
-      period: "",
-      description:
-        "Pour les marques qui scalent au-delà de 500K€/mois et ont besoin d'une infra sur mesure.",
-      features: [
-        "Tout dans Croissance Automatisée",
-        { text: "Agents IA multi-canaux personnalisés", badge: true },
-        "Architecture data warehouse",
-        "Intégrations API custom",
-        "Équipe dédiée (2+ agents IA)",
-        "SLA prioritaire",
-        "Onboarding white-glove",
-        "Optimisation continue par data science",
-      ],
-      cta: "Nous contacter",
-      highlighted: false,
-      glowColor: "purple",
-    },
-  ];
-
-  const faqs = [
-    {
-      q: "Comment fonctionne la période d'essai ?",
-      a: "L'Audit System est entièrement gratuit et sans engagement. Vous obtenez un diagnostic complet de vos opérations avant de décider de passer à l'étape suivante.",
-    },
-    {
-      q: "Puis-je changer de plan à tout moment ?",
-      a: "Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements prennent effet au prochain cycle de facturation.",
-    },
-    {
-      q: "Mes données sont-elles sécurisées ?",
-      a: "Absolument. Nous utilisons un chiffrement AES-256, des audits SOC 2 réguliers, et vos données ne sont jamais partagées avec des tiers.",
-    },
-    {
-      q: "Combien de temps prend le déploiement ?",
-      a: "En moyenne 7 jours ouvrés pour le plan Croissance Automatisée. Le plan Scale sur Mesure nécessite un onboarding plus approfondi de 2-3 semaines.",
-    },
-    {
-      q: "Quelles intégrations supportez-vous ?",
-      a: "Nous nous connectons nativement à Shopify, Klaviyo, Gorgias, Make, Zapier, et des dizaines d'autres outils.",
-    },
-  ];
-
   const getPrice = (plan) => {
-    if (plan.priceLabel) return plan.priceLabel;
-    const price = isAnnual ? plan.annualPrice : plan.monthlyPrice;
-    return `${price}€`;
+    if (plan.monthlyPrice === null) return "Sur devis";
+    if (plan.monthlyPrice === 0) return "0\u20AC";
+    return isAnnual ? `${plan.annualPrice}\u20AC` : `${plan.monthlyPrice}\u20AC`;
   };
 
   const getPeriod = (plan) => {
-    if (plan.priceLabel) return plan.period;
-    return isAnnual ? "/mois (facturé annuellement)" : "/mois";
+    if (plan.monthlyPrice === null) return "";
+    if (plan.monthlyPrice === 0) return "";
+    return "/mois";
+  };
+
+  const getSubPrice = (plan) => {
+    if (plan.monthlyPrice === null || plan.monthlyPrice === 0) return null;
+    if (isAnnual) return `soit ${plan.annualPrice * 12}\u20AC facture annuellement`;
+    return `ou ${plan.annualPrice}\u20AC/mois en annuel`;
+  };
+
+  const handleCTA = (plan) => {
+    trackEvent("Pricing_CTA_Clicked", { plan: plan.id, billing: isAnnual ? "annual" : "monthly" });
+    if (plan.ctaLink.startsWith("mailto:")) {
+      window.location.href = plan.ctaLink;
+    } else {
+      onNavigate(plan.ctaLink);
+    }
   };
 
   return (
     <>
       <SEO
-        title="Tarifs Actero — Automatisation IA sur devis"
-        description="Decouvrez les offres Actero : agents IA SAV pour e-commerce Shopify. Tarif sur devis."
-        canonical="/tarifs"
+        title="Tarifs Actero — Plans SaaS pour automatiser votre support e-commerce"
+        description="Des prix simples et transparents. Commencez gratuitement, upgradez quand vous grandissez. Essai gratuit 14 jours."
+        canonical="/pricing"
       />
-    <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
-      <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
 
-      <main className="pt-32 pb-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-6xl font-bold tracking-tight mb-6"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Investissez dans votre <span className="text-[#716D5C]">liberté.</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-xl text-[#716D5C] max-w-2xl mx-auto mb-10"
-            >
-              Des tarifs clairs, indexés sur la valeur générée et le temps économisé.
-            </motion.p>
+      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
+        <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/signup?plan=pro")} trackEvent={trackEvent} />
 
-            {/* Pricing label */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-3 bg-[#F9F7F1] border border-gray-200 rounded-full px-5 py-2.5"
-            >
-              <span className="text-sm font-bold text-[#262626]">Mensuel</span>
-            </motion.div>
-          </div>
+        <main className="pt-32 pb-24 px-6">
+          <div className="max-w-7xl mx-auto">
 
-          {/* Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {plans.map((plan, i) => (
-              <motion.div
-                key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
+            {/* ── Hero compact ── */}
+            <div className="text-center mb-16">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 * i + 0.3 }}
-                className={`group relative p-8 md:p-10 rounded-3xl border transition-all duration-500 hover:scale-[1.02] ${
-                  plan.highlighted
-                    ? "bg-white border-[#0F5F35]/30 shadow-lg"
-                    : "bg-white border-gray-200 hover:border-gray-300"
-                }`}
+                className="text-4xl md:text-6xl font-bold tracking-tight mb-6"
+                style={{ fontFamily: "var(--font-display)" }}
               >
-                {plan.highlighted && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="flex items-center gap-1.5 bg-[#0F5F35] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-[#0F5F35]/25">
-                      <Sparkles className="w-3 h-3" />
-                      Recommandé
-                    </div>
-                  </div>
-                )}
+                Des prix simples, <span className="text-[#0F5F35]">transparents.</span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-xl text-[#716D5C] max-w-2xl mx-auto mb-10"
+              >
+                Commencez gratuitement, upgradez quand vous grandissez.
+              </motion.p>
 
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold text-[#262626] mb-3">{plan.name}</h3>
-                  <div className="flex items-baseline gap-1">
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={`${plan.id}-${isAnnual}`}
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                        className="text-4xl font-bold text-[#262626]"
-                      >
-                        {getPrice(plan)}
-                      </motion.span>
-                    </AnimatePresence>
-                    <span className="text-[#716D5C] text-sm font-medium">
-                      {getPeriod(plan)}
-                    </span>
-                  </div>
-                  <p className="mt-4 text-[#716D5C] text-sm font-medium leading-relaxed">
-                    {plan.description}
-                  </p>
-                </div>
-
-                <div className="space-y-4 mb-10">
-                  {plan.features.map((feature, idx) => {
-                    const isObj = typeof feature === 'object' && feature !== null;
-                    const text = isObj ? feature.text : feature;
-                    const hasBadge = isObj && feature.badge;
-                    return (
-                      <div key={idx} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#0F5F35] shrink-0 mt-0.5" />
-                        <span className="text-sm font-medium text-[#716D5C] inline-flex items-center flex-wrap gap-2">
-                          {text} {hasBadge && <GptBadge />}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <MagneticButton
-                  onClick={() => {
-                    trackEvent("Pricing_CTA_Clicked", { plan: plan.id });
-                    onNavigate("/audit");
-                  }}
-                  className={`w-full py-4 rounded-full font-bold transition-all flex items-center justify-center gap-2 ${
-                    plan.highlighted
-                      ? "bg-[#0F5F35] text-white hover:bg-[#003725]"
-                      : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
+              {/* ── Toggle Mensuel / Annuel ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex items-center gap-3 bg-[#F9F7F1] border border-gray-200 rounded-full px-2 py-1.5"
+              >
+                <button
+                  onClick={() => setIsAnnual(false)}
+                  className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
+                    !isAnnual
+                      ? "bg-white text-[#262626] shadow-sm"
+                      : "text-[#716D5C] hover:text-[#262626]"
                   }`}
                 >
-                  {plan.cta} <ChevronRight className="w-4 h-4" />
-                </MagneticButton>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* FAQ */}
-          <div className="mt-32 max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-center text-[#262626] mb-12" style={{ fontFamily: "var(--font-display)" }}>
-              Questions fréquentes
-            </h2>
-            <div className="space-y-3">
-              {faqs.map((faq, i) => (
-                <div
-                  key={i}
-                  className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-hidden"
+                  Mensuel
+                </button>
+                <button
+                  onClick={() => setIsAnnual(true)}
+                  className={`px-5 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${
+                    isAnnual
+                      ? "bg-white text-[#262626] shadow-sm"
+                      : "text-[#716D5C] hover:text-[#262626]"
+                  }`}
                 >
-                  <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full flex items-center justify-between p-6 text-left"
-                  >
-                    <span className="font-bold text-[#262626]">{faq.q}</span>
-                    <Plus
-                      className={`w-5 h-5 text-[#716D5C] transition-transform duration-300 ${
-                        openFaq === i ? "rotate-45" : ""
-                      }`}
-                    />
-                  </button>
-                  <AnimatePresence>
-                    {openFaq === i && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="px-6 pb-6 overflow-hidden"
-                      >
-                        <p className="text-[#716D5C] text-sm leading-relaxed">
-                          {faq.a}
-                        </p>
-                      </motion.div>
+                  Annuel
+                  <span className="text-[10px] font-bold bg-[#0F5F35] text-white px-2 py-0.5 rounded-full">
+                    -20%
+                  </span>
+                </button>
+              </motion.div>
+            </div>
+
+            {/* ── 4 Plan Cards ── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+              {plans.map((plan, i) => (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * i + 0.3 }}
+                  className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02] ${plan.cardClass}`}
+                >
+                  {plan.highlighted && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                      <div className="flex items-center gap-1.5 bg-[#0F5F35] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-[#0F5F35]/25">
+                        <Sparkles className="w-3 h-3" />
+                        Populaire
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-[#262626] mb-1">{plan.name}</h3>
+                    <p className="text-sm text-[#716D5C] font-medium">{plan.tagline}</p>
+                  </div>
+
+                  <div className="mb-6">
+                    <div className="flex items-baseline gap-1">
+                      <AnimatePresence mode="wait">
+                        <motion.span
+                          key={`${plan.id}-${isAnnual}`}
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.2 }}
+                          className="text-4xl font-bold text-[#262626]"
+                        >
+                          {getPrice(plan)}
+                        </motion.span>
+                      </AnimatePresence>
+                      <span className="text-[#716D5C] text-sm font-medium">
+                        {getPeriod(plan)}
+                      </span>
+                    </div>
+                    {getSubPrice(plan) && (
+                      <p className="text-xs text-[#716D5C] mt-1">{getSubPrice(plan)}</p>
                     )}
-                  </AnimatePresence>
-                </div>
+                  </div>
+
+                  {/* CTA */}
+                  <button
+                    onClick={() => handleCTA(plan)}
+                    className={`w-full py-3.5 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2 mb-8 ${
+                      plan.highlighted
+                        ? "bg-[#0F5F35] text-white hover:bg-[#003725]"
+                        : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
+                    }`}
+                  >
+                    {plan.cta} <ChevronRight className="w-4 h-4" />
+                  </button>
+
+                  {/* Divider */}
+                  <div className="border-t border-gray-100 mb-6" />
+
+                  {/* Features */}
+                  <div className="space-y-3 flex-1">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-2.5">
+                        <Check className="w-4 h-4 text-[#0F5F35] shrink-0 mt-0.5" />
+                        <span className="text-sm text-[#716D5C] font-medium">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Overage */}
+                  {plan.overage && (
+                    <p className="mt-6 text-xs text-[#716D5C] pt-4 border-t border-gray-100">
+                      Overage : {plan.overage}
+                    </p>
+                  )}
+                </motion.div>
               ))}
             </div>
-          </div>
-        </div>
-      </main>
 
-      <Footer onNavigate={onNavigate} />
-    </div>
+            {/* ── Comparison Table ── */}
+            <ComparisonTable />
+
+            {/* ── FAQ ── */}
+            <div className="mt-24 max-w-3xl mx-auto">
+              <h2
+                className="text-3xl font-bold text-center text-[#262626] mb-12"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                Questions frequentes
+              </h2>
+              <div className="space-y-3">
+                {faqs.map((faq, i) => (
+                  <div
+                    key={i}
+                    className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-hidden"
+                  >
+                    <button
+                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                      className="w-full flex items-center justify-between p-6 text-left"
+                    >
+                      <span className="font-bold text-[#262626]">{faq.q}</span>
+                      <Plus
+                        className={`w-5 h-5 text-[#716D5C] transition-transform duration-300 shrink-0 ml-4 ${
+                          openFaq === i ? "rotate-45" : ""
+                        }`}
+                      />
+                    </button>
+                    <AnimatePresence>
+                      {openFaq === i && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="px-6 pb-6 overflow-hidden"
+                        >
+                          <p className="text-[#716D5C] text-sm leading-relaxed">{faq.a}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── CTA Bottom ── */}
+            <div className="mt-24 text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="bg-[#003725] rounded-3xl p-12 md:p-16"
+              >
+                <h2
+                  className="text-3xl md:text-4xl font-bold text-white mb-4"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  Pret a automatiser votre support ?
+                </h2>
+                <p className="text-white/70 text-lg mb-8 max-w-xl mx-auto">
+                  Rejoignez les marques qui economisent des dizaines d'heures par semaine grace a Actero.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <button
+                    onClick={() => {
+                      trackEvent("Pricing_Bottom_CTA_Clicked");
+                      onNavigate("/signup?plan=pro");
+                    }}
+                    className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2"
+                  >
+                    Essai gratuit 14 jours <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      trackEvent("Pricing_Bottom_Secondary_CTA_Clicked");
+                      window.location.href = "mailto:contact@actero.fr";
+                    }}
+                    className="inline-flex items-center justify-center h-12 px-8 rounded-full border border-white/30 text-white font-bold text-[15px] hover:bg-white/10 transition-colors gap-2"
+                  >
+                    Contacter l'equipe
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+
+          </div>
+        </main>
+
+        <Footer onNavigate={onNavigate} />
+      </div>
     </>
   );
 };

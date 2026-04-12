@@ -56,17 +56,14 @@ export const GlassHero = ({ onNavigate }) => {
 
                     {/* CTAs */}
                     <FadeInUp delay={0.15} className="flex flex-wrap items-center justify-center gap-4">
-                        <ButtonColorful onClick={() => onNavigate('/audit')}>
-                            Réserver un audit gratuit <ArrowRight className="w-4 h-4" />
+                        <ButtonColorful onClick={() => onNavigate('/signup?plan=pro')}>
+                            Essai gratuit 14 jours <ArrowRight className="w-4 h-4" />
                         </ButtonColorful>
                         <button
-                            onClick={() => {
-                                const el = document.getElementById('comment-ca-marche');
-                                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                            }}
+                            onClick={() => onNavigate('/pricing')}
                             className="text-sm font-semibold text-[#003725] underline underline-offset-4 decoration-[#003725]/40 hover:decoration-[#003725] transition-colors"
                         >
-                            Voir comment ça marche
+                            Voir les tarifs
                         </button>
                     </FadeInUp>
 

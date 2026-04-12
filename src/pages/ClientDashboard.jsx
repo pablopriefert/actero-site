@@ -26,6 +26,7 @@ import {
   Trophy,
   Phone,
   PhoneCall,
+  Lock,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -61,6 +62,9 @@ import { MyMarketplaceTemplatesView } from '../components/client/MyMarketplaceTe
 import { AchievementsView, AchievementsBanner, AchievementsToast } from '../components/client/AchievementsView'
 import ProductTour from '../components/client/ProductTour'
 import { IndustryPicker } from '../components/client/IndustryPicker'
+import { usePlan } from '../hooks/usePlan'
+import { PlanGate } from '../components/ui/PlanGate'
+import { UpgradeBanner } from '../components/ui/UpgradeBanner'
 
 const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
   const [feedback, setFeedback] = useState(currentFeedback || null);
@@ -233,6 +237,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     },
     enabled: !!supabase,
   });
+
+  // Plan gating
+  const { planId, planName, config: planConfig, inTrial, trialDaysLeft, ticketsUsed, ticketsLimit, ticketsPercent, isOverLimit, canAccess: can } = usePlan(currentClient?.id)
 
   // 1b. Fetch product tour completion flag
   const { data: tourCompleted } = useQuery({
@@ -638,13 +645,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       children: [
         { id: 'agent-config', label: 'Configuration', icon: Bot },
         { id: 'playbooks', label: 'Scenarios', icon: Zap },
-        { id: 'whatsapp-agent', label: 'WhatsApp', icon: MessageCircle, badge: 'Nouveau', badgeColor: 'bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/30' },
+        { id: 'whatsapp-agent', label: 'WhatsApp', icon: MessageCircle, ...(can('whatsapp_agent') ? { badge: 'Nouveau', badgeColor: 'bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/30' } : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
       ],
     },
 
     { type: 'section', label: 'Connexions' },
     { id: 'integrations', label: 'Integrations', icon: Plug },
-    { id: 'voice-agent', label: 'Agent vocal', icon: Phone, badge: 'Bientot', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' },
+    { id: 'voice-agent', label: 'Agent vocal', icon: Phone, ...(can('voice_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
 
     {
       type: 'expandable',
@@ -963,6 +970,35 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     </button>
                   )}
 
+                  {/* ── Ticket usage counter ── */}
+                  <div className="mb-5 bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-5 py-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <p className="text-[13px] font-semibold text-[#1a1a1a]">
+                          {ticketsUsed.toLocaleString('fr-FR')} / {ticketsLimit === Infinity ? '∞' : ticketsLimit.toLocaleString('fr-FR')} tickets ce mois
+                        </p>
+                        {inTrial && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold uppercase tracking-wider">
+                            Essai gratuit — J-{trialDaysLeft}
+                          </span>
+                        )}
+                      </div>
+                      {isOverLimit && (
+                        <span className="text-[11px] font-semibold text-red-600">Limite atteinte</span>
+                      )}
+                    </div>
+                    {ticketsLimit !== Infinity && (
+                      <div className="w-full h-2 rounded-full bg-[#f0f0f0] overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            ticketsPercent > 90 ? 'bg-red-500' : ticketsPercent > 70 ? 'bg-amber-500' : 'bg-[#0F5F35]'
+                          }`}
+                          style={{ width: `${Math.min(ticketsPercent, 100)}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   {/* ── Weekly summary (one-liner) ── */}
                   <WeeklySummary clientId={currentClient?.id} setActiveTab={setActiveTab} />
 
@@ -1202,11 +1238,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "simulator" && (
-            <ConversationSimulator
-              clientId={currentClient?.id}
-              clientType={currentClient?.client_type}
-              theme={theme}
-            />
+            <PlanGate feature="simulator" planId={planId} inTrial={inTrial}>
+              <ConversationSimulator
+                clientId={currentClient?.id}
+                clientType={currentClient?.client_type}
+                theme={theme}
+              />
+            </PlanGate>
           )}
 
           {activeTab === "team" && (
@@ -1214,10 +1252,12 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "guardrails" && (
-            <GuardrailsEditor
-              clientId={currentClient?.id}
-              theme={theme}
-            />
+            <PlanGate feature="guardrails" planId={planId} inTrial={inTrial}>
+              <GuardrailsEditor
+                clientId={currentClient?.id}
+                theme={theme}
+              />
+            </PlanGate>
           )}
 
           {activeTab === "voice-calls" && (
@@ -1225,43 +1265,15 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "voice-agent" && (
-            <div className="max-w-2xl mx-auto py-12">
-              <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-10 text-center">
-                <div className="w-20 h-20 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-6">
-                  <Phone className="w-9 h-9 text-amber-600" />
-                </div>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold uppercase tracking-wider mb-4">
-                  Bientot disponible
-                </span>
-                <h2 className="text-[24px] font-semibold text-[#1a1a1a] mb-3">
-                  Agent vocal telephonique
-                </h2>
-                <p className="text-[14px] text-[#71717a] leading-relaxed max-w-md mx-auto">
-                  Bientot, vos clients pourront appeler un vrai numero francais et parler en temps reel a votre agent IA. Il utilisera la meme intelligence que votre agent texte (memoire client, lookup commande Shopify, escalades automatiques).
-                </p>
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto text-left">
-                  <div className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
-                    <p className="text-[12px] font-semibold text-[#1a1a1a]">Numero FR dedie</p>
-                    <p className="text-[11px] text-[#9ca3af] mt-1">Votre propre numero professionnel</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
-                    <p className="text-[12px] font-semibold text-[#1a1a1a]">Voix naturelle</p>
-                    <p className="text-[11px] text-[#9ca3af] mt-1">ElevenLabs en francais</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
-                    <p className="text-[12px] font-semibold text-[#1a1a1a]">24/7</p>
-                    <p className="text-[11px] text-[#9ca3af] mt-1">Disponible jour et nuit</p>
-                  </div>
-                </div>
-                <p className="text-[11px] text-[#9ca3af] mt-8 italic">
-                  Disponible sous peu - inclus dans votre abonnement Actero.
-                </p>
-              </div>
-            </div>
+            <PlanGate feature="voice_agent" planId={planId} inTrial={inTrial}>
+              <VoiceAgentSetupView clientId={currentClient?.id} />
+            </PlanGate>
           )}
 
           {activeTab === "whatsapp-agent" && (
-            <WhatsAppAgentSetupView clientId={currentClient?.id} />
+            <PlanGate feature="whatsapp_agent" planId={planId} inTrial={inTrial}>
+              <WhatsAppAgentSetupView clientId={currentClient?.id} />
+            </PlanGate>
           )}
 
           {activeTab === "notifications" && (

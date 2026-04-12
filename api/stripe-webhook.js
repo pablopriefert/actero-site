@@ -152,6 +152,43 @@ export default async function handler(req, res) {
     case 'checkout.session.completed': {
       const session = event.data.object;
 
+      // --- SaaS self-service signup ---
+      if (session.metadata?.kind === 'saas_signup' && session.metadata?.client_id) {
+        try {
+          const clientId = session.metadata.client_id;
+          const updateData = {
+            stripe_customer_id: session.customer,
+          };
+
+          // Set trial_ends_at from subscription trial_end if available
+          if (session.subscription) {
+            try {
+              const subscription = await stripe.subscriptions.retrieve(session.subscription);
+              if (subscription.trial_end) {
+                updateData.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString();
+              }
+              updateData.stripe_subscription_id = subscription.id;
+            } catch (subErr) {
+              console.error('[SAAS_SIGNUP] Failed to retrieve subscription:', subErr.message);
+            }
+          }
+
+          const { error: updateErr } = await supabase
+            .from('clients')
+            .update(updateData)
+            .eq('id', clientId);
+
+          if (updateErr) {
+            console.error('[SAAS_SIGNUP] Failed to update client:', updateErr);
+          } else {
+            console.log(`[SAAS_SIGNUP] Client ${clientId} updated with Stripe info`);
+          }
+        } catch (saasErr) {
+          console.error('[SAAS_SIGNUP] Handling failed:', saasErr);
+        }
+        return res.status(200).json({ received: true });
+      }
+
       // --- Marketplace template purchase ---
       if (session.metadata?.template_id && session.metadata?.buyer_client_id) {
         try {
@@ -495,6 +532,105 @@ export default async function handler(req, res) {
         } catch (emailErr) {
           console.error('[RESEND] Post-payment email failed:', emailErr.message);
         }
+      }
+      break;
+    }
+
+    case 'customer.subscription.updated': {
+      const subscription = event.data.object;
+      try {
+        const clientId = subscription.metadata?.client_id;
+        if (clientId) {
+          const updateData = {};
+          // Detect plan change via price lookup
+          const priceId = subscription.items?.data?.[0]?.price?.id;
+          if (priceId) {
+            const priceToplan = {};
+            if (process.env.STRIPE_PRICE_STARTER_MONTHLY) priceToplan[process.env.STRIPE_PRICE_STARTER_MONTHLY] = 'starter';
+            if (process.env.STRIPE_PRICE_STARTER_ANNUAL) priceToplan[process.env.STRIPE_PRICE_STARTER_ANNUAL] = 'starter';
+            if (process.env.STRIPE_PRICE_PRO_MONTHLY) priceToplan[process.env.STRIPE_PRICE_PRO_MONTHLY] = 'pro';
+            if (process.env.STRIPE_PRICE_PRO_ANNUAL) priceToplan[process.env.STRIPE_PRICE_PRO_ANNUAL] = 'pro';
+            const newPlan = priceToplan[priceId];
+            if (newPlan) updateData.plan = newPlan;
+          }
+          // Update trial_ends_at if trial changed
+          if (subscription.trial_end) {
+            updateData.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString();
+          }
+          // Detect cancellation
+          if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
+            updateData.status = 'inactive';
+          } else if (subscription.status === 'active') {
+            updateData.status = 'active';
+          }
+
+          if (Object.keys(updateData).length > 0) {
+            await supabase.from('clients').update(updateData).eq('id', clientId);
+            console.log(`[SUB_UPDATED] Client ${clientId} updated:`, updateData);
+          }
+        }
+      } catch (err) {
+        console.error('[SUB_UPDATED] Error:', err.message);
+      }
+      break;
+    }
+
+    case 'customer.subscription.trial_will_end': {
+      // Fires 3 days before trial ends
+      const subscription = event.data.object;
+      try {
+        const clientId = subscription.metadata?.client_id;
+        const customerEmail = subscription.customer ? null : null;
+        // Retrieve customer email
+        let email = null;
+        if (subscription.customer) {
+          const customer = await stripe.customers.retrieve(subscription.customer);
+          email = customer.email;
+        }
+        if (email) {
+          const trialEnd = subscription.trial_end
+            ? new Date(subscription.trial_end * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+            : 'bientôt';
+
+          await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || 'Actero <onboarding@resend.dev>',
+            to: [email],
+            subject: 'Votre essai Actero se termine bientôt',
+            html: `<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f8f8f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f8f8;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+        <tr><td style="padding:40px 40px 0 40px;">
+          <div style="font-size:22px;font-weight:700;color:#000;letter-spacing:-0.5px;">Actero</div>
+        </td></tr>
+        <tr><td style="padding:32px 40px;">
+          <h1 style="font-size:24px;font-weight:700;color:#000;margin:0 0 20px 0;line-height:1.3;">
+            Votre essai se termine le ${trialEnd}
+          </h1>
+          <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 16px 0;">
+            Votre période d'essai gratuit Actero touche à sa fin. Pour continuer à bénéficier de vos agents IA et de toutes les fonctionnalités, aucune action n'est requise — votre abonnement démarrera automatiquement.
+          </p>
+          <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 24px 0;">
+            Si vous souhaitez annuler, rendez-vous dans votre dashboard avant la fin de l'essai.
+          </p>
+          <a href="https://actero.fr/client/overview" style="display:inline-block;background-color:#0F5F35;color:#fff;font-size:15px;font-weight:600;padding:12px 28px;border-radius:12px;text-decoration:none;">Accéder à mon dashboard</a>
+        </td></tr>
+        <tr><td style="padding:20px 40px 40px 40px;">
+          <p style="font-size:14px;color:#444;line-height:1.7;margin:0;">À très vite,</p>
+          <p style="font-size:14px;font-weight:700;color:#000;margin:8px 0 0 0;">L'équipe Actero</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`,
+          });
+          console.log(`[TRIAL_REMINDER] Email sent to ${email} (client: ${clientId})`);
+        }
+      } catch (err) {
+        console.error('[TRIAL_REMINDER] Error:', err.message);
       }
       break;
     }
