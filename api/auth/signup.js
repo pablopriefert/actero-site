@@ -166,6 +166,28 @@ export default async function handler(req, res) {
           metadata: { client_id: clientId, plan: selectedPlan },
         },
         metadata: { client_id: clientId, plan: selectedPlan, kind: 'saas_signup' },
+        // Collect billing info
+        billing_address_collection: 'required',
+        tax_id_collection: { enabled: true },
+        // Auto-update Stripe Customer with collected info
+        customer_update: { name: 'auto', address: 'auto' },
+        // Payment methods (Google Pay auto with card, Klarna not supported for subscriptions)
+        payment_method_types: ['card', 'paypal', 'link'],
+        // Custom fields for company info
+        custom_fields: [
+          {
+            key: 'company_name',
+            label: { type: 'custom', custom: 'Nom de l\'entreprise (optionnel)' },
+            type: 'text',
+            optional: true,
+          },
+          {
+            key: 'siret',
+            label: { type: 'custom', custom: 'SIRET / Numero d\'entreprise (optionnel)' },
+            type: 'text',
+            optional: true,
+          },
+        ],
         success_url: `${siteUrl}/client/overview?welcome=true`,
         cancel_url: `${siteUrl}/signup?plan=${selectedPlan}`,
       });

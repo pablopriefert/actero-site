@@ -180,6 +180,7 @@ export default async function handler(req, res) {
     }
 
     // --- No existing subscription or update failed — Create Checkout Session ---
+    const siteUrl = process.env.SITE_URL || 'https://actero.fr';
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: stripeCustomerId,
@@ -190,8 +191,29 @@ export default async function handler(req, res) {
         upgrade_from: currentPlan,
         upgrade_to: target_plan,
       },
-      success_url: `${process.env.SITE_URL || 'https://actero.fr'}/client?tab=billing&upgrade=success`,
-      cancel_url: `${process.env.SITE_URL || 'https://actero.fr'}/client?tab=billing&upgrade=cancel`,
+      // Collect billing info
+      billing_address_collection: 'required',
+      tax_id_collection: { enabled: true },
+      customer_update: { name: 'auto', address: 'auto' },
+      // Payment methods (Google Pay auto with card, Klarna not supported for subscriptions)
+      payment_method_types: ['card', 'paypal', 'link'],
+      // Custom fields for company info
+      custom_fields: [
+        {
+          key: 'company_name',
+          label: { type: 'custom', custom: 'Nom de l\'entreprise (optionnel)' },
+          type: 'text',
+          optional: true,
+        },
+        {
+          key: 'siret',
+          label: { type: 'custom', custom: 'SIRET / Numero d\'entreprise (optionnel)' },
+          type: 'text',
+          optional: true,
+        },
+      ],
+      success_url: `${siteUrl}/client?tab=billing&upgrade=success`,
+      cancel_url: `${siteUrl}/client?tab=billing&upgrade=cancel`,
     });
 
     return res.status(200).json({ checkout_url: session.url });
