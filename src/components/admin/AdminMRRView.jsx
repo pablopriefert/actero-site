@@ -147,8 +147,8 @@ export default function AdminMRRView() {
       if (hasRealMrr) {
         b.mrr = activeClients.reduce((acc, r) => acc + Number(r?.mrr || 0), 0)
       } else {
-        // Rough fallback: 49€ per active client (standard Actero plan)
-        b.mrr = activeClients.length * (avgMrr || 49)
+        // Use real MRR from view — no fake default (shows 0 if no pricing data)
+        b.mrr = activeClients.length * avgMrr
       }
     })
 
