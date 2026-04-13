@@ -520,7 +520,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
   // KPI Calculations
   const periodStats = useMemo(() => {
-    if (!dailyMetrics.length) {
+    if (!dailyMetrics || !dailyMetrics.length) {
       return {
         time_saved: 0,
         time_saved_var: 0,
@@ -587,7 +587,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
   // Specific growthPct for the ROIGlowChart
   const growthPct = useMemo(() => {
-    if (!dailyMetrics.length) return 0;
+    if (!dailyMetrics || !dailyMetrics.length) return 0;
     const now = new Date();
     const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const startOfPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -621,6 +621,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   })
 
   const urgentEscalationCount = useMemo(() => {
+    if (!pendingEscalations || !Array.isArray(pendingEscalations)) return 0
     const cutoff = Date.now() - 2 * 60 * 60 * 1000 // >2h
     return pendingEscalations.filter(e => {
       if (!e.created_at) return false
