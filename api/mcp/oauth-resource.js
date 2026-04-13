@@ -13,6 +13,6 @@ export default function handler(req, res) {
 
   return res.status(200).json({
     resource: `${siteUrl}/api/mcp`,
-    authorization_servers: [`${siteUrl}/api/mcp`],
+    authorization_servers: [siteUrl],
   })
 }

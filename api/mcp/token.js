@@ -43,8 +43,36 @@ export default async function handler(req, res) {
   const grant_type = params.grant_type
   const code = params.code
   const code_verifier = params.code_verifier
+  const refresh_token = params.refresh_token
 
-  console.log('[mcp/token] Request:', { grant_type, code: code?.slice(0, 8) + '...', has_verifier: !!code_verifier })
+  console.log('[mcp/token] Request:', { grant_type, code: code?.slice(0, 8) + '...', has_verifier: !!code_verifier, has_refresh: !!refresh_token })
+
+  // Handle refresh_token grant — return the same token (our API keys don't expire)
+  if (grant_type === 'refresh_token') {
+    if (!refresh_token) {
+      return res.status(400).json({ error: 'invalid_request', error_description: 'refresh_token required' })
+    }
+    // Look up the API key that matches this refresh token (we use the same value)
+    const { data: keyRow } = await supabase
+      .from('client_api_keys')
+      .select('key_value, client_id')
+      .eq('key_value', refresh_token)
+      .eq('is_active', true)
+      .maybeSingle()
+
+    if (!keyRow) {
+      return res.status(400).json({ error: 'invalid_grant', error_description: 'Invalid refresh token' })
+    }
+
+    console.log('[mcp/token] Refresh success for client:', keyRow.client_id)
+    return res.status(200).json({
+      access_token: keyRow.key_value,
+      token_type: 'bearer',
+      expires_in: 31536000,
+      refresh_token: keyRow.key_value,
+      scope: 'actero',
+    })
+  }
 
   if (grant_type !== 'authorization_code') {
     return res.status(400).json({ error: 'unsupported_grant_type', error_description: `Expected authorization_code, got ${grant_type}` })
@@ -125,16 +153,20 @@ export default async function handler(req, res) {
     // Fallback: return the Supabase JWT (short-lived but works)
     return res.status(200).json({
       access_token: authCode.access_token,
-      token_type: 'Bearer',
+      token_type: 'bearer',
       expires_in: 3600,
+      scope: 'actero',
     })
   }
 
   console.log('[mcp/token] Success: API key created for client', link.client_id)
 
-  // Return the long-lived API key
+  // Return the long-lived API key with all standard OAuth2 fields
   return res.status(200).json({
     access_token: apiKeyValue,
-    token_type: 'Bearer',
+    token_type: 'bearer',
+    expires_in: 31536000,
+    refresh_token: apiKeyValue,
+    scope: 'actero',
   })
 }

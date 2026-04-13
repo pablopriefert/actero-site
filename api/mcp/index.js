@@ -171,13 +171,16 @@ export default async function handler(req, res) {
   if (req.method === 'DELETE') return res.status(200).json({ ok: true })
 
   // Auth
+  console.log('[mcp] Request:', req.method, 'Auth header present:', !!req.headers.authorization, 'Auth starts with:', req.headers.authorization?.slice(0, 40))
+  console.log('[mcp] All headers:', JSON.stringify(Object.keys(req.headers)))
   const clientId = await resolveClientFromToken(req.headers.authorization)
   if (!clientId) {
-    // Return 401 with WWW-Authenticate to trigger OAuth flow
     const siteUrl = process.env.PUBLIC_API_URL || 'https://actero.fr'
-    res.setHeader('WWW-Authenticate', `Bearer realm="actero", resource_metadata="${siteUrl}/api/mcp/.well-known/oauth-protected-resource"`)
+    res.setHeader('WWW-Authenticate', `Bearer resource_metadata="${siteUrl}/.well-known/oauth-protected-resource"`)
+    console.log('[mcp] 401 — no client resolved')
     return res.status(401).json({ error: 'Unauthorized. Use OAuth to connect.' })
   }
+  console.log('[mcp] Authenticated client:', clientId)
 
   // GET — SSE stream
   if (req.method === 'GET') {
