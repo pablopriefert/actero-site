@@ -3,8 +3,8 @@
  *
  * GET /api/mcp/authorize?response_type=code&client_id=xxx&redirect_uri=xxx&state=xxx&code_challenge=xxx&code_challenge_method=S256
  *
- * Shows a login page. On submit, authenticates the user and redirects back
- * with an authorization code.
+ * Shows a login page. On submit (native form POST), authenticates the user
+ * and returns a 302 redirect with the authorization code.
  */
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
@@ -21,14 +21,9 @@ const supabaseAuth = createClient(
   process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
 )
 
-export default async function handler(req, res) {
-  const siteUrl = process.env.PUBLIC_API_URL || 'https://actero.fr'
-
-  // GET — show login form
-  if (req.method === 'GET') {
-    const { redirect_uri, state, code_challenge, code_challenge_method, client_id } = req.query
-
-    const html = `<!DOCTYPE html>
+function renderPage({ redirect_uri, state, code_challenge, code_challenge_method, client_id, error }) {
+  const esc = (s) => (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+  return `<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -52,8 +47,7 @@ export default async function handler(req, res) {
     .field input:focus { border-color: #0F5F35; background: white; }
     .btn { width: 100%; padding: 12px; background: #0F5F35; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn:hover { background: #003725; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .error { color: #ef4444; font-size: 13px; margin-bottom: 12px; text-align: center; display: none; }
+    .error { color: #ef4444; font-size: 13px; margin-bottom: 12px; text-align: center; }
     .footer { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 16px; }
   </style>
 </head>
@@ -73,14 +67,14 @@ export default async function handler(req, res) {
       <div class="perm"><span class="dot"></span> Voir les conversations recentes</div>
     </div>
 
-    <div id="error" class="error"></div>
+    ${error ? `<div class="error">${esc(error)}</div>` : ''}
 
-    <form id="authForm" method="POST" action="/api/mcp/authorize">
-      <input type="hidden" name="redirect_uri" value="${(redirect_uri || '').replace(/"/g, '&quot;')}" />
-      <input type="hidden" name="state" value="${(state || '').replace(/"/g, '&quot;')}" />
-      <input type="hidden" name="code_challenge" value="${(code_challenge || '').replace(/"/g, '&quot;')}" />
-      <input type="hidden" name="code_challenge_method" value="${(code_challenge_method || '').replace(/"/g, '&quot;')}" />
-      <input type="hidden" name="client_id" value="${(client_id || '').replace(/"/g, '&quot;')}" />
+    <form method="POST" action="/api/mcp/authorize">
+      <input type="hidden" name="redirect_uri" value="${esc(redirect_uri)}" />
+      <input type="hidden" name="state" value="${esc(state)}" />
+      <input type="hidden" name="code_challenge" value="${esc(code_challenge)}" />
+      <input type="hidden" name="code_challenge_method" value="${esc(code_challenge_method)}" />
+      <input type="hidden" name="client_id" value="${esc(client_id)}" />
 
       <div class="field">
         <label>Email</label>
@@ -91,63 +85,26 @@ export default async function handler(req, res) {
         <input type="password" name="password" required placeholder="••••••••" />
       </div>
 
-      <button type="submit" class="btn" id="submitBtn">Autoriser l'acces</button>
+      <button type="submit" class="btn">Autoriser l'acces</button>
     </form>
 
     <p class="footer">Actero ne partagera jamais vos identifiants avec Claude.</p>
   </div>
-
-  <script>
-    document.getElementById('authForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('submitBtn');
-      const errEl = document.getElementById('error');
-      btn.disabled = true;
-      btn.textContent = 'Connexion...';
-      errEl.style.display = 'none';
-
-      const form = new FormData(e.target);
-      const body = Object.fromEntries(form.entries());
-
-      try {
-        // Pre-validate credentials via fetch (redirect: manual to catch 302)
-        const res = await fetch('/api/mcp/authorize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-          redirect: 'manual',
-        });
-
-        // 302 = success, server wants to redirect to callback
-        if (res.type === 'opaqueredirect' || res.status === 302 || res.status === 301) {
-          // Submit form natively so browser follows the 302 redirect
-          e.target.removeEventListener('submit', arguments.callee);
-          btn.textContent = 'Redirection...';
-          e.target.submit();
-          return;
-        }
-
-        // Non-redirect response = error
-        const data = await res.json().catch(() => ({ error: 'Erreur inconnue' }));
-        errEl.textContent = data.error || 'Erreur de connexion';
-        errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Autoriser l\\'acces';
-      } catch (err) {
-        // Network error or CORS redirect — try native form submit as fallback
-        btn.textContent = 'Redirection...';
-        e.target.submit();
-      }
-    });
-  </script>
 </body>
 </html>`
+}
 
+export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store')
+
+  // GET — show login form
+  if (req.method === 'GET') {
+    const { redirect_uri, state, code_challenge, code_challenge_method, client_id, error } = req.query
     res.setHeader('Content-Type', 'text/html')
-    return res.status(200).send(html)
+    return res.status(200).send(renderPage({ redirect_uri, state, code_challenge, code_challenge_method, client_id, error }))
   }
 
-  // POST — authenticate and redirect with code
+  // POST — authenticate and 302 redirect with code
   if (req.method === 'POST') {
     // Parse body — supports JSON and form-urlencoded
     let body = req.body || {}
@@ -159,8 +116,21 @@ export default async function handler(req, res) {
 
     const { email, password, redirect_uri, state, code_challenge, code_challenge_method, client_id } = body
 
+    // Helper: on error, redirect back to the authorize page with error message
+    const redirectWithError = (errorMsg) => {
+      const params = new URLSearchParams()
+      if (redirect_uri) params.set('redirect_uri', redirect_uri)
+      if (state) params.set('state', state)
+      if (code_challenge) params.set('code_challenge', code_challenge)
+      if (code_challenge_method) params.set('code_challenge_method', code_challenge_method)
+      if (client_id) params.set('client_id', client_id)
+      params.set('error', errorMsg)
+      res.setHeader('Location', `/api/mcp/authorize?${params.toString()}`)
+      return res.status(302).end()
+    }
+
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email et mot de passe requis' })
+      return redirectWithError('Email et mot de passe requis')
     }
 
     // Authenticate with Supabase (anon client, not service role)
@@ -171,12 +141,12 @@ export default async function handler(req, res) {
       authError = result.error
     } catch (err) {
       console.error('[mcp/authorize] signInWithPassword exception:', err.message)
-      return res.status(500).json({ error: 'Erreur d\'authentification: ' + err.message })
+      return redirectWithError('Erreur d\'authentification')
     }
 
     if (authError || !authData?.session) {
       console.error('[mcp/authorize] Auth failed:', authError?.message)
-      return res.status(401).json({ error: authError?.message || 'Email ou mot de passe incorrect' })
+      return redirectWithError(authError?.message || 'Email ou mot de passe incorrect')
     }
 
     console.log('[mcp/authorize] Auth success for:', email)
@@ -198,21 +168,21 @@ export default async function handler(req, res) {
 
     if (insertErr) {
       console.error('[mcp/authorize] Failed to store auth code:', insertErr.message)
-      return res.status(500).json({ error: 'Erreur serveur: impossible de stocker le code' })
+      return redirectWithError('Erreur serveur')
     }
 
-    // Build redirect URL and do a PROPER 302 redirect (required by Claude.ai OAuth flow)
+    // 302 redirect to callback with code (standard OAuth flow)
     if (redirect_uri) {
       const url = new URL(redirect_uri)
       url.searchParams.set('code', code)
       if (state) url.searchParams.set('state', state)
       const redirectUrl = url.toString()
-      console.log('[mcp/authorize] Redirecting to:', redirectUrl.slice(0, 80))
-      res.setHeader('Cache-Control', 'no-store')
+      console.log('[mcp/authorize] 302 redirect to:', redirectUrl.slice(0, 100))
       res.setHeader('Location', redirectUrl)
       return res.status(302).end()
     }
 
+    // No redirect_uri — return code in JSON (for testing)
     return res.status(200).json({ code })
   }
 

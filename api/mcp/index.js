@@ -167,6 +167,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, Mcp-Session-Id, MCP-Protocol-Version')
   res.setHeader('Access-Control-Expose-Headers', 'Mcp-Session-Id')
 
+  res.setHeader('Cache-Control', 'no-store')
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method === 'DELETE') return res.status(200).json({ ok: true })
 

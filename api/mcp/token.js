@@ -70,9 +70,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       access_token: keyRow.key_value,
       token_type: 'Bearer',
-      expires_in: 31536000,
-      refresh_token: keyRow.key_value,
-      scope: 'actero',
+      expires_in: 3600,
     })
   }
 
@@ -157,18 +155,15 @@ export default async function handler(req, res) {
       access_token: authCode.access_token,
       token_type: 'Bearer',
       expires_in: 3600,
-      scope: 'actero',
     })
   }
 
   console.log('[mcp/token] Success: API key created for client', link.client_id)
 
-  // Return the long-lived API key with all standard OAuth2 fields
+  // Return the long-lived API key (standard OAuth2 token response)
   return res.status(200).json({
     access_token: apiKeyValue,
-    token_type: 'bearer',
-    expires_in: 31536000,
-    refresh_token: apiKeyValue,
-    scope: 'actero',
+    token_type: 'Bearer',
+    expires_in: 3600,
   })
 }
