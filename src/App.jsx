@@ -170,7 +170,11 @@ class ErrorBoundary extends React.Component {
     super(props);
     this.state = { hasError: false };
   }
-  static getDerivedStateFromError(_error) { return { hasError: true }; }
+  static getDerivedStateFromError(_error) { return { hasError: true, error: _error }; }
+  componentDidCatch(error, errorInfo) {
+    console.error('[ErrorBoundary] Caught:', error?.message, error?.stack?.split('\n').slice(0, 5).join('\n'))
+    console.error('[ErrorBoundary] Component stack:', errorInfo?.componentStack?.split('\n').slice(0, 10).join('\n'))
+  }
   render() {
     if (this.state.hasError) {
       return (
@@ -178,7 +182,8 @@ class ErrorBoundary extends React.Component {
           <div className="max-w-md text-center">
             <h1 className="text-2xl font-bold mb-4">Erreur Inattendue</h1>
             <p className="opacity-70 mb-6">L'application a rencontré un problème critique.</p>
-            <button onClick={() => window.location.reload()} className="px-6 py-2 bg-white text-red-950 rounded-lg font-bold">Recharger</button>
+            <pre className="text-left text-[10px] opacity-50 mb-4 max-h-40 overflow-auto bg-black/30 p-3 rounded">{this.state.error?.message || 'Unknown error'}</pre>
+            <button onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload() }} className="px-6 py-2 bg-white text-red-950 rounded-lg font-bold">Recharger</button>
           </div>
         </div>
       );
