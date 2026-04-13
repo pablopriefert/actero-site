@@ -23,6 +23,8 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 
+  res.setHeader('Cache-Control', 'no-store')
+
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' })
 
@@ -67,7 +69,7 @@ export default async function handler(req, res) {
     console.log('[mcp/token] Refresh success for client:', keyRow.client_id)
     return res.status(200).json({
       access_token: keyRow.key_value,
-      token_type: 'bearer',
+      token_type: 'Bearer',
       expires_in: 31536000,
       refresh_token: keyRow.key_value,
       scope: 'actero',
@@ -153,7 +155,7 @@ export default async function handler(req, res) {
     // Fallback: return the Supabase JWT (short-lived but works)
     return res.status(200).json({
       access_token: authCode.access_token,
-      token_type: 'bearer',
+      token_type: 'Bearer',
       expires_in: 3600,
       scope: 'actero',
     })

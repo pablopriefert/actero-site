@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     .btn { width: 100%; padding: 12px; background: #0F5F35; color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn:hover { background: #003725; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .error { color: #ef4444; font-size: 13px; margin-bottom: 12px; text-align: center; }
+    .error { color: #ef4444; font-size: 13px; margin-bottom: 12px; text-align: center; display: none; }
     .footer { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 16px; }
   </style>
 </head>
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
       <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
     </div>
     <h1>Autoriser Actero</h1>
-    <p class="subtitle">Connectez votre compte Actero a Claude Desktop</p>
+    <p class="subtitle">Connectez votre compte Actero a Claude</p>
 
     <div class="permissions">
       <h3>Claude pourra :</h3>
@@ -73,9 +73,9 @@ export default async function handler(req, res) {
       <div class="perm"><span class="dot"></span> Voir les conversations recentes</div>
     </div>
 
-    <div id="error" class="error" style="display:none"></div>
+    <div id="error" class="error"></div>
 
-    <form id="authForm">
+    <form id="authForm" method="POST" action="/api/mcp/authorize">
       <input type="hidden" name="redirect_uri" value="${(redirect_uri || '').replace(/"/g, '&quot;')}" />
       <input type="hidden" name="state" value="${(state || '').replace(/"/g, '&quot;')}" />
       <input type="hidden" name="code_challenge" value="${(code_challenge || '').replace(/"/g, '&quot;')}" />
@@ -110,25 +110,33 @@ export default async function handler(req, res) {
       const body = Object.fromEntries(form.entries());
 
       try {
+        // Pre-validate credentials via fetch (redirect: manual to catch 302)
         const res = await fetch('/api/mcp/authorize', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
+          redirect: 'manual',
         });
-        const data = await res.json();
-        if (data.redirect_url) {
-          window.location.href = data.redirect_url;
-        } else {
-          errEl.textContent = data.error || 'Erreur de connexion';
-          errEl.style.display = 'block';
-          btn.disabled = false;
-          btn.textContent = 'Autoriser l\\'acces';
+
+        // 302 = success, server wants to redirect to callback
+        if (res.type === 'opaqueredirect' || res.status === 302 || res.status === 301) {
+          // Submit form natively so browser follows the 302 redirect
+          e.target.removeEventListener('submit', arguments.callee);
+          btn.textContent = 'Redirection...';
+          e.target.submit();
+          return;
         }
-      } catch (err) {
-        errEl.textContent = 'Erreur reseau';
+
+        // Non-redirect response = error
+        const data = await res.json().catch(() => ({ error: 'Erreur inconnue' }));
+        errEl.textContent = data.error || 'Erreur de connexion';
         errEl.style.display = 'block';
         btn.disabled = false;
         btn.textContent = 'Autoriser l\\'acces';
+      } catch (err) {
+        // Network error or CORS redirect — try native form submit as fallback
+        btn.textContent = 'Redirection...';
+        e.target.submit();
       }
     });
   </script>
@@ -141,7 +149,15 @@ export default async function handler(req, res) {
 
   // POST — authenticate and redirect with code
   if (req.method === 'POST') {
-    const { email, password, redirect_uri, state, code_challenge, code_challenge_method, client_id } = req.body || {}
+    // Parse body — supports JSON and form-urlencoded
+    let body = req.body || {}
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body) } catch {
+        body = Object.fromEntries(new URLSearchParams(body))
+      }
+    }
+
+    const { email, password, redirect_uri, state, code_challenge, code_challenge_method, client_id } = body
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email et mot de passe requis' })
@@ -185,12 +201,16 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Erreur serveur: impossible de stocker le code' })
     }
 
-    // Build redirect URL
+    // Build redirect URL and do a PROPER 302 redirect (required by Claude.ai OAuth flow)
     if (redirect_uri) {
       const url = new URL(redirect_uri)
       url.searchParams.set('code', code)
       if (state) url.searchParams.set('state', state)
-      return res.status(200).json({ redirect_url: url.toString() })
+      const redirectUrl = url.toString()
+      console.log('[mcp/authorize] Redirecting to:', redirectUrl.slice(0, 80))
+      res.setHeader('Cache-Control', 'no-store')
+      res.setHeader('Location', redirectUrl)
+      return res.status(302).end()
     }
 
     return res.status(200).json({ code })
