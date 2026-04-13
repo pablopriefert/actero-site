@@ -61,42 +61,65 @@ const TOOLS = [
   },
 ]
 
-// Resolve client from bearer token (Supabase JWT or API key)
+// Resolve client from bearer token (API key or Supabase JWT)
 async function resolveClientFromToken(authHeader) {
   if (!authHeader) return null
   const token = authHeader.replace(/^Bearer\s+/i, '')
   if (!token) return null
 
-  // Try as Supabase JWT first
-  const { data: { user }, error } = await supabase.auth.getUser(token)
-  if (!error && user) {
-    // Find the client this user belongs to
-    const { data: link } = await supabase
-      .from('client_users')
+  console.log('[mcp] resolveClientFromToken: token starts with', token.slice(0, 8))
+
+  // Try as API key FIRST (faster, no auth call needed)
+  try {
+    const { data: keyRow } = await supabase
+      .from('client_api_keys')
       .select('client_id')
-      .eq('user_id', user.id)
-      .limit(1)
+      .eq('key_value', token)
+      .eq('is_active', true)
       .maybeSingle()
-    if (link) return link.client_id
+    if (keyRow) {
+      console.log('[mcp] Resolved via client_api_keys:', keyRow.client_id)
+      return keyRow.client_id
+    }
+  } catch (e) {
+    console.error('[mcp] client_api_keys lookup error:', e.message)
   }
 
-  // Try as API key
-  const { data: keyRow } = await supabase
-    .from('client_api_keys')
-    .select('client_id')
-    .eq('key_value', token)
-    .eq('is_active', true)
-    .maybeSingle()
-  if (keyRow) return keyRow.client_id
-
   // Try as widget_api_key
-  const { data: settings } = await supabase
-    .from('client_settings')
-    .select('client_id')
-    .eq('widget_api_key', token)
-    .maybeSingle()
-  if (settings) return settings.client_id
+  try {
+    const { data: settings } = await supabase
+      .from('client_settings')
+      .select('client_id')
+      .eq('widget_api_key', token)
+      .maybeSingle()
+    if (settings) {
+      console.log('[mcp] Resolved via widget_api_key:', settings.client_id)
+      return settings.client_id
+    }
+  } catch (e) {
+    console.error('[mcp] widget_api_key lookup error:', e.message)
+  }
 
+  // Try as Supabase JWT last (most expensive call)
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser(token)
+    if (!error && user) {
+      const { data: link } = await supabase
+        .from('client_users')
+        .select('client_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle()
+      if (link) {
+        console.log('[mcp] Resolved via JWT:', link.client_id)
+        return link.client_id
+      }
+    }
+  } catch (e) {
+    console.error('[mcp] JWT getUser error:', e.message)
+  }
+
+  console.error('[mcp] Could not resolve client for token:', token.slice(0, 8))
   return null
 }
 
