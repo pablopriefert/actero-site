@@ -9,9 +9,16 @@
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 
-const supabase = createClient(
+// Service role for DB writes
+const supabaseAdmin = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+
+// Anon client for signInWithPassword (service role can't do password auth properly)
+const supabaseAuth = createClient(
+  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
 )
 
 export default async function handler(req, res) {
@@ -140,19 +147,30 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Email et mot de passe requis' })
     }
 
-    // Authenticate with Supabase
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    // Authenticate with Supabase (anon client, not service role)
+    let authData, authError
+    try {
+      const result = await supabaseAuth.auth.signInWithPassword({ email, password })
+      authData = result.data
+      authError = result.error
+    } catch (err) {
+      console.error('[mcp/authorize] signInWithPassword exception:', err.message)
+      return res.status(500).json({ error: 'Erreur d\'authentification: ' + err.message })
+    }
 
     if (authError || !authData?.session) {
-      return res.status(401).json({ error: 'Email ou mot de passe incorrect' })
+      console.error('[mcp/authorize] Auth failed:', authError?.message)
+      return res.status(401).json({ error: authError?.message || 'Email ou mot de passe incorrect' })
     }
+
+    console.log('[mcp/authorize] Auth success for:', email)
 
     // Generate a short-lived authorization code
     const code = crypto.randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000) // 5 min
 
-    // Store the code (we use a simple approach — store in DB)
-    await supabase.from('mcp_auth_codes').upsert({
+    // Store the code using admin client (service role bypasses RLS)
+    const { error: insertErr } = await supabaseAdmin.from('mcp_auth_codes').insert({
       code,
       user_id: authData.user.id,
       access_token: authData.session.access_token,
@@ -160,9 +178,12 @@ export default async function handler(req, res) {
       code_challenge_method: code_challenge_method || null,
       expires_at: expiresAt.toISOString(),
       used: false,
-    }, { onConflict: 'code' }).catch(() => {
-      // Table might not exist yet — create it inline
     })
+
+    if (insertErr) {
+      console.error('[mcp/authorize] Failed to store auth code:', insertErr.message)
+      return res.status(500).json({ error: 'Erreur serveur: impossible de stocker le code' })
+    }
 
     // Build redirect URL
     if (redirect_uri) {
