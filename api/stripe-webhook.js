@@ -152,6 +152,51 @@ export default async function handler(req, res) {
     case 'checkout.session.completed': {
       const session = event.data.object;
 
+      // --- Credit pack purchase ---
+      if (session.metadata?.type === 'credit_purchase' && session.metadata?.client_id) {
+        try {
+          const clientId = session.metadata.client_id;
+          const credits = parseInt(session.metadata.credits, 10) || 0;
+
+          if (credits > 0) {
+            // Upsert balance row, then increment atomically
+            await supabase.from('client_credits')
+              .upsert({ client_id: clientId, balance: 0 }, { onConflict: 'client_id', ignoreDuplicates: true });
+
+            // Read → add → write (+ log)
+            const { data: current } = await supabase
+              .from('client_credits')
+              .select('balance, total_purchased')
+              .eq('client_id', clientId)
+              .maybeSingle();
+
+            const newBalance = (current?.balance || 0) + credits;
+            const newPurchased = (current?.total_purchased || 0) + credits;
+
+            await supabase.from('client_credits').update({
+              balance: newBalance,
+              total_purchased: newPurchased,
+              updated_at: new Date().toISOString(),
+            }).eq('client_id', clientId);
+
+            await supabase.from('credit_transactions').insert({
+              client_id: clientId,
+              type: 'purchase',
+              amount: credits,
+              balance_after: newBalance,
+              description: `Achat de ${credits.toLocaleString('fr-FR')} crédits`,
+              stripe_session_id: session.id,
+              stripe_payment_intent: session.payment_intent,
+            });
+
+            console.log(`[CREDITS] +${credits} credits added to client ${clientId} (balance: ${newBalance})`);
+          }
+        } catch (err) {
+          console.error('[CREDITS] Failed to add credits:', err);
+        }
+        return res.status(200).json({ received: true });
+      }
+
       // --- SaaS self-service signup ---
       if (session.metadata?.kind === 'saas_signup' && session.metadata?.client_id) {
         try {
@@ -568,6 +613,15 @@ export default async function handler(req, res) {
             await supabase.from('clients').update(updateData).eq('id', clientId);
             console.log(`[SUB_UPDATED] Client ${clientId} updated:`, updateData);
           }
+
+          // Sync Stripe Entitlements
+          try {
+            const { syncEntitlementsFromStripe } = await import('./lib/entitlements.js');
+            await syncEntitlementsFromStripe(supabase, stripe, clientId, subscription.customer);
+            console.log(`[SUB_UPDATED] Entitlements synced for ${clientId}`);
+          } catch (entErr) {
+            console.error('[SUB_UPDATED] Entitlements sync failed:', entErr.message);
+          }
         }
       } catch (err) {
         console.error('[SUB_UPDATED] Error:', err.message);
@@ -657,6 +711,14 @@ export default async function handler(req, res) {
           status: 'canceled',
           stripe_subscription_id: null,
         }).eq('id', saasClient.id)
+
+        // Clear Stripe entitlements (client falls back to Free plan features)
+        await supabase
+          .from('client_entitlements')
+          .delete()
+          .eq('client_id', saasClient.id)
+          .eq('source', 'stripe')
+
         console.log(`[stripe-webhook] SaaS client ${saasClient.id} subscription canceled, downgraded to free`)
       }
       break;

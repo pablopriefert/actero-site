@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShoppingCart,
@@ -21,6 +21,8 @@ import {
   HeartHandshake,
   Rocket,
   Shield,
+  Lock,
+  Loader2,
 } from 'lucide-react'
 import { Navbar } from '../components/layout/Navbar'
 import { Footer } from '../components/layout/Footer'
@@ -32,7 +34,77 @@ import {
 } from '../components/ui/scroll-animations'
 import { SEO } from '../components/SEO'
 
-export const PartnerLandingPage = ({ onNavigate }) => {
+// Private page gate — accessible only via /partner?token=xxx sent in cold emails
+const PartnerAccessGate = ({ children }) => {
+  const [state, setState] = useState('checking') // checking | granted | denied
+  const [agencyName, setAgencyName] = useState(null)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('token')
+    if (!token) {
+      setState('denied')
+      setError('Cette page est privée et accessible uniquement sur invitation.')
+      return
+    }
+
+    // Persist token in sessionStorage so internal navigation keeps access
+    const cached = sessionStorage.getItem(`partner_token_${token}`)
+    if (cached === 'valid') {
+      setState('granted')
+      setAgencyName(sessionStorage.getItem('partner_agency_name'))
+      return
+    }
+
+    fetch(`/api/partner/verify-token?token=${encodeURIComponent(token)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.valid) {
+          sessionStorage.setItem(`partner_token_${token}`, 'valid')
+          if (data.agency_name) sessionStorage.setItem('partner_agency_name', data.agency_name)
+          setAgencyName(data.agency_name)
+          setState('granted')
+        } else {
+          setState('denied')
+          setError(data.error || 'Lien invalide')
+        }
+      })
+      .catch(() => {
+        setState('denied')
+        setError('Erreur de vérification')
+      })
+  }, [])
+
+  if (state === 'checking') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="w-8 h-8 text-[#0F5F35] animate-spin" />
+      </div>
+    )
+  }
+
+  if (state === 'denied') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-6">
+        <div className="max-w-md text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-5">
+            <Lock className="w-8 h-8 text-gray-400" />
+          </div>
+          <h1 className="text-xl font-bold text-[#1a1a1a] mb-2">Page privée</h1>
+          <p className="text-sm text-[#71717a] mb-6">{error || 'Cette page est accessible uniquement sur invitation.'}</p>
+          <a href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-[#0F5F35] hover:underline">
+            Retour à l'accueil
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  return typeof children === 'function' ? children({ agencyName }) : children
+}
+
+const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
   const [openFaqIndex, setOpenFaqIndex] = useState(null)
   const [formData, setFormData] = useState({
     first_name: '',
@@ -181,7 +253,7 @@ export const PartnerLandingPage = ({ onNavigate }) => {
             <FadeInUp className="max-w-4xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-8">
                 <Handshake className="w-3.5 h-3.5" />
-                Programme Partenaire
+                {agencyName ? `Invitation personnalisée pour ${agencyName}` : 'Programme Partenaire'}
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-6 leading-[1.05]">
                 Devenez partenaire{' '}
@@ -564,3 +636,10 @@ export const PartnerLandingPage = ({ onNavigate }) => {
     </>
   )
 }
+
+// Exported wrapper: gate the page behind token validation
+export const PartnerLandingPage = ({ onNavigate }) => (
+  <PartnerAccessGate>
+    {({ agencyName }) => <PartnerLandingPageContent onNavigate={onNavigate} agencyName={agencyName} />}
+  </PartnerAccessGate>
+)

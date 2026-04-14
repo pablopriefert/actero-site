@@ -9,6 +9,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { usePlan } from '../../hooks/usePlan'
 import { useToast } from '../ui/Toast'
+import { WebhooksManager } from './WebhooksManager'
 
 function generateApiKey() {
   const bytes = crypto.getRandomValues(new Uint8Array(16))
@@ -402,17 +403,7 @@ export function ApiDocsView({ clientId }) {
         </div>
 
         {canAccess('api_webhooks') ? (
-          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-            <p className="text-sm text-[#1a1a1a] font-medium">Événements disponibles</p>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {['ticket.resolved', 'ticket.escalated', 'conversation.created', 'usage.threshold'].map(e => (
-                <code key={e} className="text-[11px] font-mono text-[#71717a] bg-white border border-gray-100 px-2.5 py-1 rounded-lg">{e}</code>
-              ))}
-            </div>
-            <p className="text-xs text-[#9ca3af] mt-3">
-              Contactez <a href="mailto:support@actero.fr" className="text-[#0F5F35] hover:underline">support@actero.fr</a> pour configurer vos webhooks.
-            </p>
-          </div>
+          <WebhooksManager clientId={clientId} />
         ) : (
           <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-50 border border-amber-100">
             <Zap className="w-4 h-4 text-amber-500" />

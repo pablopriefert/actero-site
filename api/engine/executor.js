@@ -141,24 +141,40 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
           } catch (escErr) {
             console.error('[executor] escalation_tickets insert error:', escErr.message)
           }
-          // Notify client
-          if (RESEND_API_KEY && client?.contact_email) {
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                from: `Actero <${RESEND_FROM}>`,
-                to: [client.contact_email],
-                subject: `⚠️ Escalade — ${classification}`,
-                html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px">
-                  <h2 style="color:#dc2626">⚠️ Ticket escalade</h2>
-                  <p><strong>Client:</strong> ${normalized.customer_name || normalized.customer_email}</p>
-                  <p><strong>Classification:</strong> ${classification}</p>
-                  <p><strong>Message:</strong> ${normalized.message.substring(0, 300)}</p>
-                  <p><a href="${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'https://actero.fr'}/client/escalations" style="display:inline-block;padding:10px 20px;background:#0F5F35;color:white;text-decoration:none;border-radius:8px;font-weight:bold">Voir dans Actero</a></p>
-                </div>`,
-              }),
+          // Notify client via enabled channels (email, slack, etc.)
+          try {
+            const { notifyClient } = await import('../lib/notify.js')
+            await notifyClient(supabase, {
+              clientId,
+              eventKey: 'escalation_alert',
+              title: `Ticket escaladé — ${classification}`,
+              message: `De : ${normalized.customer_name || normalized.customer_email}\n\n${normalized.message?.substring(0, 300) || ''}`,
+              context: {
+                url: 'https://actero.fr/client/escalations',
+                customer_email: normalized.customer_email,
+                classification,
+              },
             })
+          } catch (notifyErr) {
+            console.error('[executor] notify escalation error:', notifyErr.message)
+          }
+
+          // Outbound webhook (Pro+)
+          try {
+            const { dispatchWebhook } = await import('../lib/webhooks.js')
+            await dispatchWebhook(supabase, {
+              clientId,
+              eventType: 'ticket.escalated',
+              data: {
+                classification,
+                customer_email: normalized.customer_email,
+                customer_name: normalized.customer_name,
+                subject: normalized.subject,
+                message_preview: normalized.message?.substring(0, 500),
+              },
+            })
+          } catch (hookErr) {
+            console.error('[executor] webhook escalation error:', hookErr.message)
           }
           stepResult.result = { escalated: true }
           break

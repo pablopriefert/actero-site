@@ -6,7 +6,7 @@ import {
   RefreshCw, Trash2, Star, Search, Mail
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { INTEGRATIONS, ALL_INTEGRATIONS, getIntegrationById, getConflictingActive, getConflictGroup } from '../../config/integrations'
+import { INTEGRATIONS, ALL_INTEGRATIONS, INTEGRATION_CATEGORIES, getIntegrationById, getConflictingActive, getConflictGroup, CONFLICT_GROUPS } from '../../config/integrations'
 
 const ProviderIcon = ({ provider, connected, size = 40 }) => {
   const config = getIntegrationById(provider.id || provider) || provider;
@@ -42,16 +42,23 @@ const STATUS_BADGES = {
   pending: { label: 'En attente', className: 'bg-blue-50 text-blue-600 border-blue-200' },
 };
 
-const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain, onOAuthConnect, onDisconnect, onTest, isLight }) => {
+const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain, onOAuthConnect, onDisconnect, onTest, isLight, blockedBy }) => {
   const isShopify = provider.id === 'shopify';
   const isConnected = isShopify ? shopifyConnected : !!connection;
   const status = isShopify ? (shopifyConnected ? 'active' : null) : connection?.status;
   const badge = status ? STATUS_BADGES[status] : null;
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
+  const isBlocked = !!blockedBy && !isConnected;
 
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${isConnected ? 'border-[#0F5F35]/20 bg-[#0F5F35]/[0.03]' : 'border-[#f0f0f0] bg-white hover:border-[#e0e0e0]'}`}>
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
+      isConnected
+        ? 'border-[#0F5F35]/20 bg-[#0F5F35]/[0.03]'
+        : isBlocked
+          ? 'border-[#f0f0f0] bg-white opacity-70'
+          : 'border-[#f0f0f0] bg-white hover:border-[#e0e0e0]'
+    }`}>
         <ProviderIcon provider={provider} connected={isConnected} size={32} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -64,6 +71,11 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
               >
                 {badge.label}
               </motion.span>
+            )}
+            {isBlocked && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-amber-50 text-amber-700 border-amber-200">
+                Remplacerait {getIntegrationById(blockedBy.provider)?.name || blockedBy.provider}
+              </span>
             )}
           </div>
           <p className="text-[11px] text-[#9ca3af] truncate">{provider.description}</p>
@@ -608,15 +620,19 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const getConnectionForProvider = (providerId) =>
     integrations.find(i => i.provider === providerId);
 
-  // Filter categories by client type
-  const categories = [];
-  if (clientType === 'ecommerce' || !clientType) {
-    categories.push({ key: 'ecommerce', label: 'E-commerce', providers: INTEGRATIONS.ecommerce });
+  // Build categories from INTEGRATION_CATEGORIES — preserves order and descriptions
+  const categories = INTEGRATION_CATEGORIES.map((cat) => ({
+    key: cat.id,
+    label: cat.label,
+    description: cat.description,
+    providers: cat.ids.map((id) => getIntegrationById(id)).filter(Boolean),
+  })).filter((cat) => cat.providers.length > 0);
+
+  // Check if a provider is blocked by a conflict (same group already has active integration)
+  const isConflictBlocked = (providerId) => {
+    const conflicting = getConflictingActive(providerId, integrations || [])
+    return conflicting && conflicting.provider !== providerId ? conflicting : null
   }
-  if (clientType === 'immobilier' || !clientType) {
-    categories.push({ key: 'immobilier', label: 'Immobilier', providers: INTEGRATIONS.immobilier });
-  }
-  categories.push({ key: 'general', label: 'Général', providers: INTEGRATIONS.general });
 
   const handleDisconnect = async () => {
     if (!disconnectTarget) return;
@@ -641,25 +657,38 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const connectedCount = integrations.filter(i => i.status === 'active').length + (shopifyConnected ? 1 : 0);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-[22px] font-semibold text-[#1a1a1a]">
-            Intégrations
-          </h2>
-          <p className={`text-sm mt-1 text-[#9ca3af]`}>
-            {connectedCount} intégration{connectedCount !== 1 ? 's' : ''} connectée{connectedCount !== 1 ? 's' : ''}
-          </p>
+      <div>
+        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">
+          Intégrations
+        </h2>
+        <p className="text-sm mt-1 text-[#71717a]">
+          Connectez vos outils pour permettre à votre agent IA d'agir.
+        </p>
+      </div>
+
+      {/* Overview banner */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-gradient-to-br from-[#0F5F35]/5 via-white to-white border border-[#0F5F35]/10 rounded-2xl p-4">
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-[#0F5F35]/10 flex items-center justify-center">
+            <Plug className="w-5 h-5 text-[#0F5F35]" />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-[#1a1a1a]">{connectedCount}</p>
+            <p className="text-[11px] text-[#71717a] uppercase tracking-wider font-semibold">
+              Intégration{connectedCount > 1 ? 's' : ''} active{connectedCount > 1 ? 's' : ''}
+            </p>
+          </div>
         </div>
-        <div className={`relative max-w-xs w-full ${isLight ? '' : ''}`}>
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]`} />
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-[#0F5F35]/20"
+            placeholder="Rechercher une intégration…"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-[13px] outline-none transition-all bg-white border border-gray-200 text-[#1a1a1a] focus:ring-2 focus:ring-[#0F5F35]/20 focus:border-[#0F5F35]/30"
           />
         </div>
       </div>
@@ -710,25 +739,46 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
             return 0;
           });
 
+          const connectedInCategory = sorted.filter((p) => {
+            const conn = p.id === 'shopify' ? shopifyConnected : !!getConnectionForProvider(p.id)
+            return conn
+          }).length
+
           return (
             <div key={cat.key}>
-              <h3 className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-4">
-                {cat.label}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {sorted.map(provider => (
-                  <IntegrationCard
-                    key={provider.id}
-                    provider={provider}
-                    connection={getConnectionForProvider(provider.id)}
-                    shopifyConnected={shopifyConnected}
-                    shopifyDomain={shopifyDomain}
-                    onOAuthConnect={handleOAuthConnect}
-                    onTest={handleTestConnection}
-                    onDisconnect={(conn) => setDisconnectTarget({ ...conn, providerName: provider.name })}
-                    isLight={isLight}
-                  />
-                ))}
+              <div className="flex items-end justify-between mb-3">
+                <div>
+                  <h3 className="text-[13px] font-bold text-[#1a1a1a]">
+                    {cat.label}
+                  </h3>
+                  {cat.description && (
+                    <p className="text-[11px] text-[#9ca3af] mt-0.5">{cat.description}</p>
+                  )}
+                </div>
+                {connectedInCategory > 0 && (
+                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-full">
+                    {connectedInCategory} connecté{connectedInCategory > 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                {sorted.map(provider => {
+                  const blockedBy = isConflictBlocked(provider.id)
+                  return (
+                    <IntegrationCard
+                      key={provider.id}
+                      provider={provider}
+                      connection={getConnectionForProvider(provider.id)}
+                      shopifyConnected={shopifyConnected}
+                      shopifyDomain={shopifyDomain}
+                      onOAuthConnect={handleOAuthConnect}
+                      onTest={handleTestConnection}
+                      onDisconnect={(conn) => setDisconnectTarget({ ...conn, providerName: provider.name })}
+                      isLight={isLight}
+                      blockedBy={blockedBy}
+                    />
+                  )
+                })}
               </div>
             </div>
           );

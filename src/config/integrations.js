@@ -1,4 +1,53 @@
 /**
+ * Integration categories for the dashboard UI.
+ * Order matters: this is the display order.
+ */
+export const INTEGRATION_CATEGORIES = [
+  {
+    id: 'ecommerce_platform',
+    label: 'Plateforme e-commerce',
+    description: 'Connectez votre boutique pour synchroniser commandes, clients et produits',
+    ids: ['shopify', 'woocommerce', 'webflow'],
+  },
+  {
+    id: 'helpdesk',
+    label: 'Helpdesk',
+    description: 'Votre IA gère les tickets directement dans votre outil de support',
+    ids: ['gorgias', 'zendesk', 'intercom'],
+  },
+  {
+    id: 'tracking',
+    label: 'Tracking colis',
+    description: 'Répondez instantanément aux questions "où est ma commande ?"',
+    ids: ['aftership'],
+  },
+  {
+    id: 'messaging',
+    label: 'Messagerie & notifications',
+    description: 'Recevez et envoyez via WhatsApp et Slack',
+    ids: ['whatsapp', 'slack'],
+  },
+  {
+    id: 'email',
+    label: 'Envoi d\'emails',
+    description: 'Choisissez votre service d\'envoi pour les réponses de votre agent',
+    ids: ['resend', 'smtp_imap'],
+  },
+  {
+    id: 'knowledge',
+    label: 'Base de connaissances',
+    description: 'Importez vos documents externes pour alimenter votre agent IA',
+    ids: ['google_docs', 'notion'],
+  },
+  {
+    id: 'accounting',
+    label: 'Comptabilité',
+    description: 'Automatisez relances factures et alertes trésorerie',
+    ids: ['axonaut', 'pennylane', 'ipaidthat'],
+  },
+]
+
+/**
  * Conflict groups — only one integration per group can be active at a time.
  * When connecting an integration, any other active integration in the same group
  * must be disconnected first (or the user must choose).
@@ -12,7 +61,7 @@ export const CONFLICT_GROUPS = {
   helpdesk: {
     label: 'Helpdesk',
     message: 'Vous ne pouvez connecter qu\'un seul helpdesk à la fois.',
-    ids: ['gorgias', 'zendesk'],
+    ids: ['gorgias', 'zendesk', 'intercom'],
   },
   email_sending: {
     label: 'Envoi d\'emails',
@@ -82,6 +131,18 @@ export const INTEGRATIONS = {
       color: '#03363D',
     },
     {
+      id: 'intercom',
+      name: 'Intercom',
+      description: 'Helpdesk & messaging — conversations, tickets, base de connaissances',
+      icon: 'https://logo.clearbit.com/intercom.com',
+      authType: 'oauth',
+      oauthUrl: (params) => `/api/integrations/intercom/authorize?client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
+      category: 'ecommerce',
+      docsUrl: 'https://developers.intercom.com/docs',
+      color: '#1F8DED',
+      popular: true,
+    },
+    {
       id: 'webflow',
       name: 'Webflow',
       description: 'Connectez votre boutique Webflow en 1 clic — commandes, clients, produits',
@@ -107,6 +168,20 @@ export const INTEGRATIONS = {
       category: 'ecommerce',
       docsUrl: 'https://woocommerce.github.io/woocommerce-rest-api-docs/',
       color: '#96588A',
+      popular: true,
+    },
+    {
+      id: 'aftership',
+      name: 'AfterShip',
+      description: 'Tracking automatique des colis — l\'IA répond instantanément "où est ma commande ?"',
+      icon: 'https://logo.clearbit.com/aftership.com',
+      authType: 'api_key',
+      apiKeyLabel: 'Clé API AfterShip',
+      apiKeyPlaceholder: 'asat_xxxxxxxxxxxxxxxx',
+      apiKeyHint: 'Trouvez-la dans AfterShip → Settings → API Keys',
+      category: 'ecommerce',
+      docsUrl: 'https://developers.aftership.com/reference/api-overview',
+      color: '#0A2540',
       popular: true,
     },
     {
@@ -187,6 +262,32 @@ export const INTEGRATIONS = {
       category: 'general',
       docsUrl: 'https://ipaidthat.io',
       color: '#00B4D8',
+    },
+    {
+      id: 'google_docs',
+      name: 'Google Docs',
+      description: 'Importez vos documents Google dans la base de connaissances de votre agent IA',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/0/01/Google_Docs_logo_%282014-2020%29.svg',
+      authType: 'oauth',
+      oauthUrl: (params) => `/api/integrations/google-docs/authorize?client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
+      category: 'general',
+      docsUrl: 'https://developers.google.com/docs/api',
+      color: '#4285F4',
+      knowledgeBase: true,
+      popular: true,
+    },
+    {
+      id: 'notion',
+      name: 'Notion',
+      description: 'Connectez vos pages Notion pour alimenter la base de connaissances de votre agent',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png',
+      authType: 'oauth',
+      oauthUrl: (params) => `/api/integrations/notion/authorize?client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
+      category: 'general',
+      docsUrl: 'https://developers.notion.com',
+      color: '#000000',
+      knowledgeBase: true,
+      popular: true,
     },
     {
       id: 'smtp_imap',

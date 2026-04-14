@@ -50,7 +50,8 @@ import {
   Eye,
   X,
   Settings,
-  AlertTriangle
+  AlertTriangle,
+  Bug
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -92,6 +93,8 @@ import { AdminAddEnterpriseView } from '../components/admin/AdminAddEnterpriseVi
 import { AdminStripeSetupView } from '../components/admin/AdminStripeSetupView'
 import { AdminConversionPipelineView } from '../components/admin/AdminConversionPipelineView'
 import { AdminAITerminal } from '../components/admin/AdminAITerminal'
+import { AdminPartnerTokensView } from '../components/admin/AdminPartnerTokensView'
+import { AdminErrorReportsView } from '../components/admin/AdminErrorReportsView'
 import { KpiCard, KpiRow } from '../components/ui/KpiCard'
 import { SectionCard } from '../components/ui/SectionCard'
 import { StatusPill } from '../components/ui/StatusPill'
@@ -276,6 +279,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
   const getAdminTabFromRoute = (route) => {
     if (route === "/admin/ai-terminal") return "ai-terminal";
+    if (route === "/admin/partner-tokens") return "partner-tokens";
     if (route === "/admin/clients") return "clients";
     if (route === "/admin/requests") return "requests";
     if (route === "/admin/leads") return "leads";
@@ -297,6 +301,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/live-runs") return "live-runs";
     if (route === "/admin/agent-heatmap") return "agent-heatmap";
     if (route === "/admin/top-errors") return "top-errors";
+    if (route === "/admin/error-reports") return "error-reports";
     if (route === "/admin/cost-tracker") return "cost-tracker";
     if (route === "/admin/connector-health") return "connector-health";
     if (route === "/admin/mrr") return "mrr";
@@ -467,7 +472,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       defaultOpen: true,
       children: [
         { id: 'live-runs', label: 'Live runs', icon: Zap, badge: 'LIVE', badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
-        { id: 'top-errors', label: 'Erreurs', icon: AlertTriangle },
+        { id: 'top-errors', label: 'Erreurs engine', icon: AlertTriangle },
+        { id: 'error-reports', label: 'Erreurs clients', icon: Bug },
         { id: 'engine-runs', label: 'Historique', icon: ScrollText },
         { id: 'manual-review', label: 'Review', icon: Eye, badge: requests.length > 0 ? requests.length : null },
       ],
@@ -486,6 +492,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       children: [
         { id: 'referrals', label: 'Parrainages', icon: Gift },
         { id: 'partners', label: 'Partenaires', icon: Handshake },
+        { id: 'partner-tokens', label: 'Liens Partenaires', icon: Handshake },
         { id: 'alert-builder', label: 'Alertes Slack', icon: BellRing },
         { id: 'billing', label: 'Facturation', icon: Receipt },
         { id: 'shopify', label: 'App Shopify', icon: ShoppingBag },
@@ -639,6 +646,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           {activeTab === "ai-terminal" && <AdminAITerminal />}
+          {activeTab === "partner-tokens" && <AdminPartnerTokensView />}
+          {activeTab === "error-reports" && <AdminErrorReportsView />}
 
           {activeTab === "funnel" && (
             <div className="max-w-6xl mx-auto">

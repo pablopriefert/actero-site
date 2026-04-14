@@ -74,18 +74,32 @@ export default async function handler(req, res) {
   const ticketsUsed = usageRow?.tickets_used || 0
 
   // Check if over limit (before processing)
+  let useCreditPack = false
   if (ticketsUsed >= limits.tickets && !inTrial && limits.tickets !== Infinity) {
     if (limits.overage !== null) {
-      // Overage allowed — log but continue
+      // Overage allowed (Starter/Pro) — log but continue
       console.log(`[gateway] Client ${client_id} over limit (${ticketsUsed}/${limits.tickets}), overage applied`)
     } else {
-      // Hard cap (free plan) — reject
-      return res.status(429).json({
-        error: 'Quota de tickets épuisé pour ce mois',
-        tickets_used: ticketsUsed,
-        tickets_limit: limits.tickets,
-        upgrade_url: `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/pricing`,
-      })
+      // Hard cap (free plan) — try to use credits before rejecting
+      const { data: creditRow } = await supabase
+        .from('client_credits')
+        .select('balance')
+        .eq('client_id', client_id)
+        .maybeSingle()
+
+      if ((creditRow?.balance || 0) >= 1) {
+        useCreditPack = true
+        console.log(`[gateway] Client ${client_id} using credit pack (balance: ${creditRow.balance})`)
+      } else {
+        return res.status(429).json({
+          error: 'Quota de tickets épuisé. Achetez des crédits ou passez à un plan supérieur.',
+          tickets_used: ticketsUsed,
+          tickets_limit: limits.tickets,
+          credits_balance: 0,
+          upgrade_url: `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/pricing`,
+          credits_url: `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/client/billing`,
+        })
+      }
     }
   }
 
@@ -234,6 +248,20 @@ export default async function handler(req, res) {
         .update({ runs_count: playbook.runs_count ? playbook.runs_count + 1 : 1, last_run_at: new Date().toISOString() })
         .eq('client_id', client_id)
         .eq('playbook_id', playbook.id)
+    }
+
+    // Consume credit if we used the credit pack fallback
+    if (useCreditPack) {
+      try {
+        await supabase.rpc('consume_credits', {
+          p_client_id: client_id,
+          p_amount: 1,
+          p_description: `Ticket (quota dépassé) — ${brainResult?.classification || 'N/A'}`,
+          p_event_id: event?.id,
+        })
+      } catch (err) {
+        console.error('[gateway] consume_credits error:', err.message)
+      }
     }
 
     return res.status(200).json({

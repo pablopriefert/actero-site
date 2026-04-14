@@ -12,6 +12,7 @@ import { PLANS, PLAN_ORDER, getPlanConfig } from '../../lib/plans'
 import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
+import { CreditsPurchase } from './CreditsPurchase'
 
 // ─── Helpers ────────────────────────────────────────────────────
 const MONTH_NAMES = [
@@ -458,6 +459,13 @@ export const ClientBillingView = ({ theme }) => {
           })}
         </div>
       </div>
+
+      {/* ━━━ Section — Crédits à la demande ━━━ */}
+      {client?.id && (
+        <div>
+          <CreditsPurchase clientId={client.id} />
+        </div>
+      )}
 
       {/* ━━━ Section 4 — Historique de facturation ━━━ */}
       <SectionCard title="Historique de facturation" icon={FileText}>

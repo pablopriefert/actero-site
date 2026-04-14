@@ -11,6 +11,8 @@ import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 import { VocalAgentWizard } from './VocalAgentWizard'
 import { ComptabiliteWizard } from './ComptabiliteWizard'
+import { WorkflowReadinessCheck } from './WorkflowReadinessCheck'
+import { buildReadinessChecks } from '../../lib/workflow-readiness'
 
 /* ═══════════ CATEGORIES ═══════════ */
 
@@ -147,6 +149,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
   const queryClient = useQueryClient()
   const [showVocalWizard, setShowVocalWizard] = useState(false)
   const [showComptaWizard, setShowComptaWizard] = useState(false)
+  const [readinessState, setReadinessState] = useState({ open: false, checks: [], playbookName: null, playbookLabel: null, activating: false })
   const [selectedChannels, setSelectedChannels] = useState({})
 
   const { data: playbooks = [], isLoading } = useQuery({
@@ -317,8 +320,35 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
       setShowVocalWizard(true)
       return
     }
+
     const existing = clientPlaybooks.find(cp => cp.playbook_id === pb.id)
     const currentlyActive = existing?.is_active || false
+
+    // Only run readiness checks when ACTIVATING (not when deactivating)
+    if (!currentlyActive) {
+      try {
+        const checks = await buildReadinessChecks({
+          clientId,
+          playbookName,
+          custom_config: existing?.custom_config || {},
+        })
+        setReadinessState({
+          open: true,
+          checks,
+          playbookName,
+          playbookLabel: meta?.simpleDesc || pb.display_name || playbookName,
+          playbookId: pb.id,
+          existing,
+          activating: false,
+        })
+        return
+      } catch (err) {
+        console.error('[readiness] check failed:', err)
+        // Fall through to direct activation if readiness system fails
+      }
+    }
+
+    // Deactivation path — no readiness check
     if (existing) {
       await supabase.from('engine_client_playbooks').update({
         is_active: !currentlyActive,
@@ -532,6 +562,37 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
           </div>
         )
       })}
+      {/* Readiness check modal — shown before activating a playbook */}
+      <WorkflowReadinessCheck
+        isOpen={readinessState.open}
+        onClose={() => setReadinessState((s) => ({ ...s, open: false }))}
+        onConfirm={async () => {
+          const { existing, playbookId } = readinessState
+          setReadinessState((s) => ({ ...s, activating: true }))
+          try {
+            if (existing) {
+              await supabase.from('engine_client_playbooks').update({
+                is_active: true,
+                activated_at: new Date().toISOString(),
+              }).eq('id', existing.id)
+            } else {
+              await supabase.from('engine_client_playbooks').insert({
+                client_id: clientId, playbook_id: playbookId, is_active: true, activated_at: new Date().toISOString(),
+              })
+            }
+            queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
+            toast.success('Workflow activé !')
+          } catch (err) {
+            toast.error('Erreur: ' + err.message)
+          }
+          setReadinessState({ open: false, checks: [], playbookName: null, playbookLabel: null, activating: false })
+        }}
+        setActiveTab={setActiveTab}
+        checks={readinessState.checks}
+        playbookLabel={readinessState.playbookLabel}
+        loading={readinessState.activating}
+      />
+
       {/* Comptabilite Wizard Modal */}
       {showComptaWizard && (
         <ComptabiliteWizard

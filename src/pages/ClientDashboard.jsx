@@ -40,6 +40,8 @@ import { ActivityChart } from '../components/dashboard/ActivityChart'
 import { ActivityView, useLiveActivityFeed, formatEvent, formatRelativeTime } from '../components/dashboard/ActivityView'
 import { ClientProfileView } from '../components/client/ClientProfileView'
 import { ClientCopilotBubble } from '../components/client/ClientCopilotBubble'
+import { ReportErrorButton } from '../components/client/ReportErrorButton'
+import { OnboardingWizard } from '../components/client/OnboardingWizard'
 import { OnboardingConcierge } from '../components/client/OnboardingConcierge'
 import { ClientReferralView } from '../components/client/ClientReferralView'
 import { PartnerDashboardView } from '../components/client/PartnerDashboardView'
@@ -1406,6 +1408,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       {/* Copilot Chat Bubble */}
       {currentClient?.id && <ClientCopilotBubble clientId={currentClient.id} theme={theme} />}
+      {currentClient?.id && <ReportErrorButton />}
+      {currentClient?.id && <OnboardingWizard clientId={currentClient.id} client={currentClient} setActiveTab={setActiveTab} />}
 
       {/* Onboarding Concierge — auto-hides once the 7 setup steps are done */}
       {currentClient?.id && <OnboardingConcierge clientId={currentClient.id} setActiveTab={setActiveTab} />}

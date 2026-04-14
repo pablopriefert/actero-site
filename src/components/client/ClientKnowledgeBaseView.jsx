@@ -8,6 +8,7 @@ import {
   MessageCircle, Upload,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { KnowledgeImportModal } from './KnowledgeImportModal'
 
 const CATEGORIES = [
   { id: 'policy', label: 'Politiques', icon: FileText, color: 'blue' },
@@ -323,6 +324,22 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
   const [showQA, setShowQA] = useState(false)
   const [showFileUpload, setShowFileUpload] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [importProvider, setImportProvider] = useState(null) // 'google_docs' | 'notion'
+
+  // Check which external integrations are connected
+  const { data: connectedProviders = [] } = useQuery({
+    queryKey: ['kb-connected-providers', clientId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('client_integrations')
+        .select('provider')
+        .eq('client_id', clientId)
+        .eq('status', 'active')
+        .in('provider', ['google_docs', 'notion'])
+      return (data || []).map((r) => r.provider)
+    },
+    enabled: !!clientId,
+  })
   const [qaQuestion, setQaQuestion] = useState('')
   const [qaAnswer, setQaAnswer] = useState('')
 
@@ -622,6 +639,45 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
           )}
         </div>
 
+        {/* Google Docs / Notion import */}
+        {['google_docs', 'notion'].map((prov) => {
+          const isConnected = connectedProviders.includes(prov)
+          const label = prov === 'google_docs' ? 'Google Docs' : 'Notion'
+          const desc = isConnected
+            ? `Importer depuis vos ${label}`
+            : `Connectez ${label} dans Intégrations pour importer`
+          const bgColor = prov === 'google_docs' ? 'bg-blue-50' : 'bg-gray-100'
+          const icon = prov === 'google_docs' ? (
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/01/Google_Docs_logo_%282014-2020%29.svg" alt="Google Docs" className="w-5 h-5" />
+          ) : (
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" className="w-5 h-5" />
+          )
+          return (
+            <div key={prov} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+              <button
+                onClick={() => isConnected && setImportProvider(prov)}
+                disabled={!isConnected}
+                className={`w-full p-4 flex items-center gap-3 text-left transition-colors ${
+                  isConnected ? 'hover:bg-gray-50 cursor-pointer' : 'opacity-60 cursor-not-allowed'
+                }`}
+              >
+                <div className={`w-9 h-9 rounded-lg ${bgColor} flex items-center justify-center`}>
+                  {icon}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-[#1a1a1a]">Importer depuis {label}</p>
+                  <p className="text-[11px] text-[#71717a]">{desc}</p>
+                </div>
+                {!isConnected && (
+                  <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">
+                    Non connecté
+                  </span>
+                )}
+              </button>
+            </div>
+          )
+        })}
+
         {/* Q&A Builder */}
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
           <button
@@ -887,6 +943,21 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
 
       <AnimatePresence>
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {importProvider && (
+          <KnowledgeImportModal
+            clientId={clientId}
+            provider={importProvider}
+            onClose={() => setImportProvider(null)}
+            onSuccess={(count) => {
+              setImportProvider(null)
+              setToast({ message: `${count} document${count > 1 ? 's' : ''} importé${count > 1 ? 's' : ''}`, type: 'success' })
+              queryClient.invalidateQueries({ queryKey: ['client-knowledge-base', clientId] })
+            }}
+          />
+        )}
       </AnimatePresence>
     </div>
   )

@@ -40,6 +40,11 @@ const PROVIDER_TEST_ENDPOINTS = {
       : 'https://actero.zendesk.com/api/v2/users/me.json',
     headers: (c) => ({ 'Authorization': `Bearer ${c.access_token}` }),
   },
+  aftership: {
+    method: 'GET',
+    url: () => 'https://api.aftership.com/tracking/2024-10/couriers',
+    headers: (c) => ({ 'as-api-key': c.api_key, 'Accept': 'application/json' }),
+  },
 };
 
 export default async function handler(req, res) {
