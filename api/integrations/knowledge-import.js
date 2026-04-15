@@ -295,18 +295,45 @@ export default async function handler(req, res) {
             continue
           }
 
-          // Upsert to avoid duplicates (unique on client_id+source+external_id)
-          // category must be one of: policy, faq, product, tone, temporary (CHECK constraint)
-          const { error: insertErr } = await supabase.from('client_knowledge_base').upsert({
-            client_id: clientId,
-            title: title?.slice(0, 200) || 'Sans titre',
-            content: content.slice(0, 100000),
-            source: provider,
-            external_id: docId,
-            category: 'faq', // imported docs go to FAQ category by default
-            is_active: true,
-            updated_at: new Date().toISOString(),
-          }, { onConflict: 'client_id,source,external_id' })
+          // Manual upsert: check if entry exists, then update or insert
+          // (we can't use Supabase upsert because the unique index is partial)
+          const safeTitle = title?.slice(0, 200) || 'Sans titre'
+          const safeContent = content.slice(0, 100000)
+          const { data: existing } = await supabase
+            .from('client_knowledge_base')
+            .select('id')
+            .eq('client_id', clientId)
+            .eq('source', provider)
+            .eq('external_id', docId)
+            .maybeSingle()
+
+          let insertErr = null
+          if (existing) {
+            const { error } = await supabase
+              .from('client_knowledge_base')
+              .update({
+                title: safeTitle,
+                content: safeContent,
+                is_active: true,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', existing.id)
+            insertErr = error
+          } else {
+            const { error } = await supabase
+              .from('client_knowledge_base')
+              .insert({
+                client_id: clientId,
+                title: safeTitle,
+                content: safeContent,
+                source: provider,
+                external_id: docId,
+                category: 'faq', // imported docs go to FAQ category (CHECK constraint)
+                is_active: true,
+              })
+            insertErr = error
+          }
+
           if (insertErr) {
             console.error(`[knowledge-import] insert failed for ${docId}:`, insertErr.message)
             errors.push({ docId, error: insertErr.message })
