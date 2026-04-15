@@ -296,17 +296,19 @@ export default async function handler(req, res) {
           }
 
           // Upsert to avoid duplicates (unique on client_id+source+external_id)
+          // category must be one of: policy, faq, product, tone, temporary (CHECK constraint)
           const { error: insertErr } = await supabase.from('client_knowledge_base').upsert({
             client_id: clientId,
             title: title?.slice(0, 200) || 'Sans titre',
             content: content.slice(0, 100000),
             source: provider,
             external_id: docId,
-            category: provider === 'google_docs' ? 'Google Docs' : 'Notion',
+            category: 'faq', // imported docs go to FAQ category by default
             is_active: true,
             updated_at: new Date().toISOString(),
           }, { onConflict: 'client_id,source,external_id' })
           if (insertErr) {
+            console.error(`[knowledge-import] insert failed for ${docId}:`, insertErr.message)
             errors.push({ docId, error: insertErr.message })
           } else {
             imported.push({ docId, title })
