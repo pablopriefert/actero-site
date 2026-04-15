@@ -234,6 +234,36 @@ export default async function handler(req, res) {
         return res.status(200).json({ received: true });
       }
 
+      // --- In-dashboard upgrade (from /api/billing/upgrade) ---
+      // Update client.plan immediately to avoid the lag until subscription.updated arrives
+      if (session.metadata?.actero_client_id && session.metadata?.upgrade_to) {
+        try {
+          const clientId = session.metadata.actero_client_id;
+          const newPlan = session.metadata.upgrade_to;
+          const updateData = {
+            plan: newPlan,
+            stripe_customer_id: session.customer,
+            status: 'active',
+          };
+          if (session.subscription) {
+            try {
+              const subscription = await stripe.subscriptions.retrieve(session.subscription);
+              updateData.stripe_subscription_id = subscription.id;
+              if (subscription.trial_end) {
+                updateData.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString();
+              }
+            } catch (subErr) {
+              console.error('[UPGRADE] Failed to retrieve subscription:', subErr.message);
+            }
+          }
+          await supabase.from('clients').update(updateData).eq('id', clientId);
+          console.log(`[UPGRADE] Client ${clientId} upgraded to ${newPlan}`);
+        } catch (upErr) {
+          console.error('[UPGRADE] Update failed:', upErr.message);
+        }
+        // Don't return — let other handlers (referrals, etc.) also run if needed
+      }
+
       // --- Marketplace template purchase ---
       if (session.metadata?.template_id && session.metadata?.buyer_client_id) {
         try {

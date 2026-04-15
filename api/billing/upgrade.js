@@ -242,8 +242,8 @@ export default async function handler(req, res) {
           optional: true,
         },
       ],
-      success_url: `${siteUrl}/client?tab=billing&upgrade=success`,
-      cancel_url: `${siteUrl}/client?tab=billing&upgrade=cancel`,
+      success_url: `${siteUrl}/client/overview?upgrade=success&plan=${target_plan}`,
+      cancel_url: `${siteUrl}/client/billing?upgrade=cancel`,
     });
 
     // Mark referral first month as consumed so it can't be reused
