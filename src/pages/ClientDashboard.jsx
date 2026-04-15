@@ -7,7 +7,6 @@ import {
   Sparkles,
   Menu,
   MessageSquare,
-  MessageCircle,
   Plug,
   AlertTriangle,
   Store,
@@ -53,7 +52,6 @@ import { ConversationSimulator } from '../components/client/ConversationSimulato
 import { TeamManager, canAccessTab } from '../components/client/TeamManager'
 import { ClientEscalationsView } from '../components/client/ClientEscalationsView'
 import { ResponseTemplatesView } from '../components/client/ResponseTemplatesView'
-import { WhatsAppAgentSetupView } from '../components/client/WhatsAppAgentSetupView'
 import { ApiDocsView } from '../components/client/ApiDocsView'
 import { NotificationCenterView } from '../components/client/NotificationCenterView'
 import { AgentImprovementWidget } from '../components/client/AgentImprovementWidget'
@@ -187,7 +185,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/response-templates") return "response-templates";
     if (route === "/client/voice-calls") return "voice-calls";
     if (route === "/client/voice-agent") return "voice-agent";
-    if (route === "/client/whatsapp-agent") return "whatsapp-agent";
     if (route === "/client/notifications") return "notifications";
     if (route === "/client/billing") return "billing";
     if (route === "/client/roi") return "roi";
@@ -655,7 +652,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
         { id: 'guardrails', label: 'Règles & limites', icon: Shield },
         { id: 'simulator', label: 'Simulateur', icon: MessageSquare, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
-        { id: 'whatsapp-agent', label: 'WhatsApp', icon: MessageCircle, ...(can('whatsapp_agent') ? { badge: 'Nouveau', badgeColor: 'bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/30' } : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
       ],
     },
 
@@ -824,7 +820,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "response-templates" && "Modèles de réponse"}
             {activeTab === "voice-calls" && "Appels vocaux"}
             {activeTab === "voice-agent" && "Agent vocal"}
-            {activeTab === "whatsapp-agent" && "Agent WhatsApp"}
             {activeTab === "notifications" && "Notifications"}
             {activeTab === "playbooks" && "Scenarios"}
             {activeTab === "marketplace" && "Marketplace"}
@@ -1219,10 +1214,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     <div className="bg-[#0F5F35]/5 border border-[#0F5F35]/20 rounded-2xl p-4 flex items-center justify-between mt-6">
                       <div>
                         <p className="text-[13px] font-semibold text-[#1a1a1a]">
-                          Debloquez l'agent vocal + WhatsApp
+                          Debloquez l'agent vocal
                         </p>
                         <p className="text-[11px] text-[#71717a] mt-0.5">
-                          Le plan Pro inclut l'agent vocal telephone, WhatsApp, le simulateur et 5 000 tickets/mois.
+                          Le plan Pro inclut l'agent vocal telephone, le simulateur et 5 000 tickets/mois.
                         </p>
                       </div>
                       <button onClick={() => setActiveTab('billing')} className="px-4 py-2 bg-[#0F5F35] text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
@@ -1327,12 +1322,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "voice-agent" && (
             <PlanGate feature="voice_agent" planId={planId} inTrial={inTrial} onUpgrade={() => setActiveTab('billing')}>
               <VoiceAgentSetupView clientId={currentClient?.id} />
-            </PlanGate>
-          )}
-
-          {activeTab === "whatsapp-agent" && (
-            <PlanGate feature="whatsapp_agent" planId={planId} inTrial={inTrial} onUpgrade={() => setActiveTab('billing')}>
-              <WhatsAppAgentSetupView clientId={currentClient?.id} />
             </PlanGate>
           )}
 

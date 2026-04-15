@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
-  Gift, Copy, Check, Mail, Share2, Users, CreditCard, Clock,
+  Gift, Copy, Check, Mail, Users, CreditCard, Clock,
   ExternalLink, Loader2, CheckCircle2, XCircle, Eye, Sparkles
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -76,11 +76,6 @@ export const ClientReferralView = ({ clientId, theme = 'light' }) => {
     window.open(`mailto:?subject=${subject}&body=${body}`)
   }
 
-  const handleShareWhatsApp = () => {
-    const text = encodeURIComponent(`Je te recommande Actero pour automatiser ton support e-commerce avec l'IA 🚀 Ton premier mois est offert avec mon lien : ${referralLink}`)
-    window.open(`https://wa.me/?text=${text}`, '_blank')
-  }
-
   const handleShareLinkedIn = () => {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(referralLink)}`, '_blank')
   }
@@ -137,9 +132,6 @@ export const ClientReferralView = ({ clientId, theme = 'light' }) => {
               <div className="flex flex-wrap gap-2 mt-3">
                 <button onClick={handleShareEmail} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border border-gray-200 text-[#71717a] hover:bg-gray-50 transition-all">
                   <Mail className="w-3.5 h-3.5" /> Email
-                </button>
-                <button onClick={handleShareWhatsApp} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border border-gray-200 text-[#71717a] hover:bg-gray-50 transition-all">
-                  <Share2 className="w-3.5 h-3.5" /> WhatsApp
                 </button>
                 <button onClick={handleShareLinkedIn} className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border border-gray-200 text-[#71717a] hover:bg-gray-50 transition-all">
                   <ExternalLink className="w-3.5 h-3.5" /> LinkedIn

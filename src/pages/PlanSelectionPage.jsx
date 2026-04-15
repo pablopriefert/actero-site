@@ -9,7 +9,7 @@ import { supabase } from "../lib/supabase";
 const PLAN_HIGHLIGHTS = {
   free: ["50 tickets/mois", "1 workflow", "1 intégration"],
   starter: ["1 000 tickets/mois", "3 workflows", "Éditeur de ton de marque"],
-  pro: ["5 000 tickets/mois", "Workflows illimités", "WhatsApp + Agent vocal 200 min"],
+  pro: ["5 000 tickets/mois", "Workflows illimités", "Agent vocal 200 min"],
   enterprise: ["Volume illimité", "Multi-boutique", "Account manager dédié"],
 };
 

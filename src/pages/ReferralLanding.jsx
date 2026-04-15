@@ -226,7 +226,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
               const features = {
                 free: ['50 tickets / mois', '1 workflow actif', 'Intégration Shopify', 'Règles & limites'],
                 starter: ['1 000 tickets / mois', '3 workflows actifs', 'Éditeur de marque', 'API + webhooks', 'Simulateur'],
-                pro: ['5 000 tickets / mois', 'Workflows illimités', 'Agent vocal (200 min)', 'WhatsApp Business', 'Agents spécialisés'],
+                pro: ['5 000 tickets / mois', 'Workflows illimités', 'Agent vocal (200 min)', 'Agents spécialisés'],
               }[planId]
 
               return (

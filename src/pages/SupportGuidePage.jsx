@@ -137,7 +137,7 @@ const GUIDES = [
       },
       {
         title: 'Les autres groupes de conflit',
-        content: "La meme logique s'applique a :\n- Helpdesk : Gorgias OU Zendesk (pas les deux)\n- Email : Resend OU SMTP personnalise (pas les deux)\n\nToutes les autres integrations (Slack, WhatsApp, Axonaut, Pennylane, iPaidThat) se cumulent sans limite.",
+        content: "La meme logique s'applique a :\n- Helpdesk : Gorgias OU Zendesk (pas les deux)\n- Email : Resend OU SMTP personnalise (pas les deux)\n\nToutes les autres integrations (Slack, Axonaut, Pennylane, iPaidThat) se cumulent sans limite.",
       },
     ],
   },
@@ -316,32 +316,6 @@ const GUIDES = [
       {
         title: 'Comment l\'IA traite vos tickets Zendesk',
         content: "Le fonctionnement est le meme qu'avec Gorgias : chaque nouveau ticket est lu et analyse par l'IA. Si elle peut repondre avec confiance, elle le fait. Sinon, elle escalade. L'IA respecte vos règles & limites, votre ton de marque, et utilise votre base de connaissances pour formuler ses reponses. Les tickets traites par l'IA sont tagges automatiquement dans Zendesk pour que vous puissiez les retrouver facilement.",
-      },
-    ],
-  },
-  {
-    id: 'connecter-whatsapp',
-    category: 'integrations',
-    title: 'Connecter WhatsApp Business',
-    summary: 'Configurer WhatsApp Business API pour communiquer avec vos clients. Plan Pro requis.',
-    icon: Phone,
-    readTime: '4 min',
-    sections: [
-      {
-        title: 'Plan requis',
-        content: "WhatsApp Business est disponible uniquement sur le plan Pro (399 €/mois) et Enterprise. Les plans Free et Starter n'ont pas acces a ce canal. Si vous etes sur un plan inferieur, la carte WhatsApp apparait verrouillee dans Integrations avec un bouton Passer au Pro.",
-      },
-      {
-        title: 'A quoi sert WhatsApp dans Actero',
-        content: "WhatsApp Business vous permet de recevoir et repondre aux messages de vos clients via WhatsApp. Votre agent IA peut envoyer des notifications, repondre aux questions et relancer les paniers abandonnes directement dans la conversation WhatsApp du client. C'est un canal a fort taux d'ouverture (plus de 95 %).",
-      },
-      {
-        title: 'Obtenir votre token API Meta',
-        content: "WhatsApp Business utilise l'API Meta. Pour obtenir votre token :\n\n1. Allez sur business.facebook.com et connectez-vous\n2. Ouvrez WhatsApp puis Configuration de l'API\n3. Copiez le Token d'acces permanent (il commence par EAA...)\n4. Notez aussi votre Phone Number ID\n\nSi vous n'avez pas encore de compte WhatsApp Business API, creez-le via Meta Business Suite (gratuit, avec verification).",
-      },
-      {
-        title: 'Connecter dans Actero',
-        content: "1. Integrations > WhatsApp Business > Connecter\n2. Collez le token API et le Phone Number ID\n3. Cliquez Connecter\n4. Un badge vert confirme la connexion\n5. Activez WhatsApp dans les canaux de vos automatisations (SAV, Relance paniers)",
       },
     ],
   },
@@ -564,7 +538,7 @@ const GUIDES = [
       },
       {
         title: 'Ce qu\'il faut pour que ca fonctionne',
-        content: "Pour que la relance fonctionne, vous avez besoin de deux choses : Shopify connecte (pour detecter les paniers abandonnes) et un canal email connecte (Resend, Gmail ou email SMTP pour envoyer la relance). Si vous avez WhatsApp connecte (Pro+), vous pouvez aussi envoyer des relances par WhatsApp. Activez les canaux souhaites dans l'automatisation.",
+        content: "Pour que la relance fonctionne, vous avez besoin de deux choses : Shopify connecte (pour detecter les paniers abandonnes) et un canal email connecte (Resend, Gmail ou email SMTP pour envoyer la relance). Activez les canaux souhaites dans l'automatisation.",
       },
       {
         title: 'La sequence de relance',
@@ -967,7 +941,7 @@ const GUIDES = [
     sections: [
       {
         title: 'Les 4 plans Actero',
-        content: "- Free : 50 tickets/mois, 1 integration, agent generaliste\n- Starter : 99 €/mois, 1 000 tickets, integrations illimitees\n- Pro : 399 €/mois, tickets illimites, WhatsApp, Règles & limites avancees, API publique, agents specialises\n- Enterprise : sur devis, SLA, SSO, multi-workspace",
+        content: "- Free : 50 tickets/mois, 1 integration, agent generaliste\n- Starter : 99 €/mois, 1 000 tickets, integrations illimitees\n- Pro : 399 €/mois, tickets illimites, Règles & limites avancees, API publique, agents specialises\n- Enterprise : sur devis, SLA, SSO, multi-workspace",
       },
       {
         title: 'Upgrade en cours de mois',
@@ -979,7 +953,7 @@ const GUIDES = [
       },
       {
         title: 'Downgrade',
-        content: "Un passage a un plan inferieur prend effet a la fin de la periode en cours (pas de remboursement). Vous gardez les fonctionnalites payantes jusqu'a la bascule. Attention : si vous passez de Pro a Starter, WhatsApp et agents specialises seront desactives.",
+        content: "Un passage a un plan inferieur prend effet a la fin de la periode en cours (pas de remboursement). Vous gardez les fonctionnalites payantes jusqu'a la bascule. Attention : si vous passez de Pro a Starter, les agents specialises seront desactives.",
       },
       {
         title: 'Comment changer',
@@ -1001,7 +975,7 @@ const GUIDES = [
       },
       {
         title: 'Trouver votre lien de parrainage',
-        content: "Dashboard > Parrainage. Vous y trouvez :\n- Votre code personnel (ex : PABLO-H3X)\n- Votre lien direct (https://actero.fr/?referral_code=PABLO-H3X)\n- Un bouton de partage rapide (email, Slack, WhatsApp)\n- L'historique de vos filleuls et recompenses",
+        content: "Dashboard > Parrainage. Vous y trouvez :\n- Votre code personnel (ex : PABLO-H3X)\n- Votre lien direct (https://actero.fr/?referral_code=PABLO-H3X)\n- Un bouton de partage rapide (email, Slack, LinkedIn)\n- L'historique de vos filleuls et recompenses",
       },
       {
         title: 'Comment ca marche pour le parraine',

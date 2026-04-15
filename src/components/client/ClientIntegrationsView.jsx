@@ -487,18 +487,9 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const handleOAuthConnect = async (provider) => {
     // Check integration limit before connecting
     try {
-      const { getLimit, getPlanConfig, PLANS } = await import('../../lib/plans.js')
+      const { getLimit, getPlanConfig } = await import('../../lib/plans.js')
       const { data: clientRow } = await supabase.from('clients').select('plan').eq('id', clientId).maybeSingle()
       const plan = clientRow?.plan || 'free'
-
-      // WhatsApp requires Pro+
-      if (provider.id === 'whatsapp') {
-        const whatsappAllowed = PLANS?.[plan]?.limits?.whatsapp === true
-        if (!whatsappAllowed) {
-          toast?.error?.(`WhatsApp est disponible à partir du plan Pro. Mettez à niveau pour l'activer.`)
-          return
-        }
-      }
 
       const integLimit = getLimit(plan, 'integrations')
       const connectedCount = integrations?.filter(i => i.status === 'active')?.length || 0

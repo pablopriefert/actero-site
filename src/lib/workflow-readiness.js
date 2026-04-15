@@ -123,7 +123,7 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
     label: 'Canal de diffusion actif',
     description: hasActiveChannel
       ? `${channelsArray.length} canal${channelsArray.length > 1 ? 'aux' : ''} actif${channelsArray.length > 1 ? 's' : ''}.`
-      : 'Par défaut : email. Vous pourrez ajouter d\'autres canaux (WhatsApp, Slack) après activation.',
+      : 'Par défaut : email. Vous pourrez ajouter d\'autres canaux (Slack) après activation.',
     met: true, // always met (defaults applied on activation)
   })
 

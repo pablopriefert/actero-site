@@ -733,7 +733,7 @@ export const LandingPage = ({ onNavigate }) => {
                             "Dashboard de performance en temps réel",
                             "Support prioritaire intégré",
                             "Optimisation et reporting continus",
-                            "Alertes WhatsApp & Slack en temps réel",
+                            "Alertes Slack en temps réel",
                           ] : [
                             "Configuration en 5 minutes, sans code",
                             "Agent IA prise de rendez-vous",
@@ -742,7 +742,7 @@ export const LandingPage = ({ onNavigate }) => {
                             "Intégrations CRM + Agenda + Email + SMS",
                             "Dashboard de performance en temps réel",
                             "Support prioritaire intégré",
-                            "Alertes WhatsApp & Slack en temps réel",
+                            "Alertes Slack en temps réel",
                           ]).map((feature, i) => (
                             <div key={i} className="flex items-center gap-3">
                               <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-[#003725]" />
@@ -923,7 +923,6 @@ export const LandingPage = ({ onNavigate }) => {
                     <ul className="space-y-1.5 flex-1 mb-4">
                       <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0F5F35]" />5 000 tickets / mois</li>
                       <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0F5F35]" />Agent vocal (200 min)</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0F5F35]" />Agent WhatsApp</li>
                       <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0F5F35]" />Simulateur + API</li>
                       <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0F5F35]" />Support prioritaire 24h</li>
                     </ul>
@@ -984,7 +983,7 @@ export const LandingPage = ({ onNavigate }) => {
                     },
                     {
                       q: "Quels outils supportez-vous ?",
-                      a: "Shopify, WooCommerce, Webflow, Gorgias, Zendesk, WhatsApp, Stripe, Slack, Resend, Axonaut, Pennylane, iPaidThat, et bien d'autres. Si votre outil n'est pas dans la liste, on trouve un moyen de le connecter."
+                      a: "Shopify, WooCommerce, Webflow, Gorgias, Zendesk, Stripe, Slack, Resend, Axonaut, Pennylane, iPaidThat, et bien d'autres. Si votre outil n'est pas dans la liste, on trouve un moyen de le connecter."
                     },
                     {
                       q: "Quelle est la différence avec Make ou Zapier ?",

@@ -106,7 +106,6 @@ function buildFeatures(plan) {
   if (features.voice_agent && limits.voice_minutes > 0) {
     lines.push(`Agent vocal (${limits.voice_minutes} min incluses)`);
   }
-  if (features.whatsapp_agent) lines.push("WhatsApp Agent");
   if (features.simulator) lines.push("Simulateur de conversation");
   if (features.api_webhooks) lines.push("API + webhooks");
 
@@ -236,10 +235,6 @@ const comparisonCategories = [
         }),
       },
       {
-        label: "WhatsApp Agent",
-        values: compVal(PLAN_ORDER, (p) => p.features.whatsapp_agent),
-      },
-      {
         label: "Simulateur conversation",
         values: compVal(PLAN_ORDER, (p) => p.features.simulator),
       },
@@ -336,7 +331,7 @@ const faqs = [
   },
   {
     q: "Quelles intégrations sont disponibles ?",
-    a: "Actero se connecte nativement à Shopify, WooCommerce, Webflow, Gorgias, Zendesk, WhatsApp (Pro+), Stripe, Slack, Resend, Axonaut, Pennylane, iPaidThat et bien d'autres. Le plan Pro ajoute l'accès API et webhooks. Le plan Enterprise permet des intégrations custom sur mesure.",
+    a: "Actero se connecte nativement à Shopify, WooCommerce, Webflow, Gorgias, Zendesk, Stripe, Slack, Resend, Axonaut, Pennylane, iPaidThat et bien d'autres. Le plan Pro ajoute l'accès API et webhooks. Le plan Enterprise permet des intégrations custom sur mesure.",
   },
   {
     q: "Proposez-vous un discount annuel ?",

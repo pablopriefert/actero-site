@@ -57,7 +57,6 @@ const PLAN_FEATURES_SHORT = {
     '5 000 tickets / mois',
     'Workflows illimités',
     'Agent vocal (200 min)',
-    'WhatsApp Business',
     'Agents IA spécialisés',
     'Support prioritaire 24h',
   ],

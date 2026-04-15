@@ -4,7 +4,6 @@ import { getPlanConfig } from '../../lib/plans'
 const FEATURE_LABELS = {
   simulator: 'Simulateur de conversation',
   voice_agent: 'Agent vocal téléphonique',
-  whatsapp_agent: 'Agent WhatsApp',
   brand_editor: 'Éditeur de ton de marque',
   guardrails: 'Règles & limites',
   api_webhooks: 'API & webhooks',

@@ -13,7 +13,6 @@ const INTEGRATIONS = {
     { name: "Zendesk", icon: "zendesk", color: "03363D", desc: "Escalade intelligente des tickets" },
     { name: "Make", icon: "make", color: "5F4CFF", desc: "Connecteur universel" },
     { name: "Intercom", icon: "intercom", color: "0058DD", desc: "Chat en direct augmenté IA" },
-    { name: "WhatsApp", icon: "whatsapp", color: "25D366", desc: "Alertes et relances WhatsApp" },
   ],
 }
 
