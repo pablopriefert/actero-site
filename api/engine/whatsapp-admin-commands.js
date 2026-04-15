@@ -83,7 +83,9 @@ export async function tryHandleAdminCommand(supabase, { clientId, fromPhone, mes
 
 function normalizePhone(p) {
   if (!p) return ''
-  return String(p).replace(/\s|-|\(|\)/g, '').replace(/^00/, '+')
+  // Strip whitespace, dashes, parens. Accept 00 prefix. Finally drop leading +
+  // so we compare digits only (Meta sends "33788192308", whitelist may have "+33788192308").
+  return String(p).replace(/\s|-|\(|\)/g, '').replace(/^00/, '+').replace(/^\+/, '')
 }
 
 function helpReply() {

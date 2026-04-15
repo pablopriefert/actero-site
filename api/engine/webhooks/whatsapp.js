@@ -243,7 +243,8 @@ async function processChange(value) {
   const contact = contacts[0] || null
 
   // Decrypt access token once, reuse for every outbound call in this batch.
-  const accessTokenDecrypted = decryptToken(account.access_token)
+  // Column is access_token_encrypted (not access_token).
+  const accessTokenDecrypted = decryptToken(account.access_token_encrypted || account.access_token)
   const integration = {
     phone_number_id: account.phone_number_id,
     waba_id: account.waba_id,
@@ -306,17 +307,15 @@ async function handleInboundMessage({ clientId, account, integration, value, mes
           to: message.from,
           text: adminResponse.reply,
         })
-        // Log outbound
+        // Log outbound (schema: customer_phone, message_type, body, status)
         await supabase.from('whatsapp_messages').insert({
           client_id: clientId,
-          whatsapp_account_id: account.id,
           phone_number_id: account.phone_number_id,
           direction: 'outbound',
-          from_phone: account.display_phone_number || null,
-          to_phone: message.from,
+          customer_phone: message.from,
+          message_type: 'text',
           body: adminResponse.reply,
           status: 'sent',
-          metadata: { admin_command: true },
         })
       } catch (err) {
         console.error('[whatsapp-webhook] admin reply failed:', err.message)
@@ -328,26 +327,18 @@ async function handleInboundMessage({ clientId, account, integration, value, mes
     // Fall through to normal Brain flow
   }
 
-  // Store the inbound row.
+  // Store the inbound row (schema: customer_phone, message_type, body, status).
   const { data: inboundRow } = await supabase
     .from('whatsapp_messages')
     .insert({
       client_id: clientId,
-      whatsapp_account_id: account.id,
       phone_number_id: account.phone_number_id,
       wa_message_id: waMessageId,
-      wa_message_type: message.type || 'text',
+      message_type: message.type || 'text',
       direction: 'inbound',
-      from_phone: message.from,
-      to_phone: account.display_phone_number || null,
-      contact_name: contact?.profile?.name || null,
+      customer_phone: message.from,
       body: normalized.message,
       status: 'received',
-      metadata: {
-        wa_timestamp: message.timestamp,
-        raw_type: message.type,
-        display_phone_number: value?.metadata?.display_phone_number,
-      },
     })
     .select()
     .single()
