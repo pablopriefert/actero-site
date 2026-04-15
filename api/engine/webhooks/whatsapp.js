@@ -286,15 +286,27 @@ async function handleInboundMessage({ clientId, account, integration, value, mes
 
   const normalized = normalizeWhatsAppMessage({ value, message, contact })
 
-  // Check if this is an admin command (starts with /)
+  // Admin routing:
+  //   1) Legacy slash commands (/help, /kb, /stats, etc.) — fast & deterministic
+  //   2) Natural language via Claude tool-use — for everything else
+  // Both only fire if sender is whitelisted in client_settings.whatsapp_admin_phones.
   try {
     const { tryHandleAdminCommand } = await import('../whatsapp-admin-commands.js')
-    const adminResponse = await tryHandleAdminCommand(supabase, {
+    const { tryHandleAdminNL } = await import('../whatsapp-ai-admin.js')
+
+    let adminResponse = await tryHandleAdminCommand(supabase, {
       clientId,
       fromPhone: message.from,
       message: normalized.message,
       account,
     })
+    if (!adminResponse?.reply) {
+      adminResponse = await tryHandleAdminNL(supabase, {
+        clientId,
+        fromPhone: message.from,
+        message: normalized.message,
+      })
+    }
     if (adminResponse?.reply) {
       // Send admin response directly and skip Brain
       try {
