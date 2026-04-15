@@ -7,6 +7,7 @@
  * authorization code for an access token, then store it in client_integrations.
  */
 import { createClient } from '@supabase/supabase-js'
+import { encryptToken } from '../../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -98,7 +99,7 @@ export default async function handler(req, res) {
         provider_label: 'Webflow',
         auth_type: 'oauth',
         status: 'active',
-        api_key: accessToken,
+        api_key: encryptToken(accessToken),
         extra_config: {
           site_name: siteName,
           connected_at: new Date().toISOString(),

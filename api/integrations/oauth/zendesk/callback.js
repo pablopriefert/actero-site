@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { encryptToken } from '../../../lib/crypto.js';
 
 export default async function handler(req, res) {
   const { code, state, error: oauthError } = req.query;
@@ -75,8 +76,8 @@ export default async function handler(req, res) {
         provider: 'zendesk',
         provider_label: 'Zendesk',
         auth_type: 'oauth',
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token || null,
+        access_token: encryptToken(tokenData.access_token),
+        refresh_token: tokenData.refresh_token ? encryptToken(tokenData.refresh_token) : null,
         extra_config: {
           token_type: tokenData.token_type,
           scope: tokenData.scope,

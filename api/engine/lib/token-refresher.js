@@ -2,6 +2,7 @@
  * Actero Engine — Token Refresher
  * Refreshes expired OAuth tokens for integrations before making API calls.
  */
+import { decryptToken, encryptToken } from '../../lib/crypto.js'
 
 const GORGIAS_CLIENT_ID = process.env.GORGIAS_CLIENT_ID
 const GORGIAS_CLIENT_SECRET = process.env.GORGIAS_CLIENT_SECRET
@@ -30,18 +31,19 @@ export async function ensureValidToken(supabase, integrationId) {
 
     if (expiresAt.getTime() - bufferMs > now.getTime()) {
       // Token still valid
-      return integration.access_token
+      return decryptToken(integration.access_token)
     }
 
-    // Token expired — try to refresh
-    if (integration.refresh_token) {
-      const newToken = await refreshToken(integration)
+    // Token expired — try to refresh (decrypt refresh_token in memory only)
+    const decryptedRefresh = decryptToken(integration.refresh_token)
+    if (decryptedRefresh) {
+      const newToken = await refreshToken({ ...integration, refresh_token: decryptedRefresh })
       if (newToken) {
         await supabase
           .from('client_integrations')
           .update({
-            access_token: newToken.access_token,
-            refresh_token: newToken.refresh_token || integration.refresh_token,
+            access_token: encryptToken(newToken.access_token),
+            refresh_token: encryptToken(newToken.refresh_token || decryptedRefresh),
             expires_at: newToken.expires_at,
             status: 'active',
           })
@@ -60,7 +62,7 @@ export async function ensureValidToken(supabase, integrationId) {
     }
   }
 
-  return integration.access_token
+  return decryptToken(integration.access_token)
 }
 
 async function refreshToken(integration) {

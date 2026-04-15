@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { decryptToken } from '../../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -19,11 +20,13 @@ export async function fetchOverdueInvoices(clientId) {
 
   if (!integration) return { invoices: [], provider: null }
 
+  const apiKey = decryptToken(integration.api_key)
+
   try {
     switch (integration.provider) {
-      case 'axonaut': return await fetchAxonautInvoices(integration.api_key)
-      case 'pennylane': return await fetchPennylaneInvoices(integration.api_key)
-      case 'ipaidthat': return await fetchIpaidthatInvoices(integration.api_key)
+      case 'axonaut': return await fetchAxonautInvoices(apiKey)
+      case 'pennylane': return await fetchPennylaneInvoices(apiKey)
+      case 'ipaidthat': return await fetchIpaidthatInvoices(apiKey)
       default: return { invoices: [], provider: integration.provider }
     }
   } catch (err) {

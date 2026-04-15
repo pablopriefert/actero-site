@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { encryptToken } from '../lib/crypto.js';
 
 export default async function handler(req, res) {
   const { shop, code, state, hmac } = req.query;
@@ -121,10 +122,10 @@ export default async function handler(req, res) {
     }
   }
 
-  // 6. Save to Supabase (with client_id if found)
+  // 6. Save to Supabase (with client_id if found) — encrypt access_token at rest.
   const connectionData = {
     shop_domain: shop,
-    access_token,
+    access_token: encryptToken(access_token),
     scopes: scope,
     updated_at: new Date().toISOString(),
   };

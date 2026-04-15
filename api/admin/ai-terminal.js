@@ -55,10 +55,75 @@ Tu ne peux PAS faire de INSERT, UPDATE, DELETE.
 
 Réponds toujours en français. Sois concis et actionnable.`
 
+// Whitelist of tables the AI terminal is allowed to read. Anything sensitive
+// (passwords, API keys, OAuth tokens, admin session tokens, verification codes,
+// auth schema) MUST be excluded.
+const ALLOWED_TABLES = new Set([
+  'clients',
+  'client_users',
+  'client_settings',
+  'usage_counters',
+  'automation_events',
+  'metrics_daily',
+  'escalation_tickets',
+  'referrals',
+  'referral_rewards',
+  'engine_events',
+  'engine_runs',
+  'engine_runs_v2',
+  'engine_messages',
+  'engine_responses',
+  'engine_playbooks',
+  'engine_client_playbooks',
+  'engine_reviews_v2',
+  'client_integrations',
+  'client_shopify_connections',
+  'ai_conversations',
+  'client_credits',
+  'credit_transactions',
+  'client_entitlements',
+  'funnel_clients',
+  'ambassadors',
+  'ambassador_applications',
+  'partner_applications',
+  'partners',
+  'partner_access_tokens',
+  'marketplace_templates',
+  'marketplace_installs',
+  'startup_applications',
+  'churn_predictions',
+  'voice_calls',
+  'voice_agent_config',
+  'whatsapp_accounts',
+  'sentiment_logs',
+  'admin_action_logs',
+  'admin_alert_rules',
+  'admin_client_notes',
+  'client_knowledge_base',
+  'client_notification_preferences',
+  'customer_memories',
+  'error_reports',
+])
+
 // Execute a safe read-only query
 async function executeQuery(queryDef) {
   try {
-    let query = supabase.from(queryDef.table).select(queryDef.select || '*')
+    if (!queryDef.table || !ALLOWED_TABLES.has(queryDef.table)) {
+      return { error: `Table "${queryDef.table}" non autorisée (lecture interdite).` }
+    }
+
+    // Never allow '*' select when the table may contain sensitive cols. Force
+    // explicit column list, and sanitize api_key / access_token / refresh_token
+    // / code_hash / payload if accidentally requested.
+    let selectExpr = queryDef.select || '*'
+    if (typeof selectExpr === 'string') {
+      const forbidden = /(access_token|refresh_token|api_key|code_hash|key_value|password|payload)/i
+      if (forbidden.test(selectExpr)) {
+        return { error: 'Colonnes sensibles interdites dans SELECT.' }
+      }
+    }
+
+    let query = supabase.from(queryDef.table).select(selectExpr)
 
     if (queryDef.filters) {
       for (const f of queryDef.filters) {

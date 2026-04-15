@@ -23,8 +23,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing client_id' });
   }
 
-  // Verify user belongs to this client or is admin
-  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  // Verify user belongs to this client or is admin (app_metadata authoritative)
+  const isAdmin = user.app_metadata?.role === 'admin';
   if (!isAdmin) {
     const { data: link } = await supabaseAdmin
       .from('client_users')

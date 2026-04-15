@@ -8,6 +8,7 @@
  * Requires Bearer token from authenticated client user.
  */
 import { createClient } from '@supabase/supabase-js'
+import { decryptToken } from '../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -265,12 +266,17 @@ export default async function handler(req, res) {
   const integration = await getIntegration(clientId, provider)
   if (!integration) return res.status(404).json({ error: `${provider} non connecté` })
 
+  const integrationAccessToken = decryptToken(integration.access_token)
+  if (!integrationAccessToken) {
+    return res.status(400).json({ error: `${provider} token invalide, reconnectez l'intégration` })
+  }
+
   try {
     // LIST action
     if (action === 'list' && req.method === 'GET') {
       const docs = provider === 'google_docs'
-        ? await listGoogleDocs(integration.access_token)
-        : await listNotionPages(integration.access_token)
+        ? await listGoogleDocs(integrationAccessToken)
+        : await listNotionPages(integrationAccessToken)
       return res.status(200).json({ documents: docs })
     }
 
@@ -287,8 +293,8 @@ export default async function handler(req, res) {
       for (const docId of doc_ids.slice(0, 20)) { // cap at 20
         try {
           const { title, content } = provider === 'google_docs'
-            ? await fetchGoogleDocContent(integration.access_token, docId)
-            : await fetchNotionPageContent(integration.access_token, docId)
+            ? await fetchGoogleDocContent(integrationAccessToken, docId)
+            : await fetchNotionPageContent(integrationAccessToken, docId)
 
           if (!content || content.trim().length < 10) {
             errors.push({ docId, error: 'Contenu vide' })

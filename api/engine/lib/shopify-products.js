@@ -15,6 +15,8 @@
  * @param {number} [opts.limit=3] - Max products returned
  * @returns {Promise<Array>} - Array of product objects (empty if none / no store)
  */
+import { decryptToken } from '../../lib/crypto.js'
+
 export async function searchShopifyProducts(supabase, { clientId, query, limit = 3 }) {
   if (!clientId || !query) return []
 
@@ -24,12 +26,13 @@ export async function searchShopifyProducts(supabase, { clientId, query, limit =
     .eq('client_id', clientId)
     .maybeSingle()
 
-  if (!shopify?.access_token || !shopify?.shop_domain) return []
+  const shopifyToken = decryptToken(shopify?.access_token)
+  if (!shopifyToken || !shopify?.shop_domain) return []
 
   try {
     const url = `https://${shopify.shop_domain}/admin/api/2024-01/products.json?title=${encodeURIComponent(query)}&limit=${limit}`
     const res = await fetch(url, {
-      headers: { 'X-Shopify-Access-Token': shopify.access_token },
+      headers: { 'X-Shopify-Access-Token': shopifyToken },
     })
     if (!res.ok) {
       console.error('[shopify-products] HTTP error:', res.status)

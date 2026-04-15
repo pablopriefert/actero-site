@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { encryptToken } from '../lib/crypto.js';
 
 const PROVIDER_TEST_ENDPOINTS = {
   gorgias: {
@@ -134,7 +135,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: testResult.message, test_failed: true });
     }
 
-    // Store credentials — separate api_key from extra config
+    // Store credentials — separate api_key from extra config, encrypt api_key at rest
     const apiKey = credentials.api_key || null;
     const extraConfig = { ...credentials };
     delete extraConfig.api_key;
@@ -146,7 +147,7 @@ export default async function handler(req, res) {
         provider,
         provider_label: provider_label || provider,
         auth_type: 'api_key',
-        api_key: apiKey,
+        api_key: apiKey ? encryptToken(apiKey) : null,
         extra_config: Object.keys(extraConfig).length > 0 ? extraConfig : {},
         status: 'active',
         status_message: null,

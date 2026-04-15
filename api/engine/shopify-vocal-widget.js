@@ -3,6 +3,7 @@
  * Installs/uninstalls the ElevenLabs voice agent widget on a Shopify store.
  */
 import { createClient } from '@supabase/supabase-js'
+import { decryptToken } from '../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -30,13 +31,14 @@ export default async function handler(req, res) {
     .eq('client_id', client_id)
     .maybeSingle()
 
-  if (!shopify?.access_token) {
+  const shopifyToken = decryptToken(shopify?.access_token)
+  if (!shopifyToken) {
     return res.status(400).json({ error: 'Shopify non connecte.' })
   }
 
   const baseUrl = `https://${shopify.shop_domain}/admin/api/2024-01`
   const headers = {
-    'X-Shopify-Access-Token': shopify.access_token,
+    'X-Shopify-Access-Token': shopifyToken,
     'Content-Type': 'application/json',
   }
 

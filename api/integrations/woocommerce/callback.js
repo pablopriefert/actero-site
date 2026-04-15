@@ -11,6 +11,7 @@
  * No JWT auth — we verify via the client_id (user_id param) and update the integration.
  */
 import { createClient } from '@supabase/supabase-js'
+import { encryptToken } from '../../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -67,10 +68,10 @@ export default async function handler(req, res) {
         client_id: clientId,
         provider: 'woocommerce',
         status: 'active',
-        api_key: consumer_key,
+        api_key: encryptToken(consumer_key),
         extra_config: {
           store_url: storeUrl,
-          consumer_secret: consumer_secret,
+          consumer_secret: encryptToken(consumer_secret),
           key_id: key_id,
           key_permissions: key_permissions,
           connected_at: new Date().toISOString(),

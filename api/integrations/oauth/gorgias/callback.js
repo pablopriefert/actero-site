@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { encryptToken } from '../../../lib/crypto.js';
 
 export default async function handler(req, res) {
   const { code, state, error: oauthError } = req.query;
@@ -72,8 +73,8 @@ export default async function handler(req, res) {
         provider: 'gorgias',
         provider_label: 'Gorgias',
         auth_type: 'oauth',
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
+        access_token: encryptToken(tokenData.access_token),
+        refresh_token: encryptToken(tokenData.refresh_token),
         extra_config: {
           domain: tokenData.account_domain || null,
         },

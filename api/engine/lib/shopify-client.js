@@ -2,6 +2,7 @@
  * Actero Engine — Shopify Client
  * Looks up order data from Shopify to enrich AI responses with real order info.
  */
+import { decryptToken } from '../../lib/crypto.js'
 
 /**
  * Look up a Shopify order by order name (#1234) or customer email.
@@ -15,13 +16,14 @@ export async function lookupOrder(supabase, { clientId, orderId, customerEmail }
     .eq('client_id', clientId)
     .maybeSingle()
 
-  if (!shopify?.access_token || !shopify?.shop_domain) {
+  const shopifyToken = decryptToken(shopify?.access_token)
+  if (!shopifyToken || !shopify?.shop_domain) {
     return null // No Shopify connection
   }
 
   const baseUrl = `https://${shopify.shop_domain}/admin/api/2024-01`
   const headers = {
-    'X-Shopify-Access-Token': shopify.access_token,
+    'X-Shopify-Access-Token': shopifyToken,
     'Content-Type': 'application/json',
   }
 

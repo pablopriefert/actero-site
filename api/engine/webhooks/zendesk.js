@@ -24,6 +24,15 @@ export default async function handler(req, res) {
   const clientId = req.query?.client_id
   if (!clientId) return res.status(400).json({ error: 'client_id query param required' })
 
+  // Shared-secret authentication. Zendesk triggers can pass a custom header
+  // or query param — our onboarding flow provisions one per app. Fail-closed
+  // if the server-side secret is missing.
+  const expected = process.env.ZENDESK_WEBHOOK_SECRET
+  const providedSecret = req.query?.secret || req.headers['x-actero-webhook-secret']
+  if (!expected || providedSecret !== expected) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
   const event = req.body
 
   // Zendesk webhook/trigger payload normalization

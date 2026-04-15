@@ -2,6 +2,7 @@
  * Actero Engine — Zendesk Connector
  * Sends AI responses back to Zendesk tickets via their API.
  */
+import { decryptToken } from '../../lib/crypto.js'
 
 /**
  * Reply to a Zendesk ticket.
@@ -20,7 +21,8 @@ export async function sendViaZendesk(supabase, { clientId, ticketId, response, c
     .eq('status', 'active')
     .maybeSingle()
 
-  if (!integration?.access_token) {
+  const accessToken = decryptToken(integration?.access_token)
+  if (!accessToken) {
     return { success: false, error: 'Zendesk integration not active or missing token' }
   }
 
@@ -36,7 +38,7 @@ export async function sendViaZendesk(supabase, { clientId, ticketId, response, c
     const res = await fetch(`${zendeskUrl}/tickets/${ticketId}.json`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${integration.access_token}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

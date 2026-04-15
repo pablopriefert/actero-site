@@ -2,6 +2,7 @@
  * Actero Engine — Slack Connector
  * Posts notifications and escalation alerts to Slack channels.
  */
+import { decryptToken } from '../../lib/crypto.js'
 
 /**
  * Send a notification to Slack.
@@ -23,7 +24,7 @@ export async function sendViaSlack(supabase, { clientId, response, customerEmail
   }
 
   const webhookUrl = integration.extra_config?.webhook_url
-  const accessToken = integration.access_token
+  const accessToken = decryptToken(integration.access_token)
   const channelId = integration.extra_config?.channel_id
 
   try {

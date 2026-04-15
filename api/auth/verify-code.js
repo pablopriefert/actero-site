@@ -13,6 +13,7 @@
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
+import { decryptToken } from '../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -76,7 +77,10 @@ export default async function handler(req, res) {
 
   // Create account (replicated from api/auth/signup.js)
   const payload = record.payload || {}
-  const password = payload.password
+  // Support both legacy (password in clear) and encrypted (password_enc) formats.
+  const password = payload.password_enc
+    ? decryptToken(payload.password_enc)
+    : payload.password
   const brand_name = payload.brand_name
   const shopify_url = payload.shopify_url
   const referral_code = payload.referral_code

@@ -15,6 +15,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import crypto from 'crypto'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
+import { encryptToken } from '../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -54,23 +55,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Check if this email already has a Supabase user (avoid DoS on existing users)
-    const { data: existing } = await supabase.auth.admin.listUsers({
-      page: 1,
-      perPage: 1,
-    })
-    // listUsers doesn't filter by email easily — we'll check at signup time instead
-
     const code = generateCode()
     const code_hash = hashCode(code)
     const expires_at = new Date(Date.now() + 15 * 60 * 1000).toISOString()
 
-    // Store the pending signup payload (encrypted not needed since password is hashed by Supabase at signup)
+    // Store the pending signup payload — encrypt the password at rest so the 15-min
+    // DB row does not leak plaintext credentials if the table is ever exfiltrated.
     await supabase.from('email_verification_codes').insert({
       email: email.trim().toLowerCase(),
       code_hash,
       payload: {
-        password,
+        password_enc: encryptToken(password),
         brand_name: brand_name.trim(),
         shopify_url: shopify_url ? shopify_url.trim() : null,
         referral_code: referral_code || null,

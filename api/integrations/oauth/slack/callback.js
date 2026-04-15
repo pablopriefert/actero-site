@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { encryptToken } from '../../../lib/crypto.js';
 
 export default async function handler(req, res) {
   const { code, state, error: oauthError } = req.query;
@@ -72,7 +73,7 @@ export default async function handler(req, res) {
         provider: 'slack',
         provider_label: 'Slack',
         auth_type: 'oauth',
-        access_token: tokenData.access_token,
+        access_token: encryptToken(tokenData.access_token),
         extra_config: {
           team_id: tokenData.team?.id,
           team_name: tokenData.team?.name,

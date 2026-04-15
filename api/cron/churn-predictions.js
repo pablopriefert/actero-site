@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { decryptToken } from '../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -25,7 +26,13 @@ export default async function handler(req, res) {
   }
 
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && req.headers.authorization !== `Bearer ${cronSecret}`) {
+  const internalSecret = process.env.INTERNAL_API_SECRET
+  const authHeader = req.headers.authorization || ''
+  const internalHeader = req.headers['x-internal-secret']
+  const authorized =
+    (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
+    (internalSecret && internalHeader === internalSecret)
+  if (!authorized) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
@@ -126,7 +133,9 @@ async function processClient(client) {
     .eq('client_id', client.id)
     .maybeSingle()
 
-  const hasShopify = !!(shopify?.access_token && shopify?.shop_domain)
+  const shopifyAccessToken = decryptToken(shopify?.access_token)
+  const hasShopify = !!(shopifyAccessToken && shopify?.shop_domain)
+  if (hasShopify) shopify.access_token = shopifyAccessToken
 
   // 5. Process per customer
   let analyzed = 0

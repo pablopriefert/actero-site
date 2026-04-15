@@ -2,6 +2,7 @@
  * Notion OAuth — Callback.
  */
 import { createClient } from '@supabase/supabase-js'
+import { encryptToken } from '../../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -56,7 +57,7 @@ export default async function handler(req, res) {
       provider_label: 'Notion',
       auth_type: 'oauth',
       status: 'active',
-      access_token: tokens.access_token,
+      access_token: encryptToken(tokens.access_token),
       extra_config: {
         workspace_name: tokens.workspace_name,
         workspace_icon: tokens.workspace_icon,

@@ -78,10 +78,11 @@ export default async function handler(req, res) {
         return res.status(404).json({ ok: false, message: 'Integration introuvable' });
       }
 
-      // Build credentials object from stored data
+      // Build credentials object from stored data — decrypt tokens in memory only
+      const { decryptToken } = await import('../lib/crypto.js');
       const creds = {
-        api_key: integration.api_key,
-        access_token: integration.access_token,
+        api_key: decryptToken(integration.api_key),
+        access_token: decryptToken(integration.access_token),
         ...(integration.extra_config || {}),
       };
 

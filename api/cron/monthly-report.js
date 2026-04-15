@@ -87,7 +87,8 @@ async function sendEmail(clientId, { to, subject, html, brandName }) {
 
   if (smtp?.extra_config?.smtp_host) {
     try {
-      const smtpConfig = { ...smtp.extra_config, password: smtp.api_key }
+      const { decryptToken } = await import('../lib/crypto.js')
+      const smtpConfig = { ...smtp.extra_config, password: decryptToken(smtp.api_key) }
       await sendViaSMTP(smtpConfig, { to, subject, html, brandName })
       return { provider: 'smtp' }
     } catch (err) {

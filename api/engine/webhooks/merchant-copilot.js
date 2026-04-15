@@ -23,16 +23,29 @@ export default async function handler(req, res) {
   const { client_id, message } = req.body
   if (!client_id || !message) return res.status(400).json({ error: 'client_id and message required' })
 
-  // Auth: engine secret or internal secret
+  // Auth: engine/internal secret (fail-closed on missing env) OR bearer token
+  // with explicit client membership check to prevent IDOR.
   const secret = req.headers['x-engine-secret'] || req.headers['x-internal-secret']
   const ENGINE_SECRET = process.env.ENGINE_WEBHOOK_SECRET
   const INTERNAL_SECRET = process.env.INTERNAL_API_SECRET
-  if (secret !== ENGINE_SECRET && secret !== INTERNAL_SECRET) {
-    // Also accept Authorization bearer for dashboard testing
+  const hasValidServerSecret =
+    (ENGINE_SECRET && secret === ENGINE_SECRET) ||
+    (INTERNAL_SECRET && secret === INTERNAL_SECRET)
+
+  if (!hasValidServerSecret) {
     const token = req.headers.authorization?.replace('Bearer ', '')
     if (!token) return res.status(401).json({ error: 'Non autorise' })
-    const { error } = await supabase.auth.getUser(token)
-    if (error) return res.status(401).json({ error: 'Non autorise' })
+    const { data: { user } = {}, error } = await supabase.auth.getUser(token)
+    if (error || !user) return res.status(401).json({ error: 'Non autorise' })
+
+    // Anti-IDOR: the caller must belong to the requested client
+    const { data: membership } = await supabase
+      .from('client_users')
+      .select('client_id')
+      .eq('user_id', user.id)
+      .eq('client_id', client_id)
+      .maybeSingle()
+    if (!membership) return res.status(403).json({ error: 'Acces refuse' })
   }
 
   try {
@@ -41,8 +54,8 @@ export default async function handler(req, res) {
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
-    const [clientRes, metricsRes, eventsRes, escalationsRes, conversationsRes, engineRes] = await Promise.all([
-      supabase.from('clients').select('brand_name, client_type').eq('id', client_id).single(),
+    const [clientRes, metricsRes, eventsRes, conversationsRes, engineMessagesRes, engineResponsesRes] = await Promise.all([
+      supabase.from('clients').select('brand_name, client_type').eq('id', client_id).maybeSingle(),
       supabase.from('metrics_daily').select('*').eq('client_id', client_id).gte('date', thirtyDaysAgo).order('date', { ascending: false }),
       supabase.from('automation_events').select('event_category, time_saved_seconds, revenue_amount, created_at').eq('client_id', client_id).gte('created_at', sevenDaysAgo),
       supabase.from('ai_conversations').select('status, confidence_score, created_at').eq('client_id', client_id).gte('created_at', thirtyDaysAgo),
@@ -54,8 +67,8 @@ export default async function handler(req, res) {
     const metrics = metricsRes.data || []
     const events = eventsRes.data || []
     const conversations = conversationsRes.data || []
-    const engineMessages = engineRes.data || []
-    const engineResponses = engineRes.data || []
+    const engineMessages = engineMessagesRes.data || []
+    const engineResponses = engineResponsesRes.data || []
 
     // Compute stats
     const totalEvents = events.length

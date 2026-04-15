@@ -74,7 +74,8 @@ export default async function handler(req, res) {
           .maybeSingle()
 
         if (smtp?.extra_config?.smtp_host) {
-          const smtpConfig = { ...smtp.extra_config, password: smtp.api_key }
+          const { decryptToken } = await import('../lib/crypto.js')
+          const smtpConfig = { ...smtp.extra_config, password: decryptToken(smtp.api_key) }
 
           for (const invoice of overdueInvoices) {
             if (!invoice.client_email) continue

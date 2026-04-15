@@ -106,9 +106,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // Optional: verify Vercel cron secret
+  // Require Vercel cron secret or internal secret. If neither is configured
+  // the endpoint refuses to run (fail-closed).
   const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && req.headers.authorization !== `Bearer ${cronSecret}`) {
+  const internalSecret = process.env.INTERNAL_API_SECRET
+  const authHeader = req.headers.authorization || ''
+  const internalHeader = req.headers['x-internal-secret']
+  const authorized =
+    (cronSecret && authHeader === `Bearer ${cronSecret}`) ||
+    (internalSecret && internalHeader === internalSecret)
+  if (!authorized) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 

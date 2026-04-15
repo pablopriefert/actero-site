@@ -3,6 +3,7 @@
  * Exchanges the code for tokens and stores them in client_integrations.
  */
 import { createClient } from '@supabase/supabase-js'
+import { encryptToken } from '../../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -69,8 +70,8 @@ export default async function handler(req, res) {
       provider_label: 'Google Docs',
       auth_type: 'oauth',
       status: 'active',
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token || null,
+      access_token: encryptToken(tokens.access_token),
+      refresh_token: tokens.refresh_token ? encryptToken(tokens.refresh_token) : null,
       expires_at: tokens.expires_in ? new Date(Date.now() + tokens.expires_in * 1000).toISOString() : null,
       extra_config: { email, scopes: tokens.scope },
       connected_at: new Date().toISOString(),

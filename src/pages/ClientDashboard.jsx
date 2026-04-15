@@ -226,9 +226,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           .from("clients")
           .select("id, brand_name, owner_user_id, created_at, client_type")
           .eq("id", link.client_id)
-          .single();
-        if (error && error.code !== "PGRST116") throw error;
-        return { ...data, _userRole: link.role || 'owner' };
+          .maybeSingle();
+        if (error) throw error;
+        return data ? { ...data, _userRole: link.role || 'owner' } : null;
       }
 
       // Fallback: owner_user_id (legacy / owner accounts)
@@ -236,9 +236,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         .from("clients")
         .select("id, brand_name, owner_user_id, created_at, client_type")
         .eq("owner_user_id", session.user.id)
-        .single();
-      if (error && error.code !== "PGRST116") throw error;
-      return { ...data, _userRole: 'owner' };
+        .maybeSingle();
+      if (error) throw error;
+      return data ? { ...data, _userRole: 'owner' } : null;
     },
     enabled: !!supabase,
   });
@@ -308,7 +308,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const { data: dailyMetrics = [], isLoading: dailyMetricsLoading } = useQuery({
     queryKey: ["client-daily-metrics", currentClient?.id],
     queryFn: async () => {
-      const startOfYear = new Date(2026, 0, 1);
+      const startOfYear = new Date(new Date().getFullYear(), 0, 1);
       const { data, error } = await supabase
         .from("metrics_daily")
         .select("*")
@@ -371,23 +371,24 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   });
   const [industryPickerDismissed, setIndustryPickerDismissed] = useState(false);
 
-  // 5c. Setup completion — shared cache with SetupChecklist (same queryKey)
+  // 5c. Setup completion — shared cache with SetupChecklist. Must use the SAME
+  // queryFn as SetupChecklist so the TanStack cache entry is identical (two
+  // different queryFns with the same key would race / overwrite each other).
   const { data: setupCompletion } = useQuery({
     queryKey: ['setup-checklist', currentClient?.id],
     queryFn: async () => {
       const clientId = currentClient.id;
-      const { data: shopify } = await supabase
-        .from('client_shopify_connections')
-        .select('id')
-        .eq('client_id', clientId)
-        .maybeSingle();
-      const { data: smtp } = await supabase
+      const [shopifyRes, wooWebflowRes] = await Promise.all([
+        supabase.from('client_shopify_connections').select('id').eq('client_id', clientId).maybeSingle(),
+        supabase.from('client_integrations').select('id, provider').eq('client_id', clientId).eq('status', 'active').in('provider', ['woocommerce', 'webflow']),
+      ]);
+      const ecommerce = !!shopifyRes.data || ((wooWebflowRes.data || []).length > 0);
+      const { data: emailList } = await supabase
         .from('client_integrations')
-        .select('id')
+        .select('id, provider')
         .eq('client_id', clientId)
-        .eq('provider', 'smtp_imap')
         .eq('status', 'active')
-        .maybeSingle();
+        .in('provider', ['smtp_imap', 'resend']);
       const { data: settings } = await supabase
         .from('client_settings')
         .select('brand_tone, hourly_cost')
@@ -409,8 +410,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         .select('id', { count: 'exact', head: true })
         .eq('client_id', clientId);
       return {
-        shopify: !!shopify,
-        email: !!smtp,
+        shopify: ecommerce,
+        email: (emailList || []).length > 0,
         tone: !!(settings?.brand_tone && settings.brand_tone.trim().length > 0),
         roi: !!(settings?.hourly_cost && Number(settings.hourly_cost) > 0),
         tested: (runsCount || 0) > 0,

@@ -2,6 +2,7 @@
  * Actero Engine — Gorgias Connector
  * Sends AI responses back to Gorgias tickets via their API.
  */
+import { decryptToken } from '../../lib/crypto.js'
 
 /**
  * Reply to a Gorgias ticket.
@@ -20,7 +21,8 @@ export async function sendViaGorgias(supabase, { clientId, ticketId, response, c
     .eq('status', 'active')
     .maybeSingle()
 
-  if (!integration?.access_token) {
+  const accessToken = decryptToken(integration?.access_token)
+  if (!accessToken) {
     return { success: false, error: 'Gorgias integration not active or missing token' }
   }
 
@@ -36,7 +38,7 @@ export async function sendViaGorgias(supabase, { clientId, ticketId, response, c
     const res = await fetch(`${gorgiasUrl}/tickets/${ticketId}/messages`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${integration.access_token}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -64,7 +66,7 @@ export async function sendViaGorgias(supabase, { clientId, ticketId, response, c
     await fetch(`${gorgiasUrl}/tickets/${ticketId}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${integration.access_token}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

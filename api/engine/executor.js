@@ -7,6 +7,7 @@
 
 import { lookupOrder } from './lib/shopify-client.js'
 import { fetchOverdueInvoices, fetchTreasuryBalance } from './connectors/accounting.js'
+import { decryptToken } from '../lib/crypto.js'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'support@actero.fr'
@@ -199,9 +200,10 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
             })
             stepResult.result = { slack_notified: true }
           } else if (slackIntegration?.access_token && slackIntegration?.extra_config?.channel_id) {
+            const slackToken = decryptToken(slackIntegration.access_token)
             await fetch('https://slack.com/api/chat.postMessage', {
               method: 'POST',
-              headers: { 'Authorization': `Bearer ${slackIntegration.access_token}`, 'Content-Type': 'application/json' },
+              headers: { 'Authorization': `Bearer ${slackToken}`, 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 channel: slackIntegration.extra_config.channel_id,
                 text: `*${classification}* — ${normalized.customer_name || normalized.customer_email}: ${normalized.message.substring(0, 200)}`,

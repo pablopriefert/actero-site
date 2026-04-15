@@ -440,7 +440,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           label: d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
           tickets: dayMetrics.reduce((s, m) => s + (Number(m.tickets_total) || 0), 0),
           events: dayEvents.length,
-          revenue: dayMetrics.reduce((s, m) => s + (Number(m.revenue_recovered) || 0), 0),
+          revenue: dayMetrics.reduce((s, m) => s + (Number(m.estimated_roi) || 0), 0),
         });
       }
 
