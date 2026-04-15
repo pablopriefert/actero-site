@@ -68,6 +68,7 @@ export default async function handler(req, res) {
     const { error: upsertErr } = await supabase.from('client_integrations').upsert({
       client_id: clientId,
       provider: 'intercom',
+      provider_label: 'Intercom',
       auth_type: 'oauth',
       status: 'active',
       access_token: tokens.access_token,

@@ -66,6 +66,7 @@ export default async function handler(req, res) {
     const { error: upsertErr } = await supabase.from('client_integrations').upsert({
       client_id: clientId,
       provider: 'google_docs',
+      provider_label: 'Google Docs',
       auth_type: 'oauth',
       status: 'active',
       access_token: tokens.access_token,

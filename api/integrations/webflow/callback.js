@@ -95,6 +95,8 @@ export default async function handler(req, res) {
       .upsert({
         client_id: clientId,
         provider: 'webflow',
+        provider_label: 'Webflow',
+        auth_type: 'oauth',
         status: 'active',
         api_key: accessToken,
         extra_config: {
