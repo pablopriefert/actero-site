@@ -87,63 +87,167 @@ async function fetchGoogleDocContent(accessToken, docId) {
 }
 
 // ─── Notion ────────────────────────────────────────────────
+const NOTION_VERSION = '2022-06-28'
+
+function notionHeaders(accessToken) {
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    'Notion-Version': NOTION_VERSION,
+    'Content-Type': 'application/json',
+  }
+}
+
+function extractPageTitle(page) {
+  if (!page?.properties) return 'Sans titre'
+  // Check all title-typed properties (handles "Name", "Title", "Nom" etc.)
+  for (const prop of Object.values(page.properties)) {
+    if (prop?.type === 'title' && Array.isArray(prop.title) && prop.title.length > 0) {
+      return prop.title.map(t => t.plain_text).join('') || 'Sans titre'
+    }
+  }
+  // Fallback: page.title for some endpoints
+  if (Array.isArray(page.title) && page.title.length > 0) {
+    return page.title.map(t => t.plain_text).join('')
+  }
+  return 'Sans titre'
+}
+
 async function listNotionPages(accessToken) {
-  const res = await fetch('https://api.notion.com/v1/search', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+  // Use POST /search to list ALL pages (and databases) the integration has access to
+  // Notion only returns items explicitly shared with the integration
+  const all = []
+  let cursor = undefined
+  // Cap at 200 pages to avoid runaway
+  for (let i = 0; i < 4; i++) {
+    const body = {
       filter: { property: 'object', value: 'page' },
       page_size: 50,
       sort: { direction: 'descending', timestamp: 'last_edited_time' },
-    }),
-  })
-  if (!res.ok) throw new Error(`Notion: ${res.status}`)
-  const data = await res.json()
-  return (data.results || []).map(p => ({
-    id: p.id,
-    title: p.properties?.title?.title?.[0]?.plain_text
-        || p.properties?.Name?.title?.[0]?.plain_text
-        || 'Sans titre',
-    url: p.url,
-    modified: p.last_edited_time,
-  }))
+    }
+    if (cursor) body.start_cursor = cursor
+
+    const res = await fetch('https://api.notion.com/v1/search', {
+      method: 'POST',
+      headers: notionHeaders(accessToken),
+      body: JSON.stringify(body),
+    })
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '')
+      throw new Error(`Notion search ${res.status}: ${errBody.slice(0, 200)}`)
+    }
+    const data = await res.json()
+    for (const p of data.results || []) {
+      all.push({
+        id: p.id,
+        title: extractPageTitle(p),
+        url: p.url,
+        modified: p.last_edited_time,
+      })
+    }
+    if (!data.has_more || !data.next_cursor) break
+    cursor = data.next_cursor
+  }
+  return all
+}
+
+// Recursively fetch all child blocks (Notion paginates at 100 blocks per call)
+async function fetchAllBlocks(accessToken, parentId, depth = 0) {
+  if (depth > 3) return [] // Safety: limit nesting
+
+  const out = []
+  let cursor = undefined
+  for (let i = 0; i < 10; i++) { // up to 1000 blocks per parent
+    const url = new URL(`https://api.notion.com/v1/blocks/${parentId}/children`)
+    url.searchParams.set('page_size', '100')
+    if (cursor) url.searchParams.set('start_cursor', cursor)
+
+    const res = await fetch(url.toString(), { headers: notionHeaders(accessToken) })
+    if (!res.ok) {
+      // Don't throw — just skip blocks we can't access
+      console.warn(`[notion] blocks ${parentId}: ${res.status}`)
+      break
+    }
+    const data = await res.json()
+    out.push(...(data.results || []))
+    if (!data.has_more) break
+    cursor = data.next_cursor
+  }
+  return out
+}
+
+function blockToText(block) {
+  const t = block?.type
+  if (!t) return ''
+  const node = block[t]
+  if (!node) return ''
+
+  const richToText = (rich) => Array.isArray(rich) ? rich.map(r => r.plain_text || '').join('') : ''
+
+  switch (t) {
+    case 'paragraph':
+    case 'quote':
+    case 'callout':
+      return richToText(node.rich_text)
+    case 'heading_1':
+      return '# ' + richToText(node.rich_text)
+    case 'heading_2':
+      return '## ' + richToText(node.rich_text)
+    case 'heading_3':
+      return '### ' + richToText(node.rich_text)
+    case 'bulleted_list_item':
+      return '- ' + richToText(node.rich_text)
+    case 'numbered_list_item':
+      return '1. ' + richToText(node.rich_text)
+    case 'to_do':
+      return (node.checked ? '[x] ' : '[ ] ') + richToText(node.rich_text)
+    case 'toggle':
+      return richToText(node.rich_text)
+    case 'code':
+      return '```' + (node.language || '') + '\n' + richToText(node.rich_text) + '\n```'
+    case 'divider':
+      return '---'
+    case 'child_page':
+      return `[Sous-page: ${node.title || ''}]`
+    case 'child_database':
+      return `[Base de données: ${node.title || ''}]`
+    case 'bookmark':
+    case 'embed':
+    case 'link_preview':
+      return node.url || ''
+    default:
+      // Fallback for any block with rich_text
+      if (node.rich_text) return richToText(node.rich_text)
+      return ''
+  }
 }
 
 async function fetchNotionPageContent(accessToken, pageId) {
-  // Fetch blocks
-  const blocksRes = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Notion-Version': '2022-06-28',
-    },
-  })
-  if (!blocksRes.ok) throw new Error(`Notion blocks: ${blocksRes.status}`)
-  const { results } = await blocksRes.json()
-
-  const flatten = (blocks) => blocks.map(b => {
-    const t = b.type
-    const rich = b[t]?.rich_text
-    if (rich) return rich.map(r => r.plain_text).join('')
-    return ''
-  }).filter(Boolean).join('\n\n')
-
-  // Fetch page title
+  // Fetch the page itself for the title
   const pageRes = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Notion-Version': '2022-06-28',
-    },
+    headers: notionHeaders(accessToken),
   })
+  if (!pageRes.ok) {
+    const errBody = await pageRes.text().catch(() => '')
+    throw new Error(`Notion page ${pageRes.status}: ${errBody.slice(0, 200)}`)
+  }
   const page = await pageRes.json()
-  const title = page.properties?.title?.title?.[0]?.plain_text
-             || page.properties?.Name?.title?.[0]?.plain_text
-             || 'Sans titre'
+  const title = extractPageTitle(page)
 
-  return { title, content: flatten(results || []) }
+  // Fetch all blocks recursively
+  const allLines = []
+  const collect = async (parentId, depth = 0) => {
+    const blocks = await fetchAllBlocks(accessToken, parentId, depth)
+    for (const block of blocks) {
+      const text = blockToText(block)
+      if (text) allLines.push(text)
+      if (block.has_children && depth < 3) {
+        await collect(block.id, depth + 1)
+      }
+    }
+  }
+  await collect(pageId, 0)
+
+  return { title, content: allLines.join('\n\n') }
 }
 
 // ─── Main handler ──────────────────────────────────────────

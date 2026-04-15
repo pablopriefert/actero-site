@@ -117,12 +117,28 @@ export const KnowledgeImportModal = ({ clientId, provider, onClose, onSuccess })
               <p className="text-xs text-[#71717a] mt-1 max-w-sm mx-auto">{error.message}</p>
             </div>
           ) : documents.length === 0 ? (
-            <div className="py-12 text-center">
+            <div className="py-10 text-center max-w-md mx-auto">
               <FileText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
               <p className="text-sm font-medium text-[#1a1a1a]">Aucun document trouvé</p>
-              <p className="text-xs text-[#71717a] mt-1">
-                Assurez-vous d'avoir accordé l'accès aux bons documents/pages.
-              </p>
+              {provider === 'notion' ? (
+                <div className="text-xs text-[#71717a] mt-3 space-y-2 text-left bg-amber-50 border border-amber-100 rounded-lg p-4">
+                  <p className="font-semibold text-amber-700">Pour voir vos pages Notion ici :</p>
+                  <ol className="list-decimal pl-4 space-y-1 text-amber-700">
+                    <li>Ouvrez la page Notion à importer</li>
+                    <li>Cliquez sur <strong>« •••»</strong> en haut à droite</li>
+                    <li>Sélectionnez <strong>« Connexions »</strong> → <strong>« Actero »</strong></li>
+                    <li>Confirmez l'accès</li>
+                    <li>Revenez ici et rechargez la liste</li>
+                  </ol>
+                  <p className="text-[10px] text-amber-600 mt-2 italic">
+                    Notion ne partage que les pages explicitement connectées à l'intégration.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-[#71717a] mt-1">
+                  Assurez-vous d'avoir accordé l'accès aux bons documents.
+                </p>
+              )}
             </div>
           ) : (
             <>
