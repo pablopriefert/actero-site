@@ -742,21 +742,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#fafafa] text-[#1a1a1a]">
-      {shouldShowIndustryPicker && (
-        <IndustryPicker
-          clientId={currentClient.id}
-          onClose={() => {
-            setIndustryPickerDismissed(true);
-            refetchIndustryPreset();
-          }}
-          onApplied={() => {
-            setIndustryPickerDismissed(true);
-            refetchIndustryPreset();
-            queryClient.invalidateQueries({ queryKey: ['setup-checklist', currentClient.id] });
-            queryClient.invalidateQueries({ queryKey: ['industry-preset-applied', currentClient.id] });
-          }}
-        />
-      )}
+      {/* IndustryPicker disabled — was conflicting with the animated guide tour */}
       {/* Mobile Header */}
       <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 ${isLight ? "bg-white border-b border-gray-200" : "bg-white border-b border-gray-100"}`}>
         <div className="flex items-center gap-2">
