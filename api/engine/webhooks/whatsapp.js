@@ -301,12 +301,19 @@ async function handleInboundMessage({ clientId, account, integration, value, mes
         const decryptedToken = account.access_token_encrypted
           ? decryptToken(account.access_token_encrypted)
           : account.access_token
-        await sendWhatsAppMessage({
-          phoneNumberId: account.phone_number_id,
-          accessToken: decryptedToken,
-          to: message.from,
-          text: adminResponse.reply,
-        })
+        const sendResult = await sendWhatsAppMessage(
+          {
+            phone_number_id: account.phone_number_id,
+            access_token_decrypted: decryptedToken,
+          },
+          {
+            to: message.from,
+            body: adminResponse.reply,
+          },
+        )
+        if (!sendResult?.success) {
+          console.error('[whatsapp-webhook] admin reply Meta error:', sendResult?.error, sendResult?.errorCode, sendResult?.hint)
+        }
         // Log outbound (schema: customer_phone, message_type, body, status)
         await supabase.from('whatsapp_messages').insert({
           client_id: clientId,
@@ -315,7 +322,9 @@ async function handleInboundMessage({ clientId, account, integration, value, mes
           customer_phone: message.from,
           message_type: 'text',
           body: adminResponse.reply,
-          status: 'sent',
+          status: sendResult?.success ? 'sent' : 'failed',
+          error: sendResult?.success ? null : (sendResult?.error || 'unknown'),
+          wa_message_id: sendResult?.wa_message_id || null,
         })
       } catch (err) {
         console.error('[whatsapp-webhook] admin reply failed:', err.message)
