@@ -77,20 +77,23 @@ export function formatPeriodFR(period) {
 
 async function getTicketsStats(supabase, clientId, { period = 'week' } = {}) {
   const { start, end } = periodToDateRange(period)
+  // Real schema: automation_events.event_category = 'ticket_resolved' (auto)
+  // or 'ticket_escalated' (manuel). No handled_by column.
   const [totalRes, autoRes, escalatedRes] = await Promise.all([
     supabase.from('automation_events').select('id', { count: 'exact', head: true })
-      .eq('client_id', clientId).gte('created_at', start).lte('created_at', end),
+      .eq('client_id', clientId).gte('created_at', start).lte('created_at', end)
+      .in('event_category', ['ticket_resolved', 'ticket_escalated']),
     supabase.from('automation_events').select('id', { count: 'exact', head: true })
       .eq('client_id', clientId).gte('created_at', start).lte('created_at', end)
-      .eq('handled_by', 'ai'),
-    supabase.from('ai_conversations').select('id', { count: 'exact', head: true })
+      .eq('event_category', 'ticket_resolved'),
+    supabase.from('automation_events').select('id', { count: 'exact', head: true })
       .eq('client_id', clientId).gte('created_at', start).lte('created_at', end)
-      .eq('status', 'escalated'),
+      .eq('event_category', 'ticket_escalated'),
   ])
   const total = totalRes.count || 0
   const auto = autoRes.count || 0
-  const manual = Math.max(total - auto, 0)
   const escalated = escalatedRes.count || 0
+  const manual = escalated // tickets escalated = traités manuellement par l'humain
   return {
     period: formatPeriodFR(period),
     total,
@@ -123,10 +126,10 @@ async function getPendingEscalations(supabase, clientId) {
 
 async function getTimeSavedAndSavings(supabase, clientId, { period = 'month' } = {}) {
   const { start, end } = periodToDateRange(period)
-  // Automation events handled by AI → each = ~3 min saved @ ~0.35€/ticket human cost
+  // Auto-resolved tickets → each = ~3 min saved @ ~0.35€/ticket human cost
   const { count } = await supabase.from('automation_events').select('id', { count: 'exact', head: true })
     .eq('client_id', clientId).gte('created_at', start).lte('created_at', end)
-    .eq('handled_by', 'ai')
+    .eq('event_category', 'ticket_resolved')
   const autoTickets = count || 0
   const hoursSaved = Math.round((autoTickets * 3) / 60 * 10) / 10
   const euroSaved = Math.round(autoTickets * 0.35)

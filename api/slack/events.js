@@ -149,6 +149,7 @@ async function processEvent(payload) {
 
   // Ignore messages from bots (including ourselves) to avoid loops
   if (event.bot_id || event.subtype === 'bot_message') return
+  if (event.app_id && event.app_id === payload.api_app_id) return // our own message echo
 
   // Resolve tenant from team_id
   const team = await resolveTeam(teamId)
@@ -156,6 +157,9 @@ async function processEvent(payload) {
     console.warn(`[slack/events] no active Slack integration for team_id=${teamId}`)
     return
   }
+
+  // Ignore messages sent BY our bot user (belt & suspenders vs loops)
+  if (team.botUserId && event.user === team.botUserId) return
 
   // Extract the user's question — strip bot mention
   const rawText = event.text || ''
