@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
   if (authError || !user) return res.status(401).json({ error: 'Non autorise.' });
 
-  const { client_id, target_plan, billing_period = 'monthly' } = req.body || {};
+  const { client_id, target_plan, billing_period = 'monthly', promo_code } = req.body || {};
 
   if (!client_id || !target_plan) {
     return res.status(400).json({ error: 'Missing client_id or target_plan' });
@@ -213,13 +213,38 @@ export default async function handler(req, res) {
       upgrade_from: currentPlan,
       upgrade_to: target_plan,
       ...(referrerCode ? { referral_code: referrerCode } : {}),
+      ...(promo_code ? { promo_code } : {}),
     };
+
+    // Resolve the user's promo code to a Stripe promotion_code id (for Checkout discount)
+    // Handles the Actero for Startups flow (-50% 6 months) as well as any other
+    // active promotion code the user passes in the URL (?promo=XXX).
+    let resolvedDiscounts;
+    if (promo_code) {
+      try {
+        const promoList = await stripe.promotionCodes.list({
+          code: promo_code,
+          active: true,
+          limit: 1,
+        });
+        if (promoList.data.length > 0) {
+          resolvedDiscounts = [{ promotion_code: promoList.data[0].id }];
+        }
+      } catch (e) {
+        console.warn('[billing/upgrade] could not resolve promo code', promo_code, e.message);
+      }
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: stripeCustomerId,
       line_items: [{ price: priceId, quantity: 1 }],
       ...(Object.keys(subscriptionData).length > 0 ? { subscription_data: subscriptionData } : {}),
+      // If we resolved the promo code, apply it automatically — otherwise let
+      // Stripe Checkout show the manual promotion code input field.
+      ...(resolvedDiscounts
+        ? { discounts: resolvedDiscounts }
+        : { allow_promotion_codes: true }),
       metadata: sessionMetadata,
       // Collect billing info
       billing_address_collection: 'required',

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Gift, Loader2 } from "lucide-react";
+import { Check, Gift, Loader2, Rocket, Sparkles } from "lucide-react";
 import { Logo } from "../components/layout/Logo";
 import { PLANS, PLAN_ORDER } from "../lib/plans";
 import { SEO } from "../components/SEO";
@@ -14,15 +14,25 @@ const PLAN_HIGHLIGHTS = {
 };
 
 export const PlanSelectionPage = ({ onNavigate }) => {
-  // Show "1 month free" only if ?referral_code= is explicitly in the URL.
-  // (Cookie fallback is too unreliable — it can persist from old sessions
-  //  or be set by other flows, falsely showing the promo.)
-  const isReferred = useMemo(() => {
-    return !!new URLSearchParams(window.location.search).get("referral_code");
-  }, []);
+  // URL params — multiple promo mechanics :
+  //   ?referral_code=XXX  → client-to-client referral (30 days free)
+  //   ?promo=ACTERO-STARTUP-XXX  → Actero for Startups (-50% pendant 6 mois)
+  const urlParams = useMemo(
+    () => new URLSearchParams(window.location.search),
+    [],
+  );
+  const isReferred = !!urlParams.get("referral_code");
+  const promoCode = urlParams.get("promo") || null;
+  const isStartupPromo = !!promoCode && promoCode.toUpperCase().startsWith("ACTERO-STARTUP-");
 
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
+
+  // Apply Startup discount (-50% first 6 months) for display
+  const applyStartupDiscount = (monthlyPrice) => {
+    if (!isStartupPromo || monthlyPrice == null || monthlyPrice === 0) return null;
+    return Math.round(monthlyPrice * 0.5 * 100) / 100;
+  };
 
   const handleSelect = async (planId) => {
     if (loading) return;
@@ -72,6 +82,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           client_id: link.client_id,
           target_plan: planId,
           billing_period: "monthly",
+          promo_code: promoCode || undefined,
         }),
       });
 
@@ -116,14 +127,27 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           className="text-center px-4 mb-10"
         >
           <h1 className="text-[#262626] text-2xl md:text-3xl font-bold tracking-tight">
-            Choisissez votre plan
+            {isStartupPromo
+              ? "Bienvenue dans Actero for Startups"
+              : "Choisissez votre plan"}
           </h1>
           <p className="text-[#716D5C] text-sm mt-2 max-w-md mx-auto">
-            {isReferred
-              ? "Grâce à votre parrain, bénéficiez de 30 jours gratuits sur n'importe quel plan payant."
-              : "Commencez gratuitement ou démarrez un essai de 7 jours sur nos plans payants."}
+            {isStartupPromo
+              ? "Votre code Startup est actif — -50% pendant 6 mois, sur Starter ou Pro."
+              : isReferred
+                ? "Grâce à votre parrain, bénéficiez de 30 jours gratuits sur n'importe quel plan payant."
+                : "Commencez gratuitement ou démarrez un essai de 7 jours sur nos plans payants."}
           </p>
-          {isReferred && (
+          {isStartupPromo && (
+            <div className="inline-flex flex-col items-center gap-2 mt-5">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0F5F35] to-[#003725] rounded-full shadow-sm">
+                <Rocket className="w-4 h-4 text-white" />
+                <span className="text-xs font-bold text-white tracking-wide uppercase">Code startup actif · -50% / 6 mois</span>
+              </div>
+              <span className="text-[11px] text-[#9ca3af] font-mono">{promoCode}</span>
+            </div>
+          )}
+          {isReferred && !isStartupPromo && (
             <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
               <Gift className="w-4 h-4 text-emerald-600" />
               <span className="text-xs font-semibold text-emerald-700">Votre premier mois est offert</span>
@@ -139,11 +163,17 @@ export const PlanSelectionPage = ({ onNavigate }) => {
               const isPopular = plan.popular;
               const highlights = PLAN_HIGHLIGHTS[planId] || [];
 
+              // Pricing display — with startup discount if applicable
+              const discountedPrice = applyStartupDiscount(plan.price.monthly);
+              const hasDiscount = discountedPrice !== null && (planId === "starter" || planId === "pro");
+
               let priceLabel;
               if (plan.price.monthly === null) {
                 priceLabel = "Sur devis";
               } else if (plan.price.monthly === 0) {
                 priceLabel = "Gratuit";
+              } else if (hasDiscount) {
+                priceLabel = `${discountedPrice}\u20AC/mois`;
               } else {
                 priceLabel = `${plan.price.monthly}\u20AC/mois`;
               }
@@ -156,6 +186,9 @@ export const PlanSelectionPage = ({ onNavigate }) => {
               } else if (planId === "enterprise") {
                 ctaLabel = "Contacter l\u2019\u00E9quipe";
                 ctaStyle = "bg-[#F9F7F1] text-[#262626] border border-gray-200 hover:bg-gray-100";
+              } else if (isStartupPromo) {
+                ctaLabel = "Activer mon plan -50%";
+                ctaStyle = "bg-[#0F5F35] text-white hover:bg-[#003725]";
               } else {
                 ctaLabel = isReferred ? "30 jours gratuits" : "Essai gratuit 7 jours";
                 ctaStyle = isPopular
@@ -185,7 +218,18 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                   </div>
 
                   <div className="mb-5">
+                    {hasDiscount && (
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-gray-400 text-base line-through">{plan.price.monthly}€/mois</span>
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-[#0F5F35]/10 text-[#0F5F35] px-1.5 py-0.5 rounded">
+                          <Sparkles className="w-2.5 h-2.5" /> -50%
+                        </span>
+                      </div>
+                    )}
                     <span className="text-[#262626] text-2xl font-bold">{priceLabel}</span>
+                    {hasDiscount && (
+                      <div className="text-[11px] text-[#0F5F35] font-semibold mt-1">pendant 6 mois, puis {plan.price.monthly}€/mois</div>
+                    )}
                   </div>
 
                   <ul className="space-y-2.5 mb-6">
