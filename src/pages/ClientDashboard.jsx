@@ -68,6 +68,7 @@ import { AutomationHubView } from '../components/client/AutomationHubView'
 import { AgentControlCenterView } from '../components/client/AgentControlCenterView'
 import { ChannelsHubView } from '../components/client/ChannelsHubView'
 import { EmailAgentView } from '../components/client/EmailAgentView'
+import { ProactiveEngineView } from '../components/client/ProactiveEngineView'
 import { OpportunitiesView } from '../components/client/OpportunitiesView'
 import { InsightsHubView } from '../components/client/InsightsHubView'
 import { SettingsHubView } from '../components/client/SettingsHubView'
@@ -194,6 +195,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/alerts") return "alerts";
     if (route === "/client/channels") return "channels";
     if (route === "/client/email-agent") return "email-agent";
+    if (route === "/client/proactive") return "proactive";
     if (route === "/client/opportunities") return "opportunities";
     if (route === "/client/insights") return "insights";
     if (route === "/client/settings") return "settings";
@@ -681,6 +683,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     },
     { id: 'activity', label: 'Activité de l\'agent', icon: Activity },
     { id: 'alerts', label: 'Alertes', icon: Bell },
+    { id: 'proactive', label: 'Support Proactif', icon: Shield, badge: 'Nouveau', badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
 
     // AGENT IA — configuration du cerveau
     { type: 'section', label: 'Agent IA' },
@@ -832,6 +835,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "integrations" && "Intégrations"}
             {activeTab === "channels" && "Canaux"}
             {activeTab === "email-agent" && "Agent Email"}
+            {activeTab === "proactive" && "Support Proactif"}
             {activeTab === "agent-config" && "Configuration"}
             {activeTab === "simulator" && "Tester mon agent"}
             {activeTab === "team" && "Équipe"}
@@ -1407,6 +1411,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "email-agent" && (
             <EmailAgentView clientId={currentClient?.id} />
+          )}
+
+          {activeTab === "proactive" && (
+            <ProactiveEngineView clientId={currentClient?.id} />
           )}
 
           {activeTab === "opportunities" && (
