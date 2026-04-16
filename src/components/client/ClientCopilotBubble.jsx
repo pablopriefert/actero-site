@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Send, Loader2, Sparkles, ArrowUp, Volume2, Square } from 'lucide-react'
+import { MessageCircle, X, Send, Loader2, Sparkles, ArrowUp } from 'lucide-react'
+import { useTTS } from '../../hooks/useTTS'
+import { TTSButton } from '../ui/TTSButton'
 
 const QUICK_QUESTIONS = [
   "Comment fonctionne le SAV automatique ?",
@@ -17,55 +19,12 @@ export const ClientCopilotBubble = ({ clientId, theme = 'dark' }) => {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [playingIdx, setPlayingIdx] = useState(null)
-  const [loadingAudio, setLoadingAudio] = useState(null)
-  const audioRef = useRef(null)
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
   const isLight = theme === 'light'
 
-  const playMessage = async (text, idx) => {
-    // Stop if already playing
-    if (playingIdx === idx) {
-      audioRef.current?.pause()
-      audioRef.current = null
-      setPlayingIdx(null)
-      return
-    }
-
-    // Stop any current playback
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current = null
-    }
-
-    setLoadingAudio(idx)
-    try {
-      const res = await fetch('/api/text-to-speech', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      })
-      if (!res.ok) throw new Error('TTS error')
-
-      const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const audio = new Audio(url)
-      audioRef.current = audio
-
-      audio.onended = () => {
-        setPlayingIdx(null)
-        audioRef.current = null
-        URL.revokeObjectURL(url)
-      }
-
-      audio.play()
-      setPlayingIdx(idx)
-    } catch {
-      // Silent fail — button just won't play
-    }
-    setLoadingAudio(null)
-  }
+  // Shared TTS state — single source of playback for all assistant messages.
+  const tts = useTTS()
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -225,27 +184,15 @@ export const ClientCopilotBubble = ({ clientId, theme = 'dark' }) => {
                     </div>
                     {/* Voice button for assistant messages */}
                     {msg.role === 'assistant' && (
-                      <button
-                        onClick={() => playMessage(msg.content, i)}
-                        disabled={loadingAudio === i}
-                        className={`mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
-                          playingIdx === i
-                            ? 'bg-violet-500/20 border-violet-500/30 text-violet-400'
-                            : loadingAudio === i
-                              ? 'bg-violet-500/10 border-violet-500/20 text-violet-400'
-                              : isLight
-                                ? 'bg-white border-gray-200 text-[#71717a] hover:bg-violet-50 hover:border-violet-300 hover:text-violet-600 shadow-sm'
-                                : 'bg-gray-50 border-gray-200 text-[#71717a] hover:bg-violet-500/10 hover:border-violet-500/20 hover:text-violet-400'
-                        }`}
-                      >
-                        {loadingAudio === i ? (
-                          <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Chargement...</>
-                        ) : playingIdx === i ? (
-                          <><Square className="w-3.5 h-3.5" /> Arrêter</>
-                        ) : (
-                          <><Volume2 className="w-3.5 h-3.5" /> Écouter la réponse</>
-                        )}
-                      </button>
+                      <div className="mt-2">
+                        <TTSButton
+                          text={msg.content}
+                          id={`copilot-msg-${i}`}
+                          tts={tts}
+                          size="sm"
+                          label="Écouter la réponse"
+                        />
+                      </div>
                     )}
                   </div>
                 </motion.div>

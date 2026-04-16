@@ -71,7 +71,7 @@ export default async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return res.status(401).json({ error: 'Non autorise.' });
 
-  const { conversation_id, response, add_to_kb } = req.body || {};
+  const { conversation_id, response, add_to_kb, audio_url } = req.body || {};
   if (!conversation_id || !response) {
     return res.status(400).json({ error: 'Missing conversation_id or response' });
   }
@@ -118,10 +118,32 @@ export default async function handler(req, res) {
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;').replace(/\n/g, '<br>');
 
+      // Audio block — only inserted if the reply was synthesized and uploaded.
+      // Gmail/Outlook strip <audio> tags, so we render a styled "play" card
+      // with a direct link (works everywhere).
+      const audioBlock = audio_url
+        ? `
+          <div style="margin:20px 0;padding:16px 18px;background:#f9f7f1;border:1px solid #e5e5e5;border-radius:12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <span style="display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;background:#0F5F35;border-radius:50%;color:#fff;font-size:14px;">🎙</span>
+              <strong style="color:#262626;font-size:14px;">Message vocal de ${brandName}</strong>
+            </div>
+            <p style="margin:0 0 10px 0;color:#666;font-size:13px;line-height:1.5;">
+              Nous avons aussi enregistré une réponse audio pour vous.
+            </p>
+            <a href="${audio_url}" style="display:inline-block;padding:8px 14px;background:#0F5F35;color:#fff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600;">
+              ▶ Écouter la réponse
+            </a>
+            <audio controls style="display:block;width:100%;margin-top:10px;" src="${audio_url}"></audio>
+          </div>
+        `
+        : '';
+
       const html = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 560px; margin: 0 auto; padding: 20px;">
           <p style="color: #262626; font-size: 15px; line-height: 1.6;">${conversation.customer_name ? `Bonjour ${conversation.customer_name},` : 'Bonjour,'}</p>
           <p style="color: #262626; font-size: 15px; line-height: 1.6;">${escapedResponse}</p>
+          ${audioBlock}
           <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;" />
           <p style="color: #999; font-size: 12px;">${brandName} — Service client</p>
         </div>
@@ -139,12 +161,16 @@ export default async function handler(req, res) {
       emailResult = { sent: false, error: 'SMTP non configure. Connectez votre email dans Integrations.' };
     }
 
-    // 4. Update conversation (always)
-    await supabase.from('ai_conversations').update({
+    // 4. Update conversation (always) — include audio_url in metadata when provided
+    const updatePayload = {
       human_response: response,
       human_responded_at: new Date().toISOString(),
       status: 'resolved',
-    }).eq('id', conversation_id);
+    };
+    if (audio_url) {
+      updatePayload.human_response_audio_url = audio_url;
+    }
+    await supabase.from('ai_conversations').update(updatePayload).eq('id', conversation_id);
 
     // 5. Add to KB if requested
     if (add_to_kb) {
