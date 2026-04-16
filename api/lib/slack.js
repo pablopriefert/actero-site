@@ -18,10 +18,23 @@ import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
 import { decryptToken } from './crypto.js'
 
-export const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-)
+// Lazy init — avoid throwing at module-load if env is missing
+let _supabaseAdmin = null
+function getSupabase() {
+  if (_supabaseAdmin) return _supabaseAdmin
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) {
+    throw new Error(`Supabase env missing: url=${!!url}, key=${!!key}`)
+  }
+  _supabaseAdmin = createClient(url, key)
+  return _supabaseAdmin
+}
+export const supabaseAdmin = new Proxy({}, {
+  get(_target, prop) {
+    return getSupabase()[prop]
+  },
+})
 
 /* -------------------------------------------------------------------------- */
 /*  Raw body reader — required because Slack signs the raw bytes.             */
