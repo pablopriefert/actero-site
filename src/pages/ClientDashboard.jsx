@@ -68,7 +68,8 @@ import { AutomationHubView } from '../components/client/AutomationHubView'
 import { AgentControlCenterView } from '../components/client/AgentControlCenterView'
 import { ChannelsHubView } from '../components/client/ChannelsHubView'
 import { EmailAgentView } from '../components/client/EmailAgentView'
-import { ProactiveEngineView } from '../components/client/ProactiveEngineView'
+// ProactiveEngineView — temporairement retiré de l'UI, réactivable plus tard
+// import { ProactiveEngineView } from '../components/client/ProactiveEngineView'
 import { OpportunitiesView } from '../components/client/OpportunitiesView'
 import { InsightsHubView } from '../components/client/InsightsHubView'
 import { SettingsHubView } from '../components/client/SettingsHubView'
@@ -192,10 +193,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     // New unified routes (Notion-style nav — octobre 2026 refonte)
     if (route === "/client/automation") return "automation";
     if (route === "/client/agent-control") return "agent-control";
-    if (route === "/client/alerts") return "alerts";
+    // if (route === "/client/alerts") return "alerts"; // retiré — sera remis plus tard
     if (route === "/client/channels") return "channels";
     if (route === "/client/email-agent") return "email-agent";
-    if (route === "/client/proactive") return "proactive";
     if (route === "/client/opportunities") return "opportunities";
     if (route === "/client/insights") return "insights";
     if (route === "/client/settings") return "settings";
@@ -672,8 +672,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       badge: 'CORE',
     },
 
-    // GÉRER — opérations quotidiennes
-    { type: 'section', label: 'Gérer' },
+    // QUOTIDIEN — accès rapide 2 items top-level
+    { type: 'section', label: 'Quotidien' },
     {
       id: 'escalations',
       label: 'À traiter',
@@ -681,30 +681,50 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       badge: urgentEscalationCount > 0 ? urgentEscalationCount : null,
       badgeColor: 'bg-red-100 text-red-600',
     },
-    { id: 'activity', label: 'Activité de l\'agent', icon: Activity },
-    { id: 'alerts', label: 'Alertes', icon: Bell },
-    { id: 'proactive', label: 'Support Proactif', icon: Shield, badge: 'Nouveau', badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
+    { id: 'activity', label: 'Activité', icon: Activity },
 
-    // AGENT IA — configuration du cerveau
-    { type: 'section', label: 'Agent IA' },
-    { id: 'agent-control', label: 'Centre de contrôle', icon: Bot, dataTour: 'agent-section' },
-    { id: 'agent-config', label: 'Configuration', icon: Settings },
-    { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
-    { id: 'guardrails', label: 'Règles métier', icon: Shield },
-    { id: 'simulator', label: 'Tester mon agent', icon: FlaskConical, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+    // AGENT IA — collapsed dropdown (5 items)
+    {
+      type: 'expandable',
+      label: 'Agent IA',
+      icon: Bot,
+      dataTour: 'agent-section',
+      defaultOpen: false,
+      children: [
+        { id: 'agent-control', label: 'Centre de contrôle', icon: Bot },
+        { id: 'agent-config', label: 'Configuration', icon: Settings },
+        { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
+        { id: 'guardrails', label: 'Règles métier', icon: Shield },
+        { id: 'simulator', label: 'Tester mon agent', icon: FlaskConical, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+      ],
+    },
 
-    // CONNEXIONS — intégrations + canaux
-    { type: 'section', label: 'Connexions' },
-    { id: 'integrations', label: 'Intégrations', icon: Plug },
-    { id: 'channels', label: 'Canaux', icon: Radio },
-    { id: 'email-agent', label: 'Agent Email', icon: Mail },
+    // CONNEXIONS — collapsed dropdown (3 items)
+    {
+      type: 'expandable',
+      label: 'Connexions',
+      icon: Plug,
+      defaultOpen: false,
+      children: [
+        { id: 'integrations', label: 'Intégrations', icon: Plug },
+        { id: 'channels', label: 'Canaux', icon: Radio },
+        { id: 'email-agent', label: 'Agent Email', icon: Mail },
+      ],
+    },
 
-    // CROISSANCE — business & insights
-    { type: 'section', label: 'Croissance' },
-    { id: 'opportunities', label: 'Opportunités', icon: Target },
-    { id: 'insights', label: 'Insights', icon: BarChart3 },
+    // CROISSANCE — collapsed dropdown (2 items)
+    {
+      type: 'expandable',
+      label: 'Croissance',
+      icon: TrendingUp,
+      defaultOpen: false,
+      children: [
+        { id: 'opportunities', label: 'Opportunités', icon: Target },
+        { id: 'insights', label: 'Insights', icon: BarChart3 },
+      ],
+    },
 
-    // SYSTÈME — paramètres globaux (hub unique)
+    // SYSTÈME — 1 item top-level suffit
     { type: 'section', label: 'Système' },
     { id: 'settings', label: 'Paramètres', icon: Cog },
   ];
@@ -826,7 +846,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "overview" && "Vue d'ensemble"}
             {activeTab === "automation" && "Automatisation"}
             {activeTab === "activity" && "Activité de l'agent"}
-            {activeTab === "alerts" && "Alertes"}
+            {/* {activeTab === "alerts" && "Alertes"} — retiré temporairement */}
             {activeTab === "agent-control" && "Centre de contrôle"}
             {activeTab === "knowledge" && "Base de connaissances"}
             {activeTab === "support" && "Centre d'aide"}
@@ -835,7 +855,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "integrations" && "Intégrations"}
             {activeTab === "channels" && "Canaux"}
             {activeTab === "email-agent" && "Agent Email"}
-            {activeTab === "proactive" && "Support Proactif"}
             {activeTab === "agent-config" && "Configuration"}
             {activeTab === "simulator" && "Tester mon agent"}
             {activeTab === "team" && "Équipe"}
@@ -1401,9 +1420,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <AgentControlCenterView clientId={currentClient?.id} onNavigate={setActiveTab} />
           )}
 
-          {activeTab === "alerts" && (
-            <NotificationCenterView clientId={currentClient?.id} theme={theme} />
-          )}
+          {/* Alerts view — temporairement retiré */}
 
           {activeTab === "channels" && (
             <ChannelsHubView clientId={currentClient?.id} onNavigate={setActiveTab} />
@@ -1411,10 +1428,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "email-agent" && (
             <EmailAgentView clientId={currentClient?.id} />
-          )}
-
-          {activeTab === "proactive" && (
-            <ProactiveEngineView clientId={currentClient?.id} />
           )}
 
           {activeTab === "opportunities" && (
