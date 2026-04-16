@@ -147,6 +147,10 @@ async function processEvent(payload) {
     return
   }
 
+  // Ignore edit / delete / system events — they're not real user questions
+  if (event.subtype === 'message_changed' || event.subtype === 'message_deleted') return
+  if (event.subtype === 'assistant_app_thread') return // Slack Assistant thread bootstrap
+
   // Ignore messages from bots (including ourselves) to avoid loops
   if (event.bot_id || event.subtype === 'bot_message') return
   if (event.app_id && event.app_id === payload.api_app_id) return // our own message echo
@@ -210,11 +214,13 @@ async function processEvent(payload) {
     reply = `Désolé, erreur côté IA: ${err.message.slice(0, 120)}`
   }
 
-  // Post the reply (threaded if from mention, direct if DM)
+  // Post the reply. Always respect the event's thread_ts — Slack's new
+  // "Assistant Apps" UX creates a dedicated thread per question, even in DMs,
+  // so we must reply IN that thread (not as a new root message).
   await postSlackMessage({
     token: team.botToken,
     channel: event.channel,
-    thread_ts: isMention ? (event.thread_ts || event.ts) : undefined,
+    thread_ts: event.thread_ts || (isMention ? event.ts : undefined),
     text: reply.slice(0, 300), // fallback for notifications
     blocks: formatAsBlocks(reply),
   })
