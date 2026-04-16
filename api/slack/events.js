@@ -45,9 +45,24 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Cannot read body' })
   }
 
+  // DEBUG: log every incoming POST (temp — remove once debugged)
+  supabaseAdmin.from('slack_debug_logs').insert({
+    stage: 'received',
+    payload: {
+      body_len: rawBody.length,
+      body_preview: rawBody.toString('utf8').slice(0, 500),
+      has_signature: !!req.headers['x-slack-signature'],
+      has_timestamp: !!req.headers['x-slack-request-timestamp'],
+    },
+  }).then(() => {}).catch(() => {})
+
   const timestamp = req.headers['x-slack-request-timestamp']
   const signature = req.headers['x-slack-signature']
   if (!verifySlackSignature(rawBody, timestamp, signature)) {
+    supabaseAdmin.from('slack_debug_logs').insert({
+      stage: 'signature_rejected',
+      error: 'Invalid signature',
+    }).then(() => {}).catch(() => {})
     return res.status(401).json({ error: 'Invalid signature' })
   }
 
@@ -87,10 +102,22 @@ async function processEvent(payload) {
   const event = payload.event || {}
   const teamId = payload.team_id
 
+  // DEBUG log
+  supabaseAdmin.from('slack_debug_logs').insert({
+    stage: 'process_event_start',
+    payload: { event_type: event.type, channel_type: event.channel_type, team_id: teamId, has_text: !!event.text },
+  }).then(() => {}).catch(() => {})
+
   // Only handle app_mention and direct message events
   const isMention = event.type === 'app_mention'
   const isDM = event.type === 'message' && event.channel_type === 'im'
-  if (!isMention && !isDM) return
+  if (!isMention && !isDM) {
+    supabaseAdmin.from('slack_debug_logs').insert({
+      stage: 'event_type_skipped',
+      payload: { event_type: event.type, channel_type: event.channel_type },
+    }).then(() => {}).catch(() => {})
+    return
+  }
 
   // Ignore messages from bots (including ourselves) to avoid loops
   if (event.bot_id || event.subtype === 'bot_message') return
