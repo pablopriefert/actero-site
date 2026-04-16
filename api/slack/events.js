@@ -32,6 +32,15 @@ import { askCopilot } from '../lib/kpi-tools.js'
 export const config = { api: { bodyParser: false } }
 
 export default async function handler(req, res) {
+  try {
+    return await mainHandler(req, res)
+  } catch (err) {
+    console.error('[slack/events] TOP-LEVEL crash:', err?.stack || err?.message || err)
+    return res.status(200).json({ ok: true, debug_err: err?.message || String(err) })
+  }
+}
+
+async function mainHandler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
