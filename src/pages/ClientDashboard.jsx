@@ -38,6 +38,7 @@ import {
   Radio,
   Target,
   Cog,
+  Mail,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { Logo } from '../components/layout/Logo'
@@ -693,6 +694,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { type: 'section', label: 'Connexions' },
     { id: 'integrations', label: 'Intégrations', icon: Plug },
     { id: 'channels', label: 'Canaux', icon: Radio },
+    { id: 'email-agent', label: 'Agent Email', icon: Mail },
 
     // CROISSANCE — business & insights
     { type: 'section', label: 'Croissance' },

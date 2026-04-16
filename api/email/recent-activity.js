@@ -34,23 +34,31 @@ export default async function handler(req, res) {
 
   const limit = Math.min(parseInt(req.query?.limit || '10', 10) || 10, 50)
 
-  // Recent email conversations (inbound emails)
+  // Only REAL emails — exclude widget/chatbot synthetic addresses like
+  // widget-actero_xxx@anonymous.actero.fr or *@anonymous.actero.fr in general.
+  const REAL_EMAIL_PATTERN = '%@anonymous.actero.fr'
+
+  // Recent inbound emails (real mail addresses only)
   const { data: recent } = await supabase
     .from('ai_conversations')
     .select('id, customer_email, customer_name, subject, status, escalation_reason, ai_response, human_response, created_at, human_responded_at')
     .eq('client_id', clientId)
+    .not('customer_email', 'ilike', REAL_EMAIL_PATTERN)
     .order('created_at', { ascending: false })
     .limit(limit)
 
-  // Weekly stats
+  // Weekly stats — same filter (real emails only)
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString()
   const [{ count: total }, { count: auto }, { count: escalated }] = await Promise.all([
     supabase.from('ai_conversations').select('id', { count: 'exact', head: true })
-      .eq('client_id', clientId).gte('created_at', weekAgo),
+      .eq('client_id', clientId).gte('created_at', weekAgo)
+      .not('customer_email', 'ilike', REAL_EMAIL_PATTERN),
     supabase.from('ai_conversations').select('id', { count: 'exact', head: true })
-      .eq('client_id', clientId).gte('created_at', weekAgo).eq('status', 'resolved'),
+      .eq('client_id', clientId).gte('created_at', weekAgo).eq('status', 'resolved')
+      .not('customer_email', 'ilike', REAL_EMAIL_PATTERN),
     supabase.from('ai_conversations').select('id', { count: 'exact', head: true })
-      .eq('client_id', clientId).gte('created_at', weekAgo).eq('status', 'escalated'),
+      .eq('client_id', clientId).gte('created_at', weekAgo).eq('status', 'escalated')
+      .not('customer_email', 'ilike', REAL_EMAIL_PATTERN),
   ])
 
   return res.status(200).json({
