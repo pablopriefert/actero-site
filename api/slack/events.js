@@ -55,23 +55,27 @@ async function mainHandler(req, res) {
   }
 
   // DEBUG: log every incoming POST (temp — remove once debugged)
-  await supabaseAdmin.from('slack_debug_logs').insert({
-    stage: 'received',
-    payload: {
-      body_len: rawBody.length,
-      body_preview: rawBody.toString('utf8').slice(0, 500),
-      has_signature: !!req.headers['x-slack-signature'],
-      has_timestamp: !!req.headers['x-slack-request-timestamp'],
-    },
-  }).catch(() => {})
+  try {
+    await supabaseAdmin.from('slack_debug_logs').insert({
+      stage: 'received',
+      payload: {
+        body_len: rawBody.length,
+        body_preview: rawBody.toString('utf8').slice(0, 500),
+        has_signature: !!req.headers['x-slack-signature'],
+        has_timestamp: !!req.headers['x-slack-request-timestamp'],
+      },
+    })
+  } catch { /* noop */ }
 
   const timestamp = req.headers['x-slack-request-timestamp']
   const signature = req.headers['x-slack-signature']
   if (!verifySlackSignature(rawBody, timestamp, signature)) {
-    await supabaseAdmin.from('slack_debug_logs').insert({
-      stage: 'signature_rejected',
-      error: 'Invalid signature',
-    }).catch(() => {})
+    try {
+      await supabaseAdmin.from('slack_debug_logs').insert({
+        stage: 'signature_rejected',
+        error: 'Invalid signature',
+      })
+    } catch { /* noop */ }
     return res.status(401).json({ error: 'Invalid signature' })
   }
 
@@ -112,19 +116,23 @@ async function processEvent(payload) {
   const teamId = payload.team_id
 
   // DEBUG log
-  await supabaseAdmin.from('slack_debug_logs').insert({
-    stage: 'process_event_start',
-    payload: { event_type: event.type, channel_type: event.channel_type, team_id: teamId, has_text: !!event.text },
-  }).catch(() => {})
+  try {
+    await supabaseAdmin.from('slack_debug_logs').insert({
+      stage: 'process_event_start',
+      payload: { event_type: event.type, channel_type: event.channel_type, team_id: teamId, has_text: !!event.text },
+    })
+  } catch { /* noop */ }
 
   // Only handle app_mention and direct message events
   const isMention = event.type === 'app_mention'
   const isDM = event.type === 'message' && event.channel_type === 'im'
   if (!isMention && !isDM) {
-    await supabaseAdmin.from('slack_debug_logs').insert({
-      stage: 'event_type_skipped',
-      payload: { event_type: event.type, channel_type: event.channel_type },
-    }).catch(() => {})
+    try {
+      await supabaseAdmin.from('slack_debug_logs').insert({
+        stage: 'event_type_skipped',
+        payload: { event_type: event.type, channel_type: event.channel_type },
+      })
+    } catch { /* noop */ }
     return
   }
 
@@ -163,11 +171,13 @@ async function processEvent(payload) {
       console.log(`[slack/events] duplicate event ${eventId}, skipping`)
       return
     }
-    await supabaseAdmin.from('slack_events_seen').insert({
-      event_id: eventId,
-      team_id: teamId,
-      client_id: team.clientId,
-    }).catch(() => { /* ignore race */ })
+    try {
+      await supabaseAdmin.from('slack_events_seen').insert({
+        event_id: eventId,
+        team_id: teamId,
+        client_id: team.clientId,
+      })
+    } catch { /* ignore race */ }
   }
 
   // Ask Claude Copilot with KPI tools
