@@ -226,9 +226,39 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
           </button>
         </div>
 
-        {pollNow.isSuccess && pollNow.data?.processed !== undefined && (
-          <div className="w-full mt-2 text-[11px] text-emerald-700 font-medium">
-            ✓ Relève terminée — {pollNow.data.processed} nouvel{pollNow.data.processed > 1 ? 's' : ''} email{pollNow.data.processed > 1 ? 's' : ''} traité{pollNow.data.processed > 1 ? 's' : ''}
+        {pollNow.isSuccess && (
+          <div className="w-full mt-2 space-y-1.5">
+            <div className="text-[11px] text-emerald-700 font-medium">
+              ✓ Relève terminée — {pollNow.data.processed} nouvel{pollNow.data.processed > 1 ? 's' : ''} email{pollNow.data.processed > 1 ? 's' : ''} traité{pollNow.data.processed > 1 ? 's' : ''}
+            </div>
+            {pollNow.data.diagnostics && (
+              <details className="text-[11px] bg-zinc-50 rounded-md p-2 border border-[#f0f0f0]">
+                <summary className="cursor-pointer font-semibold text-[#71717a]">
+                  Diagnostics IMAP — {pollNow.data.diagnostics.mailbox_total} emails dans INBOX, {pollNow.data.diagnostics.unread_count} non-lus
+                </summary>
+                <div className="mt-2 space-y-1">
+                  <div className="text-[#71717a]">5 derniers emails reçus :</div>
+                  {pollNow.data.diagnostics.last_5?.length > 0 ? (
+                    <ul className="space-y-1">
+                      {pollNow.data.diagnostics.last_5.map((m) => (
+                        <li key={m.uid} className="flex items-start gap-1.5">
+                          <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${m.unread ? 'bg-emerald-500' : 'bg-zinc-300'}`} title={m.unread ? 'Non-lu' : 'Déjà lu'} />
+                          <span className="text-[#1a1a1a]">
+                            <span className="font-mono text-[10px]">{m.from}</span> · <span className="italic">{m.subject || '(sans objet)'}</span>
+                            {!m.unread && <span className="text-[#9ca3af] ml-1">(déjà lu, ignoré)</span>}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="text-[#9ca3af] italic">Aucun email dans INBOX</div>
+                  )}
+                  <div className="text-[10px] text-[#9ca3af] mt-2 pt-2 border-t border-[#f0f0f0]">
+                    💡 Actero ne lit que les emails <strong>non-lus</strong> (point vert). Si vous ouvrez votre webmail, les emails passent en "lu" et sont ignorés. Envoyez un nouveau test sans ouvrir votre webmail.
+                  </div>
+                </div>
+              </details>
+            )}
           </div>
         )}
         {pollNow.isError && (

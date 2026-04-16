@@ -79,12 +79,38 @@ export default async function handler(req, res) {
 
   let processed = 0
   let errorMsg = null
+  const diagnostics = { connected: false, mailbox_total: 0, unread_count: 0, last_5: [] }
   try {
     await client.connect()
-    await client.mailboxOpen('INBOX')
+    diagnostics.connected = true
+    const mb = await client.mailboxOpen('INBOX')
+    diagnostics.mailbox_total = mb?.exists || 0
 
-    const uids = await client.search({ seen: false })
-    const slice = (uids || []).slice(0, MAX_MESSAGES_PER_CYCLE)
+    // Search BOTH modes: unread (for normal processing) AND recent (for diagnostics)
+    const unreadUids = await client.search({ seen: false })
+    diagnostics.unread_count = (unreadUids || []).length
+
+    // Diagnostics — fetch last 5 envelopes regardless of read status
+    // so we can tell the user what IMAP actually sees
+    try {
+      const total = mb?.exists || 0
+      if (total > 0) {
+        const from = Math.max(1, total - 4)
+        for await (const msg of client.fetch(`${from}:${total}`, { envelope: true })) {
+          const env = msg.envelope || {}
+          const fromObj = env.from?.[0] || {}
+          diagnostics.last_5.push({
+            uid: msg.uid,
+            date: env.date,
+            from: fromObj.address,
+            subject: (env.subject || '').slice(0, 80),
+            unread: (unreadUids || []).includes(msg.uid),
+          })
+        }
+      }
+    } catch { /* diag is best-effort */ }
+
+    const slice = (unreadUids || []).slice(0, MAX_MESSAGES_PER_CYCLE)
 
     for await (const msg of client.fetch(slice, { envelope: true, source: true })) {
       try {
@@ -137,8 +163,8 @@ export default async function handler(req, res) {
     try { await client.logout() } catch { /* noop */ }
   }
 
-  if (errorMsg) return res.status(500).json({ error: errorMsg })
-  return res.status(200).json({ ok: true, processed })
+  if (errorMsg) return res.status(500).json({ error: errorMsg, diagnostics })
+  return res.status(200).json({ ok: true, processed, diagnostics })
 }
 
 function extractPlainText(raw) {
