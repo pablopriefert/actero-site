@@ -10,8 +10,17 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-5'
+
+// Lazy init — avoid throwing at module-load if env is missing
+let _anthropic = null
+function getAnthropic() {
+  if (_anthropic) return _anthropic
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error('ANTHROPIC_API_KEY missing')
+  _anthropic = new Anthropic({ apiKey })
+  return _anthropic
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Period helpers                                                            */
@@ -410,7 +419,7 @@ export async function askCopilot(supabase, {
 
   let loop = 0
   while (loop++ < maxLoops) {
-    const resp = await anthropic.messages.create({
+    const resp = await getAnthropic().messages.create({
       model: MODEL,
       max_tokens: 1024,
       system,
