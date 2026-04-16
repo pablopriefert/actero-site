@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Mail, Clock, CheckCircle2, AlertTriangle, Loader2, Save, Plus, X, Moon,
   Volume2, Power, Shield, Sparkles, ChevronRight, Settings as SettingsIcon,
+  RefreshCw,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
@@ -121,11 +122,13 @@ export const EmailAgentView = ({ clientId }) => {
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up space-y-6">
       <StatusHero
+        clientId={clientId}
         settings={settings}
         activity={activity}
         integration={integration}
         onToggle={(v) => updateMutation.mutate({ email_agent_enabled: v })}
         toggling={updateMutation.isPending}
+        queryClient={queryClient}
       />
       <AutoReplyConfig settings={settings} onUpdate={(patch) => updateMutation.mutate(patch)} saving={updateMutation.isPending} />
       <RecentActivity activity={activity} />
@@ -137,13 +140,29 @@ export const EmailAgentView = ({ clientId }) => {
 /*  Status Hero                                                                */
 /* -------------------------------------------------------------------------- */
 
-function StatusHero({ settings, activity, integration, onToggle, toggling }) {
+function StatusHero({ clientId, settings, activity, integration, onToggle, toggling, queryClient }) {
   const enabled = settings?.email_agent_enabled
   const lastPoll = settings?.email_last_polled_at
   const mailbox = integration?.extra_config?.email || integration?.extra_config?.username || '—'
   const week = activity?.week || { total: 0, auto: 0, escalated: 0, auto_rate: 0 }
 
   const minsAgo = lastPoll ? Math.floor((Date.now() - new Date(lastPoll).getTime()) / 60000) : null
+
+  const pollNow = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/email/poll-now', {
+        method: 'POST',
+        headers: await authHeaders(),
+        body: JSON.stringify({ client_id: clientId }),
+      })
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Erreur')
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email-activity', clientId] })
+      queryClient.invalidateQueries({ queryKey: ['email-agent-settings', clientId] })
+    },
+  })
 
   return (
     <motion.div
@@ -178,18 +197,45 @@ function StatusHero({ settings, activity, integration, onToggle, toggling }) {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => onToggle(!enabled)}
-          disabled={toggling}
-          className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-semibold transition-all disabled:opacity-50 ${
-            enabled
-              ? 'bg-white border border-[#f0f0f0] text-[#71717a] hover:bg-zinc-50'
-              : 'bg-[#0F5F35] text-white hover:bg-[#003725]'
-          }`}
-        >
-          <Power className="w-3.5 h-3.5" />
-          {enabled ? 'Mettre en pause' : 'Activer l\'agent'}
-        </button>
+        <div className="flex items-center gap-2">
+          {enabled && (
+            <button
+              onClick={() => pollNow.mutate()}
+              disabled={pollNow.isPending}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-semibold bg-white border border-[#f0f0f0] text-[#71717a] hover:bg-zinc-50 transition-all disabled:opacity-50"
+              title="Relever la boîte mail maintenant"
+            >
+              {pollNow.isPending ? (
+                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Relève en cours…</>
+              ) : (
+                <><RefreshCw className="w-3.5 h-3.5" /> Relever maintenant</>
+              )}
+            </button>
+          )}
+          <button
+            onClick={() => onToggle(!enabled)}
+            disabled={toggling}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-semibold transition-all disabled:opacity-50 ${
+              enabled
+                ? 'bg-white border border-[#f0f0f0] text-[#71717a] hover:bg-zinc-50'
+                : 'bg-[#0F5F35] text-white hover:bg-[#003725]'
+            }`}
+          >
+            <Power className="w-3.5 h-3.5" />
+            {enabled ? 'Mettre en pause' : 'Activer l\'agent'}
+          </button>
+        </div>
+
+        {pollNow.isSuccess && pollNow.data?.processed !== undefined && (
+          <div className="w-full mt-2 text-[11px] text-emerald-700 font-medium">
+            ✓ Relève terminée — {pollNow.data.processed} nouvel{pollNow.data.processed > 1 ? 's' : ''} email{pollNow.data.processed > 1 ? 's' : ''} traité{pollNow.data.processed > 1 ? 's' : ''}
+          </div>
+        )}
+        {pollNow.isError && (
+          <div className="w-full mt-2 text-[11px] text-red-700 font-medium">
+            ✗ {pollNow.error?.message || 'Erreur'}
+          </div>
+        )}
       </div>
 
       {/* Weekly stats */}
