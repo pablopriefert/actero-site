@@ -89,8 +89,8 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
         </div>
         <div className="max-w-lg mx-auto py-8">
           <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center mx-auto mb-5">
-              <MonitorSmartphone className="w-7 h-7 text-teal-600" />
+            <div className="w-16 h-16 rounded-full bg-[#E8F5EC] border border-[#A8C490] flex items-center justify-center mx-auto mb-5">
+              <MonitorSmartphone className="w-7 h-7 text-[#1F3A12]" />
             </div>
             <h3 className="text-[20px] font-semibold text-[#1a1a1a] mb-2">
               Portail SAV self-service
@@ -100,7 +100,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
             </p>
             <button
               onClick={onUpgrade}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0F5F35] text-white text-[14px] font-semibold hover:bg-[#0d5430] transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1F3A12] text-white text-[14px] font-semibold hover:bg-[#162C0D] transition-colors shadow-sm"
             >
               Passer au plan Starter
             </button>
@@ -182,13 +182,13 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
 
   // ── Sharing snippets ─────────────────────────────────────────
   const snippetLink = url
-    ? `<a href="${url}" style="color:#0F766E;font-weight:600;">Suivre ma commande et gérer mon SAV →</a>`
+    ? `<a href="${url}" style="color:#1F3A12;font-weight:600;">Suivre ma commande et gérer mon SAV →</a>`
     : ''
   const snippetFooter = url
-    ? `<div style="padding:16px;background:#f8f8f8;border-radius:8px;text-align:center;">\n  <p style="margin:0 0 8px;font-size:14px;">Besoin d'aide ?</p>\n  <a href="${url}" style="color:#000;font-weight:600;">Accéder à mon espace SAV</a>\n</div>`
+    ? `<div style="padding:16px;background:#f8f8f8;border-radius:8px;text-align:center;">\n  <p style="margin:0 0 8px;font-size:14px;">Besoin d'aide ?</p>\n  <a href="${url}" style="color:#1F3A12;font-weight:600;">Accéder à mon espace SAV</a>\n</div>`
     : ''
   const snippetButton = url
-    ? `<a href="${url}" style="position:fixed;bottom:24px;right:24px;background:#000;color:#fff;padding:14px 20px;border-radius:999px;text-decoration:none;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;">💬 Mon SAV</a>`
+    ? `<a href="${url}" style="position:fixed;bottom:24px;right:24px;background:#1F3A12;color:#fff;padding:14px 20px;border-radius:999px;text-decoration:none;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;">💬 Mon SAV</a>`
     : ''
 
   return (
@@ -209,7 +209,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
         {url ? (
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2 px-4 py-2.5 bg-[#f8f8f8] border border-[#e8e8e8] rounded-full text-[13px] font-mono text-[#1a1a1a] flex-1 min-w-0 truncate">
-              <MonitorSmartphone className="w-4 h-4 text-teal-600 flex-shrink-0" />
+              <MonitorSmartphone className="w-4 h-4 text-[#1F3A12] flex-shrink-0" />
               <span className="truncate">{url}</span>
             </div>
             <CopyButton text={url} />
@@ -218,7 +218,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-[#1F3A12] bg-[#E8F5EC] border border-[#A8C490] hover:bg-[#d4edda] transition-colors"
               >
                 <ExternalLink className="w-3 h-3" />
                 Voir le portail
@@ -246,7 +246,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
             {toggleLoading ? (
               <Loader2 className="w-8 h-8 animate-spin text-[#9ca3af]" />
             ) : portalEnabled ? (
-              <ToggleRight className="w-10 h-10 text-teal-600" />
+              <ToggleRight className="w-10 h-10 text-[#1F3A12]" />
             ) : (
               <ToggleLeft className="w-10 h-10 text-[#d4d4d4]" />
             )}
@@ -255,7 +255,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
 
         {/* Green confirmation */}
         {justEnabled && portalEnabled && (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[13px] text-emerald-700 font-medium">
+          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#E8F5EC] border border-[#A8C490] text-[13px] text-[#1F3A12] font-medium">
             <CheckCheck className="w-4 h-4" />
             Portail activé ! Vos clients peuvent maintenant y accéder.
           </div>
@@ -321,7 +321,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
             )}
             <button
               onClick={() => onNavigate ? onNavigate('portal-branding') : (window.location.href = '/client/portal-branding')}
-              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#1a1a1a] text-white text-[13px] font-semibold hover:bg-[#333] transition-colors"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#1F3A12] text-white text-[13px] font-semibold hover:bg-[#162C0D] transition-colors"
             >
               <Palette className="w-4 h-4" />
               Personnaliser mon portail (logo, couleur, nom)

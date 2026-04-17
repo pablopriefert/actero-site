@@ -212,7 +212,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
                 onChange={(e) => setDisplayName(e.target.value.slice(0, 60))}
                 maxLength={60}
                 placeholder="Ex: Horace · Service client"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] text-[#1a1a1a] placeholder:text-[#c0c0c0] focus:outline-none focus:ring-2 focus:ring-[#0F5F35]/20 focus:border-[#0F5F35] transition-colors"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] text-[#1a1a1a] placeholder:text-[#c0c0c0] focus:outline-none focus:ring-2 focus:ring-[#1F3A12]/20 focus:border-[#1F3A12] transition-colors"
               />
               <p className="text-[11px] text-[#9ca3af] mt-1.5 flex justify-between">
                 <span>Affiché sous "pour tes commandes chez…" sur la page de connexion.</span>
@@ -230,7 +230,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
                 value={logoUrl}
                 onChange={(e) => setLogoUrl(e.target.value)}
                 placeholder="https://cdn.exemple.com/logo.png"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] text-[#1a1a1a] placeholder:text-[#c0c0c0] focus:outline-none focus:ring-2 focus:ring-[#0F5F35]/20 focus:border-[#0F5F35] transition-colors"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] text-[#1a1a1a] placeholder:text-[#c0c0c0] focus:outline-none focus:ring-2 focus:ring-[#1F3A12]/20 focus:border-[#1F3A12] transition-colors"
               />
               <p className="text-[11px] text-[#9ca3af] mt-1.5">
                 PNG ou SVG, max 180px de large. Tu peux l'héberger sur ton CDN ou utiliser imgur.
@@ -252,7 +252,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
                   }}
                   placeholder="#0F5F35"
                   maxLength={7}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] text-[#1a1a1a] font-mono placeholder:text-[#c0c0c0] focus:outline-none focus:ring-2 focus:ring-[#0F5F35]/20 focus:border-[#0F5F35] transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] text-[#1a1a1a] font-mono placeholder:text-[#c0c0c0] focus:outline-none focus:ring-2 focus:ring-[#1F3A12]/20 focus:border-[#1F3A12] transition-colors"
                 />
                 <input
                   type="color"
@@ -274,7 +274,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
               <button
                 onClick={handleSave}
                 disabled={saveMutation.isPending}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0F5F35] text-white text-[14px] font-semibold hover:bg-[#0d5430] disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
+                className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#1F3A12] text-white text-[14px] font-semibold hover:bg-[#162C0D] disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
               >
                 {saveMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
