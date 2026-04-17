@@ -48,7 +48,8 @@ export default function PortalLoginPage() {
         className="w-full border border-neutral-300 rounded-lg px-3 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-neutral-400" placeholder="paul@example.com" />
       {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
       <button type="submit" disabled={busy}
-        className="w-full bg-black text-white rounded-lg py-3 font-semibold disabled:opacity-50 hover:bg-neutral-800 transition">
+        style={{ backgroundColor: 'var(--portal-primary, #000)' }}
+        className="w-full text-white rounded-lg py-3 font-semibold disabled:opacity-50 hover:opacity-90 transition">
         {busy ? 'Envoi…' : 'Recevoir mon lien de connexion'}
       </button>
     </form>

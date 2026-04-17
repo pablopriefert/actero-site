@@ -35,7 +35,9 @@ export default function PortalTicketDetailPage({ ticketId, navigate }) {
       <form onSubmit={send}>
         <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={4}
           className="w-full border rounded p-3 mb-3" placeholder="Ta réponse…" />
-        <button disabled={busy || !reply.trim()} className="bg-black text-white px-4 py-2 rounded-lg font-medium disabled:opacity-50 hover:bg-neutral-800 transition">
+        <button disabled={busy || !reply.trim()}
+          style={{ backgroundColor: 'var(--portal-primary, #000)' }}
+          className="text-white px-4 py-2 rounded-lg font-medium disabled:opacity-50 hover:opacity-90 transition">
           Envoyer
         </button>
       </form>
