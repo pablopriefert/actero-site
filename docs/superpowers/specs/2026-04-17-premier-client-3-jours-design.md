@@ -46,6 +46,16 @@ Déclinaisons possibles :
 
 Mécanisme : coupon Stripe `POC_PRO_199` valable à vie, désactivé manuellement après la 5e activation.
 
+**IDs Stripe (créés le 2026-04-17)** :
+- Promo code : `POC2026`
+- Promo ID : `promo_1TNHH347SpUR9TmowEDZt626`
+- Usage max : 5 (limite publique), désactivation manuelle après la 5e activation si le produit reste en ligne
+
+**Tracking Notion** :
+- Page principale : https://www.notion.so/3459d4e022dd8152af38de9553688c7f
+- Database "Leads Tracker" : https://www.notion.so/bd19faa4232a4581b5cc96a0a3652102
+- Data source ID : `4a372718-3f2d-4142-acc8-427fe236d00a`
+
 ## Architecture — qui fait quoi, quand
 
 ### Jour 0 (setup + sourcing) — 2–3h effort humain
