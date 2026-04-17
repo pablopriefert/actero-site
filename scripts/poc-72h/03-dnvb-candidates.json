@@ -1,0 +1,538 @@
+[
+  {
+    "apollo_id": "5e59d6fb867d3c0001352ef5",
+    "name": "TEMPURA",
+    "domain": "tempuramag.com",
+    "revenue": null,
+    "website": "http://www.tempuramag.com",
+    "linkedin": "http://www.linkedin.com/company/tempuramagazine"
+  },
+  {
+    "apollo_id": "5c1f0c89a3ae6158c5dde220",
+    "name": "VITALMED",
+    "domain": "vitalmed-shop.com",
+    "revenue": null,
+    "website": "http://www.vitalmed-shop.com",
+    "linkedin": "http://www.linkedin.com/company/vitalmed-derma"
+  },
+  {
+    "apollo_id": "5a9de0daa6da98d966418ff9",
+    "name": "Kelbongoo",
+    "domain": "kelbongoo.com",
+    "revenue": "3.3M",
+    "website": "http://www.kelbongoo.com",
+    "linkedin": "http://www.linkedin.com/company/kelbongoo"
+  },
+  {
+    "apollo_id": "5da38a5bdabf880001b35b31",
+    "name": "Les Secrets de Loly",
+    "domain": "secretsdeloly.com",
+    "revenue": null,
+    "website": "http://www.secretsdeloly.com",
+    "linkedin": "http://www.linkedin.com/company/les-secrets-de-loly"
+  },
+  {
+    "apollo_id": "5fc9beb9fe528000014a552a",
+    "name": "Krème",
+    "domain": "kreme-paris.com",
+    "revenue": null,
+    "website": "http://www.kreme-paris.com",
+    "linkedin": "http://www.linkedin.com/company/kr-me"
+  },
+  {
+    "apollo_id": "54a12a9869702d9313493c02",
+    "name": "Nina Ricci",
+    "domain": "ninaricci.com",
+    "revenue": null,
+    "website": "http://www.ninaricci.com",
+    "linkedin": "http://www.linkedin.com/company/nina-ricci"
+  },
+  {
+    "apollo_id": "556d12997369641284597e00",
+    "name": "Talika",
+    "domain": "talika.fr",
+    "revenue": "3.7M",
+    "website": "http://www.talika.fr",
+    "linkedin": "http://www.linkedin.com/company/talika"
+  },
+  {
+    "apollo_id": "5c27c16680f93e431d65d1d7",
+    "name": "Loom",
+    "domain": "loom.fr",
+    "revenue": null,
+    "website": "http://www.loom.fr",
+    "linkedin": "http://www.linkedin.com/company/loom-fr"
+  },
+  {
+    "apollo_id": "5dd3cc501f48d600988eac5d",
+    "name": "Angell Mobility",
+    "domain": "angellmobility.com",
+    "revenue": null,
+    "website": "http://www.angellmobility.com",
+    "linkedin": "http://www.linkedin.com/company/angellmobility"
+  },
+  {
+    "apollo_id": "5c240507f65125e350094be9",
+    "name": "Les Petits Prödiges",
+    "domain": "lespetitsprodiges.com",
+    "revenue": null,
+    "website": "http://www.lespetitsprodiges.com",
+    "linkedin": "http://www.linkedin.com/company/les-petits-pr%c3%b6diges"
+  },
+  {
+    "apollo_id": "5f4aa310470789000147799c",
+    "name": "Zèta",
+    "domain": "zeta-shoes.com",
+    "revenue": null,
+    "website": "http://www.zeta-shoes.com",
+    "linkedin": "http://www.linkedin.com/company/z%c3%a8ta"
+  },
+  {
+    "apollo_id": "5a9dcd0ba6da98d9466fc931",
+    "name": "JOONE Paris",
+    "domain": "joone.fr",
+    "revenue": null,
+    "website": "http://www.joone.fr",
+    "linkedin": "http://www.linkedin.com/company/joone"
+  },
+  {
+    "apollo_id": "5a9f763ea6da98d938bdb051",
+    "name": "Horse Pilot",
+    "domain": "horsepilot.com",
+    "revenue": "5M",
+    "website": "http://www.horsepilot.com",
+    "linkedin": "http://www.linkedin.com/company/horse-pilot"
+  },
+  {
+    "apollo_id": "57c4c15da6da9836ba3de703",
+    "name": "Merci Handy",
+    "domain": "mercihandy.com",
+    "revenue": "550K",
+    "website": "http://www.mercihandy.com",
+    "linkedin": "http://www.linkedin.com/company/merci-handy"
+  },
+  {
+    "apollo_id": "57c4f196a6da986a87fbfd97",
+    "name": "NUOO",
+    "domain": "nuoobox.com",
+    "revenue": null,
+    "website": "http://www.nuoobox.com",
+    "linkedin": "http://www.linkedin.com/company/nuoo"
+  },
+  {
+    "apollo_id": "5a9d4243a6da98d9a157ac5c",
+    "name": "La vie est Belt",
+    "domain": "lavieestbelt.fr",
+    "revenue": null,
+    "website": "http://www.lavieestbelt.fr",
+    "linkedin": "http://www.linkedin.com/company/la-vie-est-belt"
+  },
+  {
+    "apollo_id": "5ed1eb8467c3170001db6697",
+    "name": "Endro Cosmetiques",
+    "domain": "endro-cosmetiques.com",
+    "revenue": null,
+    "website": "http://www.endro-cosmetiques.com",
+    "linkedin": "http://www.linkedin.com/company/endro-cosmetiques"
+  },
+  {
+    "apollo_id": "5da331c8db06ce0001fbb6f8",
+    "name": "Evoluderm",
+    "domain": "evoluderm.com",
+    "revenue": "439K",
+    "website": "http://www.evoluderm.com",
+    "linkedin": "http://www.linkedin.com/company/evoluderm"
+  },
+  {
+    "apollo_id": "5f4169550a9c6c000157d09c",
+    "name": "AIME",
+    "domain": "aime.co",
+    "revenue": null,
+    "website": "http://www.aime.co",
+    "linkedin": "http://www.linkedin.com/company/aime-skincare"
+  },
+  {
+    "apollo_id": "5da4436b0f33d600019878c8",
+    "name": "Umaï",
+    "domain": "umai-natural.fr",
+    "revenue": null,
+    "website": "http://www.umai-natural.fr",
+    "linkedin": "http://www.linkedin.com/company/umai-natural"
+  },
+  {
+    "apollo_id": "56dca573f3e5bb35fb0013db",
+    "name": "Oé",
+    "domain": "oeforgood.com",
+    "revenue": null,
+    "website": "http://www.oeforgood.com",
+    "linkedin": "http://www.linkedin.com/company/oeforgood"
+  },
+  {
+    "apollo_id": "57c49c8ba6da983210c30351",
+    "name": "Atelier Tuffery",
+    "domain": "ateliertuffery.com",
+    "revenue": null,
+    "website": "http://www.ateliertuffery.com",
+    "linkedin": "http://www.linkedin.com/company/atelier-tuffery"
+  },
+  {
+    "apollo_id": "5ca7b57c103396095f1c0479",
+    "name": "Seasonly",
+    "domain": "seasonly.fr",
+    "revenue": null,
+    "website": "http://www.seasonly.fr",
+    "linkedin": "http://www.linkedin.com/company/seasonly"
+  },
+  {
+    "apollo_id": "60b2bd14aec6d900017fafab",
+    "name": "Grand Seiko Europe",
+    "domain": "grand-seiko.com",
+    "revenue": null,
+    "website": "http://www.grand-seiko.com",
+    "linkedin": "http://www.linkedin.com/company/grand-seiko-europe"
+  },
+  {
+    "apollo_id": "5e57984bc3f55c00010d1fa4",
+    "name": "Lazartigue Paris",
+    "domain": "lazartigue.com",
+    "revenue": "17M",
+    "website": "http://www.lazartigue.com",
+    "linkedin": "http://www.linkedin.com/company/lazartigue-paris"
+  },
+  {
+    "apollo_id": "5f3edd3d6561ff0001503aa9",
+    "name": "TRAINSWEATEAT",
+    "domain": "trainsweateat.com",
+    "revenue": null,
+    "website": "http://www.trainsweateat.com",
+    "linkedin": "http://www.linkedin.com/company/trainsweateat"
+  },
+  {
+    "apollo_id": "56d3848cf3e5bb2279004825",
+    "name": "The Socialite Family",
+    "domain": "thesocialitefamily.com",
+    "revenue": "262K",
+    "website": "http://www.thesocialitefamily.com",
+    "linkedin": "http://www.linkedin.com/company/the-socialite-family"
+  },
+  {
+    "apollo_id": "5defcd1738d4fc00d43154e8",
+    "name": "Circle Sportswear",
+    "domain": "circlesportswear.com",
+    "revenue": null,
+    "website": "http://www.circlesportswear.com",
+    "linkedin": "http://www.linkedin.com/company/circlesporstwear"
+  },
+  {
+    "apollo_id": "54a1391369702d2d7f052800",
+    "name": "Good Goût (part of H&H Group)",
+    "domain": "goodgout.fr",
+    "revenue": null,
+    "website": "http://www.goodgout.fr",
+    "linkedin": "http://www.linkedin.com/company/good-go-t"
+  },
+  {
+    "apollo_id": "54a1205869702d97c17e6b02",
+    "name": "Bonnegueule",
+    "domain": "bonnegueule.fr",
+    "revenue": null,
+    "website": "http://www.bonnegueule.fr",
+    "linkedin": "http://www.linkedin.com/company/bonne-gueule"
+  },
+  {
+    "apollo_id": "5e57b236b1d5f80001ecb41d",
+    "name": "RAIDLIGHT",
+    "domain": "raidlight.com",
+    "revenue": "5.8M",
+    "website": "http://www.raidlight.com",
+    "linkedin": "http://www.linkedin.com/company/raidlight-sas-"
+  },
+  {
+    "apollo_id": "5c27652ca3ae61869c7549bb",
+    "name": "Payote",
+    "domain": "payote.fr",
+    "revenue": null,
+    "website": "http://www.payote.fr",
+    "linkedin": "http://www.linkedin.com/company/payote"
+  },
+  {
+    "apollo_id": "5fc82a964bfc1a0001c20bb7",
+    "name": "Naali",
+    "domain": "naali.fr",
+    "revenue": null,
+    "website": "http://www.naali.fr",
+    "linkedin": "http://www.linkedin.com/company/naali"
+  },
+  {
+    "apollo_id": "5d097910f65125f23fb6c317",
+    "name": "Le Petit Olivier",
+    "domain": "lepetitolivier.fr",
+    "revenue": null,
+    "website": "http://www.lepetitolivier.fr",
+    "linkedin": "http://www.linkedin.com/company/laphoc%c3%a9ennedecosm%c3%a9tique"
+  },
+  {
+    "apollo_id": "5e55a1ebb1f06d0001973abb",
+    "name": "Amina Muaddi",
+    "domain": "aminamuaddi.com",
+    "revenue": null,
+    "website": "http://www.aminamuaddi.com",
+    "linkedin": "http://www.linkedin.com/company/amina-muaddi"
+  },
+  {
+    "apollo_id": "5dd69faef1028000f086089a",
+    "name": "La bouche rouge, Paris",
+    "domain": "laboucherougeparis.com",
+    "revenue": null,
+    "website": "http://www.laboucherougeparis.com",
+    "linkedin": "http://www.linkedin.com/company/la-bouche-rouge-paris"
+  },
+  {
+    "apollo_id": "5e562934b0b5190001a525c6",
+    "name": "Aventure bio",
+    "domain": "aventure.bio",
+    "revenue": null,
+    "website": "http://www.aventure.bio",
+    "linkedin": "http://www.linkedin.com/company/aventure-bio"
+  },
+  {
+    "apollo_id": "5fb77c8a2df99d008c06cc43",
+    "name": "CAPS ME",
+    "domain": "capsme.fr",
+    "revenue": null,
+    "website": "http://www.capsme.fr",
+    "linkedin": "http://www.linkedin.com/company/caps-me"
+  },
+  {
+    "apollo_id": "54a11c2869702d918ce77f00",
+    "name": "L'AVANT GARDISTE",
+    "domain": "lavantgardiste.com",
+    "revenue": null,
+    "website": "http://www.lavantgardiste.com",
+    "linkedin": "http://www.linkedin.com/company/l'avant-gardiste"
+  },
+  {
+    "apollo_id": "60ffc1b484509700013a99d1",
+    "name": "FRENCH BLOOM",
+    "domain": "frenchbloom.com",
+    "revenue": null,
+    "website": "http://www.frenchbloom.com",
+    "linkedin": "http://www.linkedin.com/company/french-bloom"
+  },
+  {
+    "apollo_id": "56d381caf3e5bb228900012e",
+    "name": "Le chocolat des Français",
+    "domain": "lechocolatdesfrancais.fr",
+    "revenue": null,
+    "website": "http://www.lechocolatdesfrancais.fr",
+    "linkedin": "http://www.linkedin.com/company/le-chocolat-des-fran%c3%a7ais"
+  },
+  {
+    "apollo_id": "6329df4855c2b800cb4bd47f",
+    "name": "Musc Intime",
+    "domain": "muscintime.fr",
+    "revenue": null,
+    "website": "http://www.muscintime.fr",
+    "linkedin": "http://www.linkedin.com/company/musc-intime"
+  },
+  {
+    "apollo_id": "5e57391e5eee4500019824d5",
+    "name": "YUMGO",
+    "domain": "yumgo.fr",
+    "revenue": null,
+    "website": "http://www.yumgo.fr",
+    "linkedin": "http://www.linkedin.com/company/yumgo"
+  },
+  {
+    "apollo_id": "56d996cff3e5bb262c003a6f",
+    "name": "Myfood",
+    "domain": "myfood.eu",
+    "revenue": null,
+    "website": "http://www.myfood.eu",
+    "linkedin": "http://www.linkedin.com/company/myfood-eu"
+  },
+  {
+    "apollo_id": "5569e295736964255d16a800",
+    "name": "Footbar",
+    "domain": "footbar.com",
+    "revenue": null,
+    "website": "http://www.footbar.com",
+    "linkedin": "http://www.linkedin.com/company/footbar-fr"
+  },
+  {
+    "apollo_id": "5da2e4f7e2f88b0001f0997e",
+    "name": "NOMADS SURFING",
+    "domain": "nomads-surfing.com",
+    "revenue": null,
+    "website": "http://www.nomads-surfing.com",
+    "linkedin": "http://www.linkedin.com/company/nomads-surfing"
+  },
+  {
+    "apollo_id": "5e561b85278d3a000176b69e",
+    "name": "Hydratis",
+    "domain": "hydratis.co",
+    "revenue": null,
+    "website": "http://www.hydratis.co",
+    "linkedin": "http://www.linkedin.com/company/hydratis"
+  },
+  {
+    "apollo_id": "5c2543a0a3ae617449ce0f25",
+    "name": "Champagne Canard-Duchêne",
+    "domain": "canard-duchene.fr",
+    "revenue": null,
+    "website": "http://www.canard-duchene.fr",
+    "linkedin": "http://www.linkedin.com/company/champagne-canard-duchene"
+  },
+  {
+    "apollo_id": "54a12adb69702d979c875702",
+    "name": "ZAG SKIS",
+    "domain": "zagskis.com",
+    "revenue": null,
+    "website": "http://www.zagskis.com",
+    "linkedin": "http://www.linkedin.com/company/zag-skis"
+  },
+  {
+    "apollo_id": "56e1409ef3e5bb3f5d000c9d",
+    "name": "Maximum®",
+    "domain": "maximum.paris",
+    "revenue": null,
+    "website": "http://www.maximum.paris",
+    "linkedin": "http://www.linkedin.com/company/maximum%c2%ae"
+  },
+  {
+    "apollo_id": "5da566ece0b9d300011a5545",
+    "name": "WAAM",
+    "domain": "waamcosmetics.com",
+    "revenue": "4.5M",
+    "website": "http://www.waamcosmetics.com",
+    "linkedin": "http://www.linkedin.com/company/waam-cosmetics"
+  },
+  {
+    "apollo_id": "54a1353569702d333dfbb400",
+    "name": "Mellerio",
+    "domain": "mellerio.fr",
+    "revenue": "383K",
+    "website": "http://www.mellerio.fr",
+    "linkedin": "http://www.linkedin.com/company/mellerio-dits-meller"
+  },
+  {
+    "apollo_id": "556990d973696425c4ee5700",
+    "name": "Fleux",
+    "domain": "fleux.com",
+    "revenue": "1.9M",
+    "website": "http://www.fleux.com",
+    "linkedin": "http://www.linkedin.com/company/fleux'"
+  },
+  {
+    "apollo_id": "5c26109ef651252042c90d9e",
+    "name": "UNISTELLAR",
+    "domain": "unistellar.com",
+    "revenue": "31M",
+    "website": "http://www.unistellar.com",
+    "linkedin": "http://www.linkedin.com/company/unistellar-sas"
+  },
+  {
+    "apollo_id": "556df58b73696411764f1700",
+    "name": "KADALYS",
+    "domain": "kadalys.com",
+    "revenue": "554K",
+    "website": "http://www.kadalys.com",
+    "linkedin": "http://www.linkedin.com/company/kadalys"
+  },
+  {
+    "apollo_id": "615ec2df050ba50001fab058",
+    "name": "OMAJ",
+    "domain": "omaj.fr",
+    "revenue": null,
+    "website": "http://www.omaj.fr",
+    "linkedin": "http://www.linkedin.com/company/omaj-fr"
+  },
+  {
+    "apollo_id": "54a1295e69702db878186201",
+    "name": "Champagne Telmont",
+    "domain": "champagne-telmont.com",
+    "revenue": "50.4M",
+    "website": "http://www.champagne-telmont.com",
+    "linkedin": "http://www.linkedin.com/company/champagnetelmont"
+  },
+  {
+    "apollo_id": "5a9cf5c3a6da98d9a155f75c",
+    "name": "Maison Philippe Conticini Paris",
+    "domain": "philippeconticini.fr",
+    "revenue": "322K",
+    "website": "http://www.philippeconticini.fr",
+    "linkedin": "http://www.linkedin.com/company/maison-philippe-conticini"
+  },
+  {
+    "apollo_id": "5e5656b282ec1b0001e951ca",
+    "name": "Laboratoire Dermatologique ACM",
+    "domain": "labo-acm.com",
+    "revenue": "4.8M",
+    "website": "http://www.labo-acm.com",
+    "linkedin": "http://www.linkedin.com/company/laboratoire-dermatologique-acm"
+  },
+  {
+    "apollo_id": "5f3fcccd7c995d0001f4547d",
+    "name": "GRAINE DE PASTEL",
+    "domain": "grainedepastel.com",
+    "revenue": null,
+    "website": "http://www.grainedepastel.com",
+    "linkedin": "http://www.linkedin.com/company/graine-de-pastel"
+  },
+  {
+    "apollo_id": "5d960e73eee91200f2b02aeb",
+    "name": "MAISON CLOSE",
+    "domain": "maison-close.com",
+    "revenue": null,
+    "website": "http://www.maison-close.com",
+    "linkedin": "http://www.linkedin.com/company/maison-close-lingerie-fr"
+  },
+  {
+    "apollo_id": "5e7ce3807db535008cfa25c4",
+    "name": "Mium Lab",
+    "domain": "miumlab.com",
+    "revenue": null,
+    "website": "http://www.miumlab.com",
+    "linkedin": "http://www.linkedin.com/company/mium-lab"
+  },
+  {
+    "apollo_id": "5d074e1c54c1120ba482f2fa",
+    "name": "Epycure Laboratoire",
+    "domain": "epycure.com",
+    "revenue": null,
+    "website": "http://www.epycure.com",
+    "linkedin": "http://www.linkedin.com/company/epycure"
+  },
+  {
+    "apollo_id": "60b27fd8ca507000011de7bb",
+    "name": "Yacon & co",
+    "domain": "yacon.co",
+    "revenue": null,
+    "website": "http://www.yacon.co",
+    "linkedin": "http://www.linkedin.com/company/yaconco"
+  },
+  {
+    "apollo_id": "6098edb419851800ff72b30f",
+    "name": "GALENIC COSMETICS LABORATORY",
+    "domain": "galenic.com",
+    "revenue": null,
+    "website": "http://www.galenic.com",
+    "linkedin": "http://www.linkedin.com/company/galenic-cosmetics-laboratory"
+  },
+  {
+    "apollo_id": "5e569299942f65000146e37c",
+    "name": "Si Si La Paillette",
+    "domain": "sisilapaillette.fr",
+    "revenue": null,
+    "website": "http://www.sisilapaillette.fr",
+    "linkedin": "http://www.linkedin.com/company/si-si-la-paillette"
+  },
+  {
+    "apollo_id": "61b064eb7eb61900c284d6fe",
+    "name": "Alki",
+    "domain": "alki.fr",
+    "revenue": null,
+    "website": "http://www.alki.fr",
+    "linkedin": "http://www.linkedin.com/company/alki"
+  }
+]
