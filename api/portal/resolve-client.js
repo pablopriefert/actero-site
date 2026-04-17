@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   const supabase = getServiceRoleClient();
   const { data, error } = await supabase
     .from('clients')
-    .select('id, slug, brand_name, plan, trial_ends_at, portal_enabled, portal_custom_domain, portal_logo_url, portal_primary_color, portal_display_name')
+    .select('id, slug, brand_name, plan, trial_ends_at, portal_enabled, portal_custom_domain, portal_logo_url, portal_primary_color, portal_display_name, portal_hide_actero_branding')
     .or(slug ? `slug.eq.${slug},portal_custom_domain.eq.${hostname}` : `portal_custom_domain.eq.${hostname}`)
     .maybeSingle();
 
@@ -34,12 +34,14 @@ export default async function handler(req, res) {
           primaryColor: data.portal_primary_color || null,
           displayName: data.portal_display_name || null,
           source: 'merchant',
+          hideActeroBranding: !!data.portal_hide_actero_branding,
         }
       : {
           logoUrl: null,
           primaryColor: null,
           displayName: null,
           source: 'actero',
+          hideActeroBranding: false,
         },
   });
 }

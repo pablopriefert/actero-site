@@ -55,13 +55,15 @@ export default function PortalLayout({ children, navigate }) {
         </nav>
       )}
       <main className="p-6 max-w-4xl mx-auto">{children}</main>
-      <footer className="text-center py-6 text-xs text-[#8B8070]">
-        {isMerchantBranded ? (
-          <>Propulsé par <a href="https://actero.fr" className="text-[#8B8070] hover:text-[#5A5A5A]">Actero</a></>
-        ) : (
-          <a href="https://actero.fr" className="text-[#8B8070] hover:text-[#5A5A5A]">Actero</a>
-        )}
-      </footer>
+      {!(isMerchantBranded && client.branding?.hideActeroBranding) && (
+        <footer className="text-center py-6 text-xs text-[#8B8070]">
+          {isMerchantBranded ? (
+            <>Propulsé par <a href="https://actero.fr" className="text-[#8B8070] hover:text-[#5A5A5A]">Actero</a></>
+          ) : (
+            <a href="https://actero.fr" className="text-[#8B8070] hover:text-[#5A5A5A]">Actero</a>
+          )}
+        </footer>
+      )}
     </div>
   );
 }

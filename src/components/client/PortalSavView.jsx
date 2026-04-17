@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   MonitorSmartphone, Copy, CheckCheck, ExternalLink,
   ToggleLeft, ToggleRight, Loader2, Palette, BarChart3,
+  Globe, Sparkles,
 } from 'lucide-react'
 import { canAccess } from '../../lib/plans'
 import { UpgradeBanner } from '../ui/UpgradeBanner'
@@ -338,6 +339,26 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
         )}
       </div>
 
+      {/* ━━━ Section C-bis — Domaine personnalisé (Pro+) ━━━ */}
+      <CustomDomainSection
+        clientRow={clientRow}
+        clientId={clientId}
+        canCustomize={canCustomize}
+        supabase={supabase}
+        queryClient={queryClient}
+        onUpgrade={onUpgrade}
+      />
+
+      {/* ━━━ Section C-ter — Retirer "Propulsé par Actero" (Pro+) ━━━ */}
+      <HideBrandingSection
+        clientRow={clientRow}
+        clientId={clientId}
+        canCustomize={canCustomize}
+        supabase={supabase}
+        queryClient={queryClient}
+        onUpgrade={onUpgrade}
+      />
+
       {/* ━━━ Section D — Statistiques ━━━ */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
@@ -355,6 +376,201 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
           </p>
         )}
       </div>
+    </div>
+  )
+}
+
+// ─── Custom domain section (Pro+) ────────────────────────────────
+function CustomDomainSection({ clientRow, clientId, canCustomize, supabase, queryClient, onUpgrade }) {
+  const existing = clientRow?.portal_custom_domain || ''
+  const [domain, setDomain] = useState(existing)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => { setDomain(existing) }, [existing])
+
+  const handleSave = async (valueOverride) => {
+    const next = valueOverride !== undefined ? valueOverride : domain
+    setError('')
+    setSaving(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/client/update-portal-branding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ portal_custom_domain: next.trim() || null }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || 'Erreur lors de l\'enregistrement.')
+      }
+      queryClient.invalidateQueries({ queryKey: ['portal-client-row', clientId] })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+    } catch (e) {
+      setError(e.message || 'Erreur lors de l\'enregistrement.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        <Globe className="w-4 h-4 text-[#9ca3af]" />
+        <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Domaine personnalisé</h3>
+      </div>
+      <p className="text-[12px] text-[#71717a]">
+        Servez le portail sur votre propre domaine (ex : <code className="font-mono text-[11px] bg-[#fafafa] border border-[#f0f0f0] rounded px-1.5 py-0.5">sav.mamarque.fr</code>) plutôt que sur un sous-domaine Actero.
+      </p>
+
+      {!canCustomize ? (
+        <UpgradeBanner
+          requiredPlan="pro"
+          feature="portal_customization"
+          onUpgrade={onUpgrade}
+          compact={false}
+          fallbackDescription="Passer au plan Pro pour connecter votre propre domaine (ex: sav.mamarque.fr) au portail."
+        />
+      ) : (
+        <>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+              placeholder="sav.mamarque.fr"
+              className="flex-1 px-3 py-2.5 rounded-lg border border-[#e8e8e8] bg-white text-[13px] font-mono focus:outline-none focus:border-[#1F3A12] focus:ring-2 focus:ring-[#1F3A12]/10 transition"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleSave()}
+                disabled={saving || domain.trim() === existing}
+                className="px-4 py-2.5 rounded-lg bg-[#0E653A] text-white text-[12px] font-semibold hover:bg-[#0A4F2C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                Enregistrer
+              </button>
+              {existing && (
+                <button
+                  onClick={() => { setDomain(''); handleSave('') }}
+                  disabled={saving}
+                  className="px-3 py-2.5 rounded-lg bg-white text-[#71717a] text-[12px] font-semibold border border-[#e8e8e8] hover:bg-[#fafafa] transition-colors disabled:opacity-50"
+                >
+                  Retirer
+                </button>
+              )}
+            </div>
+          </div>
+
+          {error && <p className="text-[12px] text-red-600">{error}</p>}
+          {saved && (
+            <div className="flex items-center gap-2 text-[12px] text-[#1F3A12] font-medium">
+              <CheckCheck className="w-3.5 h-3.5" />
+              Domaine enregistré.
+            </div>
+          )}
+
+          {/* DNS instructions */}
+          <div className="mt-2 rounded-xl bg-[#F4F0E6] border border-[#E8DFC9] px-4 py-3.5">
+            <p className="text-[12px] font-semibold text-[#1A1A1A] mb-1.5">Configuration DNS requise</p>
+            <p className="text-[11px] text-[#5A5A5A] leading-relaxed mb-2">
+              Chez votre registrar (Gandi, OVH, Cloudflare…), créez un enregistrement CNAME :
+            </p>
+            <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[11px] font-mono">
+              <span className="text-[#8B8070]">Type</span>
+              <span className="text-[#1A1A1A]">CNAME</span>
+              <span className="text-[#8B8070]">Hôte</span>
+              <span className="text-[#1A1A1A]">{domain ? (domain.split('.')[0] || '—') : 'sav'} (ou votre sous-domaine)</span>
+              <span className="text-[#8B8070]">Valeur</span>
+              <span className="text-[#1A1A1A]">portal.actero.fr</span>
+            </div>
+            <p className="text-[11px] text-[#8B8070] mt-2 leading-relaxed">
+              La propagation DNS prend de quelques minutes à 24h. Le portail sera servi sur votre domaine dès que la redirection est active.
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Hide Actero branding section (Pro+) ─────────────────────────
+function HideBrandingSection({ clientRow, clientId, canCustomize, supabase, queryClient, onUpgrade }) {
+  const current = !!clientRow?.portal_hide_actero_branding
+  const [value, setValue] = useState(current)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => { setValue(current) }, [current])
+
+  const handleToggle = async () => {
+    const next = !value
+    setValue(next)
+    setSaving(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      await fetch('/api/client/update-portal-branding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ portal_hide_actero_branding: next }),
+      })
+      queryClient.invalidateQueries({ queryKey: ['portal-client-row', clientId] })
+    } catch {
+      setValue(current) // rollback on error
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        <Sparkles className="w-4 h-4 text-[#9ca3af]" />
+        <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Affichage « Propulsé par Actero »</h3>
+      </div>
+
+      {!canCustomize ? (
+        <UpgradeBanner
+          requiredPlan="pro"
+          feature="portal_customization"
+          onUpgrade={onUpgrade}
+          compact={false}
+          fallbackDescription="Passer au plan Pro pour retirer la mention « Propulsé par Actero » du pied de page du portail."
+        />
+      ) : (
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[13px] font-medium text-[#1a1a1a]">Masquer « Propulsé par Actero »</p>
+            <p className="text-[11px] text-[#9ca3af] mt-0.5">
+              {value
+                ? 'La mention Actero n\'apparaît plus en pied de page du portail.'
+                : 'Le pied de page du portail affiche « Propulsé par Actero ».'}
+            </p>
+          </div>
+          <button
+            onClick={handleToggle}
+            disabled={saving}
+            className="flex-shrink-0"
+            aria-label={value ? 'Afficher la mention Actero' : 'Masquer la mention Actero'}
+            aria-pressed={value}
+          >
+            {saving ? (
+              <Loader2 className="w-8 h-8 animate-spin text-[#9ca3af]" />
+            ) : value ? (
+              <ToggleRight className="w-10 h-10 text-[#0E653A]" />
+            ) : (
+              <ToggleLeft className="w-10 h-10 text-[#d4d4d4]" />
+            )}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

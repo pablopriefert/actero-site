@@ -63,7 +63,13 @@ export default async function handler(req, res) {
   }
 
   // ── Validate body ─────────────────────────────────────────────
-  const { portal_display_name, portal_logo_url, portal_primary_color } = req.body || {}
+  const {
+    portal_display_name,
+    portal_logo_url,
+    portal_primary_color,
+    portal_custom_domain,
+    portal_hide_actero_branding,
+  } = req.body || {}
 
   if (portal_display_name !== undefined && typeof portal_display_name === 'string' && portal_display_name.length > 60) {
     return res.status(400).json({ error: 'portal_display_name doit faire 60 caractères maximum.' })
@@ -84,6 +90,32 @@ export default async function handler(req, res) {
     }
   }
 
+  // Custom domain: lowercase hostname, allow empty to clear, reject anything with a protocol/path/port.
+  if (
+    portal_custom_domain !== undefined &&
+    portal_custom_domain !== null &&
+    portal_custom_domain !== ''
+  ) {
+    if (typeof portal_custom_domain !== 'string') {
+      return res.status(400).json({ error: 'portal_custom_domain doit être une chaîne.' })
+    }
+    const domain = portal_custom_domain.trim().toLowerCase()
+    const HOSTNAME_RE = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/
+    if (!HOSTNAME_RE.test(domain)) {
+      return res.status(400).json({ error: 'portal_custom_domain doit être un nom de domaine valide (ex: sav.mamarque.fr).' })
+    }
+    if (domain.endsWith('.actero.fr')) {
+      return res.status(400).json({ error: 'Ce sous-domaine est réservé — choisissez votre propre domaine.' })
+    }
+  }
+
+  if (
+    portal_hide_actero_branding !== undefined &&
+    typeof portal_hide_actero_branding !== 'boolean'
+  ) {
+    return res.status(400).json({ error: 'portal_hide_actero_branding doit être un booléen.' })
+  }
+
   // ── Build update payload ──────────────────────────────────────
   const update = {}
 
@@ -95,6 +127,14 @@ export default async function handler(req, res) {
   }
   if (portal_primary_color !== undefined) {
     update.portal_primary_color = portal_primary_color || null
+  }
+  if (portal_custom_domain !== undefined) {
+    update.portal_custom_domain = portal_custom_domain
+      ? portal_custom_domain.trim().toLowerCase()
+      : null
+  }
+  if (portal_hide_actero_branding !== undefined) {
+    update.portal_hide_actero_branding = !!portal_hide_actero_branding
   }
 
   if (Object.keys(update).length === 0) {
@@ -108,6 +148,11 @@ export default async function handler(req, res) {
     .eq('id', clientId)
 
   if (updateError) {
+    // Surface unique-violation on custom domain as a 409 so the UI can show
+    // a friendly "ce domaine est déjà utilisé" message.
+    if (updateError.code === '23505' && updateError.message?.includes('portal_custom_domain')) {
+      return res.status(409).json({ error: 'Ce domaine est déjà utilisé par un autre portail.' })
+    }
     console.error('[update-portal-branding] DB update error:', updateError.message)
     return res.status(500).json({ error: 'Erreur serveur' })
   }
@@ -118,6 +163,8 @@ export default async function handler(req, res) {
       portal_display_name: update.portal_display_name ?? null,
       portal_logo_url: update.portal_logo_url ?? null,
       portal_primary_color: update.portal_primary_color ?? null,
+      portal_custom_domain: update.portal_custom_domain ?? null,
+      portal_hide_actero_branding: update.portal_hide_actero_branding ?? null,
     },
   })
 }
