@@ -550,6 +550,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     enabled: !!supabase && !!currentClient?.id,
   });
 
+  const totalEvents = useMemo(
+    () => Object.values(eventCounts).reduce((sum, n) => sum + (n || 0), 0),
+    [eventCounts]
+  );
+
   // KPI Calculations
   const periodStats = useMemo(() => {
     if (!dailyMetrics || !dailyMetrics.length) {
@@ -661,24 +666,32 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     }).length
   }, [pendingEscalations]);
 
-  // Sidebar structure — refonte octobre 2026, inspirée Stripe/Linear/Notion.
-  // Objectif : nouveau client comprend en 5 secondes. Automation = star entry.
+  // Sidebar structure — refonte avril 2026 (POV nouveau client).
+  // Narrative : Vue d'ensemble → Mon Agent (star) → Mes tickets → Canaux clients → Outils → Performance → Système.
   const sidebarItems = [
     // Lien standalone hors section
     { id: 'overview', label: 'Vue d\'ensemble', icon: Home, dataTour: 'overview-tab' },
 
-    // STAR — cœur du produit, traitement visuel premium (fond gradient, icon pleine)
+    // MON AGENT — star expandable (cœur du produit, traitement visuel premium)
     {
-      type: 'star',
-      id: 'automation',
-      label: 'Automatisation',
-      icon: Rocket,
-      dataTour: 'automation-tab',
-      badge: 'CORE',
+      type: 'expandable',
+      primary: true,
+      label: 'Mon Agent',
+      icon: Bot,
+      dataTour: 'agent-section',
+      defaultOpen: true,
+      children: [
+        { id: 'automation', label: 'Vue d\'ensemble', icon: Rocket, dataTour: 'automation-tab' },
+        { id: 'agent-control', label: 'Centre de contrôle', icon: Sparkles },
+        { id: 'agent-config', label: 'Configuration', icon: Settings },
+        { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
+        { id: 'guardrails', label: 'Règles métier', icon: Shield },
+        { id: 'simulator', label: 'Tester mon agent', icon: FlaskConical, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+      ],
     },
 
-    // QUOTIDIEN — accès rapide 2 items top-level
-    { type: 'section', label: 'Quotidien' },
+    // MES TICKETS — le quotidien opérationnel
+    { type: 'section', label: 'Mes tickets' },
     {
       id: 'escalations',
       label: 'À traiter',
@@ -688,40 +701,34 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     },
     { id: 'activity', label: 'Activité', icon: Activity },
 
-    // AGENT IA — collapsed dropdown (5 items)
+    // CANAUX CLIENTS — où les clients entrent en contact
     {
       type: 'expandable',
-      label: 'Agent IA',
-      icon: Bot,
-      dataTour: 'agent-section',
+      label: 'Canaux clients',
+      icon: MonitorSmartphone,
       defaultOpen: false,
       children: [
-        { id: 'agent-control', label: 'Centre de contrôle', icon: Bot },
-        { id: 'agent-config', label: 'Configuration', icon: Settings },
-        { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
-        { id: 'guardrails', label: 'Règles métier', icon: Shield },
-        { id: 'simulator', label: 'Tester mon agent', icon: FlaskConical, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+        { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+        { id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
+        { id: 'channels', label: 'Canaux', icon: Radio },
       ],
     },
 
-    // CONNEXIONS — collapsed dropdown (3 items)
+    // OUTILS CONNECTÉS — Shopify, CRM, etc.
     {
       type: 'expandable',
-      label: 'Connexions',
+      label: 'Outils connectés',
       icon: Plug,
       defaultOpen: false,
       children: [
         { id: 'integrations', label: 'Intégrations', icon: Plug },
-        { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
-        { id: 'channels', label: 'Canaux', icon: Radio },
-        { id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
       ],
     },
 
-    // CROISSANCE — collapsed dropdown (2 items)
+    // PERFORMANCE — mesurer et grandir
     {
       type: 'expandable',
-      label: 'Croissance',
+      label: 'Performance',
       icon: TrendingUp,
       defaultOpen: false,
       children: [
@@ -730,7 +737,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       ],
     },
 
-    // SYSTÈME — 1 item top-level suffit
+    // SYSTÈME
     { type: 'section', label: 'Système' },
     { id: 'settings', label: 'Paramètres', icon: Cog },
   ];
@@ -1110,52 +1117,82 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     </div>
                   )}
 
-                  {/* ── KPI Row (Instantly-style) ── */}
-                  <div data-tour="kpi-row" className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
-                    {[
-                      {
-                        label: 'Demandes traitées automatiquement',
-                        sublabel: 'vs période précédente',
-                        value: eventCounts.ticket_resolved || 0,
-                        var: periodStats?.tasks_executed_var,
-                        suffix: '',
-                      },
-                      {
-                        label: 'À traiter manuellement',
-                        sublabel: 'en attente de votre équipe',
-                        value: eventCounts.ticket_escalated || 0,
-                        suffix: '',
-                      },
-                      {
-                        label: 'Temps gagné',
-                        sublabel: 'heures économisées sur la période',
-                        value: Math.round((liveRoi?.hours_saved || 0) * 10) / 10,
-                        suffix: 'h',
-                      },
-                      {
-                        label: 'Économies réalisées',
-                        sublabel: 'sur la période sélectionnée',
-                        value: `${Math.round(liveRoi?.value_saved || 0).toLocaleString('fr-FR')}`,
-                        suffix: '€',
-                      },
-                    ].map((kpi, i) => (
-                      <div key={i} className={`px-5 py-5 ${i < 3 ? 'border-r border-[#f0f0f0]' : ''}`}>
-                        <p className="text-[12px] text-[#1a1a1a] font-medium leading-tight mb-2 line-clamp-1">{kpi.label}</p>
-                        <div className="flex items-baseline gap-1.5">
-                          <span className="text-[28px] font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none">
-                            {typeof kpi.value === 'number' ? kpi.value.toLocaleString('fr-FR') : kpi.value}
-                          </span>
-                          {kpi.suffix && <span className="text-[16px] font-semibold text-[#1a1a1a]">{kpi.suffix}</span>}
+                  {/* ── KPI Row — dignified empty state when 0 events ── */}
+                  {totalEvents === 0 ? (
+                    <div data-tour="kpi-row" className="mb-8 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] bg-white overflow-hidden">
+                      <div className="relative bg-gradient-to-br from-[#0F5F35]/[0.04] via-white to-[#0F5F35]/[0.02] px-6 py-10 text-center">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#0F5F35]/10 mb-4">
+                          <Sparkles className="w-5 h-5 text-[#0F5F35]" />
                         </div>
-                        <p className="text-[11px] text-[#9ca3af] mt-1.5 leading-tight">{kpi.sublabel}</p>
-                        {kpi.var !== undefined && kpi.var !== 0 && (
-                          <p className={`text-[11px] font-semibold mt-0.5 ${kpi.var > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                            {kpi.var > 0 ? '▲' : '▼'} {kpi.var > 0 ? '+' : ''}{kpi.var}%
-                          </p>
-                        )}
+                        <h3 className="text-[18px] font-semibold text-[#1a1a1a] tracking-tight">
+                          Votre agent est prêt
+                        </h3>
+                        <p className="text-[13px] text-[#71717a] mt-1.5 max-w-md mx-auto leading-relaxed">
+                          Dès qu'un client vous écrira, vous verrez apparaître ici le temps gagné, les tickets résolus automatiquement et les économies réalisées.
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
+                          <button
+                            onClick={() => setActiveTab('agent-config')}
+                            className="px-4 py-2 rounded-full bg-[#0E653A] text-white text-[12px] font-semibold hover:bg-[#0A4F2C] transition-colors"
+                          >
+                            Configurer mon agent
+                          </button>
+                          <button
+                            onClick={() => setActiveTab('simulator')}
+                            className="px-4 py-2 rounded-full bg-white text-[#0F5F35] text-[12px] font-semibold border border-[#0F5F35]/20 hover:bg-[#0F5F35]/[0.04] transition-colors"
+                          >
+                            Tester avec un message exemple
+                          </button>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <div data-tour="kpi-row" className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
+                      {[
+                        {
+                          label: 'Demandes traitées automatiquement',
+                          sublabel: 'vs période précédente',
+                          value: eventCounts.ticket_resolved || 0,
+                          var: periodStats?.tasks_executed_var,
+                          suffix: '',
+                        },
+                        {
+                          label: 'À traiter manuellement',
+                          sublabel: 'en attente de votre équipe',
+                          value: eventCounts.ticket_escalated || 0,
+                          suffix: '',
+                        },
+                        {
+                          label: 'Temps gagné',
+                          sublabel: 'heures économisées sur la période',
+                          value: Math.round((liveRoi?.hours_saved || 0) * 10) / 10,
+                          suffix: 'h',
+                        },
+                        {
+                          label: 'Économies réalisées',
+                          sublabel: 'sur la période sélectionnée',
+                          value: `${Math.round(liveRoi?.value_saved || 0).toLocaleString('fr-FR')}`,
+                          suffix: '€',
+                        },
+                      ].map((kpi, i) => (
+                        <div key={i} className={`px-5 py-5 ${i < 3 ? 'border-r border-[#f0f0f0]' : ''}`}>
+                          <p className="text-[12px] text-[#1a1a1a] font-medium leading-tight mb-2 line-clamp-1">{kpi.label}</p>
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-[28px] font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none">
+                              {typeof kpi.value === 'number' ? kpi.value.toLocaleString('fr-FR') : kpi.value}
+                            </span>
+                            {kpi.suffix && <span className="text-[16px] font-semibold text-[#1a1a1a]">{kpi.suffix}</span>}
+                          </div>
+                          <p className="text-[11px] text-[#9ca3af] mt-1.5 leading-tight">{kpi.sublabel}</p>
+                          {kpi.var !== undefined && kpi.var !== 0 && (
+                            <p className={`text-[11px] font-semibold mt-0.5 ${kpi.var > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                              {kpi.var > 0 ? '▲' : '▼'} {kpi.var > 0 ? '+' : ''}{kpi.var}%
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* ── Free plan usage warning ── */}
                   {planId === 'free' && ticketsPercent >= 80 && (
@@ -1174,6 +1211,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     </div>
                   )}
 
+                  {totalEvents > 0 && (<>
                   {/* ── Period selector ── */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
@@ -1262,6 +1300,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
                   {/* ── Suggestions ── */}
                   <AgentImprovementWidget clientId={currentClient?.id} theme={theme} />
+                  </>)}
 
                   {/* ── Starter → Pro upsell ── */}
                   {planId === 'starter' && (

@@ -139,22 +139,43 @@ export const Sidebar = ({
             const isExpanded = expandedSections[item.label] ?? item.defaultOpen ?? false
             const hasActiveChild = (item.children || []).some(c => c.id === activeTab)
             const childCount = (item.children || []).length
+            const isPrimary = item.primary === true
             return (
-              <div key={idx} data-tour={item.dataTour}>
+              <div key={idx} data-tour={item.dataTour} className={isPrimary ? 'my-1.5' : ''}>
                 <button
                   onClick={() => toggleSection(item.label)}
-                  className={`w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-150 ${
-                    hasActiveChild
-                      ? "text-[#1a1a1a] font-semibold"
-                      : "text-[#1a1a1a] font-medium hover:bg-[#fafafa]"
-                  }`}
+                  className={
+                    isPrimary
+                      ? `relative w-full h-10 flex items-center justify-between px-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 group ${
+                          hasActiveChild
+                            ? 'bg-gradient-to-r from-[#0F5F35] to-[#003725] text-white shadow-[0_2px_8px_rgba(15,95,53,0.25)]'
+                            : 'bg-gradient-to-r from-[#0F5F35]/[0.06] to-[#0F5F35]/[0.02] text-[#0F5F35] hover:from-[#0F5F35]/[0.1] hover:to-[#0F5F35]/[0.04] border border-[#0F5F35]/15'
+                        }`
+                      : `w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-150 ${
+                          hasActiveChild
+                            ? 'text-[#1a1a1a] font-semibold'
+                            : 'text-[#1a1a1a] font-medium hover:bg-[#fafafa]'
+                        }`
+                  }
                 >
                   <div className="flex items-center gap-2.5">
-                    {item.icon && <item.icon className={`w-4 h-4 ${hasActiveChild ? 'text-[#0F5F35]' : 'text-[#9ca3af]'}`} />}
-                    <span>{item.label}</span>
+                    {isPrimary ? (
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                        hasActiveChild ? 'bg-white/20' : 'bg-[#0F5F35]/10 group-hover:bg-[#0F5F35]/15'
+                      }`}>
+                        {item.icon && <item.icon className={`w-3.5 h-3.5 ${hasActiveChild ? 'text-white' : 'text-[#0F5F35]'}`} />}
+                      </div>
+                    ) : (
+                      item.icon && <item.icon className={`w-4 h-4 ${hasActiveChild ? 'text-[#0F5F35]' : 'text-[#9ca3af]'}`} />
+                    )}
+                    <span className={isPrimary ? 'tracking-tight' : ''}>{item.label}</span>
                   </div>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 text-[#9ca3af] transition-transform duration-200 ease-out ${isExpanded ? 'rotate-180' : ''}`}
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ease-out ${
+                      isPrimary
+                        ? hasActiveChild ? 'text-white/80' : 'text-[#0F5F35]/60'
+                        : 'text-[#9ca3af]'
+                    } ${isExpanded ? 'rotate-180' : ''}`}
                   />
                 </button>
                 <div
