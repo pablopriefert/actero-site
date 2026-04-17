@@ -8,6 +8,8 @@ export default function PortalLoginPage() {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
+  const merchantName = client?.branding?.displayName;
+
   async function onSubmit(e) {
     e.preventDefault();
     if (!client) return;
@@ -30,22 +32,23 @@ export default function PortalLoginPage() {
 
   if (sent) {
     return (
-      <div className="max-w-md mx-auto mt-20 p-8 bg-white rounded-xl shadow-sm text-center">
-        <h1 className="text-xl font-semibold mb-2">Vérifie ta boîte mail</h1>
-        <p className="text-neutral-600">On t'a envoyé un lien de connexion à <strong>{email}</strong>. Il expire dans 15 minutes.</p>
+      <div className="max-w-md mx-auto mt-20 p-10 bg-white rounded-2xl shadow-sm text-center">
+        <h1 className="text-2xl font-bold tracking-tight mb-3">Vérifie ta boîte mail</h1>
+        <p className="text-neutral-600 leading-relaxed">On t'a envoyé un lien de connexion à <strong className="text-neutral-900">{email}</strong>. Il expire dans 15 minutes.</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} className="max-w-md mx-auto mt-20 p-8 bg-white rounded-xl shadow-sm">
-      <h1 className="text-xl font-semibold mb-4">Accède à ton espace SAV</h1>
-      <label className="block text-sm font-medium mb-1">Ton email</label>
+    <form onSubmit={onSubmit} className="max-w-md mx-auto mt-20 p-10 bg-white rounded-2xl shadow-sm">
+      <h1 className="text-2xl font-bold tracking-tight mb-2">Accède à ton espace SAV</h1>
+      {merchantName && <p className="text-sm text-neutral-500 mb-6">pour tes commandes chez <span className="text-neutral-900 font-medium">{merchantName}</span></p>}
+      <label className="block text-sm font-medium mb-1.5">Ton email</label>
       <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-        className="w-full border rounded px-3 py-2 mb-4" placeholder="paul@example.com" />
+        className="w-full border border-neutral-300 rounded-lg px-3 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-neutral-400" placeholder="paul@example.com" />
       {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
       <button type="submit" disabled={busy}
-        className="w-full bg-[var(--portal-primary,#0F766E)] text-white rounded py-2 font-medium disabled:opacity-50">
+        className="w-full bg-black text-white rounded-lg py-3 font-semibold disabled:opacity-50 hover:bg-neutral-800 transition">
         {busy ? 'Envoi…' : 'Recevoir mon lien de connexion'}
       </button>
     </form>

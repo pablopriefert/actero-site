@@ -5,14 +5,7 @@ import { checkMagicLinkRateLimit } from './lib/rate-limit.js';
 
 const MAGIC_LINK_TTL_MINUTES = 15;
 
-function buildMagicLinkEmailHtml({ url, branding }) {
-  const { displayName, primaryColor, logoUrl } = branding;
-  const textOnPrimary = '#ffffff';
-
-  const logoBlock = logoUrl
-    ? `<img src="${logoUrl}" alt="${displayName}" style="max-height:40px;max-width:180px;display:block;" />`
-    : `<div style="font-size:22px;font-weight:700;color:#000000;letter-spacing:-0.5px;">${displayName}</div>`;
-
+function buildMagicLinkEmailHtml({ url, merchantName }) {
   return `
 <!DOCTYPE html>
 <html lang="fr">
@@ -28,7 +21,7 @@ function buildMagicLinkEmailHtml({ url, branding }) {
 
           <tr>
             <td style="padding:40px 40px 0 40px;">
-              ${logoBlock}
+              <div style="font-size:22px;font-weight:700;color:#000000;letter-spacing:-0.5px;">Actero</div>
             </td>
           </tr>
 
@@ -37,14 +30,17 @@ function buildMagicLinkEmailHtml({ url, branding }) {
               <h1 style="font-size:24px;font-weight:700;color:#000000;margin:0 0 16px 0;line-height:1.3;letter-spacing:-0.5px;">
                 Votre lien de connexion
               </h1>
-              <p style="font-size:15px;color:#444444;line-height:1.7;margin:0 0 24px 0;">
-                Cliquez sur le bouton ci-dessous pour accéder à votre espace SAV ${displayName}. Ce lien est valable <strong>15 minutes</strong> et utilisable une seule fois.
+              <p style="font-size:15px;color:#444444;line-height:1.7;margin:0 0 20px 0;">
+                Cliquez sur le bouton ci-dessous pour accéder à votre espace SAV pour <strong>${merchantName}</strong>.
+              </p>
+              <p style="font-size:14px;color:#666666;line-height:1.6;margin:0 0 24px 0;">
+                Ce lien est valable <strong>15 minutes</strong> et utilisable une seule fois.
               </p>
 
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center" style="padding:4px 0 28px 0;">
-                    <a href="${url}" style="display:inline-block;background-color:${primaryColor};color:${textOnPrimary};font-size:16px;font-weight:700;text-decoration:none;padding:16px 40px;border-radius:12px;letter-spacing:-0.2px;">
+                    <a href="${url}" style="display:inline-block;background-color:#000000;color:#ffffff;font-size:16px;font-weight:700;text-decoration:none;padding:16px 40px;border-radius:12px;letter-spacing:-0.2px;">
                       Accéder à mon espace
                     </a>
                   </td>
@@ -68,7 +64,7 @@ function buildMagicLinkEmailHtml({ url, branding }) {
                 Si vous n'avez pas demandé ce lien, ignorez simplement cet email.
               </p>
               <p style="font-size:11px;color:#aaa;margin:0;letter-spacing:0.2px;">
-                Espace SAV propulsé par <a href="https://actero.fr" style="color:#aaa;text-decoration:none;">Actero</a>
+                <a href="https://actero.fr" style="color:#aaa;text-decoration:none;">Actero</a> · Support client automatisé
               </p>
             </td>
           </tr>
@@ -94,15 +90,11 @@ export default async function handler(req, res) {
 
   const { data: client } = await supabase
     .from('clients')
-    .select('brand_name, portal_display_name, portal_logo_url, portal_primary_color')
+    .select('brand_name')
     .eq('id', clientId)
     .maybeSingle();
 
-  const branding = {
-    displayName: client?.portal_display_name || client?.brand_name || 'Mon espace SAV',
-    primaryColor: client?.portal_primary_color || '#0F766E',
-    logoUrl: client?.portal_logo_url || null,
-  };
+  const merchantName = client?.brand_name || 'votre boutique';
 
   const raw = generateMagicLinkToken();
   const hash = await hashToken(raw);
@@ -126,8 +118,8 @@ export default async function handler(req, res) {
   await resend.emails.send({
     from: process.env.PORTAL_EMAIL_FROM || 'noreply@actero.fr',
     to: normalizedEmail,
-    subject: `Votre lien de connexion · ${branding.displayName}`,
-    html: buildMagicLinkEmailHtml({ url, branding }),
+    subject: `Votre lien de connexion · Actero`,
+    html: buildMagicLinkEmailHtml({ url, merchantName }),
   });
 
   return res.status(200).json({ ok: true });
