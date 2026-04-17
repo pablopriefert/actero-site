@@ -162,7 +162,7 @@ On a construit Actero pour ça : un agent IA qui répond 24/7 à ~60% des ticket
 Setup : 15 minutes, connexion Shopify native.
 Essai gratuit 7 jours.
 
-→ actero.fr/signup?ref=ae1
+→ actero.fr/signup?utm_source=apollo&utm_medium=cold-email&utm_campaign=poc-72h&utm_content=t1-gorgias
 
 {CEOName}
 CEO, Actero
@@ -188,7 +188,7 @@ hello@ alternative), vous comparez les réponses sur 7 jours, vous décidez.
 
 Setup : 15 min. Rien à migrer. Gratuit.
 
-→ actero.fr/signup?ref=ae2
+→ actero.fr/signup?utm_source=apollo&utm_medium=cold-email&utm_campaign=poc-72h&utm_content=t2-parallel-test
 
 Si c'est nul, vous déconnectez. Si c'est bon, vous remplacez.
 
@@ -206,7 +206,7 @@ Un truc rapide : j'ai construit Actero pour que vos emails SAV aient
 exactement le ton de {BrandName} — pas celui de Gorgias.
 
 Setup 15 min, essai 7j gratuit. Si ça match pas vous fermez.
-→ actero.fr/signup?ref=li
+→ actero.fr/signup?utm_source=linkedin&utm_medium=dm&utm_campaign=poc-72h&utm_content=founder-manual
 
 (PS je lock Pro à 199€ à vie pour les 5 premiers cette semaine)
 ```
@@ -221,7 +221,28 @@ Résumé :
 
 ### Template E — Posts communauté (Reddit + Slack)
 
-Ton casual, pas pitch. Voir section 3. CTA : `actero.fr` ou `actero.fr/signup?ref=rd` ou `?ref=sl`.
+Ton casual, pas pitch. Voir section 3. CTA :
+- Reddit : `actero.fr/signup?utm_source=reddit&utm_medium=community&utm_campaign=poc-72h&utm_content=shopifyfr`
+- Slack : `actero.fr/signup?utm_source=slack&utm_medium=community&utm_campaign=poc-72h&utm_content=ecom-fr`
+
+## UTM structure (attribution)
+
+Convention formelle inspirée de la skill marketing-demand-acquisition, parse automatiquement dans PostHog :
+
+| Canal | UTM |
+|---|---|
+| Apollo email T1 | `utm_source=apollo&utm_medium=cold-email&utm_campaign=poc-72h&utm_content=t1-gorgias` |
+| Apollo email T2 | `utm_source=apollo&utm_medium=cold-email&utm_campaign=poc-72h&utm_content=t2-parallel-test` |
+| LinkedIn DM manuel | `utm_source=linkedin&utm_medium=dm&utm_campaign=poc-72h&utm_content=founder-manual` |
+| LinkedIn post organique J1 | `utm_source=linkedin&utm_medium=organic-post&utm_campaign=poc-72h&utm_content=hook-j1` |
+| LinkedIn post organique J2 | `utm_source=linkedin&utm_medium=organic-post&utm_campaign=poc-72h&utm_content=hook-j2` |
+| LinkedIn post organique J3 | `utm_source=linkedin&utm_medium=organic-post&utm_campaign=poc-72h&utm_content=hook-j3` |
+| Reddit r/ShopifyFR | `utm_source=reddit&utm_medium=community&utm_campaign=poc-72h&utm_content=shopifyfr` |
+| Slack e-com FR | `utm_source=slack&utm_medium=community&utm_campaign=poc-72h&utm_content=ecom-fr` |
+| Meta Ads (plan B) | `utm_source=meta&utm_medium=paid-social&utm_campaign=poc-72h&utm_content={ad-variant}` |
+| Google Search brand (plan B) | `utm_source=google&utm_medium=cpc&utm_campaign=poc-72h-brand&utm_content={keyword}` |
+
+Stockage : les 4 paramètres `utm_*` sont captés côté `/api/auth/signup` et stockés dans `clients.acquisition_source` (JSONB ou colonnes séparées). Si le field n'existe pas : 1 migration à ajouter à l'audit pré-lancement.
 
 ## Pipeline de conversion — 9 étapes
 
@@ -237,6 +258,26 @@ Lead touché (email+LI)
   → 70% conversion trial → paid à J+7
 = 1 client attendu sur ~50 leads
 ```
+
+### Calibration vs benchmarks B2B SaaS Series A
+
+Source : skill marketing-demand-acquisition (benchmarks industriels vérifiés).
+
+| Canal | CTR bench | CVR bench | CAC bench | Notre approche |
+|---|---|---|---|---|
+| Email cold | 15–25% open, 2–5% click-to-convert | 2–5% | $20–80 | Personalization profonde → fourchette haute (5%) |
+| LinkedIn DM manuel | 5–15% réponse | 20–40% CVR sur répondants | N/A (temps perso) | Fourchette haute (ciblage ultra-précis + perso) |
+| LinkedIn organic post | 0.5–2% CTR | 1–3% CVR | Gratuit | Fourchette basse si compte neuf |
+| Reddit/Slack communautés | Variable | 2–8% CVR sur visiteurs | Gratuit | Dépend de la traction du post |
+
+**Scénarios de conversion totale (50 leads)** :
+- Pessimiste (bench bas) : 0.3 signup email + 0.5 signup LinkedIn DM + 0.2 signup communauté = **1 signup**
+- Central (bench médian) : 0.6 + 1.2 + 0.5 = **2.3 signups**
+- Optimiste (bench haut, personalization efficace) : 1.2 + 2.0 + 1.0 = **4.2 signups**
+
+**Taux de conversion trial → paid à J+7** : benchmark PLG SaaS = 40–60% quand CB requise (Stripe). Notre offre scarcity Pro 199€ à vie pousse vers 60%.
+
+**Résultat central attendu** : 2.3 signups × 50% conversion paid = **1.15 client payant** → objectif atteignable au scénario central, avec marge confortable au scénario optimiste, fragile au scénario pessimiste (d'où les plans B/C).
 
 ### Audit critique pré-lancement (30 min)
 
@@ -293,10 +334,14 @@ Taux de réponse attendu : ~30% sur les engaged silencieux. C'est là qu'on gagn
 
 ### Plan B — si J1 = zéro clic
 
-1. Ouverture budget réserve (≤300€)
-2. Meta Ads retargeting + interest targeting (founders Shopify FR)
-3. LinkedIn Ads single-image ad (audience Head of CX + Founders FR e-commerce)
-4. 50 DMs supplémentaires ciblés agences Shopify FR (référents potentiels)
+Budget d'activation : 300€ max, répartition optimisée selon CAC benchmarks (source : marketing-demand-acquisition) :
+
+| Action | Budget | Justification |
+|---|---|---|
+| **Meta Ads** retargeting visitors + interest "founders Shopify FR" | **200€** | CAC Meta $30–200 vs LinkedIn $100–400 → meilleur ROI pour cette enveloppe |
+| **Google Search** keywords brand/competitor ("alternative gorgias", "actero avis", "shopify sav ia") | **100€** | CAC bench $50–250, intent très haut |
+| ~~LinkedIn Ads~~ | 0€ | **Exclu** : CAC $100–400 = 0.75 conversion max pour 300€, ratio moins bon que Meta |
+| 50 DMs LinkedIn supplémentaires ciblés agences Shopify FR | 0€ (temps) | Référents potentiels, pas clients directs |
 
 ### Plan C — si J2 = zéro signup
 
@@ -339,6 +384,7 @@ Taux de réponse attendu : ~30% sur les engaged silencieux. C'est là qu'on gagn
 | Prospect "intéressé mais pas maintenant" | Cycle dépasse 3 jours | Offre scarcity "5 premiers" force la décision |
 | Concurrent répond avant (Gorgias AI) | Effet de surprise perdu | Angle différenciateur hide-branding reste unique |
 | Zéro traction en 72h | 0 client | Plans B et C activables dès J1/J2 |
+| **Single-channel dependency** (trigger marketing-demand-acquisition) | Si Apollo plante, 60% du volume tombe | Multi-canal dès J0 (email + LinkedIn + organique + communautés), plan B active paid si J1 KO |
 
 ## Prochaines étapes
 
