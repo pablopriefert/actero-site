@@ -7,18 +7,26 @@
  * written before encryption was introduced keep working.
  *
  * Key resolution (in order):
- *   1. ENCRYPTION_KEY
+ *   1. ENCRYPTION_KEY   (preferred)
  *   2. WHATSAPP_TOKEN_ENCRYPTION_KEY (legacy compat)
- *   3. SUPABASE_SERVICE_ROLE_KEY (fallback — better than nothing)
+ *
+ * No insecure fallback: if neither is set, encrypt/decrypt fail loud.
+ * This avoids the previous pitfall where missing env silently fell back
+ * to SUPABASE_SERVICE_ROLE_KEY or a hardcoded literal.
  */
 import crypto from 'crypto'
 
 function getEncryptionKey() {
   const raw =
     process.env.ENCRYPTION_KEY ||
-    process.env.WHATSAPP_TOKEN_ENCRYPTION_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    'actero-fallback-insecure-key-please-set-ENCRYPTION_KEY'
+    process.env.WHATSAPP_TOKEN_ENCRYPTION_KEY
+  if (!raw) {
+    throw new Error(
+      '[lib/crypto] ENCRYPTION_KEY is not set. Refusing to encrypt/decrypt with an insecure fallback. ' +
+      'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))" ' +
+      'and set it in your Vercel/env config.'
+    )
+  }
   return crypto.createHash('sha256').update(String(raw)).digest()
 }
 
@@ -59,6 +67,9 @@ export function decryptToken(cipher) {
  */
 export function hashToken(plain) {
   if (!plain) return null
-  const pepper = process.env.ENCRYPTION_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || 'actero-pepper'
+  const pepper = process.env.ENCRYPTION_KEY || process.env.WHATSAPP_TOKEN_ENCRYPTION_KEY
+  if (!pepper) {
+    throw new Error('[lib/crypto] ENCRYPTION_KEY is required for hashToken.')
+  }
   return crypto.createHash('sha256').update(`${pepper}:${plain}`).digest('hex')
 }

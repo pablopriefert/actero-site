@@ -5,3 +5,9 @@ verify_jwt = true
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+# gemini-proxy performs its own JWT + admin check inside the handler.
+# verify_jwt at the platform level would reject the pre-flight / token
+# extraction logic done explicitly in index.ts.
+[functions.gemini-proxy]
+verify_jwt = false
