@@ -56,6 +56,7 @@ import { PartnerDashboardView } from '../components/client/PartnerDashboardView'
 import { ClientKnowledgeBaseView } from '../components/client/ClientKnowledgeBaseView'
 import { ClientIntegrationsView } from '../components/client/ClientIntegrationsView'
 import { PortalSavView } from '../components/client/PortalSavView'
+import { PortalBrandingView } from '../components/client/PortalBrandingView'
 import { GuardrailsEditor } from '../components/client/GuardrailsEditor'
 import { PromptEditor } from '../components/client/PromptEditor'
 import { ConversationSimulator } from '../components/client/ConversationSimulator'
@@ -210,6 +211,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/partner") return "partner";
     if (route === "/client/integrations") return "integrations";
     if (route === "/client/portal-sav") return "portal-sav";
+    if (route === "/client/portal-branding") return "portal-branding";
     if (route === "/client/api-docs") return "api-docs";
     if (route === "/client/team") return "team";
     if (route === "/client/agent-config") return "agent-config";
@@ -859,6 +861,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "partner" && "Actero Partners"}
             {activeTab === "integrations" && "Intégrations"}
             {activeTab === "portal-sav" && "Portail SAV"}
+            {activeTab === "portal-branding" && "Personnaliser mon portail"}
             {activeTab === "channels" && "Canaux"}
             {activeTab === "email-agent" && "Agent Email"}
             {activeTab === "agent-config" && "Configuration"}
@@ -1327,6 +1330,17 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               clientId={currentClient?.id}
               supabase={supabase}
               onUpgrade={() => setActiveTab('billing')}
+              onNavigate={setActiveTab}
+            />
+          )}
+
+          {activeTab === "portal-branding" && (
+            <PortalBrandingView
+              client={currentClient}
+              clientId={currentClient?.id}
+              supabase={supabase}
+              planId={planId}
+              onBack={() => setActiveTab('portal-sav')}
             />
           )}
 

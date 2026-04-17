@@ -73,7 +73,7 @@ function StatCard({ label, value }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────
-export const PortalSavView = ({ client, clientId, supabase, onUpgrade }) => {
+export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigate }) => {
   const queryClient = useQueryClient()
   const plan = client?.plan || 'free'
   const slug = client?.slug || ''
@@ -318,7 +318,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade }) => {
               </div>
             )}
             <button
-              onClick={() => window.location.href = '/client/portal-branding'}
+              onClick={() => onNavigate ? onNavigate('portal-branding') : (window.location.href = '/client/portal-branding')}
               className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#1a1a1a] text-white text-[13px] font-semibold hover:bg-[#333] transition-colors"
             >
               <Palette className="w-4 h-4" />
