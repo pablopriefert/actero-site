@@ -7,15 +7,17 @@ export const GlassHero = ({ onNavigate }) => {
 
     const content = {
         badge: { icon: '/elevenlabs-grants.webp', label: 'Powered by ElevenLabs Grants' },
+        // Hero copy — outcome-first headline (60% = proof number), differentiator-rich
+        // subtitle (FR / Shopify / install time), risk-reversal bold line, social-proof sub-CTA.
         headlineMain: "60% de vos tickets Shopify",
-        headlineSub: "résolus automatiquement",
-        subtitle: "Actero automatise le support client et relance vos paniers abandonnés pour les marques Shopify qui veulent scaler sans multiplier les coûts.",
-        subtitleBold: "Commencez gratuitement, sans carte bancaire.",
+        headlineSub: "résolus sans intervention humaine",
+        subtitle: "L'agent IA français qui répond aux questions clients, traite les retours et relance les paniers abandonnés pendant que votre équipe se concentre sur ce qui génère du revenu.",
+        subtitleBold: "Installé sur Shopify en 15 minutes · Essai 7 jours sans carte bancaire",
         cards: [
-            { title: "Support IA 24/7", desc: "80% des tickets résolus sans humain", bg: "bg-[#003725]", text: "text-white", descText: "text-white/60", icon: <Headphones className="w-7 h-7" />, iconBg: "bg-white/15", gradient: "bg-gradient-to-br from-[#003725] to-cta" },
-            { title: "Relance paniers", desc: "+15% de taux de récupération", bg: "bg-[#F9F7F1]", text: "text-[#003725]", descText: "text-[#716D5C]", icon: <RefreshCw className="w-7 h-7" />, iconBg: "bg-[#003725]/10", gradient: "bg-gradient-to-br from-[#F9F7F1] to-[#EDE9E0]" },
-            { title: "Monitoring IA", desc: "Alertes en temps réel sur vos KPIs", bg: "bg-[#F9F7F1]", text: "text-[#003725]", descText: "text-[#716D5C]", icon: <BarChart3 className="w-7 h-7" />, iconBg: "bg-[#003725]/10", gradient: "bg-gradient-to-br from-[#F0EDE6] to-[#F9F7F1]" },
-            { title: "Automatisations", desc: "Shopify, CRM, support connectés", bg: "bg-[#003725]", text: "text-white", descText: "text-white/60", icon: <Zap className="w-7 h-7" />, iconBg: "bg-white/15", gradient: "bg-gradient-to-br from-cta to-[#003725]" },
+            { title: "Support IA 24/7", desc: "Répond aux WISMO, retours et FAQ produit sans humain", bg: "bg-[#003725]", text: "text-white", descText: "text-white/60", icon: <Headphones className="w-7 h-7" />, iconBg: "bg-white/15", gradient: "bg-gradient-to-br from-[#003725] to-cta" },
+            { title: "Relance paniers", desc: "+15% de récupération en moyenne, par email IA", bg: "bg-[#F9F7F1]", text: "text-[#003725]", descText: "text-[#716D5C]", icon: <RefreshCw className="w-7 h-7" />, iconBg: "bg-[#003725]/10", gradient: "bg-gradient-to-br from-[#F9F7F1] to-[#EDE9E0]" },
+            { title: "ROI en temps réel", desc: "Voyez les heures économisées et le CA récupéré", bg: "bg-[#F9F7F1]", text: "text-[#003725]", descText: "text-[#716D5C]", icon: <BarChart3 className="w-7 h-7" />, iconBg: "bg-[#003725]/10", gradient: "bg-gradient-to-br from-[#F0EDE6] to-[#F9F7F1]" },
+            { title: "Natif Shopify", desc: "OAuth 1-clic, conforme RGPD, hébergé en France", bg: "bg-[#003725]", text: "text-white", descText: "text-white/60", icon: <Zap className="w-7 h-7" />, iconBg: "bg-white/15", gradient: "bg-gradient-to-br from-cta to-[#003725]" },
         ],
     };
 
@@ -54,11 +56,11 @@ export const GlassHero = ({ onNavigate }) => {
                         </p>
                     </FadeInUp>
 
-                    {/* CTAs */}
+                    {/* CTAs — primary benefit-led, secondary navigational, risk-reversal sub-line */}
                     <FadeInUp delay={0.15} className="flex flex-col items-center gap-3">
                         <div className="flex flex-wrap items-center justify-center gap-4">
                             <ButtonColorful onClick={() => onNavigate('/signup')}>
-                                Essai gratuit 7 jours <ArrowRight className="w-4 h-4" />
+                                Démarrer mon essai gratuit <ArrowRight className="w-4 h-4" />
                             </ButtonColorful>
                             <button
                                 onClick={() => onNavigate('/tarifs')}
@@ -68,7 +70,7 @@ export const GlassHero = ({ onNavigate }) => {
                             </button>
                         </div>
                         <p className="text-xs text-[#716D5C] font-medium">
-                            Créez votre compte en 30 secondes
+                            Compte créé en 30 secondes · Annulable en 1 clic · Aucune carte requise sur le plan Free
                         </p>
                     </FadeInUp>
 

@@ -562,15 +562,25 @@ export const PricingPage = ({ onNavigate }) => {
                 className="text-4xl md:text-6xl font-bold tracking-tight mb-6"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Des prix simples, <span className="text-cta">transparents.</span>
+                Un prix qui paie <span className="text-cta">40h de votre équipe.</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-xl text-[#716D5C] max-w-2xl mx-auto mb-10"
+                className="text-xl text-[#716D5C] max-w-2xl mx-auto mb-4"
               >
-                Commencez gratuitement, upgradez quand vous grandissez.
+                Le plan Starter à 99€ remplace environ 20 heures hebdo de support humain. Démarrez gratuitement, scalez quand vos tickets grimpent.
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="inline-flex items-center gap-4 text-sm text-[#716D5C] font-medium mb-10"
+              >
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cta" /> Sans engagement</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cta" /> Annulable en 1 clic</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cta" /> Garantie 30 jours satisfait ou remboursé</span>
               </motion.p>
 
               {/* ── Toggle Mensuel / Annuel ── */}

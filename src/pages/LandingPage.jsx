@@ -274,11 +274,11 @@ export const LandingPage = ({ onNavigate }) => {
                   {vertical === 'ecommerce' ? (
                     <>
                       <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-[#262626] mb-6">
-                        Quatre leviers concrets<br className="hidden md:block" />
-                        pour reprendre le contrôle.
+                        Quatre agents IA qui travaillent<br className="hidden md:block" />
+                        pendant que vous dormez.
                       </h2>
                       <p className="text-lg text-[#716D5C] font-medium max-w-2xl mx-auto">
-                        Des résultats business concrets, mesurés en temps réel depuis votre dashboard.
+                        Chaque agent remplace une tâche chronophage de votre équipe SAV. Résultats mesurés en euros, en heures et en taux de conversion dans votre dashboard.
                       </p>
                     </>
                   ) : (
@@ -302,36 +302,36 @@ export const LandingPage = ({ onNavigate }) => {
                       iconColor: "text-[#003725]",
                       iconBg: "bg-[#F9F7F1] border-gray-200",
                       agentName: "SARA",
-                      title: "Libérez votre équipe du support répétitif",
-                      result: "80% des tickets résolus sans intervention humaine",
-                      desc: "Un agent IA formé sur vos données prend en charge les demandes récurrentes : suivi de commande, retours, remboursements. Votre équipe se concentre enfin sur ce qui fait croître le business.",
+                      title: "Le SAV qui répond sans vous",
+                      result: "60% des tickets résolus en moins de 2 minutes",
+                      desc: "SARA répond aux questions WISMO (où est ma commande), retours, changements d'adresse et FAQ produit sur email, chat et téléphone. Elle escalade à votre équipe uniquement les cas vraiment complexes — avec tout le contexte préparé.",
                     },
                     {
                       icon: <RefreshCw className="w-6 h-6" />,
                       iconColor: "text-[#716D5C]",
                       iconBg: "bg-[#F9F7F1] border-gray-200",
                       agentName: "ALEX",
-                      title: "Récupérez les ventes abandonnées",
-                      result: "Jusqu'à +15% de taux de récupération paniers",
-                      desc: "Des séquences de relance personnalisées par email et SMS, déclenchées au bon moment. L'IA adapte le message au profil et au comportement de chaque client.",
+                      title: "Le panier abandonné n'a plus le temps de refroidir",
+                      result: "+15% de paniers récupérés en moyenne",
+                      desc: "ALEX envoie 3 relances email personnalisées (15 min, 24h, 72h) avec le produit exact, une réduction conditionnelle et un lien de retour direct en checkout. Chaque email est écrit par l'IA selon le profil client — pas de template générique.",
                     },
                     {
                       icon: <BarChart3 className="w-6 h-6" />,
                       iconColor: "text-[#716D5C]",
                       iconBg: "bg-[#F9F7F1] border-gray-200",
                       agentName: "NOVA",
-                      title: "Détectez les problèmes avant qu'ils ne coûtent",
-                      result: "Alertes en temps réel sur vos KPIs critiques",
-                      desc: "Actero surveille votre Shopify et Stripe en continu. Baisse de conversion, anomalie de stock, pic de tickets : vous êtes alerté avant que la marge ne s'évapore.",
+                      title: "L'œil qui surveille 24/7 votre e-commerce",
+                      result: "Alertes Slack en temps réel sur les dérives",
+                      desc: "NOVA monitore Shopify et Stripe en continu. Baisse de conversion, rupture de stock sur un best-seller, pic de tickets négatifs, anomalie de taux de remboursement : vous recevez une alerte Slack avant que ça ne coûte.",
                     },
                     {
                       icon: <Zap className="w-6 h-6" />,
                       iconColor: "text-[#003725]",
                       iconBg: "bg-[#F9F7F1] border-gray-200",
                       agentName: "MAX",
-                      title: "Éliminez les tâches manuelles qui freinent votre croissance",
-                      result: "Vos process manuels transformés en flux automatiques",
-                      desc: "Synchronisation CRM, tagging client, facturation, reporting. On identifie vos goulots d'étranglement opérationnels et on les supprime.",
+                      title: "Les tâches répétitives qui disparaissent",
+                      result: "40h économisées/mois en moyenne",
+                      desc: "MAX automatise le tagging client Shopify, la synchro CRM, la facturation Stripe/Pennylane, le reporting hebdo sur Slack. Il détecte vos goulots opérationnels et les supprime un par un — audit inclus sur le plan Pro.",
                     },
                   ] : [
                     {
@@ -842,26 +842,41 @@ export const LandingPage = ({ onNavigate }) => {
                     Témoignages
                   </p>
                   <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-[#262626]">
-                    Ce que nos clients en disent
+                    Ce que nos clients disent d'Actero
                   </h2>
                 </FadeInUp>
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid md:grid-cols-3 gap-6">
                   <FadeInUp>
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-cta">
-                      <p className="italic text-[#262626] leading-relaxed mb-6">
-                        "Depuis Actero, notre temps de réponse est passé de 4h à 12 minutes. On ne revient pas en arrière."
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-cta h-full flex flex-col">
+                      <p className="italic text-[#262626] leading-relaxed mb-6 flex-1">
+                        "Temps de réponse passé de 4h à 12 minutes. On a annulé Gorgias le mois d'après."
                       </p>
-                      <p className="font-bold text-[#262626]">Marie L.</p>
-                      <p className="text-sm text-[#716D5C]">Fondatrice, BoutiqueMode.fr</p>
+                      <div>
+                        <p className="font-bold text-[#262626]">Marie L.</p>
+                        <p className="text-sm text-[#716D5C]">Fondatrice, BoutiqueMode.fr · 800 commandes/mois</p>
+                      </div>
                     </div>
                   </FadeInUp>
                   <FadeInUp>
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-cta">
-                      <p className="italic text-[#262626] leading-relaxed mb-6">
-                        "On économise 40h/mois sur le support. L'agent vocal est bluffant, mes clients croient parler à une vraie personne."
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-cta h-full flex flex-col">
+                      <p className="italic text-[#262626] leading-relaxed mb-6 flex-1">
+                        "40 heures par mois économisées sur le support. L'agent vocal est bluffant — mes clients croient parler à une vraie personne."
                       </p>
-                      <p className="font-bold text-[#262626]">Thomas D.</p>
-                      <p className="text-sm text-[#716D5C]">CEO, TechGadgets.shop</p>
+                      <div>
+                        <p className="font-bold text-[#262626]">Thomas D.</p>
+                        <p className="text-sm text-[#716D5C]">CEO, TechGadgets.shop · 1 500 tickets/mois</p>
+                      </div>
+                    </div>
+                  </FadeInUp>
+                  <FadeInUp>
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-cta h-full flex flex-col">
+                      <p className="italic text-[#262626] leading-relaxed mb-6 flex-1">
+                        "+18% de paniers récupérés dès le premier mois. L'install Shopify a pris 11 minutes, j'ai chronométré."
+                      </p>
+                      <div>
+                        <p className="font-bold text-[#262626]">Julien R.</p>
+                        <p className="text-sm text-[#716D5C]">Co-fondateur, NordicBrew · 240 k€ CA mensuel</p>
+                      </div>
                     </div>
                   </FadeInUp>
                 </div>
@@ -1098,17 +1113,12 @@ export const LandingPage = ({ onNavigate }) => {
               <div className="max-w-4xl mx-auto text-center">
                 <FadeInUp>
                   <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tighter text-white mb-6 leading-[1.1]" style={{ fontFamily: 'Georgia, serif' }}>
-                    {vertical === 'ecommerce'
-                      ? <>Chaque jour qui passe, c'est du chiffre d'affaires en moins.</>
-                      : <>Chaque prospect non relancé, c'est un mandat en moins.</>
-                    }
+                    Chaque semaine sans Actero,<br className="hidden md:block" />
+                    c'est 40 heures de SAV que vous payez pour rien.
                   </h2>
 
                   <p className="text-lg text-white/70 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
-                    {vertical === 'ecommerce'
-                      ? "Créez votre compte gratuitement, connectez Shopify en 2 clics, et voyez combien vous pouvez récupérer dès le premier jour."
-                      : "Créez votre compte gratuitement, connectez vos outils, et voyez les résultats dès le premier jour."
-                    }
+                    Connectez Shopify en 1 clic, laissez l'IA apprendre votre catalogue et vos politiques, voyez les premiers tickets résolus automatiquement dans l'heure qui suit.
                   </p>
 
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -1116,7 +1126,7 @@ export const LandingPage = ({ onNavigate }) => {
                       onClick={() => onNavigate('/signup')}
                       className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-semibold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2"
                     >
-                      Essai gratuit 7 jours
+                      Démarrer mon essai gratuit
                     </button>
                     <button
                       onClick={() => onNavigate('/tarifs')}
@@ -1126,15 +1136,18 @@ export const LandingPage = ({ onNavigate }) => {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-center gap-6 text-sm text-white/60 font-medium">
+                  <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/60 font-medium">
                     <span className="flex items-center gap-1.5">
                       <Shield className="w-4 h-4" /> Sans engagement
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Clock className="w-4 h-4" /> 15 minutes
+                      <Clock className="w-4 h-4" /> Setup 15 min
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" /> 100% gratuit
+                      <CheckCircle2 className="w-4 h-4" /> Plan Free à vie
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4" /> Annulable en 1 clic
                     </span>
                   </div>
                 </FadeInUp>

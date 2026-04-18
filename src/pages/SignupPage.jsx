@@ -224,13 +224,13 @@ export const SignupPage = ({ onNavigate }) => {
                 <Logo className="w-7 h-7 text-[#262626]" />
               </div>
               <h1 className="text-[#262626] text-2xl font-bold tracking-tight">
-                {step === "verify" ? "Vérifiez votre email" : "Créer votre compte"}
+                {step === "verify" ? "Vérifiez votre email" : "Commencez en 30 secondes"}
               </h1>
               <p className="text-[#716D5C] text-sm mt-1.5 text-center">
                 {step === "verify" ? (
                   <>Un code à 6 chiffres a été envoyé à <strong className="text-[#262626]">{email}</strong></>
                 ) : (
-                  "Gratuit, sans carte bancaire."
+                  "Compte gratuit. Sans carte bancaire. Annulable en 1 clic."
                 )}
               </p>
             </div>
