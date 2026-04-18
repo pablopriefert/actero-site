@@ -465,12 +465,12 @@ export const ActivityView = ({ supabase, theme = "dark" }) => {
                                 {/* AI response bubble */}
                                 {cache.conversation.ai_response && (
                                   <div className="flex gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-[#0E653A]/10 border border-[#0E653A]/20 flex items-center justify-center flex-shrink-0">
-                                      <Bot className="w-4 h-4 text-[#0E653A]" />
+                                    <div className="w-8 h-8 rounded-full bg-cta/10 border border-cta/20 flex items-center justify-center flex-shrink-0">
+                                      <Bot className="w-4 h-4 text-cta" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                      <p className="text-[11px] font-semibold text-[#0E653A] mb-1">Agent IA</p>
-                                      <div className="bg-[#0E653A]/5 rounded-2xl rounded-tl-sm border border-[#0E653A]/15 px-4 py-3">
+                                      <p className="text-[11px] font-semibold text-cta mb-1">Agent IA</p>
+                                      <div className="bg-cta/5 rounded-2xl rounded-tl-sm border border-cta/15 px-4 py-3">
                                         <p className="text-[13px] text-[#1a1a1a] leading-relaxed whitespace-pre-wrap">
                                           {cache.conversation.ai_response}
                                         </p>

@@ -77,7 +77,7 @@ function UsageBar({ used, limit, label, unit = '' }) {
   const color =
     percent >= 90 ? 'bg-red-500' :
     percent >= 70 ? 'bg-amber-500' :
-    'bg-[#0E653A]'
+    'bg-cta'
 
   return (
     <div>
@@ -355,7 +355,7 @@ export const ClientBillingView = ({ theme }) => {
               }`}
             >
               Annuel
-              <span className="ml-1 text-[10px] text-[#0E653A]">-20%</span>
+              <span className="ml-1 text-[10px] text-cta">-20%</span>
             </button>
           </div>
         </div>
@@ -391,14 +391,14 @@ export const ClientBillingView = ({ theme }) => {
                 key={planKey}
                 className={`relative rounded-2xl border overflow-hidden transition-all ${
                   isCurrent
-                    ? 'border-[#0E653A]/30 bg-[#0E653A]/5'
+                    ? 'border-cta/30 bg-cta/5'
                     : p.popular
-                    ? 'border-[#0E653A] shadow-md'
+                    ? 'border-cta shadow-md'
                     : 'border-[#f0f0f0] bg-white'
                 }`}
               >
                 {p.popular && !isCurrent && (
-                  <div className="absolute top-0 right-0 px-3 py-1 bg-[#0E653A] text-white text-[10px] font-bold uppercase rounded-bl-lg">
+                  <div className="absolute top-0 right-0 px-3 py-1 bg-cta text-white text-[10px] font-bold uppercase rounded-bl-lg">
                     Populaire
                   </div>
                 )}
@@ -406,9 +406,9 @@ export const ClientBillingView = ({ theme }) => {
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isCurrent ? 'bg-[#0E653A]/10' : 'bg-[#fafafa]'
+                      isCurrent ? 'bg-cta/10' : 'bg-[#fafafa]'
                     }`}>
-                      <PlanIcon className={`w-4 h-4 ${isCurrent ? 'text-[#0E653A]' : 'text-[#71717a]'}`} />
+                      <PlanIcon className={`w-4 h-4 ${isCurrent ? 'text-cta' : 'text-[#71717a]'}`} />
                     </div>
                     <div>
                       <p className="text-[14px] font-bold text-[#1a1a1a]">{p.name}</p>
@@ -428,7 +428,7 @@ export const ClientBillingView = ({ theme }) => {
                   <div className="space-y-2 mb-5">
                     {features.map((f, i) => (
                       <div key={i} className="flex items-start gap-2 text-[12px] text-[#71717a]">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#0E653A] mt-0.5 flex-shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-cta mt-0.5 flex-shrink-0" />
                         <span>{f}</span>
                       </div>
                     ))}
@@ -444,7 +444,7 @@ export const ClientBillingView = ({ theme }) => {
                         ? 'bg-[#fafafa] text-[#9ca3af] cursor-default'
                         : isEnterprise
                         ? 'bg-[#1a1a1a] text-white hover:bg-[#333]'
-                        : 'bg-[#0E653A] text-white hover:bg-[#0a4528]'
+                        : 'bg-cta text-white hover:bg-[#0a4528]'
                     }`}
                   >
                     {upgradingPlan === planKey ? (

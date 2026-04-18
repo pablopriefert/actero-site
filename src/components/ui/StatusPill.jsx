@@ -9,7 +9,7 @@ const VARIANT_MAP = {
   danger: 'bg-red-50 text-red-700 border border-red-200',
   info: 'bg-blue-50 text-blue-700 border border-blue-200',
   neutral: 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]',
-  brand: 'bg-[#0E653A]/10 text-[#0E653A] border border-[#0E653A]/20',
+  brand: 'bg-cta/10 text-cta border border-cta/20',
 };
 
 const DOT_MAP = {
@@ -18,7 +18,7 @@ const DOT_MAP = {
   danger: 'bg-[#ef4444]',
   info: 'bg-[#3b82f6]',
   neutral: 'bg-[#9ca3af]',
-  brand: 'bg-[#0E653A]',
+  brand: 'bg-cta',
 };
 
 const SIZE_MAP = {

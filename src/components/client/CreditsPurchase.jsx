@@ -69,7 +69,7 @@ export const CreditsPurchase = ({ clientId }) => {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl bg-gradient-to-br from-[#0E653A] to-[#003725] text-white p-6 overflow-hidden relative"
+        className="rounded-2xl bg-gradient-to-br from-cta to-[#003725] text-white p-6 overflow-hidden relative"
       >
         <div className="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white/5" />
         <div className="absolute -right-12 -bottom-12 w-48 h-48 rounded-full bg-white/5" />
@@ -115,7 +115,7 @@ export const CreditsPurchase = ({ clientId }) => {
                 onClick={() => setAmount(pack.amount)}
                 className={`relative p-3 rounded-xl border text-center transition-all ${
                   selected
-                    ? 'border-[#0E653A] bg-[#0E653A]/5 ring-2 ring-[#0E653A]/20'
+                    ? 'border-cta bg-cta/5 ring-2 ring-cta/20'
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
               >
@@ -124,7 +124,7 @@ export const CreditsPurchase = ({ clientId }) => {
                     {pack.label}
                   </span>
                 )}
-                <p className={`text-sm font-bold ${selected ? 'text-[#0E653A]' : 'text-[#1a1a1a]'}`}>
+                <p className={`text-sm font-bold ${selected ? 'text-cta' : 'text-[#1a1a1a]'}`}>
                   {formatCredits(pack.amount)}
                 </p>
                 <p className="text-[10px] text-[#71717a] mt-0.5">
@@ -151,7 +151,7 @@ export const CreditsPurchase = ({ clientId }) => {
               min={MIN_CREDITS}
               max={MAX_CREDITS}
               step={100}
-              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#1a1a1a] font-semibold focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#1a1a1a] font-semibold focus:outline-none focus:ring-2 focus:ring-cta/20"
             />
             <span className="text-sm text-[#71717a] font-medium">crédits</span>
           </div>
@@ -162,7 +162,7 @@ export const CreditsPurchase = ({ clientId }) => {
             step={100}
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
-            className="w-full accent-[#0E653A]"
+            className="w-full accent-cta"
           />
           <div className="flex justify-between text-[10px] text-[#9ca3af]">
             <span>{MIN_CREDITS}</span>
@@ -178,7 +178,7 @@ export const CreditsPurchase = ({ clientId }) => {
           </div>
           <div className="flex justify-between items-baseline">
             <span className="text-sm font-semibold text-[#1a1a1a]">Total</span>
-            <span className="text-2xl font-bold text-[#0E653A]">{formatPriceEUR(price)}</span>
+            <span className="text-2xl font-bold text-cta">{formatPriceEUR(price)}</span>
           </div>
           {amount >= 1000 && (
             <p className="text-[10px] text-emerald-600 font-medium flex items-center gap-1">
@@ -192,7 +192,7 @@ export const CreditsPurchase = ({ clientId }) => {
         <button
           onClick={handlePurchase}
           disabled={loading || amount < MIN_CREDITS}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0E653A] text-white text-sm font-bold hover:bg-[#003725] disabled:opacity-50 transition-all"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-cta text-white text-sm font-bold hover:bg-[#003725] disabled:opacity-50 transition-all"
         >
           {loading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Redirection…</>

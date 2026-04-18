@@ -30,7 +30,7 @@ export const UpgradeBanner = ({ feature, requiredPlan, compact = false, onNaviga
         </span>
         <button
           onClick={handleClick}
-          className="ml-auto text-[11px] font-semibold text-[#0E653A] hover:underline flex-shrink-0"
+          className="ml-auto text-[11px] font-semibold text-cta hover:underline flex-shrink-0"
         >
           Upgrade
         </button>
@@ -60,7 +60,7 @@ export const UpgradeBanner = ({ feature, requiredPlan, compact = false, onNaviga
 
         <button
           onClick={handleClick}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0E653A] text-white text-[14px] font-semibold hover:bg-[#0d5430] transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cta text-white text-[14px] font-semibold hover:bg-[#0d5430] transition-colors shadow-sm"
         >
           Passer au plan {planConfig.name}
         </button>

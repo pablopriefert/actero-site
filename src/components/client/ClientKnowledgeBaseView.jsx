@@ -572,7 +572,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
         <div className="bg-white border border-gray-200 rounded-2xl p-5">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-[#0E653A]" />
+              <BarChart3 className="w-4 h-4 text-cta" />
               <span className="text-sm font-bold text-[#1a1a1a]">Couverture de votre base</span>
             </div>
             <span className="text-xs text-[#71717a]">{entries.length} entree{entries.length > 1 ? 's' : ''}</span>
@@ -718,7 +718,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                 <button
                   onClick={handleAddQA}
                   disabled={!qaQuestion.trim() || !qaAnswer.trim()}
-                  className="w-full py-2.5 bg-[#0E653A] text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2.5 bg-cta text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Ajouter la FAQ
@@ -748,7 +748,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                 <label className={`relative block border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
                   uploading
                     ? 'border-gray-200 cursor-wait'
-                    : 'border-gray-200 cursor-pointer hover:border-[#0E653A]/30 hover:bg-gray-50'
+                    : 'border-gray-200 cursor-pointer hover:border-cta/30 hover:bg-gray-50'
                 }`}>
                   <Upload className="w-6 h-6 text-[#71717a] mx-auto mb-2" />
                   <p className="text-sm text-[#1a1a1a] font-medium">

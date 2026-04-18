@@ -162,7 +162,7 @@ export const TeamManager = ({ clientId }) => {
         </div>
         <button
           onClick={() => setShowInvite(!showInvite)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#0E653A] text-white rounded-full text-sm font-semibold hover:bg-[#003725] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-cta text-white rounded-full text-sm font-semibold hover:bg-[#003725] transition-colors"
         >
           <UserPlus className="w-4 h-4" />
           Inviter
@@ -222,7 +222,7 @@ export const TeamManager = ({ clientId }) => {
                 <button
                   onClick={handleInvite}
                   disabled={!inviteEmail.trim() || inviting}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#0E653A] text-white rounded-xl text-sm font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-xl text-sm font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
                 >
                   {inviting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
                   Envoyer l'invitation

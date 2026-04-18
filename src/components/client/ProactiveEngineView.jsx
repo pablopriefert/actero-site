@@ -103,7 +103,7 @@ export const ProactiveEngineView = ({ clientId }) => {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0E653A] via-[#0E653A] to-[#003725] text-white p-6 md:p-8"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-cta via-cta to-[#003725] text-white p-6 md:p-8"
       >
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
@@ -248,7 +248,7 @@ function RuleCard({ rule, onToggle, onConfigure, toggling }) {
   const canToggle = rule.ready || rule.is_active
 
   return (
-    <div className={`bg-white rounded-2xl border ${rule.is_active ? 'border-[#0E653A]/30 shadow-[0_2px_10px_rgba(15,95,53,0.08)]' : 'border-[#f0f0f0]'} p-5 transition-all`}>
+    <div className={`bg-white rounded-2xl border ${rule.is_active ? 'border-cta/30 shadow-[0_2px_10px_rgba(15,95,53,0.08)]' : 'border-[#f0f0f0]'} p-5 transition-all`}>
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className={`w-10 h-10 rounded-xl ${colors.bg} border ${colors.border} flex items-center justify-center flex-shrink-0`}>
@@ -285,7 +285,7 @@ function RuleCard({ rule, onToggle, onConfigure, toggling }) {
           </div>
           <button
             onClick={onConfigure}
-            className="inline-flex items-center gap-1 text-[#0E653A] hover:text-[#003725] font-semibold"
+            className="inline-flex items-center gap-1 text-cta hover:text-[#003725] font-semibold"
           >
             <SettingsIcon className="w-3 h-3" /> Configurer
           </button>
@@ -300,7 +300,7 @@ function ToggleSwitch({ value, onChange, disabled }) {
     <button
       onClick={() => onChange(!value)}
       disabled={disabled}
-      className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${value ? 'bg-[#0E653A]' : 'bg-zinc-300'}`}
+      className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${value ? 'bg-cta' : 'bg-zinc-300'}`}
       aria-pressed={value}
     >
       <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${value ? 'translate-x-4' : 'translate-x-0.5'}`} />

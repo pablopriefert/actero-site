@@ -183,7 +183,7 @@ export function AdminAlertBuilderView() {
           <button
             type="button"
             onClick={openCreate}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0E653A] text-white text-[12px] font-semibold hover:bg-[#0d5030]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-[12px] font-semibold hover:bg-[#0d5030]"
           >
             <Plus className="w-3.5 h-3.5" />
             Nouvelle alerte
@@ -237,7 +237,7 @@ export function AdminAlertBuilderView() {
                 <button
                   type="button"
                   onClick={openCreate}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0E653A] text-white text-[12px] font-semibold"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-[12px] font-semibold"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Nouvelle alerte
@@ -262,7 +262,7 @@ export function AdminAlertBuilderView() {
                     <button
                       type="button"
                       onClick={() => handleToggle(rule)}
-                      className="text-[11px] font-semibold text-[#0E653A] hover:underline"
+                      className="text-[11px] font-semibold text-cta hover:underline"
                     >
                       {rule.enabled ? 'Désactiver' : 'Activer'}
                     </button>
@@ -418,7 +418,7 @@ function AlertRuleModal({ initial, onClose, onSave }) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Burst d'escalations"
-              className="w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40"
+              className="w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40"
             />
           </Field>
 
@@ -428,7 +428,7 @@ function AlertRuleModal({ initial, onClose, onSave }) {
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               placeholder="Contexte / pourquoi cette alerte"
-              className="w-full resize-none rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40"
+              className="w-full resize-none rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40"
             />
           </Field>
 
@@ -436,7 +436,7 @@ function AlertRuleModal({ initial, onClose, onSave }) {
             <select
               value={triggerType}
               onChange={(e) => handleTypeChange(e.target.value)}
-              className="w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40"
+              className="w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40"
             >
               {TRIGGER_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -459,7 +459,7 @@ function AlertRuleModal({ initial, onClose, onSave }) {
                 value={slackChannel}
                 onChange={(e) => setSlackChannel(e.target.value)}
                 placeholder="#ops"
-                className="w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40"
+                className="w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40"
               />
             </Field>
             <Field label="Cooldown (min)">
@@ -468,7 +468,7 @@ function AlertRuleModal({ initial, onClose, onSave }) {
                 min={1}
                 value={cooldownMin}
                 onChange={(e) => setCooldownMin(e.target.value)}
-                className="w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40"
+                className="w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40"
               />
             </Field>
           </div>
@@ -483,8 +483,8 @@ function AlertRuleModal({ initial, onClose, onSave }) {
             Activer immédiatement
           </label>
 
-          <div className="rounded-lg bg-[#0E653A]/5 border border-[#0E653A]/20 p-3">
-            <div className="text-[10px] uppercase tracking-wider text-[#0E653A] font-semibold mb-1">
+          <div className="rounded-lg bg-cta/5 border border-cta/20 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-cta font-semibold mb-1">
               Preview
             </div>
             <div className="text-[12px] text-[#1a1a1a] font-mono">{preview}</div>
@@ -505,7 +505,7 @@ function AlertRuleModal({ initial, onClose, onSave }) {
             <button
               type="submit"
               disabled={saving}
-              className="px-3 py-1.5 rounded-lg bg-[#0E653A] text-white text-[12px] font-semibold disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg bg-cta text-white text-[12px] font-semibold disabled:opacity-50"
             >
               {saving ? 'Enregistrement…' : isEdit ? 'Mettre à jour' : 'Créer'}
             </button>
@@ -545,7 +545,7 @@ function defaultConditionFor(type) {
 function ConditionFields({ type, value, onChange }) {
   const set = (patch) => onChange({ ...value, ...patch })
   const inputCls =
-    'w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40'
+    'w-full rounded-lg border border-[#f0f0f0] bg-white px-3 py-2 text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40'
 
   if (type === 'event_threshold') {
     return (

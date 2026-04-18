@@ -110,7 +110,7 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
               onClick={() => isAvailable && ch.targetTab && onNavigate && onNavigate(ch.targetTab)}
               className={`group text-left bg-white rounded-2xl border p-5 transition-all ${
                 isAvailable
-                  ? 'border-[#f0f0f0] hover:border-[#0E653A]/25 hover:shadow-sm cursor-pointer'
+                  ? 'border-[#f0f0f0] hover:border-cta/25 hover:shadow-sm cursor-pointer'
                   : 'border-[#f0f0f0] opacity-60 cursor-not-allowed'
               }`}
             >
@@ -139,7 +139,7 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
               <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-1">{ch.name}</h3>
               <p className="text-[12px] text-[#71717a] leading-relaxed">{ch.description}</p>
               {ch.status === 'available' && (
-                <div className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-[#0E653A]">
+                <div className="mt-3 inline-flex items-center gap-1 text-[12px] font-semibold text-cta">
                   <Plus className="w-3.5 h-3.5" />
                   Activer ce canal
                 </div>

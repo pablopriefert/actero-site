@@ -71,11 +71,11 @@ const MockupDeploy = ({ isImmo }) => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: agent.delay, duration: 0.3 }}
-            className="bg-[#0E653A]/5 rounded-xl p-3 flex flex-col gap-2"
+            className="bg-cta/5 rounded-xl p-3 flex flex-col gap-2"
           >
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-black tracking-widest text-[#003725]">{agent.name}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#0E653A] animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-cta animate-pulse" />
             </div>
             <span className="text-[10px] text-[#716D5C] font-medium">{agent.label}</span>
             <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
@@ -84,7 +84,7 @@ const MockupDeploy = ({ isImmo }) => {
                 whileInView={{ width: '100%' }}
                 viewport={{ once: true }}
                 transition={{ delay: agent.delay + 0.3, duration: 0.8 }}
-                className="h-full bg-[#0E653A] rounded-full"
+                className="h-full bg-cta rounded-full"
               />
             </div>
           </motion.div>
@@ -101,7 +101,7 @@ const MockupDashboard = ({ isImmo }) => {
     <div className="bg-[#F9F7F1] rounded-xl border border-gray-200 p-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[#716D5C] uppercase tracking-widest text-[9px] font-mono">Dashboard ROI</p>
-        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#0E653A]/5 text-[#003725]">
+        <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cta/5 text-[#003725]">
           Live
         </span>
       </div>
@@ -130,7 +130,7 @@ const MockupDashboard = ({ isImmo }) => {
             whileInView={{ height: `${h}%` }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.07, duration: 0.5, ease: 'easeOut' }}
-            className={`flex-1 rounded-sm ${i === bars.length - 1 ? 'bg-[#0E653A]' : 'bg-gray-200'}`}
+            className={`flex-1 rounded-sm ${i === bars.length - 1 ? 'bg-cta' : 'bg-gray-200'}`}
           />
         ))}
       </div>

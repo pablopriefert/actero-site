@@ -74,7 +74,7 @@ const PaymentLinkForm = ({ email, name }) => {
         <button
           onClick={handleSend}
           disabled={!amount || sending}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0E653A] text-white rounded-lg text-[12px] font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-cta text-white rounded-lg text-[12px] font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
         >
           {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
           Envoyer
@@ -198,7 +198,7 @@ export const AdminPartnersView = () => {
         </div>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#0E653A] text-white rounded-full text-[13px] font-semibold hover:bg-[#003725] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-cta text-white rounded-full text-[13px] font-semibold hover:bg-[#003725] transition-colors"
         >
           <Plus className="w-4 h-4" />
           Ajouter
@@ -264,7 +264,7 @@ export const AdminPartnersView = () => {
                 <button
                   onClick={handleCreate}
                   disabled={creating || !newPartner.first_name || !newPartner.last_name || !newPartner.email}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#0E653A] text-white rounded-xl text-[13px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-xl text-[13px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
                 >
                   {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                   Créer le partenaire

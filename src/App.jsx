@@ -126,7 +126,7 @@ function MainRouter() {
           </div>
           <h2 className="text-2xl font-bold text-[#1a1a1a] mb-2">Marketplace</h2>
           <p className="text-sm text-[#71717a] mb-6">Bientôt disponible — des templates, playbooks et intégrations créés par la communauté Actero.</p>
-          <button onClick={() => navigate("/")} className="text-[#0E653A] font-semibold text-sm hover:underline">Retour à l'accueil</button>
+          <button onClick={() => navigate("/")} className="text-cta font-semibold text-sm hover:underline">Retour à l'accueil</button>
         </div>
       </div>
     );
@@ -140,7 +140,7 @@ function MainRouter() {
           </div>
           <h2 className="text-2xl font-bold text-[#1a1a1a] mb-2">Actero Academy</h2>
           <p className="text-sm text-[#71717a] mb-6">Bientôt disponible — des cours et tutoriels pour maîtriser l'automatisation IA de votre e-commerce.</p>
-          <button onClick={() => navigate("/")} className="text-[#0E653A] font-semibold text-sm hover:underline">Retour à l'accueil</button>
+          <button onClick={() => navigate("/")} className="text-cta font-semibold text-sm hover:underline">Retour à l'accueil</button>
         </div>
       </div>
     );

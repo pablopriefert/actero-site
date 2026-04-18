@@ -129,7 +129,7 @@ const NotificationPreferences = ({ clientId, isLight }) => {
                       <button
                         onClick={() => updatePrefMutation.mutate({ key: toggle.key, value: !isOn })}
                         disabled={updatePrefMutation.isPending}
-                        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${isOn ? 'bg-[#0E653A]' : 'bg-gray-200'}`}
+                        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${isOn ? 'bg-cta' : 'bg-gray-200'}`}
                       >
                         <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${isOn ? 'translate-x-5' : 'translate-x-0.5'}`} />
                       </button>
@@ -197,7 +197,7 @@ const StripePortalButton = ({ clientId, isLight }) => {
     <button
       onClick={openPortal}
       disabled={loading || !clientId}
-      className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold bg-[#0E653A] text-white hover:bg-[#003725] transition-all disabled:opacity-50"
+      className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-bold bg-cta text-white hover:bg-[#003725] transition-all disabled:opacity-50"
     >
       {loading ? (
         <><Loader2 className="w-4 h-4 animate-spin" /> Chargement...</>

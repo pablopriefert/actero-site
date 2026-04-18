@@ -109,7 +109,7 @@ export function SetPasswordPage({ onNavigate }) {
   if (!sessionReady && !errorMsg) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9F7F1]">
-        <Loader2 className="w-8 h-8 text-[#0E653A] animate-spin" />
+        <Loader2 className="w-8 h-8 text-cta animate-spin" />
       </div>
     )
   }
@@ -117,8 +117,8 @@ export function SetPasswordPage({ onNavigate }) {
   if (success) {
     return (
       <div className="min-h-screen bg-[#F9F7F1] flex flex-col justify-center items-center px-6 font-sans">
-        <div className="w-20 h-20 bg-[#0E653A]/10 rounded-full flex items-center justify-center mb-6">
-          <CheckCircle className="w-10 h-10 text-[#0E653A]" />
+        <div className="w-20 h-20 bg-cta/10 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle className="w-10 h-10 text-cta" />
         </div>
         <h2 className="text-2xl font-bold text-[#262626] mb-2">Mot de passe créé !</h2>
         <p className="text-[#716D5C] text-sm">Redirection vers votre espace...</p>
@@ -164,7 +164,7 @@ export function SetPasswordPage({ onNavigate }) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 pr-12 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0E653A]/30 outline-none transition-all text-sm text-[#262626]"
+                  className="w-full px-4 py-3 pr-12 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-cta/30 outline-none transition-all text-sm text-[#262626]"
                   required
                   autoFocus
                 />
@@ -190,7 +190,7 @@ export function SetPasswordPage({ onNavigate }) {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0E653A]/30 outline-none transition-all text-sm text-[#262626]"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-cta/30 outline-none transition-all text-sm text-[#262626]"
                 required
               />
               {confirmPassword && password !== confirmPassword && (
@@ -203,7 +203,7 @@ export function SetPasswordPage({ onNavigate }) {
               <button
                 type="submit"
                 disabled={loading || !isValid}
-                className="w-full h-14 rounded-full font-bold text-white bg-[#0E653A] hover:bg-[#003725] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full h-14 rounded-full font-bold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>

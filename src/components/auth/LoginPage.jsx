@@ -99,7 +99,7 @@ export const LoginPage = ({ onNavigate }) => {
                   Pas encore de compte ?{" "}
                   <button
                     onClick={() => onNavigate("/signup")}
-                    className="text-[#003725] font-semibold hover:text-[#0E653A] transition-colors"
+                    className="text-[#003725] font-semibold hover:text-cta transition-colors"
                   >
                     Créer un compte gratuitement
                   </button>
@@ -129,7 +129,7 @@ export const LoginPage = ({ onNavigate }) => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-[#0E653A]/40 transition-all"
+                className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                 placeholder="adresse email"
               />
             </div>
@@ -143,7 +143,7 @@ export const LoginPage = ({ onNavigate }) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-[#0E653A]/40 transition-all"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="Mot de passe"
                 />
               </div>
@@ -154,7 +154,7 @@ export const LoginPage = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full text-sm font-semibold text-white bg-[#0E653A] hover:bg-[#003725] transition-colors disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-semibold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
@@ -167,7 +167,7 @@ export const LoginPage = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-[#0E653A] hover:bg-[#003725] transition-colors disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
@@ -237,7 +237,7 @@ export const LoginPage = ({ onNavigate }) => {
 
           <p className="text-center text-[13px] text-[#71717a] mt-6">
             Pas encore de compte ?{' '}
-            <a href="/signup" onClick={(e) => { e.preventDefault(); onNavigate('/signup'); }} className="text-[#0E653A] font-semibold hover:underline">
+            <a href="/signup" onClick={(e) => { e.preventDefault(); onNavigate('/signup'); }} className="text-cta font-semibold hover:underline">
               Créer un compte gratuitement
             </a>
           </p>

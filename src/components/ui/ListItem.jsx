@@ -20,7 +20,7 @@ function Avatar({ avatar }) {
   }
   // Initiales
   return (
-    <div className="w-8 h-8 rounded-lg flex-shrink-0 bg-[#0E653A]/10 text-[#0E653A] flex items-center justify-center text-[11px] font-semibold">
+    <div className="w-8 h-8 rounded-lg flex-shrink-0 bg-cta/10 text-cta flex items-center justify-center text-[11px] font-semibold">
       {String(avatar).slice(0, 2).toUpperCase()}
     </div>
   );
@@ -77,7 +77,7 @@ export function ListItem({
         'flex items-center gap-3 px-5 py-3 border-b border-[#f0f0f0] transition-colors',
         clickable && 'cursor-pointer',
         !selected && 'hover:bg-[#fafafa]',
-        selected && 'bg-[#0E653A]/5 border-l-2 border-l-[#0E653A]',
+        selected && 'bg-cta/5 border-l-2 border-l-cta',
         className
       )}
     >

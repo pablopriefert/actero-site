@@ -120,7 +120,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
 
             <button
               onClick={() => onNavigateToClients?.()}
-              className="w-full px-4 py-3 rounded-xl text-[13px] font-semibold bg-[#0E653A] text-white hover:bg-[#0E653A]/90 transition-colors"
+              className="w-full px-4 py-3 rounded-xl text-[13px] font-semibold bg-cta text-white hover:bg-cta/90 transition-colors"
             >
               Voir la liste clients
             </button>
@@ -145,7 +145,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               value={form.brand_name}
               onChange={(e) => update('brand_name', e.target.value)}
               placeholder="Maison Durand, Nike FR..."
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               required
               autoFocus
             />
@@ -161,7 +161,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               value={form.contact_email}
               onChange={(e) => update('contact_email', e.target.value)}
               placeholder="ceo@brand.com"
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               required
             />
           </div>
@@ -176,7 +176,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               value={form.shopify_url}
               onChange={(e) => update('shopify_url', e.target.value)}
               placeholder="https://brand.myshopify.com"
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
             />
           </div>
 
@@ -192,7 +192,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
                 step="1"
                 value={form.mrr}
                 onChange={(e) => update('mrr', Number(e.target.value))}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               />
             </div>
             <div>
@@ -205,7 +205,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
                 max="10"
                 value={form.nb_shops}
                 onChange={(e) => update('nb_shops', Number(e.target.value))}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               />
             </div>
           </div>
@@ -220,7 +220,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               value={form.account_manager}
               onChange={(e) => update('account_manager', e.target.value)}
               placeholder="Pablo, Marie..."
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
             />
           </div>
 
@@ -234,7 +234,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               onChange={(e) => update('notes', e.target.value)}
               placeholder="Details sur le client, besoins specifiques..."
               rows={3}
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white transition-colors resize-none"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors resize-none"
             />
           </div>
 
@@ -242,7 +242,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
           <button
             type="submit"
             disabled={submitting || !form.brand_name.trim() || !form.contact_email.trim()}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[13px] font-semibold bg-[#0E653A] text-white hover:bg-[#0E653A]/90 disabled:opacity-50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[13px] font-semibold bg-cta text-white hover:bg-cta/90 disabled:opacity-50 transition-colors"
           >
             <Send className="w-4 h-4" />
             {submitting ? 'Création en cours...' : 'Créer le client Enterprise'}

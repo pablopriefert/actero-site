@@ -314,7 +314,7 @@ export const VocalAgentWizard = ({ clientId, onComplete, onCancel }) => {
                       <button
                         onClick={handleInstall}
                         disabled={installing}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#0E653A] text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-cta text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors"
                       >
                         {installing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                         {installing ? 'Installation...' : 'Installer sur ma boutique'}
@@ -333,7 +333,7 @@ export const VocalAgentWizard = ({ clientId, onComplete, onCancel }) => {
                       <p className="text-[13px] text-[#9ca3af]">Vos clients peuvent maintenant parler a votre agent directement sur votre site.</p>
                       <button
                         onClick={onComplete}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0E653A] text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725] transition-colors"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725] transition-colors"
                       >
                         Terminer
                       </button>

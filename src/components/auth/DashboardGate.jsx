@@ -217,7 +217,7 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
     return (
       <div className="min-h-screen bg-[#F9F7F1] flex flex-col items-center justify-center font-sans">
         <svg
-          className="animate-spin h-10 w-10 text-[#0E653A] mb-4"
+          className="animate-spin h-10 w-10 text-cta mb-4"
           fill="none"
           viewBox="0 0 24 24"
         >

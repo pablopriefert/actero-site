@@ -40,16 +40,16 @@ const EditKbEntry = ({ entry, onSave, onCancel }) => {
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/30"
+        className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
       />
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={3}
-        className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-[#0E653A]/30"
+        className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-cta/30"
       />
       <div className="flex gap-2">
-        <button onClick={() => onSave(title, content)} className="px-3 py-1.5 bg-[#0E653A] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725]">Sauvegarder</button>
+        <button onClick={() => onSave(title, content)} className="px-3 py-1.5 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725]">Sauvegarder</button>
         <button onClick={onCancel} className="px-3 py-1.5 text-xs font-medium text-[#9ca3af] hover:text-[#1a1a1a]">Annuler</button>
       </div>
     </div>
@@ -72,7 +72,7 @@ export const PromptEditor = ({ clientId, theme }) => {
   const [manualContent, setManualContent] = useState('')
   const [newAbsoluteRule, setNewAbsoluteRule] = useState('')
 
-  const inputClass = "w-full px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/20 placeholder-gray-400"
+  const inputClass = "w-full px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 placeholder-gray-400"
 
   // -------- Data fetching --------
   const { data: settings, isLoading } = useQuery({
@@ -396,7 +396,7 @@ export const PromptEditor = ({ clientId, theme }) => {
       <div className="mb-6">
         <div className="h-1 bg-[#f0f0f0] rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-[#0E653A]"
+            className="h-full bg-cta"
             initial={false}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -416,7 +416,7 @@ export const PromptEditor = ({ clientId, theme }) => {
               onClick={() => setCurrentStep(i)}
               className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all ${
                 isActive
-                  ? 'bg-[#0E653A]/5 border-[#0E653A]/30 shadow-[0_1px_3px_rgba(0,0,0,0.06)]'
+                  ? 'bg-cta/5 border-cta/30 shadow-[0_1px_3px_rgba(0,0,0,0.06)]'
                   : isCompleted
                     ? 'bg-white border-[#f0f0f0] hover:border-[#e5e5e5]'
                     : 'bg-white border-[#f0f0f0] hover:border-[#e5e5e5] opacity-70'
@@ -424,7 +424,7 @@ export const PromptEditor = ({ clientId, theme }) => {
             >
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
                 isActive
-                  ? 'bg-[#0E653A] text-white'
+                  ? 'bg-cta text-white'
                   : isCompleted
                     ? 'bg-emerald-50 text-emerald-600'
                     : 'bg-[#fafafa] text-[#9ca3af]'
@@ -457,7 +457,7 @@ export const PromptEditor = ({ clientId, theme }) => {
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                    <Building className="w-5 h-5 text-[#0E653A]" />
+                    <Building className="w-5 h-5 text-cta" />
                   </div>
                   <div>
                     <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Identite de marque</h3>
@@ -488,7 +488,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                   <select
                     value={form.brand_language}
                     onChange={(e) => setForm(f => ({ ...f, brand_language: e.target.value }))}
-                    className="w-full max-w-md px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/20 appearance-none cursor-pointer"
+                    className="w-full max-w-md px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 appearance-none cursor-pointer"
                   >
                     {LANGUAGES.map(l => (
                       <option key={l.value} value={l.value}>{l.label}</option>
@@ -525,7 +525,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_formality || 30}
                       onChange={(e) => setForm(f => ({ ...f, tone_formality: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0E653A]"
+                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
 
@@ -542,7 +542,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_warmth || 70}
                       onChange={(e) => setForm(f => ({ ...f, tone_warmth: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0E653A]"
+                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
 
@@ -559,7 +559,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_detail || 50}
                       onChange={(e) => setForm(f => ({ ...f, tone_detail: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-[#0E653A]"
+                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
                 </div>
@@ -620,7 +620,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                   <button
                     onClick={handleAddAbsoluteRule}
                     disabled={!newAbsoluteRule.trim()}
-                    className="px-4 py-3 bg-[#0E653A] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-40 flex-shrink-0"
+                    className="px-4 py-3 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-40 flex-shrink-0"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -658,7 +658,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                   </div>
                   <div>
                     <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Base de connaissances</h3>
-                    <p className="text-[12px] text-[#9ca3af]">FAQ, politiques, infos produits — l'agent puise ici pour repondre {kbEntries.length > 0 && <span className="ml-1 text-[#0E653A] font-semibold">{kbEntries.length} entree{kbEntries.length > 1 ? 's' : ''}</span>}</p>
+                    <p className="text-[12px] text-[#9ca3af]">FAQ, politiques, infos produits — l'agent puise ici pour repondre {kbEntries.length > 0 && <span className="ml-1 text-cta font-semibold">{kbEntries.length} entree{kbEntries.length > 1 ? 's' : ''}</span>}</p>
                   </div>
                 </div>
 
@@ -679,7 +679,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                       <button
                         onClick={handleImportUrl}
                         disabled={!importUrl.trim() || importing}
-                        className="px-4 py-3 bg-[#0E653A] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
+                        className="px-4 py-3 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
                       >
                         {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                       </button>
@@ -691,7 +691,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                     <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider flex items-center gap-1">
                       <Upload className="w-3 h-3" /> Importer un fichier
                     </label>
-                    <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#ebebeb] rounded-xl cursor-pointer hover:border-[#0E653A]/30 hover:bg-[#f5f5f5] transition-all">
+                    <label className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[#ebebeb] rounded-xl cursor-pointer hover:border-cta/30 hover:bg-[#f5f5f5] transition-all">
                       {uploading ? (
                         <><Loader2 className="w-4 h-4 animate-spin text-[#9ca3af]" /><span className="text-sm text-[#9ca3af]">Analyse...</span></>
                       ) : (
@@ -706,7 +706,7 @@ export const PromptEditor = ({ clientId, theme }) => {
                 {!showAddManual ? (
                   <button
                     onClick={() => setShowAddManual(true)}
-                    className="flex items-center gap-2 text-sm font-medium text-[#0E653A] hover:underline"
+                    className="flex items-center gap-2 text-sm font-medium text-cta hover:underline"
                   >
                     <Plus className="w-4 h-4" />
                     Ajouter une entree manuellement
@@ -718,20 +718,20 @@ export const PromptEditor = ({ clientId, theme }) => {
                       value={manualTitle}
                       onChange={(e) => setManualTitle(e.target.value)}
                       placeholder="Titre (ex: Delais de livraison)"
-                      className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/30"
+                      className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
                     />
                     <textarea
                       value={manualContent}
                       onChange={(e) => setManualContent(e.target.value)}
                       placeholder="Contenu (ex: La livraison est gratuite a partir de 50€. Delai: 2-5 jours ouvres.)"
                       rows={3}
-                      className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-[#0E653A]/30"
+                      className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-cta/30"
                     />
                     <div className="flex gap-2">
                       <button
                         onClick={handleAddManual}
                         disabled={!manualTitle.trim() || !manualContent.trim()}
-                        className="px-4 py-1.5 bg-[#0E653A] text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50"
+                        className="px-4 py-1.5 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50"
                       >
                         Ajouter
                       </button>
@@ -814,20 +814,20 @@ export const PromptEditor = ({ clientId, theme }) => {
                           value={ex.question || ''}
                           onChange={(e) => handleUpdateExample(i, 'question', e.target.value)}
                           placeholder="Question du client"
-                          className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-[#0E653A]/30"
+                          className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-cta/30"
                         />
                         <textarea
                           value={ex.answer || ''}
                           onChange={(e) => handleUpdateExample(i, 'answer', e.target.value)}
                           placeholder="Reponse ideale que l'IA doit imiter"
                           rows={2}
-                          className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-[#0E653A]/30 resize-y"
+                          className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-cta/30 resize-y"
                         />
                       </div>
                     ))}
                     <button
                       onClick={handleAddExample}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-3 border border-dashed border-[#ebebeb] rounded-xl text-[12px] font-medium text-[#9ca3af] hover:border-[#0E653A]/30 hover:text-[#0E653A] hover:bg-[#0E653A]/5 transition-all"
+                      className="w-full flex items-center justify-center gap-2 px-3 py-3 border border-dashed border-[#ebebeb] rounded-xl text-[12px] font-medium text-[#9ca3af] hover:border-cta/30 hover:text-cta hover:bg-cta/5 transition-all"
                     >
                       <Plus className="w-4 h-4" /> Ajouter un exemple
                     </button>
@@ -865,7 +865,7 @@ export const PromptEditor = ({ clientId, theme }) => {
         {currentStep < STEPS.length - 1 ? (
           <button
             onClick={goNext}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-[#0E653A] text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] transition-colors"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] transition-colors"
           >
             Suivant <ChevronRight className="w-4 h-4" />
           </button>
@@ -873,7 +873,7 @@ export const PromptEditor = ({ clientId, theme }) => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-[#0E653A] text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] disabled:opacity-50 transition-colors"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Enregistrer la configuration

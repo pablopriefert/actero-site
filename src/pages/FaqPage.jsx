@@ -119,7 +119,7 @@ export const FaqPage = ({ onNavigate }) => {
                 placeholder="Rechercher une question..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#F9F7F1] border border-gray-200 rounded-2xl py-4 pl-12 pr-4 text-[#262626] focus:ring-2 focus:ring-[#0E653A]/30 outline-none transition-all font-medium"
+                className="w-full bg-[#F9F7F1] border border-gray-200 rounded-2xl py-4 pl-12 pr-4 text-[#262626] focus:ring-2 focus:ring-cta/30 outline-none transition-all font-medium"
               />
             </div>
           </div>

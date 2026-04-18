@@ -33,14 +33,14 @@ export const TTSButton = ({
   const iconSize = size === 'md' ? 'w-3.5 h-3.5' : 'w-3 h-3'
 
   const stateClasses = isThisPlaying
-    ? 'bg-[#0E653A]/12 border-[#0E653A]/25 text-[#0E653A]'
+    ? 'bg-cta/12 border-cta/25 text-cta'
     : isThisLoading
-      ? 'bg-[#0E653A]/8 border-[#0E653A]/20 text-[#0E653A]'
+      ? 'bg-cta/8 border-cta/20 text-cta'
       : isThisError
         ? 'bg-red-50 border-red-200 text-red-600'
         : variant === 'ghost'
           ? 'bg-transparent border-transparent text-[#71717a] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
-          : 'bg-white border-[#f0f0f0] text-[#71717a] hover:bg-[#0E653A]/[0.04] hover:border-[#0E653A]/20 hover:text-[#0E653A]'
+          : 'bg-white border-[#f0f0f0] text-[#71717a] hover:bg-cta/[0.04] hover:border-cta/20 hover:text-cta'
 
   const handleClick = () => {
     if (!text || !text.trim()) return

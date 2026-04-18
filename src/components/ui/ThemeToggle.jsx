@@ -78,7 +78,7 @@ export function ThemeToggle({ className = '' }) {
                     }}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
                       active
-                        ? 'text-[#0E653A] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10'
+                        ? 'text-cta dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10'
                         : 'text-[#262626] dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800'
                     }`}
                   >

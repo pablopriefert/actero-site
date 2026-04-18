@@ -488,7 +488,7 @@ function CustomDomainSection({ clientRow, clientId, canCustomize, supabase, quer
               <button
                 onClick={() => handleSave()}
                 disabled={saving || domain.trim() === existing}
-                className="px-4 py-2.5 rounded-lg bg-[#0E653A] text-white text-[12px] font-semibold hover:bg-[#0A4F2C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-4 py-2.5 rounded-lg bg-cta text-white text-[12px] font-semibold hover:bg-[#0A4F2C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                 Enregistrer
@@ -606,7 +606,7 @@ function HideBrandingSection({ clientRow, clientId, canCustomize, supabase, quer
             {saving ? (
               <Loader2 className="w-8 h-8 animate-spin text-[#9ca3af]" />
             ) : value ? (
-              <ToggleRight className="w-10 h-10 text-[#0E653A]" />
+              <ToggleRight className="w-10 h-10 text-cta" />
             ) : (
               <ToggleLeft className="w-10 h-10 text-[#d4d4d4]" />
             )}

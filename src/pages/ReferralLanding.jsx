@@ -78,7 +78,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
           </button>
           <button
             onClick={handleCTA}
-            className="bg-[#0E653A] hover:bg-[#003725] text-white px-5 py-2 rounded-xl text-sm font-bold transition-all"
+            className="bg-cta hover:bg-[#003725] text-white px-5 py-2 rounded-xl text-sm font-bold transition-all"
           >
             Commencer
           </button>
@@ -136,7 +136,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
           >
             <button
               onClick={handleCTA}
-              className="group bg-[#0E653A] hover:bg-[#003725] text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all inline-flex items-center gap-3 shadow-lg shadow-[#003725]/15"
+              className="group bg-cta hover:bg-[#003725] text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all inline-flex items-center gap-3 shadow-lg shadow-[#003725]/15"
             >
               Créer mon compte gratuitement
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -238,12 +238,12 @@ export const ReferralLanding = ({ code, onNavigate }) => {
                   transition={{ delay: i * 0.08 }}
                   className={`relative rounded-2xl p-6 border ${
                     isPopular
-                      ? 'border-[#0E653A] bg-white shadow-lg ring-2 ring-[#0E653A]/10'
+                      ? 'border-cta bg-white shadow-lg ring-2 ring-cta/10'
                       : 'border-gray-200 bg-white'
                   }`}
                 >
                   {isPopular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-[#0E653A] text-white text-[10px] font-bold uppercase tracking-wider">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-cta text-white text-[10px] font-bold uppercase tracking-wider">
                       Populaire
                     </div>
                   )}
@@ -287,7 +287,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
                     onClick={handleCTA}
                     className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                       isPopular
-                        ? 'bg-[#0E653A] text-white hover:bg-[#003725]'
+                        ? 'bg-cta text-white hover:bg-[#003725]'
                         : 'bg-[#F9F7F1] text-[#262626] hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
@@ -337,7 +337,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
             </p>
             <button
               onClick={handleCTA}
-              className="bg-[#0E653A] hover:bg-[#003725] text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all inline-flex items-center gap-3"
+              className="bg-cta hover:bg-[#003725] text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all inline-flex items-center gap-3"
             >
               Créer mon compte gratuitement
               <ArrowRight className="w-5 h-5" />

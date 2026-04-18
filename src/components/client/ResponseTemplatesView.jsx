@@ -165,7 +165,7 @@ export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold bg-[#0E653A] text-white hover:bg-[#003725] transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all"
         >
           <Plus className="w-4 h-4" />
           Créer un template
@@ -240,7 +240,7 @@ export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <h3 className="text-[14px] font-semibold text-[#1a1a1a] truncate">{tpl.name}</h3>
                     {tpl.shortcut && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#0E653A]/10 text-[#0E653A] border border-[#0E653A]/20">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cta/10 text-cta border border-cta/20">
                         {tpl.shortcut}
                       </span>
                     )}
@@ -316,7 +316,7 @@ export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
                     value={form.name}
                     onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="Ex : Remboursement livraison retardee"
-                    className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-[#0E653A]/30"
+                    className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -327,7 +327,7 @@ export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
                       value={form.shortcut}
                       onChange={(e) => setForm(f => ({ ...f, shortcut: e.target.value }))}
                       placeholder="/rembourse"
-                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-[#0E653A]/30"
+                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                   <div>
@@ -337,7 +337,7 @@ export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
                       value={form.category}
                       onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
                       placeholder="Remboursement, SAV..."
-                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-[#0E653A]/30"
+                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                 </div>
@@ -348,7 +348,7 @@ export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
                     onChange={(e) => setForm(f => ({ ...f, body: e.target.value }))}
                     rows={8}
                     placeholder="Bonjour {{prenom}},&#10;&#10;Nous sommes desoles pour..."
-                    className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-[#0E653A]/30"
+                    className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-cta/30"
                   />
                 </div>
               </div>
@@ -364,7 +364,7 @@ export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
                   type="button"
                   onClick={handleSave}
                   disabled={!form.name.trim() || !form.body.trim() || saving}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-[#0E653A] text-white hover:bg-[#003725] transition-all disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   {editing ? 'Enregistrer' : 'Créer'}

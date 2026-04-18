@@ -190,7 +190,7 @@ export function AdminConversionPipelineView() {
                       {client.contact_email && (
                         <a
                           href={`mailto:${client.contact_email}?subject=Votre compte Actero`}
-                          className="p-1.5 rounded-lg hover:bg-[#fafafa] text-[#71717a] hover:text-[#0E653A]"
+                          className="p-1.5 rounded-lg hover:bg-[#fafafa] text-[#71717a] hover:text-cta"
                           title="Contacter"
                         >
                           <Mail className="w-3.5 h-3.5" />

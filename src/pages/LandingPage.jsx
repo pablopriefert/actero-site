@@ -417,13 +417,13 @@ export const LandingPage = ({ onNavigate }) => {
                     <div className="grid grid-cols-2 gap-4">
                       {(vertical === 'ecommerce' ? [
                         { value: "< 30s", label: "Temps de réponse IA", bg: "bg-[#F9F7F1]", textColor: "text-[#003725]" },
-                        { value: "12%", label: "Paniers récupérés", bg: "bg-[#0E653A]", textColor: "text-white" },
-                        { value: "82%", label: "Tickets résolus par l'IA", bg: "bg-[#0E653A]", textColor: "text-white" },
+                        { value: "12%", label: "Paniers récupérés", bg: "bg-cta", textColor: "text-white" },
+                        { value: "82%", label: "Tickets résolus par l'IA", bg: "bg-cta", textColor: "text-white" },
                         { value: "+3 400€", label: "Gain mensuel moyen", bg: "bg-[#F9F7F1]", textColor: "text-[#003725]" },
                       ] : [
                         { value: "+30%", label: "Rendez-vous confirmés", bg: "bg-[#F9F7F1]", textColor: "text-[#003725]" },
-                        { value: "-50%", label: "Temps administratif", bg: "bg-[#0E653A]", textColor: "text-white" },
-                        { value: "+10%", label: "Prospects réactivés", bg: "bg-[#0E653A]", textColor: "text-white" },
+                        { value: "-50%", label: "Temps administratif", bg: "bg-cta", textColor: "text-white" },
+                        { value: "+10%", label: "Prospects réactivés", bg: "bg-cta", textColor: "text-white" },
                         { value: "24/7", label: "Agents IA actifs", bg: "bg-[#F9F7F1]", textColor: "text-[#003725]" },
                       ]).map((card, i) => (
                         <div key={i} className={`${card.bg} rounded-2xl p-6 md:p-8 flex flex-col justify-between min-h-[160px]`}>
@@ -654,7 +654,7 @@ export const LandingPage = ({ onNavigate }) => {
                     </div>
                     <div className="p-6 md:p-8">
                       <p className="text-xl font-bold tracking-tight text-[#262626] flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full animate-pulse bg-[#0E653A]"></span>
+                        <span className="w-2 h-2 rounded-full animate-pulse bg-cta"></span>
                         Actero
                       </p>
                     </div>
@@ -847,7 +847,7 @@ export const LandingPage = ({ onNavigate }) => {
                 </FadeInUp>
                 <div className="grid md:grid-cols-2 gap-8">
                   <FadeInUp>
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-[#0E653A]">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-cta">
                       <p className="italic text-[#262626] leading-relaxed mb-6">
                         "Depuis Actero, notre temps de réponse est passé de 4h à 12 minutes. On ne revient pas en arrière."
                       </p>
@@ -856,7 +856,7 @@ export const LandingPage = ({ onNavigate }) => {
                     </div>
                   </FadeInUp>
                   <FadeInUp>
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-[#0E653A]">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 border-l-4 border-l-cta">
                       <p className="italic text-[#262626] leading-relaxed mb-6">
                         "On économise 40h/mois sur le support. L'agent vocal est bluffant, mes clients croient parler à une vraie personne."
                       </p>
@@ -887,11 +887,11 @@ export const LandingPage = ({ onNavigate }) => {
                     <p className="text-[12px] text-[#71717a] mb-3">Découvrir sans engagement</p>
                     <div className="text-3xl font-bold text-[#1a1a1a] mb-4">0€<span className="text-sm font-normal text-[#71717a]">/mois</span></div>
                     <ul className="space-y-1.5 flex-1 mb-4">
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />50 tickets / mois</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Intégration Shopify</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Dashboard ROI basique</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />50 tickets / mois</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Intégration Shopify</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Dashboard ROI basique</li>
                     </ul>
-                    <a href="/signup" className="block text-center py-2.5 rounded-full text-[13px] font-semibold bg-[#0E653A]/10 text-[#0E653A] hover:bg-[#0E653A]/20 transition">
+                    <a href="/signup" className="block text-center py-2.5 rounded-full text-[13px] font-semibold bg-cta/10 text-cta hover:bg-cta/20 transition">
                       Commencer gratuitement
                     </a>
                   </div>
@@ -901,32 +901,32 @@ export const LandingPage = ({ onNavigate }) => {
                     <h3 className="text-lg font-bold text-[#1a1a1a]">Starter</h3>
                     <p className="text-[12px] text-[#71717a] mb-3">Automatiser les premières tâches</p>
                     <div className="text-3xl font-bold text-[#1a1a1a] mb-1">99€<span className="text-sm font-normal text-[#71717a]">/mois</span></div>
-                    <p className="text-[11px] text-[#0E653A] font-semibold mb-4">7 jours d'essai gratuit</p>
+                    <p className="text-[11px] text-cta font-semibold mb-4">7 jours d'essai gratuit</p>
                     <ul className="space-y-1.5 flex-1 mb-4">
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />1 000 tickets / mois</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />3 workflows actifs</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Éditeur ton de marque</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Support email 48h</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />1 000 tickets / mois</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />3 workflows actifs</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Éditeur ton de marque</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Support email 48h</li>
                     </ul>
-                    <a href="/signup" className="block text-center py-2.5 rounded-full text-[13px] font-semibold bg-[#0E653A]/10 text-[#0E653A] hover:bg-[#0E653A]/20 transition">
+                    <a href="/signup" className="block text-center py-2.5 rounded-full text-[13px] font-semibold bg-cta/10 text-cta hover:bg-cta/20 transition">
                       Essai gratuit 7 jours
                     </a>
                   </div>
 
                   {/* Pro card — highlighted */}
-                  <div className="relative bg-white rounded-2xl border-2 border-[#0E653A] shadow-lg p-5 flex flex-col">
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0E653A] text-white text-[10px] font-bold px-3 py-1 rounded-full">Recommandé</span>
+                  <div className="relative bg-white rounded-2xl border-2 border-cta shadow-lg p-5 flex flex-col">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-cta text-white text-[10px] font-bold px-3 py-1 rounded-full">Recommandé</span>
                     <h3 className="text-lg font-bold text-[#1a1a1a]">Pro</h3>
                     <p className="text-[12px] text-[#71717a] mb-3">Automatisation complète + vocal</p>
                     <div className="text-3xl font-bold text-[#1a1a1a] mb-1">399€<span className="text-sm font-normal text-[#71717a]">/mois</span></div>
-                    <p className="text-[11px] text-[#0E653A] font-semibold mb-4">7 jours d'essai gratuit</p>
+                    <p className="text-[11px] text-cta font-semibold mb-4">7 jours d'essai gratuit</p>
                     <ul className="space-y-1.5 flex-1 mb-4">
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />5 000 tickets / mois</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Agent vocal (200 min)</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Simulateur + API</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Support prioritaire 24h</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />5 000 tickets / mois</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Agent vocal (200 min)</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Simulateur + API</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Support prioritaire 24h</li>
                     </ul>
-                    <a href="/signup" className="block text-center py-2.5 rounded-full text-[13px] font-semibold bg-[#0E653A] text-white hover:bg-[#003725] transition">
+                    <a href="/signup" className="block text-center py-2.5 rounded-full text-[13px] font-semibold bg-cta text-white hover:bg-[#003725] transition">
                       Essai gratuit 7 jours
                     </a>
                   </div>
@@ -937,10 +937,10 @@ export const LandingPage = ({ onNavigate }) => {
                     <p className="text-[12px] text-[#71717a] mb-3">Sur mesure grands comptes</p>
                     <div className="text-3xl font-bold text-[#1a1a1a] mb-4">Sur devis</div>
                     <ul className="space-y-1.5 flex-1 mb-4">
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Tickets illimités</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Multi-boutiques (10)</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />White-label + SLA 99,9%</li>
-                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-[#0E653A]" />Account manager dédié</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Tickets illimités</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Multi-boutiques (10)</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />White-label + SLA 99,9%</li>
+                      <li className="flex items-center gap-1.5 text-[12px] text-[#1a1a1a]"><Check className="w-3.5 h-3.5 text-cta" />Account manager dédié</li>
                     </ul>
                     <a href="mailto:contact@actero.fr" className="block text-center py-2.5 rounded-full text-[13px] font-semibold border border-[#f0f0f0] text-[#1a1a1a] hover:bg-white transition">
                       Contacter l'équipe
@@ -949,7 +949,7 @@ export const LandingPage = ({ onNavigate }) => {
                 </div>
 
                 <p className="text-center text-[13px] text-[#71717a] mt-8">
-                  Tous les plans incluent l'intégration Shopify native. <a href="/tarifs" className="text-[#0E653A] font-semibold hover:underline">Voir le comparatif complet →</a>
+                  Tous les plans incluent l'intégration Shopify native. <a href="/tarifs" className="text-cta font-semibold hover:underline">Voir le comparatif complet →</a>
                 </p>
               </div>
             </section>

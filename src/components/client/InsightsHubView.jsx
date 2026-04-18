@@ -65,7 +65,7 @@ export const InsightsHubView = ({ onNavigate, canAccessVoice = false }) => {
               className={`group text-left bg-white rounded-2xl border border-[#f0f0f0] p-5 transition-all ${
                 card.locked
                   ? 'opacity-60 cursor-not-allowed'
-                  : 'hover:border-[#0E653A]/25 hover:shadow-sm'
+                  : 'hover:border-cta/25 hover:shadow-sm'
               }`}
             >
               <div className="flex items-start justify-between mb-3">

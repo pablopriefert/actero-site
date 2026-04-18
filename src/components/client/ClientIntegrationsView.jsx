@@ -54,7 +54,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
   return (
     <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
       isConnected
-        ? 'border-[#0E653A]/20 bg-[#0E653A]/[0.03]'
+        ? 'border-cta/20 bg-cta/[0.03]'
         : isBlocked
           ? 'border-[#f0f0f0] bg-white opacity-70'
           : 'border-[#f0f0f0] bg-white hover:border-[#e0e0e0]'
@@ -108,7 +108,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                       if (result?.ok) setTimeout(() => setTestResult(null), 3000);
                     }}
                     disabled={testing}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#0E653A] bg-[#f5f5f5] hover:bg-[#ebebeb] border border-[#ebebeb] transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-cta bg-[#f5f5f5] hover:bg-[#ebebeb] border border-[#ebebeb] transition-colors disabled:opacity-50"
                   >
                     {testing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     {testing ? 'Test...' : 'Tester'}
@@ -123,12 +123,12 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                   </button>
                 )}
                 {isShopify && (
-                  <span className="text-xs text-[#0E653A] font-medium flex items-center gap-1">
+                  <span className="text-xs text-cta font-medium flex items-center gap-1">
                     <CheckCircle className="w-3.5 h-3.5" /> App installée
                   </span>
                 )}
                 {testResult && (
-                  <span className={`text-xs font-medium flex items-center gap-1 ${testResult.ok ? 'text-[#0E653A]' : 'text-red-500'}`}>
+                  <span className={`text-xs font-medium flex items-center gap-1 ${testResult.ok ? 'text-cta' : 'text-red-500'}`}>
                     {testResult.ok ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                     {testResult.message}
                   </span>
@@ -141,14 +141,14 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
             ) : provider.authType === 'smtp' ? (
               <button
                 onClick={() => onOAuthConnect(provider)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors bg-[#0E653A] text-white hover:bg-[#003725]"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors bg-cta text-white hover:bg-[#003725]"
               >
                 <Plug className="w-3 h-3" /> Configurer
               </button>
             ) : provider.authType === 'api_key' ? (
               <button
                 onClick={() => onOAuthConnect(provider)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-[#0E653A] text-white hover:bg-[#003725]"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-cta text-white hover:bg-[#003725]"
               >
                 <Plug className="w-3 h-3" /> Connecter
               </button>
@@ -285,7 +285,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
                 value={credentials[field.key] || ''}
                 onChange={(e) => handleFieldChange(field.key, e.target.value)}
                 placeholder={field.placeholder}
-                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-[#0E653A]/20`}
+                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
               />
             </div>
           ))}
@@ -685,10 +685,10 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       </div>
 
       {/* Overview banner */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-gradient-to-br from-[#0E653A]/5 via-white to-white border border-[#0E653A]/10 rounded-2xl p-4">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-gradient-to-br from-cta/5 via-white to-white border border-cta/10 rounded-2xl p-4">
         <div className="flex items-center gap-4">
-          <div className="w-11 h-11 rounded-xl bg-[#0E653A]/10 flex items-center justify-center">
-            <Plug className="w-5 h-5 text-[#0E653A]" />
+          <div className="w-11 h-11 rounded-xl bg-cta/10 flex items-center justify-center">
+            <Plug className="w-5 h-5 text-cta" />
           </div>
           <div>
             <p className="text-xl font-bold text-[#1a1a1a]">{connectedCount}</p>
@@ -704,7 +704,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher une intégration…"
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-[13px] outline-none transition-all bg-white border border-gray-200 text-[#1a1a1a] focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-[13px] outline-none transition-all bg-white border border-gray-200 text-[#1a1a1a] focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
           />
         </div>
       </div>
@@ -830,7 +830,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                 onKeyDown={(e) => e.key === 'Enter' && handleOAuthPromptSubmit()}
                 autoFocus
                 placeholder={oauthPromptProvider.oauthPromptPlaceholder || 'ma-boutique'}
-                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-[#0E653A]/20`}
+                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
               />
               {oauthPromptProvider.oauthPromptHint && (
                 <p className={`text-xs mt-1.5 mb-4 text-[#9ca3af]`}>
@@ -887,7 +887,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
               onKeyDown={(e) => e.key === 'Enter' && handleApiKeySubmit()}
               autoFocus
               placeholder={apiKeyProvider.apiKeyPlaceholder || 'Votre clé API...'}
-              className="w-full px-4 py-3 rounded-lg text-[13px] outline-none bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-[#0E653A]/20"
+              className="w-full px-4 py-3 rounded-lg text-[13px] outline-none bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20"
             />
             {apiKeyProvider.apiKeyHint && (
               <p className="text-xs mt-1.5 mb-4 text-[#9ca3af]">{apiKeyProvider.apiKeyHint}</p>
@@ -903,7 +903,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
               <button
                 onClick={handleApiKeySubmit}
                 disabled={!apiKeyValue.trim() || apiKeySaving}
-                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-[#0E653A] text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-cta text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
               >
                 {apiKeySaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plug className="w-4 h-4" />}
                 Connecter
@@ -941,7 +941,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
                       <span className="text-[12px] text-[#1a1a1a]">{field.label}</span>
                       <button
                         onClick={() => setSmtpValues(v => ({ ...v, [field.key]: !(v[field.key] ?? field.defaultValue) }))}
-                        className={`relative w-10 h-5 rounded-full transition-colors ${(smtpValues[field.key] ?? field.defaultValue) ? 'bg-[#0E653A]' : 'bg-[#e5e5e5]'}`}
+                        className={`relative w-10 h-5 rounded-full transition-colors ${(smtpValues[field.key] ?? field.defaultValue) ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
                       >
                         <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${(smtpValues[field.key] ?? field.defaultValue) ? 'translate-x-5' : 'translate-x-0.5'}`} />
                       </button>
@@ -969,7 +969,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
               <button
                 onClick={handleSmtpSubmit}
                 disabled={smtpSaving}
-                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold bg-[#0E653A] text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
               >
                 {smtpSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plug className="w-4 h-4" />}
                 Connecter

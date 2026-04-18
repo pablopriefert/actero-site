@@ -108,12 +108,12 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
             onChange={(e) => setNewRule(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addRule()}
             placeholder="Ex: Ne jamais proposer de remboursement sans escalade humaine"
-            className="flex-1 px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/20 placeholder-gray-400"
+            className="flex-1 px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 placeholder-gray-400"
           />
           <button
             onClick={addRule}
             disabled={!newRule.trim() || adding}
-            className="flex items-center gap-2 px-5 py-3 bg-[#0E653A] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-3 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
           >
             {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Ajouter
@@ -171,7 +171,7 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
                   title={rule.is_enabled ? 'Desactiver' : 'Activer'}
                 >
                   {rule.is_enabled ? (
-                    <ToggleRight className="w-6 h-6 text-[#0E653A]" />
+                    <ToggleRight className="w-6 h-6 text-cta" />
                   ) : (
                     <ToggleLeft className="w-6 h-6 text-[#e5e5e5]" />
                   )}
@@ -419,7 +419,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                     key={act.id}
                     onClick={() => setAction(act.id)}
                     className={`p-3 rounded-xl border-2 text-left transition-all ${
-                      action === act.id ? 'border-[#0E653A] ring-1 ring-[#0E653A]/20' : 'border-[#f0f0f0] hover:border-[#ebebeb]'
+                      action === act.id ? 'border-cta ring-1 ring-cta/20' : 'border-[#f0f0f0] hover:border-[#ebebeb]'
                     }`}
                   >
                     <span className="text-lg">{act.icon}</span>
@@ -434,7 +434,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                   value={actionValue}
                   onChange={(e) => setActionValue(e.target.value)}
                   placeholder={action === 'promo' ? 'Code: SORRY10' : action === 'tag' ? 'Nom du tag' : 'Texte de la reponse'}
-                  className="mt-3 w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/20"
+                  className="mt-3 w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
                 />
               )}
             </div>
@@ -451,7 +451,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
             <button
               onClick={handleSave}
               disabled={!rulePreview || saving}
-              className="w-full py-3 bg-[#0E653A] text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 bg-cta text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               Créer la règle
@@ -554,7 +554,7 @@ const EscalationThresholds = ({ clientId }) => {
             min="0"
             value={form.order_value_threshold}
             onChange={(e) => setForm(f => ({ ...f, order_value_threshold: e.target.value }))}
-            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/20"
+            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: 150"
           />
         </div>
@@ -570,7 +570,7 @@ const EscalationThresholds = ({ clientId }) => {
             min="0"
             value={form.repeat_customer_orders}
             onChange={(e) => setForm(f => ({ ...f, repeat_customer_orders: e.target.value }))}
-            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/20"
+            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: 5"
           />
         </div>
@@ -589,7 +589,7 @@ const EscalationThresholds = ({ clientId }) => {
               step="5"
               value={form.low_confidence_threshold}
               onChange={(e) => setForm(f => ({ ...f, low_confidence_threshold: e.target.value }))}
-              className="flex-1 accent-[#0E653A]"
+              className="flex-1 accent-cta"
             />
             <span className="text-sm font-bold text-[#1a1a1a] w-12 text-center">{form.low_confidence_threshold}%</span>
           </div>
@@ -606,7 +606,7 @@ const EscalationThresholds = ({ clientId }) => {
             className="flex-shrink-0"
           >
             {form.aggressive_tone_enabled ? (
-              <ToggleRight className="w-8 h-8 text-[#0E653A]" />
+              <ToggleRight className="w-8 h-8 text-cta" />
             ) : (
               <ToggleLeft className="w-8 h-8 text-[#e5e5e5]" />
             )}
@@ -623,7 +623,7 @@ const EscalationThresholds = ({ clientId }) => {
             type="text"
             value={form.keywords}
             onChange={(e) => setForm(f => ({ ...f, keywords: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/20"
+            className="w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: avocat, juridique, DGCCRF, plainte"
           />
         </div>
@@ -634,13 +634,13 @@ const EscalationThresholds = ({ clientId }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#0E653A] text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Enregistrer les seuils
         </button>
         {saved && (
-          <span className="text-xs text-[#0E653A] flex items-center gap-1">
+          <span className="text-xs text-cta flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" /> Enregistre
           </span>
         )}

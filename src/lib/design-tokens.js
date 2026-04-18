@@ -28,7 +28,7 @@ export const tokens = {
     brand: {
       primary: '#0E653A',
       primaryHover: '#003725',
-      primaryLight: '#0E653A/10', // Tailwind alpha notation (bg-[#0E653A]/10)
+      primaryLight: '#0E653A/10', // Tailwind alpha notation (bg-cta/10)
     },
     text: {
       primary: '#1a1a1a',   // Titres, valeurs
@@ -143,7 +143,7 @@ export const tokens = {
    *   ghost     → action tertiaire discrète (toolbar, nav)
    */
   button: {
-    primary: 'bg-[#0E653A] hover:bg-[#003725] text-white',
+    primary: 'bg-cta hover:bg-[#003725] text-white',
     secondary: 'bg-white hover:bg-[#fafafa] text-[#1a1a1a] border border-[#f0f0f0]',
     ghost: 'bg-transparent hover:bg-[#fafafa] text-[#71717a]',
   },

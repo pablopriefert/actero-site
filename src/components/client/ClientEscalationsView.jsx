@@ -520,7 +520,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 onChange={(e) => setResponse(e.target.value)}
                 rows={5}
                 placeholder="Redigez votre reponse..."
-                className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-4 py-3 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-[#0E653A]/30"
+                className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-4 py-3 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-cta/30"
               />
             </div>
 
@@ -542,7 +542,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
             </label>
 
             {/* Voice reply toggle — ElevenLabs feature */}
-            <div className="rounded-xl border border-[#f0f0f0] bg-gradient-to-br from-[#0E653A]/[0.03] to-transparent p-3.5">
+            <div className="rounded-xl border border-[#f0f0f0] bg-gradient-to-br from-cta/[0.03] to-transparent p-3.5">
               <label className="flex items-start gap-3 cursor-pointer group">
                 <input
                   type="checkbox"
@@ -555,15 +555,15 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                       setAudioError(null)
                     }
                   }}
-                  className="mt-0.5 rounded border-[#0E653A]/30 bg-white text-[#0E653A]"
+                  className="mt-0.5 rounded border-cta/30 bg-white text-cta"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <Mic className="w-3.5 h-3.5 text-[#0E653A]" />
-                    <span className="text-[13px] font-semibold text-[#1a1a1a] group-hover:text-[#0E653A] transition-colors">
+                    <Mic className="w-3.5 h-3.5 text-cta" />
+                    <span className="text-[13px] font-semibold text-[#1a1a1a] group-hover:text-cta transition-colors">
                       Joindre un message vocal
                     </span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider bg-[#0E653A]/10 text-[#0E653A] px-1.5 py-0.5 rounded">
+                    <span className="text-[9px] font-bold uppercase tracking-wider bg-cta/10 text-cta px-1.5 py-0.5 rounded">
                       Premium
                     </span>
                   </div>
@@ -594,7 +594,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                           }
                         }}
                         disabled={!response.trim() || audioGenerating}
-                        className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-semibold bg-white border border-[#0E653A]/20 text-[#0E653A] hover:bg-[#0E653A]/[0.04] transition-all disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-semibold bg-white border border-cta/20 text-cta hover:bg-cta/[0.04] transition-all disabled:opacity-50"
                       >
                         {audioGenerating ? (
                           <><Loader2 className="w-3 h-3 animate-spin" /> Génération audio…</>
@@ -625,7 +625,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               <button
                 onClick={() => respondMutation.mutate()}
                 disabled={!response.trim() || respondMutation.isPending || audioGenerating}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-[12px] font-semibold bg-[#0E653A] text-white hover:bg-[#003725] transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all disabled:opacity-50"
               >
                 {(respondMutation.isPending || audioGenerating) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 {audioGenerating
@@ -697,7 +697,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                       value={newTplName}
                       onChange={(e) => setNewTplName(e.target.value)}
                       placeholder="Ex : Remboursement livraison retardee"
-                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-[#0E653A]/30"
+                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                   <div>
@@ -707,7 +707,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                       value={newTplCategory}
                       onChange={(e) => setNewTplCategory(e.target.value)}
                       placeholder="Ex : Remboursement, Livraison, SAV..."
-                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-[#0E653A]/30"
+                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                   <div>
@@ -729,7 +729,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                     type="button"
                     onClick={saveCurrentAsTemplate}
                     disabled={!newTplName.trim() || savingTpl}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-[#0E653A] text-white hover:bg-[#003725] transition-all disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all disabled:opacity-50"
                   >
                     {savingTpl ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Sauvegarder

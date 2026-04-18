@@ -207,8 +207,8 @@ export const VoiceAgentSetupView = ({ clientId }) => {
 
       {!enabled ? (
         <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-10 text-center">
-          <div className="w-16 h-16 rounded-full bg-[#0E653A]/10 flex items-center justify-center mx-auto mb-5">
-            <Phone className="w-8 h-8 text-[#0E653A]" />
+          <div className="w-16 h-16 rounded-full bg-cta/10 flex items-center justify-center mx-auto mb-5">
+            <Phone className="w-8 h-8 text-cta" />
           </div>
           <h3 className="text-[18px] font-semibold text-[#1a1a1a]">Activez votre agent vocal</h3>
           <p className="text-[13px] text-[#9ca3af] mt-2 max-w-md mx-auto">
@@ -217,7 +217,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
           <button
             onClick={handleActivate}
             disabled={activating}
-            className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#0E653A] hover:bg-[#0c4e2b] disabled:opacity-60 text-white text-[14px] font-semibold rounded-full transition-colors"
+            className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-cta hover:bg-[#0c4e2b] disabled:opacity-60 text-white text-[14px] font-semibold rounded-full transition-colors"
           >
             {activating ? (
               <>
@@ -298,7 +298,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                       value={sipForm.phone_number}
                       onChange={(e) => setSipForm({ ...sipForm, phone_number: e.target.value })}
                       placeholder="+33 1 23 45 67 89"
-                      className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30"
+                      className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
                     />
                   </div>
 
@@ -309,7 +309,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                       value={sipForm.sip_server}
                       onChange={(e) => setSipForm({ ...sipForm, sip_server: e.target.value })}
                       placeholder="sip.votre-operateur.com"
-                      className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30"
+                      className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
                     />
                   </div>
 
@@ -321,7 +321,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                         value={sipForm.sip_username}
                         onChange={(e) => setSipForm({ ...sipForm, sip_username: e.target.value })}
                         placeholder="username"
-                        className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30"
+                        className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
                       />
                     </div>
                     <div>
@@ -331,7 +331,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                         value={sipForm.sip_password}
                         onChange={(e) => setSipForm({ ...sipForm, sip_password: e.target.value })}
                         placeholder="••••••••"
-                        className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30"
+                        className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] font-mono focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
                       />
                     </div>
                   </div>
@@ -346,7 +346,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                           onClick={() => setSipForm({ ...sipForm, transport: t })}
                           className={`flex-1 px-3 py-2 rounded-lg border text-[12px] font-semibold transition-colors ${
                             sipForm.transport === t
-                              ? 'border-[#0E653A] bg-[#0E653A]/5 text-[#0E653A]'
+                              ? 'border-cta bg-cta/5 text-cta'
                               : 'border-[#f0f0f0] bg-[#fafafa] text-[#71717a] hover:bg-white'
                           }`}
                         >
@@ -367,7 +367,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                 <button
                   onClick={handleAttachSip}
                   disabled={attaching || !sipForm.phone_number || !sipForm.sip_server || !sipForm.sip_username || !sipForm.sip_password}
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-[#0E653A] hover:bg-[#0c4e2b] disabled:opacity-60 text-white text-[13px] font-semibold transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-cta hover:bg-[#0c4e2b] disabled:opacity-60 text-white text-[13px] font-semibold transition-colors"
                 >
                   {attaching ? (
                     <>
@@ -408,7 +408,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                 href="https://elevenlabs.io/app/voice-library"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0E653A] hover:underline"
+                className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-cta hover:underline"
               >
                 Parcourir la bibliotheque de voix
                 <ExternalLink className="w-3 h-3" />
@@ -420,12 +420,12 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                   value={voiceIdInput}
                   onChange={(e) => setVoiceIdInput(e.target.value)}
                   placeholder="Coller un Voice ID (ex: 21m00Tcm4TlvDq8ikWAM)"
-                  className="flex-1 px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30"
+                  className="flex-1 px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
                 />
                 <button
                   onClick={handleSaveVoice}
                   disabled={savingVoice}
-                  className="px-4 py-2 rounded-full bg-[#0E653A] hover:bg-[#0c4e2b] disabled:opacity-60 text-white text-[12px] font-semibold transition-colors"
+                  className="px-4 py-2 rounded-full bg-cta hover:bg-[#0c4e2b] disabled:opacity-60 text-white text-[12px] font-semibold transition-colors"
                 >
                   {savingVoice ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Sauvegarder'}
                 </button>
@@ -445,7 +445,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
                 onChange={(e) => handleGreetingChange(e.target.value)}
                 rows={3}
                 placeholder="Bonjour, merci d'appeler [votre boutique]. Comment puis-je vous aider ?"
-                className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30 resize-none"
+                className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30 resize-none"
               />
               <div className="flex items-center justify-between text-[11px] text-[#9ca3af]">
                 <span>{greeting.length}/200 caracteres</span>
@@ -468,7 +468,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
               <button
                 onClick={() => setShowTestModal(true)}
                 disabled={!settings?.elevenlabs_agent_id}
-                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-[#0E653A] hover:bg-[#0c4e2b] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-cta hover:bg-[#0c4e2b] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-colors"
               >
                 <Mic className="w-4 h-4" />
                 Tester l'agent vocal en navigateur
@@ -502,8 +502,8 @@ export const VoiceAgentSetupView = ({ clientId }) => {
 const Card = ({ title, icon: Icon, children }) => (
   <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6">
     <div className="flex items-center gap-2 mb-4">
-      <div className="w-8 h-8 rounded-lg bg-[#0E653A]/10 flex items-center justify-center">
-        <Icon className="w-4 h-4 text-[#0E653A]" />
+      <div className="w-8 h-8 rounded-lg bg-cta/10 flex items-center justify-center">
+        <Icon className="w-4 h-4 text-cta" />
       </div>
       <h3 className="text-[14px] font-semibold text-[#1a1a1a]">{title}</h3>
     </div>

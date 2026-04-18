@@ -45,7 +45,7 @@ export const ROISimulator = ({ onNavigate }) => {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-[#0E653A]" />
+          <Icon className="w-4 h-4 text-cta" />
           <span className="text-[13px] font-medium text-[#71717a]">{label}</span>
         </div>
         <span className="text-[15px] font-bold text-[#1a1a1a] tabular-nums">{value.toLocaleString('fr-FR')}{unit}</span>
@@ -59,7 +59,7 @@ export const ROISimulator = ({ onNavigate }) => {
         onChange={e => onChange(Number(e.target.value))}
         className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#f0f0f0]
           [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
-          [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#0E653A]
+          [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cta
           [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(15,95,53,0.3)]
           [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing"
       />
@@ -85,7 +85,7 @@ export const ROISimulator = ({ onNavigate }) => {
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[#1a1a1a] mb-4">
             Calculez votre ROI<br className="hidden md:block" />
-            <span className="text-[#0E653A]">en 30 secondes.</span>
+            <span className="text-cta">en 30 secondes.</span>
           </h2>
           <p className="text-[15px] text-[#71717a] max-w-xl mx-auto">
             Entrez vos chiffres. Voyez ce que l'IA peut vous rapporter chaque mois.
@@ -101,8 +101,8 @@ export const ROISimulator = ({ onNavigate }) => {
             className="bg-white border border-[#f0f0f0] rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-6 space-y-6"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#0E653A]/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-[#0E653A]" />
+              <div className="w-8 h-8 rounded-lg bg-cta/10 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-cta" />
               </div>
               <h3 className="text-[15px] font-bold text-[#1a1a1a]">Vos chiffres actuels</h3>
             </div>
@@ -122,7 +122,7 @@ export const ROISimulator = ({ onNavigate }) => {
           >
             {/* Total ROI Card */}
             <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-2xl p-6 text-center">
-              <p className="text-[10px] font-bold text-[#0E653A] uppercase tracking-[0.15em] mb-2">
+              <p className="text-[10px] font-bold text-cta uppercase tracking-[0.15em] mb-2">
                 ROI mensuel estime
               </p>
               <motion.p
@@ -132,7 +132,7 @@ export const ROISimulator = ({ onNavigate }) => {
                 className="text-5xl md:text-6xl font-black text-[#1a1a1a] tracking-tight tabular-nums"
               >
                 {results.totalROI.toLocaleString('fr-FR')}
-                <span className="text-2xl text-[#0E653A]">€</span>
+                <span className="text-2xl text-cta">€</span>
               </motion.p>
               <p className="text-[12px] text-[#71717a] mt-1">
                 soit <span className="text-[#1a1a1a] font-bold">{results.annualROI.toLocaleString('fr-FR')}€</span> / an
@@ -143,7 +143,7 @@ export const ROISimulator = ({ onNavigate }) => {
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white border border-[#f0f0f0] rounded-2xl p-4">
                 <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#0E653A]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-cta" />
                   <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">SAV automatise</span>
                 </div>
                 <p className="text-xl font-bold text-[#1a1a1a]">{results.savSavings.toLocaleString('fr-FR')}€</p>
@@ -183,7 +183,7 @@ export const ROISimulator = ({ onNavigate }) => {
             {/* CTA */}
             <button
               onClick={() => onNavigate?.(reco.href)}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#0E653A] hover:bg-[#003725] text-white font-semibold text-[13px] transition-all group"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-cta hover:bg-[#003725] text-white font-semibold text-[13px] transition-all group"
             >
               {reco.cta}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

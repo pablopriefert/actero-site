@@ -272,7 +272,7 @@ export function AdminClientsListView() {
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-[#0E653A] hover:bg-[#0a4a29] text-white text-[12px] font-semibold transition-colors"
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-cta hover:bg-[#0a4a29] text-white text-[12px] font-semibold transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Ajouter un client
@@ -334,7 +334,7 @@ export function AdminClientsListView() {
                   onClick={() => setFilter(f.id)}
                   className={`inline-flex items-center h-7 px-2.5 rounded-full border text-[11px] font-semibold transition-all ${
                     active
-                      ? 'bg-[#0E653A] border-[#0E653A] text-white'
+                      ? 'bg-cta border-cta text-white'
                       : 'bg-white border-[#f0f0f0] text-[#71717a] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
                   }`}
                 >
@@ -386,7 +386,7 @@ export function AdminClientsListView() {
                       className="border-b border-[#f0f0f0] hover:bg-[#fafafa] cursor-pointer transition-colors"
                     >
                       <td className="px-4 py-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-[#0E653A]/10 flex items-center justify-center text-[11px] font-bold text-[#0E653A]">
+                        <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center text-[11px] font-bold text-cta">
                           {initials(c.brand_name)}
                         </div>
                       </td>
@@ -461,7 +461,7 @@ export function AdminClientsListView() {
 const PLAN_PILL_STYLES = {
   free: 'bg-gray-100 text-gray-600 border-gray-200',
   starter: 'bg-blue-50 text-blue-700 border-blue-200',
-  pro: 'bg-emerald-50 text-[#0E653A] border-emerald-200',
+  pro: 'bg-emerald-50 text-cta border-emerald-200',
   enterprise: 'bg-amber-50 text-amber-700 border-amber-200',
 }
 
@@ -599,7 +599,7 @@ function AddClientModal({ onClose, onCreated }) {
               type="text"
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
-              className="w-full h-9 px-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30"
+              className="w-full h-9 px-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
               placeholder="Acme Inc."
               autoFocus
             />
@@ -612,7 +612,7 @@ function AddClientModal({ onClose, onCreated }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-9 px-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30"
+              className="w-full h-9 px-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
               placeholder="contact@acme.com"
             />
           </div>
@@ -627,7 +627,7 @@ function AddClientModal({ onClose, onCreated }) {
             <button
               type="submit"
               disabled={loading}
-              className="h-9 px-4 rounded-lg bg-[#0E653A] hover:bg-[#0a4a29] text-white text-[12px] font-semibold disabled:opacity-60"
+              className="h-9 px-4 rounded-lg bg-cta hover:bg-[#0a4a29] text-white text-[12px] font-semibold disabled:opacity-60"
             >
               {loading ? 'Création…' : 'Créer'}
             </button>

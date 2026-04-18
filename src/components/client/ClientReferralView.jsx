@@ -121,7 +121,7 @@ export const ClientReferralView = ({ clientId, theme = 'light' }) => {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                     copied
                       ? 'bg-emerald-50 text-emerald-600'
-                      : 'bg-[#0E653A] text-white hover:bg-[#003725]'
+                      : 'bg-cta text-white hover:bg-[#003725]'
                   }`}
                 >
                   {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -182,7 +182,7 @@ export const ClientReferralView = ({ clientId, theme = 'light' }) => {
             { step: '3', title: 'Vous gagnez', desc: 'Dès qu\'il souscrit, vous recevez 1 mois de crédit sur votre abonnement.' },
           ].map((s) => (
             <div key={s.step} className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#0E653A] flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-cta flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-sm font-bold">{s.step}</span>
               </div>
               <div>

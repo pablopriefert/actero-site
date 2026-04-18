@@ -86,13 +86,13 @@ export const WeeklySummary = ({ clientId, setActiveTab }) => {
 
   return (
     <div
-      className="rounded-2xl border border-[#0E653A]/15 p-4 md:p-5 mb-6 flex items-start gap-3"
+      className="rounded-2xl border border-cta/15 p-4 md:p-5 mb-6 flex items-start gap-3"
       style={{
         background: 'linear-gradient(135deg, rgba(15,95,53,0.05) 0%, rgba(15,95,53,0.02) 100%)',
       }}
     >
-      <div className="w-9 h-9 rounded-xl bg-[#0E653A]/10 flex items-center justify-center flex-shrink-0">
-        <Sparkles className="w-[18px] h-[18px] text-[#0E653A]" strokeWidth={2.2} />
+      <div className="w-9 h-9 rounded-xl bg-cta/10 flex items-center justify-center flex-shrink-0">
+        <Sparkles className="w-[18px] h-[18px] text-cta" strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0 pt-1">
         {!stats.hasActivity ? (
@@ -102,9 +102,9 @@ export const WeeklySummary = ({ clientId, setActiveTab }) => {
         ) : (
           <p className="text-[14px] text-[#1a1a1a] leading-relaxed">
             Cette semaine, votre agent a résolu{' '}
-            <span className="font-bold text-[#0E653A]">{stats.ticketsResolved} ticket{stats.ticketsResolved > 1 ? 's' : ''}</span>
+            <span className="font-bold text-cta">{stats.ticketsResolved} ticket{stats.ticketsResolved > 1 ? 's' : ''}</span>
             , économisé{' '}
-            <span className="font-bold text-[#0E653A]">
+            <span className="font-bold text-cta">
               {formatHours(stats.hoursSaved)} dont {stats.valueSaved.toLocaleString('fr-FR')}€
             </span>
             {stats.pending > 0 ? (

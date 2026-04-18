@@ -113,7 +113,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
           </div>
           <button
             onClick={() => onNavigate && onNavigate('agent-config')}
-            className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#0E653A] hover:text-[#003725] transition-colors"
+            className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-cta hover:text-[#003725] transition-colors"
           >
             Voir la configuration <ChevronRight className="w-3.5 h-3.5" />
           </button>
@@ -131,11 +131,11 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: 0.05 * idx }}
               onClick={() => onNavigate && onNavigate(card.id)}
-              className="group text-left bg-white rounded-2xl border border-[#f0f0f0] p-5 hover:border-[#0E653A]/25 hover:shadow-sm transition-all"
+              className="group text-left bg-white rounded-2xl border border-[#f0f0f0] p-5 hover:border-cta/25 hover:shadow-sm transition-all"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="w-9 h-9 rounded-lg bg-[#0E653A]/10 flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-[#0E653A]" />
+                <div className="w-9 h-9 rounded-lg bg-cta/10 flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-cta" />
                 </div>
                 <ChevronRight className="w-4 h-4 text-[#9ca3af] opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>

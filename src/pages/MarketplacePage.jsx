@@ -131,7 +131,7 @@ const TemplateCard = ({ template, onOpen }) => {
       className="group relative text-left bg-white border border-[#f0f0f0] rounded-2xl overflow-hidden hover:shadow-[0_6px_24px_rgba(0,0,0,0.08)] hover:border-[#e5e5e5] transition-all"
     >
       {isActeroPick && (
-        <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#0E653A] text-white text-[10px] font-medium shadow-sm">
+        <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cta text-white text-[10px] font-medium shadow-sm">
           <span>⭐</span>
           <span>Actero Pick</span>
         </span>

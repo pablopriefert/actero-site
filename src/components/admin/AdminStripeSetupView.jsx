@@ -151,7 +151,7 @@ export function AdminStripeSetupView() {
           <button
             onClick={handleCreate}
             disabled={creating}
-            className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-[#0E653A] text-white hover:bg-[#0E653A]/90 disabled:opacity-50 flex items-center gap-2"
+            className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-cta text-white hover:bg-cta/90 disabled:opacity-50 flex items-center gap-2"
           >
             {creating ? (
               <>
@@ -226,7 +226,7 @@ export function AdminStripeSetupView() {
               href="https://vercel.com/dashboard"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#0E653A] hover:underline"
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-cta hover:underline"
             >
               Gerer sur Vercel
               <ExternalLink className="w-3.5 h-3.5" />

@@ -120,7 +120,7 @@ export const AdminPlaybooksView = () => {
                       onClick={() => handleToggleAssociation(client.id, playbook.id, active)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${
                         active
-                          ? 'bg-[#0E653A] text-white'
+                          ? 'bg-cta text-white'
                           : 'bg-[#f5f5f5] text-[#71717a] hover:bg-gray-200'
                       }`}
                     >

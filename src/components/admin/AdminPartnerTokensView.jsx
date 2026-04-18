@@ -139,7 +139,7 @@ export const AdminPartnerTokensView = () => {
           </button>
           <button
             onClick={() => setShowSendEmail(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0E653A] text-white text-sm font-semibold hover:bg-[#003725] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] transition-colors"
           >
             <Send className="w-4 h-4" /> Envoyer par email
           </button>
@@ -289,7 +289,7 @@ export const AdminPartnerTokensView = () => {
                   value={form.agency_name}
                   onChange={(e) => setForm({ ...form, agency_name: e.target.value })}
                   placeholder="Acme Shopify Agency"
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -300,7 +300,7 @@ export const AdminPartnerTokensView = () => {
                     value={form.contact_name}
                     onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
                     placeholder="Jean Dupont"
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                    className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                   />
                 </div>
                 <div>
@@ -310,7 +310,7 @@ export const AdminPartnerTokensView = () => {
                     value={form.contact_email}
                     onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
                     placeholder="jean@acme.com"
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                    className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                   />
                 </div>
               </div>
@@ -321,7 +321,7 @@ export const AdminPartnerTokensView = () => {
                   value={form.expires_in_days}
                   onChange={(e) => setForm({ ...form, expires_in_days: parseInt(e.target.value) || 0 })}
                   min="0"
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
                 <p className="text-[10px] text-[#9ca3af] mt-1">0 = jamais</p>
               </div>
@@ -332,14 +332,14 @@ export const AdminPartnerTokensView = () => {
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   rows={2}
                   placeholder="Ex: rencontré à Shopify Unite 2026"
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
               </div>
             </div>
             <button
               onClick={() => createMutation.mutate(form)}
               disabled={!form.agency_name || createMutation.isPending}
-              className="w-full mt-5 py-2.5 rounded-xl bg-[#0E653A] text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-5 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               Créer et copier le lien
@@ -359,7 +359,7 @@ export const AdminPartnerTokensView = () => {
           >
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-bold text-[#1a1a1a] flex items-center gap-2">
-                <Mail className="w-5 h-5 text-[#0E653A]" />
+                <Mail className="w-5 h-5 text-cta" />
                 Envoyer une invitation
               </h3>
               <button onClick={() => setShowSendEmail(false)} className="p-1.5 rounded-lg hover:bg-gray-100">
@@ -377,7 +377,7 @@ export const AdminPartnerTokensView = () => {
                   value={emailForm.contact_email}
                   onChange={(e) => setEmailForm({ ...emailForm, contact_email: e.target.value })}
                   placeholder="contact@acme-agency.com"
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                   autoFocus
                 />
               </div>
@@ -388,7 +388,7 @@ export const AdminPartnerTokensView = () => {
                   value={emailForm.agency_name}
                   onChange={(e) => setEmailForm({ ...emailForm, agency_name: e.target.value })}
                   placeholder="Acme Shopify Agency"
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
               </div>
               <div>
@@ -398,7 +398,7 @@ export const AdminPartnerTokensView = () => {
                   value={emailForm.contact_name}
                   onChange={(e) => setEmailForm({ ...emailForm, contact_name: e.target.value })}
                   placeholder="Jean (personnalise le Bonjour Jean)"
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
               </div>
               <div>
@@ -408,7 +408,7 @@ export const AdminPartnerTokensView = () => {
                   value={emailForm.expires_in_days}
                   onChange={(e) => setEmailForm({ ...emailForm, expires_in_days: parseInt(e.target.value) || 0 })}
                   min="0"
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
               </div>
               <div>
@@ -418,14 +418,14 @@ export const AdminPartnerTokensView = () => {
                   onChange={(e) => setEmailForm({ ...emailForm, notes: e.target.value })}
                   rows={2}
                   placeholder="Ex: rencontré à Shopify Unite"
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
               </div>
             </div>
             <button
               onClick={() => sendEmailMutation.mutate(emailForm)}
               disabled={!emailForm.agency_name || !emailForm.contact_email || sendEmailMutation.isPending}
-              className="w-full mt-5 py-2.5 rounded-xl bg-[#0E653A] text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-5 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {sendEmailMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Envoyer l'invitation

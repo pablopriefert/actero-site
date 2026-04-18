@@ -76,7 +76,7 @@ function renderMentions(chunk) {
       return (
         <span
           key={i}
-          className="text-[#0E653A] font-semibold bg-[#0E653A]/10 rounded px-1"
+          className="text-cta font-semibold bg-cta/10 rounded px-1"
         >
           {p}
         </span>
@@ -213,7 +213,7 @@ export function AdminClientNotesPanel({ clientId }) {
         setComposing((v) => !v)
         setDraft('')
       }}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0E653A] text-white text-[12px] font-semibold hover:bg-[#0d5030] transition-colors"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-[12px] font-semibold hover:bg-[#0d5030] transition-colors"
     >
       <Plus className="w-3.5 h-3.5" />
       Nouvelle note
@@ -229,7 +229,7 @@ export function AdminClientNotesPanel({ clientId }) {
             onChange={(e) => setDraft(e.target.value)}
             rows={4}
             placeholder="Note... utilise @username pour tagger un collègue (supporte **gras**)"
-            className="w-full resize-none bg-white rounded-lg border border-[#f0f0f0] px-3 py-2 font-mono text-[12px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#0E653A]/40"
+            className="w-full resize-none bg-white rounded-lg border border-[#f0f0f0] px-3 py-2 font-mono text-[12px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:border-cta/40"
           />
           <div className="flex items-center justify-between mt-2">
             <div className="text-[11px] text-[#9ca3af]">
@@ -252,7 +252,7 @@ export function AdminClientNotesPanel({ clientId }) {
                 type="button"
                 disabled={!draft.trim() || saving}
                 onClick={handleCreate}
-                className="px-3 py-1.5 rounded-lg bg-[#0E653A] text-white text-[12px] font-semibold disabled:opacity-50 hover:bg-[#0d5030]"
+                className="px-3 py-1.5 rounded-lg bg-cta text-white text-[12px] font-semibold disabled:opacity-50 hover:bg-[#0d5030]"
               >
                 {saving ? 'Enregistrement…' : 'Enregistrer'}
               </button>
@@ -281,10 +281,10 @@ export function AdminClientNotesPanel({ clientId }) {
             return (
               <div
                 key={note.id}
-                className="rounded-xl border border-[#f0f0f0] bg-white p-3 hover:border-[#0E653A]/20 transition-colors"
+                className="rounded-xl border border-[#f0f0f0] bg-white p-3 hover:border-cta/20 transition-colors"
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#0E653A]/10 text-[#0E653A] flex items-center justify-center text-[11px] font-semibold flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-cta/10 text-cta flex items-center justify-center text-[11px] font-semibold flex-shrink-0">
                     {initialsFromEmail(note.author_email)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -344,7 +344,7 @@ export function AdminClientNotesPanel({ clientId }) {
                           value={editDraft}
                           onChange={(e) => setEditDraft(e.target.value)}
                           rows={4}
-                          className="w-full resize-none bg-[#fafafa] rounded-lg border border-[#f0f0f0] px-3 py-2 font-mono text-[12px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40"
+                          className="w-full resize-none bg-[#fafafa] rounded-lg border border-[#f0f0f0] px-3 py-2 font-mono text-[12px] text-[#1a1a1a] focus:outline-none focus:border-cta/40"
                         />
                         <div className="flex items-center justify-end gap-2 mt-2">
                           <button
@@ -361,7 +361,7 @@ export function AdminClientNotesPanel({ clientId }) {
                             type="button"
                             disabled={!editDraft.trim() || saving}
                             onClick={() => handleEditSave(note.id)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#0E653A] text-white text-[11px] font-semibold disabled:opacity-50"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-cta text-white text-[11px] font-semibold disabled:opacity-50"
                           >
                             <Check className="w-3 h-3" /> {saving ? '…' : 'Save'}
                           </button>

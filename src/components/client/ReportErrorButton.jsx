@@ -149,7 +149,7 @@ export const ReportErrorButton = () => {
                   <button
                     onClick={submit}
                     disabled={status === 'sending' || !description.trim()}
-                    className="w-full mt-4 py-2.5 rounded-xl bg-[#0E653A] text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-full mt-4 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {status === 'sending' ? (
                       <>

@@ -27,9 +27,9 @@ export const AchievementsView = ({ clientId }) => {
       <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6 mb-6">
         <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0E653A]/10 mb-2">
-              <Trophy className="w-3 h-3 text-[#0E653A]" />
-              <span className="text-[10px] font-semibold text-[#0E653A] uppercase tracking-wider">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cta/10 mb-2">
+              <Trophy className="w-3 h-3 text-cta" />
+              <span className="text-[10px] font-semibold text-cta uppercase tracking-wider">
                 Récompenses
               </span>
             </div>
@@ -59,7 +59,7 @@ export const AchievementsView = ({ clientId }) => {
             initial={{ width: 0 }}
             animate={{ width: `${progress.pct}%` }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="h-full bg-gradient-to-r from-[#0E653A] to-[#14764a] rounded-full"
+            className="h-full bg-gradient-to-r from-cta to-[#14764a] rounded-full"
           />
         </div>
         <p className="text-[11px] text-[#71717a] mt-2">
@@ -153,8 +153,8 @@ export const AchievementsBanner = ({ clientId, onViewAll }) => {
     <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-5">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#0E653A]/10 flex items-center justify-center">
-            <Trophy className="w-4 h-4 text-[#0E653A]" />
+          <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center">
+            <Trophy className="w-4 h-4 text-cta" />
           </div>
           <div>
             <p className="text-[13px] font-bold text-[#1a1a1a]">Vos récompenses</p>
@@ -165,7 +165,7 @@ export const AchievementsBanner = ({ clientId, onViewAll }) => {
         </div>
         <button
           onClick={onViewAll}
-          className="text-[12px] font-semibold text-[#0E653A] hover:underline"
+          className="text-[12px] font-semibold text-cta hover:underline"
         >
           Voir tous →
         </button>
@@ -234,7 +234,7 @@ export const AchievementsToast = ({ clientId }) => {
                 <Icon className="w-5 h-5" style={{ color: badge.color }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-semibold text-[#0E653A] uppercase tracking-wider">
+                <p className="text-[11px] font-semibold text-cta uppercase tracking-wider">
                   Badge débloqué !
                 </p>
                 <p className="text-[14px] font-bold text-[#1a1a1a] truncate">

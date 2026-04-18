@@ -282,10 +282,10 @@ export default function ProductTour({ isOpen, onClose }) {
           >
             <div className="flex items-start justify-between gap-3 mb-2">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#0E653A]/10 text-[#0E653A] flex items-center justify-center">
+                <div className="w-7 h-7 rounded-lg bg-cta/10 text-cta flex items-center justify-center">
                   <Sparkles className="w-4 h-4" />
                 </div>
-                <span className="text-[11px] font-semibold text-[#0E653A] uppercase tracking-wider">
+                <span className="text-[11px] font-semibold text-cta uppercase tracking-wider">
                   Étape {currentStep + 1} / {total}
                 </span>
               </div>
@@ -315,9 +315,9 @@ export default function ProductTour({ isOpen, onClose }) {
                   key={i}
                   className={`h-1 rounded-full transition-all duration-300 ${
                     i === currentStep
-                      ? 'w-6 bg-[#0E653A]'
+                      ? 'w-6 bg-cta'
                       : i < currentStep
-                      ? 'w-1.5 bg-[#0E653A]/40'
+                      ? 'w-1.5 bg-cta/40'
                       : 'w-1.5 bg-[#e5e5e5]'
                   }`}
                 />
@@ -343,7 +343,7 @@ export default function ProductTour({ isOpen, onClose }) {
                 )}
                 <button
                   onClick={handleNext}
-                  className="flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold bg-[#0E653A] text-white hover:bg-[#0c4d2a] transition-colors"
+                  className="flex items-center gap-1 px-3.5 py-1.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#0c4d2a] transition-colors"
                 >
                   {currentStep === total - 1 ? 'Terminer' : 'Suivant'}
                   {currentStep < total - 1 && <ArrowRight className="w-3.5 h-3.5" />}

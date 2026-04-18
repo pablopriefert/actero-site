@@ -164,7 +164,7 @@ export const AdminEngineTestView = () => {
           <button
             onClick={handleSend}
             disabled={sending || !url.trim()}
-            className="flex items-center gap-2 px-5 py-2 bg-[#0E653A] text-white rounded-lg text-[13px] font-bold hover:bg-[#003725] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-5 py-2 bg-cta text-white rounded-lg text-[13px] font-bold hover:bg-[#003725] disabled:opacity-50 transition-colors"
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             Envoyer
@@ -175,7 +175,7 @@ export const AdminEngineTestView = () => {
         <div className="p-3 border-b border-[#f0f0f0]">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Headers</p>
-            <button onClick={addHeader} className="text-[12px] text-[#0E653A] font-bold flex items-center gap-1 hover:underline">
+            <button onClick={addHeader} className="text-[12px] text-cta font-bold flex items-center gap-1 hover:underline">
               <Plus className="w-3 h-3" /> Ajouter
             </button>
           </div>

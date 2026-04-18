@@ -165,7 +165,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
       <button
         onClick={handleOpen}
         disabled={!clientId}
-        className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0E653A] hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#0E653A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-cta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <Play className="w-4 h-4 fill-white" />
         Tester mon agent
@@ -192,8 +192,8 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
               {/* Header */}
               <div className="px-6 py-4 border-b border-[#f0f0f0] flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#0E653A]/10 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-[#0E653A]" />
+                  <div className="w-9 h-9 rounded-xl bg-cta/10 flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-cta" />
                   </div>
                   <div>
                     <h3 className="text-[15px] font-semibold text-[#1a1a1a]">
@@ -234,7 +234,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
                       {/* Status icon */}
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                         {r.status === 'loading' && (
-                          <Loader2 className="w-4 h-4 text-[#0E653A] animate-spin" />
+                          <Loader2 className="w-4 h-4 text-cta animate-spin" />
                         )}
                         {r.status === 'ok' && (
                           <CheckCircle2 className="w-5 h-5 text-emerald-600" />
@@ -345,7 +345,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
                             setOpen(false)
                             setActiveTab('agent-config')
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#0E653A] hover:bg-[#003725] text-white text-[12px] font-semibold rounded-lg transition-colors flex-shrink-0"
+                          className="inline-flex items-center gap-1.5 px-3 py-2 bg-cta hover:bg-[#003725] text-white text-[12px] font-semibold rounded-lg transition-colors flex-shrink-0"
                         >
                           Mon Agent <ArrowRight className="w-3.5 h-3.5" />
                         </button>

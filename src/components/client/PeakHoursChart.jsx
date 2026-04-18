@@ -81,7 +81,7 @@ export const PeakHoursChart = ({ clientId }) => {
     return (
       <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Clock className="w-4 h-4 text-[#0E653A]" />
+          <Clock className="w-4 h-4 text-cta" />
           <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Heures de pic (30 jours)</h3>
         </div>
         <p className="text-[13px] text-[#9ca3af]">
@@ -95,7 +95,7 @@ export const PeakHoursChart = ({ clientId }) => {
     <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-[#0E653A]" />
+          <Clock className="w-4 h-4 text-cta" />
           <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Heures de pic</h3>
         </div>
         <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider bg-[#f5f5f5] px-2 py-0.5 rounded">
@@ -140,7 +140,7 @@ export const PeakHoursChart = ({ clientId }) => {
 
       <p className="text-[13px] text-[#1a1a1a] mt-4 leading-relaxed">
         Vos clients sont les plus actifs entre{' '}
-        <span className="font-bold text-[#0E653A]">
+        <span className="font-bold text-cta">
           {formatHourRange(peakStart, (peakStart + 3) % 24)}
         </span>
         . C'est le meilleur moment pour rester disponible aux escalades.

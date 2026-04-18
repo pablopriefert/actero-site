@@ -49,7 +49,7 @@ const CTA_LINKS = {
 const CARD_CLASSES = {
   free: "border-[#f0f0f0] bg-white",
   starter: "border-[#f0f0f0] bg-white",
-  pro: "border-[#0E653A] bg-white ring-2 ring-[#0E653A]/20 shadow-lg",
+  pro: "border-cta bg-white ring-2 ring-cta/20 shadow-lg",
   enterprise: "border-[#f0f0f0] bg-[#fafafa]",
 };
 
@@ -344,7 +344,7 @@ const faqs = [
    ────────────────────────────────────────────── */
 
 const CellValue = ({ value }) => {
-  if (value === true) return <Check className="w-5 h-5 text-[#0E653A] mx-auto" />;
+  if (value === true) return <Check className="w-5 h-5 text-cta mx-auto" />;
   if (value === false) return <Minus className="w-4 h-4 text-gray-300 mx-auto" />;
   return <span className="text-sm font-medium text-[#262626]">{value}</span>;
 };
@@ -356,7 +356,7 @@ const ComparisonTable = () => {
     <div className="mt-24 max-w-6xl mx-auto">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-center gap-2 text-lg font-bold text-[#262626] mb-8 hover:text-[#0E653A] transition-colors"
+        className="w-full flex items-center justify-center gap-2 text-lg font-bold text-[#262626] mb-8 hover:text-cta transition-colors"
       >
         Comparatif détaillé
         <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
@@ -380,12 +380,12 @@ const ComparisonTable = () => {
                       <th
                         key={plan.id}
                         className={`p-4 text-center text-sm font-bold text-[#262626] ${
-                          plan.highlighted ? "bg-[#0E653A]/5" : ""
+                          plan.highlighted ? "bg-cta/5" : ""
                         }`}
                       >
                         {plan.name}
                         {plan.highlighted && (
-                          <span className="ml-2 text-[10px] bg-[#0E653A] text-white px-2 py-0.5 rounded-full font-bold uppercase">
+                          <span className="ml-2 text-[10px] bg-cta text-white px-2 py-0.5 rounded-full font-bold uppercase">
                             Populaire
                           </span>
                         )}
@@ -416,7 +416,7 @@ const ComparisonTable = () => {
                             <td
                               key={i}
                               className={`p-4 text-center ${
-                                plans[i].highlighted ? "bg-[#0E653A]/5" : ""
+                                plans[i].highlighted ? "bg-cta/5" : ""
                               }`}
                             >
                               <CellValue value={val} />
@@ -497,7 +497,7 @@ export const PricingPage = ({ onNavigate }) => {
                 className="text-4xl md:text-6xl font-bold tracking-tight mb-6"
                 style={{ fontFamily: "var(--font-display)" }}
               >
-                Des prix simples, <span className="text-[#0E653A]">transparents.</span>
+                Des prix simples, <span className="text-cta">transparents.</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -534,7 +534,7 @@ export const PricingPage = ({ onNavigate }) => {
                   }`}
                 >
                   Annuel
-                  <span className="text-[10px] font-bold bg-[#0E653A] text-white px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold bg-cta text-white px-2 py-0.5 rounded-full">
                     -20%
                   </span>
                 </button>
@@ -553,7 +553,7 @@ export const PricingPage = ({ onNavigate }) => {
                 >
                   {plan.highlighted && (
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <div className="flex items-center gap-1.5 bg-[#0E653A] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-[#0E653A]/25">
+                      <div className="flex items-center gap-1.5 bg-cta text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-cta/25">
                         <Sparkles className="w-3 h-3" />
                         Populaire
                       </div>
@@ -598,7 +598,7 @@ export const PricingPage = ({ onNavigate }) => {
                     onClick={() => handleCTA(plan)}
                     className={`w-full py-3.5 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2 mb-8 ${
                       plan.highlighted
-                        ? "bg-[#0E653A] text-white hover:bg-[#003725]"
+                        ? "bg-cta text-white hover:bg-[#003725]"
                         : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
                     }`}
                   >
@@ -612,7 +612,7 @@ export const PricingPage = ({ onNavigate }) => {
                   <div className="space-y-3 flex-1">
                     {plan.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2.5">
-                        <Check className="w-4 h-4 text-[#0E653A] shrink-0 mt-0.5" />
+                        <Check className="w-4 h-4 text-cta shrink-0 mt-0.5" />
                         <span className="text-sm text-[#716D5C] font-medium">{feature}</span>
                       </div>
                     ))}

@@ -120,7 +120,7 @@ export const WebhooksManager = ({ clientId }) => {
         {!showCreate && (
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0E653A] text-white text-xs font-semibold hover:bg-[#003725] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-[#003725] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Nouveau webhook
           </button>
@@ -152,7 +152,7 @@ export const WebhooksManager = ({ clientId }) => {
                 navigator.clipboard.writeText(newSecret.secret)
                 toast.success('Secret copié')
               }}
-              className="px-3 py-2 rounded-lg bg-[#0E653A] text-white text-xs font-semibold hover:bg-[#003725]"
+              className="px-3 py-2 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-[#003725]"
             >
               Copier
             </button>
@@ -222,7 +222,7 @@ const CreateWebhookForm = ({ onCancel, onSubmit, loading }) => {
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="Ex: Sync Zapier, Relais CRM..."
-            className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+            className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
           />
         </div>
         <div>
@@ -232,7 +232,7 @@ const CreateWebhookForm = ({ onCancel, onSubmit, loading }) => {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://hooks.zapier.com/..."
-            className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+            className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-cta/20"
           />
           <p className="text-[10px] text-[#9ca3af] mt-1">HTTPS uniquement. Chaque appel sera signé HMAC-SHA256.</p>
         </div>
@@ -252,7 +252,7 @@ const CreateWebhookForm = ({ onCancel, onSubmit, loading }) => {
                         onClick={() => toggleEvent(ev.id)}
                         className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
                           checked
-                            ? 'bg-[#0E653A]/5 border-[#0E653A]/30 text-[#0E653A]'
+                            ? 'bg-cta/5 border-cta/30 text-cta'
                             : 'bg-white border-gray-200 text-[#71717a] hover:border-gray-300'
                         }`}
                       >
@@ -277,7 +277,7 @@ const CreateWebhookForm = ({ onCancel, onSubmit, loading }) => {
           <button
             onClick={() => onSubmit({ label: label.trim(), url: url.trim(), events })}
             disabled={!canSubmit || loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0E653A] text-white text-xs font-semibold hover:bg-[#003725] disabled:opacity-40 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-[#003725] disabled:opacity-40 transition-colors"
           >
             {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
             Créer
@@ -361,7 +361,7 @@ const WebhookRow = ({ webhook, expanded, onToggleExpand, onToggleActive, onDelet
             <p className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider mb-1">Événements ({webhook.events?.length || 0})</p>
             <div className="flex flex-wrap gap-1">
               {(webhook.events || []).map((ev) => (
-                <code key={ev} className="text-[10px] font-mono text-[#0E653A] bg-[#0E653A]/5 border border-[#0E653A]/20 rounded px-1.5 py-0.5">{ev}</code>
+                <code key={ev} className="text-[10px] font-mono text-cta bg-cta/5 border border-cta/20 rounded px-1.5 py-0.5">{ev}</code>
               ))}
             </div>
           </div>

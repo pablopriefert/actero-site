@@ -140,7 +140,7 @@ export const AdminManualReviewView = () => {
                       <button
                         onClick={() => handleAction(review.id, 'approved')}
                         disabled={acting === review.id}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-[#0E653A] text-white text-[12px] font-bold rounded-lg hover:bg-[#003725] disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-cta text-white text-[12px] font-bold rounded-lg hover:bg-[#003725] disabled:opacity-50"
                       >
                         {acting === review.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
                         Approuver et envoyer

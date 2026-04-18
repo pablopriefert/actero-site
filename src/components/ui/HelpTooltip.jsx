@@ -39,7 +39,7 @@ export const HelpTooltip = ({ text, side = 'top', className = '' }) => {
         type="button"
         tabIndex={0}
         aria-label="Aide"
-        className="inline-flex items-center justify-center text-[#c4c4c4] hover:text-[#9ca3af] transition-colors outline-none focus-visible:text-[#0E653A]"
+        className="inline-flex items-center justify-center text-[#c4c4c4] hover:text-[#9ca3af] transition-colors outline-none focus-visible:text-cta"
         onClick={(e) => e.preventDefault()}
       >
         <HelpCircle className="w-3.5 h-3.5" />

@@ -113,7 +113,7 @@ export const KnowledgeImportModal = ({ clientId, provider, onClose, onSuccess })
         <div className="flex-1 overflow-y-auto p-5">
           {isLoading ? (
             <div className="py-12 text-center">
-              <Loader2 className="w-6 h-6 text-[#0E653A] animate-spin mx-auto mb-2" />
+              <Loader2 className="w-6 h-6 text-cta animate-spin mx-auto mb-2" />
               <p className="text-xs text-[#71717a]">Chargement de vos documents…</p>
             </div>
           ) : error ? (
@@ -152,7 +152,7 @@ export const KnowledgeImportModal = ({ clientId, provider, onClose, onSuccess })
               <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
                 <button
                   onClick={toggleAll}
-                  className="flex items-center gap-2 text-xs font-semibold text-[#0E653A] hover:bg-[#0E653A]/5 px-2 py-1.5 rounded-md transition-colors"
+                  className="flex items-center gap-2 text-xs font-semibold text-cta hover:bg-cta/5 px-2 py-1.5 rounded-md transition-colors"
                 >
                   {selected.size === documents.length && documents.length > 0 ? (
                     <><CheckSquare className="w-3.5 h-3.5" /> Tout désélectionner</>
@@ -175,12 +175,12 @@ export const KnowledgeImportModal = ({ clientId, provider, onClose, onSuccess })
                       onClick={() => toggle(doc.id)}
                       className={`w-full flex items-center gap-3 p-2.5 rounded-lg border transition-all text-left ${
                         isSelected
-                          ? 'border-[#0E653A] bg-[#0E653A]/5'
+                          ? 'border-cta bg-cta/5'
                           : 'border-gray-100 hover:bg-gray-50'
                       }`}
                     >
                       <div className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 ${
-                        isSelected ? 'bg-[#0E653A]' : 'border-2 border-gray-300'
+                        isSelected ? 'bg-cta' : 'border-2 border-gray-300'
                       }`}>
                         {isSelected && <Check className="w-3 h-3 text-white" />}
                       </div>
@@ -234,7 +234,7 @@ export const KnowledgeImportModal = ({ clientId, provider, onClose, onSuccess })
             <button
               onClick={() => importMutation.mutate()}
               disabled={selected.size === 0 || importMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0E653A] text-white text-sm font-semibold hover:bg-[#003725] disabled:opacity-40 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] disabled:opacity-40 transition-colors"
             >
               {importMutation.isPending ? (
                 <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Import…</>

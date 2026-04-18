@@ -184,7 +184,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           </p>
           {isStartupPromo && (
             <div className="inline-flex flex-col items-center gap-2 mt-5">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0E653A] to-[#003725] rounded-full shadow-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cta to-[#003725] rounded-full shadow-sm">
                 <Rocket className="w-4 h-4 text-white" />
                 <span className="text-xs font-bold text-white tracking-wide uppercase">Code startup actif · -50% / 6 mois</span>
               </div>
@@ -232,12 +232,12 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                 ctaStyle = "bg-[#F9F7F1] text-[#262626] border border-gray-200 hover:bg-gray-100";
               } else if (isStartupPromo) {
                 ctaLabel = "Activer mon plan -50%";
-                ctaStyle = "bg-[#0E653A] text-white hover:bg-[#003725]";
+                ctaStyle = "bg-cta text-white hover:bg-[#003725]";
               } else {
                 ctaLabel = isReferred ? "30 jours gratuits" : "Essai gratuit 7 jours";
                 ctaStyle = isPopular
-                  ? "bg-[#0E653A] text-white hover:bg-[#003725]"
-                  : "bg-[#0E653A] text-white hover:bg-[#003725]";
+                  ? "bg-cta text-white hover:bg-[#003725]"
+                  : "bg-cta text-white hover:bg-[#003725]";
               }
 
               return (
@@ -247,11 +247,11 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.1 * index }}
                   className={`relative bg-white rounded-2xl p-6 shadow-sm border ${
-                    isPopular ? "border-[#0E653A] ring-2 ring-[#0E653A]/20" : "border-gray-200"
+                    isPopular ? "border-cta ring-2 ring-cta/20" : "border-gray-200"
                   }`}
                 >
                   {isPopular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0E653A] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-cta text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
                       Populaire
                     </div>
                   )}
@@ -265,21 +265,21 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                     {hasDiscount && (
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-gray-400 text-base line-through">{plan.price.monthly}€/mois</span>
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-[#0E653A]/10 text-[#0E653A] px-1.5 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-cta/10 text-cta px-1.5 py-0.5 rounded">
                           <Sparkles className="w-2.5 h-2.5" /> -50%
                         </span>
                       </div>
                     )}
                     <span className="text-[#262626] text-2xl font-bold">{priceLabel}</span>
                     {hasDiscount && (
-                      <div className="text-[11px] text-[#0E653A] font-semibold mt-1">pendant 6 mois, puis {plan.price.monthly}€/mois</div>
+                      <div className="text-[11px] text-cta font-semibold mt-1">pendant 6 mois, puis {plan.price.monthly}€/mois</div>
                     )}
                   </div>
 
                   <ul className="space-y-2.5 mb-6">
                     {highlights.map((item, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-[#262626]">
-                        <Check className="w-4 h-4 text-[#0E653A] mt-0.5 flex-shrink-0" />
+                        <Check className="w-4 h-4 text-cta mt-0.5 flex-shrink-0" />
                         <span>{item}</span>
                       </li>
                     ))}

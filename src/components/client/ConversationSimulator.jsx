@@ -244,7 +244,7 @@ export const ConversationSimulator = ({ clientId, clientType, theme }) => {
           <button
             onClick={testAllPlaybooks}
             disabled={testingAll}
-            className="flex items-center gap-2 px-4 py-2 bg-[#0E653A] text-white text-sm font-bold rounded-full hover:bg-[#003725] disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-cta text-white text-sm font-bold rounded-full hover:bg-[#003725] disabled:opacity-50"
           >
             {testingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
             Tester tous les playbooks actifs
@@ -275,13 +275,13 @@ export const ConversationSimulator = ({ clientId, clientType, theme }) => {
                   className={`p-4 rounded-xl border-2 text-left transition-all ${
                     results.length > 0 && failed === 0 ? 'border-emerald-200 bg-emerald-50/50' :
                     results.length > 0 && failed > 0 ? 'border-red-200 bg-red-50/50' :
-                    'border-gray-100 hover:border-[#0E653A] hover:shadow-sm'
+                    'border-gray-100 hover:border-cta hover:shadow-sm'
                   } disabled:opacity-50`}
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <Icon className="w-4 h-4 text-[#0E653A]" />
+                    <Icon className="w-4 h-4 text-cta" />
                     <span className="font-bold text-sm text-[#1a1a1a]">{playbook.display_name}</span>
-                    {isTesting && <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0E653A] ml-auto" />}
+                    {isTesting && <Loader2 className="w-3.5 h-3.5 animate-spin text-cta ml-auto" />}
                   </div>
                   <p className="text-xs text-[#71717a] mb-2">{scenarios.length} scenario{scenarios.length > 1 ? 's' : ''} de test</p>
                   {results.length > 0 && (
@@ -314,7 +314,7 @@ export const ConversationSimulator = ({ clientId, clientType, theme }) => {
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-[#0E653A]" />
+              <Eye className="w-4 h-4 text-cta" />
               <p className="font-bold text-sm text-[#1a1a1a]">Resultats ({testResults.length} tests)</p>
             </div>
             <div className="flex gap-2 text-xs">
@@ -393,7 +393,7 @@ export const ConversationSimulator = ({ clientId, clientType, theme }) => {
             className="flex-1 px-4 py-3 bg-[#F5F5F0] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50"
           />
           <button onClick={() => sendChat(chatInput)} disabled={!chatInput.trim() || chatLoading}
-            className="px-4 py-3 bg-[#0E653A] text-white rounded-xl hover:bg-[#003725] disabled:opacity-50">
+            className="px-4 py-3 bg-cta text-white rounded-xl hover:bg-[#003725] disabled:opacity-50">
             <Send className="w-4 h-4" />
           </button>
         </div>

@@ -267,7 +267,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {isActeroPick && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#0E653A] text-white text-[11px] font-medium">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-cta text-white text-[11px] font-medium">
                   <span>⭐</span>
                   <span>Actero Pick</span>
                 </span>

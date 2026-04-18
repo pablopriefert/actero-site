@@ -52,7 +52,7 @@ export const Sidebar = ({
       {/* Header */}
       <div className="h-[52px] flex items-center px-4 justify-between md:justify-start">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-[#0E653A] flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-cta flex items-center justify-center">
             <Logo className="w-4 h-4 text-white" />
           </div>
           <span className="font-semibold text-[14px] text-[#1a1a1a] tracking-tight">{title}</span>
@@ -73,7 +73,7 @@ export const Sidebar = ({
           <input
             type="text"
             placeholder="Rechercher..."
-            className="w-full pl-8 pr-3 py-2 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[12px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#0E653A]/30 focus:bg-white transition-all"
+            className="w-full pl-8 pr-3 py-2 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[12px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:border-cta/30 focus:bg-white transition-all"
           />
         </div>
       </div>
@@ -110,22 +110,22 @@ export const Sidebar = ({
                 aria-current={isActive ? 'page' : undefined}
                 className={`relative w-full h-10 flex items-center justify-between px-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 group my-1.5 ${
                   isActive
-                    ? "bg-gradient-to-r from-[#0E653A] to-[#003725] text-white shadow-[0_2px_8px_rgba(15,95,53,0.25)]"
-                    : "bg-gradient-to-r from-[#0E653A]/[0.06] to-[#0E653A]/[0.02] text-[#0E653A] hover:from-[#0E653A]/[0.1] hover:to-[#0E653A]/[0.04] border border-[#0E653A]/15"
+                    ? "bg-gradient-to-r from-cta to-[#003725] text-white shadow-[0_2px_8px_rgba(15,95,53,0.25)]"
+                    : "bg-gradient-to-r from-cta/[0.06] to-cta/[0.02] text-cta hover:from-cta/[0.1] hover:to-cta/[0.04] border border-cta/15"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                    isActive ? 'bg-white/20' : 'bg-[#0E653A]/10 group-hover:bg-[#0E653A]/15'
+                    isActive ? 'bg-white/20' : 'bg-cta/10 group-hover:bg-cta/15'
                   }`}>
-                    {item.icon && <item.icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-[#0E653A]'}`} />}
+                    {item.icon && <item.icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-cta'}`} />}
                   </div>
                   <span className="tracking-tight">{item.label}</span>
                 </div>
                 {item.badge && (
                   <span
                     className={`flex-shrink-0 text-center px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${
-                      isActive ? 'bg-white/25 text-white' : 'bg-[#0E653A]/12 text-[#0E653A]'
+                      isActive ? 'bg-white/25 text-white' : 'bg-cta/12 text-cta'
                     }`}
                   >
                     {item.badge}
@@ -148,8 +148,8 @@ export const Sidebar = ({
                     isPrimary
                       ? `relative w-full h-10 flex items-center justify-between px-2.5 rounded-xl text-[13px] font-semibold transition-all duration-150 group ${
                           hasActiveChild
-                            ? 'bg-gradient-to-r from-[#0E653A] to-[#003725] text-white shadow-[0_2px_8px_rgba(15,95,53,0.25)]'
-                            : 'bg-gradient-to-r from-[#0E653A]/[0.06] to-[#0E653A]/[0.02] text-[#0E653A] hover:from-[#0E653A]/[0.1] hover:to-[#0E653A]/[0.04] border border-[#0E653A]/15'
+                            ? 'bg-gradient-to-r from-cta to-[#003725] text-white shadow-[0_2px_8px_rgba(15,95,53,0.25)]'
+                            : 'bg-gradient-to-r from-cta/[0.06] to-cta/[0.02] text-cta hover:from-cta/[0.1] hover:to-cta/[0.04] border border-cta/15'
                         }`
                       : `w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-150 ${
                           hasActiveChild
@@ -161,19 +161,19 @@ export const Sidebar = ({
                   <div className="flex items-center gap-2.5">
                     {isPrimary ? (
                       <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
-                        hasActiveChild ? 'bg-white/20' : 'bg-[#0E653A]/10 group-hover:bg-[#0E653A]/15'
+                        hasActiveChild ? 'bg-white/20' : 'bg-cta/10 group-hover:bg-cta/15'
                       }`}>
-                        {item.icon && <item.icon className={`w-3.5 h-3.5 ${hasActiveChild ? 'text-white' : 'text-[#0E653A]'}`} />}
+                        {item.icon && <item.icon className={`w-3.5 h-3.5 ${hasActiveChild ? 'text-white' : 'text-cta'}`} />}
                       </div>
                     ) : (
-                      item.icon && <item.icon className={`w-4 h-4 ${hasActiveChild ? 'text-[#0E653A]' : 'text-[#9ca3af]'}`} />
+                      item.icon && <item.icon className={`w-4 h-4 ${hasActiveChild ? 'text-cta' : 'text-[#9ca3af]'}`} />
                     )}
                     <span className={isPrimary ? 'tracking-tight' : ''}>{item.label}</span>
                   </div>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform duration-200 ease-out ${
                       isPrimary
-                        ? hasActiveChild ? 'text-white/80' : 'text-[#0E653A]/60'
+                        ? hasActiveChild ? 'text-white/80' : 'text-cta/60'
                         : 'text-[#9ca3af]'
                     } ${isExpanded ? 'rotate-180' : ''}`}
                   />
@@ -196,12 +196,12 @@ export const Sidebar = ({
                           aria-current={isActive ? 'page' : undefined}
                           className={`w-full h-8 flex items-center justify-between pl-9 pr-2.5 rounded-lg text-[12px] transition-all duration-150 ${
                             isActive
-                              ? "text-[#0E653A] font-semibold bg-[#0E653A]/[0.08] border-l-2 border-[#0E653A]"
+                              ? "text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta"
                               : "text-[#71717a] font-normal hover:text-[#1a1a1a] hover:bg-[#fafafa]"
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            {child.icon && <child.icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#0E653A]' : 'text-[#9ca3af]'}`} />}
+                            {child.icon && <child.icon className={`w-3.5 h-3.5 ${isActive ? 'text-cta' : 'text-[#9ca3af]'}`} />}
                             <span className="truncate">{child.label}</span>
                           </div>
                           {child.badge && (
@@ -210,7 +210,7 @@ export const Sidebar = ({
                                 isNumericBadge
                                   ? "bg-[#ef4444] text-white"
                                   : isActive
-                                    ? "bg-[#0E653A]/10 text-[#0E653A]"
+                                    ? "bg-cta/10 text-cta"
                                     : (child.badgeColor || "bg-[#f0f0f0] text-[#71717a]")
                               }`}
                             >
@@ -236,13 +236,13 @@ export const Sidebar = ({
               aria-current={isActive ? 'page' : undefined}
               className={`w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-150 group ${
                 isActive
-                  ? "text-[#0E653A] font-semibold bg-[#0E653A]/[0.08] border-l-2 border-[#0E653A]"
+                  ? "text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta"
                   : "text-[#1a1a1a] font-medium hover:bg-[#fafafa]"
               }`}
             >
               <div className="flex items-center gap-2.5">
                 {item.icon && (
-                  <item.icon className={`w-4 h-4 ${isActive ? 'text-[#0E653A]' : 'text-[#9ca3af] group-hover:text-[#71717a]'}`} />
+                  <item.icon className={`w-4 h-4 ${isActive ? 'text-cta' : 'text-[#9ca3af] group-hover:text-[#71717a]'}`} />
                 )}
                 <span>{item.label}</span>
               </div>
@@ -252,7 +252,7 @@ export const Sidebar = ({
                     isNumericBadge
                       ? "bg-[#ef4444] text-white"
                       : isActive
-                        ? "bg-[#0E653A]/10 text-[#0E653A]"
+                        ? "bg-cta/10 text-cta"
                         : (item.badgeColor || "bg-[#f0f0f0] text-[#71717a]")
                   }`}
                 >
@@ -288,10 +288,10 @@ export const Sidebar = ({
                     if (onClose) onClose()
                   }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 text-[13px] font-medium transition-colors ${
-                    isActive ? 'text-[#0E653A] bg-[#0E653A]/[0.04]' : 'text-[#71717a] hover:text-[#1a1a1a] hover:bg-[#f9f9f9]'
+                    isActive ? 'text-cta bg-cta/[0.04]' : 'text-[#71717a] hover:text-[#1a1a1a] hover:bg-[#f9f9f9]'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#0E653A]' : 'opacity-40'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-cta' : 'opacity-40'}`} />
                   {item.label}
                 </button>
               )
@@ -313,7 +313,7 @@ export const Sidebar = ({
           onClick={() => setShowAccountMenu(!showAccountMenu)}
           className="w-full flex items-center gap-3 px-3 py-3 hover:bg-[#fafafa] transition-colors"
         >
-          <div className="w-8 h-8 rounded-lg bg-[#0E653A] text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-cta text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0">
             {initials}
           </div>
           <div className="flex-1 text-left min-w-0">

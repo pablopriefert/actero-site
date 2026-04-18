@@ -80,7 +80,7 @@ export const AdminEngineRunsView = () => {
       <div className="flex gap-2">
         {['all', 'completed', 'error', 'needs_review'].map(s => (
           <button key={s} onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors ${statusFilter === s ? 'bg-[#0E653A] text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-gray-200'}`}>
+            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors ${statusFilter === s ? 'bg-cta text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-gray-200'}`}>
             {s === 'all' ? 'Tous' : STATUS_BADGES[s]?.label || s}
           </button>
         ))}

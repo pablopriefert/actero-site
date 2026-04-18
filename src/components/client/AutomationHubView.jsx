@@ -163,7 +163,7 @@ const AutomationCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
       className={`group rounded-2xl bg-white border shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] ${
-        isActive ? 'border-[#0E653A]/25' : 'border-[#f0f0f0]'
+        isActive ? 'border-cta/25' : 'border-[#f0f0f0]'
       }`}
     >
       <div className="p-5 md:p-6">
@@ -178,8 +178,8 @@ const AutomationCard = ({
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-[15px] font-bold text-[#1a1a1a] leading-tight">{automation.title}</h3>
                   {status === 'active' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#0E653A]/10 text-[#0E653A] text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#0E653A] animate-pulse" /> Actif
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-cta/10 text-cta text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cta animate-pulse" /> Actif
                     </span>
                   )}
                   {status === 'missing' && (
@@ -193,7 +193,7 @@ const AutomationCard = ({
                     </span>
                   )}
                 </div>
-                <p className="text-[12px] font-semibold text-[#0E653A] mt-0.5">{automation.tagline}</p>
+                <p className="text-[12px] font-semibold text-cta mt-0.5">{automation.tagline}</p>
               </div>
             </div>
 
@@ -225,7 +225,7 @@ const AutomationCard = ({
 
             {/* Metric line when active */}
             {isActive && metricLine && (
-              <div className="mt-3 flex items-center gap-2 text-[11px] text-[#0E653A] font-medium">
+              <div className="mt-3 flex items-center gap-2 text-[11px] text-cta font-medium">
                 <Activity className="w-3 h-3" /> {metricLine}
               </div>
             )}
@@ -238,7 +238,7 @@ const AutomationCard = ({
                 className={`inline-flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   isActive
                     ? 'bg-white border border-[#f0f0f0] text-[#1a1a1a] hover:bg-[#fafafa]'
-                    : 'bg-[#0E653A] hover:bg-[#003725] text-white'
+                    : 'bg-cta hover:bg-[#003725] text-white'
                 }`}
               >
                 {isActive ? (
@@ -722,11 +722,11 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
                           <div
                             key={ch.id}
                             className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
-                              isSelected ? 'bg-[#0E653A]/5 border-[#0E653A]/20' : 'bg-white border-[#f0f0f0]'
+                              isSelected ? 'bg-cta/5 border-cta/20' : 'bg-white border-[#f0f0f0]'
                             }`}
                           >
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                              isSelected ? 'bg-[#0E653A] text-white' : 'bg-[#fafafa] text-[#9ca3af]'
+                              isSelected ? 'bg-cta text-white' : 'bg-[#fafafa] text-[#9ca3af]'
                             }`}>
                               <ChIcon className="w-4 h-4" />
                             </div>
@@ -748,7 +748,7 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
                                   setSelectedChannels(prev => ({ ...prev, [`${automation.key}_${ch.id}`]: newVal }))
                                   saveChannels(automation.key, ch.id, newVal)
                                 }}
-                                className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isSelected ? 'bg-[#0E653A]' : 'bg-[#e5e5e5]'}`}
+                                className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isSelected ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
                               >
                                 <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${isSelected ? 'translate-x-4' : 'translate-x-0.5'}`} />
                               </button>
@@ -810,7 +810,7 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0E653A] via-[#0E653A] to-[#003725] text-white p-6 md:p-10 mb-8"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cta via-cta to-[#003725] text-white p-6 md:p-10 mb-8"
       >
         <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />

@@ -129,8 +129,8 @@ export function AdminHallucinationView() {
 
       <div className="p-6 space-y-6">
         <div className="rounded-xl border border-[#f0f0f0] bg-white p-4 flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#0E653A]/10 flex items-center justify-center flex-shrink-0">
-            <Sparkles className="w-4 h-4 text-[#0E653A]" />
+          <div className="w-8 h-8 rounded-lg bg-cta/10 flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-4 h-4 text-cta" />
           </div>
           <div className="text-[12px] text-[#71717a] leading-relaxed">
             Les réponses générées par le Brain sont scorées automatiquement contre la knowledge base du client. Un score faible indique un risque que l'IA invente des informations non présentes dans la base de connaissance.

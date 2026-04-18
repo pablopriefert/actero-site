@@ -134,7 +134,7 @@ export const HelpCenterView = ({ theme }) => {
         </div>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent('actero:restart-tour'))}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#0E653A] bg-[#0E653A]/[0.08] hover:bg-[#0E653A]/[0.12] transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-cta bg-cta/[0.08] hover:bg-cta/[0.12] transition-colors"
           title="Relancer le tour produit"
         >
           <Sparkles className="w-3.5 h-3.5" />
@@ -150,7 +150,7 @@ export const HelpCenterView = ({ theme }) => {
           value={search}
           onChange={(e) => { setSearch(e.target.value); setSelectedCategory(null) }}
           placeholder="Rechercher un guide..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#ebebeb] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/30"
+          className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#ebebeb] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
         />
       </div>
 
@@ -159,7 +159,7 @@ export const HelpCenterView = ({ theme }) => {
         <button
           onClick={() => setSelectedCategory(null)}
           className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
-            !selectedCategory ? 'bg-[#0E653A] text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+            !selectedCategory ? 'bg-cta text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
           }`}
         >
           Tout
@@ -171,7 +171,7 @@ export const HelpCenterView = ({ theme }) => {
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
-                selectedCategory === cat.id ? 'bg-[#0E653A] text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+                selectedCategory === cat.id ? 'bg-cta text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
               }`}
             >
               <Icon className="w-3 h-3" />

@@ -99,7 +99,7 @@ export const ROISettingsView = ({ clientId, theme }) => {
       {/* Live ROI card */}
       <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-[#0E653A]" />
+          <TrendingUp className="w-5 h-5 text-cta" />
           <h3 className="text-[15px] font-semibold text-[#1a1a1a]">ROI ce mois</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -145,7 +145,7 @@ export const ROISettingsView = ({ clientId, theme }) => {
               value={form.hourly_cost}
               onChange={(e) => setForm(f => ({ ...f, hourly_cost: e.target.value }))}
               placeholder="25"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/30"
+              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">€ / heure</span>
           </div>
@@ -160,7 +160,7 @@ export const ROISettingsView = ({ clientId, theme }) => {
               value={form.avg_ticket_time_min}
               onChange={(e) => setForm(f => ({ ...f, avg_ticket_time_min: e.target.value }))}
               placeholder="5"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/30"
+              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">minutes</span>
           </div>
@@ -175,7 +175,7 @@ export const ROISettingsView = ({ clientId, theme }) => {
               value={form.actero_monthly_price}
               onChange={(e) => setForm(f => ({ ...f, actero_monthly_price: e.target.value }))}
               placeholder="0"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-[#0E653A]/30"
+              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">€ / mois</span>
           </div>
@@ -184,7 +184,7 @@ export const ROISettingsView = ({ clientId, theme }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#0E653A] text-white text-[13px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50 transition-colors"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
           Sauvegarder

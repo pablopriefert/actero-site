@@ -99,14 +99,14 @@ export const AuditPage = ({ onNavigate }) => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-5xl mx-auto mb-8"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-[#0E653A]/20 bg-[#0E653A]/5 p-6">
+            <div className="relative overflow-hidden rounded-2xl border border-cta/20 bg-cta/5 p-6">
               <div className="relative flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#0E653A]/10 border border-[#0E653A]/20 flex items-center justify-center flex-shrink-0">
-                  <Gift className="w-6 h-6 text-[#0E653A]" />
+                <div className="w-12 h-12 rounded-xl bg-cta/10 border border-cta/20 flex items-center justify-center flex-shrink-0">
+                  <Gift className="w-6 h-6 text-cta" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#0E653A]/10 border border-[#0E653A]/20 text-[#003725] text-xs font-bold">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-cta/10 border border-cta/20 text-[#003725] text-xs font-bold">
                       <Sparkles className="w-3 h-3" />
                       {ambassadorName ? `Recommandé par ${ambassadorName}` : 'Recommandation ambassadeur'}
                     </span>
@@ -145,7 +145,7 @@ export const AuditPage = ({ onNavigate }) => {
                     )}
                   </div>
                   <h3 className="text-lg font-bold text-[#262626]">
-                    Vos frais de setup de <span className="line-through text-[#716D5C]">800€</span> sont <span className="text-[#0E653A]">offerts</span>
+                    Vos frais de setup de <span className="line-through text-[#716D5C]">800€</span> sont <span className="text-cta">offerts</span>
                   </h3>
                   <p className="text-sm text-[#716D5C] mt-1">
                     Grâce à votre parrain, vous bénéficiez d'une installation gratuite. Réservez votre audit pour en profiter.
@@ -183,7 +183,7 @@ export const AuditPage = ({ onNavigate }) => {
                       "Projection de croissance sur 90 jours",
                     ].map((item, i) => (
                       <li key={i} className="flex items-center gap-3">
-                        <div className="w-5 h-5 rounded-full bg-[#0E653A]/10 text-[#0E653A] flex items-center justify-center border border-[#0E653A]/20 flex-shrink-0">
+                        <div className="w-5 h-5 rounded-full bg-cta/10 text-cta flex items-center justify-center border border-cta/20 flex-shrink-0">
                           <Zap className="w-3 h-3" />
                         </div>
                         <span className="text-[#262626] font-medium">
@@ -194,7 +194,7 @@ export const AuditPage = ({ onNavigate }) => {
                   </ul>
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0E653A]/10 border border-[#0E653A]/20 text-xs font-bold text-[#003725]">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cta/10 border border-cta/20 text-xs font-bold text-[#003725]">
                   <Clock className="w-3.5 h-3.5" />3 créneaux restants cette semaine
                 </div>
               </div>
@@ -253,7 +253,7 @@ export const AuditPage = ({ onNavigate }) => {
               </FadeInUp>
               <FadeInUp delay={0.3}>
                 <div className="bg-white rounded-2xl p-8 border border-gray-200 h-full hover:border-gray-300 transition-colors">
-                  <div className="w-12 h-12 bg-[#0E653A]/10 rounded-xl flex items-center justify-center mb-6 text-[#0E653A]">
+                  <div className="w-12 h-12 bg-cta/10 rounded-xl flex items-center justify-center mb-6 text-cta">
                     <ArrowUpRight className="w-6 h-6" />
                   </div>
                   <h3 className="text-xl font-bold text-[#262626] mb-3">Plan d'Action Sur-Mesure</h3>

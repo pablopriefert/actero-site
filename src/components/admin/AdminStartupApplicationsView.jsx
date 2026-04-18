@@ -83,8 +83,8 @@ export const AdminStartupApplicationsView = () => {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#0E653A]/10 flex items-center justify-center">
-            <Rocket className="w-5 h-5 text-[#0E653A]" />
+          <div className="w-10 h-10 rounded-xl bg-cta/10 flex items-center justify-center">
+            <Rocket className="w-5 h-5 text-cta" />
           </div>
           <div>
             <h1 className="text-[22px] font-bold text-[#1a1a1a] tracking-tight">Candidatures Startups</h1>
@@ -115,7 +115,7 @@ export const AdminStartupApplicationsView = () => {
             onClick={() => setFilter(f)}
             className={`px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all ${
               filter === f
-                ? 'bg-[#0E653A] text-white'
+                ? 'bg-cta text-white'
                 : 'bg-white border border-[#f0f0f0] text-[#71717a] hover:bg-zinc-50'
             }`}
           >
@@ -148,7 +148,7 @@ export const AdminStartupApplicationsView = () => {
                     key={app.id}
                     onClick={() => setSelected(app)}
                     className={`w-full text-left px-4 py-3 hover:bg-zinc-50 transition-colors ${
-                      isSelected ? 'bg-[#0E653A]/[0.03] border-l-2 border-l-[#0E653A]' : ''
+                      isSelected ? 'bg-cta/[0.03] border-l-2 border-l-cta' : ''
                     }`}
                   >
                     <div className="flex items-center justify-between gap-3 mb-1">
@@ -204,13 +204,13 @@ export const AdminStartupApplicationsView = () => {
               {/* Fields */}
               <div className="space-y-3 text-[13px]">
                 <DetailRow icon={Globe} label="URL">
-                  <a href={selected.url} target="_blank" rel="noopener noreferrer" className="text-[#0E653A] hover:underline inline-flex items-center gap-1">
+                  <a href={selected.url} target="_blank" rel="noopener noreferrer" className="text-cta hover:underline inline-flex items-center gap-1">
                     {selected.url}
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </DetailRow>
                 <DetailRow icon={Mail} label="Email">
-                  <a href={`mailto:${selected.email}`} className="text-[#0E653A] hover:underline font-mono">{selected.email}</a>
+                  <a href={`mailto:${selected.email}`} className="text-cta hover:underline font-mono">{selected.email}</a>
                 </DetailRow>
                 <DetailRow icon={DollarSign} label="CA annuel">{selected.revenue}</DetailRow>
                 <DetailRow icon={Globe} label="Plateforme">{selected.platform}</DetailRow>
@@ -259,14 +259,14 @@ export const AdminStartupApplicationsView = () => {
                     onChange={(e) => setRejectNotes(e.target.value)}
                     placeholder="Notes (optionnel, envoyées dans l'email de refus)"
                     rows={2}
-                    className="w-full px-3 py-2 border border-[#f0f0f0] rounded-lg text-[12px] resize-none focus:outline-none focus:border-[#0E653A]/30"
+                    className="w-full px-3 py-2 border border-[#f0f0f0] rounded-lg text-[12px] resize-none focus:outline-none focus:border-cta/30"
                   />
 
                   <div className="flex gap-2">
                     <button
                       onClick={() => reviewMutation.mutate({ id: selected.id, action: 'accept' })}
                       disabled={reviewMutation.isPending}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[12px] font-bold bg-[#0E653A] text-white hover:bg-[#003725] transition-colors disabled:opacity-50"
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[12px] font-bold bg-cta text-white hover:bg-[#003725] transition-colors disabled:opacity-50"
                     >
                       {reviewMutation.isPending && reviewMutation.variables?.action === 'accept' ? (
                         <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Traitement…</>

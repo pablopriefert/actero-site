@@ -45,7 +45,7 @@ export function SearchInput({
         onChange={onChange}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20 focus:border-[#0E653A]/30 transition-all"
+        className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30 transition-all"
         {...rest}
       />
       {showClear && (

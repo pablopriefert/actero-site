@@ -58,7 +58,7 @@ const Toggle = ({ isOn, onToggle, small }) => (
   <button
     onClick={onToggle}
     className={`relative rounded-full transition-colors flex-shrink-0 ${
-      isOn ? 'bg-[#0E653A]' : 'bg-[#e5e5e5]'
+      isOn ? 'bg-cta' : 'bg-[#e5e5e5]'
     } ${small ? 'w-8 h-[18px]' : 'w-11 h-6'}`}
   >
     <div className={`absolute top-0.5 rounded-full bg-white shadow transition-transform ${
@@ -186,8 +186,8 @@ export const NotificationCenterView = ({ clientId, theme }) => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#0E653A]/10 flex items-center justify-center">
-          <Bell className="w-5 h-5 text-[#0E653A]" />
+        <div className="w-10 h-10 rounded-xl bg-cta/10 flex items-center justify-center">
+          <Bell className="w-5 h-5 text-cta" />
         </div>
         <div>
           <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Notifications</h2>
@@ -243,7 +243,7 @@ export const NotificationCenterView = ({ clientId, theme }) => {
                           onClick={() => toggleChannel(item.key, ch)}
                           className={`p-2 rounded-lg border transition-all ${
                             enabled
-                              ? 'bg-[#0E653A]/10 border-[#0E653A]/30 text-[#0E653A]'
+                              ? 'bg-cta/10 border-cta/30 text-cta'
                               : 'bg-[#fafafa] border-[#f0f0f0] text-[#e5e5e5] hover:text-[#9ca3af] hover:border-[#ebebeb]'
                           }`}
                           title={`${CHANNELS.find(c => c.id === ch)?.label}: ${enabled ? 'Actif' : 'Inactif'}`}
@@ -263,7 +263,7 @@ export const NotificationCenterView = ({ clientId, theme }) => {
       {/* Timing preferences */}
       <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-5 space-y-5">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-[#0E653A]" />
+          <Clock className="w-4 h-4 text-cta" />
           <h3 className="text-sm font-bold text-[#1a1a1a]">Horaires</h3>
         </div>
 

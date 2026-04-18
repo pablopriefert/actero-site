@@ -79,7 +79,7 @@ const PartnerAccessGate = ({ children }) => {
   if (state === 'checking') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader2 className="w-8 h-8 text-[#0E653A] animate-spin" />
+        <Loader2 className="w-8 h-8 text-cta animate-spin" />
       </div>
     )
   }
@@ -93,7 +93,7 @@ const PartnerAccessGate = ({ children }) => {
           </div>
           <h1 className="text-xl font-bold text-[#1a1a1a] mb-2">Page privée</h1>
           <p className="text-sm text-[#71717a] mb-6">{error || 'Cette page est accessible uniquement sur invitation.'}</p>
-          <a href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-[#0E653A] hover:underline">
+          <a href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-cta hover:underline">
             Retour à l'accueil
           </a>
         </div>

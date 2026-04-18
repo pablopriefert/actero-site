@@ -179,9 +179,9 @@ const MODAL_CONTENT = {
 
 const RoleIcon = ({ role }) => {
   if (role === 'client') return <span className="text-[11px] font-bold text-[#1a1a1a]">Client</span>
-  if (role === 'agent') return <span className="text-[11px] font-bold text-[#0E653A]">Actero</span>
+  if (role === 'agent') return <span className="text-[11px] font-bold text-cta">Actero</span>
   if (role === 'system') return <span className="text-[11px] font-bold text-[#9ca3af]">Systeme</span>
-  if (role === 'result') return <span className="text-[11px] font-bold text-[#0E653A]">Resultat</span>
+  if (role === 'result') return <span className="text-[11px] font-bold text-cta">Resultat</span>
   return null
 }
 
@@ -250,15 +250,15 @@ export const AutomationHowItWorksModal = ({
               {/* Section 1 — What it does */}
               <section>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-[#0E653A]/10 flex items-center justify-center">
-                    <Target className="w-4 h-4 text-[#0E653A]" />
+                  <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center">
+                    <Target className="w-4 h-4 text-cta" />
                   </div>
                   <h3 className="text-[15px] font-bold text-[#1a1a1a]">Ce que fait cette automation</h3>
                 </div>
                 <ul className="space-y-2 pl-9">
                   {content.whatItDoes.map((item, i) => (
                     <li key={i} className="flex gap-2.5 text-[13px] text-[#1a1a1a] leading-relaxed">
-                      <span className="text-[#0E653A] font-bold mt-0.5">-</span>
+                      <span className="text-cta font-bold mt-0.5">-</span>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -281,11 +281,11 @@ export const AutomationHowItWorksModal = ({
                       <div
                         key={i}
                         className={`flex items-center gap-3 p-3 rounded-xl border ${
-                          connected ? 'bg-[#0E653A]/5 border-[#0E653A]/20' : optional ? 'bg-[#fafafa] border-[#f0f0f0]' : 'bg-amber-50 border-amber-200'
+                          connected ? 'bg-cta/5 border-cta/20' : optional ? 'bg-[#fafafa] border-[#f0f0f0]' : 'bg-amber-50 border-amber-200'
                         }`}
                       >
                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          connected ? 'bg-[#0E653A] text-white' : optional ? 'bg-white text-[#9ca3af]' : 'bg-amber-500 text-white'
+                          connected ? 'bg-cta text-white' : optional ? 'bg-white text-[#9ca3af]' : 'bg-amber-500 text-white'
                         }`}>
                           {connected ? <CheckCircle2 className="w-4 h-4" /> : <Plug className="w-3.5 h-3.5" />}
                         </div>
@@ -293,7 +293,7 @@ export const AutomationHowItWorksModal = ({
                           <div className="flex items-center gap-2">
                             <p className="text-[13px] font-semibold text-[#1a1a1a]">{req.label}</p>
                             {optional && <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider">optionnel</span>}
-                            {connected && <span className="text-[10px] font-semibold text-[#0E653A]">connecte</span>}
+                            {connected && <span className="text-[10px] font-semibold text-cta">connecte</span>}
                           </div>
                           <p className="text-[11px] text-[#71717a] mt-0.5">{req.detail}</p>
                         </div>
@@ -324,7 +324,7 @@ export const AutomationHowItWorksModal = ({
                     <div
                       key={i}
                       className={`p-3.5 rounded-xl ${
-                        step.role === 'agent' ? 'bg-[#0E653A]/5 border border-[#0E653A]/15' :
+                        step.role === 'agent' ? 'bg-cta/5 border border-cta/15' :
                         step.role === 'client' ? 'bg-[#fafafa] border border-[#f0f0f0]' :
                         step.role === 'system' ? 'bg-white border border-[#f0f0f0]' :
                         'bg-emerald-50 border border-emerald-100'
@@ -350,7 +350,7 @@ export const AutomationHowItWorksModal = ({
                 <ol className="space-y-2.5 pl-9">
                   {content.howToActivate.map((step, i) => (
                     <li key={i} className="flex gap-3">
-                      <span className="w-6 h-6 rounded-full bg-[#0E653A] text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="w-6 h-6 rounded-full bg-cta text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                         {i + 1}
                       </span>
                       <span className="text-[13px] text-[#1a1a1a] leading-relaxed pt-0.5">{step}</span>
@@ -366,7 +366,7 @@ export const AutomationHowItWorksModal = ({
                 <button
                   onClick={() => { onActivate(); onClose() }}
                   disabled={!reqsMet}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0E653A] hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Sparkles className="w-4 h-4" /> Activer maintenant
                 </button>
@@ -374,7 +374,7 @@ export const AutomationHowItWorksModal = ({
               {isActive && onViewStats && (
                 <button
                   onClick={() => { onViewStats(); onClose() }}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0E653A] hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl transition-colors"
                 >
                   <ArrowRight className="w-4 h-4" /> Voir les stats detaillees
                 </button>

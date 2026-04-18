@@ -122,7 +122,7 @@ export const VoiceTestModal = ({ clientId, agentId, onClose }) => {
         <div className="px-6 py-8 flex flex-col items-center">
           {loading && (
             <div className="flex flex-col items-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-[#0E653A]" />
+              <Loader2 className="w-8 h-8 animate-spin text-cta" />
               <p className="text-[12px] text-[#9ca3af] mt-3">Preparation du test...</p>
             </div>
           )}
@@ -139,17 +139,17 @@ export const VoiceTestModal = ({ clientId, agentId, onClose }) => {
               <div className="relative mb-6">
                 {started && (
                   <>
-                    <span className="absolute inset-0 rounded-full bg-[#0E653A]/20 animate-ping" />
-                    <span className="absolute inset-0 rounded-full bg-[#0E653A]/10 animate-pulse" />
+                    <span className="absolute inset-0 rounded-full bg-cta/20 animate-ping" />
+                    <span className="absolute inset-0 rounded-full bg-cta/10 animate-pulse" />
                   </>
                 )}
                 <div className={`relative w-24 h-24 rounded-full flex items-center justify-center ${
-                  started ? 'bg-[#0E653A]' : 'bg-[#0E653A]/10'
+                  started ? 'bg-cta' : 'bg-cta/10'
                 }`}>
                   {started ? (
                     <Mic className="w-10 h-10 text-white" />
                   ) : (
-                    <Mic className="w-10 h-10 text-[#0E653A]" />
+                    <Mic className="w-10 h-10 text-cta" />
                   )}
                 </div>
               </div>
@@ -171,7 +171,7 @@ export const VoiceTestModal = ({ clientId, agentId, onClose }) => {
                   <button
                     onClick={handleStart}
                     disabled={!agentId}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0E653A] hover:bg-[#0c4e2b] disabled:opacity-50 text-white text-[13px] font-semibold transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-cta hover:bg-[#0c4e2b] disabled:opacity-50 text-white text-[13px] font-semibold transition-colors"
                   >
                     <Mic className="w-4 h-4" />
                     Demarrer la conversation

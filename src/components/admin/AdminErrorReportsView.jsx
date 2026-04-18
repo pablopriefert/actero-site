@@ -99,7 +99,7 @@ export const AdminErrorReportsView = () => {
             onClick={() => setStatusFilter(f.id)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               statusFilter === f.id
-                ? 'bg-[#0E653A] text-white'
+                ? 'bg-cta text-white'
                 : 'bg-white border border-gray-200 text-[#71717a] hover:border-gray-300'
             }`}
           >
@@ -274,7 +274,7 @@ const ReportDetail = ({ report, onClose, onUpdate }) => {
               <button
                 onClick={fetchLogs}
                 disabled={logsLoading}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold text-[#0E653A] hover:bg-[#0E653A]/5 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold text-cta hover:bg-cta/5 transition-colors disabled:opacity-50"
               >
                 {logsLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                 {logs ? 'Rafraîchir' : 'Charger'}
@@ -317,7 +317,7 @@ const ReportDetail = ({ report, onClose, onUpdate }) => {
               }}
               rows={3}
               placeholder="Investigation, diagnostic, résolution…"
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#0E653A]/20"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
             />
           </div>
 

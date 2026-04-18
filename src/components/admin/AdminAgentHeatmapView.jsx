@@ -131,7 +131,7 @@ export const AdminAgentHeatmapView = () => {
                               : setSelectedCell(null)
                           }
                           className={`w-6 h-6 mr-0.5 rounded-sm transition-transform ${
-                            isSelected ? 'ring-2 ring-[#0E653A] scale-110' : ''
+                            isSelected ? 'ring-2 ring-cta scale-110' : ''
                           } ${cell.errors > 0 ? 'cursor-pointer hover:scale-110' : 'cursor-default'}`}
                           style={{ backgroundColor: color }}
                         />

@@ -22,7 +22,7 @@ export const AgentCarousel = ({ agents, vertical }) => {
               whileTap={{ scale: 0.96 }}
               className={`w-16 h-16 rounded-2xl border-2 flex items-center justify-center text-lg font-black transition-all duration-300 ${
                 activeIdx === i
-                  ? 'border-[#003725] bg-[#0E653A]/5 text-[#003725]'
+                  ? 'border-[#003725] bg-cta/5 text-[#003725]'
                   : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:text-[#716D5C]'
               }`}
             >
@@ -36,7 +36,7 @@ export const AgentCarousel = ({ agents, vertical }) => {
             {activeIdx === i && (
               <motion.div
                 layoutId="agent-underline"
-                className="h-0.5 w-8 rounded-full bg-[#0E653A]"
+                className="h-0.5 w-8 rounded-full bg-cta"
               />
             )}
           </button>
@@ -58,7 +58,7 @@ export const AgentCarousel = ({ agents, vertical }) => {
               <span className="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 rounded-lg border text-[#716D5C] bg-[#F9F7F1] border-gray-200">
                 Agent {active.agentName}
               </span>
-              <span className="w-2 h-2 rounded-full animate-pulse bg-[#0E653A]" />
+              <span className="w-2 h-2 rounded-full animate-pulse bg-cta" />
             </div>
 
             <div className="flex items-center gap-4 mb-6">

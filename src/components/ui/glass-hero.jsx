@@ -12,10 +12,10 @@ export const GlassHero = ({ onNavigate }) => {
         subtitle: "Actero automatise le support client et relance vos paniers abandonnés pour les marques Shopify qui veulent scaler sans multiplier les coûts.",
         subtitleBold: "Commencez gratuitement, sans carte bancaire.",
         cards: [
-            { title: "Support IA 24/7", desc: "80% des tickets résolus sans humain", bg: "bg-[#003725]", text: "text-white", descText: "text-white/60", icon: <Headphones className="w-7 h-7" />, iconBg: "bg-white/15", gradient: "bg-gradient-to-br from-[#003725] to-[#0E653A]" },
+            { title: "Support IA 24/7", desc: "80% des tickets résolus sans humain", bg: "bg-[#003725]", text: "text-white", descText: "text-white/60", icon: <Headphones className="w-7 h-7" />, iconBg: "bg-white/15", gradient: "bg-gradient-to-br from-[#003725] to-cta" },
             { title: "Relance paniers", desc: "+15% de taux de récupération", bg: "bg-[#F9F7F1]", text: "text-[#003725]", descText: "text-[#716D5C]", icon: <RefreshCw className="w-7 h-7" />, iconBg: "bg-[#003725]/10", gradient: "bg-gradient-to-br from-[#F9F7F1] to-[#EDE9E0]" },
             { title: "Monitoring IA", desc: "Alertes en temps réel sur vos KPIs", bg: "bg-[#F9F7F1]", text: "text-[#003725]", descText: "text-[#716D5C]", icon: <BarChart3 className="w-7 h-7" />, iconBg: "bg-[#003725]/10", gradient: "bg-gradient-to-br from-[#F0EDE6] to-[#F9F7F1]" },
-            { title: "Automatisations", desc: "Shopify, CRM, support connectés", bg: "bg-[#003725]", text: "text-white", descText: "text-white/60", icon: <Zap className="w-7 h-7" />, iconBg: "bg-white/15", gradient: "bg-gradient-to-br from-[#0E653A] to-[#003725]" },
+            { title: "Automatisations", desc: "Shopify, CRM, support connectés", bg: "bg-[#003725]", text: "text-white", descText: "text-white/60", icon: <Zap className="w-7 h-7" />, iconBg: "bg-white/15", gradient: "bg-gradient-to-br from-cta to-[#003725]" },
         ],
     };
 

@@ -138,7 +138,7 @@ const LiveActivityWidget = ({ supabase, setActiveTab, isLight }) => {
       <div className="p-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-[#0E653A] animate-pulse' : 'bg-red-500'}`} />
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-cta animate-pulse' : 'bg-red-500'}`} />
             <h3 className="font-bold text-[#1a1a1a] text-sm">Activité récente</h3>
           </div>
           <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-widest px-2 py-0.5 bg-[#F9F7F1] rounded-full">
@@ -781,7 +781,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const sidebarUpgradeCta = (planId === 'free' || planId === 'starter') ? (
     <button
       onClick={() => setActiveTab('billing')}
-      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all bg-[#0E653A] text-white hover:bg-[#003725] shadow-sm"
+      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all bg-cta text-white hover:bg-[#003725] shadow-sm"
     >
       <ArrowUpRight className="w-3.5 h-3.5" />
       {planId === 'free' ? 'Passer au Starter — 99€/mois' : 'Passer au Pro — 399€/mois'}
@@ -894,7 +894,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                 planId === 'free' ? 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]' :
                 planId === 'starter' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                planId === 'pro' ? 'bg-[#0E653A]/10 text-[#0E653A] border border-[#0E653A]/20' :
+                planId === 'pro' ? 'bg-cta/10 text-cta border border-cta/20' :
                 'bg-amber-50 text-amber-700 border border-amber-200'
               }`}>
                 {planName}
@@ -914,11 +914,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         </header>
 
         {inTrial && (
-          <div className="bg-[#0E653A] text-white px-4 py-2 flex items-center justify-between text-[12px]">
+          <div className="bg-cta text-white px-4 py-2 flex items-center justify-between text-[12px]">
             <span>
               Essai gratuit — <b>{trialDaysLeft} jour{trialDaysLeft > 1 ? 's' : ''} restant{trialDaysLeft > 1 ? 's' : ''}</b>
             </span>
-            <button onClick={() => setActiveTab('billing')} className="bg-white text-[#0E653A] px-3 py-1 rounded-full text-[11px] font-bold hover:bg-white/90 transition">
+            <button onClick={() => setActiveTab('billing')} className="bg-white text-cta px-3 py-1 rounded-full text-[11px] font-bold hover:bg-white/90 transition">
               Choisir un plan
             </button>
           </div>
@@ -933,7 +933,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 <>
                   {/* ── Welcome hero ── */}
                   <div className="mb-6 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
-                    <div className="relative bg-gradient-to-br from-[#0E653A] via-[#0E653A] to-[#14764a] px-8 py-10">
+                    <div className="relative bg-gradient-to-br from-cta via-cta to-[#14764a] px-8 py-10">
                       <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, #fff 1px, transparent 1px), radial-gradient(circle at 80% 70%, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
                       <div className="relative">
                         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-sm mb-4">
@@ -959,7 +959,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   {currentClient?.client_type === 'ecommerce' && !setupCompletion?.shopify && (
                     <button
                       onClick={() => setActiveTab('integrations')}
-                      className="w-full mb-6 rounded-2xl bg-[#0E653A] hover:bg-[#0d5430] transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-6 py-5 flex items-center justify-between group"
+                      className="w-full mb-6 rounded-2xl bg-cta hover:bg-[#0d5430] transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-6 py-5 flex items-center justify-between group"
                     >
                       <div className="flex items-center gap-4 min-w-0">
                         <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
@@ -996,7 +996,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         desc: 'Personnalisez la personnalité, le ton et les réponses de votre agent IA.',
                         tab: 'agent-config',
                         color: 'bg-emerald-50',
-                        iconColor: 'text-[#0E653A]',
+                        iconColor: 'text-cta',
                       },
                       {
                         icon: Store,
@@ -1027,7 +1027,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           </div>
                           <p className="text-[14px] font-semibold text-[#1a1a1a] mb-1">{f.title}</p>
                           <p className="text-[12px] text-[#9ca3af] leading-relaxed">{f.desc}</p>
-                          <div className="mt-3 flex items-center gap-1 text-[11px] font-medium text-[#0E653A] opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="mt-3 flex items-center gap-1 text-[11px] font-medium text-cta opacity-0 group-hover:opacity-100 transition-opacity">
                             Découvrir <ArrowRight className="w-3 h-3" />
                           </div>
                         </button>
@@ -1079,7 +1079,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                       <div className="w-full h-2 rounded-full bg-[#f0f0f0] overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all ${
-                            ticketsPercent > 90 ? 'bg-red-500' : ticketsPercent > 70 ? 'bg-amber-500' : 'bg-[#0E653A]'
+                            ticketsPercent > 90 ? 'bg-red-500' : ticketsPercent > 70 ? 'bg-amber-500' : 'bg-cta'
                           }`}
                           style={{ width: `${Math.min(ticketsPercent, 100)}%` }}
                         />
@@ -1120,9 +1120,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   {/* ── KPI Row — dignified empty state when 0 events ── */}
                   {totalEvents === 0 ? (
                     <div data-tour="kpi-row" className="mb-8 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] bg-white overflow-hidden">
-                      <div className="relative bg-gradient-to-br from-[#0E653A]/[0.04] via-white to-[#0E653A]/[0.02] px-6 py-10 text-center">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#0E653A]/10 mb-4">
-                          <Sparkles className="w-5 h-5 text-[#0E653A]" />
+                      <div className="relative bg-gradient-to-br from-cta/[0.04] via-white to-cta/[0.02] px-6 py-10 text-center">
+                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-cta/10 mb-4">
+                          <Sparkles className="w-5 h-5 text-cta" />
                         </div>
                         <h3 className="text-[18px] font-semibold text-[#1a1a1a] tracking-tight">
                           Votre agent est prêt
@@ -1133,13 +1133,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
                           <button
                             onClick={() => setActiveTab('agent-config')}
-                            className="px-4 py-2 rounded-full bg-[#0E653A] text-white text-[12px] font-semibold hover:bg-[#0A4F2C] transition-colors"
+                            className="px-4 py-2 rounded-full bg-cta text-white text-[12px] font-semibold hover:bg-[#0A4F2C] transition-colors"
                           >
                             Configurer mon agent
                           </button>
                           <button
                             onClick={() => setActiveTab('simulator')}
-                            className="px-4 py-2 rounded-full bg-white text-[#0E653A] text-[12px] font-semibold border border-[#0E653A]/20 hover:bg-[#0E653A]/[0.04] transition-colors"
+                            className="px-4 py-2 rounded-full bg-white text-cta text-[12px] font-semibold border border-cta/20 hover:bg-cta/[0.04] transition-colors"
                           >
                             Tester avec un message exemple
                           </button>
@@ -1205,7 +1205,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           Passez au Starter pour 1 000 tickets/mois et débloquer l'éditeur de ton de marque.
                         </p>
                       </div>
-                      <button onClick={() => setActiveTab('billing')} className="px-4 py-2 bg-[#0E653A] text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
+                      <button onClick={() => setActiveTab('billing')} className="px-4 py-2 bg-cta text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
                         Passer au Starter — 99 EUR/mois
                       </button>
                     </div>
@@ -1260,7 +1260,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                       <div className="px-6 pt-5 pb-1">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-[#0E653A] animate-pulse" />
+                            <div className="w-2 h-2 rounded-full bg-cta animate-pulse" />
                             <p className="text-[13px] font-semibold text-[#1a1a1a]">Feed en direct</p>
                           </div>
                           <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider bg-[#f5f5f5] px-2 py-0.5 rounded">
@@ -1278,7 +1278,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         <p className="text-[13px] font-semibold text-[#1a1a1a]">Activité récente</p>
                         <button
                           onClick={() => setActiveTab('activity')}
-                          className="text-[12px] font-medium text-[#0E653A] hover:underline"
+                          className="text-[12px] font-medium text-cta hover:underline"
                         >
                           Tout voir →
                         </button>
@@ -1304,7 +1304,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
                   {/* ── Starter → Pro upsell ── */}
                   {planId === 'starter' && (
-                    <div className="bg-[#0E653A]/5 border border-[#0E653A]/20 rounded-2xl p-4 flex items-center justify-between mt-6">
+                    <div className="bg-cta/5 border border-cta/20 rounded-2xl p-4 flex items-center justify-between mt-6">
                       <div>
                         <p className="text-[13px] font-semibold text-[#1a1a1a]">
                           Debloquez l'agent vocal
@@ -1313,7 +1313,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           Le plan Pro inclut l'agent vocal telephone, le simulateur et 5 000 tickets/mois.
                         </p>
                       </div>
-                      <button onClick={() => setActiveTab('billing')} className="px-4 py-2 bg-[#0E653A] text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
+                      <button onClick={() => setActiveTab('billing')} className="px-4 py-2 bg-cta text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
                         Essai Pro gratuit 7 jours
                       </button>
                     </div>

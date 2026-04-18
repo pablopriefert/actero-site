@@ -291,7 +291,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                       <button
                         onClick={handleActivate}
                         disabled={activating}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#0E653A] text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-cta text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors"
                       >
                         {activating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         Activer la comptabilite automatisee
@@ -306,7 +306,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                       <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Comptabilite automatisee activee !</h3>
                       <p className="text-[13px] text-[#9ca3af]">Les relances, alertes et exports sont maintenant actifs.</p>
                       <button onClick={onComplete}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0E653A] text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725]">
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725]">
                         Terminer
                       </button>
                     </>

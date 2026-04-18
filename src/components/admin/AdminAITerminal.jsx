@@ -163,7 +163,7 @@ export const AdminAITerminal = () => {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
-                    ? 'bg-[#0E653A] text-white rounded-br-md'
+                    ? 'bg-cta text-white rounded-br-md'
                     : msg.error
                     ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-md'
                     : 'bg-white border border-gray-200 text-[#1a1a1a] rounded-bl-md shadow-sm'

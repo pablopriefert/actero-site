@@ -263,7 +263,7 @@ export const SignupPage = ({ onNavigate }) => {
                         if (e.key === "Enter") handleVerifyCode();
                       }}
                       disabled={loading}
-                      className="w-12 h-14 text-center text-2xl font-bold bg-[#F9F7F1] border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#0E653A] transition-all disabled:opacity-50"
+                      className="w-12 h-14 text-center text-2xl font-bold bg-[#F9F7F1] border-2 border-gray-200 rounded-xl focus:outline-none focus:border-cta transition-all disabled:opacity-50"
                     />
                   ))}
                 </div>
@@ -271,7 +271,7 @@ export const SignupPage = ({ onNavigate }) => {
                 <button
                   onClick={handleVerifyCode}
                   disabled={loading || code.join("").length !== 6}
-                  className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-[#0E653A] hover:bg-[#003725] transition-colors disabled:opacity-50"
+                  className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50"
                 >
                   {loading ? (
                     <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
@@ -292,7 +292,7 @@ export const SignupPage = ({ onNavigate }) => {
                   <button
                     onClick={handleResendCode}
                     disabled={loading}
-                    className="text-[#0E653A] hover:underline font-semibold disabled:opacity-50"
+                    className="text-cta hover:underline font-semibold disabled:opacity-50"
                   >
                     Renvoyer le code
                   </button>
@@ -332,7 +332,7 @@ export const SignupPage = ({ onNavigate }) => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-[#0E653A]/40 transition-all"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="adresse email"
                 />
               </div>
@@ -346,7 +346,7 @@ export const SignupPage = ({ onNavigate }) => {
                   minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-[#0E653A]/40 transition-all"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="Mot de passe (min. 8 caractères)"
                 />
               </div>
@@ -363,7 +363,7 @@ export const SignupPage = ({ onNavigate }) => {
                   className={`w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none transition-all ${
                     confirmPassword && password !== confirmPassword
                       ? 'border-red-300 focus:border-red-400'
-                      : 'border-gray-200 focus:border-[#0E653A]/40'
+                      : 'border-gray-200 focus:border-cta/40'
                   }`}
                   placeholder="Confirmer le mot de passe"
                 />
@@ -377,7 +377,7 @@ export const SignupPage = ({ onNavigate }) => {
                   required
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-[#0E653A]/40 transition-all"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="Nom de la boutique"
                 />
               </div>
@@ -386,7 +386,7 @@ export const SignupPage = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-[#0E653A] hover:bg-[#003725] transition-colors disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
@@ -443,7 +443,7 @@ export const SignupPage = ({ onNavigate }) => {
               Déjà un compte ?{" "}
               <button
                 onClick={() => onNavigate("/login")}
-                className="text-[#0E653A] font-semibold hover:underline"
+                className="text-cta font-semibold hover:underline"
               >
                 Se connecter
               </button>

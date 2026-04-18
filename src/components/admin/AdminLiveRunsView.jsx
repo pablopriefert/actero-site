@@ -127,7 +127,7 @@ export const AdminLiveRunsView = () => {
               onClick={() => setFilter(f.id)}
               className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors ${
                 active
-                  ? 'bg-[#0E653A] text-white'
+                  ? 'bg-cta text-white'
                   : 'bg-[#fafafa] text-[#71717a] hover:bg-[#f0f0f0] border border-[#f0f0f0]'
               }`}
             >

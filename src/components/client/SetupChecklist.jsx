@@ -222,7 +222,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
       <div className="px-5 pb-3">
         <div className="w-full h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-[#0E653A] rounded-full"
+            className="h-full bg-cta rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
@@ -270,7 +270,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
                       {step.label}
                     </span>
                     {!step.done && (
-                      <ArrowRight className="w-3 h-3 text-[#d4d4d4] group-hover:text-[#0E653A] flex-shrink-0 lg:hidden" />
+                      <ArrowRight className="w-3 h-3 text-[#d4d4d4] group-hover:text-cta flex-shrink-0 lg:hidden" />
                     )}
                   </div>
                 </motion.button>

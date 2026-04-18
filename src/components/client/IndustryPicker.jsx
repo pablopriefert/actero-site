@@ -126,7 +126,7 @@ export function IndustryPicker({ clientId, onClose, onApplied }) {
         {/* Header */}
         <div className="flex items-start justify-between p-6 md:p-8 border-b border-gray-200">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0E653A]/10 text-[#0E653A] text-xs font-bold uppercase tracking-wider mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta/10 text-cta text-xs font-bold uppercase tracking-wider mb-3">
               Setup en 3 minutes
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-[#1a1a1a]">
@@ -156,7 +156,7 @@ export function IndustryPicker({ clientId, onClose, onApplied }) {
                 <button
                   key={preset.id}
                   onClick={() => setSelected(preset)}
-                  className="group relative text-left bg-white border-2 border-gray-200 rounded-2xl p-5 hover:border-[#0E653A] hover:shadow-lg transition-all"
+                  className="group relative text-left bg-white border-2 border-gray-200 rounded-2xl p-5 hover:border-cta hover:shadow-lg transition-all"
                 >
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
@@ -167,7 +167,7 @@ export function IndustryPicker({ clientId, onClose, onApplied }) {
                   <h3 className="font-bold text-[#1a1a1a] text-base mb-1">{preset.name}</h3>
                   <p className="text-xs text-[#71717a] leading-relaxed">{preset.description}</p>
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ArrowRight className="w-4 h-4 text-[#0E653A]" />
+                    <ArrowRight className="w-4 h-4 text-cta" />
                   </div>
                 </button>
               )
@@ -219,19 +219,19 @@ export function IndustryPicker({ clientId, onClose, onApplied }) {
                   </p>
                   <ul className="space-y-1.5 text-xs text-[#71717a]">
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-[#0E653A]" />
+                      <Check className="w-3.5 h-3.5 text-cta" />
                       Ton de marque : {selected.brand_tone || 'Aucun'}
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-[#0E653A]" />
+                      <Check className="w-3.5 h-3.5 text-cta" />
                       {selected.knowledge.length} questions/reponses pre-remplies
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-[#0E653A]" />
+                      <Check className="w-3.5 h-3.5 text-cta" />
                       {selected.guardrails.length} règles & limites metier
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-[#0E653A]" />
+                      <Check className="w-3.5 h-3.5 text-cta" />
                       {selected.playbooks.length} playbooks actives
                     </li>
                   </ul>
@@ -256,7 +256,7 @@ export function IndustryPicker({ clientId, onClose, onApplied }) {
                   <button
                     onClick={handleApply}
                     disabled={applying}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-[#0E653A] text-white text-sm font-semibold hover:bg-[#0a4526] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#0a4526] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {applying ? (
                       <>

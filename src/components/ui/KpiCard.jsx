@@ -20,8 +20,8 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
  */
 const COLOR_MAP = {
   brand: {
-    iconBg: 'bg-[#0E653A]/10',
-    iconText: 'text-[#0E653A]',
+    iconBg: 'bg-cta/10',
+    iconText: 'text-cta',
   },
   success: {
     iconBg: 'bg-[#10b981]/10',
@@ -78,7 +78,7 @@ export function KpiCard({
 
   const baseClasses = cn(
     'rounded-2xl bg-white border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-5 transition-all',
-    href && 'hover:border-[#0E653A]/20 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] cursor-pointer block',
+    href && 'hover:border-cta/20 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] cursor-pointer block',
     className
   );
 

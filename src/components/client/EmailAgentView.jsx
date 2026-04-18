@@ -121,7 +121,7 @@ export const EmailAgentView = ({ clientId }) => {
           <div className="inline-flex flex-col gap-2 items-center">
             <a
               href="/client/integrations"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-semibold bg-[#0E653A] text-white hover:bg-[#003725] transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-colors"
             >
               Connecter Gmail (recommandé)
               <ChevronRight className="w-3.5 h-3.5" />
@@ -246,7 +246,7 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-semibold transition-all disabled:opacity-50 ${
               enabled
                 ? 'bg-white border border-[#f0f0f0] text-[#71717a] hover:bg-zinc-50'
-                : 'bg-[#0E653A] text-white hover:bg-[#003725]'
+                : 'bg-cta text-white hover:bg-[#003725]'
             }`}
           >
             <Power className="w-3.5 h-3.5" />
@@ -315,7 +315,7 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
         <StatCard label="Emails reçus (7j)" value={week.total} icon={Mail} />
         <StatCard label="Auto-résolus" value={week.auto} icon={CheckCircle2} color="text-emerald-600" />
         <StatCard label="Escaladés" value={week.escalated} icon={AlertTriangle} color="text-amber-600" />
-        <StatCard label="Taux auto" value={`${week.auto_rate}%`} icon={Sparkles} color="text-[#0E653A]" />
+        <StatCard label="Taux auto" value={`${week.auto_rate}%`} icon={Sparkles} color="text-cta" />
       </div>
     </motion.div>
   )
@@ -356,8 +356,8 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
         className="w-full flex items-center justify-between gap-3 px-5 py-4 hover:bg-zinc-50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#0E653A]/10 flex items-center justify-center">
-            <SettingsIcon className="w-4 h-4 text-[#0E653A]" />
+          <div className="w-9 h-9 rounded-lg bg-cta/10 flex items-center justify-center">
+            <SettingsIcon className="w-4 h-4 text-cta" />
           </div>
           <div className="text-left">
             <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Configuration auto-réponse</h3>
@@ -381,7 +381,7 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-[13px] font-semibold text-[#1a1a1a]">Seuil de confiance IA</label>
-              <span className="text-[12px] font-semibold text-[#0E653A]">{settings.email_confidence_threshold ?? 80}%</span>
+              <span className="text-[12px] font-semibold text-cta">{settings.email_confidence_threshold ?? 80}%</span>
             </div>
             <input
               type="range"
@@ -390,7 +390,7 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
               step={5}
               value={settings.email_confidence_threshold ?? 80}
               onChange={(e) => onUpdate({ email_confidence_threshold: parseInt(e.target.value, 10) })}
-              className="w-full accent-[#0E653A]"
+              className="w-full accent-cta"
             />
             <p className="text-[11px] text-[#9ca3af] mt-1">
               En dessous de ce seuil, l'email est escaladé à l'équipe. 80% = équilibré.
@@ -460,7 +460,7 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
               }}
               placeholder="—&#10;L'équipe Actero&#10;support@actero.fr"
               rows={3}
-              className="w-full px-3 py-2 border border-[#f0f0f0] rounded-lg text-[12px] font-mono resize-none focus:outline-none focus:border-[#0E653A]/30"
+              className="w-full px-3 py-2 border border-[#f0f0f0] rounded-lg text-[12px] font-mono resize-none focus:outline-none focus:border-cta/30"
             />
             <p className="text-[11px] text-[#9ca3af] mt-1">Ajoutée au bas de chaque email envoyé.</p>
           </div>
@@ -514,7 +514,7 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
                   onUpdate({ email_exclusions: next })
                   setNewExcl('')
                 }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-[#0E653A] text-white hover:bg-[#003725]"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725]"
               >
                 <Plus className="w-3 h-3" /> Ajouter
               </button>
@@ -545,7 +545,7 @@ function ToggleRow({ label, description, value, onChange, icon: Icon }) {
       </div>
       <button
         onClick={() => onChange(!value)}
-        className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${value ? 'bg-[#0E653A]' : 'bg-zinc-300'}`}
+        className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${value ? 'bg-cta' : 'bg-zinc-300'}`}
         aria-pressed={value}
       >
         <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${value ? 'translate-x-4' : 'translate-x-0.5'}`} />

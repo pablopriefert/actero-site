@@ -369,7 +369,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                     key={pb.id}
                     className={`rounded-xl transition-all ${
                       active
-                        ? 'bg-[#0E653A]/[0.04] border border-[#0E653A]/20'
+                        ? 'bg-cta/[0.04] border border-cta/20'
                         : 'bg-white border border-[#f0f0f0] shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
                     }`}
                   >
@@ -382,7 +382,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                       <div className="flex items-center gap-2">
                         <p className="text-[13px] font-semibold text-[#1a1a1a]">{pb.display_name}</p>
                         {active && (
-                          <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#0E653A]/10 text-[#0E653A] text-[9px] font-bold rounded-full">
+                          <span className="flex items-center gap-1 px-1.5 py-0.5 bg-cta/10 text-cta text-[9px] font-bold rounded-full">
                             <CheckCircle2 className="w-2.5 h-2.5" /> Actif
                           </span>
                         )}
@@ -390,7 +390,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                       <p className="text-[11px] text-[#9ca3af] mt-0.5 leading-relaxed">
                         {meta.simpleDesc || pb.description}
                         {meta.helpId && (
-                          <button onClick={(e) => { e.stopPropagation(); setActiveTab('support') }} className="inline-flex items-center gap-0.5 ml-1 text-[#0E653A] hover:underline">
+                          <button onClick={(e) => { e.stopPropagation(); setActiveTab('support') }} className="inline-flex items-center gap-0.5 ml-1 text-cta hover:underline">
                             <HelpCircle className="w-3 h-3" /> Comment ca marche ?
                           </button>
                         )}
@@ -404,7 +404,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                     ) : reqs.met ? (
                       <button
                         onClick={() => handleToggle(pb.name)}
-                        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${active ? 'bg-[#0E653A]' : 'bg-[#e5e5e5]'}`}
+                        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${active ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
                       >
                         <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${active ? 'translate-x-5' : 'translate-x-0.5'}`} />
                       </button>
@@ -431,11 +431,11 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                               <div
                                 key={ch.id}
                                 className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
-                                  isSelected ? 'bg-[#0E653A]/5 border-[#0E653A]/20' : 'bg-white border-[#f0f0f0]'
+                                  isSelected ? 'bg-cta/5 border-cta/20' : 'bg-white border-[#f0f0f0]'
                                 }`}
                               >
                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                  isSelected ? 'bg-[#0E653A] text-white' : 'bg-[#fafafa] text-[#9ca3af]'
+                                  isSelected ? 'bg-cta text-white' : 'bg-[#fafafa] text-[#9ca3af]'
                                 }`}>
                                   <ChIcon className="w-4 h-4" />
                                 </div>
@@ -458,7 +458,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                                       setSelectedChannels(prev => ({ ...prev, [`${pb.name}_${ch.id}`]: newVal }))
                                       saveChannels(pb.name, ch.id, newVal)
                                     }}
-                                    className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isSelected ? 'bg-[#0E653A]' : 'bg-[#e5e5e5]'}`}
+                                    className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isSelected ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
                                   >
                                     <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${isSelected ? 'translate-x-4' : 'translate-x-0.5'}`} />
                                   </button>

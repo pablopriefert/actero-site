@@ -132,7 +132,7 @@ export const TicketReplay = () => {
           {/* Progress bar */}
           <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#F9F7F1]">
             <motion.div
-              className="h-full bg-[#0E653A]"
+              className="h-full bg-cta"
               animate={{ width: `${((activeStep + 1) / STEPS.length) * 100}%` }}
               transition={{ duration: 0.5 }}
             />
@@ -141,7 +141,7 @@ export const TicketReplay = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-8 mt-2">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-[#0E653A] animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-cta animate-pulse" />
               <span className="text-xs font-bold text-[#716D5C] uppercase tracking-wider">
                 {isPlaying ? 'Traitement en cours...' : activeStep >= STEPS.length - 1 ? 'Traitement termine' : 'Workflow SAV IA'}
               </span>

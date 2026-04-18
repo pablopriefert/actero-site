@@ -81,7 +81,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
           <section className="pt-32 md:pt-40 pb-20 px-6 bg-white">
             <div className="max-w-4xl mx-auto text-center">
               <FadeInUp className="mb-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0E653A]/10 text-[#0E653A] text-sm font-bold">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cta/10 text-cta text-sm font-bold">
                   <Rocket className="w-4 h-4" />
                   Programme Startups
                 </div>
@@ -100,7 +100,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                 <p className="text-xl md:text-2xl text-[#716D5C] font-medium max-w-2xl mx-auto leading-relaxed mb-4">
                   Automatisez votre support e-commerce des le lancement.
                 </p>
-                <p className="text-2xl md:text-3xl font-bold text-[#0E653A]">
+                <p className="text-2xl md:text-3xl font-bold text-cta">
                   -50% pendant 6 mois.
                 </p>
               </FadeInUp>
@@ -123,32 +123,32 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                 {[
                   {
                     num: '01',
-                    icon: <Send className="w-5 h-5 text-[#0E653A]" />,
+                    icon: <Send className="w-5 h-5 text-cta" />,
                     title: 'Vous candidatez',
                     desc: 'Remplissez le formulaire ci-dessous avec les informations sur votre boutique.'
                   },
                   {
                     num: '02',
-                    icon: <Clock className="w-5 h-5 text-[#0E653A]" />,
+                    icon: <Clock className="w-5 h-5 text-cta" />,
                     title: 'Review sous 48h',
                     desc: 'Notre equipe examine votre candidature et vous repond sous 48 heures.'
                   },
                   {
                     num: '03',
-                    icon: <Gift className="w-5 h-5 text-[#0E653A]" />,
+                    icon: <Gift className="w-5 h-5 text-cta" />,
                     title: 'Code promo -50%',
                     desc: 'Si accepte, vous recevez un code promo -50% valable 6 mois par email.'
                   },
                   {
                     num: '04',
-                    icon: <Rocket className="w-5 h-5 text-[#0E653A]" />,
+                    icon: <Rocket className="w-5 h-5 text-cta" />,
                     title: 'Inscrivez-vous',
                     desc: 'Rendez-vous sur actero.fr/signup avec votre code et commencez a automatiser.'
                   }
                 ].map((step, i) => (
                   <StaggerItem key={i}>
                     <div className="bg-white rounded-2xl border border-gray-200 p-6 flex gap-4 items-start hover:border-gray-300 transition-colors">
-                      <div className="w-10 h-10 rounded-xl bg-[#0E653A]/10 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-cta/10 flex items-center justify-center flex-shrink-0">
                         {step.icon}
                       </div>
                       <div>
@@ -180,10 +180,10 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
               <FadeInUp>
                 <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                   {[
-                    { icon: <ShoppingCart className="w-5 h-5 text-[#0E653A]" />, text: 'Boutique e-commerce de moins de 2 ans' },
-                    { icon: <Star className="w-5 h-5 text-[#0E653A]" />, text: "CA < 500k\u20AC/an" },
-                    { icon: <Zap className="w-5 h-5 text-[#0E653A]" />, text: 'Shopify, WooCommerce ou Webflow' },
-                    { icon: <MessageSquare className="w-5 h-5 text-[#0E653A]" />, text: 'Engagement de donner du feedback produit' }
+                    { icon: <ShoppingCart className="w-5 h-5 text-cta" />, text: 'Boutique e-commerce de moins de 2 ans' },
+                    { icon: <Star className="w-5 h-5 text-cta" />, text: "CA < 500k\u20AC/an" },
+                    { icon: <Zap className="w-5 h-5 text-cta" />, text: 'Shopify, WooCommerce ou Webflow' },
+                    { icon: <MessageSquare className="w-5 h-5 text-cta" />, text: 'Engagement de donner du feedback produit' }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3 bg-[#F9F7F1] rounded-xl p-4 border border-gray-200">
                       <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
@@ -233,7 +233,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                   }
                 ].map((item, i) => (
                   <StaggerItem key={i}>
-                    <div className="bg-[#0E653A] rounded-2xl p-6 border border-white/10">
+                    <div className="bg-cta rounded-2xl p-6 border border-white/10">
                       <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mb-4 text-white">
                         {item.icon}
                       </div>
@@ -263,8 +263,8 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
 
               <FadeInUp delay={0.1}>
                 {submitted ? (
-                  <div className="bg-[#0E653A]/10 rounded-2xl p-10 text-center border border-[#0E653A]/20">
-                    <CheckCircle2 className="w-12 h-12 text-[#0E653A] mx-auto mb-4" />
+                  <div className="bg-cta/10 rounded-2xl p-10 text-center border border-cta/20">
+                    <CheckCircle2 className="w-12 h-12 text-cta mx-auto mb-4" />
                     <h3 className="text-xl font-bold text-[#262626] mb-2">Candidature envoyee !</h3>
                     <p className="text-[#716D5C] font-medium">
                       Nous reviendrons vers vous sous 48h. Surveillez votre boite email.
@@ -283,7 +283,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                         onChange={handleChange}
                         required
                         placeholder="Ma Boutique"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0E653A]/30 focus:border-[#0E653A] transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                       />
                     </div>
 
@@ -298,7 +298,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                         onChange={handleChange}
                         required
                         placeholder="https://maboutique.com"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0E653A]/30 focus:border-[#0E653A] transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                       />
                     </div>
 
@@ -313,7 +313,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                         onChange={handleChange}
                         required
                         placeholder="vous@votreboutique.com"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0E653A]/30 focus:border-[#0E653A] transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                       />
                     </div>
 
@@ -327,7 +327,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                           value={form.revenue}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0E653A]/30 focus:border-[#0E653A] transition"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                         >
                           <option value="">Selectionnez</option>
                           <option value="<50k">&lt; 50k&euro;</option>
@@ -345,7 +345,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                           value={form.platform}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0E653A]/30 focus:border-[#0E653A] transition"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                         >
                           <option value="">Selectionnez</option>
                           <option value="shopify">Shopify</option>
@@ -368,7 +368,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                         rows={3}
                         maxLength={500}
                         placeholder="Decrivez brievement pourquoi vous souhaitez rejoindre le programme..."
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#0E653A]/30 focus:border-[#0E653A] transition resize-none"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#F9F7F1] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition resize-none"
                       />
                     </div>
 
@@ -379,7 +379,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-4 px-6 rounded-xl bg-[#0E653A] text-white font-bold text-base flex items-center justify-center gap-2 hover:bg-[#003725] transition-colors disabled:opacity-60"
+                      className="w-full py-4 px-6 rounded-xl bg-cta text-white font-bold text-base flex items-center justify-center gap-2 hover:bg-[#003725] transition-colors disabled:opacity-60"
                     >
                       {loading ? 'Envoi en cours...' : (
                         <>Envoyer ma candidature <ArrowRight className="w-4 h-4" /></>

@@ -91,13 +91,13 @@ export const ChatMockup = ({ vertical }) => {
 
           {/* Chat header */}
           <div className="bg-gray-900 px-4 py-3 flex items-center gap-3 border-b border-gray-700">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black bg-[#0E653A]/20 text-[#003725]">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black bg-cta/20 text-[#003725]">
               {agentInitials}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white text-[13px] font-bold leading-none mb-1">{agentName} — Agent IA</p>
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0E653A] animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-cta animate-pulse" />
                 <span className="text-[10px] text-gray-400">En ligne</span>
               </div>
             </div>
@@ -117,7 +117,7 @@ export const ChatMockup = ({ vertical }) => {
                   <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-[12px] leading-relaxed border ${
                     msg.from === 'agent'
                       ? 'bg-[#F9F7F1] border-gray-200 text-gray-800 rounded-tl-sm'
-                      : 'bg-[#0E653A]/10 border-[#003725]/20 text-[#262626] rounded-tr-sm'
+                      : 'bg-cta/10 border-[#003725]/20 text-[#262626] rounded-tr-sm'
                   }`}>
                     {msg.agent && (
                       <p className="text-[9px] font-black tracking-widest uppercase mb-1 text-[#003725]">
@@ -159,7 +159,7 @@ export const ChatMockup = ({ vertical }) => {
             <div className="flex-1 bg-white rounded-full px-4 py-2 border border-gray-200">
               <span className="text-[11px] text-gray-400">Tapez un message...</span>
             </div>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#0E653A]/10">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-cta/10">
               <svg className="w-4 h-4 text-[#003725]" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
               </svg>

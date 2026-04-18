@@ -66,7 +66,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0E653A]/30 focus:border-[#0E653A]/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
+                className="block w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl focus:ring-2 focus:ring-cta/30 focus:border-cta/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
                 placeholder="••••••••"
                 required
               />
@@ -81,7 +81,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0E653A]/30 focus:border-[#0E653A]/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
+                className="block w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl focus:ring-2 focus:ring-cta/30 focus:border-cta/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
                 placeholder="••••••••"
                 required
               />
@@ -90,7 +90,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-3.5 px-4 rounded-full shadow-sm text-sm font-bold text-white bg-[#0E653A] hover:bg-[#003725] disabled:opacity-50 transition-colors"
+              className="w-full flex justify-center py-3.5 px-4 rounded-full shadow-sm text-sm font-bold text-white bg-cta hover:bg-[#003725] disabled:opacity-50 transition-colors"
             >
               {loading ? "Mise à jour..." : "Changer le mot de passe"}
             </button>

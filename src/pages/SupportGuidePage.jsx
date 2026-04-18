@@ -1124,7 +1124,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
               <div className="mt-16 p-8 bg-[#F9F7F1] rounded-2xl border border-gray-200 text-center">
                 <p className="text-[#262626] font-bold mb-2">Besoin d'aide supplementaire ?</p>
                 <p className="text-sm text-[#716D5C] mb-4">Notre equipe repond en moins de 24h.</p>
-                <a href="mailto:contact@actero.fr" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0E653A] text-white rounded-full text-sm font-semibold hover:bg-[#003725] transition-colors">
+                <a href="mailto:contact@actero.fr" className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-full text-sm font-semibold hover:bg-[#003725] transition-colors">
                   <Mail className="w-4 h-4" /> Contacter le support
                 </a>
               </div>
@@ -1250,7 +1250,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
               <div className="flex flex-wrap justify-center gap-4">
                 <a
                   href="mailto:contact@actero.fr"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#0E653A] text-white rounded-full font-semibold hover:bg-[#003725] transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-cta text-white rounded-full font-semibold hover:bg-[#003725] transition-colors"
                 >
                   <Mail className="w-4 h-4" /> contact@actero.fr
                 </a>

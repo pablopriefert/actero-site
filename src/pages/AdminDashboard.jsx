@@ -142,7 +142,7 @@ const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigate
         onFocus={() => setFocused(true)}
         onBlur={() => setTimeout(() => setFocused(false), 200)}
         placeholder="Rechercher un client, funnel..."
-        className="w-full pl-9 pr-4 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-[#9ca3af] outline-none focus:bg-white focus:border-[#0E653A]/30"
+        className="w-full pl-9 pr-4 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-[#9ca3af] outline-none focus:bg-white focus:border-cta/30"
       />
       {showResults && (
         <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-[#f0f0f0] rounded-xl shadow-lg overflow-hidden z-50">
@@ -161,7 +161,7 @@ const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigate
               }}
             >
               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${
-                r.type === 'client' ? 'bg-emerald-50 text-[#0E653A] border-emerald-200' : 'bg-blue-50 text-blue-600 border-blue-200'
+                r.type === 'client' ? 'bg-emerald-50 text-cta border-emerald-200' : 'bg-blue-50 text-blue-600 border-blue-200'
               }`}>{r.type === 'client' ? 'Client' : 'Funnel'}</span>
               <span className="font-medium text-[#1a1a1a] truncate">{r.label}</span>
               <span className="text-[#71717a] text-[12px] ml-auto">{r.sub}</span>
@@ -220,7 +220,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
               placeholder="Actero, Maison Durand..."
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
               autoFocus
               required
             />
@@ -232,7 +232,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
               placeholder="contact@exemple.com"
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
             />
           </div>
           <div>
@@ -244,7 +244,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={monthlyPrice}
               onChange={(e) => setMonthlyPrice(e.target.value)}
               placeholder="490"
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-[#0E653A]/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
             />
           </div>
           <div className="flex items-center justify-end gap-2 pt-2">
@@ -258,7 +258,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
             <button
               type="submit"
               disabled={submitting || !brandName.trim()}
-              className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-[#0E653A] text-white hover:bg-[#0E653A]/90 disabled:opacity-50"
+              className="px-4 py-2 rounded-xl text-[13px] font-semibold bg-cta text-white hover:bg-cta/90 disabled:opacity-50"
             >
               {submitting ? 'Création...' : 'Créer'}
             </button>
@@ -760,7 +760,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                             className={`h-full rounded-full transition-all ${
                               variant === 'neutral' ? 'bg-[#9ca3af]' :
                               variant === 'info' ? 'bg-[#3b82f6]' :
-                              variant === 'success' ? 'bg-[#0E653A]' :
+                              variant === 'success' ? 'bg-cta' :
                               'bg-[#f59e0b]'
                             }`}
                             style={{ width: `${pct}%` }}
