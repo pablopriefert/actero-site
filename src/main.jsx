@@ -4,6 +4,10 @@ import * as amplitude from '@amplitude/unified'
 import * as Sentry from '@sentry/react'
 import './index.css'
 import App from './App.jsx'
+import { initTheme } from './lib/theme'
+
+// Apply stored / system theme before React mounts to avoid flash of wrong theme
+initTheme()
 
 // Initialize Sentry (error tracking + performance monitoring)
 // Only enabled in production to avoid noise in local dev
