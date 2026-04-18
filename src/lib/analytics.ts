@@ -29,8 +29,27 @@ const FALLBACK_KEY = '19e42a5d2488202ad9d13fa8b5d6545'
 const API_KEY = (import.meta.env.VITE_AMPLITUDE_API_KEY as string | undefined) || FALLBACK_KEY
 
 /**
+ * Coarse bot detection from the User-Agent string. Used to opt-out of
+ * Amplitude tracking for crawlers / headless agents so we don't pollute
+ * dashboards with fake "San Jose" traffic (Googlebot + search crawlers
+ * typically egress from US west coast data centers and create a massive
+ * ghost cohort in the geo breakdown).
+ *
+ * Regex is intentionally broad — false positives are cheap (we lose a real
+ * user's events) while false negatives are expensive (bot data contaminates
+ * product metrics). Common matches: Googlebot, bingbot, DuckDuckBot,
+ * YandexBot, AhrefsBot, SemrushBot, Applebot, GPTBot, ClaudeBot, PerplexityBot.
+ */
+const IS_BOT = typeof navigator !== 'undefined'
+  && /bot|crawler|spider/i.test(navigator.userAgent || '')
+
+/**
  * Boots Amplitude. Idempotent-safe — if someone calls it twice the SDK logs
  * and no-ops; we don't fight it. Must run ONCE, before React mount.
+ *
+ * Bot traffic is excluded via `optOut: true` at init AND session replay is
+ * force-disabled (`sampleRate: 0`) — session replay on a bot is pure storage
+ * waste and can't surface UX insight.
  */
 export function initAnalytics(): void {
   if (!API_KEY) {
@@ -39,10 +58,17 @@ export function initAnalytics(): void {
   }
   try {
     // `initAll` boots analytics (autocapture page views / clicks / attribution)
-    // + session replay. Matches the pre-refactor setup exactly.
+    // + session replay. EU serverZone matches the Actero workspace region.
     amplitude.initAll(API_KEY, {
-      analytics: { autocapture: true },
-      sessionReplay: { sampleRate: 1 },
+      analytics: {
+        autocapture: true,
+        serverZone: 'EU',
+        optOut: IS_BOT,
+      },
+      sessionReplay: {
+        // Bots → 0 recording (storage waste); humans → 100% (tier-1 debug asset)
+        sampleRate: IS_BOT ? 0 : 1,
+      },
     })
   } catch (err) {
     console.error('[analytics] init failed:', err)
