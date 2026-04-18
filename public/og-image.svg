@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- Actero brand OG image — Instrument Serif headline + brand green CTA color.
+       Rendered server-side via SVG (Slack / Twitter / LinkedIn all accept SVG OG). -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F9F7F1"/>
+      <stop offset="100%" stop-color="#F0EDE4"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0E653A"/>
+      <stop offset="100%" stop-color="#1F3A12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Brand mark -->
+  <g transform="translate(80, 80)">
+    <rect width="56" height="56" rx="14" fill="#0E653A"/>
+    <path d="M 18 20 L 28 36 L 38 20" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="156" y="118" fill="#1a1a1a" font-family="Instrument Serif, Georgia, serif" font-size="32" font-weight="400">Actero</text>
+  <!-- Headline -->
+  <text x="80" y="280" fill="#1a1a1a" font-family="Instrument Serif, Georgia, serif" font-size="80" font-weight="400">
+    <tspan x="80" dy="0">Automatisez votre SAV</tspan>
+    <tspan x="80" dy="96">Shopify avec des</tspan>
+    <tspan x="80" dy="96" fill="url(#brand)" font-style="italic">agents IA.</tspan>
+  </text>
+  <!-- Subhead -->
+  <text x="80" y="570" fill="#71717a" font-family="DM Sans, system-ui, sans-serif" font-size="22" font-weight="500">
+    Alternative française à Gorgias · Conforme RGPD · Essai gratuit 7 jours
+  </text>
+  <!-- URL badge -->
+  <g transform="translate(940, 540)">
+    <rect x="0" y="0" width="180" height="44" rx="22" fill="#0E653A"/>
+    <text x="90" y="29" fill="white" font-family="DM Sans, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">actero.fr</text>
+  </g>
+</svg>

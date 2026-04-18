@@ -1,85 +1,80 @@
 {
-    "rewrites": [
-        {
-            "source": "/api/mcp/.well-known/oauth-authorization-server",
-            "destination": "/api/mcp/oauth-metadata"
-        },
-        {
-            "source": "/api/mcp/.well-known/oauth-protected-resource",
-            "destination": "/api/mcp/oauth-resource"
-        },
-        {
-            "source": "/.well-known/oauth-authorization-server",
-            "destination": "/api/mcp/oauth-metadata"
-        },
-        {
-            "source": "/.well-known/oauth-protected-resource",
-            "destination": "/api/mcp/oauth-resource"
-        },
-        {
-            "source": "/authorize",
-            "destination": "/api/mcp/authorize"
-        },
-        {
-            "source": "/token",
-            "destination": "/api/mcp/token"
-        },
-        {
-            "source": "/register",
-            "destination": "/api/mcp/register"
-        },
-        {
-            "source": "/api/(.*)",
-            "destination": "/api/$1"
-        },
-        {
-            "source": "/((?!api/).*)",
-            "destination": "/index.html"
-        }
-    ],
-    "crons": [
-        {
-            "path": "/api/cron/process-abandoned-carts",
-            "schedule": "*/5 * * * *"
-        },
-        {
-            "path": "/api/cron/process-comptabilite",
-            "schedule": "0 8 * * *"
-        },
-        {
-            "path": "/api/cron/monthly-report",
-            "schedule": "0 8 1 * *"
-        },
-        {
-            "path": "/api/cron/churn-predictions",
-            "schedule": "0 6 * * 0"
-        },
-        {
-            "path": "/api/cron/slack-daily-digest",
-            "schedule": "30 7 * * 1-5"
-        },
-        {
-            "path": "/api/cron/poll-inbound-emails",
-            "schedule": "*/2 * * * *"
-        },
-        {
-            "path": "/api/cron/proactive-watchdog",
-            "schedule": "*/15 * * * *"
-        }
-    ],
-    "headers": [
-        {
-            "source": "/widget.js",
-            "headers": [
-                { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-                { "key": "Pragma", "value": "no-cache" }
-            ]
-        },
-        {
-            "source": "/(.*)",
-            "headers": [
-                { "key": "X-Robots-Tag", "value": "index, follow" }
-            ]
-        }
-    ]
+  "redirects": [
+    { "source": "/pricing", "destination": "/tarifs", "permanent": true },
+    { "source": "/company", "destination": "/entreprise", "permanent": true },
+    { "source": "/about", "destination": "/entreprise", "permanent": true },
+    { "source": "/legal", "destination": "/mentions-legales", "permanent": true },
+    { "source": "/privacy", "destination": "/confidentialite", "permanent": true },
+    { "source": "/privacy-policy", "destination": "/confidentialite", "permanent": true },
+    { "source": "/terms", "destination": "/utilisation", "permanent": true },
+    { "source": "/terms-of-use", "destination": "/utilisation", "permanent": true },
+    { "source": "/cgu", "destination": "/utilisation", "permanent": true },
+    { "source": "/resources", "destination": "/ressources", "permanent": true },
+    { "source": "/help", "destination": "/support", "permanent": true },
+    { "source": "/contact", "destination": "/support", "permanent": true }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/mcp/.well-known/oauth-authorization-server",
+      "destination": "/api/mcp/oauth-metadata"
+    },
+    {
+      "source": "/api/mcp/.well-known/oauth-protected-resource",
+      "destination": "/api/mcp/oauth-resource"
+    },
+    {
+      "source": "/.well-known/oauth-authorization-server",
+      "destination": "/api/mcp/oauth-metadata"
+    },
+    {
+      "source": "/.well-known/oauth-protected-resource",
+      "destination": "/api/mcp/oauth-resource"
+    },
+    { "source": "/authorize", "destination": "/api/mcp/authorize" },
+    { "source": "/token", "destination": "/api/mcp/token" },
+    { "source": "/register", "destination": "/api/mcp/register" },
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    {
+      "source": "/((?!api/|og-image|favicon|logo-|seloger|robots\\.txt|sitemap\\.xml|llms\\.txt|widget\\.js).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    { "path": "/api/cron/process-abandoned-carts", "schedule": "*/5 * * * *" },
+    { "path": "/api/cron/process-comptabilite", "schedule": "0 8 * * *" },
+    { "path": "/api/cron/monthly-report", "schedule": "0 8 1 * *" },
+    { "path": "/api/cron/churn-predictions", "schedule": "0 6 * * 0" },
+    { "path": "/api/cron/slack-daily-digest", "schedule": "30 7 * * 1-5" },
+    { "path": "/api/cron/poll-inbound-emails", "schedule": "*/2 * * * *" },
+    { "path": "/api/cron/proactive-watchdog", "schedule": "*/15 * * * *" }
+  ],
+  "headers": [
+    {
+      "source": "/widget.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Pragma", "value": "no-cache" }
+      ]
+    },
+    {
+      "source": "/(admin|client|app|login|reset-password|setup-password|auth|start|success|cancel|shopify-success|payment|demo|demo-prospect)/?(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    },
+    {
+      "source": "/((?!admin|client|app|login|reset-password|setup-password|auth|start|success|cancel|shopify-success|payment|demo|demo-prospect|api).*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "index, follow" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), camera=(), microphone=()" }
+      ]
+    }
+  ]
 }

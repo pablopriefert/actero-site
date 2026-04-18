@@ -195,7 +195,7 @@ export const AuditPage = ({ onNavigate }) => {
                 </div>
 
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cta/10 border border-cta/20 text-xs font-bold text-[#003725]">
-                  <Clock className="w-3.5 h-3.5" />3 créneaux restants cette semaine
+                  <Clock className="w-3.5 h-3.5" />Disponibilités limitées cette semaine
                 </div>
               </div>
 

@@ -1,8 +1,87 @@
+# ─────────────────────────────────────────────────────────────
+# Actero — robots.txt
+# AI-search-friendly: inference-time crawlers ALLOWED (for citation in
+# ChatGPT / Google AI Overviews / Perplexity). Training-only crawlers
+# BLOCKED per EU Directive 2019/790 Article 4 TDM opt-out.
+# ─────────────────────────────────────────────────────────────
+
+# AI search / citation crawlers — ALLOW (real-time answer generation)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Training-only crawlers — BLOCK (EU TDM opt-out per Directive 2019/790 Art. 4)
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+# All other crawlers — default policy
 User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /client
-Disallow: /ambassador/dashboard
+Disallow: /app
 Disallow: /api/
+Disallow: /ambassador/dashboard
+Disallow: /login
+Disallow: /reset-password
+Disallow: /setup-password
+Disallow: /auth/
+Disallow: /start/
+Disallow: /success
+Disallow: /cancel
+Disallow: /shopify-success
+Disallow: /payment/
+Disallow: /demo
+Disallow: /demo-prospect
 
 Sitemap: https://actero.fr/sitemap.xml

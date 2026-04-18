@@ -109,7 +109,7 @@ export const LandingPage = ({ onNavigate }) => {
         ogImage="https://actero.fr/og-image.png"
         schemaData={landingSchema}
       />
-    <div className="relative min-h-screen bg-white font-sans text-[#262626]">
+    <div className="relative min-h-screen bg-white font-sans text-[#262626] overflow-x-hidden">
       <ReadingProgress vertical={vertical} />
       <StickyCTA onNavigate={onNavigate} vertical={vertical} />
 

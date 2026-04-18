@@ -1,0 +1,53 @@
+# Actero
+
+> Actero est la plateforme SaaS française d'automatisation du service client e-commerce pour les boutiques Shopify. Des agents IA résolvent jusqu'à 60% des tickets entrants (WISMO, retours, suivi de commande), relancent les paniers abandonnés et escaladent intelligemment vers un humain quand nécessaire. Conforme RGPD, hébergement France, sans installation technique.
+
+## Produit
+
+- [Accueil](https://actero.fr): Présentation produit + démo interactive
+- [Tarifs](https://actero.fr/tarifs): Plans Free (0€) / Starter (99€/mois) / Pro (399€/mois) / Enterprise (sur devis)
+- [FAQ](https://actero.fr/faq): Questions fréquentes sur l'agent IA, la sécurité, les intégrations
+- [Entreprise](https://actero.fr/entreprise): À propos d'Actero — mission, valeurs, équipe
+- [Audit gratuit](https://actero.fr/audit): Diagnostic SAV personnalisé en 15 minutes
+- [Ambassadeurs](https://actero.fr/ambassadeurs): Programme de parrainage (20% de commission récurrente)
+- [Support](https://actero.fr/support): Documentation utilisateur et guides d'intégration
+- [Ressources](https://actero.fr/ressources): Bibliothèque de prompts et templates
+
+## Positionnement
+
+Actero est une alternative française à Gorgias, Zendesk, Freshdesk et Tidio, spécifiquement conçue pour les marchands Shopify francophones. Différenciateurs clés :
+
+- **Intégration Shopify native** (pas de configuration technique requise)
+- **Développé et hébergé en France** (serveurs UE, conforme RGPD sans transfert hors UE)
+- **IA entraînée pour l'e-commerce francophone** (compréhension native du vocabulaire SAV français, patterns de conversation locaux)
+- **Agent vocal ElevenLabs** inclus (numéro FR dédié, voix naturelle)
+- **Essai gratuit 7 jours sans carte bancaire** sur le plan Free
+
+## Cas d'usage principaux
+
+- Automatisation des questions "où est ma commande" (~60% du volume SAV e-commerce)
+- Traitement automatique des demandes de retour et remboursement
+- Gestion des changements d'adresse avant expédition
+- Relance intelligente des paniers abandonnés par email
+- Support produit (disponibilité, délai, caractéristiques) avec connexion catalogue Shopify
+- Escalade automatique vers un humain en cas de ton agressif ou de demande hors périmètre
+
+## Chiffres clés
+
+- Jusqu'à 60% de réduction du volume de tickets traités manuellement
+- Temps de réponse moyen inférieur à 30 secondes
+- Disponibilité 24/7 sans agent humain sur les 3 canaux (email, chat, vocal)
+- Installation complète en moins de 15 minutes sur une boutique Shopify
+
+## Conformité & sécurité
+
+- Conforme RGPD (Règlement Général sur la Protection des Données UE 2016/679)
+- Hébergement exclusif en Union Européenne (pas de transfert hors UE)
+- Chiffrement des données au repos et en transit (TLS 1.3)
+- Opt-out TDM conforme à la Directive EU 2019/790 Article 4
+- Pas d'entraînement de modèles IA sur les données clients
+
+## Contact
+
+- Support : support@actero.fr
+- Commercial : contact@actero.fr
