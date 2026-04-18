@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
+import { TypedConfirmModal } from '../ui/TypedConfirmModal'
+import { logAdminAction } from '../../lib/audit-log'
 
 /**
  * AdminClientQuickActions — Menu kebab réutilisable pour actions admin sur un client.
@@ -24,6 +26,8 @@ import { useToast } from '../ui/Toast'
 export function AdminClientQuickActions({ client, onAction, align = 'right' }) {
   const [open, setOpen] = useState(false)
   const [loadingAction, setLoadingAction] = useState(null)
+  // Typed-confirm modal state: { action: 'delete_client' | 'clear_memory' | 'rotate_keys' } or null
+  const [confirmModal, setConfirmModal] = useState(null)
   const containerRef = useRef(null)
   const toast = useToast()
 
@@ -62,6 +66,13 @@ export function AdminClientQuickActions({ client, onAction, align = 'right' }) {
         const json = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`)
         toast.success(`${actionLabel(action)} - OK`)
+        // Audit log — fire-and-forget. Records WHO did WHAT to WHICH client.
+        logAdminAction({
+          action: `client.${action}`,
+          target_type: 'client',
+          target_id: client.id,
+          details: { brand_name: client.brand_name || null },
+        })
         onAction?.(action, json)
         return json
       } catch (err) {
@@ -90,6 +101,12 @@ export function AdminClientQuickActions({ client, onAction, align = 'right' }) {
       const json = await res.json().catch(() => ({}))
       if (!res.ok || !json.success) throw new Error(json.error || `HTTP ${res.status}`)
       toast.success('Token d\'impersonation créé')
+      logAdminAction({
+        action: 'client.impersonate',
+        target_type: 'client',
+        target_id: client.id,
+        details: { brand_name: client.brand_name || null },
+      })
       window.open(json.impersonate_url, '_blank', 'noopener,noreferrer')
       onAction?.('impersonate', json)
     } catch (err) {
@@ -104,20 +121,21 @@ export function AdminClientQuickActions({ client, onAction, align = 'right' }) {
   const handlePause = () => callClientAction('pause_agent')
   const handleResume = () => callClientAction('resume_agent')
   const handleResync = () => callClientAction('resync_shopify')
-  const handleClearMemory = () => {
-    if (!window.confirm(`Vider la mémoire client de ${client.brand_name || client.id} ? Action irréversible.`)) return
-    callClientAction('clear_memory', { confirm: true })
-  }
   const handleResendWelcome = () => callClientAction('resend_welcome')
+  // Destructive actions: open typed-confirm modal instead of native window.confirm.
+  // User must type the brand_name (delete), 'VIDER' (clear memory), or 'ROTATE' (rotate keys)
+  // to enable the red button — GitHub-style muscle-memory protection.
+  const handleClearMemory = () => {
+    setOpen(false)
+    setConfirmModal({ action: 'clear_memory' })
+  }
   const handleRotate = () => {
-    if (!window.confirm('Régénérer les API keys du widget ? L\'ancienne clé sera invalide.')) return
-    callClientAction('rotate_keys', { confirm: true })
+    setOpen(false)
+    setConfirmModal({ action: 'rotate_keys' })
   }
   const handleDelete = () => {
-    const brand = client.brand_name || client.id
-    if (!window.confirm(`Supprimer DEFINITIVEMENT le client ${brand} ?`)) return
-    if (!window.confirm('Confirmer une deuxième fois : cette action est IRREVERSIBLE.')) return
-    callClientAction('delete_client', { confirm: true })
+    setOpen(false)
+    setConfirmModal({ action: 'delete_client' })
   }
 
   const isPaused = client.agent_enabled === false
@@ -204,6 +222,50 @@ export function AdminClientQuickActions({ client, onAction, align = 'right' }) {
           />
         </div>
       )}
+
+      {/* Typed-confirm modal for destructive actions.
+          Shared modal, action-switched via confirmModal.action. */}
+      <TypedConfirmModal
+        open={confirmModal?.action === 'delete_client'}
+        onClose={() => setConfirmModal(null)}
+        onConfirm={async () => {
+          await callClientAction('delete_client', { confirm: true })
+          setConfirmModal(null)
+        }}
+        title="Supprimer définitivement le client ?"
+        description={`Toutes les données de ${client.brand_name || 'ce client'} seront perdues : tickets, agents, intégrations, factures. Cette action est irréversible.`}
+        confirmText={client.brand_name || String(client.id)}
+        confirmLabel="Supprimer définitivement"
+        tone="danger"
+      />
+
+      <TypedConfirmModal
+        open={confirmModal?.action === 'clear_memory'}
+        onClose={() => setConfirmModal(null)}
+        onConfirm={async () => {
+          await callClientAction('clear_memory', { confirm: true })
+          setConfirmModal(null)
+        }}
+        title="Vider la mémoire client ?"
+        description={`L'agent de ${client.brand_name || 'ce client'} oubliera tout son historique de conversations. Action irréversible.`}
+        confirmText="VIDER"
+        confirmLabel="Vider la mémoire"
+        tone="danger"
+      />
+
+      <TypedConfirmModal
+        open={confirmModal?.action === 'rotate_keys'}
+        onClose={() => setConfirmModal(null)}
+        onConfirm={async () => {
+          await callClientAction('rotate_keys', { confirm: true })
+          setConfirmModal(null)
+        }}
+        title="Régénérer les clés API du widget ?"
+        description="Le widget installé sur la boutique cessera de fonctionner jusqu'à la mise à jour des clés. Ré-déploiement manuel requis."
+        confirmText="ROTATE"
+        confirmLabel="Régénérer les clés"
+        tone="warning"
+      />
     </div>
   )
 }
