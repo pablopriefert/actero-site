@@ -33,7 +33,7 @@ export default function PortalLoginPage() {
   if (sent) {
     return (
       <div className="max-w-md mx-auto mt-20 p-10 bg-white rounded-2xl shadow-[0_2px_24px_rgba(0,0,0,0.06)] text-center">
-        <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.3px' }}
+        <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", letterSpacing: '-0.3px' }}
           className="text-2xl font-bold mb-3">Vérifie ta boîte mail</h1>
         <p className="text-[#5A5A5A] leading-relaxed">On t'a envoyé un lien de connexion à <strong className="text-[#1A1A1A]">{email}</strong>. Il expire dans 15 minutes.</p>
       </div>
@@ -42,7 +42,7 @@ export default function PortalLoginPage() {
 
   return (
     <form onSubmit={onSubmit} className="max-w-md mx-auto mt-20 p-10 bg-white rounded-2xl shadow-[0_2px_24px_rgba(0,0,0,0.06)]">
-      <h1 style={{ fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '-0.3px' }}
+      <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", letterSpacing: '-0.3px' }}
         className="text-2xl font-bold mb-2">Accède à ton espace SAV</h1>
       {merchantName && <p className="text-sm text-[#8B8070] mb-6">pour tes commandes chez <span className="text-[#1A1A1A] font-medium">{merchantName}</span></p>}
       <label className="block text-sm font-medium mb-1.5">Ton email</label>

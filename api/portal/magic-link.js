@@ -45,7 +45,7 @@ function buildMagicLinkEmailHtml({ url, merchantName, branding }) {
 
           <tr>
             <td style="padding:32px 40px 8px 40px;">
-              <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;color:#1A1A1A;margin:0 0 16px 0;line-height:1.3;letter-spacing:-0.3px;">
+              <h1 style="font-family:'Instrument Serif',Georgia,serif;font-size:26px;font-weight:700;color:#1A1A1A;margin:0 0 16px 0;line-height:1.3;letter-spacing:-0.3px;">
                 Votre lien de connexion
               </h1>
               <p style="font-size:15px;color:#444444;line-height:1.7;margin:0 0 20px 0;">
