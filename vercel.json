@@ -57,7 +57,7 @@
       ]
     },
     {
-      "source": "/(admin|client|app|login|reset-password|setup-password|auth|start|success|cancel|shopify-success|payment|demo|demo-prospect)/?(.*)",
+      "source": "/(admin|client|app|login|reset-password|setup-password|auth|start|success|cancel|shopify-success|payment|demo|demo-prospect)(.*)",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
       ]
