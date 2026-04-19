@@ -11,26 +11,43 @@ import { Shield } from 'lucide-react'
  * Anim CSS pure 40s linear infinite, pause au hover, items dupliqués 3×
  * dans le DOM pour loop seamless. Respecte prefers-reduced-motion.
  */
+/**
+ * Heights custom par logo selon leur aspect ratio — compense la
+ * différence de largeur pour que chaque logo ait une surface visuelle
+ * équivalente (~3 800-4 200 px²).
+ * mH = mobile height, dH = desktop height (en px).
+ *
+ *   aspect ratio   | dH  | width auto @ dH
+ *   -------------- | --- | ---------------
+ *   auth0    2.2:1 | 42  | ~92px   (surface 3864)
+ *   eleven   3.84  | 32  | ~123px  (surface 3936)
+ *   google   8.3   | 22  | ~183px  (surface 4026)
+ *   shopify  6.2   | 26  | ~161px  (surface 4186)
+ */
 const partners = [
   {
     name: 'ElevenLabs Grants',
     src: '/partners/v2/elevenlabs-grants.png',
     href: 'https://elevenlabs.io/startup-grants',
+    mH: 24, dH: 32,
   },
   {
     name: 'Shopify Partner',
     src: '/partners/v2/shopify-partner.png',
     href: 'https://www.shopify.com/partners',
+    mH: 22, dH: 26,
   },
   {
     name: 'Google for Startups',
     src: '/partners/v2/google-for-startups.png',
     href: 'https://startup.google.com/',
+    mH: 18, dH: 22,
   },
   {
     name: 'Auth0 for Startups',
     src: '/partners/v2/auth0-startup.png',
     href: 'https://auth0.com/startups',
+    mH: 34, dH: 42,
   },
 ]
 
@@ -65,7 +82,8 @@ export function PartnersMarquee() {
                   src={partner.src}
                   alt={partner.name}
                   loading="lazy"
-                  className="h-full w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+                  style={{ '--mH': `${partner.mH}px`, '--dH': `${partner.dH}px` }}
+                  className="partners-marquee-img w-auto object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
                 />
               </a>
             ))}
@@ -116,17 +134,29 @@ export function PartnersMarquee() {
         .partners-marquee-wrap:hover .partners-marquee-track {
           animation-play-state: paused;
         }
-        /* Item = largeur naturelle du logo (pas de container fixe).
-           Height uniforme = rythme vertical constant. */
+        /* Item = largeur naturelle du logo, height du container = plafond
+           généreux pour centrer les logos verticalement même quand ils sont
+           plus courts (type Google for Startups @ 22px) */
         .partners-marquee-item {
           flex: 0 0 auto;
-          height: 56px;
+          height: 48px;
           display: flex;
           align-items: center;
         }
         @media (min-width: 768px) {
           .partners-marquee-item {
-            height: 72px;
+            height: 56px;
+          }
+        }
+        /* Image height custom par logo via CSS vars inline pour
+           normaliser la surface visuelle (wide logos plus courts,
+           narrow logos plus grands) */
+        .partners-marquee-img {
+          height: var(--mH);
+        }
+        @media (min-width: 768px) {
+          .partners-marquee-img {
+            height: var(--dH);
           }
         }
         @keyframes partners-scroll {
