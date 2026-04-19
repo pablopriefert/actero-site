@@ -46,7 +46,7 @@ import { AgentCarousel } from '../components/landing/AgentCarousel'
 import { ChatMockup } from '../components/landing/ChatMockup'
 import { IntegrationGrid } from '../components/landing/IntegrationGrid'
 import { ProcessSteps } from '../components/landing/ProcessSteps'
-import { StickyCTA } from '../components/ui/StickyCTA'
+import { StickyCTABar } from '../components/ui/StickyCTABar'
 import { ReadingProgress } from '../components/ui/ReadingProgress'
 import { Tilt3D } from '../components/ui/Tilt3D'
 
@@ -111,7 +111,7 @@ export const LandingPage = ({ onNavigate }) => {
       />
     <div className="relative min-h-screen bg-white font-sans text-[#262626] overflow-x-hidden">
       <ReadingProgress vertical={vertical} />
-      <StickyCTA onNavigate={onNavigate} vertical={vertical} />
+      <StickyCTABar onNavigate={onNavigate} />
 
       <div className="relative w-full">
         {/* NAVBAR */}
@@ -125,6 +125,69 @@ export const LandingPage = ({ onNavigate }) => {
           {/* SECTION 1 — HERO                            */}
           {/* ============================================ */}
           <GlassHero onNavigate={onNavigate} vertical={vertical} />
+
+          {/* ============================================ */}
+          {/* SECTION — PRICING TEASER (above-the-fold)   */}
+          {/* 3 plans + CTA visible sans scroll profond    */}
+          {/* ============================================ */}
+          <section className="py-12 bg-white px-6 border-b border-gray-100">
+            <div className="max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+                {/* Free */}
+                <button
+                  onClick={() => { trackEvent('Pricing_Teaser_Clicked', { plan: 'free' }); onNavigate('/signup'); }}
+                  className="group relative text-left bg-[#F9F7F1] border border-gray-200 rounded-2xl p-5 hover:border-cta/30 hover:shadow-sm transition-all"
+                >
+                  <div className="flex items-baseline justify-between mb-1">
+                    <p className="text-xs font-bold text-[#716D5C] uppercase tracking-wider">Free</p>
+                    <p className="text-2xl font-bold text-[#262626]">0€<span className="text-xs font-medium text-[#716D5C]">/mois</span></p>
+                  </div>
+                  <p className="text-[13px] text-[#716D5C] font-medium mb-3">50 tickets · Shopify · Sans carte bancaire</p>
+                  <p className="text-[12px] font-semibold text-cta flex items-center gap-1 group-hover:gap-1.5 transition-all">
+                    Commencer gratuitement <ArrowRight className="w-3 h-3" />
+                  </p>
+                </button>
+
+                {/* Starter */}
+                <button
+                  onClick={() => { trackEvent('Pricing_Teaser_Clicked', { plan: 'starter' }); onNavigate('/signup'); }}
+                  className="group relative text-left bg-white border-2 border-cta rounded-2xl p-5 hover:shadow-lg transition-all shadow-sm ring-2 ring-cta/10"
+                >
+                  <span className="absolute -top-2.5 left-5 px-2 py-0.5 bg-cta text-white text-[10px] font-bold uppercase tracking-widest rounded-full">Populaire</span>
+                  <div className="flex items-baseline justify-between mb-1 mt-1">
+                    <p className="text-xs font-bold text-cta uppercase tracking-wider">Starter</p>
+                    <p className="text-2xl font-bold text-[#262626]">99€<span className="text-xs font-medium text-[#716D5C]">/mois</span></p>
+                  </div>
+                  <p className="text-[13px] text-[#716D5C] font-medium mb-3">1 000 tickets · Éditeur ton · Simulateur · API</p>
+                  <p className="text-[12px] font-semibold text-cta flex items-center gap-1 group-hover:gap-1.5 transition-all">
+                    Essai 7 jours gratuit <ArrowRight className="w-3 h-3" />
+                  </p>
+                </button>
+
+                {/* Pro */}
+                <button
+                  onClick={() => { trackEvent('Pricing_Teaser_Clicked', { plan: 'pro' }); onNavigate('/signup'); }}
+                  className="group relative text-left bg-[#F9F7F1] border border-gray-200 rounded-2xl p-5 hover:border-cta/30 hover:shadow-sm transition-all"
+                >
+                  <div className="flex items-baseline justify-between mb-1">
+                    <p className="text-xs font-bold text-[#716D5C] uppercase tracking-wider">Pro</p>
+                    <p className="text-2xl font-bold text-[#262626]">399€<span className="text-xs font-medium text-[#716D5C]">/mois</span></p>
+                  </div>
+                  <p className="text-[13px] text-[#716D5C] font-medium mb-3">5 000 tickets · Agent vocal · Agents spécialisés</p>
+                  <p className="text-[12px] font-semibold text-cta flex items-center gap-1 group-hover:gap-1.5 transition-all">
+                    Voir tout <ArrowRight className="w-3 h-3" />
+                  </p>
+                </button>
+              </div>
+
+              <p className="text-center text-xs text-[#9ca3af] font-medium">
+                Plan Enterprise sur devis · −20% en facturation annuelle ·{' '}
+                <button onClick={() => onNavigate('/tarifs')} className="text-cta font-semibold underline underline-offset-2 hover:text-[#003725]">
+                  Comparatif complet des 4 plans →
+                </button>
+              </p>
+            </div>
+          </section>
 
           {/* ============================================ */}
           {/* SECTION — LOGOS CLIENTS                      */}

@@ -185,8 +185,11 @@ export default async function handler(req, res) {
       console.error('[verify-code] notify error:', notifyErr.message)
     }
 
-    // 7. Return success
-    return res.status(200).json({ success: true, redirect: '/signup/plan' })
+    // 7. Return success — redirect DIRECTLY to dashboard.
+    // Free plan is auto-provisioned on account creation (clients.plan = 'free' by default
+    // in migration, see 20260201_*). We removed the forced /signup/plan step to cut signup
+    // friction by ~30s + 1 decision. Upsell is surfaced from the dashboard sidebar CTA.
+    return res.status(200).json({ success: true, redirect: '/client' })
   } catch (err) {
     console.error('[verify-code] Account creation error:', err)
     // Cleanup on failure

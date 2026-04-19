@@ -188,11 +188,11 @@ export default async function handler(req, res) {
       console.error('[SIGNUP] Notify error:', notifyErr.message);
     }
 
-    // 7. Redirect to dashboard
+    // 7. Redirect to dashboard — Free plan auto-provisioned. Upsell from sidebar.
     return res.status(200).json({
       success: true,
       referral_applied: referralApplied,
-      redirect: '/signup/plan',
+      redirect: '/client',
     });
 
   } catch (err) {

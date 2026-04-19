@@ -156,7 +156,10 @@ export const SignupPage = ({ onNavigate }) => {
         await supabase.auth.signInWithPassword({ email, password });
       } catch { /* fallback: user can login manually */ }
       setSuccessMessage("Compte créé ! Redirection…");
-      setTimeout(() => onNavigate(data.redirect || "/signup/plan"), 1200);
+      // Go straight to dashboard — Free plan is auto-provisioned on account creation.
+      // Upsell to Starter/Pro happens from the dashboard (sidebar CTA + billing tab),
+      // not as a forced intermediate step. Reduces signup friction by ~30s + 1 decision.
+      setTimeout(() => onNavigate(data.redirect || "/client"), 1200);
     } catch {
       setError("Erreur réseau. Veuillez réessayer.");
       setLoading(false);
