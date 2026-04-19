@@ -25,9 +25,9 @@ export const Footer = ({ onNavigate }) => {
             >
               <span className="text-xs font-semibold text-[#716D5C] uppercase tracking-widest">Powered by</span>
               <img
-                src="/elevenlabs-grants.webp"
+                src="/partners/elevenlabs-grants.webp"
                 alt="ElevenLabs Startup Grants"
-                className="h-4 w-auto grayscale"
+                className="h-5 w-auto grayscale"
               />
             </a>
             <span className="text-gray-300">|</span>
@@ -38,9 +38,9 @@ export const Footer = ({ onNavigate }) => {
               className="flex items-center opacity-70 hover:opacity-100 transition-opacity"
             >
               <img
-                src="/shopify-partners.svg"
+                src="/partners/shopify-partner.png"
                 alt="Shopify Partners"
-                className="h-5 w-auto grayscale"
+                className="h-6 w-auto grayscale"
               />
             </a>
           </div>

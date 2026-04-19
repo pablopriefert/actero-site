@@ -24,6 +24,7 @@ import { ChatMockup } from '../components/landing/ChatMockup'
 import { IntegrationGrid } from '../components/landing/IntegrationGrid'
 import { StickyCTABar } from '../components/ui/StickyCTABar'
 import { ReadingProgress } from '../components/ui/ReadingProgress'
+import { PartnersMarquee } from '../components/ui/PartnersMarquee'
 
 /**
  * Actero Landing Page — Notion-inspired structure (avril 2026 refonte).
@@ -168,30 +169,12 @@ export const LandingPage = ({ onNavigate }) => {
             <GlassHero onNavigate={onNavigate} vertical={vertical} />
 
             {/* ═══════════════════════════════════════════════════
-                SECTION 2 — TRUST BAR (stats + partners)
-                Remplace l'ancienne liste "Boutique Mode · Cosmétiques Bio"
-                qui citait des noms non clients.
+                SECTION 2 — PARTNERS MARQUEE
+                Défilement infini des badges partenaires + certif.
+                4 badges réels : ElevenLabs Grants, Shopify Partner,
+                Google for Startups, Auth0 Startup.
                 ═══════════════════════════════════════════════════ */}
-            <section className="py-10 bg-white border-b border-gray-100 px-6">
-              <div className="max-w-6xl mx-auto">
-                <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
-                  <div className="flex items-center gap-2.5 text-[#716D5C]">
-                    <img src="/elevenlabs-grants.webp" alt="ElevenLabs Startup Grant" className="h-4 w-auto" />
-                    <span className="text-[11px] font-semibold uppercase tracking-widest">ElevenLabs Grant</span>
-                  </div>
-                  <div className="hidden md:block w-px h-8 bg-gray-200" />
-                  <div className="flex items-center gap-2.5 text-[#716D5C]">
-                    <img src="/shopify-partners.svg" alt="Shopify Partners" className="h-5 w-auto" />
-                    <span className="text-[11px] font-semibold uppercase tracking-widest">Shopify Partner</span>
-                  </div>
-                  <div className="hidden md:block w-px h-8 bg-gray-200" />
-                  <div className="flex items-center gap-2 text-[#716D5C]">
-                    <Shield className="w-4 h-4" />
-                    <span className="text-[11px] font-semibold uppercase tracking-widest">Hébergé UE · RGPD</span>
-                  </div>
-                </div>
-              </div>
-            </section>
+            <PartnersMarquee />
 
             {/* ═══════════════════════════════════════════════════
                 SECTION 3 — PRODUCT DEMO (ChatMockup bento)

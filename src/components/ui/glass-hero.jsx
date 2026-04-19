@@ -6,7 +6,7 @@ import { ButtonColorful } from './button-colorful';
 export const GlassHero = ({ onNavigate }) => {
 
     const content = {
-        badge: { icon: '/elevenlabs-grants.webp', label: 'Powered by ElevenLabs Grants' },
+        badge: { icon: '/partners/elevenlabs-grants.webp', label: 'Powered by ElevenLabs Grants' },
         // Hero copy — outcome-first headline (60% = proof number), differentiator-rich
         // subtitle (FR / Shopify / install time), risk-reversal bold line, social-proof sub-CTA.
         headlineMain: "60% de vos tickets Shopify",
@@ -31,7 +31,7 @@ export const GlassHero = ({ onNavigate }) => {
                     <FadeInUp className="mb-6">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-[#716D5C]">
                             <span>Powered by</span>
-                            <img src="/elevenlabs-grants.webp" alt="ElevenLabs Grants" className="h-3.5 w-auto" />
+                            <img src="/partners/elevenlabs-grants.webp" alt="ElevenLabs Grants" className="h-3.5 w-auto" />
                         </div>
                     </FadeInUp>
 
