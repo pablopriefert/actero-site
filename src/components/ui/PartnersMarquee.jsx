@@ -29,7 +29,7 @@ const partners = [
     name: 'ElevenLabs Grants',
     src: '/partners/v2/elevenlabs-grants.png',
     href: 'https://elevenlabs.io/startup-grants',
-    mH: 24, dH: 32,
+    mH: 28, dH: 38,
   },
   {
     name: 'Shopify Partner',
