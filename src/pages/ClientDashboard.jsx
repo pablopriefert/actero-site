@@ -47,7 +47,8 @@ import { Logo } from '../components/layout/Logo'
 import { Sidebar } from '../components/layout/Sidebar'
 import { ActivityChart } from '../components/dashboard/ActivityChart'
 // Overview path: kept static — these render immediately on mount.
-import { ActivityView, useLiveActivityFeed, formatEvent, formatRelativeTime } from '../components/dashboard/ActivityView'
+import { ActivityView } from '../components/dashboard/ActivityView'
+import { LiveActivityWidget, FeedbackButtons } from '../components/dashboard/LiveActivityWidget'
 import { ClientCopilotBubble } from '../components/client/ClientCopilotBubble'
 import { AgentImprovementWidget } from '../components/client/AgentImprovementWidget'
 import { AutomationHubView } from '../components/client/AutomationHubView'
@@ -55,6 +56,7 @@ import { WeeklySummary } from '../components/client/WeeklySummary'
 import { PeakHoursChart } from '../components/client/PeakHoursChart'
 import { SetupChecklist } from '../components/client/SetupChecklist'
 import { SetupWizard } from '../components/client/SetupWizard'
+import { OverviewHome } from '../components/client/overview/OverviewHome'
 import { AchievementsToast } from '../components/client/AchievementsView'
 import ProductTour from '../components/client/ProductTour'
 
@@ -100,107 +102,6 @@ import { UpgradeBanner } from '../components/ui/UpgradeBanner'
 import { TabErrorBoundary } from '../components/ErrorBoundary'
 import { SkipToMain } from '../components/ui/SkipToMain'
 import { trackEvent, identifyUser } from '../lib/analytics'
-
-const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
-  const [feedback, setFeedback] = useState(currentFeedback || null);
-  const [saving, setSaving] = useState(false);
-
-  const handleFeedback = async (value) => {
-    if (saving) return;
-    const prev = feedback;
-    const newValue = feedback === value ? null : value;
-    setSaving(true);
-    setFeedback(newValue); // optimistic
-    try {
-      const { error } = await supabase
-        .from('automation_events')
-        .update({ feedback: newValue, feedback_at: newValue ? new Date().toISOString() : null })
-        .eq('id', eventId);
-      if (error) throw error;
-    } catch (err) {
-      // Rollback optimistic state on failure so the UI reflects server truth.
-      // No toast here (background feedback action, mid-list density) — errors
-      // are captured by Sentry via console.error.
-      console.error('[FeedbackButtons] feedback update failed:', err);
-      setFeedback(prev);
-    }
-    setSaving(false);
-  };
-
-  return (
-    <div className="flex items-center gap-0.5 flex-shrink-0">
-      <button
-        onClick={(e) => { e.stopPropagation(); handleFeedback('positive'); }}
-        className={`p-1 rounded transition-colors ${feedback === 'positive' ? 'text-[#003725] bg-emerald-50' : 'text-gray-300 hover:text-[#003725] hover:bg-emerald-50'}`}
-        title="Bonne réponse"
-      >
-        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" /></svg>
-      </button>
-      <button
-        onClick={(e) => { e.stopPropagation(); handleFeedback('negative'); }}
-        className={`p-1 rounded transition-colors ${feedback === 'negative' ? 'text-red-500 bg-red-50' : 'text-gray-300 hover:text-red-500 hover:bg-red-50'}`}
-        title="Mauvaise réponse"
-      >
-        <svg className="w-3.5 h-3.5 rotate-180" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" /></svg>
-      </button>
-    </div>
-  );
-};
-
-const LiveActivityWidget = ({ supabase, setActiveTab, isLight }) => {
-  const { events, isConnected } = useLiveActivityFeed(supabase);
-  const recent = events.slice(0, 6);
-
-  return (
-    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-      <div className="p-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-cta animate-pulse' : 'bg-red-500'}`} />
-            <h3 className="font-bold text-[#1a1a1a] text-sm">Activité récente</h3>
-          </div>
-          <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-widest px-2 py-0.5 bg-[#F9F7F1] rounded-full">
-            LIVE
-          </span>
-        </div>
-        <button
-          onClick={() => setActiveTab('activity')}
-          className="text-xs font-bold text-[#003725] hover:underline"
-        >
-          Tout voir →
-        </button>
-      </div>
-      <div className="divide-y divide-gray-100">
-        {recent.length === 0 ? (
-          <div className="px-5 py-10 flex flex-col items-center justify-center text-center">
-            <div className="w-10 h-10 rounded-xl bg-[#fafafa] flex items-center justify-center mb-3">
-              <Inbox className="w-5 h-5 text-[#9ca3af]" />
-            </div>
-            <p className="text-[13px] font-medium text-[#1a1a1a]">Aucune activité aujourd'hui</p>
-            <p className="text-[11px] text-[#9ca3af] mt-0.5">C'est calme — votre agent veille en arrière-plan.</p>
-          </div>
-        ) : (
-          recent.map((event, i) => {
-            const formatted = formatEvent(event);
-            const Icon = formatted.IconComponent;
-            return (
-              <div key={event.id || i} className="flex items-center gap-3 px-5 py-3 hover:bg-[#fafafa] transition-colors">
-                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${formatted.bg}`}>
-                  <Icon className={`w-3.5 h-3.5 ${formatted.color}`} />
-                </div>
-                <p className="text-[13px] text-[#1a1a1a] flex-1 truncate">{formatted.message}</p>
-                <FeedbackButtons eventId={event.id} currentFeedback={event.feedback} supabase={supabase} />
-                <span className="text-[10px] text-[#999] flex-shrink-0 whitespace-nowrap">
-                  {formatRelativeTime(event.created_at)}
-                </span>
-              </div>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
-};
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [theme] = useState(() => localStorage.getItem("actero-theme") || "light");
@@ -1144,292 +1045,34 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 </>
               ) : (
                 // ═══════════════════════ OPERATION MODE ═══════════════════════
-                <>
-                  {/* ── Shopify connection banner (if e-commerce + not connected) ── */}
-                  {showShopifyBanner && (
-                    <button
-                      onClick={() => setActiveTab('integrations')}
-                      className="w-full mb-5 rounded-2xl border border-amber-200 bg-amber-50/70 px-4 py-3 flex items-center justify-between gap-3 hover:bg-amber-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                          <AlertTriangle className="w-4 h-4 text-amber-700" />
-                        </div>
-                        <p className="text-[13px] text-amber-800 font-medium truncate text-left">
-                          Connectez Shopify pour activer toutes les fonctionnalités
-                        </p>
-                      </div>
-                      <div className="flex-shrink-0 flex items-center gap-1 text-[12px] font-semibold text-amber-800">
-                        Connecter <ArrowRight className="w-3.5 h-3.5" />
-                      </div>
-                    </button>
-                  )}
-
-                  {/* ── Ticket usage counter ── */}
-                  <div className="mb-5 bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-5 py-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <p className="text-[13px] font-semibold text-[#1a1a1a]">
-                          {ticketsUsed.toLocaleString('fr-FR')} / {ticketsLimit === Infinity ? '∞' : ticketsLimit.toLocaleString('fr-FR')} tickets ce mois
-                        </p>
-                        {inTrial && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold uppercase tracking-wider">
-                            Essai gratuit — J-{trialDaysLeft}
-                          </span>
-                        )}
-                      </div>
-                      {isOverLimit && (
-                        <span className="text-[11px] font-semibold text-red-600">Limite atteinte</span>
-                      )}
-                    </div>
-                    {ticketsLimit !== Infinity && (
-                      <div className="w-full h-2 rounded-full bg-[#f0f0f0] overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all ${
-                            ticketsPercent > 90 ? 'bg-red-500' : ticketsPercent > 70 ? 'bg-amber-500' : 'bg-cta'
-                          }`}
-                          style={{ width: `${Math.min(ticketsPercent, 100)}%` }}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* ── Weekly summary (one-liner) ── */}
-                  <WeeklySummary clientId={currentClient?.id} setActiveTab={setActiveTab} />
-
-                  {/* ── Urgent escalation banner (>2h pending) ── */}
-                  {urgentEscalationCount > 0 && (
-                    <div className="mb-6 rounded-2xl border border-red-200 bg-red-50/70 px-4 py-3 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                          <AlertTriangle className="w-4 h-4 text-red-600" />
-                        </div>
-                        <p className="text-[13px] text-red-700 font-medium truncate">
-                          {urgentEscalationCount} ticket{urgentEscalationCount > 1 ? 's' : ''} urgent{urgentEscalationCount > 1 ? 's' : ''} — répondez avant la fin de journée
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => setActiveTab('escalations')}
-                        className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-red-600 text-white text-[12px] font-semibold hover:bg-red-700 transition-colors"
-                      >
-                        Voir
-                      </button>
-                    </div>
-                  )}
-
-                  {/* ── Setup checklist (dismissible, shows only if not fully done) ── */}
-                  {currentClient?.id && completedSetupSteps < 7 && (
-                    <div data-tour="setup-checklist" className="mb-6">
-                      <SetupChecklist clientId={currentClient.id} setActiveTab={setActiveTab} />
-                    </div>
-                  )}
-
-                  {/* ── KPI Row — dignified empty state when 0 events ── */}
-                  {totalEvents === 0 ? (
-                    <div data-tour="kpi-row" className="mb-8 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] bg-white overflow-hidden">
-                      <div className="relative bg-gradient-to-br from-cta/[0.04] via-white to-cta/[0.02] px-6 py-10 text-center">
-                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-cta/10 mb-4">
-                          <Sparkles className="w-5 h-5 text-cta" />
-                        </div>
-                        <h3 className="text-[18px] font-semibold text-[#1a1a1a] tracking-tight">
-                          Votre agent est prêt
-                        </h3>
-                        <p className="text-[13px] text-[#71717a] mt-1.5 max-w-md mx-auto leading-relaxed">
-                          Dès qu'un client vous écrira, vous verrez apparaître ici le temps gagné, les tickets résolus automatiquement et les économies réalisées.
-                        </p>
-                        <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
-                          <button
-                            onClick={() => setActiveTab('agent-config')}
-                            className="px-4 py-2 rounded-full bg-cta text-white text-[12px] font-semibold hover:bg-[#0A4F2C] transition-colors"
-                          >
-                            Configurer mon agent
-                          </button>
-                          <button
-                            onClick={() => setActiveTab('simulator')}
-                            className="px-4 py-2 rounded-full bg-white text-cta text-[12px] font-semibold border border-cta/20 hover:bg-cta/[0.04] transition-colors"
-                          >
-                            Tester avec un message exemple
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div data-tour="kpi-row" className="grid grid-cols-2 md:grid-cols-4 gap-0 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden mb-8">
-                      {[
-                        {
-                          label: 'Demandes traitées automatiquement',
-                          sublabel: 'vs période précédente',
-                          value: eventCounts.ticket_resolved || 0,
-                          var: periodStats?.tasks_executed_var,
-                          suffix: '',
-                        },
-                        {
-                          label: 'À traiter manuellement',
-                          sublabel: 'en attente de votre équipe',
-                          value: eventCounts.ticket_escalated || 0,
-                          suffix: '',
-                        },
-                        {
-                          label: 'Temps gagné',
-                          sublabel: 'heures économisées sur la période',
-                          value: Math.round((liveRoi?.hours_saved || 0) * 10) / 10,
-                          suffix: 'h',
-                        },
-                        {
-                          label: 'Économies réalisées',
-                          sublabel: 'sur la période sélectionnée',
-                          value: `${Math.round(liveRoi?.value_saved || 0).toLocaleString('fr-FR')}`,
-                          suffix: '€',
-                        },
-                      ].map((kpi, i) => (
-                        <div key={i} className={`px-5 py-5 ${i < 3 ? 'border-r border-[#f0f0f0]' : ''}`}>
-                          <p className="text-[12px] text-[#1a1a1a] font-medium leading-tight mb-2 line-clamp-1">{kpi.label}</p>
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="text-[28px] font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none">
-                              {typeof kpi.value === 'number' ? kpi.value.toLocaleString('fr-FR') : kpi.value}
-                            </span>
-                            {kpi.suffix && <span className="text-[16px] font-semibold text-[#1a1a1a]">{kpi.suffix}</span>}
-                          </div>
-                          <p className="text-[11px] text-[#9ca3af] mt-1.5 leading-tight">{kpi.sublabel}</p>
-                          {kpi.var !== undefined && kpi.var !== 0 && (
-                            <p className={`text-[11px] font-semibold mt-0.5 ${kpi.var > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                              {kpi.var > 0 ? '▲' : '▼'} {kpi.var > 0 ? '+' : ''}{kpi.var}%
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Free plan usage warning ── */}
-                  {planId === 'free' && ticketsPercent >= 80 && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center justify-between mb-8">
-                      <div>
-                        <p className="text-[13px] font-semibold text-amber-900">
-                          Vous avez utilisé {ticketsUsed}/{ticketsLimit} tickets ce mois
-                        </p>
-                        <p className="text-[11px] text-amber-700 mt-0.5">
-                          Passez au Starter pour 1 000 tickets/mois et débloquer l'éditeur de ton de marque.
-                        </p>
-                      </div>
-                      <button onClick={() => {
-                        // Analytics
-                        trackEvent('Upgrade Clicked', { from_plan: planId, to_plan: 'starter', trigger: 'free_plan_usage_warning', location: 'overview' })
-                        setActiveTab('billing')
-                      }} className="px-4 py-2 bg-cta text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
-                        Passer au Starter — 99 EUR/mois
-                      </button>
-                    </div>
-                  )}
-
-                  {totalEvents > 0 && (<>
-                  {/* ── Period selector ── */}
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-[18px] font-semibold text-[#1a1a1a]">Aperçu</h3>
-                      <span className="text-[11px] text-[#9ca3af] font-medium bg-[#f5f5f5] px-2 py-0.5 rounded">
-                        {selectedPeriod === 'this_month' ? 'Ce mois' : selectedPeriod === 'last_month' ? 'Mois dernier' : '30 jours'}
-                      </span>
-                    </div>
-                    <div
-                      role="tablist"
-                      aria-label="Période d'analyse"
-                      className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f5f5f5]"
-                    >
-                      {[
-                        { id: 'this_month', label: 'Ce mois' },
-                        { id: 'last_month', label: 'Mois dernier' },
-                        { id: 'last_30_days', label: '30 jours' }
-                      ].map((p) => {
-                        const isSelected = selectedPeriod === p.id;
-                        return (
-                          <button
-                            key={p.id}
-                            role="tab"
-                            id={`period-tab-${p.id}`}
-                            aria-selected={isSelected}
-                            aria-controls="period-panel"
-                            tabIndex={isSelected ? 0 : -1}
-                            onClick={() => setSelectedPeriod(p.id)}
-                            className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${
-                              isSelected
-                                ? 'bg-white text-[#1a1a1a] shadow-sm'
-                                : 'text-[#9ca3af] hover:text-[#1a1a1a]'
-                            }`}
-                          >
-                            {p.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* ── Cards row ── */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-                    {/* Live feed card */}
-                    <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
-                      <div className="px-6 pt-5 pb-1">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-cta animate-pulse" />
-                            <p className="text-[13px] font-semibold text-[#1a1a1a]">Feed en direct</p>
-                          </div>
-                          <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider bg-[#f5f5f5] px-2 py-0.5 rounded">
-                            Live
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-[#9ca3af] mt-1">Les derniers événements de votre agent en temps réel.</p>
-                      </div>
-                      <LiveActivityWidget supabase={supabase} setActiveTab={setActiveTab} isLight={true} compact={true} />
-                    </div>
-
-                    {/* Activity chart card */}
-                    <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-6">
-                      <div className="flex items-center justify-between">
-                        <p className="text-[13px] font-semibold text-[#1a1a1a]">Activité récente</p>
-                        <button
-                          onClick={() => setActiveTab('activity')}
-                          className="text-[12px] font-medium text-cta hover:underline"
-                        >
-                          Tout voir →
-                        </button>
-                      </div>
-                      <p className="text-[11px] text-[#9ca3af] mt-1 mb-3">Volume de demandes traitées sur la période.</p>
-                      <div className="h-[140px]">
-                        <ActivityChart theme={theme} supabase={supabase} selectedPeriod={selectedPeriod} mini={true} />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── Peak hours ── */}
-                  <div className="mb-8">
-                    <div className="mb-2">
-                      <p className="text-[11px] text-[#9ca3af]">Identifiez les moments de la journée où votre agent est le plus sollicité.</p>
-                    </div>
-                    <PeakHoursChart clientId={currentClient?.id} />
-                  </div>
-
-                  {/* ── Suggestions ── */}
-                  <AgentImprovementWidget clientId={currentClient?.id} theme={theme} />
-                  </>)}
-
-                  {/* ── Starter → Pro upsell ── */}
-                  {planId === 'starter' && (
-                    <div className="bg-cta/5 border border-cta/20 rounded-2xl p-4 flex items-center justify-between mt-6">
-                      <div>
-                        <p className="text-[13px] font-semibold text-[#1a1a1a]">
-                          Debloquez l'agent vocal
-                        </p>
-                        <p className="text-[11px] text-[#71717a] mt-0.5">
-                          Le plan Pro inclut l'agent vocal telephone, le simulateur et 5 000 tickets/mois.
-                        </p>
-                      </div>
-                      <button onClick={() => setActiveTab('billing')} className="px-4 py-2 bg-cta text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0">
-                        Essai Pro gratuit 7 jours
-                      </button>
-                    </div>
-                  )}
-                </>
+                // Refonte avril 2026 : 10 blocs empilés → 3 zones hiérarchisées
+                // (SystemAlerts → TodayHero → KPIs → Signals). Voir
+                // src/components/client/overview/OverviewHome.jsx
+                <OverviewHome
+                  clientId={currentClient?.id}
+                  currentClient={currentClient}
+                  planId={planId}
+                  planName={planName}
+                  inTrial={inTrial}
+                  trialDaysLeft={trialDaysLeft}
+                  ticketsUsed={ticketsUsed}
+                  ticketsLimit={ticketsLimit}
+                  ticketsPercent={ticketsPercent}
+                  isOverLimit={isOverLimit}
+                  periodStats={periodStats}
+                  selectedPeriod={selectedPeriod}
+                  setSelectedPeriod={setSelectedPeriod}
+                  dailyMetrics={dailyMetrics}
+                  eventCounts={eventCounts}
+                  liveRoi={liveRoi}
+                  totalEvents={totalEvents}
+                  urgentEscalationCount={urgentEscalationCount}
+                  completedSetupSteps={completedSetupSteps}
+                  showShopifyBanner={showShopifyBanner}
+                  setupCompletion={setupCompletion}
+                  setActiveTab={setActiveTab}
+                  theme={theme}
+                />
               )}
             </div>
           )}
