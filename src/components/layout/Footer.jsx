@@ -25,7 +25,7 @@ export const Footer = ({ onNavigate }) => {
             >
               <span className="text-xs font-semibold text-[#716D5C] uppercase tracking-widest">Powered by</span>
               <img
-                src="/partners/elevenlabs-grants.webp"
+                src="/partners/elevenlabs-grants.png"
                 alt="ElevenLabs Startup Grants"
                 className="h-5 w-auto grayscale"
               />

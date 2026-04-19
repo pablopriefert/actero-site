@@ -4,10 +4,9 @@ import { Shield } from 'lucide-react'
 /**
  * PartnersMarquee — défilement horizontal infini des badges partenaires.
  *
- * Sizing strategy: chaque logo a un maxHeight personnalisé parce que leur
- * densité visuelle varie énormément (un texte-logo long comme "Google for
- * Startups" perçu 3× plus gros qu'un pictogramme compact à hauteur égale).
- * Container fixe 160×56px par item = rythme visuel constant.
+ * Les 4 logos sont normalisés en 1920×500 (même canvas), donc on peut
+ * leur appliquer la même hauteur sans recalage custom. Container fixe
+ * 200×56px par item pour rythme visuel constant.
  *
  * Anim CSS pure 40s linear infinite, pause au hover, items dupliqués 3×
  * dans le DOM pour loop seamless. Respecte prefers-reduced-motion.
@@ -15,27 +14,23 @@ import { Shield } from 'lucide-react'
 const partners = [
   {
     name: 'ElevenLabs Grants',
-    src: '/partners/elevenlabs-grants.webp',
+    src: '/partners/elevenlabs-grants.png',
     href: 'https://elevenlabs.io/startup-grants',
-    maxH: 28, // logo avec texte long (~180px wide) — hauteur réduite
   },
   {
     name: 'Shopify Partner',
     src: '/partners/shopify-partner.png',
     href: 'https://www.shopify.com/partners',
-    maxH: 44, // logo compact carré — peut monter en hauteur
   },
   {
     name: 'Google for Startups',
     src: '/partners/google-for-startups.png',
     href: 'https://startup.google.com/',
-    maxH: 24, // logo texte LARGE (~280px wide) — très réduit pour équilibrer
   },
   {
-    name: 'Auth0 Startup',
-    src: '/partners/auth0-startup.jpg',
+    name: 'Auth0 for Startups',
+    src: '/partners/auth0-startup.png',
     href: 'https://auth0.com/startups',
-    maxH: 32, // logo pictogramme + texte — moyen
   },
 ]
 
@@ -70,8 +65,7 @@ export function PartnersMarquee() {
                   src={partner.src}
                   alt={partner.name}
                   loading="lazy"
-                  style={{ maxHeight: `${partner.maxH}px` }}
-                  className="w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300"
+                  className="h-10 md:h-12 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
                 />
               </a>
             ))}
@@ -90,7 +84,6 @@ export function PartnersMarquee() {
         .partners-marquee-wrap {
           overflow: hidden;
           position: relative;
-          /* Fade plus doux sur les bords — 32px au lieu de 64px */
           mask-image: linear-gradient(
             90deg,
             transparent 0,
@@ -115,12 +108,10 @@ export function PartnersMarquee() {
         .partners-marquee-wrap:hover .partners-marquee-track {
           animation-play-state: paused;
         }
-        /* Container fixe par item — chaque logo est centré dans 160×56px
-           pour un rythme visuel constant, peu importe son aspect ratio */
         .partners-marquee-item {
           flex: 0 0 auto;
-          width: 180px;
-          height: 56px;
+          width: 220px;
+          height: 72px;
           display: flex;
           align-items: center;
           justify-content: center;
