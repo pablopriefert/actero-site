@@ -9,7 +9,6 @@ import { initAmplitude, trackEvent } from '../lib/analytics'
 import { StickyCTABar } from '../components/ui/StickyCTABar'
 import { ReadingProgress } from '../components/ui/ReadingProgress'
 import { PartnersMarquee } from '../components/ui/PartnersMarquee'
-import { ChatDemoA } from '../components/landing/ChatDemoA'
 import { CapabilitiesA } from '../components/landing/CapabilitiesA'
 import { ROISimulatorA } from '../components/landing/ROISimulatorA'
 import { PricingA } from '../components/landing/PricingA'
@@ -17,20 +16,24 @@ import { PricingA } from '../components/landing/PricingA'
 /**
  * Actero Landing Page — Variation A (Refined Notion).
  *
- * Reprend strictement la structure du design bundle Claude Design
- * (variation-a/) — 10 sections :
+ * Reprend la structure du design bundle Claude Design (variation-a/)
+ * avec les choix du client — 8 sections :
  *   1. Navbar (sticky)
- *   2. Hero (centré, dashboard preview intégré)
+ *   2. Hero (centré, dashboard preview intégré — CTA « Voir les tarifs »)
  *   3. PartnersMarquee (4 badges PNG — ElevenLabs Grants, Shopify
- *      Partner, Google for Startups, Auth0 — demande user)
- *   4. ChatDemo (split 2-col : chat + behind-the-scenes 5 steps)
- *   5. Capabilities (2x2 emoji cards cream + highlight check border-t)
- *   6. ROI Simulator (split sliders + dark result panel)
- *   7. Pricing (4 cards — Pro popular dark)
- *   8. Testimonials (3 cards Instrument Serif italic quotes)
- *   9. FAQ (accordion rond +/-)
- *  10. Final CTA (dark, italic green accent)
- *  11. Footer dark 5-col
+ *      Partner, Google for Startups, Auth0)
+ *   4. Capabilities (2 cards — SAV email/chat + Relance paniers)
+ *   5. ROI Simulator (split sliders + dark result panel)
+ *   6. Pricing (4 cards — Pro popular dark)
+ *   7. FAQ (accordion rond +/-)
+ *   8. Final CTA (dark, italic green accent)
+ *   9. Footer dark 5-col
+ *
+ * Retirées à la demande user :
+ * — ChatDemo « Comme votre meilleur employé SAV »
+ * — Testimonials « Ce que nos clients disent d'Actero »
+ * — Capabilities : 2 cards sur 4 (Agent vocal + Éditeur ton retirés),
+ *   les 2 restantes remplissent l'espace
  *
  * Typo : Instrument Serif pour tous les h1/h2 (font-normal + italic suffix
  * muted sur la 2e ligne). Inter pour corps. DM Mono pour data accents.
@@ -143,10 +146,7 @@ export const LandingPage = ({ onNavigate }) => {
               Shopify Partner, Google for Startups, Auth0) */}
           <PartnersMarquee />
 
-          {/* 3. CHAT DEMO (2-col : chat + 5 steps) */}
-          <ChatDemoA />
-
-          {/* 4. CAPABILITIES (2x2 emoji cards) */}
+          {/* 3. CAPABILITIES (2 cards — SAV email/chat + Relance paniers) */}
           <CapabilitiesA />
 
           {/* 5. ROI SIMULATOR (split + dark result panel) */}
@@ -155,71 +155,7 @@ export const LandingPage = ({ onNavigate }) => {
           {/* 6. PRICING (4 cards — Pro popular dark) */}
           <PricingA onNavigate={onNavigate} />
 
-          {/* 7. TESTIMONIALS (3 cards Instrument Serif italic quotes) */}
-          <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
-            <div className="max-w-6xl mx-auto">
-              <FadeInUp className="text-center mb-14">
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
-                  Témoignages
-                </p>
-                <h2
-                  className="font-normal leading-[1.05] text-[#1A1A1A]"
-                  style={{ ...serif, fontSize: 'clamp(36px, 5vw, 56px)', letterSpacing: '-0.02em' }}
-                >
-                  Ce que nos clients<br className="hidden md:block" />
-                  <span className="italic text-[#716D5C]">disent d'Actero.</span>
-                </h2>
-              </FadeInUp>
-              <div className="grid md:grid-cols-3 gap-5">
-                {[
-                  {
-                    quote: "Temps de réponse passé de 4h à 12 minutes. On a annulé Gorgias le mois d'après.",
-                    name: 'Marie L.',
-                    role: 'Fondatrice, BoutiqueMode.fr · 800 commandes/mois',
-                  },
-                  {
-                    quote: "40 heures par mois économisées sur le support. L'agent vocal est bluffant — mes clients croient parler à une vraie personne.",
-                    name: 'Thomas D.',
-                    role: 'CEO, TechGadgets.shop · 1 500 tickets/mois',
-                  },
-                  {
-                    quote: "+18% de paniers récupérés dès le premier mois. L'install Shopify a pris 11 minutes, j'ai chronométré.",
-                    name: 'Julien R.',
-                    role: 'Co-fondateur, NordicBrew · 240 k€ CA mensuel',
-                  },
-                ].map((t, i) => (
-                  <FadeInUp key={i}>
-                    <figure className="bg-white rounded-[20px] p-7 m-0 border border-black/[0.05] flex flex-col gap-5 h-full">
-                      <div
-                        className="h-6 leading-[0.6] text-[60px] text-[#E8DFC9]"
-                        style={serif}
-                        aria-hidden="true"
-                      >
-                        "
-                      </div>
-                      <blockquote
-                        className="m-0 text-[21px] leading-[1.35] text-[#1A1A1A] flex-1"
-                        style={serif}
-                      >
-                        {t.quote}
-                      </blockquote>
-                      <figcaption className="flex items-center gap-3 pt-4 border-t border-black/[0.06]">
-                        <div className="w-9 h-9 rounded-full bg-[#F4F0E6] flex items-center justify-center text-[#003725] font-bold text-[13px]">
-                          {t.name.split(' ').map((n) => n[0]).join('')}
-                        </div>
-                        <div>
-                          <div className="text-[13px] font-semibold text-[#1A1A1A]">{t.name}</div>
-                          <div className="text-[11.5px] text-[#716D5C]">{t.role}</div>
-                        </div>
-                      </figcaption>
-                    </figure>
-                  </FadeInUp>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* 8. FAQ (accordion rond +/-) */}
+          {/* 7. FAQ (accordion rond +/-) */}
           <section id="faq" className="py-24 md:py-32 bg-white px-6">
             <div className="max-w-[760px] mx-auto">
               <FadeInUp className="text-center mb-14">
@@ -276,7 +212,7 @@ export const LandingPage = ({ onNavigate }) => {
             </div>
           </section>
 
-          {/* 9. FINAL CTA (dark, italic green accent) */}
+          {/* 8. FINAL CTA (dark, italic green accent) */}
           <section className="py-24 md:py-32 bg-[#003725] px-6">
             <div className="max-w-[820px] mx-auto text-center text-white">
               <FadeInUp>

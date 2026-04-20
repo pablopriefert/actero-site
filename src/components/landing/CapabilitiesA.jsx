@@ -3,13 +3,19 @@ import { CheckCircle2 } from 'lucide-react'
 import { FadeInUp } from '../ui/scroll-animations'
 
 /**
- * CapabilitiesA — 4 cards (2x2) variation A.
+ * CapabilitiesA — 2 cards (variation A, trimmed).
+ *
+ * Demande user : garder seulement les 2 automations principales
+ * (SAV Email & Chat + Relance paniers), retirer Agent vocal ElevenLabs
+ * et Éditeur ton & règles métier. Les 2 cards restantes remplissent la
+ * largeur en grid 2-col avec un padding plus généreux.
  *
  * Design key points :
  * — Background cream #F9F7F1
- * — Cards blanc rounded-[20px], padding 32px, border subtile
- * — Icon container cream square #F4F0E6 avec emoji 22px dedans
- * — Badge (Dès Free / Pro / Dès Starter) en pill cta/10
+ * — Cards blanc rounded-[20px], padding 40px (plus d'air car 2 au lieu
+ *   de 4), border subtile
+ * — Icon container cream square #F4F0E6 avec emoji 28px
+ * — Badge « Dès Free » en pill cta/10
  * — Highlight footer avec check icon + border-t
  * — Hover : translate-y-[-2px] + shadow dark soft
  */
@@ -22,7 +28,7 @@ export const CapabilitiesA = () => {
       icon: '💬',
       title: 'Agent SAV Email & Chat',
       desc:
-        "Répond aux WISMO, retours, changements d'adresse, questions produit. Escalade vers humain si confiance < 60% ou ton agressif détecté.",
+        "Répond aux WISMO, retours, changements d'adresse, questions produit sur email, chat et helpdesk (Gorgias, Zendesk). Escalade vers humain si confiance < 60% ou ton agressif détecté. Applique votre ton de marque et consulte votre base de connaissances.",
       highlight: '60% des tickets résolus sans humain',
     },
     {
@@ -30,24 +36,8 @@ export const CapabilitiesA = () => {
       icon: '🛒',
       title: 'Relance paniers abandonnés',
       desc:
-        '3 relances email personnalisées (15 min, 24h, 72h) avec produit exact, réduction conditionnelle et lien checkout.',
+        '3 relances email personnalisées (15 min, 24h, 72h) avec produit exact, réduction conditionnelle et lien checkout direct. Chaque email est écrit par l\'IA selon le profil client et le parcours d\'achat.',
       highlight: '+15% de récupération moyenne',
-    },
-    {
-      badge: 'Pro',
-      icon: '📞',
-      title: 'Agent vocal ElevenLabs',
-      desc:
-        'Numéro FR dédié, voix naturelle, 200 min incluses/mois. Répond aux appels, qualifie, escalade les cas complexes.',
-      highlight: 'Disponible 24h/24 sans standard humain',
-    },
-    {
-      badge: 'Dès Starter',
-      icon: '✨',
-      title: 'Éditeur ton & règles métier',
-      desc:
-        'Tu/vous, émojis, signature de marque. Guardrails configurables : escalation >500€, mots-clés sensibles, clients VIP.',
-      highlight: 'Configuré en 5 minutes',
     },
   ]
 
@@ -56,7 +46,7 @@ export const CapabilitiesA = () => {
       <div className="max-w-6xl mx-auto">
         <FadeInUp className="text-center mb-16">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
-            Vos 4 automatisations
+            Vos automatisations
           </p>
           <h2
             className="font-normal leading-[1.05] text-[#1A1A1A] mb-4"
@@ -66,17 +56,17 @@ export const CapabilitiesA = () => {
             <span className="italic text-[#716D5C]">tourne maintenant tout seul.</span>
           </h2>
           <p className="text-[17px] text-[#5A5A5A] max-w-xl mx-auto leading-[1.5]">
-            4 capacités natives Actero, activables selon votre plan. Chacune mesurée en temps réel
-            dans votre dashboard.
+            Les 2 automations principales Actero, incluses dès le plan Free. Chacune mesurée en
+            temps réel dans votre dashboard.
           </p>
         </FadeInUp>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {caps.map((c, i) => (
             <FadeInUp key={i}>
-              <div className="bg-white rounded-[20px] p-8 border border-black/[0.05] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_40px_-10px_rgba(0,55,37,0.12)] h-full flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-[12px] bg-[#F4F0E6] border border-[#E8DFC9] flex items-center justify-center text-[22px]">
+              <div className="bg-white rounded-[20px] p-10 border border-black/[0.05] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_40px_-10px_rgba(0,55,37,0.12)] h-full flex flex-col">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-14 h-14 rounded-[14px] bg-[#F4F0E6] border border-[#E8DFC9] flex items-center justify-center text-[28px]">
                     {c.icon}
                   </div>
                   <span className="text-[10px] font-bold text-cta bg-[#E8F5EC] px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">
@@ -84,15 +74,15 @@ export const CapabilitiesA = () => {
                   </span>
                 </div>
                 <h3
-                  className="text-[21px] font-bold text-[#1A1A1A] mb-2"
+                  className="text-[26px] font-bold text-[#1A1A1A] mb-3 leading-[1.15]"
                   style={{ letterSpacing: '-0.01em' }}
                 >
                   {c.title}
                 </h3>
-                <p className="text-[14.5px] text-[#5A5A5A] leading-[1.55] mb-5 flex-1">{c.desc}</p>
-                <div className="flex items-center gap-2 pt-4 border-t border-black/[0.06]">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-cta flex-shrink-0" />
-                  <span className="text-[13px] font-semibold text-[#003725]">{c.highlight}</span>
+                <p className="text-[15px] text-[#5A5A5A] leading-[1.6] mb-6 flex-1">{c.desc}</p>
+                <div className="flex items-center gap-2 pt-5 border-t border-black/[0.06]">
+                  <CheckCircle2 className="w-4 h-4 text-cta flex-shrink-0" />
+                  <span className="text-[14px] font-semibold text-[#003725]">{c.highlight}</span>
                 </div>
               </div>
             </FadeInUp>
