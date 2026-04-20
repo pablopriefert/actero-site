@@ -1,125 +1,66 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   Rocket, Sparkles, ShoppingBag, Headphones, Loader2, CheckCircle2,
-  AlertTriangle, Plug, Phone, Mail, MessageSquare, TrendingUp, ArrowRight,
-  Activity, Info, Zap,
+  AlertTriangle, Plug, Mail, MessageSquare, ArrowRight,
+  Activity,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
-import { VocalAgentWizard } from './VocalAgentWizard'
-import { ComptabiliteWizard } from './ComptabiliteWizard'
 import { WorkflowReadinessCheck } from './WorkflowReadinessCheck'
 import { buildReadinessChecks } from '../../lib/workflow-readiness'
 import { AutomationHowItWorksModal } from './AutomationHowItWorksModal'
 
 /* ═══════════ AUTOMATION CATALOG ═══════════ */
 
-// Keys for automations that live in engine_playbooks (DB-driven)
+/**
+ * 2 automations actives (avril 2026) : SAV e-commerce + Relance paniers.
+ * Les features `capabilities` (ajoutées dans cette refonte) listent 3-4
+ * actions que l'agent réalise concrètement — elles remplacent la description
+ * texte unique par des bullets scannables au regard.
+ */
 const DB_AUTOMATIONS = {
   sav_ecommerce: {
     icon: Headphones,
     gradient: 'from-emerald-500 to-emerald-600',
     accent: 'emerald',
-    category: 'support',
-    tagline: 'Repond en 30 sec aux demandes SAV',
-    description: 'Email, chat, Gorgias, Zendesk. L\'agent lit, comprend et repond avec votre ton de marque et les donnees Shopify reelles.',
+    tagline: 'Répond en 30 sec aux demandes SAV',
+    description: 'L\'agent lit, comprend et répond à vos clients avec votre ton de marque et les données Shopify réelles.',
     modalKey: 'sav_ecommerce',
     requires: [],
-    channels: [
-      { id: 'email', label: 'Email', desc: 'Repond aux emails entrants', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
-      { id: 'widget', label: 'Chat sur le site', desc: 'Widget de chat sur votre boutique Shopify', icon: MessageSquare, needsIntegration: ['shopify'] },
-      { id: 'gorgias', label: 'Gorgias', desc: 'Repond aux tickets Gorgias', icon: Headphones, needsIntegration: ['gorgias'] },
-      { id: 'zendesk', label: 'Zendesk', desc: 'Repond aux tickets Zendesk', icon: Headphones, needsIntegration: ['zendesk'] },
+    capabilities: [
+      'Lit emails, chats et tickets entrants en continu',
+      'Répond avec votre ton de marque et votre FAQ',
+      'Accède au suivi de commande Shopify en temps réel',
+      'Escalade intelligemment les cas complexes vers « À traiter »',
     ],
-  },
-  agent_vocal: {
-    icon: Phone,
-    gradient: 'from-violet-500 to-violet-600',
-    accent: 'violet',
-    category: 'support',
-    tagline: 'Un numero francais qui repond 24/7',
-    description: 'Agent vocal IA avec voix naturelle. Gere le suivi de commande, les questions produit, transferts humains possibles.',
-    modalKey: 'agent_vocal',
-    requires: [],
-    hasWizard: 'vocal',
     channels: [
-      { id: 'widget_vocal', label: 'Widget vocal sur le site', desc: 'Bouton d\'appel vocal sur votre boutique Shopify', icon: Phone, needsIntegration: ['shopify'] },
-      { id: 'phone', label: 'Numero de telephone dedie', desc: 'Un numero francais que vos clients peuvent appeler', icon: Phone, needsIntegration: [] },
+      { id: 'email', label: 'Email', desc: 'Répond aux emails entrants', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
+      { id: 'widget', label: 'Chat sur le site', desc: 'Widget de chat sur votre boutique Shopify', icon: MessageSquare, needsIntegration: ['shopify'] },
+      { id: 'gorgias', label: 'Gorgias', desc: 'Répond aux tickets Gorgias', icon: Headphones, needsIntegration: ['gorgias'] },
+      { id: 'zendesk', label: 'Zendesk', desc: 'Répond aux tickets Zendesk', icon: Headphones, needsIntegration: ['zendesk'] },
     ],
   },
   abandoned_cart: {
     icon: ShoppingBag,
     gradient: 'from-amber-500 to-amber-600',
     accent: 'amber',
-    category: 'sales',
-    tagline: 'Recupere les ventes perdues',
-    description: 'Detecte les paniers abandonnes et lance une sequence email personnalisee (1h / 24h / 72h) avec CTA retour panier.',
+    tagline: 'Récupère les ventes perdues',
+    description: 'Détecte les paniers abandonnés et lance une séquence email personnalisée (1h / 24h / 72h) avec CTA retour panier.',
     modalKey: 'abandoned_cart',
     requires: [{ type: 'all', providers: ['shopify'], label: 'Shopify' }],
+    capabilities: [
+      'Détecte les paniers abandonnés en temps réel',
+      'Envoie 3 relances personnalisées (1h, 24h, 72h)',
+      'Inclut le CTA retour panier + un incentive optionnel',
+      'Expédié depuis votre domaine pour éviter les spams',
+    ],
     channels: [
       { id: 'email', label: 'Email', desc: 'Envoie un email de relance panier depuis votre domaine', icon: Mail, needsIntegration: ['smtp_imap', 'gmail'] },
     ],
   },
-  comptabilite_auto: {
-    icon: TrendingUp,
-    gradient: 'from-indigo-500 to-indigo-600',
-    accent: 'indigo',
-    category: 'ops',
-    tagline: 'Votre comptable IA',
-    description: 'Connecte Axonaut / Pennylane / iPaidThat, relance auto les factures, alertes tresorerie Slack/Email, exports mensuels.',
-    modalKey: 'comptabilite_auto',
-    requires: [{ type: 'any', providers: ['axonaut', 'pennylane', 'ipaidthat'], label: 'Axonaut, Pennylane ou iPaidThat' }],
-    hasWizard: 'compta',
-    channels: [
-      { id: 'email', label: 'Email', desc: 'Relances et exports par email', icon: Mail, needsIntegration: ['gmail', 'smtp_imap'] },
-      { id: 'slack', label: 'Slack', desc: 'Alertes tresorerie dans Slack', icon: MessageSquare, needsIntegration: ['slack'] },
-    ],
-  },
 }
-
-// Keys for automations that are NOT in engine_playbooks (standalone features)
-const FEATURE_AUTOMATIONS = {
-  email_agent: {
-    icon: Mail,
-    gradient: 'from-blue-500 to-blue-600',
-    accent: 'blue',
-    category: 'support',
-    tagline: 'Votre boite pro gere par un expert IA',
-    description: 'Lit Gmail ou IMAP en continu, repond aux questions courantes, threading parfait, escalade intelligente vers "A traiter".',
-    modalKey: 'email_agent',
-    route: 'email-agent',
-    requires: [{ type: 'any', providers: ['gmail', 'smtp_imap'], label: 'Gmail ou IMAP' }],
-  },
-  slack_copilot: {
-    icon: MessageSquare,
-    gradient: 'from-fuchsia-500 to-fuchsia-600',
-    accent: 'fuchsia',
-    category: 'ops',
-    tagline: 'Posez vos questions a Actero depuis Slack',
-    description: 'Mentions @Actero ou /actero pour obtenir KPIs live, recommandations et alertes directement dans votre workspace.',
-    modalKey: 'slack_copilot',
-    route: 'integrations',
-    requires: [{ type: 'any', providers: ['slack'], label: 'Slack' }],
-  },
-}
-
-const CATEGORIES = [
-  { id: 'support', label: 'Support client', desc: 'Votre SAV tourne 24/7 sans vous.', icon: Headphones },
-  { id: 'sales', label: 'Ventes', desc: 'Recuperez les ventes perdues, augmentez votre CA.', icon: ShoppingBag },
-  { id: 'ops', label: 'Operations', desc: 'Automatisez les taches repetitives de gestion.', icon: TrendingUp },
-]
-
-// 9 playbooks désactivés à afficher en teaser "Bientôt"
-const COMING_SOON = [
-  { name: 'anti_churn', label: 'Anti-churn', desc: 'Detecte les clients mecontents et lance une retention.', icon: Zap },
-  { name: 'review_collector', label: 'Collecteur d\'avis', desc: 'Demande automatiquement un avis 7 jours apres livraison.', icon: Sparkles },
-  { name: 'promo_code_handler', label: 'Code promo invalide', desc: 'Aide les clients dont le code promo ne fonctionne pas.', icon: Zap },
-  { name: 'vip_customer_care', label: 'VIP Care', desc: 'Detecte vos meilleurs clients et les prioritise.', icon: Sparkles },
-  { name: 'post_purchase_followup', label: 'Suivi post-achat', desc: 'Remerciement + conseils 3 jours apres commande.', icon: Mail },
-  { name: 'winback_inactive', label: 'Winback', desc: 'Relance les clients inactifs depuis 60 jours.', icon: TrendingUp },
-]
 
 /* ═══════════ HEADER STRIP ═══════════ */
 
@@ -169,46 +110,6 @@ const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHo
     </div>
   </div>
 )
-
-/* ═══════════ FILTER TABS ═══════════ */
-
-/**
- * AutomationFilters — tabs filtres state-based.
- *
- * 4 filtres : Toutes / Actives / Prêtes / À configurer. Le compte
- * entre parenthèses est mis à jour en temps réel via la source automationList.
- */
-const AutomationFilters = ({ activeFilter, setActiveFilter, counts }) => {
-  const filters = [
-    { id: 'all', label: 'Toutes', count: counts.all },
-    { id: 'active', label: 'Actives', count: counts.active },
-    { id: 'ready', label: 'Prêtes', count: counts.ready },
-    { id: 'missing', label: 'À configurer', count: counts.missing },
-  ]
-  return (
-    <div className="flex items-center gap-1 mb-4 overflow-x-auto pb-1">
-      {filters.map(f => {
-        const isActive = activeFilter === f.id
-        return (
-          <button
-            key={f.id}
-            onClick={() => setActiveFilter(f.id)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors whitespace-nowrap ${
-              isActive
-                ? 'bg-[#1a1a1a] text-white'
-                : 'bg-white border border-gray-200 text-[#71717a] hover:bg-[#fafafa]'
-            }`}
-          >
-            {f.label}
-            <span className={`tabular-nums text-[11px] ${isActive ? 'text-white/70' : 'text-[#9ca3af]'}`}>
-              {f.count}
-            </span>
-          </button>
-        )
-      })}
-    </div>
-  )
-}
 
 /* ═══════════ STATUS BADGE (shared) ═══════════ */
 
@@ -273,38 +174,53 @@ const AutomationCard = ({
         isActive ? 'border-cta/30 shadow-[0_1px_3px_rgba(0,55,37,0.04)]' : 'border-gray-200 hover:border-gray-300'
       }`}
     >
-      <div className="p-5">
-        {/* Header row — icon + title + status */}
-        <div className="flex items-start gap-3 mb-3">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${automation.gradient} flex items-center justify-center flex-shrink-0`}>
-            <Icon className="w-5 h-5 text-white" />
+      <div className="p-6">
+        {/* Header row — icon 48px + title + status */}
+        <div className="flex items-start gap-4 mb-4">
+          <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${automation.gradient} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+            <Icon className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <h3 className="text-[14px] font-bold text-[#1a1a1a] leading-tight">{automation.title}</h3>
-                <p className="text-[12px] text-[#71717a] mt-0.5 leading-tight">{automation.tagline}</p>
-              </div>
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="text-[16px] font-bold text-[#1a1a1a] leading-tight">{automation.title}</h3>
               <StatusBadge status={status} />
             </div>
+            <p className="text-[13px] text-cta font-semibold leading-tight">{automation.tagline}</p>
           </div>
         </div>
 
+        {/* Description */}
+        <p className="text-[12.5px] text-[#71717a] leading-relaxed mb-4">{automation.description}</p>
+
+        {/* Capabilities — ce que l'agent fait concrètement */}
+        {automation.capabilities && automation.capabilities.length > 0 && (
+          <div className="mb-4 space-y-1.5">
+            {automation.capabilities.map((cap, i) => (
+              <div key={i} className="flex items-start gap-2 text-[12px] text-[#1a1a1a]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-cta flex-shrink-0 mt-0.5" />
+                <span className="leading-snug">{cap}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Metric line when active */}
         {isActive && weeklyTickets > 0 && (
-          <div className="mb-3 flex items-center gap-1.5 text-[11px] text-cta font-semibold">
-            <Activity className="w-3 h-3" />
-            {weeklyTickets} demande{weeklyTickets > 1 ? 's' : ''} traitée{weeklyTickets > 1 ? 's' : ''} cette semaine
+          <div className="mb-4 p-2.5 rounded-lg bg-cta/5 border border-cta/10 flex items-center gap-2">
+            <Activity className="w-3.5 h-3.5 text-cta flex-shrink-0" />
+            <span className="text-[12px] text-cta font-semibold">
+              {weeklyTickets} demande{weeklyTickets > 1 ? 's' : ''} traitée{weeklyTickets > 1 ? 's' : ''} cette semaine
+            </span>
           </div>
         )}
 
         {/* Missing integrations */}
         {status === 'missing' && missingReqs && missingReqs.length > 0 && (
-          <div className="mb-3 p-2.5 rounded-lg bg-amber-50 border border-amber-100">
+          <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-100">
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-semibold text-amber-900 mb-1">
+                <p className="text-[12px] font-semibold text-amber-900 mb-1">
                   Intégrations requises : {missingReqs.join(', ')}
                 </p>
                 <button
@@ -318,10 +234,10 @@ const AutomationCard = ({
           </div>
         )}
 
-        {/* Channels preview — toujours visible pour les cards ready+active */}
+        {/* Channels preview */}
         {hasChannels && status !== 'missing' && (
-          <div className="mb-3">
-            <p className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1.5">
+          <div className="mb-4 pt-4 border-t border-gray-100">
+            <p className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-2">
               {isActive ? 'Canaux actifs' : 'Canaux disponibles'}
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -337,7 +253,7 @@ const AutomationCard = ({
                     <button
                       key={ch.id}
                       onClick={onGoToIntegrations}
-                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#fafafa] border border-dashed border-gray-300 text-[11px] font-medium text-[#71717a] hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#fafafa] border border-dashed border-gray-300 text-[11px] font-medium text-[#71717a] hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800 transition-colors"
                       title={`Connecter ${ch.label}`}
                     >
                       <Plug className="w-3 h-3" />
@@ -355,7 +271,7 @@ const AutomationCard = ({
                       saveChannels(automation.key, ch.id, newVal)
                     }}
                     disabled={!canToggle}
-                    className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-medium transition-colors ${
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors ${
                       isSelected
                         ? 'bg-cta text-white border border-cta'
                         : canToggle
@@ -375,22 +291,22 @@ const AutomationCard = ({
         )}
 
         {/* Actions — primary + link */}
-        <div className="flex items-center justify-between gap-2 mt-1">
+        <div className="flex items-center justify-between gap-2 pt-1">
           <button
             onClick={mainAction}
             disabled={mainActionDisabled}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               isActive
                 ? 'bg-white border border-gray-200 text-[#1a1a1a] hover:bg-[#fafafa]'
                 : 'bg-cta hover:bg-[#003725] text-white'
             }`}
           >
             {isActive ? 'Désactiver' : mainActionLabel || 'Activer'}
-            {!isActive && <ArrowRight className="w-3 h-3" />}
+            {!isActive && <ArrowRight className="w-3.5 h-3.5" />}
           </button>
           <button
             onClick={onOpenModal}
-            className="text-[11px] font-semibold text-[#71717a] hover:text-[#1a1a1a] underline decoration-dotted underline-offset-4"
+            className="text-[12px] font-semibold text-[#71717a] hover:text-[#1a1a1a] underline decoration-dotted underline-offset-4"
           >
             Détails
           </button>
@@ -400,71 +316,11 @@ const AutomationCard = ({
   )
 }
 
-/* ═══════════ COMING SOON (moved to modal) ═══════════ */
-
-/**
- * ComingSoonModal — les 6 automations en dev, accessibles depuis un pill
- * footer discret. Avant : 9 cartes empilées sur la page (noise).
- */
-const ComingSoonModal = ({ isOpen, onClose, items }) => (
-  <AnimatePresence>
-    {isOpen && (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          onClick={(e) => e.stopPropagation()}
-          className="bg-white w-full md:max-w-xl md:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
-        >
-          <div className="p-5 border-b border-gray-200 flex items-center justify-between">
-            <div>
-              <h3 className="text-[15px] font-bold text-[#1a1a1a]">Automations en développement</h3>
-              <p className="text-[12px] text-[#9ca3af] mt-0.5">{items.length} automations arrivent prochainement.</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-lg hover:bg-[#fafafa] flex items-center justify-center"
-              aria-label="Fermer"
-            >
-              <span className="text-xl text-[#9ca3af]">×</span>
-            </button>
-          </div>
-          <div className="p-5 overflow-y-auto space-y-2">
-            {items.map(item => {
-              const Icon = item.icon
-              return (
-                <div key={item.name} className="flex items-start gap-3 p-3 rounded-xl bg-[#fafafa] border border-gray-200">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-4 h-4 text-[#9ca3af]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-[#1a1a1a]">{item.label}</p>
-                    <p className="text-[11px] text-[#71717a] mt-0.5 leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </motion.div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-)
-
 /* ═══════════ MAIN VIEW ═══════════ */
 
 export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
-  const [showVocalWizard, setShowVocalWizard] = useState(false)
-  const [showComptaWizard, setShowComptaWizard] = useState(false)
   const [readinessState, setReadinessState] = useState({ open: false, checks: [], playbookName: null, playbookLabel: null, activating: false })
   const [selectedChannels, setSelectedChannels] = useState({})
   const [modalKey, setModalKey] = useState(null)
@@ -631,21 +487,6 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
         reqs: checkReqs(meta),
       })
     }
-    // Feature-based
-    for (const key of Object.keys(FEATURE_AUTOMATIONS)) {
-      const meta = FEATURE_AUTOMATIONS[key]
-      let active = false
-      if (key === 'email_agent') active = !!clientSettings?.email_agent_enabled
-      if (key === 'slack_copilot') active = connectedProviders.includes('slack')
-      list.push({
-        ...meta,
-        key,
-        title: key === 'email_agent' ? 'Email Agent' : 'Slack Copilot',
-        type: 'feature',
-        active,
-        reqs: checkReqs(meta),
-      })
-    }
     return list
   }, [playbooks, clientPlaybooks, connectedProviders, clientSettings])
 
@@ -743,16 +584,6 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
       } catch { /* skip */ }
     }
 
-    // Open wizards
-    if (meta.hasWizard === 'compta' && !isActivePlaybook(playbookName)) {
-      setShowComptaWizard(true)
-      return
-    }
-    if (meta.hasWizard === 'vocal' && !isActivePlaybook(playbookName)) {
-      setShowVocalWizard(true)
-      return
-    }
-
     const existing = clientPlaybooks.find(cp => cp.playbook_id === pb.id)
     const currentlyActive = existing?.is_active || false
 
@@ -808,38 +639,10 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
     toast.success(!currentlyActive ? `"${pb.display_name}" active` : `"${pb.display_name}" desactive`)
   }
 
-  const handleFeatureAction = (automation) => {
-    if (automation.key === 'email_agent') {
-      setActiveTab && setActiveTab('email-agent')
-      return
-    }
-    if (automation.key === 'slack_copilot') {
-      setActiveTab && setActiveTab('integrations')
-      return
-    }
-  }
-
-  /* ---- Filter state + derived counts ---- */
-
-  const [activeFilter, setActiveFilter] = useState('all')
-  const [showComingSoonModal, setShowComingSoonModal] = useState(false)
-
-  const filterCounts = useMemo(() => ({
-    all: automationList.length,
-    active: automationList.filter(a => a.active).length,
-    ready: automationList.filter(a => !a.active && a.reqs.met).length,
-    missing: automationList.filter(a => !a.active && !a.reqs.met).length,
-  }), [automationList])
-
-  const visibleAutomations = useMemo(() => {
-    if (activeFilter === 'all') return automationList
-    if (activeFilter === 'active') return automationList.filter(a => a.active)
-    if (activeFilter === 'ready') return automationList.filter(a => !a.active && a.reqs.met)
-    if (activeFilter === 'missing') return automationList.filter(a => !a.active && !a.reqs.met)
-    return automationList
-  }, [automationList, activeFilter])
-
   /* ---- Render ---- */
+  // (avec 2 automations, plus de filter tabs — la grid 2-col suffit)
+
+  const visibleAutomations = automationList
 
   if (loadingPb) {
     return (
@@ -864,72 +667,34 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
         monthROI={monthROI}
       />
 
-      {/* ═══════ FILTERS ═══════ */}
-      <AutomationFilters
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-        counts={filterCounts}
-      />
-
       {/* ═══════ AUTOMATIONS GRID ═══════ */}
-      {visibleAutomations.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-[#fafafa] mx-auto mb-3 flex items-center justify-center">
-            <Info className="w-5 h-5 text-[#9ca3af]" />
-          </div>
-          <p className="text-[14px] font-semibold text-[#1a1a1a] mb-1">Aucune automation dans ce filtre</p>
-          <p className="text-[12px] text-[#71717a]">
-            Changez de filtre ou activez une nouvelle automation.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {visibleAutomations.map(automation => {
-            const active = automation.active
-            const reqsMet = automation.reqs.met
-            const weeklyTickets = perPbStats?.[automation.key] || 0
-            const isFeature = automation.type === 'feature'
-            return (
-              <AutomationCard
-                key={automation.key}
-                automation={automation}
-                isActive={active}
-                reqsMet={reqsMet}
-                missingReqs={automation.reqs.missing}
-                connectedProviders={connectedProviders}
-                selectedChannels={selectedChannels}
-                saveChannels={saveChannels}
-                onOpenModal={() => setModalKey(automation.modalKey)}
-                onGoToIntegrations={goToIntegrations}
-                weeklyTickets={weeklyTickets}
-                mainAction={() => isFeature ? handleFeatureAction(automation) : handleTogglePlaybook(automation)}
-                mainActionLabel={isFeature ? 'Configurer' : (active ? 'Désactiver' : 'Activer')}
-                mainActionDisabled={!reqsMet && !isFeature}
-              />
-            )
-          })}
-        </div>
-      )}
-
-      {/* ═══════ COMING SOON FOOTER LINK ═══════ */}
-      <div className="mt-8 flex justify-center">
-        <button
-          onClick={() => setShowComingSoonModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 hover:border-gray-300 text-[12px] font-semibold text-[#71717a] hover:text-[#1a1a1a] transition-colors"
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          {COMING_SOON.length} automations en développement
-          <ArrowRight className="w-3 h-3" />
-        </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {visibleAutomations.map(automation => {
+          const active = automation.active
+          const reqsMet = automation.reqs.met
+          const weeklyTickets = perPbStats?.[automation.key] || 0
+          return (
+            <AutomationCard
+              key={automation.key}
+              automation={automation}
+              isActive={active}
+              reqsMet={reqsMet}
+              missingReqs={automation.reqs.missing}
+              connectedProviders={connectedProviders}
+              selectedChannels={selectedChannels}
+              saveChannels={saveChannels}
+              onOpenModal={() => setModalKey(automation.modalKey)}
+              onGoToIntegrations={goToIntegrations}
+              weeklyTickets={weeklyTickets}
+              mainAction={() => handleTogglePlaybook(automation)}
+              mainActionLabel={active ? 'Désactiver' : 'Activer'}
+              mainActionDisabled={!reqsMet}
+            />
+          )
+        })}
       </div>
 
-      {/* ═══════ MODALS / WIZARDS ═══════ */}
-
-      <ComingSoonModal
-        isOpen={showComingSoonModal}
-        onClose={() => setShowComingSoonModal(false)}
-        items={COMING_SOON}
-      />
+      {/* ═══════ MODALS ═══════ */}
 
       <AutomationHowItWorksModal
         automationKey={modalKey}
@@ -940,8 +705,7 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
         connectedProviders={connectedProviders}
         onActivate={() => {
           if (!activeModalAutomation) return
-          if (activeModalAutomation.type === 'feature') handleFeatureAction(activeModalAutomation)
-          else handleTogglePlaybook(activeModalAutomation)
+          handleTogglePlaybook(activeModalAutomation)
         }}
         onViewStats={() => setActiveTab && setActiveTab('insights')}
         onGoToIntegrations={goToIntegrations}
@@ -977,47 +741,6 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
         loading={readinessState.activating}
       />
 
-      {showComptaWizard && (
-        <ComptabiliteWizard
-          clientId={clientId}
-          connectedProviders={connectedProviders}
-          onComplete={() => {
-            setShowComptaWizard(false)
-            const pb = playbooks.find(p => p.name === 'comptabilite_auto')
-            if (pb) {
-              supabase.from('engine_client_playbooks').upsert({
-                client_id: clientId, playbook_id: pb.id, is_active: true, activated_at: new Date().toISOString(),
-              }, { onConflict: 'client_id,playbook_id' }).then(() => {
-                queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
-              })
-            }
-            toast.success('Comptabilite automatisee configuree et activee !')
-          }}
-          onCancel={() => setShowComptaWizard(false)}
-        />
-      )}
-
-      {showVocalWizard && (
-        <VocalAgentWizard
-          clientId={clientId}
-          onComplete={() => {
-            setShowVocalWizard(false)
-            const pb = playbooks.find(p => p.name === 'agent_vocal')
-            if (pb) {
-              supabase.from('engine_client_playbooks').upsert({
-                client_id: clientId,
-                playbook_id: pb.id,
-                is_active: true,
-                activated_at: new Date().toISOString(),
-              }, { onConflict: 'client_id,playbook_id' }).then(() => {
-                queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
-              })
-            }
-            toast.success('Agent vocal configure et installe !')
-          }}
-          onCancel={() => setShowVocalWizard(false)}
-        />
-      )}
     </div>
   )
 }
