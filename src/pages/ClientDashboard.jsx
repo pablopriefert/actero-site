@@ -1262,7 +1262,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "settings" && (
-            <SettingsHubView onNavigate={setActiveTab} />
+            <SettingsHubView clientId={currentClient?.id} onNavigate={setActiveTab} />
           )}
           </Suspense>
           </TabErrorBoundary>
