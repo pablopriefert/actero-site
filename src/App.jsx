@@ -11,6 +11,7 @@ import { SetPasswordPage } from "./components/auth/SetPasswordPage";
 import { AuthCallbackPage } from "./pages/AuthCallbackPage";
 import { CompanyPage } from "./pages/CompanyPage";
 import { PricingPage } from "./pages/PricingPage";
+import { ProductPage } from "./pages/ProductPage";
 import { FaqPage } from "./pages/FaqPage";
 import { AuditPage } from "./pages/AuditPage";
 import { DashboardGate } from "./components/auth/DashboardGate"
@@ -111,6 +112,7 @@ function MainRouter() {
   else if (currentRoute === "/auth/callback") page = <AuthCallbackPage onNavigate={navigate} />;
   else if (currentRoute === "/entreprise") page = <CompanyPage onNavigate={navigate} />;
   else if (currentRoute === "/tarifs") page = <PricingPage onNavigate={navigate} />;
+  else if (currentRoute === "/produit") page = <ProductPage onNavigate={navigate} />;
   else if (currentRoute === "/faq") page = <FaqPage onNavigate={navigate} />;
   else if (currentRoute === "/signup") page = <SignupPage onNavigate={navigate} />;
   else if (currentRoute === "/signup/plan") page = <PlanSelectionPage onNavigate={navigate} />;

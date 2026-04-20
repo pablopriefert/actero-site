@@ -47,10 +47,10 @@ const CTA_LINKS = {
 };
 
 const CARD_CLASSES = {
-  free: "border-[#f0f0f0] bg-white",
-  starter: "border-[#f0f0f0] bg-white",
-  pro: "border-cta bg-white ring-2 ring-cta/20 shadow-lg",
-  enterprise: "border-[#f0f0f0] bg-[#fafafa]",
+  free: "border-black/[0.08] bg-white text-[#1A1A1A]",
+  starter: "border-black/[0.08] bg-white text-[#1A1A1A]",
+  pro: "border-cta bg-[#003725] text-white shadow-[0_20px_50px_-15px_rgba(0,55,37,0.35)] scale-[1.02]",
+  enterprise: "border-black/[0.08] bg-white text-[#1A1A1A]",
 };
 
 function buildFeatures(plan) {
@@ -574,23 +574,32 @@ export const PricingPage = ({ onNavigate }) => {
         <main className="pt-32 pb-24 px-6">
           <div className="max-w-7xl mx-auto">
 
-            {/* ── Hero compact ── */}
+            {/* ── Hero (variation A style) ── */}
             <div className="text-center mb-16">
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta"
+              >
+                Tarifs
+              </motion.p>
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-4xl md:text-6xl font-bold tracking-tight mb-6"
-                style={{ fontFamily: "var(--font-display)" }}
+                className="font-normal leading-[1.05] text-[#1A1A1A] mb-6"
+                style={{ fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)', fontSize: 'clamp(38px, 5.2vw, 64px)', letterSpacing: '-0.02em' }}
               >
-                Un prix qui paie <span className="text-cta">40h de votre équipe.</span>
+                Un prix qui paie 40h<br className="hidden md:block" />
+                <span className="italic text-[#716D5C]">de votre équipe.</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-xl text-[#716D5C] max-w-2xl mx-auto mb-4"
+                className="text-[17px] text-[#5A5A5A] max-w-xl mx-auto mb-4 leading-[1.5]"
               >
-                Le plan Starter à 99€ remplace environ 20 heures hebdo de support humain. Démarrez gratuitement, scalez quand vos tickets grimpent.
+                Le plan Starter à 99€ remplace environ 20 heures hebdo de support humain.
+                Démarrez gratuitement, scalez quand vos tickets grimpent.
               </motion.p>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -647,23 +656,23 @@ export const PricingPage = ({ onNavigate }) => {
                   className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02] ${plan.cardClass}`}
                 >
                   {plan.highlighted && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <div className="flex items-center gap-1.5 bg-cta text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-cta/25">
-                        <Sparkles className="w-3 h-3" />
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <div className="flex items-center gap-1.5 bg-[#A8C490] text-[#003725] text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full">
+                        <Sparkles className="w-2.5 h-2.5" />
                         Populaire
                       </div>
                     </div>
                   )}
 
                   <div className="mb-6">
-                    <h3 className="text-xl font-bold text-[#262626] mb-1">{plan.name}</h3>
-                    <p className="text-sm text-[#716D5C] font-medium">{plan.tagline}</p>
+                    <h3 className={`text-xl font-bold mb-1 ${plan.highlighted ? 'text-white' : 'text-[#1A1A1A]'}`}>{plan.name}</h3>
+                    <p className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F0E6]/60' : 'text-[#716D5C]'}`}>{plan.tagline}</p>
                   </div>
 
                   <div className="mb-6">
                     <div className="flex items-baseline gap-2">
                       {isAnnual && plan.monthlyPrice > 0 && (
-                        <span className="line-through text-[#9ca3af] text-2xl font-bold">
+                        <span className={`line-through text-2xl font-bold ${plan.highlighted ? 'text-[#F4F0E6]/35' : 'text-[#9ca3af]'}`}>
                           {plan.monthlyPrice}€
                         </span>
                       )}
@@ -674,17 +683,17 @@ export const PricingPage = ({ onNavigate }) => {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
                           transition={{ duration: 0.2 }}
-                          className="text-4xl font-bold text-[#262626]"
+                          className={`text-4xl font-bold ${plan.highlighted ? 'text-white' : 'text-[#1A1A1A]'}`}
                         >
                           {getPrice(plan)}
                         </motion.span>
                       </AnimatePresence>
-                      <span className="text-[#716D5C] text-sm font-medium">
+                      <span className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F0E6]/60' : 'text-[#716D5C]'}`}>
                         {getPeriod(plan)}
                       </span>
                     </div>
                     {getSubPrice(plan) && (
-                      <p className="text-xs text-[#716D5C] mt-1">{getSubPrice(plan)}</p>
+                      <p className={`text-xs mt-1 ${plan.highlighted ? 'text-[#F4F0E6]/60' : 'text-[#716D5C]'}`}>{getSubPrice(plan)}</p>
                     )}
                   </div>
 
@@ -693,7 +702,7 @@ export const PricingPage = ({ onNavigate }) => {
                     onClick={() => handleCTA(plan)}
                     className={`w-full py-3.5 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2 mb-8 ${
                       plan.highlighted
-                        ? "bg-cta text-white hover:bg-[#003725]"
+                        ? "bg-[#A8C490] text-[#003725] hover:bg-white"
                         : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
                     }`}
                   >
@@ -701,21 +710,21 @@ export const PricingPage = ({ onNavigate }) => {
                   </button>
 
                   {/* Divider */}
-                  <div className="border-t border-gray-100 mb-6" />
+                  <div className={`border-t mb-6 ${plan.highlighted ? 'border-[#F4F0E6]/15' : 'border-gray-100'}`} />
 
                   {/* Features */}
                   <div className="space-y-3 flex-1">
                     {plan.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2.5">
-                        <Check className="w-4 h-4 text-cta shrink-0 mt-0.5" />
-                        <span className="text-sm text-[#716D5C] font-medium">{feature}</span>
+                        <Check className={`w-4 h-4 shrink-0 mt-0.5 ${plan.highlighted ? 'text-[#A8C490]' : 'text-cta'}`} />
+                        <span className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F0E6]/90' : 'text-[#716D5C]'}`}>{feature}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Overage */}
                   {plan.overage && (
-                    <p className="mt-6 text-xs text-[#716D5C] pt-4 border-t border-gray-100">
+                    <p className={`mt-6 text-xs pt-4 border-t ${plan.highlighted ? 'text-[#F4F0E6]/60 border-[#F4F0E6]/15' : 'text-[#716D5C] border-gray-100'}`}>
                       Overage : {plan.overage}
                     </p>
                   )}
@@ -729,8 +738,8 @@ export const PricingPage = ({ onNavigate }) => {
             {/* ── FAQ ── */}
             <div className="mt-24 max-w-3xl mx-auto">
               <h2
-                className="text-3xl font-bold text-center text-[#262626] mb-12"
-                style={{ fontFamily: "var(--font-display)" }}
+                className="text-center font-normal text-[#1A1A1A] mb-12 leading-[1.05]"
+                style={{ fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)', fontSize: 'clamp(32px, 4.5vw, 48px)', letterSpacing: '-0.02em' }}
               >
                 Questions fréquentes
               </h2>

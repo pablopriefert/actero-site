@@ -43,10 +43,10 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
 
           <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             <button
-              onClick={() => { onNavigate("/"); setTimeout(() => { const el = document.getElementById('comment-ca-marche'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 100); }}
+              onClick={() => onNavigate("/produit")}
               className="text-[14px] font-semibold text-[#262626] hover:text-[#003725] transition-colors"
             >
-              Produits
+              Produit
             </button>
             <button
               onClick={() => onNavigate("/tarifs")}
@@ -111,10 +111,10 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
           >
             {[
               {
-                label: "Produits",
+                label: "Produit",
                 action: () => {
                   setIsMobileMenuOpen(false);
-                  scrollToId("comment-ca-marche");
+                  onNavigate("/produit");
                 },
               },
               {
