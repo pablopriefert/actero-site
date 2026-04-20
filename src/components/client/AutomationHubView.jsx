@@ -2,9 +2,9 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Rocket, Sparkles, Zap, ShoppingBag, Headphones, Loader2, CheckCircle2,
+  Rocket, Sparkles, ShoppingBag, Headphones, Loader2, CheckCircle2,
   AlertTriangle, Plug, Phone, Mail, MessageSquare, TrendingUp, ArrowRight,
-  HelpCircle, Clock, DollarSign, Activity, ChevronRight, Bot, Info,
+  Activity, Info, Zap,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
@@ -121,23 +121,130 @@ const COMING_SOON = [
   { name: 'winback_inactive', label: 'Winback', desc: 'Relance les clients inactifs depuis 60 jours.', icon: TrendingUp },
 ]
 
-/* ═══════════ KPI HERO ═══════════ */
+/* ═══════════ HEADER STRIP ═══════════ */
 
-const KpiTile = ({ icon: Icon, label, value, sub }) => (
-  <div className="relative bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/15">
-    <div className="flex items-center gap-2 mb-2">
-      <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center">
-        <Icon className="w-3.5 h-3.5 text-white" />
+/**
+ * AutomationHubHeader — strip compact en haut de la surface.
+ *
+ * Remplace le hero gradient (40% de la fold) par un bandeau blanc
+ * cohérent avec Overview refondu : titre + résumé status + 3 KPIs inline.
+ */
+const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHours, monthROI }) => (
+  <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 mb-5">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <div className="flex items-center gap-2 mb-1.5">
+          <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center">
+            <Rocket className="w-3.5 h-3.5 text-cta" />
+          </div>
+          <h1 className="text-lg font-bold text-[#1a1a1a]">Automations</h1>
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-cta/10 text-cta text-[10px] font-bold rounded-full uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-cta animate-pulse" />
+            {activeCount}/{totalAvailable} actives
+          </span>
+        </div>
+        <p className="text-[13px] text-[#71717a] leading-relaxed">
+          Votre agent prend en charge un pan entier de l&apos;opérationnel. Activez en 1 clic.
+        </p>
       </div>
-      <span className="text-[11px] font-semibold text-white/75 uppercase tracking-wider">{label}</span>
+      <div className="flex items-center gap-4 md:gap-6 flex-wrap">
+        <div className="flex flex-col">
+          <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Cette semaine</span>
+          <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{weekTickets}</span>
+          <span className="text-[10px] text-[#9ca3af]">{weekTickets === 1 ? 'demande' : 'demandes'}</span>
+        </div>
+        <div className="w-px h-10 bg-gray-200" />
+        <div className="flex flex-col">
+          <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Ce mois</span>
+          <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{monthHours}h</span>
+          <span className="text-[10px] text-[#9ca3af]">économisées</span>
+        </div>
+        <div className="w-px h-10 bg-gray-200" />
+        <div className="flex flex-col">
+          <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">ROI mois</span>
+          <span className="text-lg font-bold text-cta tabular-nums leading-tight">{monthROI.toLocaleString('fr-FR')}€</span>
+          <span className="text-[10px] text-[#9ca3af]">valeur générée</span>
+        </div>
+      </div>
     </div>
-    <div className="text-[24px] md:text-[28px] font-bold text-white leading-none tabular-nums">{value}</div>
-    {sub && <div className="text-[11px] text-white/65 mt-1.5">{sub}</div>}
   </div>
 )
 
-/* ═══════════ AUTOMATION CARD ═══════════ */
+/* ═══════════ FILTER TABS ═══════════ */
 
+/**
+ * AutomationFilters — tabs filtres state-based.
+ *
+ * 4 filtres : Toutes / Actives / Prêtes / À configurer. Le compte
+ * entre parenthèses est mis à jour en temps réel via la source automationList.
+ */
+const AutomationFilters = ({ activeFilter, setActiveFilter, counts }) => {
+  const filters = [
+    { id: 'all', label: 'Toutes', count: counts.all },
+    { id: 'active', label: 'Actives', count: counts.active },
+    { id: 'ready', label: 'Prêtes', count: counts.ready },
+    { id: 'missing', label: 'À configurer', count: counts.missing },
+  ]
+  return (
+    <div className="flex items-center gap-1 mb-4 overflow-x-auto pb-1">
+      {filters.map(f => {
+        const isActive = activeFilter === f.id
+        return (
+          <button
+            key={f.id}
+            onClick={() => setActiveFilter(f.id)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors whitespace-nowrap ${
+              isActive
+                ? 'bg-[#1a1a1a] text-white'
+                : 'bg-white border border-gray-200 text-[#71717a] hover:bg-[#fafafa]'
+            }`}
+          >
+            {f.label}
+            <span className={`tabular-nums text-[11px] ${isActive ? 'text-white/70' : 'text-[#9ca3af]'}`}>
+              {f.count}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ═══════════ STATUS BADGE (shared) ═══════════ */
+
+/**
+ * StatusBadge — badge semantic avec icon (pas de color-only, WCAG).
+ */
+const StatusBadge = ({ status }) => {
+  if (status === 'active') return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-cta/10 text-cta text-[10px] font-bold rounded-full uppercase tracking-wider">
+      <CheckCircle2 className="w-2.5 h-2.5" /> Active
+    </span>
+  )
+  if (status === 'ready') return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-full uppercase tracking-wider border border-blue-100">
+      <Sparkles className="w-2.5 h-2.5" /> Prête
+    </span>
+  )
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider border border-amber-100">
+      <AlertTriangle className="w-2.5 h-2.5" /> À configurer
+    </span>
+  )
+}
+
+/* ═══════════ AUTOMATION CARD (refondu) ═══════════ */
+
+/**
+ * AutomationCard — carte dense, channels preview toujours visible.
+ *
+ * Changements vs ancienne version :
+ * — Gradient icon container → icon flat avec accent subtil (cohérence)
+ * — Status badges renforcés (icon + bordure, pas de color-only)
+ * — Channels preview : pills visibles dès le state "ready" (pas que "active")
+ * — "Détails" link simple vs "Comment ça marche ?" modal redondant
+ * — Densité : 1 seul CTA primary, 1 link secondary
+ */
 const AutomationCard = ({
   automation,
   isActive,
@@ -147,146 +254,209 @@ const AutomationCard = ({
   mainActionLabel,
   mainActionDisabled,
   onOpenModal,
-  channels,
   connectedProviders,
-  onToggleChannel,
+  selectedChannels,
+  saveChannels,
   onGoToIntegrations,
-  metricLine,
-  children,
+  weeklyTickets,
 }) => {
   const Icon = automation.icon
   const status = isActive ? 'active' : reqsMet ? 'ready' : 'missing'
+  const hasChannels = automation.channels && automation.channels.length > 0
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      className={`group rounded-2xl bg-white border shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] ${
-        isActive ? 'border-cta/25' : 'border-[#f0f0f0]'
+      transition={{ duration: 0.2 }}
+      className={`rounded-2xl bg-white border transition-colors ${
+        isActive ? 'border-cta/30 shadow-[0_1px_3px_rgba(0,55,37,0.04)]' : 'border-gray-200 hover:border-gray-300'
       }`}
     >
-      <div className="p-5 md:p-6">
-        <div className="flex items-start gap-4">
-          <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${automation.gradient} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-            <Icon className="w-6 h-6 text-white" />
+      <div className="p-5">
+        {/* Header row — icon + title + status */}
+        <div className="flex items-start gap-3 mb-3">
+          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${automation.gradient} flex items-center justify-center flex-shrink-0`}>
+            <Icon className="w-5 h-5 text-white" />
           </div>
-
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3 mb-1">
+            <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-[15px] font-bold text-[#1a1a1a] leading-tight">{automation.title}</h3>
-                  {status === 'active' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-cta/10 text-cta text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cta animate-pulse" /> Actif
-                    </span>
-                  )}
-                  {status === 'missing' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      A configurer
-                    </span>
-                  )}
-                  {status === 'ready' && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#fafafa] text-[#71717a] text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      Pret a activer
-                    </span>
-                  )}
-                </div>
-                <p className="text-[12px] font-semibold text-cta mt-0.5">{automation.tagline}</p>
+                <h3 className="text-[14px] font-bold text-[#1a1a1a] leading-tight">{automation.title}</h3>
+                <p className="text-[12px] text-[#71717a] mt-0.5 leading-tight">{automation.tagline}</p>
               </div>
-            </div>
-
-            <p className="text-[13px] text-[#71717a] leading-relaxed mt-1">{automation.description}</p>
-
-            {/* Missing integrations checklist */}
-            {!reqsMet && missingReqs && missingReqs.length > 0 && (
-              <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-100">
-                <p className="text-[11px] font-semibold text-amber-900 mb-2 flex items-center gap-1.5">
-                  <AlertTriangle className="w-3 h-3" /> Integrations requises
-                </p>
-                <ul className="space-y-1.5">
-                  {missingReqs.map((m, i) => (
-                    <li key={i} className="flex items-center justify-between gap-2">
-                      <span className="text-[12px] text-amber-900 flex items-center gap-1.5">
-                        <span className="w-3 h-3 rounded border border-amber-400 inline-block" /> {m}
-                      </span>
-                      <button
-                        onClick={onGoToIntegrations}
-                        className="text-[11px] font-semibold text-amber-800 hover:text-amber-900 underline"
-                      >
-                        Connecter
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Metric line when active */}
-            {isActive && metricLine && (
-              <div className="mt-3 flex items-center gap-2 text-[11px] text-cta font-medium">
-                <Activity className="w-3 h-3" /> {metricLine}
-              </div>
-            )}
-
-            {/* Actions row */}
-            <div className="mt-4 flex items-center gap-2 flex-wrap">
-              <button
-                onClick={mainAction}
-                disabled={mainActionDisabled}
-                className={`inline-flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                  isActive
-                    ? 'bg-white border border-[#f0f0f0] text-[#1a1a1a] hover:bg-[#fafafa]'
-                    : 'bg-cta hover:bg-[#003725] text-white'
-                }`}
-              >
-                {isActive ? (
-                  <><CheckCircle2 className="w-3.5 h-3.5" /> {mainActionLabel || 'Configurer'}</>
-                ) : (
-                  <><Sparkles className="w-3.5 h-3.5" /> {mainActionLabel || 'Activer'}</>
-                )}
-              </button>
-              <button
-                onClick={onOpenModal}
-                className="inline-flex items-center gap-1 px-3 py-2 text-[12px] font-semibold text-[#71717a] hover:text-[#1a1a1a] rounded-xl transition-colors"
-              >
-                <HelpCircle className="w-3.5 h-3.5" /> Comment ca marche ?
-              </button>
+              <StatusBadge status={status} />
             </div>
           </div>
         </div>
 
-        {/* Channels section (rendered by parent) */}
-        {children}
+        {/* Metric line when active */}
+        {isActive && weeklyTickets > 0 && (
+          <div className="mb-3 flex items-center gap-1.5 text-[11px] text-cta font-semibold">
+            <Activity className="w-3 h-3" />
+            {weeklyTickets} demande{weeklyTickets > 1 ? 's' : ''} traitée{weeklyTickets > 1 ? 's' : ''} cette semaine
+          </div>
+        )}
+
+        {/* Missing integrations */}
+        {status === 'missing' && missingReqs && missingReqs.length > 0 && (
+          <div className="mb-3 p-2.5 rounded-lg bg-amber-50 border border-amber-100">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-semibold text-amber-900 mb-1">
+                  Intégrations requises : {missingReqs.join(', ')}
+                </p>
+                <button
+                  onClick={onGoToIntegrations}
+                  className="text-[11px] font-semibold text-amber-800 hover:text-amber-900 underline"
+                >
+                  Connecter →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Channels preview — toujours visible pour les cards ready+active */}
+        {hasChannels && status !== 'missing' && (
+          <div className="mb-3">
+            <p className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1.5">
+              {isActive ? 'Canaux actifs' : 'Canaux disponibles'}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {automation.channels.map(ch => {
+                const ChIcon = ch.icon || MessageSquare
+                const channelConnected = ch.needsIntegration.length === 0
+                  || ch.needsIntegration.some(p => connectedProviders.includes(p))
+                const isSelected = !!selectedChannels[`${automation.key}_${ch.id}`]
+                const canToggle = isActive && channelConnected
+
+                if (!channelConnected) {
+                  return (
+                    <button
+                      key={ch.id}
+                      onClick={onGoToIntegrations}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#fafafa] border border-dashed border-gray-300 text-[11px] font-medium text-[#71717a] hover:border-amber-300 hover:bg-amber-50 hover:text-amber-800 transition-colors"
+                      title={`Connecter ${ch.label}`}
+                    >
+                      <Plug className="w-3 h-3" />
+                      {ch.label}
+                    </button>
+                  )
+                }
+
+                return (
+                  <button
+                    key={ch.id}
+                    onClick={() => {
+                      if (!canToggle) return
+                      const newVal = !isSelected
+                      saveChannels(automation.key, ch.id, newVal)
+                    }}
+                    disabled={!canToggle}
+                    className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-medium transition-colors ${
+                      isSelected
+                        ? 'bg-cta text-white border border-cta'
+                        : canToggle
+                          ? 'bg-white border border-gray-200 text-[#71717a] hover:border-cta hover:text-cta'
+                          : 'bg-[#fafafa] border border-gray-200 text-[#9ca3af] cursor-not-allowed'
+                    }`}
+                    title={canToggle ? (isSelected ? 'Désactiver ce canal' : 'Activer ce canal') : 'Activez l\'automation pour configurer'}
+                  >
+                    <ChIcon className="w-3 h-3" />
+                    {ch.label}
+                    {isSelected && <CheckCircle2 className="w-2.5 h-2.5" />}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Actions — primary + link */}
+        <div className="flex items-center justify-between gap-2 mt-1">
+          <button
+            onClick={mainAction}
+            disabled={mainActionDisabled}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-[12px] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              isActive
+                ? 'bg-white border border-gray-200 text-[#1a1a1a] hover:bg-[#fafafa]'
+                : 'bg-cta hover:bg-[#003725] text-white'
+            }`}
+          >
+            {isActive ? 'Désactiver' : mainActionLabel || 'Activer'}
+            {!isActive && <ArrowRight className="w-3 h-3" />}
+          </button>
+          <button
+            onClick={onOpenModal}
+            className="text-[11px] font-semibold text-[#71717a] hover:text-[#1a1a1a] underline decoration-dotted underline-offset-4"
+          >
+            Détails
+          </button>
+        </div>
       </div>
     </motion.div>
   )
 }
 
-/* ═══════════ COMING SOON TEASER ═══════════ */
+/* ═══════════ COMING SOON (moved to modal) ═══════════ */
 
-const ComingSoonCard = ({ item }) => {
-  const Icon = item.icon
-  return (
-    <div className="rounded-2xl bg-[#fafafa] border border-dashed border-[#e5e5e5] p-4 opacity-80 hover:opacity-100 transition">
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-white border border-[#f0f0f0] flex items-center justify-center flex-shrink-0">
-          <Icon className="w-4 h-4 text-[#9ca3af]" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <p className="text-[13px] font-semibold text-[#1a1a1a]">{item.label}</p>
-            <span className="px-1.5 py-0.5 bg-white border border-[#e5e5e5] text-[9px] font-bold text-[#71717a] uppercase tracking-wider rounded-full">
-              Bientot
-            </span>
+/**
+ * ComingSoonModal — les 6 automations en dev, accessibles depuis un pill
+ * footer discret. Avant : 9 cartes empilées sur la page (noise).
+ */
+const ComingSoonModal = ({ isOpen, onClose, items }) => (
+  <AnimatePresence>
+    {isOpen && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white w-full md:max-w-xl md:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
+        >
+          <div className="p-5 border-b border-gray-200 flex items-center justify-between">
+            <div>
+              <h3 className="text-[15px] font-bold text-[#1a1a1a]">Automations en développement</h3>
+              <p className="text-[12px] text-[#9ca3af] mt-0.5">{items.length} automations arrivent prochainement.</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg hover:bg-[#fafafa] flex items-center justify-center"
+              aria-label="Fermer"
+            >
+              <span className="text-xl text-[#9ca3af]">×</span>
+            </button>
           </div>
-          <p className="text-[11px] text-[#9ca3af] leading-relaxed">{item.desc}</p>
-        </div>
-      </div>
-    </div>
-  )
-}
+          <div className="p-5 overflow-y-auto space-y-2">
+            {items.map(item => {
+              const Icon = item.icon
+              return (
+                <div key={item.name} className="flex items-start gap-3 p-3 rounded-xl bg-[#fafafa] border border-gray-200">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-4 h-4 text-[#9ca3af]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-[#1a1a1a]">{item.label}</p>
+                    <p className="text-[11px] text-[#71717a] mt-0.5 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </motion.div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+)
 
 /* ═══════════ MAIN VIEW ═══════════ */
 
@@ -649,145 +819,25 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
     }
   }
 
-  /* ---- Rendering helpers ---- */
+  /* ---- Filter state + derived counts ---- */
 
-  const renderCategorySection = (catId) => {
-    const catMeta = CATEGORIES.find(c => c.id === catId)
-    const items = automationList.filter(a => a.category === catId)
-    if (items.length === 0) return null
-    const CatIcon = catMeta.icon
+  const [activeFilter, setActiveFilter] = useState('all')
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false)
 
-    return (
-      <section key={catId} className="space-y-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-white border border-[#f0f0f0] flex items-center justify-center">
-            <CatIcon className="w-4 h-4 text-[#1a1a1a]" />
-          </div>
-          <div>
-            <h2 className="text-[15px] font-bold text-[#1a1a1a]">{catMeta.label}</h2>
-            <p className="text-[11px] text-[#9ca3af]">{catMeta.desc}</p>
-          </div>
-        </div>
+  const filterCounts = useMemo(() => ({
+    all: automationList.length,
+    active: automationList.filter(a => a.active).length,
+    ready: automationList.filter(a => !a.active && a.reqs.met).length,
+    missing: automationList.filter(a => !a.active && !a.reqs.met).length,
+  }), [automationList])
 
-        <div className="grid grid-cols-1 gap-3">
-          {items.map(automation => {
-            const active = automation.active
-            const reqsMet = automation.reqs.met
-            const weeklyTickets = perPbStats?.[automation.key] || 0
-            const metricLine = active && weeklyTickets > 0
-              ? `${weeklyTickets} demande${weeklyTickets > 1 ? 's' : ''} traitee${weeklyTickets > 1 ? 's' : ''} cette semaine`
-              : null
-
-            const cardCommon = {
-              automation,
-              isActive: active,
-              reqsMet,
-              missingReqs: automation.reqs.missing,
-              connectedProviders,
-              onOpenModal: () => setModalKey(automation.modalKey),
-              onGoToIntegrations: goToIntegrations,
-              metricLine,
-            }
-
-            if (automation.type === 'feature') {
-              return (
-                <AutomationCard
-                  key={automation.key}
-                  {...cardCommon}
-                  mainAction={() => handleFeatureAction(automation)}
-                  mainActionLabel={active ? 'Configurer' : 'Configurer'}
-                  mainActionDisabled={!reqsMet}
-                />
-              )
-            }
-
-            // DB playbook -> render toggle + channels
-            return (
-              <AutomationCard
-                key={automation.key}
-                {...cardCommon}
-                mainAction={() => handleTogglePlaybook(automation)}
-                mainActionLabel={active ? 'Desactiver' : 'Activer'}
-                mainActionDisabled={!reqsMet}
-              >
-                {active && automation.channels && automation.channels.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-[#f0f0f0]">
-                    <p className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-2.5">Canaux actifs</p>
-                    <div className="space-y-2">
-                      {automation.channels.map(ch => {
-                        const ChIcon = ch.icon || MessageSquare
-                        const channelConnected = ch.needsIntegration.length === 0 || ch.needsIntegration.some(p => connectedProviders.includes(p))
-                        const isSelected = !!selectedChannels[`${automation.key}_${ch.id}`]
-                        return (
-                          <div
-                            key={ch.id}
-                            className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${
-                              isSelected ? 'bg-cta/5 border-cta/20' : 'bg-white border-[#f0f0f0]'
-                            }`}
-                          >
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                              isSelected ? 'bg-cta text-white' : 'bg-[#fafafa] text-[#9ca3af]'
-                            }`}>
-                              <ChIcon className="w-4 h-4" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[12px] font-semibold text-[#1a1a1a]">{ch.label}</p>
-                              <p className="text-[10px] text-[#9ca3af] mt-0.5">{ch.desc}</p>
-                            </div>
-                            {!channelConnected ? (
-                              <button
-                                onClick={goToIntegrations}
-                                className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold text-amber-700 bg-amber-50 rounded-full hover:bg-amber-100 transition-colors flex-shrink-0"
-                              >
-                                <Plug className="w-2.5 h-2.5" /> Connecter
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => {
-                                  const newVal = !isSelected
-                                  setSelectedChannels(prev => ({ ...prev, [`${automation.key}_${ch.id}`]: newVal }))
-                                  saveChannels(automation.key, ch.id, newVal)
-                                }}
-                                className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isSelected ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
-                              >
-                                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${isSelected ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                              </button>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    {/* Email recommendation for sav_ecommerce with widget but no email */}
-                    {automation.key === 'sav_ecommerce' && selectedChannels[`${automation.key}_widget`] && !connectedProviders.includes('smtp_imap') && !connectedProviders.includes('gmail') && (
-                      <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
-                        <div className="flex items-start gap-2.5">
-                          <Mail className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                          <div className="flex-1">
-                            <p className="text-[12px] font-semibold text-blue-900">Recommandation : connectez votre email</p>
-                            <p className="text-[11px] text-blue-700 mt-0.5 leading-relaxed">
-                              Quand un client agressif demande un suivi, l&apos;IA lui demande son email. En connectant votre SMTP/IMAP, les reponses dans &quot;A traiter&quot; seront envoyees <strong>depuis votre adresse pro</strong>.
-                            </p>
-                            <button
-                              onClick={goToIntegrations}
-                              className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors"
-                            >
-                              <Plug className="w-3 h-3" /> Connecter mon email
-                              <ArrowRight className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </AutomationCard>
-            )
-          })}
-        </div>
-      </section>
-    )
-  }
+  const visibleAutomations = useMemo(() => {
+    if (activeFilter === 'all') return automationList
+    if (activeFilter === 'active') return automationList.filter(a => a.active)
+    if (activeFilter === 'ready') return automationList.filter(a => !a.active && a.reqs.met)
+    if (activeFilter === 'missing') return automationList.filter(a => !a.active && !a.reqs.met)
+    return automationList
+  }, [automationList, activeFilter])
 
   /* ---- Render ---- */
 
@@ -805,87 +855,81 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
 
   return (
     <div className="max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
-      {/* ═══════ HERO ═══════ */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cta via-cta to-[#003725] text-white p-6 md:p-10 mb-8"
-      >
-        <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-300/10 rounded-full blur-3xl pointer-events-none" />
+      {/* ═══════ HEADER STRIP ═══════ */}
+      <AutomationHubHeader
+        activeCount={activeCount}
+        totalAvailable={totalAvailable}
+        weekTickets={weekTickets}
+        monthHours={monthHours}
+        monthROI={monthROI}
+      />
 
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center">
-              <Rocket className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-white/80">Automatisations</span>
-            <span className="ml-1 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/15 backdrop-blur rounded-full text-[11px] font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" /> Votre agent travaille 24/7
-            </span>
+      {/* ═══════ FILTERS ═══════ */}
+      <AutomationFilters
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        counts={filterCounts}
+      />
+
+      {/* ═══════ AUTOMATIONS GRID ═══════ */}
+      {visibleAutomations.length === 0 ? (
+        <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#fafafa] mx-auto mb-3 flex items-center justify-center">
+            <Info className="w-5 h-5 text-[#9ca3af]" />
           </div>
-
-          <h1 className="text-[28px] md:text-[38px] font-bold tracking-tight mb-3 leading-[1.1]">
-            Votre boutique tourne sans vous. 24h/24.
-          </h1>
-          <p className="text-[14px] md:text-[15px] text-white/80 max-w-2xl leading-relaxed mb-6 md:mb-8">
-            Chaque automation ci-dessous prend en charge un pan entier de votre operationnel. Activez en 1 clic, configurez au besoin.
+          <p className="text-[14px] font-semibold text-[#1a1a1a] mb-1">Aucune automation dans ce filtre</p>
+          <p className="text-[12px] text-[#71717a]">
+            Changez de filtre ou activez une nouvelle automation.
           </p>
-
-          {/* KPI grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <KpiTile
-              icon={Bot}
-              label="Actives"
-              value={`${activeCount}/${totalAvailable}`}
-              sub={activeCount === 0 ? 'Activez votre premiere' : 'Automatisations actives'}
-            />
-            <KpiTile
-              icon={Activity}
-              label="Cette semaine"
-              value={weekTickets}
-              sub={`${weekTickets === 1 ? 'demande traitee' : 'demandes traitees'}`}
-            />
-            <KpiTile
-              icon={Clock}
-              label="Ce mois"
-              value={`${monthHours}h`}
-              sub="Heures economisees"
-            />
-            <KpiTile
-              icon={DollarSign}
-              label="ROI"
-              value={`${monthROI.toLocaleString('fr-FR')}€`}
-              sub="Valeur generee ce mois"
-            />
-          </div>
         </div>
-      </motion.div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {visibleAutomations.map(automation => {
+            const active = automation.active
+            const reqsMet = automation.reqs.met
+            const weeklyTickets = perPbStats?.[automation.key] || 0
+            const isFeature = automation.type === 'feature'
+            return (
+              <AutomationCard
+                key={automation.key}
+                automation={automation}
+                isActive={active}
+                reqsMet={reqsMet}
+                missingReqs={automation.reqs.missing}
+                connectedProviders={connectedProviders}
+                selectedChannels={selectedChannels}
+                saveChannels={saveChannels}
+                onOpenModal={() => setModalKey(automation.modalKey)}
+                onGoToIntegrations={goToIntegrations}
+                weeklyTickets={weeklyTickets}
+                mainAction={() => isFeature ? handleFeatureAction(automation) : handleTogglePlaybook(automation)}
+                mainActionLabel={isFeature ? 'Configurer' : (active ? 'Désactiver' : 'Activer')}
+                mainActionDisabled={!reqsMet && !isFeature}
+              />
+            )
+          })}
+        </div>
+      )}
 
-      {/* ═══════ CATEGORIES ═══════ */}
-      <div className="space-y-10">
-        {CATEGORIES.map(c => renderCategorySection(c.id))}
-
-        {/* Coming soon teaser */}
-        <section className="space-y-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-white border border-[#f0f0f0] flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[#9ca3af]" />
-            </div>
-            <div>
-              <h2 className="text-[15px] font-bold text-[#1a1a1a]">Plus d&apos;automations</h2>
-              <p className="text-[11px] text-[#9ca3af]">En developpement, disponibles bientot sur votre workspace.</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {COMING_SOON.map(item => <ComingSoonCard key={item.name} item={item} />)}
-          </div>
-        </section>
+      {/* ═══════ COMING SOON FOOTER LINK ═══════ */}
+      <div className="mt-8 flex justify-center">
+        <button
+          onClick={() => setShowComingSoonModal(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 hover:border-gray-300 text-[12px] font-semibold text-[#71717a] hover:text-[#1a1a1a] transition-colors"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          {COMING_SOON.length} automations en développement
+          <ArrowRight className="w-3 h-3" />
+        </button>
       </div>
 
       {/* ═══════ MODALS / WIZARDS ═══════ */}
+
+      <ComingSoonModal
+        isOpen={showComingSoonModal}
+        onClose={() => setShowComingSoonModal(false)}
+        items={COMING_SOON}
+      />
 
       <AutomationHowItWorksModal
         automationKey={modalKey}
