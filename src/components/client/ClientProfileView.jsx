@@ -316,11 +316,42 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
 
   const labelClass = `block text-xs font-bold uppercase tracking-wider mb-2 ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`
 
+  const accountDate = client?.created_at
+    ? new Date(client.created_at).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })
+    : null
+  const emailVerified = !!session?.user?.email_confirmed_at
+
   return (
-    <div className="max-w-2xl mx-auto space-y-8 animate-fade-in-up">
-      <div>
-        <h2 className={`text-2xl font-bold ${isLight ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]'}`}>Mon profil</h2>
-        <p className={`text-sm mt-1 ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`}>Gérez les informations de votre compte</p>
+    <div className="max-w-2xl mx-auto space-y-5 animate-fade-in-up">
+      {/* ═══════ HEADER STRIP ═══════ */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center">
+                <User className="w-3.5 h-3.5 text-cta" />
+              </div>
+              <h1 className="text-lg font-bold text-[#1a1a1a]">Mon profil</h1>
+              {emailVerified && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-cta/10 text-cta text-[10px] font-bold rounded-full uppercase tracking-wider">
+                  <CheckCircle2 className="w-2.5 h-2.5" /> Email vérifié
+                </span>
+              )}
+            </div>
+            <p className="text-[12px] text-[#71717a]">
+              Gérez les informations de votre compte.
+            </p>
+          </div>
+          {accountDate && (
+            <div className="flex items-center gap-4 md:gap-6 flex-wrap">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Compte</span>
+                <span className="text-[13px] font-bold text-[#1a1a1a] leading-tight">{accountDate}</span>
+                <span className="text-[10px] text-[#9ca3af]">créé</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Account info */}

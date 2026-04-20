@@ -221,14 +221,75 @@ export const ClientBillingView = ({ theme }) => {
   const overageTickets = plan.usage?.overage_tickets || 0
   const overageCost = overageTickets * (planConfig.overage_per_ticket || 0)
 
+  const ticketsPct = plan.ticketsLimit === Infinity || plan.ticketsLimit === -1
+    ? 0
+    : plan.ticketsLimit > 0
+      ? Math.min(Math.round((plan.ticketsUsed / plan.ticketsLimit) * 100), 100)
+      : 0
+  const usageState = ticketsPct >= 90 ? 'danger' : ticketsPct >= 70 ? 'warn' : 'ok'
+  const PlanIconTop = PLAN_ICONS[plan.planId] || Zap
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Facturation</h2>
-        <p className="text-[13px] text-[#9ca3af] mt-1">
-          Gerez votre abonnement, suivez votre consommation et comparez les plans.
-        </p>
+    <div className="max-w-4xl mx-auto space-y-5">
+      {/* ═══════ HEADER STRIP ═══════ */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center">
+                <CreditCard className="w-3.5 h-3.5 text-cta" />
+              </div>
+              <h1 className="text-lg font-bold text-[#1a1a1a]">Facturation</h1>
+              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold rounded-full uppercase tracking-wider ${
+                plan.inTrial
+                  ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                  : 'bg-cta/10 text-cta'
+              }`}>
+                <PlanIconTop className="w-2.5 h-2.5" />
+                Plan {plan.planName}
+                {plan.inTrial && ` · J-${plan.trialDaysLeft}`}
+              </span>
+            </div>
+            <p className="text-[12px] text-[#71717a]">
+              Gérez votre abonnement, suivez votre consommation et comparez les plans.
+            </p>
+          </div>
+          <div className="flex items-center gap-4 md:gap-6 flex-wrap">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Prix</span>
+              <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">
+                {formatPrice(currentPrice)}
+              </span>
+              <span className="text-[10px] text-[#9ca3af]">
+                {currentPrice > 0 ? '/ mois' : ''}
+              </span>
+            </div>
+            <div className="w-px h-10 bg-gray-200" />
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Conso.</span>
+              <span className={`text-lg font-bold tabular-nums leading-tight ${
+                usageState === 'danger' ? 'text-red-500'
+                : usageState === 'warn' ? 'text-amber-600'
+                : 'text-cta'
+              }`}>
+                {plan.ticketsLimit === Infinity || plan.ticketsLimit === -1 ? '∞' : `${ticketsPct}%`}
+              </span>
+              <span className="text-[10px] text-[#9ca3af]">tickets</span>
+            </div>
+            {overageTickets > 0 && (
+              <>
+                <div className="w-px h-10 bg-gray-200" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Dépass.</span>
+                  <span className="text-lg font-bold text-red-500 tabular-nums leading-tight">
+                    {overageCost.toFixed(0)}€
+                  </span>
+                  <span className="text-[10px] text-[#9ca3af]">+{overageTickets} tickets</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ━━━ Section 1 — Plan actuel ━━━ */}
