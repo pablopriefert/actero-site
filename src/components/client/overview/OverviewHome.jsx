@@ -41,7 +41,7 @@ export function OverviewHome({
   setActiveTab, theme,
 }) {
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6" data-editorial>
       {/* Zone 0 — System alerts (1 visible, rest collapsed) */}
       <SystemAlertStack
         urgentEscalationCount={urgentEscalationCount}
@@ -90,10 +90,15 @@ export function OverviewHome({
 
       {/* Starter → Pro upsell (reste standalone en bas, contextuel) */}
       {planId === 'starter' && (
-        <div className="bg-cta/5 border border-cta/20 rounded-2xl p-4 flex items-center justify-between">
+        <div className="bg-[#FCFAF3] border border-[#E5E2D7] rounded-3xl p-5 flex items-center justify-between gap-4">
           <div>
-            <p className="text-[13px] font-semibold text-[#1a1a1a]">Débloquez l'agent vocal</p>
-            <p className="text-[11px] text-[#71717a] mt-0.5">
+            <p
+              className="text-[18px] text-[#0A0A0A] font-normal"
+              style={{ fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)', letterSpacing: '-0.02em' }}
+            >
+              Débloquez l'agent <span className="italic text-[#8B7A50]">vocal</span>
+            </p>
+            <p className="text-[12px] text-[#86826F] mt-1">
               Le plan Pro inclut l'agent vocal téléphone, le simulateur et 5 000 tickets/mois.
             </p>
           </div>
@@ -102,7 +107,7 @@ export function OverviewHome({
               trackEvent('Upgrade Clicked', { from_plan: 'starter', to_plan: 'pro', trigger: 'overview_upsell', location: 'overview' })
               setActiveTab('billing')
             }}
-            className="px-4 py-2 bg-cta text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0"
+            className="px-4 py-2.5 bg-cta text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0"
           >
             Essai Pro gratuit 7 jours
           </button>
@@ -219,21 +224,21 @@ function AlertBanner({ alert }) {
     danger:  { bg: 'bg-red-50/70',   border: 'border-red-200',   iconBg: 'bg-red-100',   iconColor: 'text-red-600',   textColor: 'text-red-800',   btnBg: 'bg-red-600 hover:bg-red-700',       icon: AlertTriangle },
     warning: { bg: 'bg-amber-50/70', border: 'border-amber-200', iconBg: 'bg-amber-100', iconColor: 'text-amber-700', textColor: 'text-amber-900', btnBg: 'bg-amber-600 hover:bg-amber-700',   icon: AlertTriangle },
     info:    { bg: 'bg-cta/5',       border: 'border-cta/20',    iconBg: 'bg-cta/10',    iconColor: 'text-cta',       textColor: 'text-[#003725]', btnBg: 'bg-cta hover:bg-[#003725]',         icon: Sparkles },
-    neutral: { bg: 'bg-[#fafafa]',   border: 'border-[#f0f0f0]', iconBg: 'bg-[#f0f0f0]', iconColor: 'text-[#71717a]', textColor: 'text-[#1a1a1a]', btnBg: 'bg-[#1a1a1a] hover:bg-black',       icon: ShoppingBag },
+    neutral: { bg: 'bg-[#FCFAF3]',   border: 'border-[#E5E2D7]', iconBg: 'bg-[#F7F5F0]', iconColor: 'text-[#86826F]', textColor: 'text-[#0A0A0A]', btnBg: 'bg-[#0A0A0A] hover:bg-black',       icon: ShoppingBag },
   }
   const t = tones[alert.tone] || tones.neutral
   const Icon = t.icon
   return (
-    <div className={`rounded-2xl border ${t.border} ${t.bg} px-4 py-3 flex items-center justify-between gap-3`}>
+    <div className={`rounded-3xl border ${t.border} ${t.bg} px-5 py-4 flex items-center justify-between gap-3`}>
       <div className="flex items-center gap-3 min-w-0">
-        <div className={`w-8 h-8 rounded-lg ${t.iconBg} flex items-center justify-center flex-shrink-0`}>
+        <div className={`w-9 h-9 rounded-2xl ${t.iconBg} flex items-center justify-center flex-shrink-0`}>
           <Icon className={`w-4 h-4 ${t.iconColor}`} />
         </div>
         <p className={`text-[13px] ${t.textColor} font-medium text-left`}>{alert.title}</p>
       </div>
       <button
         onClick={alert.onClick}
-        className={`flex-shrink-0 px-3 py-1.5 rounded-lg ${t.btnBg} text-white text-[12px] font-semibold transition-colors whitespace-nowrap`}
+        className={`flex-shrink-0 px-4 py-2 rounded-full ${t.btnBg} text-white text-[12px] font-semibold transition-colors whitespace-nowrap`}
       >
         {alert.ctaLabel}
       </button>
@@ -282,79 +287,91 @@ function TodayHero({ clientId, urgentEscalationCount, setActiveTab }) {
   const isUp = deltaVsYesterday !== null && deltaVsYesterday > 0
   const isDown = deltaVsYesterday !== null && deltaVsYesterday < 0
 
+  const serif = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
+  const mono = { fontFamily: 'var(--font-mono, "DM Mono", ui-monospace, monospace)' }
+
   return (
-    <div className="bg-white rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-[0_1px_3px_rgba(10,10,10,0.04)] border border-[#E5E2D7] overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
         {/* Main: Today's count */}
         <div className="lg:col-span-2 p-6 md:p-8">
           <div className="flex items-center gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 border border-emerald-200">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Agent actif</span>
+              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-[0.12em]" style={mono}>Agent actif</span>
             </span>
-            <span className="text-[11px] text-[#9ca3af] font-medium">· Mis à jour il y a moins d'1 min</span>
+            <span className="text-[11px] text-[#86826F] font-medium" style={mono}>· Mis à jour il y a moins d'1 min</span>
           </div>
-          <p className="text-[13px] text-[#71717a] font-medium mb-1">Tickets traités aujourd'hui</p>
+          <p className="text-[11px] text-[#86826F] font-semibold uppercase tracking-[0.12em] mb-2" style={mono}>Tickets traités aujourd'hui</p>
           <div className="flex items-baseline gap-3">
-            <p className="text-[56px] md:text-[72px] font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none">
+            <p
+              className="text-[64px] md:text-[80px] text-[#0A0A0A] tabular-nums leading-none font-normal"
+              style={{ ...serif, letterSpacing: '-0.03em' }}
+            >
               {today?.todayTotal ?? '—'}
             </p>
             {deltaVsYesterday !== null && (
-              <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[12px] font-bold ${
-                isUp ? 'bg-emerald-50 text-emerald-700' : isDown ? 'bg-red-50 text-red-700' : 'bg-[#fafafa] text-[#71717a]'
-              }`}>
+              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                isUp ? 'bg-emerald-50 text-emerald-700' : isDown ? 'bg-red-50 text-red-700' : 'bg-[#F7F5F0] text-[#86826F]'
+              }`} style={mono}>
                 {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : isDown ? <TrendingDown className="w-3.5 h-3.5" /> : null}
                 {isUp ? '+' : ''}{deltaVsYesterday}%
               </span>
             )}
           </div>
           {today && today.todayTotal > 0 && (
-            <p className="text-[12px] text-[#71717a] mt-4">
+            <p className="text-[12.5px] text-[#3A3A3A] mt-4">
               <span className="font-semibold text-cta">{today.todayAuto}</span> résolus automatiquement · {' '}
-              <span className="font-semibold text-amber-600">{today.todayEscalated}</span> escaladés à votre équipe
+              <span className="font-semibold text-[#8B7A50]">{today.todayEscalated}</span> escaladés à votre équipe
             </p>
           )}
           {today && today.yesterdayTotal > 0 && (
-            <p className="text-[11px] text-[#9ca3af] mt-1">
+            <p className="text-[11px] text-[#86826F] mt-1" style={mono}>
               Hier à la même heure : {today.yesterdayTotal} tickets
             </p>
           )}
         </div>
 
         {/* Side: Urgent slot ou next action suggestion */}
-        <div className="p-6 md:p-8 bg-gradient-to-br from-[#fafafa] to-white border-t lg:border-t-0 lg:border-l border-[#f0f0f0] flex flex-col justify-center">
+        <div className="p-6 md:p-8 bg-[#FCFAF3] border-t lg:border-t-0 lg:border-l border-[#E5E2D7] flex flex-col justify-center">
           {urgentEscalationCount > 0 ? (
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <AlertTriangle className="w-4 h-4 text-red-600" />
-                <p className="text-[11px] font-bold text-red-600 uppercase tracking-wider">Attention requise</p>
+                <p className="text-[10px] font-bold text-red-600 uppercase tracking-[0.12em]" style={mono}>Attention requise</p>
               </div>
-              <p className="text-[22px] font-bold text-[#1a1a1a] tracking-tight leading-tight mb-1">
-                {urgentEscalationCount} ticket{urgentEscalationCount > 1 ? 's' : ''} urgent{urgentEscalationCount > 1 ? 's' : ''}
+              <p
+                className="text-[26px] text-[#0A0A0A] leading-[1.1] mb-1.5 font-normal"
+                style={{ ...serif, letterSpacing: '-0.02em' }}
+              >
+                {urgentEscalationCount} ticket{urgentEscalationCount > 1 ? 's' : ''} <span className="italic text-[#8B7A50]">urgent{urgentEscalationCount > 1 ? 's' : ''}</span>
               </p>
-              <p className="text-[12px] text-[#71717a] mb-4">En attente depuis plus de 2h.</p>
+              <p className="text-[12px] text-[#86826F] mb-4">En attente depuis plus de 2h.</p>
               <button
                 onClick={() => setActiveTab('escalations')}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-600 text-white text-[13px] font-semibold hover:bg-red-700 transition-colors"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-red-600 text-white text-[13px] font-semibold hover:bg-red-700 transition-colors"
               >
                 Voir les tickets <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           ) : (
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-3">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">Tout est sous contrôle</p>
+                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-[0.12em]" style={mono}>Tout est sous contrôle</p>
               </div>
-              <p className="text-[18px] font-bold text-[#1a1a1a] tracking-tight leading-tight mb-1">
-                Aucune action requise
+              <p
+                className="text-[22px] text-[#0A0A0A] leading-[1.1] mb-1.5 font-normal"
+                style={{ ...serif, letterSpacing: '-0.02em' }}
+              >
+                Aucune action <span className="italic text-[#8B7A50]">requise</span>
               </p>
-              <p className="text-[12px] text-[#71717a] mb-4">
+              <p className="text-[12px] text-[#86826F] mb-4">
                 Votre agent gère tout. Consultez l'activité pour les détails.
               </p>
               <button
                 onClick={() => setActiveTab('activity')}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-[#f0f0f0] text-[#1a1a1a] text-[13px] font-semibold hover:bg-[#fafafa] transition-colors"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-white border border-[#E5E2D7] text-[#0A0A0A] text-[13px] font-semibold hover:bg-[#F7F5F0] transition-colors"
               >
                 <Activity className="w-4 h-4" />
                 Voir l'activité
@@ -422,17 +439,28 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
     },
   ]
 
+  const serif = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
+  const mono = { fontFamily: 'var(--font-mono, "DM Mono", ui-monospace, monospace)' }
+
   return (
     <div>
       {/* Period selector */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-[15px] font-semibold text-[#1a1a1a]">Performance</h3>
-          <span className="text-[11px] text-[#9ca3af] font-medium bg-[#f5f5f5] px-2 py-0.5 rounded">
+          <h3
+            className="text-[22px] text-[#0A0A0A] font-normal"
+            style={{ ...serif, letterSpacing: '-0.02em' }}
+          >
+            Performance
+          </h3>
+          <span
+            className="text-[10px] text-[#86826F] font-semibold uppercase tracking-[0.12em] bg-[#F7F5F0] border border-[#E5E2D7] px-2 py-0.5 rounded-full"
+            style={mono}
+          >
             {selectedPeriod === 'this_month' ? 'Ce mois' : selectedPeriod === 'last_month' ? 'Mois dernier' : '30 jours'}
           </span>
         </div>
-        <div role="tablist" aria-label="Période d'analyse" className="flex items-center gap-0.5 p-0.5 rounded-lg bg-[#f5f5f5]">
+        <div role="tablist" aria-label="Période d'analyse" className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#F7F5F0] border border-[#E5E2D7]">
           {[
             { id: 'this_month', label: 'Ce mois' },
             { id: 'last_month', label: 'Mois dernier' },
@@ -442,7 +470,7 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
             return (
               <button key={p.id} role="tab" aria-selected={isSelected} tabIndex={isSelected ? 0 : -1}
                 onClick={() => setSelectedPeriod(p.id)}
-                className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${isSelected ? 'bg-white text-[#1a1a1a] shadow-sm' : 'text-[#9ca3af] hover:text-[#1a1a1a]'}`}>
+                className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${isSelected ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-[#86826F] hover:text-[#0A0A0A]'}`}>
                 {p.label}
               </button>
             )
@@ -453,18 +481,33 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
       {/* 4-card KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {kpis.map((kpi, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-[#f0f0f0] p-4 md:p-5">
-            <p className="text-[11px] font-medium text-[#71717a] leading-tight mb-3 line-clamp-1">{kpi.label}</p>
+          <div key={i} className="bg-white rounded-3xl border border-[#E5E2D7] p-5 md:p-6">
+            <p className="text-[10px] font-semibold text-[#86826F] leading-tight mb-3 line-clamp-1 uppercase tracking-[0.12em]" style={mono}>
+              {kpi.label}
+            </p>
             <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-[26px] md:text-[32px] font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none">
+              <span
+                className="text-[32px] md:text-[38px] text-[#0A0A0A] tabular-nums leading-none font-normal"
+                style={{ ...serif, letterSpacing: '-0.03em' }}
+              >
                 {typeof kpi.value === 'number' ? kpi.value.toLocaleString('fr-FR') : kpi.value}
               </span>
-              {kpi.suffix && <span className="text-[14px] font-semibold text-[#1a1a1a]">{kpi.suffix}</span>}
+              {kpi.suffix && (
+                <span
+                  className="text-[18px] text-[#0A0A0A] font-normal"
+                  style={serif}
+                >
+                  {kpi.suffix}
+                </span>
+              )}
             </div>
             <div className="flex items-center justify-between gap-2 mt-2">
-              <p className="text-[10px] text-[#9ca3af] leading-tight truncate flex-1">{kpi.sub}</p>
+              <p className="text-[10.5px] text-[#86826F] leading-tight truncate flex-1">{kpi.sub}</p>
               {kpi.variation !== undefined && kpi.variation !== null && kpi.variation !== 0 && (
-                <span className={`flex-shrink-0 text-[10px] font-bold ${kpi.variation > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                <span
+                  className={`flex-shrink-0 text-[10px] font-semibold ${kpi.variation > 0 ? 'text-cta' : 'text-red-500'}`}
+                  style={mono}
+                >
                   {kpi.variation > 0 ? '▲' : '▼'} {Math.abs(kpi.variation)}%
                 </span>
               )}
@@ -501,21 +544,27 @@ function Sparkline({ data, color = '#0E653A' }) {
 }
 
 function EmptyKPIState({ setActiveTab }) {
+  const serif = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
   return (
-    <div className="rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] bg-white overflow-hidden">
-      <div className="relative bg-gradient-to-br from-cta/[0.04] via-white to-cta/[0.02] px-6 py-10 text-center">
+    <div className="rounded-3xl shadow-[0_1px_3px_rgba(10,10,10,0.04)] border border-[#E5E2D7] bg-white overflow-hidden">
+      <div className="relative bg-[#FCFAF3] px-6 py-10 text-center">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-cta/10 mb-4">
           <Sparkles className="w-5 h-5 text-cta" />
         </div>
-        <h3 className="text-[18px] font-semibold text-[#1a1a1a] tracking-tight">Votre agent est prêt</h3>
-        <p className="text-[13px] text-[#71717a] mt-1.5 max-w-md mx-auto leading-relaxed">
+        <h3
+          className="text-[26px] text-[#0A0A0A] font-normal"
+          style={{ ...serif, letterSpacing: '-0.02em' }}
+        >
+          Votre agent est <span className="italic text-[#8B7A50]">prêt</span>
+        </h3>
+        <p className="text-[13px] text-[#86826F] mt-2 max-w-md mx-auto leading-relaxed">
           Dès qu'un client vous écrira, vous verrez apparaître ici le temps gagné, les tickets résolus automatiquement et les économies réalisées.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
           <button onClick={() => setActiveTab('agent-config')} className="px-4 py-2 rounded-full bg-cta text-white text-[12px] font-semibold hover:bg-[#0A4F2C] transition-colors">
             Configurer mon agent
           </button>
-          <button onClick={() => setActiveTab('simulator')} className="px-4 py-2 rounded-full bg-white text-cta text-[12px] font-semibold border border-cta/20 hover:bg-cta/[0.04] transition-colors">
+          <button onClick={() => setActiveTab('simulator')} className="px-4 py-2 rounded-full bg-white text-cta text-[12px] font-semibold border border-[#E5E2D7] hover:bg-[#F7F5F0] transition-colors">
             Tester avec un message exemple
           </button>
         </div>
@@ -529,27 +578,43 @@ function EmptyKPIState({ setActiveTab }) {
    ═══════════════════════════════════════════════════════════════════ */
 function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
   const [rightTab, setRightTab] = useState('insights')
+  const mono = { fontFamily: 'var(--font-mono, "DM Mono", ui-monospace, monospace)' }
+  const serif = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       {/* Activity feed (2/3 on desktop) */}
-      <div className="lg:col-span-2 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
+      <div className="lg:col-span-2 bg-white rounded-3xl shadow-[0_1px_3px_rgba(10,10,10,0.04)] border border-[#E5E2D7] overflow-hidden">
         <div className="px-6 pt-5 pb-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cta animate-pulse" />
-            <p className="text-[13px] font-semibold text-[#1a1a1a]">Feed en direct</p>
-            <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider bg-[#f5f5f5] px-2 py-0.5 rounded">Live</span>
+            <p
+              className="text-[18px] text-[#0A0A0A] font-normal"
+              style={{ ...serif, letterSpacing: '-0.01em' }}
+            >
+              Feed en direct
+            </p>
+            <span
+              className="text-[9.5px] font-bold text-[#86826F] uppercase tracking-[0.12em] bg-[#F7F5F0] border border-[#E5E2D7] px-2 py-0.5 rounded-full"
+              style={mono}
+            >
+              Live
+            </span>
           </div>
-          <button onClick={() => setActiveTab('activity')} className="text-[12px] font-medium text-cta hover:underline">
-            Tout voir →
+          <button
+            onClick={() => setActiveTab('activity')}
+            className="text-[11px] font-medium text-[#86826F] hover:text-[#0A0A0A] uppercase tracking-[0.08em]"
+            style={mono}
+          >
+            → Tout voir
           </button>
         </div>
         <LiveActivityWidget supabase={supabase} setActiveTab={setActiveTab} isLight={true} compact={true} />
       </div>
 
       {/* Tabs pane (1/3 on desktop) */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden flex flex-col">
-        <div role="tablist" aria-label="Analyses" className="flex items-center gap-0.5 p-1 border-b border-[#f0f0f0]">
+      <div className="bg-white rounded-3xl shadow-[0_1px_3px_rgba(10,10,10,0.04)] border border-[#E5E2D7] overflow-hidden flex flex-col">
+        <div role="tablist" aria-label="Analyses" className="flex items-center gap-0.5 p-1.5 border-b border-[#E5E2D7] bg-[#FCFAF3]">
           {[
             { id: 'insights', label: 'Insights', icon: Lightbulb },
             { id: 'peak',     label: 'Heures',   icon: Clock },
@@ -560,7 +625,7 @@ function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
             return (
               <button key={t.id} role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
                 onClick={() => setRightTab(t.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-[12px] font-medium transition-colors ${active ? 'bg-[#f5f5f5] text-[#1a1a1a]' : 'text-[#9ca3af] hover:text-[#1a1a1a]'}`}>
+                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-full text-[12px] font-medium transition-colors ${active ? 'bg-white text-[#0A0A0A] shadow-sm border border-[#E5E2D7]' : 'text-[#86826F] hover:text-[#0A0A0A]'}`}>
                 <Icon className="w-3.5 h-3.5" />
                 {t.label}
               </button>
