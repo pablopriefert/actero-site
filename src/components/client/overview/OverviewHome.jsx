@@ -41,78 +41,91 @@ export function OverviewHome({
   setActiveTab, theme,
 }) {
   return (
-    <div className="max-w-6xl mx-auto space-y-6" data-editorial>
-      {/* Zone 0 — System alerts (1 visible, rest collapsed) */}
-      <SystemAlertStack
-        urgentEscalationCount={urgentEscalationCount}
-        ticketsPercent={ticketsPercent}
-        ticketsUsed={ticketsUsed}
-        ticketsLimit={ticketsLimit}
-        planId={planId}
-        inTrial={inTrial}
-        trialDaysLeft={trialDaysLeft}
-        completedSetupSteps={completedSetupSteps}
-        showShopifyBanner={showShopifyBanner}
-        setupCompletion={setupCompletion}
-        setActiveTab={setActiveTab}
-      />
-
-      {/* Zone A — Today hero (primary focal point) */}
-      <TodayHero
-        clientId={clientId}
-        urgentEscalationCount={urgentEscalationCount}
-        setActiveTab={setActiveTab}
-      />
-
-      {/* Zone B — KPI row avec sparkline */}
-      {totalEvents > 0 ? (
-        <KPIRowWithSparkline
-          eventCounts={eventCounts}
-          liveRoi={liveRoi}
-          periodStats={periodStats}
-          dailyMetrics={dailyMetrics}
-          selectedPeriod={selectedPeriod}
-          setSelectedPeriod={setSelectedPeriod}
-        />
-      ) : (
-        <EmptyKPIState setActiveTab={setActiveTab} />
-      )}
-
-      {/* Zone C — Signals grid (activity + tabs) */}
-      {totalEvents > 0 && (
-        <SignalsGrid
-          clientId={clientId}
-          theme={theme}
-          selectedPeriod={selectedPeriod}
+    /*
+     * Full-bleed cream wrap. Negative margins pour briser la contrainte
+     * du parent ClientDashboard (qui n'est pas touché par la règle
+     * « visuel uniquement ») et peindre tout l'écran en paper-cream
+     * #F7F5F0 comme le design variation B.
+     */
+    <div
+      className="-m-4 md:-m-6 p-4 md:p-8 min-h-[calc(100vh-64px)]"
+      style={{ background: '#F7F5F0' }}
+      data-editorial
+    >
+      <div className="max-w-6xl mx-auto space-y-7">
+        {/* Zone 0 — System alerts */}
+        <SystemAlertStack
+          urgentEscalationCount={urgentEscalationCount}
+          ticketsPercent={ticketsPercent}
+          ticketsUsed={ticketsUsed}
+          ticketsLimit={ticketsLimit}
+          planId={planId}
+          inTrial={inTrial}
+          trialDaysLeft={trialDaysLeft}
+          completedSetupSteps={completedSetupSteps}
+          showShopifyBanner={showShopifyBanner}
+          setupCompletion={setupCompletion}
           setActiveTab={setActiveTab}
         />
-      )}
 
-      {/* Starter → Pro upsell (reste standalone en bas, contextuel) */}
-      {planId === 'starter' && (
-        <div className="bg-[#FCFAF3] border border-[#E5E2D7] rounded-3xl p-5 flex items-center justify-between gap-4">
-          <div>
-            <p
-              className="text-[18px] text-[#0A0A0A] font-normal"
-              style={{ fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)', letterSpacing: '-0.02em' }}
+        {/* Zone A — Today hero (editorial masthead) */}
+        <TodayHero
+          clientId={clientId}
+          urgentEscalationCount={urgentEscalationCount}
+          setActiveTab={setActiveTab}
+        />
+
+        {/* Zone B — KPI row avec sparkline */}
+        {totalEvents > 0 ? (
+          <KPIRowWithSparkline
+            eventCounts={eventCounts}
+            liveRoi={liveRoi}
+            periodStats={periodStats}
+            dailyMetrics={dailyMetrics}
+            selectedPeriod={selectedPeriod}
+            setSelectedPeriod={setSelectedPeriod}
+          />
+        ) : (
+          <EmptyKPIState setActiveTab={setActiveTab} />
+        )}
+
+        {/* Zone C — Signals grid (activity + tabs) */}
+        {totalEvents > 0 && (
+          <SignalsGrid
+            clientId={clientId}
+            theme={theme}
+            selectedPeriod={selectedPeriod}
+            setActiveTab={setActiveTab}
+          />
+        )}
+
+        {/* Starter → Pro upsell */}
+        {planId === 'starter' && (
+          <div className="bg-white border border-[#E5E2D7] rounded-3xl p-6 flex items-center justify-between gap-4 shadow-[0_1px_3px_rgba(10,10,10,0.03)]">
+            <div>
+              <p
+                className="text-[26px] text-[#0A0A0A] font-normal leading-[1.1]"
+                style={{ fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)', letterSpacing: '-0.02em' }}
+              >
+                Débloquez l'agent <span className="italic text-[#8B7A50]">vocal</span>
+              </p>
+              <p className="text-[12.5px] text-[#86826F] mt-2 leading-relaxed max-w-md">
+                Le plan Pro inclut l'agent vocal téléphone, le simulateur et 5 000 tickets/mois.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                trackEvent('Upgrade Clicked', { from_plan: 'starter', to_plan: 'pro', trigger: 'overview_upsell', location: 'overview' })
+                setActiveTab('billing')
+              }}
+              className="px-5 py-2.5 bg-[#0A0A0A] text-[#F9E8A8] text-[11px] font-semibold rounded-full hover:bg-black transition flex-shrink-0 uppercase tracking-[0.08em]"
+              style={{ fontFamily: 'var(--font-mono, "DM Mono", ui-monospace, monospace)' }}
             >
-              Débloquez l'agent <span className="italic text-[#8B7A50]">vocal</span>
-            </p>
-            <p className="text-[12px] text-[#86826F] mt-1">
-              Le plan Pro inclut l'agent vocal téléphone, le simulateur et 5 000 tickets/mois.
-            </p>
+              Essai Pro gratuit 7 jours
+            </button>
           </div>
-          <button
-            onClick={() => {
-              trackEvent('Upgrade Clicked', { from_plan: 'starter', to_plan: 'pro', trigger: 'overview_upsell', location: 'overview' })
-              setActiveTab('billing')
-            }}
-            className="px-4 py-2.5 bg-cta text-white text-[12px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0"
-          >
-            Essai Pro gratuit 7 jours
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
@@ -291,94 +304,135 @@ function TodayHero({ clientId, urgentEscalationCount, setActiveTab }) {
   const mono = { fontFamily: 'var(--font-mono, "DM Mono", ui-monospace, monospace)' }
 
   return (
-    <div className="bg-white rounded-3xl shadow-[0_1px_3px_rgba(10,10,10,0.04)] border border-[#E5E2D7] overflow-hidden">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
-        {/* Main: Today's count */}
-        <div className="lg:col-span-2 p-6 md:p-8">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-[0.12em]" style={mono}>Agent actif</span>
-            </span>
-            <span className="text-[11px] text-[#86826F] font-medium" style={mono}>· Mis à jour il y a moins d'1 min</span>
-          </div>
-          <p className="text-[11px] text-[#86826F] font-semibold uppercase tracking-[0.12em] mb-2" style={mono}>Tickets traités aujourd'hui</p>
-          <div className="flex items-baseline gap-3">
-            <p
-              className="text-[64px] md:text-[80px] text-[#0A0A0A] tabular-nums leading-none font-normal"
-              style={{ ...serif, letterSpacing: '-0.03em' }}
-            >
-              {today?.todayTotal ?? '—'}
-            </p>
-            {deltaVsYesterday !== null && (
-              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                isUp ? 'bg-emerald-50 text-emerald-700' : isDown ? 'bg-red-50 text-red-700' : 'bg-[#F7F5F0] text-[#86826F]'
-              }`} style={mono}>
-                {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : isDown ? <TrendingDown className="w-3.5 h-3.5" /> : null}
-                {isUp ? '+' : ''}{deltaVsYesterday}%
+    <div>
+      {/* ═══ MASTHEAD — kicker mono + grande ligne + 2px ink separator ═══ */}
+      <div className="border-b-2 border-[#0A0A0A] pb-5 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-end">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <span
+                className="text-[10.5px] font-medium text-[#86826F] uppercase tracking-[0.12em]"
+                style={mono}
+              >
+                Agent actif
               </span>
+              <span className="h-px flex-1 max-w-[60px] bg-[#E5E2D7]" />
+              <span
+                className="inline-flex items-center gap-1.5 text-[10.5px] text-cta"
+                style={mono}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-cta animate-pulse" />
+                LIVE · mis à jour il y a moins d'1 min
+              </span>
+            </div>
+            <h1
+              className="text-[44px] md:text-[56px] text-[#0A0A0A] leading-[0.95] font-normal"
+              style={{ ...serif, letterSpacing: '-0.025em' }}
+            >
+              Tickets traités <span className="italic text-[#8B7A50]">aujourd'hui.</span>
+            </h1>
+            {today && today.todayTotal > 0 && (
+              <p className="text-[14px] text-[#3A3A3A] mt-3 leading-relaxed max-w-xl">
+                <span className="font-semibold text-cta">{today.todayAuto}</span> résolus automatiquement ·{' '}
+                <span className="font-semibold text-[#8B7A50]">{today.todayEscalated}</span> escaladés à votre équipe.
+              </p>
+            )}
+            {today && today.yesterdayTotal > 0 && (
+              <p className="text-[11px] text-[#86826F] mt-2" style={mono}>
+                Hier à la même heure : {today.yesterdayTotal} tickets
+              </p>
             )}
           </div>
-          {today && today.todayTotal > 0 && (
-            <p className="text-[12.5px] text-[#3A3A3A] mt-4">
-              <span className="font-semibold text-cta">{today.todayAuto}</span> résolus automatiquement · {' '}
-              <span className="font-semibold text-[#8B7A50]">{today.todayEscalated}</span> escaladés à votre équipe
-            </p>
-          )}
-          {today && today.yesterdayTotal > 0 && (
-            <p className="text-[11px] text-[#86826F] mt-1" style={mono}>
-              Hier à la même heure : {today.yesterdayTotal} tickets
-            </p>
-          )}
+          <div className="text-right">
+            <div
+              className="text-[10.5px] text-[#86826F] uppercase tracking-[0.12em] mb-1"
+              style={mono}
+            >
+              Aujourd'hui
+            </div>
+            <div className="flex items-baseline justify-end gap-3">
+              <span
+                className="text-[72px] md:text-[96px] text-[#0A0A0A] tabular-nums leading-none font-normal"
+                style={{ ...serif, letterSpacing: '-0.04em' }}
+              >
+                {today?.todayTotal ?? '—'}
+              </span>
+              {deltaVsYesterday !== null && (
+                <span
+                  className={`inline-flex items-center gap-1 text-[11px] ${
+                    isUp ? 'text-cta' : isDown ? 'text-red-600' : 'text-[#86826F]'
+                  }`}
+                  style={mono}
+                >
+                  {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : isDown ? <TrendingDown className="w-3.5 h-3.5" /> : null}
+                  {isUp ? '+' : ''}{deltaVsYesterday}%
+                </span>
+              )}
+            </div>
+            <div className="text-[10.5px] text-[#86826F] mt-2" style={mono}>
+              tickets résolus par l'agent
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Side: Urgent slot ou next action suggestion */}
-        <div className="p-6 md:p-8 bg-[#FCFAF3] border-t lg:border-t-0 lg:border-l border-[#E5E2D7] flex flex-col justify-center">
-          {urgentEscalationCount > 0 ? (
-            <div>
+      {/* ═══ Side card : urgent slot ou next action ═══ */}
+      <div className="bg-white rounded-3xl border border-[#E5E2D7] p-6 md:p-8">
+        {urgentEscalationCount > 0 ? (
+          <div className="flex items-center justify-between gap-6 flex-wrap">
+            <div className="flex-1 min-w-[240px]">
               <div className="flex items-center gap-2 mb-3">
                 <AlertTriangle className="w-4 h-4 text-red-600" />
-                <p className="text-[10px] font-bold text-red-600 uppercase tracking-[0.12em]" style={mono}>Attention requise</p>
+                <p className="text-[10px] font-medium text-red-600 uppercase tracking-[0.12em]" style={mono}>
+                  Attention requise
+                </p>
               </div>
               <p
-                className="text-[26px] text-[#0A0A0A] leading-[1.1] mb-1.5 font-normal"
+                className="text-[28px] md:text-[32px] text-[#0A0A0A] leading-[1.05] font-normal"
                 style={{ ...serif, letterSpacing: '-0.02em' }}
               >
-                {urgentEscalationCount} ticket{urgentEscalationCount > 1 ? 's' : ''} <span className="italic text-[#8B7A50]">urgent{urgentEscalationCount > 1 ? 's' : ''}</span>
+                {urgentEscalationCount} ticket{urgentEscalationCount > 1 ? 's' : ''}{' '}
+                <span className="italic text-[#B8302B]">urgent{urgentEscalationCount > 1 ? 's' : ''}.</span>
               </p>
-              <p className="text-[12px] text-[#86826F] mb-4">En attente depuis plus de 2h.</p>
-              <button
-                onClick={() => setActiveTab('escalations')}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-red-600 text-white text-[13px] font-semibold hover:bg-red-700 transition-colors"
-              >
-                Voir les tickets <ArrowRight className="w-4 h-4" />
-              </button>
+              <p className="text-[13px] text-[#86826F] mt-2">En attente depuis plus de 2h.</p>
             </div>
-          ) : (
-            <div>
+            <button
+              onClick={() => setActiveTab('escalations')}
+              className="inline-flex items-center gap-1.5 px-5 py-3 rounded-full bg-[#B8302B] text-white text-[12px] font-semibold hover:bg-[#991f1f] transition-colors flex-shrink-0 uppercase tracking-[0.06em]"
+              style={mono}
+            >
+              → Voir les tickets
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-6 flex-wrap">
+            <div className="flex-1 min-w-[240px]">
               <div className="flex items-center gap-2 mb-3">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-[0.12em]" style={mono}>Tout est sous contrôle</p>
+                <CheckCircle2 className="w-4 h-4 text-cta" />
+                <p className="text-[10px] font-medium text-cta uppercase tracking-[0.12em]" style={mono}>
+                  Tout est sous contrôle
+                </p>
               </div>
               <p
-                className="text-[22px] text-[#0A0A0A] leading-[1.1] mb-1.5 font-normal"
+                className="text-[28px] md:text-[32px] text-[#0A0A0A] leading-[1.05] font-normal"
                 style={{ ...serif, letterSpacing: '-0.02em' }}
               >
-                Aucune action <span className="italic text-[#8B7A50]">requise</span>
+                Aucune action <span className="italic text-[#8B7A50]">requise.</span>
               </p>
-              <p className="text-[12px] text-[#86826F] mb-4">
+              <p className="text-[13px] text-[#86826F] mt-2 max-w-md">
                 Votre agent gère tout. Consultez l'activité pour les détails.
               </p>
-              <button
-                onClick={() => setActiveTab('activity')}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-white border border-[#E5E2D7] text-[#0A0A0A] text-[13px] font-semibold hover:bg-[#F7F5F0] transition-colors"
-              >
-                <Activity className="w-4 h-4" />
-                Voir l'activité
-              </button>
             </div>
-          )}
-        </div>
+            <button
+              onClick={() => setActiveTab('activity')}
+              className="inline-flex items-center gap-1.5 px-5 py-3 rounded-full bg-[#0A0A0A] text-[#F9E8A8] text-[12px] font-semibold hover:bg-black transition-colors flex-shrink-0 uppercase tracking-[0.06em]"
+              style={mono}
+            >
+              <Activity className="w-4 h-4" />
+              → Voir l'activité
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -444,33 +498,41 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
 
   return (
     <div>
-      {/* Period selector */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <h3
-            className="text-[22px] text-[#0A0A0A] font-normal"
-            style={{ ...serif, letterSpacing: '-0.02em' }}
-          >
-            Performance
-          </h3>
-          <span
-            className="text-[10px] text-[#86826F] font-semibold uppercase tracking-[0.12em] bg-[#F7F5F0] border border-[#E5E2D7] px-2 py-0.5 rounded-full"
+      {/* ═══ Section header — kicker mono + serif title + 1px ink separator ═══ */}
+      <div className="flex items-end justify-between border-b border-[#0A0A0A] pb-3 mb-5 gap-4 flex-wrap">
+        <div>
+          <div
+            className="text-[10.5px] font-medium text-[#86826F] uppercase tracking-[0.12em] mb-1"
             style={mono}
           >
-            {selectedPeriod === 'this_month' ? 'Ce mois' : selectedPeriod === 'last_month' ? 'Mois dernier' : '30 jours'}
-          </span>
+            Section · Performance
+          </div>
+          <h2
+            className="text-[30px] md:text-[36px] text-[#0A0A0A] font-normal leading-[1.05]"
+            style={{ ...serif, letterSpacing: '-0.025em' }}
+          >
+            Performance <span className="italic text-[#8B7A50]">du mois.</span>
+          </h2>
         </div>
-        <div role="tablist" aria-label="Période d'analyse" className="flex items-center gap-0.5 p-0.5 rounded-full bg-[#F7F5F0] border border-[#E5E2D7]">
+        <div role="tablist" aria-label="Période d'analyse" className="inline-flex items-center border border-[#E5E2D7] rounded-full overflow-hidden bg-white">
           {[
             { id: 'this_month', label: 'Ce mois' },
             { id: 'last_month', label: 'Mois dernier' },
             { id: 'last_30_days', label: '30 jours' },
-          ].map(p => {
+          ].map((p, idx) => {
             const isSelected = selectedPeriod === p.id
             return (
-              <button key={p.id} role="tab" aria-selected={isSelected} tabIndex={isSelected ? 0 : -1}
+              <button
+                key={p.id}
+                role="tab"
+                aria-selected={isSelected}
+                tabIndex={isSelected ? 0 : -1}
                 onClick={() => setSelectedPeriod(p.id)}
-                className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all ${isSelected ? 'bg-white text-[#0A0A0A] shadow-sm' : 'text-[#86826F] hover:text-[#0A0A0A]'}`}>
+                className={`px-3.5 py-1.5 text-[10.5px] font-medium uppercase tracking-[0.06em] transition-colors ${
+                  isSelected ? 'bg-[#0A0A0A] text-[#F9E8A8]' : 'text-[#3A3A3A] hover:bg-[#F7F5F0]'
+                } ${idx > 0 ? 'border-l border-[#E5E2D7]' : ''}`}
+                style={mono}
+              >
                 {p.label}
               </button>
             )
@@ -478,34 +540,47 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
         </div>
       </div>
 
-      {/* 4-card KPI grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* ═══ 4-card KPI grid — editorial big serif ═══ */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {kpis.map((kpi, i) => (
-          <div key={i} className="bg-white rounded-3xl border border-[#E5E2D7] p-5 md:p-6">
-            <p className="text-[10px] font-semibold text-[#86826F] leading-tight mb-3 line-clamp-1 uppercase tracking-[0.12em]" style={mono}>
-              {kpi.label}
-            </p>
-            <div className="flex items-baseline gap-1 mb-1">
+          <div key={i} className="bg-white rounded-3xl border border-[#E5E2D7] p-5 md:p-6 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <p
+                className="text-[9.5px] font-medium text-[#86826F] uppercase tracking-[0.12em]"
+                style={mono}
+              >
+                {kpi.label}
+              </p>
               <span
-                className="text-[32px] md:text-[38px] text-[#0A0A0A] tabular-nums leading-none font-normal"
-                style={{ ...serif, letterSpacing: '-0.03em' }}
+                className="text-[9.5px] text-[#86826F]"
+                style={mono}
+              >
+                0{i + 1}
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span
+                className="text-[44px] md:text-[56px] text-[#0A0A0A] tabular-nums leading-[0.95] font-normal"
+                style={{ ...serif, letterSpacing: '-0.04em' }}
               >
                 {typeof kpi.value === 'number' ? kpi.value.toLocaleString('fr-FR') : kpi.value}
               </span>
               {kpi.suffix && (
                 <span
-                  className="text-[18px] text-[#0A0A0A] font-normal"
+                  className="text-[22px] text-[#8B7A50] italic font-normal"
                   style={serif}
                 >
                   {kpi.suffix}
                 </span>
               )}
             </div>
-            <div className="flex items-center justify-between gap-2 mt-2">
-              <p className="text-[10.5px] text-[#86826F] leading-tight truncate flex-1">{kpi.sub}</p>
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#E5E2D7] border-dotted mt-auto">
+              <p className="text-[10.5px] text-[#86826F] leading-tight truncate flex-1">
+                {kpi.sub}
+              </p>
               {kpi.variation !== undefined && kpi.variation !== null && kpi.variation !== 0 && (
                 <span
-                  className={`flex-shrink-0 text-[10px] font-semibold ${kpi.variation > 0 ? 'text-cta' : 'text-red-500'}`}
+                  className={`flex-shrink-0 text-[10px] ${kpi.variation > 0 ? 'text-cta' : 'text-red-500'}`}
                   style={mono}
                 >
                   {kpi.variation > 0 ? '▲' : '▼'} {Math.abs(kpi.variation)}%
@@ -513,7 +588,7 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
               )}
             </div>
             {kpi.sparkline && kpi.sparkline.length >= 2 && (
-              <div className="mt-3 h-6 w-full">
+              <div className="h-7 w-full -mt-1">
                 <Sparkline data={kpi.sparkline} color={kpi.color} />
               </div>
             )}
@@ -582,56 +657,77 @@ function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
   const serif = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      {/* Activity feed (2/3 on desktop) */}
-      <div className="lg:col-span-2 bg-white rounded-3xl shadow-[0_1px_3px_rgba(10,10,10,0.04)] border border-[#E5E2D7] overflow-hidden">
-        <div className="px-6 pt-5 pb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-cta animate-pulse" />
-            <p
-              className="text-[18px] text-[#0A0A0A] font-normal"
-              style={{ ...serif, letterSpacing: '-0.01em' }}
-            >
-              Feed en direct
-            </p>
-            <span
-              className="text-[9.5px] font-bold text-[#86826F] uppercase tracking-[0.12em] bg-[#F7F5F0] border border-[#E5E2D7] px-2 py-0.5 rounded-full"
-              style={mono}
-            >
-              Live
-            </span>
-          </div>
-          <button
-            onClick={() => setActiveTab('activity')}
-            className="text-[11px] font-medium text-[#86826F] hover:text-[#0A0A0A] uppercase tracking-[0.08em]"
+    <div>
+      {/* ═══ Section header ═══ */}
+      <div className="flex items-end justify-between border-b border-[#0A0A0A] pb-3 mb-5 gap-4 flex-wrap">
+        <div>
+          <div
+            className="text-[10.5px] font-medium text-[#86826F] uppercase tracking-[0.12em] mb-1"
             style={mono}
           >
-            → Tout voir
-          </button>
+            Section · Signaux
+          </div>
+          <h2
+            className="text-[30px] md:text-[36px] text-[#0A0A0A] font-normal leading-[1.05]"
+            style={{ ...serif, letterSpacing: '-0.025em' }}
+          >
+            Feed en direct <span className="italic text-[#8B7A50]">et analyses.</span>
+          </h2>
         </div>
-        <LiveActivityWidget supabase={supabase} setActiveTab={setActiveTab} isLight={true} compact={true} />
       </div>
 
-      {/* Tabs pane (1/3 on desktop) */}
-      <div className="bg-white rounded-3xl shadow-[0_1px_3px_rgba(10,10,10,0.04)] border border-[#E5E2D7] overflow-hidden flex flex-col">
-        <div role="tablist" aria-label="Analyses" className="flex items-center gap-0.5 p-1.5 border-b border-[#E5E2D7] bg-[#FCFAF3]">
-          {[
-            { id: 'insights', label: 'Insights', icon: Lightbulb },
-            { id: 'peak',     label: 'Heures',   icon: Clock },
-            { id: 'trends',   label: 'Tendance', icon: BarChart3 },
-          ].map(t => {
-            const active = rightTab === t.id
-            const Icon = t.icon
-            return (
-              <button key={t.id} role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
-                onClick={() => setRightTab(t.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-full text-[12px] font-medium transition-colors ${active ? 'bg-white text-[#0A0A0A] shadow-sm border border-[#E5E2D7]' : 'text-[#86826F] hover:text-[#0A0A0A]'}`}>
-                <Icon className="w-3.5 h-3.5" />
-                {t.label}
-              </button>
-            )
-          })}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Activity feed (2/3 on desktop) */}
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-[#E5E2D7] overflow-hidden">
+          <div className="px-6 pt-5 pb-3 flex items-center justify-between border-b border-[#E5E2D7]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-cta animate-pulse" />
+              <span
+                className="text-[10.5px] font-medium text-[#86826F] uppercase tracking-[0.12em]"
+                style={mono}
+              >
+                Live feed · temps réel
+              </span>
+            </div>
+            <button
+              onClick={() => setActiveTab('activity')}
+              className="text-[10.5px] font-medium text-[#86826F] hover:text-[#0A0A0A] uppercase tracking-[0.08em]"
+              style={mono}
+            >
+              → Tout voir
+            </button>
+          </div>
+          <LiveActivityWidget supabase={supabase} setActiveTab={setActiveTab} isLight={true} compact={true} />
         </div>
+
+        {/* Tabs pane (1/3 on desktop) */}
+        <div className="bg-white rounded-3xl border border-[#E5E2D7] overflow-hidden flex flex-col">
+          <div role="tablist" aria-label="Analyses" className="flex items-center border-b border-[#E5E2D7] bg-[#FCFAF3]">
+            {[
+              { id: 'insights', label: 'Insights', icon: Lightbulb },
+              { id: 'peak',     label: 'Heures',   icon: Clock },
+              { id: 'trends',   label: 'Tendance', icon: BarChart3 },
+            ].map((t, idx) => {
+              const active = rightTab === t.id
+              const Icon = t.icon
+              return (
+                <button
+                  key={t.id}
+                  role="tab"
+                  aria-selected={active}
+                  tabIndex={active ? 0 : -1}
+                  onClick={() => setRightTab(t.id)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-3 text-[10.5px] font-medium uppercase tracking-[0.08em] transition-colors ${
+                    active ? 'bg-white text-[#0A0A0A]' : 'text-[#86826F] hover:text-[#0A0A0A]'
+                  } ${idx > 0 ? 'border-l border-[#E5E2D7]' : ''}`}
+                  style={mono}
+                >
+                  <Icon className="w-3 h-3" />
+                  {t.label}
+                </button>
+              )
+            })}
+          </div>
         <div className="flex-1 min-h-[260px]">
           {rightTab === 'insights' && (
             <div className="p-4">
@@ -645,13 +741,19 @@ function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
           )}
           {rightTab === 'trends' && (
             <div className="p-4">
-              <p className="text-[11px] text-[#9ca3af] mb-3">Volume de demandes traitées sur la période.</p>
+              <p
+                className="text-[10.5px] text-[#86826F] mb-3 uppercase tracking-[0.08em]"
+                style={mono}
+              >
+                Volume de demandes traitées sur la période.
+              </p>
               <div className="h-[200px]">
                 <ActivityChart theme={theme} supabase={supabase} selectedPeriod={selectedPeriod} mini={true} />
               </div>
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   )
