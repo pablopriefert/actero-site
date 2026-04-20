@@ -111,7 +111,7 @@ const ToneEditor = ({ entry, onSave, saving }) => {
         <select
           value={form.tone}
           onChange={(e) => setForm(f => ({ ...f, tone: e.target.value }))}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none"
+          className="w-full bg-gray-50 border border-[#E5E2D7] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none"
         >
           {['Formel', 'Professionnel', 'Decontracte', 'Amical'].map(t => (
             <option key={t} value={t} className="bg-white">{t}</option>
@@ -126,7 +126,7 @@ const ToneEditor = ({ entry, onSave, saving }) => {
           value={form.signature}
           onChange={(e) => setForm(f => ({ ...f, signature: e.target.value }))}
           placeholder="L'equipe Bonne Gueule"
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none"
+          className="w-full bg-gray-50 border border-[#E5E2D7] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none"
         />
       </div>
 
@@ -137,7 +137,7 @@ const ToneEditor = ({ entry, onSave, saving }) => {
           onChange={(e) => setForm(f => ({ ...f, forbidden: e.target.value }))}
           rows={4}
           placeholder="je ne sais pas&#10;ce n'est pas possible"
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none resize-none"
+          className="w-full bg-gray-50 border border-[#E5E2D7] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none resize-none"
         />
       </div>
 
@@ -148,7 +148,7 @@ const ToneEditor = ({ entry, onSave, saving }) => {
           onChange={(e) => setForm(f => ({ ...f, instructions: e.target.value }))}
           rows={4}
           placeholder="Instructions supplementaires pour l'IA..."
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none resize-none"
+          className="w-full bg-gray-50 border border-[#E5E2D7] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none resize-none"
         />
       </div>
 
@@ -175,7 +175,7 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4"
+      className="bg-gray-50 border border-[#E5E2D7] rounded-2xl p-5 space-y-4"
     >
       <div>
         <label className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">
@@ -186,7 +186,7 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={isFaq ? 'Comment suivre ma commande ?' : 'Titre...'}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none focus:border-gray-400"
+          className="w-full bg-gray-50 border border-[#E5E2D7] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none focus:border-gray-400"
         />
       </div>
 
@@ -199,7 +199,7 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
           onChange={(e) => setContent(e.target.value)}
           rows={6}
           placeholder={PLACEHOLDERS[category] || 'Contenu...'}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none resize-none focus:border-gray-400"
+          className="w-full bg-gray-50 border border-[#E5E2D7] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none resize-none focus:border-gray-400"
         />
       </div>
 
@@ -210,7 +210,7 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
             type="date"
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
-            className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none"
+            className="bg-gray-50 border border-[#E5E2D7] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none"
           />
         </div>
       )}
@@ -483,7 +483,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
   return (
     <div className="max-w-5xl mx-auto space-y-5 animate-fade-in-up">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -531,7 +531,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
       {/* Quick Actions: Import URL + File Upload + Q&A Builder */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {/* URL Import */}
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-[#E5E2D7] rounded-2xl overflow-hidden">
           <button
             onClick={() => { setShowImport(!showImport); setShowQA(false) }}
             className="w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
@@ -545,14 +545,14 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             </div>
           </button>
           {showImport && (
-            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="overflow-hidden border-t border-gray-100">
+            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="overflow-hidden border-t border-[#E5E2D7]">
               <div className="p-4 space-y-3">
                 <input
                   type="url"
                   value={importUrl}
                   onChange={(e) => setImportUrl(e.target.value)}
                   placeholder="https://votre-site.com/faq"
-                  className="w-full px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-blue-300"
+                  className="w-full px-4 py-2.5 bg-[#F9F7F1] border border-[#E5E2D7] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-blue-300"
                 />
                 <button
                   onClick={handleImportUrl}
@@ -582,7 +582,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" className="w-5 h-5" />
           )
           return (
-            <div key={prov} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+            <div key={prov} className="bg-white border border-[#E5E2D7] rounded-2xl overflow-hidden">
               <button
                 onClick={() => isConnected && setImportProvider(prov)}
                 disabled={!isConnected}
@@ -608,7 +608,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
         })}
 
         {/* Q&A Builder */}
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-[#E5E2D7] rounded-2xl overflow-hidden">
           <button
             onClick={() => { setShowQA(!showQA); setShowImport(false) }}
             className="w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
@@ -622,7 +622,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             </div>
           </button>
           {showQA && (
-            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="overflow-hidden border-t border-gray-100">
+            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="overflow-hidden border-t border-[#E5E2D7]">
               <div className="p-4 space-y-3">
                 <div>
                   <label className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Question du client</label>
@@ -631,7 +631,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                     value={qaQuestion}
                     onChange={(e) => setQaQuestion(e.target.value)}
                     placeholder="Ex: Quels sont vos delais de livraison ?"
-                    className="mt-1 w-full px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300"
+                    className="mt-1 w-full px-4 py-2.5 bg-[#F9F7F1] border border-[#E5E2D7] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300"
                   />
                 </div>
                 <div>
@@ -641,7 +641,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                     onChange={(e) => setQaAnswer(e.target.value)}
                     placeholder="La livraison est gratuite a partir de 50€. Delai: 2-5 jours ouvrés..."
                     rows={3}
-                    className="mt-1 w-full px-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
+                    className="mt-1 w-full px-4 py-2.5 bg-[#F9F7F1] border border-[#E5E2D7] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
                   />
                 </div>
                 <button
@@ -658,7 +658,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
         </div>
 
         {/* File Upload */}
-        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-[#E5E2D7] rounded-2xl overflow-hidden">
           <button
             onClick={() => { setShowFileUpload(!showFileUpload); setShowImport(false); setShowQA(false) }}
             className="w-full p-4 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
@@ -672,12 +672,12 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             </div>
           </button>
           {showFileUpload && (
-            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="overflow-hidden border-t border-gray-100">
+            <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="overflow-hidden border-t border-[#E5E2D7]">
               <div className="p-4 space-y-3">
                 <label className={`relative block border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
                   uploading
-                    ? 'border-gray-200 cursor-wait'
-                    : 'border-gray-200 cursor-pointer hover:border-cta/30 hover:bg-gray-50'
+                    ? 'border-[#E5E2D7] cursor-wait'
+                    : 'border-[#E5E2D7] cursor-pointer hover:border-cta/30 hover:bg-gray-50'
                 }`}>
                   <Upload className="w-6 h-6 text-[#71717a] mx-auto mb-2" />
                   <p className="text-sm text-[#1a1a1a] font-medium">
@@ -717,7 +717,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors whitespace-nowrap ${
                 isActive
                   ? 'bg-[#1a1a1a] text-white'
-                  : 'bg-white border border-gray-200 text-[#71717a] hover:bg-[#fafafa]'
+                  : 'bg-white border border-[#E5E2D7] text-[#71717a] hover:bg-[#fafafa]'
               }`}
             >
               <CatIcon className="w-3.5 h-3.5" />
@@ -738,7 +738,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
               <Loader2 className="w-6 h-6 animate-spin text-[#71717a]" />
             </div>
           ) : selectedCategory === 'tone' ? (
-            <div className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}>
+            <div className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-[#F9F7F1] border-[#E5E2D7]'}`}>
               <ToneEditor
                 entry={filteredEntries[0]}
                 onSave={(entry) => saveMutation.mutate(entry)}
@@ -749,7 +749,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             <>
               {/* Entry list */}
               {filteredEntries.length === 0 && !isCreating ? (
-                <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}>
+                <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-[#F9F7F1] border-[#E5E2D7]'}`}>
                   <categoryConfig.icon className={`w-10 h-10 mx-auto mb-3 ${isLight ? 'text-slate-300' : 'text-[#71717a]'}`} />
                   <p className={`text-sm ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`}>
                     Ajoutez vos {categoryConfig.label.toLowerCase()} pour que l&apos;IA reponde precisement a vos clients.
@@ -788,8 +788,8 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                         onClick={() => setEditingEntry(entry.id)}
                         className={`rounded-2xl border p-5 cursor-pointer transition-all ${
                           isExpired
-                            ? (isLight ? 'bg-[#F9F7F1] border-gray-200 opacity-50' : 'bg-gray-50 border-gray-100 opacity-50')
-                            : (isLight ? 'bg-white border-gray-200 hover:border-slate-300' : 'bg-[#F9F7F1] border-gray-200 hover:border-gray-300')
+                            ? (isLight ? 'bg-[#F9F7F1] border-[#E5E2D7] opacity-50' : 'bg-gray-50 border-[#E5E2D7] opacity-50')
+                            : (isLight ? 'bg-white border-[#E5E2D7] hover:border-slate-300' : 'bg-[#F9F7F1] border-[#E5E2D7] hover:border-gray-300')
                         }`}
                       >
                         <div className="flex items-start justify-between">
@@ -838,7 +838,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                   className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-dashed text-sm font-bold transition-all ${
                     isLight
                       ? 'border-slate-300 text-[#71717a] hover:border-slate-400 hover:text-slate-700'
-                      : 'border-gray-200 text-[#71717a] hover:border-gray-300 hover:text-[#1a1a1a]'
+                      : 'border-[#E5E2D7] text-[#71717a] hover:border-gray-300 hover:text-[#1a1a1a]'
                   }`}
                 >
                   <Plus className="w-4 h-4" />

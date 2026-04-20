@@ -172,7 +172,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 mb-5">
+      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6 mb-5">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -224,7 +224,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
             className={`px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors ${
               period === p.id
                 ? 'bg-[#1a1a1a] text-white'
-                : 'bg-white border border-gray-200 text-[#71717a] hover:bg-[#fafafa]'
+                : 'bg-white border border-[#E5E2D7] text-[#71717a] hover:bg-[#fafafa]'
             }`}
           >
             {p.label}
@@ -249,8 +249,8 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
               disabled={card.locked}
               className={`group text-left bg-white rounded-2xl border p-5 transition-all ${
                 card.locked
-                  ? 'border-gray-200 opacity-60 cursor-not-allowed'
-                  : 'border-gray-200 hover:border-cta/30 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] cursor-pointer'
+                  ? 'border-[#E5E2D7] opacity-60 cursor-not-allowed'
+                  : 'border-[#E5E2D7] hover:border-cta/30 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] cursor-pointer'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
@@ -272,7 +272,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
               <p className="text-[11px] text-[#9ca3af] leading-relaxed mb-3">{card.description}</p>
 
               {/* Lead metric */}
-              <div className="pt-3 border-t border-gray-100">
+              <div className="pt-3 border-t border-[#E5E2D7]">
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl font-bold text-[#1a1a1a] tabular-nums leading-none">
                     {card.metric}

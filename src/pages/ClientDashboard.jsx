@@ -752,11 +752,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   ) : null
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#fafafa] text-[#1a1a1a]">
+    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#F7F5F0] text-[#1a1a1a]">
       <SkipToMain />
       {/* IndustryPicker disabled — was conflicting with the animated guide tour */}
       {/* Mobile Header */}
-      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 ${isLight ? "bg-white border-b border-gray-200" : "bg-white border-b border-gray-100"}`}>
+      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 bg-[#F7F5F0] border-b border-[#E5E2D7]`}>
         <div className="flex items-center gap-2">
           <Logo className={`w-6 h-6 ${isLight ? "text-[#003725]" : "text-[#1a1a1a]"}`} />
           <span className={`font-bold text-lg ${isLight ? "text-[#1a1a1a]" : "text-[#1a1a1a]"}`}>Actero OS</span>
@@ -818,7 +818,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header — clean, minimal like Instantly */}
-        <header className="sticky top-0 z-40 bg-white px-5 md:px-8 h-[48px] flex items-center justify-between border-b border-[#f0f0f0]">
+        <header className="sticky top-0 z-40 bg-[#F7F5F0] px-5 md:px-8 h-[48px] flex items-center justify-between border-b border-[#E5E2D7]">
           <h1 className="text-[14px] font-semibold text-[#1a1a1a]">
             {activeTab === "overview" && "Vue d'ensemble"}
             {activeTab === "automation" && "Automatisation"}
@@ -892,7 +892,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           </div>
         )}
 
-        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:px-10 md:py-8 bg-[#fafafa]">
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 md:px-10 md:py-8 bg-[#F7F5F0]">
           <TabErrorBoundary tabId={activeTab} resetKey={activeTab} tabLabel={activeTab}>
           <Suspense fallback={
             <div className="flex items-center justify-center py-20" role="status" aria-live="polite">

@@ -137,7 +137,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: 0.04 * idx }}
         onClick={() => onNavigate && onNavigate(card.id)}
-        className="group text-left bg-white rounded-2xl border border-gray-200 p-5 hover:border-cta/30 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all"
+        className="group text-left bg-white rounded-2xl border border-[#E5E2D7] p-5 hover:border-cta/30 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all"
       >
         <div className="flex items-start justify-between mb-3">
           <div className="w-9 h-9 rounded-lg bg-cta/10 flex items-center justify-center">
@@ -167,7 +167,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
       {/* ═══════ STATUS STRIP + live metrics 24h ═══════ */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 mb-6">
+      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${

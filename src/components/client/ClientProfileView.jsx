@@ -89,7 +89,7 @@ const NotificationPreferences = ({ clientId, isLight }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
+      className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-white border-[#E5E2D7] shadow-sm'}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -141,7 +141,7 @@ const NotificationPreferences = ({ clientId, isLight }) => {
           ))}
 
           {/* Preferred hour */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-2 border-t border-[#E5E2D7]">
             <div className="flex-1 mr-4">
               <p className={`text-sm font-medium ${isLight ? 'text-slate-700' : 'text-[#71717a]'}`}>
                 <ClockIcon className="w-3 h-3 inline mr-1" /> Heure d&apos;envoi preferee
@@ -152,8 +152,8 @@ const NotificationPreferences = ({ clientId, isLight }) => {
               onChange={(e) => updatePrefMutation.mutate({ key: 'preferred_hour', value: parseInt(e.target.value) })}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium outline-none ${
                 isLight
-                  ? 'bg-[#F9F7F1] border border-gray-200 text-slate-700'
-                  : 'bg-gray-50 border border-gray-200 text-[#1a1a1a]'
+                  ? 'bg-[#F9F7F1] border border-[#E5E2D7] text-slate-700'
+                  : 'bg-gray-50 border border-[#E5E2D7] text-[#1a1a1a]'
               }`}
             >
               {HOURS.map(h => (
@@ -310,8 +310,8 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
 
   const inputClass = `w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all ${
     isLight
-      ? 'bg-[#F9F7F1] border border-gray-200 text-[#1a1a1a] focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
-      : 'bg-gray-50 border border-gray-200 text-[#1a1a1a] focus:border-gray-400 focus:ring-2 focus:ring-white/5'
+      ? 'bg-[#F9F7F1] border border-[#E5E2D7] text-[#1a1a1a] focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+      : 'bg-gray-50 border border-[#E5E2D7] text-[#1a1a1a] focus:border-gray-400 focus:ring-2 focus:ring-white/5'
   }`
 
   const labelClass = `block text-xs font-bold uppercase tracking-wider mb-2 ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`
@@ -324,7 +324,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
   return (
     <div className="max-w-2xl mx-auto space-y-5 animate-fade-in-up">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -358,7 +358,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
+        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-white border-[#E5E2D7] shadow-sm'}`}
       >
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLight ? 'bg-[#003725]/10 text-[#003725]' : 'bg-gray-50 text-[#1a1a1a]'}`}>
@@ -455,7 +455,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
+        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-white border-[#E5E2D7] shadow-sm'}`}
       >
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLight ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-500/10 text-emerald-400'}`}>
@@ -467,7 +467,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
           </div>
         </div>
 
-        <div className={`rounded-xl p-4 ${isLight ? 'bg-[#F9F7F1] border border-gray-200' : 'bg-gray-50 border border-gray-100'}`}>
+        <div className={`rounded-xl p-4 ${isLight ? 'bg-[#F9F7F1] border border-[#E5E2D7]' : 'bg-gray-50 border border-[#E5E2D7]'}`}>
           <div className="flex items-center justify-between">
             <div>
               <p className={`text-sm font-medium ${isLight ? 'text-slate-700' : 'text-[#71717a]'}`}>Portail client Stripe</p>
@@ -489,7 +489,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-gray-200' : 'bg-white border-gray-100 shadow-sm'}`}
+        className={`rounded-2xl border p-6 space-y-5 ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-white border-[#E5E2D7] shadow-sm'}`}
       >
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLight ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-[#1a1a1a]'}`}>
@@ -554,7 +554,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
               isLight
                 ? 'bg-[#F9F7F1] text-[#1a1a1a] hover:bg-gray-50'
-                : 'bg-gray-50 text-[#1a1a1a] hover:bg-gray-100 border border-gray-200'
+                : 'bg-gray-50 text-[#1a1a1a] hover:bg-gray-100 border border-[#E5E2D7]'
             } disabled:opacity-30`}
           >
             <Lock className="w-4 h-4" /> Changer le mot de passe

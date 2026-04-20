@@ -71,7 +71,7 @@ const DB_AUTOMATIONS = {
  * cohérent avec Overview refondu : titre + résumé status + 3 KPIs inline.
  */
 const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHours, monthROI }) => (
-  <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 mb-5">
+  <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6 mb-5">
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <div className="flex items-center gap-2 mb-1.5">
@@ -171,7 +171,7 @@ const AutomationCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
       className={`rounded-2xl bg-white border transition-colors ${
-        isActive ? 'border-cta/30 shadow-[0_1px_3px_rgba(0,55,37,0.04)]' : 'border-gray-200 hover:border-gray-300'
+        isActive ? 'border-cta/30 shadow-[0_1px_3px_rgba(0,55,37,0.04)]' : 'border-[#E5E2D7] hover:border-gray-300'
       }`}
     >
       <div className="p-6">
@@ -236,7 +236,7 @@ const AutomationCard = ({
 
         {/* Channels — liste avec toggle switches explicites */}
         {hasChannels && status !== 'missing' && (
-          <div className="mb-4 pt-4 border-t border-gray-100">
+          <div className="mb-4 pt-4 border-t border-[#E5E2D7]">
             <p className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-2">
               Canaux {isActive ? '(activez ceux à utiliser)' : '(disponibles)'}
             </p>
@@ -291,8 +291,8 @@ const AutomationCard = ({
                       isSelected
                         ? 'bg-cta/5 border-cta/25 hover:bg-cta/10'
                         : canToggle
-                          ? 'bg-white border-gray-200 hover:border-cta/30 hover:bg-[#fafafa]'
-                          : 'bg-[#fafafa] border-gray-200 opacity-60 cursor-not-allowed'
+                          ? 'bg-white border-[#E5E2D7] hover:border-cta/30 hover:bg-[#fafafa]'
+                          : 'bg-[#fafafa] border-[#E5E2D7] opacity-60 cursor-not-allowed'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -330,7 +330,7 @@ const AutomationCard = ({
             disabled={mainActionDisabled}
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               isActive
-                ? 'bg-white border border-gray-200 text-[#1a1a1a] hover:bg-[#fafafa]'
+                ? 'bg-white border border-[#E5E2D7] text-[#1a1a1a] hover:bg-[#fafafa]'
                 : 'bg-cta hover:bg-[#003725] text-white'
             }`}
           >

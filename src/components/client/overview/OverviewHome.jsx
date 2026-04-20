@@ -219,7 +219,7 @@ function AlertBanner({ alert }) {
     danger:  { bg: 'bg-red-50/70',   border: 'border-red-200',   iconBg: 'bg-red-100',   iconColor: 'text-red-600',   textColor: 'text-red-800',   btnBg: 'bg-red-600 hover:bg-red-700',       icon: AlertTriangle },
     warning: { bg: 'bg-amber-50/70', border: 'border-amber-200', iconBg: 'bg-amber-100', iconColor: 'text-amber-700', textColor: 'text-amber-900', btnBg: 'bg-amber-600 hover:bg-amber-700',   icon: AlertTriangle },
     info:    { bg: 'bg-cta/5',       border: 'border-cta/20',    iconBg: 'bg-cta/10',    iconColor: 'text-cta',       textColor: 'text-[#003725]', btnBg: 'bg-cta hover:bg-[#003725]',         icon: Sparkles },
-    neutral: { bg: 'bg-[#fafafa]',   border: 'border-[#f0f0f0]', iconBg: 'bg-[#f0f0f0]', iconColor: 'text-[#71717a]', textColor: 'text-[#1a1a1a]', btnBg: 'bg-[#1a1a1a] hover:bg-black',       icon: ShoppingBag },
+    neutral: { bg: 'bg-[#fafafa]',   border: 'border-[#E5E2D7]', iconBg: 'bg-[#f0f0f0]', iconColor: 'text-[#71717a]', textColor: 'text-[#1a1a1a]', btnBg: 'bg-[#1a1a1a] hover:bg-black',       icon: ShoppingBag },
   }
   const t = tones[alert.tone] || tones.neutral
   const Icon = t.icon
@@ -283,7 +283,7 @@ function TodayHero({ clientId, urgentEscalationCount, setActiveTab }) {
   const isDown = deltaVsYesterday !== null && deltaVsYesterday < 0
 
   return (
-    <div className="bg-white rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#E5E2D7] overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
         {/* Main: Today's count */}
         <div className="lg:col-span-2 p-6 md:p-8">
@@ -322,7 +322,7 @@ function TodayHero({ clientId, urgentEscalationCount, setActiveTab }) {
         </div>
 
         {/* Side: Urgent slot ou next action suggestion */}
-        <div className="p-6 md:p-8 bg-gradient-to-br from-[#fafafa] to-white border-t lg:border-t-0 lg:border-l border-[#f0f0f0] flex flex-col justify-center">
+        <div className="p-6 md:p-8 bg-gradient-to-br from-[#fafafa] to-white border-t lg:border-t-0 lg:border-l border-[#E5E2D7] flex flex-col justify-center">
           {urgentEscalationCount > 0 ? (
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -354,7 +354,7 @@ function TodayHero({ clientId, urgentEscalationCount, setActiveTab }) {
               </p>
               <button
                 onClick={() => setActiveTab('activity')}
-                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-[#f0f0f0] text-[#1a1a1a] text-[13px] font-semibold hover:bg-[#fafafa] transition-colors"
+                className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-[#E5E2D7] text-[#1a1a1a] text-[13px] font-semibold hover:bg-[#fafafa] transition-colors"
               >
                 <Activity className="w-4 h-4" />
                 Voir l'activité
@@ -453,7 +453,7 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
       {/* 4-card KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {kpis.map((kpi, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-[#f0f0f0] p-4 md:p-5">
+          <div key={i} className="bg-white rounded-2xl border border-[#E5E2D7] p-4 md:p-5">
             <p className="text-[11px] font-medium text-[#71717a] leading-tight mb-3 line-clamp-1">{kpi.label}</p>
             <div className="flex items-baseline gap-1 mb-1">
               <span className="text-[26px] md:text-[32px] font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none">
@@ -502,7 +502,7 @@ function Sparkline({ data, color = '#0E653A' }) {
 
 function EmptyKPIState({ setActiveTab }) {
   return (
-    <div className="rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] bg-white overflow-hidden">
+    <div className="rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#E5E2D7] bg-white overflow-hidden">
       <div className="relative bg-gradient-to-br from-cta/[0.04] via-white to-cta/[0.02] px-6 py-10 text-center">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-cta/10 mb-4">
           <Sparkles className="w-5 h-5 text-cta" />
@@ -533,7 +533,7 @@ function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       {/* Activity feed (2/3 on desktop) */}
-      <div className="lg:col-span-2 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
+      <div className="lg:col-span-2 bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#E5E2D7] overflow-hidden">
         <div className="px-6 pt-5 pb-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cta animate-pulse" />
@@ -548,8 +548,8 @@ function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
       </div>
 
       {/* Tabs pane (1/3 on desktop) */}
-      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden flex flex-col">
-        <div role="tablist" aria-label="Analyses" className="flex items-center gap-0.5 p-1 border-b border-[#f0f0f0]">
+      <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#E5E2D7] overflow-hidden flex flex-col">
+        <div role="tablist" aria-label="Analyses" className="flex items-center gap-0.5 p-1 border-b border-[#E5E2D7]">
           {[
             { id: 'insights', label: 'Insights', icon: Lightbulb },
             { id: 'peak',     label: 'Heures',   icon: Clock },

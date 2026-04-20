@@ -232,7 +232,7 @@ export const ClientBillingView = ({ theme }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -342,7 +342,7 @@ export const ClientBillingView = ({ theme }) => {
         </div>
 
         {/* Manage subscription button */}
-        <div className="mt-4 pt-4 border-t border-[#f0f0f0] flex items-center justify-between">
+        <div className="mt-4 pt-4 border-t border-[#E5E2D7] flex items-center justify-between">
           <p className="text-[12px] text-[#9ca3af]">Gerez votre abonnement via Stripe</p>
           <button
             onClick={openStripePortal}
@@ -455,7 +455,7 @@ export const ClientBillingView = ({ theme }) => {
                     ? 'border-cta/30 bg-cta/5'
                     : p.popular
                     ? 'border-cta shadow-md'
-                    : 'border-[#f0f0f0] bg-white'
+                    : 'border-[#E5E2D7] bg-white'
                 }`}
               >
                 {p.popular && !isCurrent && (
@@ -538,7 +538,7 @@ export const ClientBillingView = ({ theme }) => {
             <button
               onClick={openStripePortal}
               disabled={loadingPortal}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#f0f0f0] text-[#1a1a1a] text-[12px] font-semibold rounded-lg hover:bg-[#fafafa] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E5E2D7] text-[#1a1a1a] text-[12px] font-semibold rounded-lg hover:bg-[#fafafa] transition-colors"
             >
               {loadingPortal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
               Voir mes factures
