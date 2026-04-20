@@ -68,9 +68,21 @@ async function handleAutoReply(supabase, {
     const connector = getConnector(source)
 
     if (connector) {
+      // Fetch external_ticket_id from engine_messages — required by Gorgias/
+      // Zendesk connectors which call providers' APIs using their native ticket
+      // IDs (integer or string, not our internal Supabase UUID).
+      // Previous bug : we passed `messageId` (UUID) → 404 on PUT /tickets/{id}.
+      const { data: engineMsg } = await supabase
+        .from('engine_messages')
+        .select('external_ticket_id')
+        .eq('id', messageId)
+        .maybeSingle()
+      const externalTicketId = engineMsg?.external_ticket_id || null
+
       const result = await connector(supabase, {
         clientId,
-        ticketId: messageId, // external_ticket_id is in the engine_messages
+        ticketId: externalTicketId,
+        messageId, // kept for logging/idempotency in connectors that may need it
         customerEmail,
         customerName,
         subject,

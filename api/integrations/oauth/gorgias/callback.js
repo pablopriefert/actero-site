@@ -1,6 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken } from '../../../lib/crypto.js';
 
+/**
+ * Gorgias OAuth — callback.
+ *
+ * Lit le state `nonce|subdomain|userToken` posé par install.js, exchange le
+ * code sur le subdomain du client, et stocke le subdomain dans
+ * extra_config.subdomain (pas .domain — le connector lit .subdomain).
+ *
+ * Anciens bugs corrigés :
+ *   — `extra_config.domain` stocké mais `connectors/gorgias.js` lit
+ *     `extra_config.subdomain` → clé mismatch, subdomain toujours undefined,
+ *     le connector return « Gorgias subdomain not configured ».
+ *   — Token exchange sur `login.gorgias.com/oauth/token` : fonctionne mais
+ *     certaines instances retournent un 404 — on bascule sur
+ *     `<subdomain>.gorgias.com/oauth/token` qui est l'endpoint canonique.
+ */
 export default async function handler(req, res) {
   const { code, state, error: oauthError } = req.query;
 
@@ -12,8 +27,14 @@ export default async function handler(req, res) {
     return res.redirect(302, '/client/integrations?error=gorgias_missing_params');
   }
 
-  const [nonce, userToken] = state.split(':');
-  if (!userToken) {
+  // state format : nonce|subdomain|userToken (cf. install.js)
+  const parts = String(state).split('|');
+  if (parts.length < 3) {
+    return res.redirect(302, '/client/integrations?error=gorgias_invalid_state');
+  }
+  const [, subdomain, ...tokenParts] = parts;
+  const userToken = tokenParts.join('|');
+  if (!subdomain || !userToken) {
     return res.redirect(302, '/client/integrations?error=gorgias_invalid_state');
   }
 
@@ -30,8 +51,8 @@ export default async function handler(req, res) {
   try {
     const redirectUri = process.env.GORGIAS_REDIRECT_URI || 'https://actero.fr/api/integrations/oauth/gorgias/callback';
 
-    // Use the subdomain from the authorization — extract from referrer or use generic endpoint
-    const tokenRes = await fetch('https://login.gorgias.com/oauth/token', {
+    // Token exchange sur le subdomain du client (endpoint canonique Gorgias).
+    const tokenRes = await fetch(`https://${subdomain}.gorgias.com/oauth/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -44,8 +65,9 @@ export default async function handler(req, res) {
     });
 
     const tokenData = await tokenRes.json();
-    if (tokenData.error) {
-      return res.redirect(302, `/client/integrations?error=gorgias_token_failed`);
+    if (tokenData.error || !tokenData.access_token) {
+      console.error('[gorgias/callback] token exchange failed:', tokenData);
+      return res.redirect(302, '/client/integrations?error=gorgias_token_failed');
     }
 
     // Find client_id
@@ -74,9 +96,10 @@ export default async function handler(req, res) {
         provider_label: 'Gorgias',
         auth_type: 'oauth',
         access_token: encryptToken(tokenData.access_token),
-        refresh_token: encryptToken(tokenData.refresh_token),
+        refresh_token: tokenData.refresh_token ? encryptToken(tokenData.refresh_token) : null,
         extra_config: {
-          domain: tokenData.account_domain || null,
+          subdomain,                              // ⬅ utilisé par connectors/gorgias.js
+          account_domain: tokenData.account_domain || null,
         },
         scopes: tokenData.scope?.split(' ') || [],
         status: 'active',
@@ -88,11 +111,13 @@ export default async function handler(req, res) {
       }, { onConflict: 'client_id,provider' });
 
     if (dbError) {
+      console.error('[gorgias/callback] db error:', dbError);
       return res.redirect(302, '/client/integrations?error=gorgias_db_error');
     }
 
     return res.redirect(302, '/client/integrations?success=gorgias');
   } catch (err) {
+    console.error('[gorgias/callback] exception:', err);
     return res.redirect(302, '/client/integrations?error=gorgias_exception');
   }
 }

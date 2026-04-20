@@ -1,6 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken } from '../../../lib/crypto.js';
 
+/**
+ * Zendesk OAuth — callback.
+ *
+ * Lit le state `nonce|subdomain|userToken` posé par install.js, exchange le
+ * code contre un access_token auprès du SUBDOMAIN DU CLIENT
+ * (`<subdomain>.zendesk.com/oauth/tokens`, pas un endpoint global), et stocke
+ * le subdomain dans extra_config pour que le connector sortant (respond.js →
+ * connectors/zendesk.js) puisse construire l'URL API du client.
+ *
+ * Anciens bugs corrigés :
+ *   — URL hardcodée `actero.zendesk.com/oauth/tokens` → failait pour tout
+ *     client avec son propre subdomain. Maintenant dynamique.
+ *   — `extra_config.subdomain` pas stocké → connector return
+ *     « Zendesk subdomain not configured ». Maintenant persisté.
+ */
 export default async function handler(req, res) {
   const { code, state, error: oauthError } = req.query;
 
@@ -12,9 +27,14 @@ export default async function handler(req, res) {
     return res.redirect(302, '/client/integrations?error=zendesk_missing_params');
   }
 
-  const parts = state.split(':');
-  const userToken = parts.slice(1).join(':');
-  if (!userToken) {
+  // state format : nonce|subdomain|userToken (cf. install.js)
+  const parts = String(state).split('|');
+  if (parts.length < 3) {
+    return res.redirect(302, '/client/integrations?error=zendesk_invalid_state');
+  }
+  const [, subdomain, ...tokenParts] = parts;
+  const userToken = tokenParts.join('|'); // au cas où le token contient |
+  if (!subdomain || !userToken) {
     return res.redirect(302, '/client/integrations?error=zendesk_invalid_state');
   }
 
@@ -31,9 +51,9 @@ export default async function handler(req, res) {
   try {
     const redirectUri = process.env.ZENDESK_REDIRECT_URI || 'https://actero.fr/api/integrations/oauth/zendesk/callback';
 
-    // Zendesk needs the subdomain for token exchange — extract from referrer or use a generic endpoint
-    // We'll try the global endpoint first
-    const tokenRes = await fetch('https://actero.zendesk.com/oauth/tokens', {
+    // Token exchange sur LE SUBDOMAIN DU CLIENT — Zendesk exige l'appel
+    // sur le même subdomain que l'authorization request.
+    const tokenRes = await fetch(`https://${subdomain}.zendesk.com/oauth/tokens`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -47,8 +67,9 @@ export default async function handler(req, res) {
     });
 
     const tokenData = await tokenRes.json();
-    if (tokenData.error) {
-      return res.redirect(302, `/client/integrations?error=zendesk_token_failed`);
+    if (tokenData.error || !tokenData.access_token) {
+      console.error('[zendesk/callback] token exchange failed:', tokenData);
+      return res.redirect(302, '/client/integrations?error=zendesk_token_failed');
     }
 
     // Find client_id
@@ -79,6 +100,7 @@ export default async function handler(req, res) {
         access_token: encryptToken(tokenData.access_token),
         refresh_token: tokenData.refresh_token ? encryptToken(tokenData.refresh_token) : null,
         extra_config: {
+          subdomain,                                   // ⬅ utilisé par connectors/zendesk.js
           token_type: tokenData.token_type,
           scope: tokenData.scope,
         },
@@ -89,11 +111,13 @@ export default async function handler(req, res) {
       }, { onConflict: 'client_id,provider' });
 
     if (dbError) {
+      console.error('[zendesk/callback] db error:', dbError);
       return res.redirect(302, '/client/integrations?error=zendesk_db_error');
     }
 
     return res.redirect(302, '/client/integrations?success=zendesk');
   } catch (err) {
+    console.error('[zendesk/callback] exception:', err);
     return res.redirect(302, '/client/integrations?error=zendesk_exception');
   }
 }
