@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken } from '../../../lib/crypto.js';
+import { provisionZendeskWebhook } from '../../lib/webhook-provisioner.js';
 
 /**
  * Zendesk OAuth — callback.
@@ -113,6 +114,17 @@ export default async function handler(req, res) {
     if (dbError) {
       console.error('[zendesk/callback] db error:', dbError);
       return res.redirect(302, '/client/integrations?error=zendesk_db_error');
+    }
+
+    // Provisionne automatiquement le webhook Zendesk (subscription
+    // ticket.comment_added) — aucune configuration manuelle côté client.
+    // Non-bloquant si l'appel rate : l'intégration reste active, l'user
+    // peut re-trigger depuis /integrations. Mais on log en console pour
+    // diagnostiquer.
+    const provision = await provisionZendeskWebhook(supabase, clientId);
+    if (!provision.success) {
+      console.warn('[zendesk/callback] webhook auto-provisioning failed:', provision.error);
+      return res.redirect(302, '/client/integrations?success=zendesk&webhook_pending=1');
     }
 
     return res.redirect(302, '/client/integrations?success=zendesk');

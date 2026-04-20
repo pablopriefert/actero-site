@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken } from '../../../lib/crypto.js';
+import { provisionGorgiasIntegration } from '../../lib/webhook-provisioner.js';
 
 /**
  * Gorgias OAuth — callback.
@@ -113,6 +114,14 @@ export default async function handler(req, res) {
     if (dbError) {
       console.error('[gorgias/callback] db error:', dbError);
       return res.redirect(302, '/client/integrations?error=gorgias_db_error');
+    }
+
+    // Provisionne automatiquement l'HTTP integration Gorgias (trigger
+    // message_created) — aucune configuration manuelle côté client.
+    const provision = await provisionGorgiasIntegration(supabase, clientId);
+    if (!provision.success) {
+      console.warn('[gorgias/callback] integration auto-provisioning failed:', provision.error);
+      return res.redirect(302, '/client/integrations?success=gorgias&webhook_pending=1');
     }
 
     return res.redirect(302, '/client/integrations?success=gorgias');

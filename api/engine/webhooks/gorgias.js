@@ -23,13 +23,23 @@ export default async function handler(req, res) {
   const clientId = req.query?.client_id
   if (!clientId) return res.status(400).json({ error: 'client_id query param required' })
 
-  // Shared-secret authentication. Gorgias does not sign outgoing webhooks by
-  // default, so the onboarding flow provisions a per-app secret that must be
-  // supplied either as ?secret= query or via X-Actero-Webhook-Secret header.
-  // Fail-closed: if no secret is configured server-side, the endpoint refuses.
-  const expected = process.env.GORGIAS_WEBHOOK_SECRET
   const providedSecret = req.query?.secret || req.headers['x-actero-webhook-secret']
-  if (!expected || providedSecret !== expected) {
+  if (!providedSecret) return res.status(401).json({ error: 'Missing webhook secret' })
+
+  // Per-client secret — chaque Gorgias OAuth install génère un secret de
+  // 32 bytes stocké dans client_integrations.extra_config.webhook_secret.
+  // Fallback sur GORGIAS_WEBHOOK_SECRET pour les setups legacy.
+  const { data: integ } = await supabase
+    .from('client_integrations')
+    .select('extra_config')
+    .eq('client_id', clientId)
+    .eq('provider', 'gorgias')
+    .eq('status', 'active')
+    .maybeSingle()
+
+  const expectedSecret = integ?.extra_config?.webhook_secret
+    || process.env.GORGIAS_WEBHOOK_SECRET
+  if (!expectedSecret || providedSecret !== expectedSecret) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 

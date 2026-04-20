@@ -24,12 +24,26 @@ export default async function handler(req, res) {
   const clientId = req.query?.client_id
   if (!clientId) return res.status(400).json({ error: 'client_id query param required' })
 
-  // Shared-secret authentication. Zendesk triggers can pass a custom header
-  // or query param — our onboarding flow provisions one per app. Fail-closed
-  // if the server-side secret is missing.
-  const expected = process.env.ZENDESK_WEBHOOK_SECRET
   const providedSecret = req.query?.secret || req.headers['x-actero-webhook-secret']
-  if (!expected || providedSecret !== expected) {
+  if (!providedSecret) return res.status(401).json({ error: 'Missing webhook secret' })
+
+  // Per-client secret — chaque Zendesk OAuth install génère un secret de
+  // 32 bytes stocké dans client_integrations.extra_config.webhook_secret.
+  // On le lit pour ce client-là et on compare au secret reçu. Fallback sur
+  // le secret global ZENDESK_WEBHOOK_SECRET pour les integrations legacy
+  // (setup manuel dans Zendesk Admin) — sera retiré quand tous les clients
+  // auront re-OAuth'd.
+  const { data: integ } = await supabase
+    .from('client_integrations')
+    .select('extra_config')
+    .eq('client_id', clientId)
+    .eq('provider', 'zendesk')
+    .eq('status', 'active')
+    .maybeSingle()
+
+  const expectedSecret = integ?.extra_config?.webhook_secret
+    || process.env.ZENDESK_WEBHOOK_SECRET
+  if (!expectedSecret || providedSecret !== expectedSecret) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
