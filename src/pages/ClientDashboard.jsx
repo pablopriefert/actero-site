@@ -1258,7 +1258,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "insights" && (
-            <InsightsHubView onNavigate={setActiveTab} canAccessVoice={can('voice_agent')} />
+            <InsightsHubView clientId={currentClient?.id} onNavigate={setActiveTab} canAccessVoice={can('voice_agent')} />
           )}
 
           {activeTab === "settings" && (
