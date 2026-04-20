@@ -672,7 +672,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       dataTour: 'agent-section',
       defaultOpen: true,
       children: [
-        { id: 'automation', label: 'Vue d\'ensemble', icon: Rocket, dataTour: 'automation-tab' },
+        { id: 'automation', label: 'Automatisation', icon: Rocket, dataTour: 'automation-tab', star: true },
         { id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
         { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
         { id: 'guardrails', label: 'Règles métier', icon: Shield },

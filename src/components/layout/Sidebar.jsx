@@ -216,19 +216,35 @@ export const Sidebar = ({
                     {(item.children || []).map(child => {
                       const isActive = activeTab === child.id
                       const isNumericBadge = child.badge != null && !isNaN(Number(child.badge))
+                      const isStar = child.star === true
                       return (
                         <button
                           key={child.id}
+                          data-tour={child.dataTour}
                           onClick={() => { setActiveTab(child.id); if (onClose) onClose() }}
                           aria-current={isActive ? 'page' : undefined}
-                          className={`w-full h-8 flex items-center justify-between pl-9 pr-2.5 rounded-lg text-[12px] transition-all duration-150 ${
-                            isActive
-                              ? "text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta"
-                              : "text-[#71717a] font-normal hover:text-[#1a1a1a] hover:bg-[#fafafa]"
+                          className={`w-full flex items-center justify-between pl-9 pr-2.5 rounded-lg transition-all duration-150 ${
+                            isStar
+                              ? `h-9 text-[12.5px] font-semibold ${
+                                  isActive
+                                    ? 'text-cta bg-cta/[0.12] border-l-2 border-cta'
+                                    : 'text-cta bg-cta/[0.04] hover:bg-cta/[0.08]'
+                                }`
+                              : `h-8 text-[12px] ${
+                                  isActive
+                                    ? 'text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta'
+                                    : 'text-[#71717a] font-normal hover:text-[#1a1a1a] hover:bg-[#fafafa]'
+                                }`
                           }`}
                         >
                           <div className="flex items-center gap-2">
-                            {child.icon && <child.icon className={`w-3.5 h-3.5 ${isActive ? 'text-cta' : 'text-[#9ca3af]'}`} />}
+                            {child.icon && (
+                              <child.icon
+                                className={`w-3.5 h-3.5 ${
+                                  isStar || isActive ? 'text-cta' : 'text-[#9ca3af]'
+                                }`}
+                              />
+                            )}
                             <span className="truncate">{child.label}</span>
                           </div>
                           {child.badge && (
