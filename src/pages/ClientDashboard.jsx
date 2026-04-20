@@ -35,8 +35,6 @@ import {
   Rocket,
   Activity,
   FlaskConical,
-  Radio,
-  Target,
   Cog,
   Mail,
   MonitorSmartphone,
@@ -691,40 +689,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     },
     { id: 'activity', label: 'Activité', icon: Activity },
 
-    // CANAUX CLIENTS — où les clients entrent en contact
-    {
-      type: 'expandable',
-      label: 'Canaux clients',
-      icon: MonitorSmartphone,
-      defaultOpen: false,
-      children: [
-        { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
-        { id: 'channels', label: 'Canaux', icon: Radio },
-      ],
-    },
-
-    // OUTILS CONNECTÉS — Shopify, CRM, etc.
-    {
-      type: 'expandable',
-      label: 'Outils connectés',
-      icon: Plug,
-      defaultOpen: false,
-      children: [
-        { id: 'integrations', label: 'Intégrations', icon: Plug },
-      ],
-    },
-
-    // PERFORMANCE — mesurer et grandir
-    {
-      type: 'expandable',
-      label: 'Performance',
-      icon: TrendingUp,
-      defaultOpen: false,
-      children: [
-        { id: 'opportunities', label: 'Opportunités', icon: Target },
-        { id: 'insights', label: 'Insights', icon: BarChart3 },
-      ],
-    },
+    // Entrées flat (avril 2026) : groupes expandables retirés — 1 seul item
+    // par groupe ne justifiait plus la hiérarchie.
+    { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+    { id: 'integrations', label: 'Intégrations', icon: Plug },
+    { id: 'insights', label: 'Insights', icon: BarChart3 },
 
     // SYSTÈME
     { type: 'section', label: 'Système' },

@@ -240,76 +240,6 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
   )
 }
 
-const KnowledgeGaps = ({ clientId, isLight, onAddEntry }) => {
-  const { data: gaps = [] } = useQuery({
-    queryKey: ['knowledge-gaps', clientId],
-    queryFn: async () => {
-      // Get escalated tickets from last 30 days to find knowledge gaps
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-      const { data: events } = await supabase
-        .from('automation_events')
-        .select('event_category, ticket_type, metadata, description')
-        .eq('client_id', clientId)
-        .in('event_category', ['ticket_escalated', 'lead_escalated'])
-        .gte('created_at', thirtyDaysAgo)
-        .order('created_at', { ascending: false })
-        .limit(100)
-
-      if (!events || events.length === 0) return []
-
-      // Group by reason/topic
-      const grouped = {}
-      events.forEach(e => {
-        const reason = e.metadata?.reason || e.metadata?.subject || e.ticket_type || e.description || 'Autre'
-        const key = reason.toLowerCase().slice(0, 60)
-        if (!grouped[key]) {
-          grouped[key] = { reason, count: 0 }
-        }
-        grouped[key].count++
-      })
-
-      return Object.values(grouped)
-        .filter(g => g.count >= 2)
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5)
-    },
-    enabled: !!clientId,
-  })
-
-  if (gaps.length === 0) return null
-
-  return (
-    <div className="mb-6 p-5 bg-amber-50 border border-amber-200 rounded-2xl">
-      <div className="flex items-center gap-2 mb-3">
-        <AlertCircle className="w-4 h-4 text-amber-600" />
-        <h3 className="text-sm font-bold text-amber-800">Lacunes detectees</h3>
-        <span className="text-xs text-amber-600">— Sujets frequemment escalades (30 derniers jours)</span>
-      </div>
-      <div className="space-y-2">
-        {gaps.map((gap, i) => (
-          <div key={i} className="flex items-center justify-between py-2 px-3 bg-white rounded-xl border border-amber-100">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <span className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full shrink-0">
-                {gap.count}x
-              </span>
-              <p className="text-sm text-[#1a1a1a] truncate">{gap.reason}</p>
-            </div>
-            <button
-              onClick={() => onAddEntry(gap.reason)}
-              className="flex items-center gap-1 px-3 py-1 text-xs font-bold text-[#003725] bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors shrink-0 ml-2"
-            >
-              <Plus className="w-3 h-3" /> Couvrir
-            </button>
-          </div>
-        ))}
-      </div>
-      <p className="text-xs text-amber-600 mt-3">
-        Ajoutez une entree FAQ pour ces sujets — l'IA saura y repondre la prochaine fois.
-      </p>
-    </div>
-  )
-}
-
 export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }) => {
   const queryClient = useQueryClient()
   const isLight = theme === 'light'
@@ -773,17 +703,6 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
           )}
         </div>
       </div>
-
-      {/* Knowledge Gaps Detection */}
-      <KnowledgeGaps
-        clientId={clientId}
-        isLight={isLight}
-        onAddEntry={(topic) => {
-          setSelectedCategory('faq')
-          setIsCreating(true)
-          // Pre-fill will happen via the creating state
-        }}
-      />
 
       {/* ═══════ CATEGORY FILTER TABS ═══════ */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1">
