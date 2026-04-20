@@ -270,44 +270,53 @@ const AutomationCard = ({
                   )
                 }
 
-                // Channel connecté : row avec toggle switch inline
+                // Channel connecté : row cliquable sur toute la largeur + toggle visuel
+                // Toute la row déclenche le toggle → affordance maximale (pas besoin
+                // de viser précisément le switch 42×22px).
+                const handleToggleClick = () => {
+                  if (!canToggle) return
+                  saveChannels(automation.key, ch.id, !isSelected)
+                }
                 return (
-                  <div
+                  <button
                     key={ch.id}
-                    className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg border transition-colors ${
+                    type="button"
+                    role="switch"
+                    aria-checked={isSelected}
+                    aria-label={`${isSelected ? 'Désactiver' : 'Activer'} le canal ${ch.label}`}
+                    onClick={handleToggleClick}
+                    disabled={!canToggle}
+                    title={canToggle ? (isSelected ? 'Désactiver ce canal' : 'Activer ce canal') : 'Activez l\'automation pour configurer'}
+                    className={`group w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${
                       isSelected
-                        ? 'bg-cta/5 border-cta/20'
-                        : 'bg-white border-gray-200'
+                        ? 'bg-cta/5 border-cta/25 hover:bg-cta/10'
+                        : canToggle
+                          ? 'bg-white border-gray-200 hover:border-cta/30 hover:bg-[#fafafa]'
+                          : 'bg-[#fafafa] border-gray-200 opacity-60 cursor-not-allowed'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <ChIcon className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-cta' : 'text-[#9ca3af]'}`} />
-                      <span className={`text-[12px] font-medium truncate ${isSelected ? 'text-[#1a1a1a]' : 'text-[#71717a]'}`}>
+                      <ChIcon className={`w-4 h-4 flex-shrink-0 transition-colors ${isSelected ? 'text-cta' : 'text-[#9ca3af]'}`} />
+                      <span className={`text-[12.5px] font-medium truncate transition-colors ${isSelected ? 'text-[#1a1a1a]' : 'text-[#71717a]'}`}>
                         {ch.label}
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={isSelected}
-                      aria-label={`${isSelected ? 'Désactiver' : 'Activer'} le canal ${ch.label}`}
-                      onClick={() => {
-                        if (!canToggle) return
-                        saveChannels(automation.key, ch.id, !isSelected)
-                      }}
-                      disabled={!canToggle}
-                      title={canToggle ? '' : 'Activez l\'automation pour configurer'}
-                      className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${
-                        isSelected ? 'bg-cta' : 'bg-[#e5e5e5]'
-                      } ${canToggle ? 'cursor-pointer hover:opacity-90' : 'opacity-50 cursor-not-allowed'}`}
+                    {/* Toggle switch — 42×22 avec thumb 18px qui glisse */}
+                    <span
+                      aria-hidden="true"
+                      className={`relative w-[42px] h-[22px] rounded-full transition-colors flex-shrink-0 ${
+                        isSelected
+                          ? 'bg-cta shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]'
+                          : 'bg-[#d4d4d8] group-hover:bg-[#a1a1aa]'
+                      }`}
                     >
                       <span
-                        className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                          isSelected ? 'translate-x-4' : 'translate-x-0.5'
+                        className={`absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)] transition-transform duration-200 ease-out ${
+                          isSelected ? 'translate-x-5' : 'translate-x-0'
                         }`}
                       />
-                    </button>
-                  </div>
+                    </span>
+                  </button>
                 )
               })}
             </div>
@@ -462,7 +471,10 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
 
   /* ---- Derived state ---- */
 
-  // Load saved channels from client_playbooks custom_config
+  // Load saved channels from client_playbooks custom_config.
+  // NOTE : on remplace complètement l'objet — avant on mergeait, ce qui
+  // empêchait les toggles OFF d'être reflétés après refetch (une clé mise
+  // à false restait true dans l'état local). Set full map = source of truth.
   useEffect(() => {
     if (clientPlaybooks.length > 0 && playbooks.length > 0) {
       const saved = {}
@@ -474,7 +486,7 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
           })
         }
       })
-      setSelectedChannels(prev => ({ ...prev, ...saved }))
+      setSelectedChannels(saved)
     }
   }, [clientPlaybooks, playbooks])
 
@@ -525,15 +537,30 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
 
   const goToIntegrations = () => setActiveTab && setActiveTab('integrations')
 
+  /**
+   * saveChannels — écrit un toggle de canal en base + optimistic update
+   * local. Applique aussi les side-effects (widget install/uninstall,
+   * email agent enable).
+   *
+   * Optimistic : setSelectedChannels immédiat avant le round-trip → le
+   * toggle visuel bouge au clic, même si le refetch prend 200-500ms.
+   * Si le write échoue, on rollback via le refetch (le query invalidate
+   * tire la source of truth et la useEffect Set full map la reflète).
+   */
   const saveChannels = async (playbookName, channelId, isSelected) => {
     const pb = playbooks.find(p => p.name === playbookName)
     if (!pb) return
     const cp = clientPlaybooks.find(c => c.playbook_id === pb.id)
-    const currentChannels = Object.entries(selectedChannels)
-      .filter(([key, val]) => key.startsWith(`${playbookName}_`) && val)
-      .map(([key]) => key.replace(`${playbookName}_`, ''))
+
+    // Optimistic update — UI bouge immédiatement
+    const optimisticKey = `${playbookName}_${channelId}`
+    setSelectedChannels(prev => ({ ...prev, [optimisticKey]: isSelected }))
+
+    // Recalcule la liste complète des canaux actifs pour ce playbook
+    // à partir du state qu'on vient d'update (pas du state stale)
+    const currentChannels = (cp?.custom_config?.channels || [])
     const newChannels = isSelected
-      ? [...currentChannels, channelId]
+      ? Array.from(new Set([...currentChannels, channelId]))
       : currentChannels.filter(c => c !== channelId)
 
     // Side-effects (email agent enable, widget install) — matches PlaybooksView
@@ -568,15 +595,25 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
       } catch {}
     }
 
-    if (cp) {
-      await supabase.from('engine_client_playbooks').update({
-        custom_config: { ...(cp.custom_config || {}), channels: newChannels },
-        updated_at: new Date().toISOString(),
-      }).eq('id', cp.id)
-    } else {
-      await supabase.from('engine_client_playbooks').insert({
-        client_id: clientId, playbook_id: pb.id, is_active: false, custom_config: { channels: newChannels },
-      })
+    try {
+      if (cp) {
+        const { error } = await supabase.from('engine_client_playbooks').update({
+          custom_config: { ...(cp.custom_config || {}), channels: newChannels },
+          updated_at: new Date().toISOString(),
+        }).eq('id', cp.id)
+        if (error) throw error
+      } else {
+        const { error } = await supabase.from('engine_client_playbooks').insert({
+          client_id: clientId, playbook_id: pb.id, is_active: false, custom_config: { channels: newChannels },
+        })
+        if (error) throw error
+      }
+    } catch (err) {
+      // Rollback optimistic update — revient à l'état précédent
+      setSelectedChannels(prev => ({ ...prev, [optimisticKey]: !isSelected }))
+      toast.error('Erreur — modification non sauvegardée')
+      console.error('[saveChannels] DB write failed:', err)
+      return
     }
     queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
   }

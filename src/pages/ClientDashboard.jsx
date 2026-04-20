@@ -673,7 +673,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'automation', label: 'Automatisation', icon: Rocket, dataTour: 'automation-tab', star: true },
         { id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
         { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
-        { id: 'guardrails', label: 'Règles métier', icon: Shield },
+        { id: 'guardrails', label: 'Restrictions', icon: Shield },
         { id: 'simulator', label: 'Tester mon agent', icon: FlaskConical, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
       ],
     },
@@ -837,7 +837,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "agent-config" && "Configuration"}
             {activeTab === "simulator" && "Tester mon agent"}
             {activeTab === "team" && "Équipe"}
-            {activeTab === "guardrails" && "Règles métier"}
+            {activeTab === "guardrails" && "Restrictions"}
             {activeTab === "escalations" && "À traiter"}
             {activeTab === "response-templates" && "Modèles de réponse"}
             {activeTab === "voice-calls" && "Appels vocaux"}
