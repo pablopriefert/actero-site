@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, FileText, HelpCircle, Package, Palette, CalendarClock,
-  Plus, Save, Trash2, GripVertical, Loader2, CheckCircle2, AlertCircle,
+  Plus, Save, Trash2, Loader2, CheckCircle2, AlertCircle,
   ChevronRight, Clock, X, Globe, Link2, ShoppingBag, Zap, BarChart3,
   MessageCircle, Upload,
 } from 'lucide-react'
@@ -548,56 +548,55 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
 
   const productLabel = clientType === 'immobilier' ? 'bien' : 'produit'
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-6 animate-fade-in-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className={`text-2xl font-bold tracking-tight ${isLight ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]'}`}>
-            Base de connaissances
-          </h2>
-          <p className={`text-sm mt-1 ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`}>
-            Configurez les informations que votre IA utilise pour repondre a vos clients.
-          </p>
-        </div>
-        {lastSync && (
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs ${isLight ? 'bg-gray-100 text-[#71717a]' : 'bg-gray-50 text-[#71717a]'}`}>
-            <Clock className="w-3 h-3" />
-            Derniere synchro : {formatTimeAgo(lastSync)}
-          </div>
-        )}
-      </div>
+  const coveragePct = Math.min(100, Math.round((entries.length / 10) * 100))
 
-      {/* Coverage Indicator */}
-      {entries.length > 0 && (
-        <div className="bg-white border border-gray-200 rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-cta" />
-              <span className="text-sm font-bold text-[#1a1a1a]">Couverture de votre base</span>
+  return (
+    <div className="max-w-5xl mx-auto space-y-5 animate-fade-in-up">
+      {/* ═══════ HEADER STRIP ═══════ */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center">
+                <BookOpen className="w-3.5 h-3.5 text-cta" />
+              </div>
+              <h1 className="text-lg font-bold text-[#1a1a1a]">Base de connaissances</h1>
+              {entries.length > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-cta/10 text-cta text-[10px] font-bold rounded-full uppercase tracking-wider">
+                  {entries.length} entrée{entries.length > 1 ? 's' : ''}
+                </span>
+              )}
+              {entries.length < 5 && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-100 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                  <AlertCircle className="w-2.5 h-2.5" /> À enrichir
+                </span>
+              )}
             </div>
-            <span className="text-xs text-[#71717a]">{entries.length} entree{entries.length > 1 ? 's' : ''}</span>
-          </div>
-          <div className="grid grid-cols-5 gap-2">
-            {CATEGORIES.map(cat => {
-              const count = entries.filter(e => e.category === cat.id).length
-              const hasContent = count > 0
-              return (
-                <div key={cat.id} className={`text-center p-2 rounded-xl border ${hasContent ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-100'}`}>
-                  <cat.icon className={`w-4 h-4 mx-auto mb-1 ${hasContent ? 'text-emerald-600' : 'text-gray-300'}`} />
-                  <p className={`text-[10px] font-bold ${hasContent ? 'text-emerald-700' : 'text-gray-400'}`}>{cat.label}</p>
-                  <p className={`text-[10px] ${hasContent ? 'text-emerald-600' : 'text-gray-300'}`}>{count} entree{count > 1 ? 's' : ''}</p>
-                </div>
-              )
-            })}
-          </div>
-          {entries.length < 5 && (
-            <p className="text-xs text-amber-600 mt-3 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              Ajoutez plus de contenu pour ameliorer les reponses de votre agent
+            <p className="text-[12px] text-[#71717a]">
+              Configurez les informations que votre IA utilise pour répondre à vos clients.
             </p>
-          )}
+          </div>
+          <div className="flex items-center gap-4 md:gap-6 flex-wrap">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Couverture</span>
+              <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{coveragePct}%</span>
+              <span className="text-[10px] text-[#9ca3af]">de la base</span>
+            </div>
+            {lastSync && (
+              <>
+                <div className="w-px h-10 bg-gray-200" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Dernière synchro</span>
+                  <span className="text-[13px] font-bold text-[#1a1a1a] leading-tight flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-[#9ca3af]" /> {formatTimeAgo(lastSync)}
+                  </span>
+                  <span className="text-[10px] text-[#9ca3af]">agent à jour</span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Quick Actions: Import URL + File Upload + Q&A Builder */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -786,40 +785,35 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
         }}
       />
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar categories */}
-        <div className="md:w-56 flex-shrink-0">
-          <div className={`rounded-2xl border p-2 space-y-1 ${isLight ? 'bg-white border-gray-200' : 'bg-[#F9F7F1] border-gray-200'}`}>
-            {CATEGORIES.map((cat) => {
-              const count = entries.filter(e => e.category === cat.id).length
-              const isActive = selectedCategory === cat.id
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => { setSelectedCategory(cat.id); setEditingEntry(null); setIsCreating(false) }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                    isActive
-                      ? (isLight ? 'bg-[#003725]/10 text-[#003725]' : 'bg-gray-50 text-[#1a1a1a]')
-                      : (isLight ? 'text-[#71717a] hover:bg-[#F9F7F1]' : 'text-[#71717a] hover:bg-gray-50')
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <cat.icon className="w-4 h-4" />
-                    {cat.label}
-                  </div>
-                  {count > 0 && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isLight ? 'bg-gray-100 text-[#71717a]' : 'bg-gray-50 text-[#71717a]'}`}>
-                      {count}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </div>
+      {/* ═══════ CATEGORY FILTER TABS ═══════ */}
+      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+        {CATEGORIES.map((cat) => {
+          const count = entries.filter(e => e.category === cat.id).length
+          const isActive = selectedCategory === cat.id
+          const CatIcon = cat.icon
+          return (
+            <button
+              key={cat.id}
+              onClick={() => { setSelectedCategory(cat.id); setEditingEntry(null); setIsCreating(false) }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors whitespace-nowrap ${
+                isActive
+                  ? 'bg-[#1a1a1a] text-white'
+                  : 'bg-white border border-gray-200 text-[#71717a] hover:bg-[#fafafa]'
+              }`}
+            >
+              <CatIcon className="w-3.5 h-3.5" />
+              {cat.label}
+              <span className={`tabular-nums text-[11px] ${isActive ? 'text-white/70' : 'text-[#9ca3af]'}`}>
+                {count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
 
-        {/* Main content */}
-        <div className="flex-1 space-y-4">
+      {/* Main content */}
+      <div className="space-y-4">
+        <div>
           {isLoading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="w-6 h-6 animate-spin text-[#71717a]" />
@@ -882,7 +876,6 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1.5">
-                              <GripVertical className="w-4 h-4 text-[#71717a] flex-shrink-0" />
                               <h3 className={`text-sm font-bold ${isLight ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]'}`}>
                                 {entry.title}
                               </h3>
