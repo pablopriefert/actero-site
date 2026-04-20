@@ -1,15 +1,18 @@
 /**
  * Build the readiness checks for a given playbook before activation.
  *
- * 6 checks:
+ * 5 checks (avril 2026 — retrait du fallback humain) :
  *   1. Source connectée (e-commerce platform: Shopify/WooCommerce/Webflow)
- *   2. Données suffisantes (at least 1 order if Shopify, or skip for manual)
- *   3. Politique définie (brand_tone set)
- *   4. Canal actif (at least one channel selected in custom_config)
- *   5. Template de réponse prêt (at least 1 response_template or knowledge entry)
- *   6. Fallback humain activé (escalation_enabled or team member configured)
+ *   2. Canal d'envoi configuré (email pour la plupart, téléphone pour vocal)
+ *   3. Ton de marque défini (OPTIONNEL — warning-only, n'empêche pas l'activation)
+ *   4. Canal actif (par défaut email, toujours OK à l'activation)
+ *   5. Base de connaissances suffisante (≥3 entrées total templates+KB)
  *
- * Each check has: id, label, description, met (bool), fixTab (tab to navigate to), fixLabel
+ * Chaque check a : id, label, description, met (bool), optional (bool),
+ * fixTab (tab to navigate to), fixLabel.
+ *
+ * Les checks marqués optional:true sont affichés en warning mais ne
+ * bloquent pas l'activation du workflow.
  */
 
 import { supabase } from './supabase.js'
@@ -24,14 +27,12 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
     settingsRes,
     templatesRes,
     knowledgeRes,
-    teamRes,
   ] = await Promise.all([
     supabase.from('client_shopify_connections').select('id').eq('client_id', clientId).maybeSingle(),
     supabase.from('client_integrations').select('provider, status').eq('client_id', clientId).eq('status', 'active'),
     supabase.from('client_settings').select('brand_tone, hourly_cost').eq('client_id', clientId).maybeSingle(),
     supabase.from('client_response_templates').select('id', { count: 'exact', head: true }).eq('client_id', clientId),
     supabase.from('client_knowledge_base').select('id', { count: 'exact', head: true }).eq('client_id', clientId),
-    supabase.from('client_users').select('id', { count: 'exact', head: true }).eq('client_id', clientId),
   ])
 
   const hasShopify = !!shopifyRes.data
@@ -41,7 +42,6 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
   const settings = settingsRes.data
   const templateCount = templatesRes.count || 0
   const knowledgeCount = knowledgeRes.count || 0
-  const teamCount = teamRes.count || 0
 
   // Parse channels from custom_config (can be object {email:true} or array)
   const rawChannels = custom_config?.channels || {}
@@ -102,15 +102,17 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
     })
   }
 
-  // 3. Politique définie (brand tone)
+  // 3. Politique définie (brand tone) — OPTIONNEL
+  // Pas bloquant : l'agent utilise un ton neutre par défaut si non défini.
   const toneDefined = !!(settings?.brand_tone && settings.brand_tone.trim().length >= 20)
   checks.push({
     id: 'policy',
     label: 'Ton de marque défini',
     description: toneDefined
       ? 'Votre ton de marque est configuré.'
-      : 'Définissez au moins 20 caractères décrivant comment votre agent doit parler (chaleureux, professionnel, etc.).',
+      : 'Optionnel — vous pouvez définir un ton spécifique (chaleureux, professionnel, etc.) pour personnaliser les réponses. Un ton neutre sera utilisé par défaut.',
     met: toneDefined,
+    optional: true,
     fixTab: 'agent-config',
     fixLabel: 'Définir',
   })
@@ -138,19 +140,6 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
     met: hasContent,
     fixTab: 'knowledge',
     fixLabel: 'Ajouter',
-  })
-
-  // 6. Fallback humain (au moins un membre d'équipe pour gérer les escalades)
-  const fallbackReady = teamCount >= 1
-  checks.push({
-    id: 'fallback',
-    label: 'Fallback humain disponible',
-    description: fallbackReady
-      ? `${teamCount} membre${teamCount > 1 ? 's' : ''} d'équipe peuvent recevoir les escalades.`
-      : 'Ajoutez au moins un membre d\'équipe pour recevoir les cas complexes que l\'IA ne peut pas résoudre.',
-    met: fallbackReady,
-    fixTab: 'team',
-    fixLabel: 'Équipe',
   })
 
   return checks
