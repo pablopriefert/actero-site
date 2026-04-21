@@ -129,7 +129,23 @@ export function VideoModal({ open, onClose, video = DEMO_VIDEO }) {
               className="relative bg-black"
               style={{ aspectRatio: video.aspectRatio || 16 / 9 }}
             >
-              {DEMO_VIDEO_AVAILABLE ? (
+              {video.src ? (
+                // Self-hosted video (Remotion-generated MP4 served from /public)
+                <video
+                  src={video.src}
+                  poster={video.poster || undefined}
+                  title={video.title}
+                  controls
+                  autoPlay
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 w-full h-full object-contain bg-black"
+                >
+                  <track kind="captions" srcLang="fr" label="Français" />
+                  Votre navigateur ne supporte pas la lecture vidéo HTML5.
+                </video>
+              ) : video.url && DEMO_VIDEO_AVAILABLE ? (
+                // External embed fallback (Loom / YouTube / Vimeo)
                 <iframe
                   src={video.url}
                   title={video.title}

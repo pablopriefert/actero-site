@@ -1,0 +1,58 @@
+{
+  "name": "actero-demo-video",
+  "version": "0.1.0",
+  "description": "Actero product demo — 90 sec animated explainer (Remotion)",
+  "scripts": {
+    "dev": "remotion studio src/index.ts",
+    "build": "remotion render src/index.ts ActeroDemo out/actero-demo.mp4",
+    "build:gif": "remotion render src/index.ts ActeroDemo out/actero-demo.gif",
+    "build:thumbnail": "remotion still src/index.ts ActeroDemo out/actero-demo-thumbnail.png 60",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.450",
+    "@remotion/cli": "4.0.450",
+    "@remotion/fonts": "4.0.450",
+    "@remotion/google-fonts": "4.0.450",
+    "@remotion/shapes": "4.0.450",
+    "@remotion/tailwind-v4": "4.0.450",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "remotion": "4.0.450"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.2.0",
+    "typescript": "^5.4.0"
+  },
+  "overrides": {
+    "@remotion/bundler": "4.0.450",
+    "@remotion/cli": "4.0.450",
+    "@remotion/compositor-darwin-arm64": "4.0.450",
+    "@remotion/compositor-darwin-x64": "4.0.450",
+    "@remotion/compositor-linux-arm64-gnu": "4.0.450",
+    "@remotion/compositor-linux-arm64-musl": "4.0.450",
+    "@remotion/compositor-linux-x64-gnu": "4.0.450",
+    "@remotion/compositor-linux-x64-musl": "4.0.450",
+    "@remotion/compositor-win32-x64-msvc": "4.0.450",
+    "@remotion/fonts": "4.0.450",
+    "@remotion/google-fonts": "4.0.450",
+    "@remotion/licensing": "4.0.450",
+    "@remotion/media-parser": "4.0.450",
+    "@remotion/media-utils": "4.0.450",
+    "@remotion/paths": "4.0.450",
+    "@remotion/player": "4.0.450",
+    "@remotion/renderer": "4.0.450",
+    "@remotion/shapes": "4.0.450",
+    "@remotion/streaming": "4.0.450",
+    "@remotion/studio": "4.0.450",
+    "@remotion/studio-server": "4.0.450",
+    "@remotion/studio-shared": "4.0.450",
+    "@remotion/tailwind-v4": "4.0.450",
+    "@remotion/web-renderer": "4.0.450",
+    "@remotion/zod-types": "4.0.450",
+    "remotion": "4.0.450"
+  },
+  "private": true
+}
