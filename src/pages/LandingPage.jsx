@@ -12,6 +12,7 @@ import { PartnersMarquee } from '../components/ui/PartnersMarquee'
 import { CapabilitiesA } from '../components/landing/CapabilitiesA'
 import { ROISimulatorA } from '../components/landing/ROISimulatorA'
 import { PricingA } from '../components/landing/PricingA'
+import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
 
 /**
  * Actero Landing Page — Variation A (Refined Notion).
@@ -240,6 +241,7 @@ export const LandingPage = ({ onNavigate }) => {
                   >
                     Voir les tarifs
                   </button>
+                  <TalkToHumanButton source="landing_final_cta" variant="dark" />
                 </div>
                 <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F0E6]/55">
                   <span className="inline-flex items-center gap-1.5">

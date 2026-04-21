@@ -13,6 +13,8 @@ import { Footer } from "../components/layout/Footer";
 import { SEO } from "../components/SEO";
 import { trackEvent } from "../lib/analytics";
 import { PLANS, PLAN_ORDER } from "../lib/plans";
+import { CONTACT } from "../config/contact";
+import { TalkToHumanButton } from "../components/ui/TalkToHumanButton";
 
 /* ──────────────────────────────────────────────
    HELPERS — derive display data from PLANS
@@ -43,7 +45,7 @@ const CTA_LINKS = {
   free: "/signup",
   starter: "/signup",
   pro: "/signup",
-  enterprise: "mailto:contact@actero.fr",
+  enterprise: CONTACT.demo.url,
 };
 
 const CARD_CLASSES = {
@@ -488,7 +490,10 @@ export const PricingPage = ({ onNavigate }) => {
 
   const handleCTA = (plan) => {
     trackEvent("Pricing_CTA_Clicked", { plan: plan.id, billing: isAnnual ? "annual" : "monthly" });
-    if (plan.ctaLink.startsWith("mailto:")) {
+    if (plan.ctaLink.startsWith("http")) {
+      // Enterprise: open Cal.com booking in new tab
+      window.open(plan.ctaLink, "_blank", "noopener,noreferrer");
+    } else if (plan.ctaLink.startsWith("mailto:")) {
       window.location.href = plan.ctaLink;
     } else {
       onNavigate(plan.ctaLink);
@@ -804,15 +809,11 @@ export const PricingPage = ({ onNavigate }) => {
                   >
                     Essai gratuit 7 jours <ChevronRight className="w-4 h-4" />
                   </button>
-                  <button
-                    onClick={() => {
-                      trackEvent("Pricing_Bottom_Secondary_CTA_Clicked");
-                      window.location.href = "mailto:contact@actero.fr";
-                    }}
-                    className="inline-flex items-center justify-center h-12 px-8 rounded-full border border-white/30 text-white font-bold text-[15px] hover:bg-white/10 transition-colors gap-2"
-                  >
-                    Contacter l'équipe
-                  </button>
+                  <TalkToHumanButton
+                    source="pricing_bottom_cta"
+                    variant="dark"
+                    label="Parler à l'équipe"
+                  />
                 </div>
               </motion.div>
             </div>

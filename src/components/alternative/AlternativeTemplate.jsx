@@ -6,6 +6,7 @@ import { Navbar } from '../layout/Navbar'
 import { Footer } from '../layout/Footer'
 import { FadeInUp } from '../ui/scroll-animations'
 import { PartnersMarquee } from '../ui/PartnersMarquee'
+import { TalkToHumanButton } from '../ui/TalkToHumanButton'
 import { trackEvent } from '../../lib/analytics'
 
 /**
@@ -174,6 +175,7 @@ export const AlternativeTemplate = ({ onNavigate, data }) => {
                   >
                     Voir les tarifs
                   </button>
+                  <TalkToHumanButton source={`alternative_${data.competitorKey}_hero`} variant="light" />
                 </div>
               </FadeInUp>
 
@@ -395,6 +397,7 @@ export const AlternativeTemplate = ({ onNavigate, data }) => {
                   >
                     Voir les tarifs
                   </button>
+                  <TalkToHumanButton source={`alternative_${data.competitorKey}_final_cta`} variant="dark" />
                 </div>
                 <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F0E6]/55">
                   <span className="inline-flex items-center gap-1.5">

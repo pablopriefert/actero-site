@@ -18,6 +18,8 @@ import { FadeInUp } from '../components/ui/scroll-animations'
 import { PartnersMarquee } from '../components/ui/PartnersMarquee'
 import { trackEvent } from '../lib/analytics'
 import { SEO } from '../components/SEO'
+import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
+import { CONTACT } from '../config/contact'
 
 /**
  * CompanyPage — « Entreprise » / À propos d'Actero.
@@ -313,8 +315,8 @@ export const CompanyPage = ({ onNavigate }) => {
                 <span className="italic text-[#A8C490]">de votre boutique ?</span>
               </h2>
               <p className="text-[17px] text-[#F4F0E6]/70 max-w-xl mx-auto mb-8 leading-[1.55]">
-                Écrivez-nous à contact@actero.fr — on répond en moins de 24h. Ou démarrez
-                directement votre essai.
+                Réservez 30 min avec un cofondateur ou écrivez-nous à {CONTACT.email} — on
+                répond en moins de 24h.
               </p>
               <div className="flex flex-wrap gap-3.5 justify-center mb-6">
                 <button
@@ -323,12 +325,7 @@ export const CompanyPage = ({ onNavigate }) => {
                 >
                   Démarrer gratuitement <ArrowRight className="w-3.5 h-3.5" />
                 </button>
-                <a
-                  href="mailto:contact@actero.fr"
-                  className="inline-flex items-center gap-2 bg-transparent text-white border border-[#F4F0E6]/25 px-6 py-[14px] rounded-full text-[15px] font-semibold hover:bg-white/10 transition-colors"
-                >
-                  contact@actero.fr
-                </a>
+                <TalkToHumanButton source="company_final_cta" variant="dark" />
               </div>
               <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F0E6]/55">
                 <span className="inline-flex items-center gap-1.5">

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { ArrowRight, X } from 'lucide-react'
+import { ArrowRight, Calendar, X } from 'lucide-react'
 import { trackEvent } from '../../lib/analytics'
+import { CONTACT } from '../../config/contact'
 
 /**
  * StickyCTABar — barre d'action flottante sur la landing.
@@ -54,6 +55,11 @@ export function StickyCTABar({ onNavigate }) {
     onNavigate('/signup')
   }
 
+  const handleTalkToHumanClick = () => {
+    trackEvent('Talk_To_Human_Clicked', { source: 'sticky_cta_bar' })
+    window.open(CONTACT.demo.url, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <div
       className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-xl"
@@ -72,6 +78,15 @@ export function StickyCTABar({ onNavigate }) {
             Essai 7 jours · Sans carte bancaire · Annulable en 1 clic
           </p>
         </div>
+        <button
+          onClick={handleTalkToHumanClick}
+          aria-label="Réserver une démo avec un humain"
+          className="hidden sm:inline-flex flex-shrink-0 items-center gap-1.5 h-9 md:h-10 px-3 md:px-3.5 rounded-xl border border-white/15 text-white/80 text-[12px] md:text-[13px] font-semibold hover:text-white hover:bg-white/10 transition-colors"
+        >
+          <Calendar className="w-3.5 h-3.5" strokeWidth={2.2} />
+          <span className="hidden md:inline">Parler à un humain</span>
+          <span className="md:hidden">Démo</span>
+        </button>
         <button
           onClick={handleCTAClick}
           className="flex-shrink-0 inline-flex items-center gap-1 md:gap-1.5 h-9 md:h-10 px-3 md:px-4 rounded-xl bg-white text-[#1a1a1a] text-[12px] md:text-[13px] font-bold hover:bg-[#F9F7F1] transition-colors"

@@ -18,6 +18,7 @@ import { FadeInUp } from '../components/ui/scroll-animations'
 import { PartnersMarquee } from '../components/ui/PartnersMarquee'
 import { CapabilitiesA } from '../components/landing/CapabilitiesA'
 import { trackEvent } from '../lib/analytics'
+import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
 
 /**
  * ProductPage — page dédiée /produit.
@@ -146,6 +147,7 @@ export const ProductPage = ({ onNavigate }) => {
                 >
                   Voir les tarifs
                 </button>
+                <TalkToHumanButton source="product_hero" variant="light" />
               </div>
             </FadeInUp>
           </div>
@@ -344,6 +346,7 @@ export const ProductPage = ({ onNavigate }) => {
                 >
                   Voir les tarifs
                 </button>
+                <TalkToHumanButton source="product_final_cta" variant="dark" />
               </div>
               <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F0E6]/55">
                 <span className="inline-flex items-center gap-1.5">

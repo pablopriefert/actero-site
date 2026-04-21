@@ -1,6 +1,7 @@
 import React from 'react'
 import { ArrowRight, Check } from 'lucide-react'
 import { FadeInUp } from './scroll-animations'
+import { TalkToHumanButton } from './TalkToHumanButton'
 
 /**
  * GlassHero — Variation A (Refined Notion) implementation.
@@ -82,6 +83,7 @@ export const GlassHero = ({ onNavigate }) => {
               >
                 Voir les tarifs
               </button>
+              <TalkToHumanButton source="landing_hero" variant="light" />
             </div>
           </FadeInUp>
 
