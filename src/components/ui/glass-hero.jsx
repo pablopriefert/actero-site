@@ -79,7 +79,6 @@ export const GlassHero = ({ onNavigate }) => {
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
               <WatchDemoButton source="landing_hero" variant="light" />
-              <TalkToHumanButton source="landing_hero" variant="light" />
             </div>
           </FadeInUp>
 
