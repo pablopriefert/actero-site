@@ -11,7 +11,35 @@
         { "source": "/cgu", "destination": "/utilisation", "permanent": true },
         { "source": "/resources", "destination": "/ressources", "permanent": true },
         { "source": "/help", "destination": "/support", "permanent": true },
-        { "source": "/contact", "destination": "/support", "permanent": true }
+        { "source": "/contact", "destination": "/support", "permanent": true },
+
+        { "source": "/alternative-gorgias/", "destination": "/alternative-gorgias", "permanent": true },
+        { "source": "/alternative-tidio/", "destination": "/alternative-tidio", "permanent": true },
+        { "source": "/alternative-zendesk/", "destination": "/alternative-zendesk", "permanent": true },
+
+        { "source": "/Alternative-Gorgias", "destination": "/alternative-gorgias", "permanent": true },
+        { "source": "/Alternative-Tidio", "destination": "/alternative-tidio", "permanent": true },
+        { "source": "/Alternative-Zendesk", "destination": "/alternative-zendesk", "permanent": true },
+
+        { "source": "/gorgias-alternative", "destination": "/alternative-gorgias", "permanent": true },
+        { "source": "/tidio-alternative", "destination": "/alternative-tidio", "permanent": true },
+        { "source": "/zendesk-alternative", "destination": "/alternative-zendesk", "permanent": true },
+
+        { "source": "/alternatives-gorgias", "destination": "/alternative-gorgias", "permanent": true },
+        { "source": "/alternatives-tidio", "destination": "/alternative-tidio", "permanent": true },
+        { "source": "/alternatives-zendesk", "destination": "/alternative-zendesk", "permanent": true },
+
+        { "source": "/gorgias-vs-actero", "destination": "/alternative-gorgias", "permanent": true },
+        { "source": "/tidio-vs-actero", "destination": "/alternative-tidio", "permanent": true },
+        { "source": "/zendesk-vs-actero", "destination": "/alternative-zendesk", "permanent": true },
+
+        { "source": "/vs/gorgias", "destination": "/alternative-gorgias", "permanent": true },
+        { "source": "/vs/tidio", "destination": "/alternative-tidio", "permanent": true },
+        { "source": "/vs/zendesk", "destination": "/alternative-zendesk", "permanent": true },
+
+        { "source": "/comparaison/gorgias", "destination": "/alternative-gorgias", "permanent": true },
+        { "source": "/comparaison/tidio", "destination": "/alternative-tidio", "permanent": true },
+        { "source": "/comparaison/zendesk", "destination": "/alternative-zendesk", "permanent": true }
     ],
     "rewrites": [
         {
