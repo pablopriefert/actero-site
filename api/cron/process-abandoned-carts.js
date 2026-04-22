@@ -6,6 +6,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
+// Allow up to 60s so slow SMTPs don't kill the lambda before Sentry gets
+// the final cron check-in. Batch is capped below to stay within this budget.
+export const maxDuration = 60
+
 /**
  * Send email via SMTP using nodemailer (loaded dynamically to avoid bundle issues).
  */
@@ -129,7 +133,7 @@ async function handler(req, res) {
     .eq('event_type', 'shopify_abandoned_cart')
     .eq('status', 'pending_delay')
     .order('received_at', { ascending: true })
-    .limit(50)
+    .limit(10)
 
   if (fetchError) {
     console.error('[cron/abandoned-carts] Fetch error:', fetchError.message)
