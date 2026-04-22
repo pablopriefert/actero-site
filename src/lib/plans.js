@@ -4,6 +4,10 @@
  * Used by:
  * - Frontend: PricingPage, usePlan hook, PlanGate component, BillingView
  * - Backend: api/lib/plan-limits.js (mirror), brain.js (enforcement)
+ *
+ * NOTE: Stripe price_ids live on the server only (process.env.STRIPE_PRICE_*)
+ * and are resolved by /api/billing/upgrade at upgrade time. We intentionally
+ * do NOT expose them to the Vite bundle — no VITE_ duplication, no drift.
  */
 
 export const PLANS = {
@@ -42,10 +46,6 @@ export const PLANS = {
     support: 'docs', // 'docs' | 'email_48h' | 'priority_24h' | 'account_manager'
     onboarding: 'self_service',
     overage_per_ticket: null, // blocked
-    stripe: {
-      price_id_monthly: null,
-      price_id_annual: null,
-    },
     cta: 'Commencer gratuitement',
     popular: false,
   },
@@ -84,12 +84,6 @@ export const PLANS = {
     support: 'email_48h',
     onboarding: 'guided',
     overage_per_ticket: 0.15,
-    stripe: {
-      // Read at build time from VITE_STRIPE_PRICE_STARTER_{MONTHLY,ANNUAL}.
-      // Set these in Vercel env vars once created in Stripe Dashboard.
-      price_id_monthly: import.meta.env.VITE_STRIPE_PRICE_STARTER_MONTHLY || null,
-      price_id_annual: import.meta.env.VITE_STRIPE_PRICE_STARTER_ANNUAL || null,
-    },
     cta: 'Essai gratuit 7 jours',
     popular: false,
   },
@@ -128,10 +122,6 @@ export const PLANS = {
     support: 'priority_24h',
     onboarding: 'guided',
     overage_per_ticket: 0.10,
-    stripe: {
-      price_id_monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || null,
-      price_id_annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL || null,
-    },
     cta: 'Essai gratuit 7 jours',
     popular: true,
   },
@@ -170,10 +160,6 @@ export const PLANS = {
     support: 'account_manager',
     onboarding: 'white_glove',
     overage_per_ticket: null, // included
-    stripe: {
-      price_id_monthly: null,
-      price_id_annual: null,
-    },
     cta: 'Contacter le service commercial',
     popular: false,
   },
