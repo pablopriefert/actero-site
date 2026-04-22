@@ -8,7 +8,7 @@ export async function listOrdersByCustomerEmail({ shopDomain, accessToken, email
       }
     }
   }`;
-  const r = await fetch(`https://${shopDomain}/admin/api/2024-10/graphql.json`, {
+  const r = await fetch(`https://${shopDomain}/admin/api/2025-01/graphql.json`, {
     method: 'POST',
     headers: { 'X-Shopify-Access-Token': accessToken, 'content-type': 'application/json' },
     body: JSON.stringify({ query, variables: { q: `email:${email}` } }),

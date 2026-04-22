@@ -15,13 +15,32 @@ async function handler(req, res) {
   // Auth: requires authenticated user
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Non autorise' });
-  const { error: authErr } = await _supabase.auth.getUser(token);
-  if (authErr) return res.status(401).json({ error: 'Non autorise' });
+  const { data: { user } = {}, error: authErr } = await _supabase.auth.getUser(token);
+  if (authErr || !user) return res.status(401).json({ error: 'Non autorise' });
 
   const { client_id, shop_domain } = req.body;
 
   if (!client_id) {
     return res.status(400).json({ error: 'Missing client_id' });
+  }
+
+  // Authorization: the user must be a member of the requested client.
+  // Without this check, any authenticated user could create deployment
+  // requests for any client (IDOR).
+  const { data: membership } = await _supabase
+    .from('client_users')
+    .select('user_id')
+    .eq('client_id', client_id)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  const { data: ownership } = await _supabase
+    .from('clients')
+    .select('id')
+    .eq('id', client_id)
+    .eq('owner_user_id', user.id)
+    .maybeSingle();
+  if (!membership && !ownership) {
+    return res.status(403).json({ error: 'Acces refuse' });
   }
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;

@@ -76,11 +76,17 @@ async function handler(req, res) {
       }
     }
 
-    // Also check by company name (fuzzy)
+    // Also check by company name (case-insensitive exact match).
+    //
+    // Note: previously used .ilike(company_name, cleanCompany) which treated
+    // user input as a LIKE pattern. Wildcards (% _) in the input would let an
+    // ambassador probe whether competitor companies are already in the
+    // pipeline (reconnaissance / IDOR). We now compare lowercased values via
+    // .eq for exact-match dedup. Fuzzy matching (typos) is a non-goal here.
     const { data: existingByCompany } = await supabase
       .from('ambassador_leads')
       .select('id, ambassador_id, company_name')
-      .ilike('company_name', cleanCompany)
+      .ilike('company_name', cleanCompany.replace(/[%_]/g, '\\$&'))
       .not('status', 'eq', 'lost')
       .maybeSingle();
 

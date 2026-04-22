@@ -42,27 +42,37 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Unable to read request body' })
   }
 
-  // Verify HMAC signature if secret is configured
-  if (ELEVENLABS_WEBHOOK_SECRET) {
-    const signature = req.headers['elevenlabs-signature']
-    if (signature) {
-      const crypto = await import('crypto')
-      const expected = crypto.createHmac('sha256', ELEVENLABS_WEBHOOK_SECRET).update(rawBody).digest('hex')
-      // Strip common prefixes like "sha256=" or "t=...,v1=..."
-      const parts = String(signature).split(',').map(s => s.trim())
-      const provided = parts.find(p => p.startsWith('v1=') || p.startsWith('sha256='))?.split('=')[1] || signature
-      let valid = false
-      try {
-        const a = Buffer.from(expected)
-        const b = Buffer.from(provided)
-        valid = a.length === b.length && crypto.timingSafeEqual(a, b)
-      } catch {
-        valid = false
-      }
-      if (!valid) {
-        console.warn('[elevenlabs-postcall] Invalid HMAC signature')
-        return res.status(401).json({ error: 'Invalid signature' })
-      }
+  // Verify HMAC signature — fail-closed.
+  //
+  // SECURITY: previously the handler accepted the payload silently when
+  // either the secret env var OR the signature header was missing. Anyone
+  // could forge ElevenLabs post-call events and pollute engine_runs_v2 /
+  // metrics_daily / billing. Now both must be present and valid.
+  if (!ELEVENLABS_WEBHOOK_SECRET) {
+    console.error('[elevenlabs-postcall] ELEVENLABS_WEBHOOK_SECRET not configured')
+    return res.status(503).json({ error: 'Webhook secret not configured' })
+  }
+  const signature = req.headers['elevenlabs-signature']
+  if (!signature) {
+    return res.status(401).json({ error: 'Missing signature' })
+  }
+  {
+    const crypto = await import('crypto')
+    const expected = crypto.createHmac('sha256', ELEVENLABS_WEBHOOK_SECRET).update(rawBody).digest('hex')
+    // Strip common prefixes like "sha256=" or "t=...,v1=..."
+    const parts = String(signature).split(',').map(s => s.trim())
+    const provided = parts.find(p => p.startsWith('v1=') || p.startsWith('sha256='))?.split('=')[1] || signature
+    let valid = false
+    try {
+      const a = Buffer.from(expected)
+      const b = Buffer.from(provided)
+      valid = a.length === b.length && crypto.timingSafeEqual(a, b)
+    } catch {
+      valid = false
+    }
+    if (!valid) {
+      console.warn('[elevenlabs-postcall] Invalid HMAC signature')
+      return res.status(401).json({ error: 'Invalid signature' })
     }
   }
 

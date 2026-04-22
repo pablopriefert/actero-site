@@ -16,6 +16,7 @@
  * Env optional: META_GRAPH_VERSION (default v21.0), WHATSAPP_TOKEN_ENCRYPTION_KEY
  */
 import { withSentry } from '../../lib/sentry.js'
+import crypto from 'node:crypto'
 import {
   supabaseAdmin,
   authenticateClientAccess,
@@ -102,7 +103,9 @@ async function handler(req, res) {
     const phoneNumberId = phone.id
 
     /* ---------- 5. Register the number on Cloud API with a random PIN ---------- */
-    const pin = String(Math.floor(100_000 + Math.random() * 900_000)) // 6 digits
+    // 6-digit PIN from crypto.randomInt — Math.random would be predictable
+    // and weakens 2FA on the WhatsApp Cloud number.
+    const pin = String(crypto.randomInt(100_000, 1_000_000))
     const registerResp = await metaFetch(`/${phoneNumberId}/register`, {
       method: 'POST',
       accessToken,

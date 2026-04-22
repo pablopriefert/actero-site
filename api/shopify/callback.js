@@ -26,14 +26,27 @@ async function handler(req, res) {
     .update(sortedParams)
     .digest('hex');
 
-  if (generatedHmac !== hmac) {
+  // Constant-time comparison — `!==` is timing-attack-prone.
+  const generatedBuf = Buffer.from(generatedHmac, 'utf8');
+  const providedBuf = Buffer.from(String(hmac), 'utf8');
+  if (
+    generatedBuf.length !== providedBuf.length ||
+    !crypto.timingSafeEqual(generatedBuf, providedBuf)
+  ) {
     return res.status(401).json({ error: 'HMAC validation failed' });
   }
 
-  // 3. Verify nonce (CSRF protection)
+  // 3. Verify nonce (CSRF protection) — same constant-time comparison.
   const cookies = parseCookies(req.headers.cookie || '');
-  if (cookies.shopify_nonce && cookies.shopify_nonce !== state) {
-    return res.status(401).json({ error: 'Invalid state/nonce' });
+  if (cookies.shopify_nonce) {
+    const nonceBuf = Buffer.from(cookies.shopify_nonce, 'utf8');
+    const stateBuf = Buffer.from(String(state || ''), 'utf8');
+    if (
+      nonceBuf.length !== stateBuf.length ||
+      !crypto.timingSafeEqual(nonceBuf, stateBuf)
+    ) {
+      return res.status(401).json({ error: 'Invalid state/nonce' });
+    }
   }
 
   // 4. Exchange code for permanent access token
@@ -153,7 +166,7 @@ async function handler(req, res) {
   // 6b. Register abandoned cart webhook (checkouts/create)
   if (access_token) {
     try {
-      const webhookRes = await fetch(`https://${shop}/admin/api/2024-01/webhooks.json`, {
+      const webhookRes = await fetch(`https://${shop}/admin/api/2025-01/webhooks.json`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

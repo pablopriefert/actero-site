@@ -1,4 +1,5 @@
 import { withSentry } from '../lib/sentry.js'
+import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit } from '../lib/rate-limit.js';
 
@@ -14,9 +15,12 @@ function generateCode(clientName) {
   const clean = removeAccents(clientName).replace(/[^a-zA-Z]/g, '').toUpperCase();
   const prefix = clean.substring(0, 3).padEnd(3, 'X');
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  // crypto.randomBytes — Math.random is predictable and lets attackers
+  // brute-force-guess other tenants' commission-bearing referral codes.
+  const bytes = crypto.randomBytes(3);
   let suffix = '';
   for (let i = 0; i < 3; i++) {
-    suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+    suffix += chars.charAt(bytes[i] % chars.length);
   }
   return prefix + suffix;
 }

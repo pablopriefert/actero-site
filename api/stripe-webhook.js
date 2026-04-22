@@ -1,4 +1,5 @@
 import { withSentry } from './lib/sentry.js'
+import crypto from 'node:crypto';
 import Stripe from 'stripe';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
@@ -11,7 +12,11 @@ const PLAN_MRR = { free: 0, starter: 99, pro: 399, enterprise: 999 };
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Pin the API version explicitly so a Stripe-side upgrade on the account
+// can't silently change webhook payload shapes under us.
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2024-12-18.acacia',
+});
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -152,6 +157,26 @@ async function handler(req, res) {
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     return res.status(400).json({ error: `Webhook Error: ${err.message}` });
+  }
+
+  // Idempotency: Stripe retries on timeout / non-2xx. Without this guard a
+  // single checkout.session.completed could create the client twice and send
+  // two onboarding emails. Try to claim the event_id; if the row already
+  // exists we've already processed it — return 200 immediately so Stripe
+  // stops retrying.
+  {
+    const { error: claimErr } = await supabase
+      .from('webhook_events_processed')
+      .insert({ provider: 'stripe', event_id: event.id });
+    if (claimErr) {
+      // 23505 = unique_violation = already processed. Anything else is a
+      // genuine DB issue — re-throw via 500 so Stripe retries.
+      if (claimErr.code === '23505') {
+        return res.status(200).json({ received: true, duplicate: true });
+      }
+      console.error('[stripe-webhook] idempotency claim failed:', claimErr);
+      return res.status(500).json({ error: 'Idempotency check failed' });
+    }
   }
 
   switch (event.type) {
@@ -451,7 +476,8 @@ async function handler(req, res) {
             .maybeSingle();
           if (slugTaken) slug = `${slug}-${applicationId.slice(0, 6)}`;
 
-          const referralCode = `P${Math.random().toString(36).slice(2, 8).toUpperCase()}${applicationId.slice(0, 4).toUpperCase()}`;
+          // crypto-secure: prevents brute-force enumeration of partner referral codes.
+          const referralCode = `P${crypto.randomBytes(4).toString('hex').slice(0, 6).toUpperCase()}${applicationId.slice(0, 4).toUpperCase()}`;
 
           const { data: newPartner, error: partnerErr } = await supabase
             .from('partners')

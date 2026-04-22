@@ -67,8 +67,8 @@ async function resolveClientFromToken(authHeader) {
   if (!authHeader) return null
   const token = authHeader.replace(/^Bearer\s+/i, '')
   if (!token) return null
-
-  console.log('[mcp] resolveClientFromToken: token starts with', token.slice(0, 8))
+  // Don't log token prefixes — that hands an attacker free reconnaissance via
+  // Vercel logs.
 
   // Try as API key FIRST (faster, no auth call needed)
   try {
@@ -173,8 +173,6 @@ async function handler(req, res) {
   if (req.method === 'DELETE') return res.status(200).json({ ok: true })
 
   // Auth
-  console.log('[mcp] Request:', req.method, 'Auth header present:', !!req.headers.authorization, 'Auth starts with:', req.headers.authorization?.slice(0, 40))
-  console.log('[mcp] All headers:', JSON.stringify(Object.keys(req.headers)))
   const clientId = await resolveClientFromToken(req.headers.authorization)
   if (!clientId) {
     const siteUrl = process.env.PUBLIC_API_URL || 'https://actero.fr'

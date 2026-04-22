@@ -23,7 +23,7 @@ async function handler(req, res) {
 
   const shopDomain = integ.extra_config?.shop_domain;
   const r = await fetch(
-    `https://${shopDomain}/admin/api/2024-10/orders.json?name=${encodeURIComponent(orderName)}&status=any`,
+    `https://${shopDomain}/admin/api/2025-01/orders.json?name=${encodeURIComponent(orderName)}&status=any`,
     { headers: { 'X-Shopify-Access-Token': integ.access_token } }
   );
   const j = await r.json();
@@ -31,7 +31,7 @@ async function handler(req, res) {
   if (!order) return res.status(404).json({ error: 'order_not_found' });
 
   await fetch(
-    `https://${shopDomain}/admin/api/2024-10/orders/${order.id}/send_invoice.json`,
+    `https://${shopDomain}/admin/api/2025-01/orders/${order.id}/send_invoice.json`,
     {
       method: 'POST',
       headers: { 'X-Shopify-Access-Token': integ.access_token, 'content-type': 'application/json' },

@@ -9,8 +9,17 @@
  * Or via Zendesk Triggers pointing to this endpoint.
  */
 import { withSentry } from '../../lib/sentry.js'
+import crypto from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import { processMessage } from '../process.js'
+
+function timingSafeEqStr(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false
+  const ab = Buffer.from(a)
+  const bb = Buffer.from(b)
+  if (ab.length !== bb.length) return false
+  return crypto.timingSafeEqual(ab, bb)
+}
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -25,7 +34,8 @@ async function handler(req, res) {
   const clientId = req.query?.client_id
   if (!clientId) return res.status(400).json({ error: 'client_id query param required' })
 
-  const providedSecret = req.query?.secret || req.headers['x-actero-webhook-secret']
+  // Header only — query strings leak into Vercel/proxy/Sentry logs.
+  const providedSecret = req.headers['x-actero-webhook-secret']
   if (!providedSecret) return res.status(401).json({ error: 'Missing webhook secret' })
 
   // Per-client secret — chaque Zendesk OAuth install génère un secret de
@@ -44,7 +54,7 @@ async function handler(req, res) {
 
   const expectedSecret = integ?.extra_config?.webhook_secret
     || process.env.ZENDESK_WEBHOOK_SECRET
-  if (!expectedSecret || providedSecret !== expectedSecret) {
+  if (!expectedSecret || !timingSafeEqStr(providedSecret, expectedSecret)) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 

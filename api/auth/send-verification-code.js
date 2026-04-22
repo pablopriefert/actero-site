@@ -90,7 +90,10 @@ async function handler(req, res) {
         // Still return success — code is stored and user can still verify via another means
       }
     } else {
-      console.log(`[send-verification-code] RESEND_API_KEY missing — code for ${email}: ${code}`)
+      // Never log the code or the email — verification codes in Vercel logs
+      // are an instant credential leak to anyone with log access.
+      console.warn('[send-verification-code] RESEND_API_KEY missing — email not sent')
+      return res.status(503).json({ error: 'Email service unavailable' })
     }
 
     return res.status(200).json({ success: true, expires_in: 900 })

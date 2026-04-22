@@ -37,7 +37,7 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Shopify non connecte.' })
   }
 
-  const baseUrl = `https://${shopify.shop_domain}/admin/api/2024-01`
+  const baseUrl = `https://${shopify.shop_domain}/admin/api/2025-01`
   const headers = {
     'X-Shopify-Access-Token': shopifyToken,
     'Content-Type': 'application/json',

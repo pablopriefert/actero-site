@@ -31,25 +31,18 @@ async function handler(req, res) {
   const apiKey = req.query?.api_key
   if (!apiKey) return res.status(401).json({ error: 'api_key required' })
 
-  // Look up client by API key (stored in client_settings or a dedicated field)
+  // Look up client by API key (stored in clients.widget_api_key).
+  // SECURITY: previously fell back to matching `api_key` against clients.id.
+  // That meant any leaked client UUID (frequently exposed in dashboard URLs,
+  // support tickets, screenshots) granted unlimited chat-bot access. Removed.
   const { data: client } = await supabase
     .from('clients')
     .select('id, brand_name, client_type')
     .eq('widget_api_key', apiKey)
     .maybeSingle()
 
-  // Fallback: check if api_key is the client_id itself (simpler setup)
-  let clientId = client?.id
-  if (!clientId) {
-    const { data: fallback } = await supabase
-      .from('clients')
-      .select('id, brand_name')
-      .eq('id', apiKey)
-      .maybeSingle()
-    clientId = fallback?.id
-  }
-
-  if (!clientId) return res.status(404).json({ error: 'Client not found for this API key' })
+  const clientId = client?.id
+  if (!clientId) return res.status(401).json({ error: 'Invalid API key' })
 
   const { message, email, name, session_id, history } = req.body || {}
   if (!message) return res.status(400).json({ error: 'message required' })

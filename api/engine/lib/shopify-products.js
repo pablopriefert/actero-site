@@ -30,7 +30,7 @@ export async function searchShopifyProducts(supabase, { clientId, query, limit =
   if (!shopifyToken || !shopify?.shop_domain) return []
 
   try {
-    const url = `https://${shopify.shop_domain}/admin/api/2024-01/products.json?title=${encodeURIComponent(query)}&limit=${limit}`
+    const url = `https://${shopify.shop_domain}/admin/api/2025-01/products.json?title=${encodeURIComponent(query)}&limit=${limit}`
     const res = await fetch(url, {
       headers: { 'X-Shopify-Access-Token': shopifyToken },
     })

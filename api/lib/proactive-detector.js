@@ -170,7 +170,7 @@ async function fetchUnpaidOrders(conn, thresholdHours) {
   const upperIso = new Date(Date.now() - thresholdHours * 3600000).toISOString()
 
   try {
-    const url = `https://${conn.shop_domain}/admin/api/2024-10/orders.json?status=open&financial_status=pending&created_at_min=${sinceIso}&created_at_max=${upperIso}&limit=50`
+    const url = `https://${conn.shop_domain}/admin/api/2025-01/orders.json?status=open&financial_status=pending&created_at_min=${sinceIso}&created_at_max=${upperIso}&limit=50`
     const resp = await fetch(url, {
       headers: { 'X-Shopify-Access-Token': conn.access_token, Accept: 'application/json' },
     })
@@ -227,7 +227,7 @@ async function detectSilentVip(supabase, clientId, config) {
 
   try {
     // Fetch top spenders (sorted by total_spent desc)
-    const url = `https://${conn.shop_domain}/admin/api/2024-10/customers.json?limit=50`
+    const url = `https://${conn.shop_domain}/admin/api/2025-01/customers.json?limit=50`
     const resp = await fetch(url, {
       headers: { 'X-Shopify-Access-Token': conn.access_token, Accept: 'application/json' },
     })

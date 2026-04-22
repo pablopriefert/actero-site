@@ -38,7 +38,7 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Shopify non connecte. Connectez votre boutique d\'abord.' })
   }
 
-  const baseUrl = `https://${shopify.shop_domain}/admin/api/2024-01`
+  const baseUrl = `https://${shopify.shop_domain}/admin/api/2025-01`
   const headers = {
     'X-Shopify-Access-Token': shopifyToken,
     'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ async function handler(req, res) {
         // Replace existing widget with fresh cache-busted version
         const existingRegex = new RegExp(`\\n${WIDGET_TAG}\\n[\\s\\S]*?\\n${WIDGET_TAG}`)
         content = content.replace(existingRegex, widgetScript)
-        await fetch(`https://${shop}/admin/api/2024-01/themes/${themeId}/assets.json`, {
+        await fetch(`https://${shop}/admin/api/2025-01/themes/${themeId}/assets.json`, {
           method: 'PUT',
           headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' },
           body: JSON.stringify({ asset: { key: 'layout/theme.liquid', value: content } }),

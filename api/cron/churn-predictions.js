@@ -265,7 +265,7 @@ function computeSignals(items, sentimentHistory) {
 
 async function fetchShopifyCustomer(shopify, email) {
   try {
-    const baseUrl = `https://${shopify.shop_domain}/admin/api/2024-01`
+    const baseUrl = `https://${shopify.shop_domain}/admin/api/2025-01`
     const headers = {
       'X-Shopify-Access-Token': shopify.access_token,
       'Content-Type': 'application/json',

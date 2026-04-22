@@ -21,7 +21,7 @@ export async function lookupOrder(supabase, { clientId, orderId, customerEmail }
     return null // No Shopify connection
   }
 
-  const baseUrl = `https://${shopify.shop_domain}/admin/api/2024-01`
+  const baseUrl = `https://${shopify.shop_domain}/admin/api/2025-01`
   const headers = {
     'X-Shopify-Access-Token': shopifyToken,
     'Content-Type': 'application/json',
