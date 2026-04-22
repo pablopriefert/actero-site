@@ -16,13 +16,14 @@ import { createClient } from '@supabase/supabase-js'
 import { askCopilot } from '../lib/kpi-tools.js'
 import { postSlackMessage, formatAsBlocks } from '../lib/slack.js'
 import { decryptToken } from '../lib/crypto.js'
+import { withCronMonitor } from '../lib/cron-monitor.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Auth — Vercel Cron or manual trigger with CRON_SECRET
   const cronSecret = process.env.CRON_SECRET
   const provided = req.headers['authorization']?.replace('Bearer ', '') || req.query.secret
@@ -107,3 +108,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withCronMonitor('cron-slack-daily-digest', '30 7 * * 1-5', handler)

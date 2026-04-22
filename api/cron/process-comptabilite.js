@@ -1,12 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 import { fetchOverdueInvoices, fetchTreasuryBalance } from '../engine/connectors/accounting.js'
+import { withCronMonitor } from '../lib/cron-monitor.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Auth: only allow Vercel Cron or internal secret
   const authHeader = req.headers.authorization
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}` && req.headers['x-internal-secret'] !== process.env.INTERNAL_API_SECRET) {
@@ -166,3 +167,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: error.message })
   }
 }
+
+export default withCronMonitor('cron-process-comptabilite', '0 8 * * *', handler)

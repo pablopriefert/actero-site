@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { withCronMonitor } from '../lib/cron-monitor.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -350,7 +351,7 @@ async function resolveRecipient(client) {
   return null
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Auth: allow Vercel Cron (Bearer CRON_SECRET) or internal secret or explicit x-vercel-cron-secret
   const authHeader = req.headers.authorization
   const cronSecret = req.headers['x-vercel-cron-secret']
@@ -441,3 +442,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withCronMonitor('cron-monthly-report', '0 8 1 * *', handler)

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { decryptToken } from '../lib/crypto.js'
+import { withCronMonitor } from '../lib/cron-monitor.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -20,7 +21,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
  *   4. Ask Claude to compute churn_risk / clv_estimate / signals / recommended actions
  *   5. Upsert into churn_predictions (one row per client + email)
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -368,3 +369,5 @@ function clampNum(n, min, max) {
   if (!isFinite(x)) return min
   return Math.max(min, Math.min(max, x))
 }
+
+export default withCronMonitor('cron-churn-predictions', '0 6 * * 0', handler)

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { withCronMonitor } from '../lib/cron-monitor.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -100,7 +101,7 @@ function buildCartRecoveryHtml({ customerName, lineItems, totalPrice, currency, 
   `
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Only allow GET (Vercel cron) or POST
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -215,3 +216,5 @@ export default async function handler(req, res) {
 
   return res.status(200).json({ processed, errors, total_ready: readyEvents.length })
 }
+
+export default withCronMonitor('cron-process-abandoned-carts', '*/5 * * * *', handler)

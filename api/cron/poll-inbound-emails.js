@@ -11,6 +11,7 @@
 // Auth: Vercel Cron header OR Authorization: Bearer <CRON_SECRET>.
 import { createClient } from '@supabase/supabase-js'
 import { pollOneMailbox } from '../lib/email-poller.js'
+import { withCronMonitor } from '../lib/cron-monitor.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -19,7 +20,7 @@ const supabase = createClient(
 
 export const maxDuration = 60
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const cronSecret = process.env.CRON_SECRET
   const provided = req.headers['authorization']?.replace('Bearer ', '') || req.query?.secret
   const isVercelCron = req.headers['x-vercel-cron']
@@ -94,3 +95,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withCronMonitor('cron-poll-inbound-emails', '*/2 * * * *', handler)
