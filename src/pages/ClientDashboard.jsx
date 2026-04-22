@@ -90,8 +90,6 @@ const SettingsHubView = lazy(() => import('../components/client/SettingsHubView'
 const ClientBillingView = lazy(() => import('../components/client/ClientBillingView').then(m => ({ default: m.ClientBillingView })))
 const HelpCenterView = lazy(() => import('../components/client/HelpCenterView').then(m => ({ default: m.HelpCenterView })))
 const ROISettingsView = lazy(() => import('../components/client/ROISettingsView').then(m => ({ default: m.ROISettingsView })))
-// IndustryPicker — disabled (conflit avec ProductTour anime) : import retire
-// import { IndustryPicker } from '../components/client/IndustryPicker'
 import { CommandPalette } from '../components/CommandPalette'
 import { useCommandPalette } from '../hooks/useCommandPalette'
 import { usePlan } from '../hooks/usePlan'
@@ -142,7 +140,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/roi") return "roi";
     if (route === "/client/playbooks") return "playbooks";
     if (route === "/client/profile") return "profile";
-    if (route === "/client/marketplace") return "marketplace";
     if (route === "/client/weekly-summary") return "weekly-summary";
     if (route === "/client/peak-hours") return "peak-hours";
     if (route === "/client/account") return "profile";
@@ -256,14 +253,17 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Auto-open tour at first login (1.5s after dashboard is ready)
+  // Auto-open tour at first login (1.5s after dashboard is ready).
+  // Gate on `!showSetupWizard` so the tour never fires while the setup
+  // wizard overlay is visible — both would stack and steal focus.
   useEffect(() => {
     if (!currentClient?.id) return;
     if (tourCompleted === undefined) return;
     if (tourCompleted) return;
+    if (showSetupWizard) return;
     const t = setTimeout(() => setShowTour(true), 1500);
     return () => clearTimeout(t);
-  }, [currentClient?.id, tourCompleted]);
+  }, [currentClient?.id, tourCompleted, showSetupWizard]);
 
   // Allow any child component to restart the product tour via a custom event
   useEffect(() => {
@@ -351,21 +351,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const showShopifyBanner = currentClient?.client_type === 'ecommerce' && shopifyConnected === false;
 
   // 5b-bis. Industry preset applied (null = never chosen, 'skipped' = user passed, or preset id)
-  const { data: industryPresetApplied, refetch: refetchIndustryPreset } = useQuery({
-    queryKey: ['industry-preset-applied', currentClient?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('client_settings')
-        .select('industry_preset_applied')
-        .eq('client_id', currentClient.id)
-        .maybeSingle();
-      return data?.industry_preset_applied ?? null;
-    },
-    enabled: !!currentClient?.id,
-    refetchOnWindowFocus: false,
-  });
-  const [industryPickerDismissed, setIndustryPickerDismissed] = useState(false);
-
   // 5c. Setup completion — shared cache with SetupChecklist. Must use the SAME
   // queryFn as SetupChecklist so the TanStack cache entry is identical (two
   // different queryFns with the same key would race / overwrite each other).
@@ -727,15 +712,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const isLoading = clientLoading || metricsLoading || dailyMetricsLoading;
   const isLight = theme === "light";
 
-  // Show IndustryPicker only for brand-new clients still in setup mode,
-  // who have never chosen/skipped a preset, and haven't dismissed it this session.
-  const shouldShowIndustryPicker =
-    !!currentClient?.id &&
-    industryPresetApplied === null &&
-    !industryPickerDismissed &&
-    isSetupMode &&
-    completedSetupSteps < 3;
-
   // Upgrade CTA for sidebar — only shown for Free and Starter plans
   const sidebarUpgradeCta = (planId === 'free' || planId === 'starter') ? (
     <button
@@ -754,7 +730,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#F7F5F0] text-[#1a1a1a]">
       <SkipToMain />
-      {/* IndustryPicker disabled — was conflicting with the animated guide tour */}
       {/* Mobile Header */}
       <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 bg-[#F7F5F0] border-b border-[#E5E2D7]`}>
         <div className="flex items-center gap-2">
@@ -844,7 +819,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "voice-agent" && "Agent vocal"}
             {activeTab === "notifications" && "Notifications"}
             {activeTab === "playbooks" && "Scenarios"}
-            {activeTab === "marketplace" && "Marketplace"}
             {activeTab === "weekly-summary" && "Performance"}
             {activeTab === "peak-hours" && "Heures de pic"}
             {activeTab === "roi" && "ROI"}
@@ -972,14 +946,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         tab: 'agent-config',
                         color: 'bg-emerald-50',
                         iconColor: 'text-cta',
-                      },
-                      {
-                        icon: Store,
-                        title: 'Marketplace',
-                        desc: 'Installez des playbooks et templates prêts à l\'emploi pour votre e-commerce.',
-                        tab: 'marketplace',
-                        color: 'bg-purple-50',
-                        iconColor: 'text-purple-600',
                       },
                       {
                         icon: TrendingUp,
@@ -1171,19 +1137,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "playbooks" && (
             <PlaybooksView clientId={currentClient?.id} setActiveTab={setActiveTab} theme={theme} />
-          )}
-
-          {activeTab === "marketplace" && (
-            <div className="max-w-2xl mx-auto text-center py-20">
-              <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto mb-4">
-                <Store className="w-8 h-8 text-amber-500" />
-              </div>
-              <h3 className="text-xl font-bold text-[#1a1a1a] mb-2">Marketplace</h3>
-              <p className="text-sm text-[#71717a] mb-1">Bientôt disponible</p>
-              <p className="text-xs text-[#9ca3af] max-w-md mx-auto">
-                Découvrez et installez des templates de workflows, des playbooks communautaires et des intégrations créées par la communauté Actero.
-              </p>
-            </div>
           )}
 
           {activeTab === "weekly-summary" && (

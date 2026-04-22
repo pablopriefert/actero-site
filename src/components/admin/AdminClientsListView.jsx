@@ -19,6 +19,7 @@ import { SectionCard } from '../ui/SectionCard'
 import { SearchInput } from '../ui/SearchInput'
 import { StatusPill } from '../ui/StatusPill'
 import { EmptyState } from '../ui/EmptyState'
+import { ExportCsvButton } from '../ui/ExportCsvButton'
 import { AdminClientQuickActions } from './AdminClientQuickActions'
 
 const FILTERS = [
@@ -257,9 +258,11 @@ export function AdminClientsListView() {
   }
 
   const handleRowClick = (client) => {
-    // Visual-only navigation — /admin/clients/:id may not exist yet
+    // Navigate to the 360° detail view. Must dispatch popstate so the
+    // AdminDashboard router picks up the new path and swaps the tab.
     if (window.location.pathname.startsWith('/admin')) {
       window.history.pushState({}, '', `/admin/clients/${client.id}`)
+      window.dispatchEvent(new PopStateEvent('popstate'))
     }
   }
 
@@ -269,14 +272,31 @@ export function AdminClientsListView() {
         title="Clients"
         subtitle={`${clients.length} clients au total`}
         actions={
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-cta hover:bg-[#0a4a29] text-white text-[12px] font-semibold transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Ajouter un client
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportCsvButton
+              filename="actero-clients"
+              rows={clients}
+              columns={[
+                { key: 'brand_name', label: 'Brand' },
+                { key: 'contact_email', label: 'Email' },
+                { key: 'plan', label: 'Plan' },
+                { key: 'status', label: 'Status' },
+                { key: 'client_type', label: 'Type' },
+                { key: 'mrr', label: 'MRR €' },
+                { key: 'health_score', label: 'Health' },
+                { key: 'trial_ends_at', label: 'Trial ends' },
+                { key: 'created_at', label: 'Created' },
+              ]}
+            />
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-cta hover:bg-[#0a4a29] text-white text-[12px] font-semibold transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Ajouter un client
+            </button>
+          </div>
         }
       />
 

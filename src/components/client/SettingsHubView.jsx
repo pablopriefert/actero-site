@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
-import { User, Users, Bell, CreditCard, LifeBuoy, Gift, Code, ChevronRight, Award, Cog } from 'lucide-react'
+import { User, Users, Bell, CreditCard, LifeBuoy, Gift, Code, ChevronRight, Award, Cog, Download, Loader2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useToast } from '../ui/Toast'
 
 /**
  * Settings Hub — refondu avril 2026.
@@ -15,6 +16,40 @@ import { supabase } from '../../lib/supabase'
  * Pattern cohérent avec Overview / Automation / Insights / KB.
  */
 export const SettingsHubView = ({ clientId, onNavigate }) => {
+  const { success: toastSuccess, error: toastError } = useToast()
+  const [exporting, setExporting] = useState(null) // 'json' | 'csv' | null
+
+  const handleExport = async (format) => {
+    try {
+      setExporting(format)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toastError('Session expirée — reconnectez-vous')
+        return
+      }
+      const res = await fetch(`/api/client/export-data?format=${format}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) throw new Error('Export failed (' + res.status + ')')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `actero-export-${stamp}.${format}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 250)
+      toastSuccess('Export téléchargé')
+    } catch (e) {
+      console.error('Export error', e)
+      toastError('Erreur lors de l\'export')
+    } finally {
+      setExporting(null)
+    }
+  }
+
   const { data: hubSignals } = useQuery({
     queryKey: ['settings-hub-signals', clientId],
     queryFn: async () => {
@@ -168,6 +203,41 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
                 {teamCount === 1 ? 'membre' : 'membres'}
               </span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════ DATA EXPORT (GDPR) ═══════ */}
+      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 mb-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <Download className="w-4 h-4 text-cta" />
+              <h2 className="text-[14px] font-bold text-[#1a1a1a]">Export de mes données (RGPD)</h2>
+            </div>
+            <p className="text-[12px] text-[#71717a] max-w-xl">
+              Téléchargez l'intégralité de vos conversations, tickets, métriques ROI, templates et base de connaissances. Vos données vous appartiennent.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleExport('json')}
+              disabled={exporting === 'json'}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5E2D7] bg-white text-[12px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50 transition"
+            >
+              {exporting === 'json' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+              JSON
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExport('csv')}
+              disabled={exporting === 'csv'}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-[12px] font-semibold hover:bg-[#0a4a29] disabled:opacity-50 transition"
+            >
+              {exporting === 'csv' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+              CSV
+            </button>
           </div>
         </div>
       </div>

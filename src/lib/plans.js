@@ -85,8 +85,10 @@ export const PLANS = {
     onboarding: 'guided',
     overage_per_ticket: 0.15,
     stripe: {
-      price_id_monthly: null, // À remplir après création dans Stripe Dashboard
-      price_id_annual: null,
+      // Read at build time from VITE_STRIPE_PRICE_STARTER_{MONTHLY,ANNUAL}.
+      // Set these in Vercel env vars once created in Stripe Dashboard.
+      price_id_monthly: import.meta.env.VITE_STRIPE_PRICE_STARTER_MONTHLY || null,
+      price_id_annual: import.meta.env.VITE_STRIPE_PRICE_STARTER_ANNUAL || null,
     },
     cta: 'Essai gratuit 7 jours',
     popular: false,
@@ -127,8 +129,8 @@ export const PLANS = {
     onboarding: 'guided',
     overage_per_ticket: 0.10,
     stripe: {
-      price_id_monthly: null,
-      price_id_annual: null,
+      price_id_monthly: import.meta.env.VITE_STRIPE_PRICE_PRO_MONTHLY || null,
+      price_id_annual: import.meta.env.VITE_STRIPE_PRICE_PRO_ANNUAL || null,
     },
     cta: 'Essai gratuit 7 jours',
     popular: true,

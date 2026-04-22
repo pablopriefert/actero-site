@@ -103,81 +103,12 @@ const AdminConversionPipelineView = lazy(() => import('../components/admin/Admin
 const AdminAITerminal = lazy(() => import('../components/admin/AdminAITerminal').then(m => ({ default: m.AdminAITerminal })))
 const AdminPartnerTokensView = lazy(() => import('../components/admin/AdminPartnerTokensView').then(m => ({ default: m.AdminPartnerTokensView })))
 const AdminErrorReportsView = lazy(() => import('../components/admin/AdminErrorReportsView').then(m => ({ default: m.AdminErrorReportsView })))
+const AdminActionLogsView = lazy(() => import('../components/admin/AdminActionLogsView').then(m => ({ default: m.AdminActionLogsView })))
+const AdminClientDetailView = lazy(() => import('../components/admin/AdminClientDetailView').then(m => ({ default: m.AdminClientDetailView })))
 import { KpiCard, KpiRow } from '../components/ui/KpiCard'
 import { SectionCard } from '../components/ui/SectionCard'
 import { StatusPill } from '../components/ui/StatusPill'
 import { useToast } from '../components/ui/Toast'
-
-const GlobalSearchBar = ({ clients = [], funnel = [], onSelectClient, onNavigateTab }) => {
-  const [query, setQuery] = useState('');
-  const [focused, setFocused] = useState(false);
-  const inputRef = React.useRef(null);
-
-  const results = React.useMemo(() => {
-    if (!query.trim() || query.length < 2) return [];
-    const q = query.toLowerCase();
-    const items = [];
-
-    // Search clients
-    clients.forEach(c => {
-      if (`${c.brand_name} ${c.contact_email || ''} ${c.client_type || ''}`.toLowerCase().includes(q)) {
-        items.push({ type: 'client', label: c.brand_name, sub: c.client_type || 'ecommerce', data: c });
-      }
-    });
-
-    // Search funnel
-    funnel.forEach(f => {
-      if (`${f.company_name || ''} ${f.email || ''} ${f.slug || ''}`.toLowerCase().includes(q)) {
-        items.push({ type: 'funnel', label: f.company_name || f.slug, sub: f.status || 'draft', data: f });
-      }
-    });
-
-    return items.slice(0, 8);
-  }, [query, clients, funnel]);
-
-  const showResults = focused && results.length > 0;
-
-  return (
-    <div className="relative w-72">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
-      <input
-        ref={inputRef}
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setTimeout(() => setFocused(false), 200)}
-        placeholder="Rechercher un client, funnel..."
-        className="w-full pl-9 pr-4 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-[#9ca3af] outline-none focus:bg-white focus:border-cta/30"
-      />
-      {showResults && (
-        <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-[#f0f0f0] rounded-xl shadow-lg overflow-hidden z-50">
-          {results.map((r, i) => (
-            <button
-              key={i}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[#fafafa] transition-colors text-[13px]"
-              onMouseDown={() => {
-                if (r.type === 'client') {
-                  onSelectClient(r.data);
-                } else if (r.type === 'funnel') {
-                  onNavigateTab('funnel');
-                }
-                setQuery('');
-                setFocused(false);
-              }}
-            >
-              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase ${
-                r.type === 'client' ? 'bg-emerald-50 text-cta border-emerald-200' : 'bg-blue-50 text-blue-600 border-blue-200'
-              }`}>{r.type === 'client' ? 'Client' : 'Funnel'}</span>
-              <span className="font-medium text-[#1a1a1a] truncate">{r.label}</span>
-              <span className="text-[#71717a] text-[12px] ml-auto">{r.sub}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const QuickAddClientModal = ({ onClose, onSubmit }) => {
   const [brandName, setBrandName] = useState('');
@@ -337,16 +268,15 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/alert-builder") return "alert-builder";
     if (route === "/admin/tokens") return "tokens";
     if (route === "/admin/hallucination") return "hallucination";
-    if (route === "/admin/escalations-inbox") return "escalations-inbox";
-    if (route === "/admin/conversations") return "conversations";
     if (route === "/admin/manual-review") return "manual-review";
     if (route === "/admin/playbooks") return "playbooks";
     if (route === "/admin/action-logs") return "action-logs";
-    if (route === "/admin/team") return "team";
-    if (route === "/admin/settings") return "settings";
     if (route === "/admin/add-enterprise") return "add-enterprise";
     if (route === "/admin/stripe-setup") return "stripe-setup";
     if (route === "/admin/conversion-pipeline") return "conversion-pipeline";
+    // /admin/clients/<uuid> → detail view. Pathname only, the id is parsed
+    // inside AdminClientDetailView from window.location (querystring or slug).
+    if (/^\/admin\/clients\/[0-9a-f-]{8,}/i.test(route)) return "client-detail";
     return "overview";
   };
 
@@ -523,7 +453,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'billing', label: 'Facturation', icon: Receipt },
         { id: 'shopify', label: 'App Shopify', icon: ShoppingBag },
         { id: 'stripe-setup', label: 'Config Stripe', icon: CreditCard },
-        { id: 'team', label: 'Équipe', icon: UserCog },
+        { id: 'action-logs', label: 'Journal audit', icon: FileText },
       ],
     },
   ];
@@ -630,47 +560,48 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         <header className="hidden md:flex h-16 bg-white border-b border-[#f0f0f0] items-center px-8 justify-between">
           <h1 className="text-[18px] font-semibold tracking-tight text-[#1a1a1a]">
             {{
-              overview: 'Accueil equipe',
+              overview: 'Accueil équipe',
               clients: 'Tous les clients',
               'add-enterprise': 'Ajout client Enterprise',
-              conversations: 'Conversations live',
-              'escalations-inbox': 'Inbox escalades',
-              health: 'Sante clients',
+              'client-detail': 'Fiche client',
+              health: 'Santé clients',
               funnel: 'Nouveau client',
               'live-runs': 'Live runs',
               'agent-heatmap': 'Heatmap agents',
               'top-errors': 'Top erreurs',
-              'connector-health': 'Sante connecteurs',
+              'connector-health': 'Santé connecteurs',
               'engine-runs': 'Historique runs',
               hallucination: 'Hallucinations IA',
               'manual-review': 'Review manuelle',
               playbooks: 'Playbooks',
               ratings: 'Notations IA',
               engine: 'Webhook test',
+              'ai-terminal': 'AI Terminal',
+              'error-reports': 'Erreurs clients',
               mrr: 'MRR et revenus',
-              'churn-cohort': 'Cohortes de retention',
-              'roi-leaderboard': 'ROI classement',
-              'cost-tracker': 'Couts Claude',
+              'churn-cohort': 'Cohortes de rétention',
+              'roi-leaderboard': 'Classement ROI',
+              'cost-tracker': 'Coûts Claude',
               tokens: 'Consommation tokens',
               pipeline: 'Pipeline commercial',
+              'conversion-pipeline': 'Conversion free → paid',
               billing: 'Facturation',
+              'stripe-setup': 'Config Stripe',
               'alert-builder': 'Alertes Slack',
               'action-logs': 'Journal audit',
+              monitoring: 'Monitoring',
               shopify: 'App Shopify',
               referrals: 'Parrainages',
               partners: 'Partenaires',
-              team: 'Équipe Actero',
-              settings: 'Paramètres',
+              'partner-tokens': 'Liens partenaires',
+              'startup-applications': 'Candidatures Startup',
               requests: 'Demandes IA',
               leads: 'Leads captures',
+              intelligence: 'Intelligence clients',
             }[activeTab] || activeTab.replace('-', ' ')}
           </h1>
-          <GlobalSearchBar
-            clients={clients}
-            funnel={overviewData?.funnel || []}
-            onSelectClient={(c) => { setSelectedClient(c); }}
-            onNavigateTab={setActiveTab}
-          />
+          {/* Global search moved to the single Cmd+K CommandPalette (mounted
+             in App.jsx). GlobalSearchBar was redundant and indexed less. */}
         </header>
 
         <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-8">
@@ -1060,17 +991,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "playbooks" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminPlaybooksView /></div>}
           {activeTab === "stripe-setup" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminStripeSetupView /></div>}
           {activeTab === "conversion-pipeline" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminConversionPipelineView /></div>}
-
-          {/* Placeholder routes for items announced in sidebar but not yet wired */}
-          {(activeTab === "conversations" || activeTab === "escalations-inbox" || activeTab === "action-logs" || activeTab === "team" || activeTab === "settings") && (
-            <div className="max-w-4xl mx-auto py-20 text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#fafafa] border border-[#f0f0f0] mb-4">
-                <Sparkles className="w-5 h-5 text-[#71717a]" />
-              </div>
-              <h3 className="text-[18px] font-bold text-[#1a1a1a] mb-2">Bientot disponible</h3>
-              <p className="text-[13px] text-[#71717a]">Cette section sera activee dans une prochaine release.</p>
-            </div>
-          )}
+          {activeTab === "action-logs" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminActionLogsView /></div>}
+          {activeTab === "client-detail" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminClientDetailView /></div>}
 
           {activeTab === "requests" && (
             <div className="max-w-6xl mx-auto animate-fade-in-up">

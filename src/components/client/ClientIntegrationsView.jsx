@@ -6,6 +6,7 @@ import {
   RefreshCw, Trash2, Star, Search, Mail
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useToast } from '../ui/Toast'
 import { INTEGRATIONS, ALL_INTEGRATIONS, INTEGRATION_CATEGORIES, getIntegrationById, getConflictingActive, getConflictGroup, CONFLICT_GROUPS } from '../../config/integrations'
 
 const ProviderIcon = ({ provider, connected, size = 40 }) => {
@@ -364,6 +365,7 @@ const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight 
 
 export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const queryClient = useQueryClient();
+  const { success: toastSuccess, error: toastError } = useToast();
   const isLight = theme === 'light';
   const [disconnectTarget, setDisconnectTarget] = useState(null);
   const [disconnecting, setDisconnecting] = useState(false);
@@ -445,7 +447,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
     const required = ['email', 'smtp_host', 'smtp_port', 'imap_host', 'imap_port', 'username', 'password'];
     const missing = required.filter(key => !smtpValues[key] || String(smtpValues[key]).trim() === '');
     if (missing.length > 0) {
-      alert('Veuillez remplir tous les champs obligatoires');
+      toastError('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
@@ -471,15 +473,16 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       }, { onConflict: 'client_id,provider' });
       if (error) {
         console.error('SMTP save error:', error);
-        alert('Erreur: ' + error.message);
+        toastError('Erreur: ' + error.message);
       } else {
         queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
         setSmtpProvider(null);
         setSmtpValues({});
+        toastSuccess('Configuration SMTP enregistrée');
       }
     } catch (err) {
       console.error('SMTP error:', err);
-      alert('Erreur: ' + err.message);
+      toastError('Erreur: ' + err.message);
     }
     setSmtpSaving(false);
   };
@@ -569,7 +572,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       if (!res.ok) {
         // If API test failed, save anyway but show warning
         if (data.test_failed) {
-          alert('Attention : le test de connexion a echoue (' + data.error + '). La cle a ete sauvegardee mais verifiez vos identifiants.');
+          toastError('Test de connexion échoué (' + data.error + '). Clé sauvegardée — vérifiez vos identifiants.');
         } else {
           throw new Error(data.error || 'Erreur connexion');
         }
@@ -577,6 +580,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
       setApiKeyProvider(null);
       setApiKeyValue('');
+      if (res.ok) toastSuccess('Intégration connectée');
     } catch (err) {
       // Fallback: save directly to DB
       try {
@@ -590,14 +594,15 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
           connected_at: new Date().toISOString(),
         }, { onConflict: 'client_id,provider' });
         if (error) {
-          alert('Erreur: ' + error.message);
+          toastError('Erreur: ' + error.message);
         } else {
           queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
           setApiKeyProvider(null);
           setApiKeyValue('');
+          toastSuccess('Intégration connectée');
         }
       } catch (e) {
-        alert('Erreur: ' + e.message);
+        toastError('Erreur: ' + e.message);
       }
     }
     setApiKeySaving(false);
