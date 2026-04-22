@@ -22,12 +22,15 @@ export function StartPage({ clientSlug }) {
   const [clientData, setClientData] = useState(null);
 
   useEffect(() => {
+    // Uses SECURITY DEFINER RPC instead of `.from('funnel_clients').select(...)`
+    // because the underlying table's RLS no longer allows anon reads (it used
+    // to leak emails + Stripe IDs). The RPC returns only non-sensitive fields.
     supabase
-      .from('funnel_clients')
-      .select('company_name, setup_price, monthly_price, client_type')
-      .eq('slug', clientSlug)
-      .maybeSingle()
-      .then(({ data }) => { if (data) setClientData(data); });
+      .rpc('get_funnel_client_public', { p_slug: clientSlug })
+      .then(({ data }) => {
+        const row = Array.isArray(data) ? data[0] : data
+        if (row) setClientData(row)
+      });
   }, [clientSlug]);
 
   const clientName = clientData?.company_name || formatClientName(clientSlug);

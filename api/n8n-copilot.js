@@ -1,6 +1,7 @@
 // N8N Copilot — AI-powered workflow management via Gemini
 import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
+import { isActeroAdmin } from './lib/admin-auth.js'
 
 const N8N_URL = process.env.N8N_API_URL;
 const N8N_KEY = process.env.N8N_API_KEY;
@@ -678,7 +679,7 @@ async function handler(req, res) {
   if (!token) return res.status(401).json({ error: 'Non autorise' });
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return res.status(401).json({ error: 'Non autorise' });
-  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  const isAdmin = await isActeroAdmin(user, supabase);
   if (!isAdmin) return res.status(403).json({ error: 'Acces refuse — admin uniquement' });
 
   if (!N8N_URL || !N8N_KEY) return res.status(500).json({ error: 'N8N credentials missing' });

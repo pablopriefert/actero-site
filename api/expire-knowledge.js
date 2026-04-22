@@ -1,5 +1,6 @@
 import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
+import { isActeroAdmin } from './lib/admin-auth.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -19,7 +20,7 @@ async function handler(req, res) {
     if (token) {
       const { data: { user }, error } = await supabase.auth.getUser(token);
       if (error || !user) return res.status(403).json({ error: 'Accès refusé.' });
-      const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+      const isAdmin = await isActeroAdmin(user, supabase);
       if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
     } else if (!req.headers['x-vercel-cron-signature']) {
       return res.status(403).json({ error: 'Accès refusé.' });

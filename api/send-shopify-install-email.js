@@ -1,6 +1,7 @@
 import { withSentry } from './lib/sentry.js'
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
+import { isActeroAdmin } from './lib/admin-auth.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -21,7 +22,7 @@ async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return res.status(401).json({ error: 'Non authentifié' });
 
-  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  const isAdmin = await isActeroAdmin(user, supabase);
   if (!isAdmin) return res.status(403).json({ error: 'Accès refusé' });
 
   const { email, company_name, install_url } = req.body;

@@ -2,6 +2,7 @@
 // Separate from /api/client-copilot which is the data-Q&A copilot for active clients.
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
+import { isActeroAdmin } from '../lib/admin-auth.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -75,7 +76,7 @@ async function handler(req, res) {
 
   // Verify the caller has access to the requested client (admin or member)
   if (client_id) {
-    const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr')
+    const isAdmin = await isActeroAdmin(user, supabase)
     if (!isAdmin) {
       const { data: link } = await supabase
         .from('client_users')

@@ -2,6 +2,7 @@
 import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
+import { isActeroAdmin } from './lib/admin-auth.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -90,7 +91,7 @@ async function handler(req, res) {
   if (!client_id || !message) return res.status(400).json({ error: 'Missing client_id or message' });
 
   // Verify user has access to this client
-  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  const isAdmin = await isActeroAdmin(user, supabase);
   if (!isAdmin) {
     const { data: link } = await supabase
       .from('client_users')

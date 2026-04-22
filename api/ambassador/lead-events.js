@@ -1,5 +1,6 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
+import { isActeroAdmin } from '../lib/admin-auth.js'
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -20,7 +21,7 @@ async function handler(req, res) {
   if (!leadId) return res.status(400).json({ error: 'lead_id requis.' });
 
   // Check the user owns this lead (ambassador) or is admin
-  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  const isAdmin = await isActeroAdmin(user, supabase);
 
   if (!isAdmin) {
     const { data: ambassador } = await supabase

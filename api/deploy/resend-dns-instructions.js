@@ -1,5 +1,6 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
+import { isActeroAdmin } from '../lib/admin-auth.js'
 
 async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -17,7 +18,7 @@ async function handler(req, res) {
   if (!token) return res.status(401).json({ error: 'Non autorisé.' });
   const { data: { user }, error: authErr } = await db.auth.getUser(token);
   if (authErr || !user) return res.status(401).json({ error: 'Non autorisé.' });
-  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  const isAdmin = await isActeroAdmin(user, db);
   if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
 
   const { client_id } = req.body || {};

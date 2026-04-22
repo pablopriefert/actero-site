@@ -1,6 +1,7 @@
 // Scrape a website's key pages and generate brand context via Gemini
 import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
+import { isActeroAdmin } from './lib/admin-auth.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -12,7 +13,7 @@ async function checkAdmin(req) {
   if (!token) return false;
   const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return false;
-  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  return await isActeroAdmin(user, supabase);
 }
 
 async function handler(req, res) {

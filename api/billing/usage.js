@@ -1,5 +1,6 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
+import { isActeroAdmin } from '../lib/admin-auth.js'
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -24,7 +25,7 @@ async function handler(req, res) {
   }
 
   // --- Verify access ---
-  const isAdmin = user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  const isAdmin = await isActeroAdmin(user, supabase);
   if (!isAdmin) {
     const { data: link } = await supabaseAdmin
       .from('client_users')

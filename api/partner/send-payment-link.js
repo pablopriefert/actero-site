@@ -2,6 +2,7 @@ import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
+import { isActeroAdmin } from '../lib/admin-auth.js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -16,7 +17,7 @@ async function checkAdmin(req) {
   if (!token) return false;
   const { data: { user }, error } = await supabase.auth.getUser(token);
   if (error || !user) return false;
-  return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
+  return await isActeroAdmin(user, supabase);
 }
 
 async function handler(req, res) {
