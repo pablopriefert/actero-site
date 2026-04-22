@@ -1,9 +1,114 @@
 ---
-title: "Smtp Imap"
-description: "Documentation à compléter."
+title: "SMTP / IMAP"
+description: "Connecte ton adresse email professionnelle (OVH, Infomaniak, ProtonMail Bridge, serveur custom) en SMTP/IMAP."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Si tu n'es pas sur Google ([Gmail](/integrations/gmail)) ni sur Microsoft, et que tu utilises une adresse email hébergée chez OVH, Infomaniak, Gandi, IONOS, ProtonMail (via Bridge) ou ton propre serveur, Actero se connecte en **SMTP** (envoi) + **IMAP** (réception) avec tes identifiants.
+
+## Prérequis
+
+- Une adresse email professionnelle hébergée (typiquement `contact@ta-boutique.com`)
+- Les **paramètres SMTP** de ton fournisseur : serveur, port, SSL/TLS, identifiant, mot de passe
+- Les **paramètres IMAP** de ton fournisseur : serveur, port, SSL/TLS
+- Si ton fournisseur supporte les **mots de passe d'application**, génères-en un dédié à Actero (recommandé pour pouvoir le révoquer indépendamment)
+- Un compte Actero sur le plan **Pro** ou supérieur
+
+## Connexion
+
+<Steps>
+  <Step title="Ouvre Intégrations dans Actero">
+    **Intégrations → Envoi d'emails → Email personnalisé (SMTP/IMAP) → Configurer**.
+  </Step>
+  <Step title="Renseigne tes paramètres">
+    Le formulaire te demande :
+    - **Adresse email** (l'adresse from utilisée pour les envois)
+    - **Serveur SMTP** + **port SMTP** (souvent 465 ou 587)
+    - **Serveur IMAP** + **port IMAP** (souvent 993)
+    - **Identifiant** (souvent identique à l'email)
+    - **Mot de passe** (mot de passe email ou mot de passe d'application)
+    - **Utiliser SSL/TLS** (à laisser sur ON dans 99 % des cas)
+  </Step>
+  <Step title="Sauvegarde">
+    Actero teste la connexion SMTP et IMAP avant d'enregistrer. Si l'un des deux échoue, tu vois le message d'erreur exact (mauvais port, certificat invalide, identifiants refusés).
+  </Step>
+</Steps>
+
+## Paramètres courants
+
+| Fournisseur | SMTP Host | Port SMTP | IMAP Host | Port IMAP |
+|---|---|---|---|---|
+| OVH (mail mutualisé) | `ssl0.ovh.net` | 465 | `ssl0.ovh.net` | 993 |
+| OVH MX Plan | `pro1.mail.ovh.net` | 587 | `pro1.mail.ovh.net` | 993 |
+| Infomaniak | `mail.infomaniak.com` | 465 | `mail.infomaniak.com` | 993 |
+| Gandi | `mail.gandi.net` | 465 | `mail.gandi.net` | 993 |
+| IONOS | `smtp.ionos.fr` | 465 | `imap.ionos.fr` | 993 |
+| ProtonMail Bridge | `127.0.0.1` (local) | 1025 | `127.0.0.1` | 1143 |
+
+<Tip>
+Vérifie toujours sur la page d'aide officielle de ton fournisseur — les ports peuvent changer.
+</Tip>
+
+## Sécurité
+
+- Le mot de passe est **chiffré au repos** dans la base Actero (Supabase, AES-256)
+- Aucune transmission en clair : SSL/TLS obligatoire pour SMTP et IMAP
+- Si ton fournisseur supporte les **app passwords**, utilise-les plutôt que ton mot de passe principal — tu peux les révoquer sans changer ton mot de passe Gmail/iCloud/etc.
+
+<Warning>
+Si ton compte email a la 2FA activée (2-step verification), le mot de passe principal **ne fonctionnera pas** en SMTP/IMAP — tu dois générer un **mot de passe d'application** dédié.
+</Warning>
+
+## Comment l'agent fonctionne
+
+Une fois SMTP/IMAP configurés :
+
+- L'agent **poll IMAP toutes les 2 minutes** pour récupérer les nouveaux emails
+- Il filtre la **Inbox primaire** (pas les spams, pas les emails CC)
+- Il répond via **SMTP** depuis ton adresse, avec la signature configurée dans **Configurer l'agent**
+- Il ajoute un header `X-Actero-Reply: 1` sur ses envois pour les distinguer
+
+## Modes Auto / Draft
+
+- **Auto-reply** — envoi direct via SMTP
+- **Draft** — création d'un brouillon dans le dossier **Drafts** IMAP, tu valides à la main depuis ton client mail
+
+## Quotas et limites
+
+Les fournisseurs imposent souvent une **limite d'envoi quotidienne** (OVH = 500/jour, Infomaniak = 1000/jour, Gandi = 500/jour). Si tu dépasses, l'agent reçoit une erreur SMTP `550 Quota exceeded` et bascule sur le mode Draft tant que ton quota n'est pas réinitialisé.
+
+Pour des volumes élevés, utilise [Resend](/integrations/resend) (envois transactionnels illimités, déliverabilité dédicacée).
+
+## Déconnexion
+
+**Intégrations → Email personnalisé → Déconnecter** supprime les credentials de la base Actero. Tu peux aussi désactiver / supprimer le mot de passe d'application chez ton fournisseur pour une révocation totale.
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="`Authentication failed` au test de connexion">
+    Trois causes : (1) mauvais identifiant — souvent `email` complet, pas seulement le préfixe ; (2) mot de passe incorrect — vérifie en te connectant au webmail ; (3) la 2FA est active et tu utilises ton mot de passe principal au lieu d'un app password.
+  </Accordion>
+  <Accordion title="`Connection timeout` ou `ECONNREFUSED`">
+    Le port est mauvais ou ton fournisseur bloque les connexions externes. Essaie le port 587 si 465 ne marche pas (et inversement). Vérifie aussi que ton hébergeur ne bloque pas les ports IMAP/SMTP côté firewall.
+  </Accordion>
+  <Accordion title="`Self-signed certificate` ou erreur TLS">
+    Ton fournisseur utilise un certificat non standard. Contacte le support Actero — on peut activer une option "TLS strict OFF" pour les serveurs internes.
+  </Accordion>
+  <Accordion title="L'agent reçoit les emails mais n'envoie pas">
+    Bascule en mode Draft quelques jours pour vérifier que les brouillons sont bien créés dans IMAP. Si oui, le souci est SMTP côté fournisseur (quota, IP blacklistée). Vérifie ton compte webmail.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Pourquoi pas Outlook / Microsoft 365 OAuth ?">
+    Microsoft OAuth pour Exchange/Outlook arrive bientôt — en attendant, utilise SMTP/IMAP avec un mot de passe d'application Microsoft 365.
+  </Accordion>
+  <Accordion title="Plusieurs adresses email ?">
+    Une seule par compte Actero. Pour plusieurs adresses, utilise des **forwards** côté fournisseur ou passe au plan **Entreprise**.
+  </Accordion>
+  <Accordion title="Compatible ProtonMail directement ?">
+    ProtonMail ne supporte pas SMTP/IMAP nativement, il faut passer par **ProtonMail Bridge** installé sur un serveur. Configure ensuite Actero avec les paramètres locaux du Bridge.
+  </Accordion>
+</AccordionGroup>

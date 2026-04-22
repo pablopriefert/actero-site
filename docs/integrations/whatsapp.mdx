@@ -1,9 +1,31 @@
 ---
-title: "Whatsapp"
-description: "Documentation à compléter."
+title: "WhatsApp"
+description: "Intégration WhatsApp Business via Meta Cloud API — bientôt disponible."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+<Note type="warning">
+L'intégration WhatsApp arrive prochainement. Inscris-toi à la liste d'attente en contactant contact@actero.fr.
 </Note>
+
+WhatsApp Business arrive bientôt dans Actero. Concrètement, ton agent pourra :
+
+- **Recevoir les messages** clients sur ton numéro WhatsApp Business via la Cloud API officielle Meta
+- **Répondre automatiquement** aux WISMO, retours, FAQ — avec ton ton et ta base de connaissances
+- **Escalader** les cas complexes vers ton équipe (notification dans Slack ou par email)
+- **Envoyer des notifications proactives** (confirmation commande, expédition, relance panier) via les templates approuvés Meta
+
+## Comment ça marchera
+
+L'onboarding passera par **Meta Embedded Signup** (Facebook Login + WhatsApp Business Platform). En quelques clics, tu connectes ton numéro WhatsApp Business existant ou tu en provisionnes un nouveau, sans contrat avec un BSP tiers.
+
+Côté technique, Actero utilisera le webhook officiel Cloud API pour recevoir les messages, le tout signé HMAC par Meta.
+
+## Prérequis (à anticiper)
+
+- Un **Meta Business Portfolio** vérifié (paperasse Meta : Kbis, RIB, justificatifs)
+- Un **numéro de téléphone** dédié (pas déjà associé à un compte WhatsApp perso)
+- Un site web public avec mentions légales conformes
+
+## Liste d'attente
+
+Pour être prévenu dès l'ouverture et bénéficier d'un onboarding accompagné, écris à **contact@actero.fr** avec ton numéro de boutique et ton volume mensuel de messages WhatsApp estimé.

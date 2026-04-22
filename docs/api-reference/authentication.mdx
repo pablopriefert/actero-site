@@ -1,9 +1,147 @@
 ---
 title: "Authentication"
-description: "Documentation à compléter."
+description: "Bearer JWT (session dashboard), clé API (intégrations serveur) ou secret partagé (engine interne) — tu choisis selon le contexte."
 ---
 
+L'API Actero accepte trois schémas d'authentification. Tous passent par le header `Authorization: Bearer <token>`, sauf l'engine interne qui utilise un header dédié. Aucune route publique n'accepte d'auth basique ni de token en query string (sauf le widget chat embarqué, qui passe sa clé en `?api_key=` pour des raisons de CORS).
+
+## Vue d'ensemble
+
+| Schéma            | Header                              | Durée de vie       | Cas d'usage                              |
+| ----------------- | ----------------------------------- | ------------------ | ---------------------------------------- |
+| Supabase JWT      | `Authorization: Bearer <jwt>`       | 1 h (auto-refresh) | Dashboard React, requêtes côté navigateur |
+| API key           | `Authorization: Bearer ak_…`        | Jusqu'à révocation | Backend, scripts, CI, intégrations tierces |
+| API key MCP       | `Authorization: Bearer mcp_…`       | Jusqu'à révocation | Claude Desktop, Cursor, clients MCP       |
+| Engine secret     | `x-engine-secret: <secret>`         | Statique           | Workers internes, ne pas utiliser         |
+
+## Bearer JWT (Supabase)
+
+Le dashboard s'authentifie via le SDK Supabase. Tu n'as rien à coder côté front : `supabase.auth.getSession()` te retourne le token, et le client REST l'envoie automatiquement.
+
+<CodeGroup>
+
+```js JavaScript
+import { supabase } from './lib/supabase'
+
+const { data: { session } } = await supabase.auth.getSession()
+const res = await fetch('/api/billing/usage?client_id=' + clientId, {
+  headers: { Authorization: `Bearer ${session.access_token}` },
+})
+```
+
+```bash curl
+# Récupère un JWT depuis le navigateur (DevTools → Network → Authorization header)
+curl https://actero.fr/api/billing/usage?client_id=$CLIENT_ID \
+  -H "Authorization: Bearer $SUPABASE_JWT"
+```
+
+</CodeGroup>
+
+Le JWT est validé côté serveur par `supabase.auth.getUser(token)`. Le `user.id` est ensuite résolu en `client_id` via la table `client_users` (membres) ou `clients.owner_user_id` (propriétaire).
+
+<Warning>
+Un JWT expire après 1 heure. Pour un usage backend, **ne stocke pas un JWT** : génère plutôt une clé API (voir ci-dessous). Le SDK Supabase rafraîchit le token côté navigateur, pas côté serveur.
+</Warning>
+
+## API key
+
+Pour toute intégration serveur à serveur, génère une clé API dédiée.
+
+### Créer une clé
+
+1. Connecte-toi au dashboard.
+2. Va dans **API & Intégrations → Clés API → Nouvelle clé**.
+3. Donne-lui un label descriptif (ex. `prod-shopify-bridge`, `n8n-staging`).
+4. Copie la clé immédiatement — elle ne sera plus affichée en clair après.
+
+Format : `ak_` suivi de 32 caractères hexadécimaux (16 octets de `crypto.getRandomValues`). Exemple : `ak_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6`. Stockage en base : table `client_api_keys`, colonnes `(client_id, key_value, label, is_active)`.
+
+### Utiliser une clé
+
+<CodeGroup>
+
+```bash curl
+curl https://actero.fr/api/engine/gateway \
+  -X POST \
+  -H "Authorization: Bearer ak_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_id": "01HX...",
+    "event_type": "shopify.order.refund_request",
+    "source": "shopify",
+    "customer_email": "client@example.com",
+    "message": "Je voudrais être remboursé de ma commande #1042"
+  }'
+```
+
+```js Node.js
+const res = await fetch('https://actero.fr/api/engine/gateway', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${process.env.ACTERO_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    client_id: process.env.ACTERO_CLIENT_ID,
+    event_type: 'shopify.order.refund_request',
+    source: 'shopify',
+    customer_email: 'client@example.com',
+    message: 'Je voudrais être remboursé de ma commande #1042',
+  }),
+})
+const data = await res.json()
+```
+
+```python Python
+import os, requests
+
+res = requests.post(
+    "https://actero.fr/api/engine/gateway",
+    headers={
+        "Authorization": f"Bearer {os.environ['ACTERO_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    json={
+        "client_id": os.environ["ACTERO_CLIENT_ID"],
+        "event_type": "shopify.order.refund_request",
+        "source": "shopify",
+        "customer_email": "client@example.com",
+        "message": "Je voudrais être remboursé de ma commande #1042",
+    },
+)
+data = res.json()
+```
+
+</CodeGroup>
+
+### Révoquer une clé
+
+Dashboard → **API & Intégrations → Clés API → Supprimer**. La clé est marquée `is_active = false` ; toute requête entrante est rejetée en `401` immédiatement (pas de cache).
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Si tu suspectes une fuite, révoque d'abord, génère ensuite. La révocation prend effet en moins d'une seconde, donc l'attaquant perd l'accès avant que tu ne déploies la nouvelle clé.
 </Note>
+
+## API key MCP (`mcp_…`)
+
+Les clés `mcp_` sont créées automatiquement par le flow OAuth quand tu connectes Claude Desktop ou Cursor à Actero (endpoint `POST /api/mcp/token`, grant `authorization_code` avec PKCE S256). Elles ont les mêmes droits qu'une clé `ak_` mais portent un label `Claude Desktop (MCP)` pour qu'on puisse les distinguer.
+
+Tu n'as pas à les générer manuellement. Le refresh token retourné par le flow OAuth est la clé elle-même : un grant `refresh_token` retourne le même `access_token` (les clés Actero n'expirent pas tant qu'elles sont actives).
+
+## Erreurs d'authentification
+
+| Code | Réponse                                | Cause                                                    |
+| ---- | -------------------------------------- | -------------------------------------------------------- |
+| 401  | `{ "error": "Non autorisé" }`          | Header `Authorization` absent ou token invalide          |
+| 401  | `{ "error": "api_key required" }`      | Endpoint widget appelé sans `?api_key=` en query         |
+| 401  | `{ "error": "Invalid API key" }`       | Clé inconnue, désactivée ou ne correspond à aucun client  |
+| 403  | `{ "error": "Aucun client associé" }`  | JWT valide mais aucun `client_id` lié à l'utilisateur    |
+| 402  | `{ "error": "…réservé au plan Pro" }`  | Feature gate : ton plan n'inclut pas l'endpoint demandé  |
+
+## Bonnes pratiques
+
+- **Une clé par environnement** (prod, staging, CI). Tu peux les révoquer indépendamment.
+- **Stocke en variable d'environnement**, jamais en dur. Préfixe `ACTERO_API_KEY` pour cohérence.
+- **Ne logge jamais la clé en clair**. Si tu logges la requête sortante, masque la valeur après les 8 premiers caractères.
+- **Rotate trimestriellement** si tu manipules des données sensibles. Génère la nouvelle, déploie, puis révoque l'ancienne.
+- **Ne réutilise pas une clé entre plusieurs clients/tenants** : chaque clé est scopée à un seul `client_id`.

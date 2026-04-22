@@ -1,9 +1,112 @@
 ---
-title: "Ton Marque"
-description: "Documentation à compléter."
+title: "Configurer le ton de ta marque"
+description: "Donne à ton agent la voix exacte de ta marque : identité, registre, chaleur, niveau de détail, exemples."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Le ton de ton agent, c'est ce qui fait la différence entre une réponse SAV générique et une réponse qui ressemble à toi. Actero te laisse régler tout ça depuis l'éditeur d'agent — sans toucher à un seul prompt.
+
+## Où se trouve l'éditeur
+
+Sidebar : **Mon Agent → Automatisation → Configurer l'agent**.
+
+L'éditeur est divisé en cinq étapes : Identité, Ton, Règles, Connaissances, Aperçu. La page sauvegarde toute seule (auto-save toutes les 0,9 s après ta dernière frappe).
+
+## Étape 1 — Identité
+
+Décris ta marque en quelques lignes. C'est le contexte que ton agent injecte au début de chaque conversation.
+
+<Steps>
+  <Step title="Renseigne le bloc Identité de marque">
+    1 paragraphe court : nom, secteur, mission, ce qui te différencie. Exemple : _"Lumi Skincare, marque française de cosmétique clean. On vend en direct depuis 2021. Nos clientes sont des femmes 25-45 qui cherchent une routine simple et efficace, sans ingrédients controversés."_
+  </Step>
+  <Step title="Choisis la langue principale">
+    Français, anglais, espagnol, allemand, italien, portugais, néerlandais, ou multilingue (auto-detect).
+  </Step>
+  <Step title="Sélectionne les langues supportées">
+    Coche toutes les langues dans lesquelles ton agent peut répondre. Si un client écrit en italien et que tu n'as pas coché italien, l'agent escaladera.
+  </Step>
+</Steps>
+
+## Étape 2 — Ton
+
+Trois curseurs qui pilotent la voix de ton agent.
+
+| Curseur | Bas (0-33) | Milieu (34-66) | Haut (67-100) |
+|---|---|---|---|
+| **Formalité** | Registre formel, vouvoiement | Registre équilibré | Casual, tutoiement |
+| **Chaleur** | Neutre et factuel | Cordial | Chaleureux et empathique |
+| **Détail** | Réponses concises | Longueur moyenne | Réponses détaillées |
+
+À côté des curseurs, tu vois en temps réel un aperçu de comment l'agent va parler. Joue avec les valeurs jusqu'à ce que la voix te plaise.
+
+### Style particulier (champ libre)
+
+Pour les nuances que les curseurs ne capturent pas. Sois précis et concret.
+
+<Tip>
+Bons exemples :
+- _"On tutoie nos clientes, on utilise des emojis avec parcimonie (1 max par message), on ne s'excuse jamais à outrance"_
+- _"On signe toujours par 'L'équipe Lumi', jamais par un prénom"_
+- _"Quand un client est frustré, on reformule sa demande avant de répondre — pour qu'il sente qu'on a compris"_
+
+Mauvais exemples :
+- _"Sois sympa"_ — trop vague
+- _"Comme un humain"_ — l'agent ne sait pas quoi en faire
+</Tip>
+
+## Étape 3 — Exemples de réponses
+
+Le levier le plus puissant. Tu donnes 3 à 10 paires question/réponse écrites avec **ta vraie voix**, et l'agent imite le style.
+
+<Steps>
+  <Step title="Clique 'Ajouter un exemple'">
+    Une carte vide apparaît avec deux champs : Question et Réponse.
+  </Step>
+  <Step title="Tape une question type que tes clients posent">
+    Ex : _"Bonjour, j'ai pas reçu ma commande, ça fait 8 jours."_
+  </Step>
+  <Step title="Tape la réponse comme tu l'écrirais toi-même">
+    Avec ta vraie ponctuation, tes vrais tics de langage, ta vraie signature. C'est le plus important.
+  </Step>
+  <Step title="Répète pour 3-10 cas variés">
+    Une plainte, une question produit, un retour, une demande VIP, un message confus. Plus la diversité est grande, plus l'agent généralise bien.
+  </Step>
+</Steps>
+
+<Warning>
+Évite les exemples trop courts ou trop standards type "Bonjour, votre commande est en cours, cordialement". Ils n'apprennent rien à l'agent. Vise des réponses qui montrent ton style.
+</Warning>
+
+## Étape 4 — Connaissances
+
+C'est le pont vers la [Base de connaissances](/essentials/base-connaissance). Tu peux ajouter des entrées directement depuis l'éditeur de marque (politique de retour, FAQ, etc.) ou aller sur la page dédiée pour un travail plus poussé.
+
+## Étape 5 — Aperçu
+
+L'éditeur te montre le **prompt système final** qui sera envoyé au modèle. Tu peux relire pour vérifier que rien ne déraille.
+
+Si tu vois une formulation qui ne te plaît pas, retourne dans l'étape correspondante et ajuste.
+
+## Pour aller plus loin
+
+Une fois ton ton calé, va dans le [Simulateur](/essentials/simulator) pour tester en conditions réelles. Joue 3-4 scénarios variés. Si le ton ne convient pas, reviens ici, ajuste un curseur ou ajoute un exemple, et re-teste.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Combien de temps avant que les changements soient pris en compte ?">
+    Immédiat. La sauvegarde est automatique (~1 seconde après ta dernière frappe). La prochaine conversation utilise déjà le nouveau ton.
+  </Accordion>
+  <Accordion title="Mon agent répond avec le mauvais ton — qu'est-ce que je vérifie d'abord ?">
+    1) Tes exemples de réponses (étape 3) — ils ont 10x plus d'impact que les curseurs. 2) Le champ "Style particulier" — vérifie qu'il n'y a pas une instruction contradictoire. 3) Si tu as un guardrail qui force un ton spécifique, il prend le dessus.
+  </Accordion>
+  <Accordion title="Je vends en France et en Belgique, je dois faire deux configs ?">
+    Non. Une seule config, langue principale `fr`, et tu peux préciser dans le champ Style particulier : _"Adapter les références culturelles à la France ou à la Belgique selon le contexte (.fr vs .be dans l'email)"_.
+  </Accordion>
+  <Accordion title="Est-ce que je peux donner un nom à mon agent ?">
+    On déconseille. L'agent Actero ne se présente jamais sous un prénom inventé — c'est trompeur pour le client et juridiquement risqué. Préfère "L'équipe SAV de [ta marque]" en signature.
+  </Accordion>
+  <Accordion title="Mon ton change selon que c'est un email ou un chat — possible ?">
+    Pour l'instant, le ton est unique pour tous les canaux. Si tu as besoin de variation par canal, contacte [contact@actero.fr](mailto:contact@actero.fr) — c'est sur la roadmap.
+  </Accordion>
+</AccordionGroup>

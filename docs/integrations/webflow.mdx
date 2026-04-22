@@ -1,9 +1,101 @@
 ---
 title: "Webflow"
-description: "Documentation à compléter."
+description: "Connecte ta boutique Webflow Ecommerce à Actero en OAuth 1-clic — commandes, clients, produits."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Si tu utilises **Webflow Ecommerce** comme plateforme e-commerce, Actero se connecte en OAuth officiel Webflow et lit ton catalogue, tes commandes et tes clients pour répondre au SAV.
+
+## Prérequis
+
+- Un workspace **Webflow** avec au moins un site Ecommerce activé (plan Webflow Ecommerce Standard, Plus ou Advanced)
+- Le rôle **Owner** ou **Admin** dans le workspace Webflow
+- Un compte Actero, au minimum sur le plan **Free** pour tester, **Starter** ou supérieur pour la production
+
+## Connexion (OAuth officiel)
+
+<Steps>
+  <Step title="Ouvre Intégrations">
+    **Intégrations → Plateforme e-commerce → Webflow → Connecter**.
+  </Step>
+  <Step title="Choisis ton workspace">
+    Tu es redirigé vers `webflow.com/oauth/authorize`. Connecte-toi avec ton compte Webflow et choisis le **workspace** + le **site** que tu veux connecter à Actero.
+  </Step>
+  <Step title="Autorise les scopes">
+    Webflow affiche les permissions demandées : `sites:read` et `ecommerce:read`. Clique **Authorize** pour confirmer.
+  </Step>
+  <Step title="Retour dans Actero">
+    Tu reviens automatiquement avec le badge **Connecté**. L'indexation initiale (catalogue + commandes 12 derniers mois) prend de 30 secondes à 5 minutes selon la taille du site.
+  </Step>
+</Steps>
+
+## Scopes demandés
+
+| Scope | Usage |
+|---|---|
+| `sites:read` | Liste des sites du workspace, métadonnées (nom, domaine, locale) |
+| `ecommerce:read` | Lecture des commandes, clients, produits, variantes, inventory |
+
+<Warning>
+Actero ne demande **aucun scope d'écriture**. L'agent ne peut ni modifier une commande, ni publier de page, ni toucher au CMS Webflow.
+</Warning>
+
+## Quelles données circulent
+
+- **Commandes** : statut, items, total, méthode d'expédition, tracking si renseigné
+- **Clients** : email, nom, adresses, historique d'achat
+- **Produits** : titre, description, variantes, prix, stock, catégorie
+
+L'agent utilise tout cela pour répondre WISMO, gérer retours, recommander des produits et personnaliser ses réponses selon le profil client.
+
+## Limites côté Webflow
+
+L'API Ecommerce de Webflow est plus jeune que celle de Shopify ou WooCommerce, donc certaines fonctionnalités ne sont pas encore disponibles :
+
+<AccordionGroup>
+  <Accordion title="Pas de webhook `cart.abandoned`">
+    Webflow n'expose pas (encore) les paniers abandonnés via API. Le playbook **Panier abandonné** d'Actero est donc inactif sur Webflow. Si tu as besoin de relances panier, utilise un outil tiers (par exemple Klaviyo connecté à Webflow) ou migre sur Shopify / WooCommerce.
+  </Accordion>
+  <Accordion title="Données de tracking limitées">
+    Webflow ne stocke pas nativement le numéro de tracking transporteur. Si tu utilises un plugin tiers de fulfillment (ShipStation, Easyship), Actero peut le récupérer via webhook custom — contacte le support pour activer.
+  </Accordion>
+  <Accordion title="Multi-langue">
+    Webflow Localization est supporté en lecture, mais l'agent répond dans la langue détectée par la conversation client (pas par la locale produit).
+  </Accordion>
+</AccordionGroup>
+
+## Webhooks
+
+Actero enregistre les webhooks suivants à l'installation, signés HMAC :
+
+- `ecomm_new_order` → indexation commande
+- `ecomm_order_changed` → mise à jour statut
+- `collection_item_changed` → réindexation produit (utile pour catalogues qui changent souvent)
+
+## Déconnexion
+
+**Intégrations → Webflow → Déconnecter** révoque le token OAuth, supprime les webhooks et coupe l'accès. Tu peux aussi révoquer Actero depuis Webflow → **Workspace Settings → Apps & Integrations**.
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="L'OAuth me renvoie sur la page d'accueil sans message">
+    Vérifie que tu es bien connecté avec un compte qui a le rôle **Owner** ou **Admin** sur le workspace. Les rôles `Editor` et `Designer` ne peuvent pas autoriser une app.
+  </Accordion>
+  <Accordion title="Aucune commande n'apparaît après connexion">
+    Webflow indexe les commandes en asynchrone via webhook. Passe une commande de test depuis ton site et vérifie qu'elle apparaît dans Actero dans la minute. Sinon, va dans Webflow → **Site Settings → Apps & Integrations → Webhooks** et confirme que les hooks vers `actero.fr` sont en statut **Delivered**.
+  </Accordion>
+  <Accordion title="L'agent ne reconnaît pas mes variantes produit">
+    Webflow stocke les variantes en sous-collections. L'indexation peut prendre quelques minutes après l'installation. Lance manuellement une réindexation depuis **Intégrations → Webflow → Réindexer** si besoin.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Webflow CMS (sans Ecommerce) est-il supporté ?">
+    Non, pas encore. Webflow CMS pur (sans Ecommerce) n'est pas connectable via cette intégration. Si tu veux que ton agent connaisse le contenu CMS (articles, FAQ), importe-le manuellement dans la base de connaissances ou utilise [Notion](/integrations/notion).
+  </Accordion>
+  <Accordion title="Plusieurs sites Webflow dans un même workspace ?">
+    L'OAuth te demande de choisir **un seul site** par connexion Actero. Pour gérer plusieurs sites, plan **Entreprise** requis (multi-store).
+  </Accordion>
+</AccordionGroup>

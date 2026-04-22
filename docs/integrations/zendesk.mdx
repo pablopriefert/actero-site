@@ -1,9 +1,102 @@
 ---
 title: "Zendesk"
-description: "Documentation à compléter."
+description: "Connecte Zendesk à Actero en OAuth 1-clic. Tickets, chat, base de connaissances — l'agent répond ou pré-rédige selon ton mode."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+**Zendesk** est l'un des helpdesks les plus déployés au monde. Actero s'y branche en OAuth officiel pour traiter automatiquement les tickets entrants, ou pré-rédiger les réponses pour validation humaine.
+
+## Prérequis
+
+- Un compte **Zendesk Suite** ou **Zendesk Support** actif (Team, Growth, Professional, Enterprise — tous compatibles)
+- Le rôle **Administrator** sur ton compte Zendesk
+- Ton **sous-domaine** Zendesk (par exemple `ma-boutique` si ton URL est `ma-boutique.zendesk.com`)
+- Un compte Actero, au minimum sur le plan **Starter**
+
+## Connexion
+
+<Steps>
+  <Step title="Ouvre Intégrations dans Actero">
+    **Intégrations → Helpdesk → Zendesk → Connecter**.
+  </Step>
+  <Step title="Renseigne ton sous-domaine">
+    Saisis ton sous-domaine Zendesk (uniquement la partie avant `.zendesk.com`). Actero le valide et le sanitize automatiquement.
+  </Step>
+  <Step title="Autorise Actero sur Zendesk">
+    Tu es redirigé vers `<sous-domaine>.zendesk.com/oauth/authorizations/new`. Connecte-toi en admin et clique **Allow**. Les scopes demandés sont **`read`** et **`write`**.
+  </Step>
+  <Step title="Retour dans Actero & choix du mode">
+    Une fois revenu, choisis le mode opératoire (Auto-reply, Draft only, Shadow) — voir [Gorgias](/integrations/gorgias) pour le détail des modes, identique côté Zendesk.
+  </Step>
+</Steps>
+
+## Scopes demandés
+
+| Scope | Pourquoi |
+|---|---|
+| `read` | Lecture des tickets, comments, organisations, users, macros, tags |
+| `write` | Posting de la réponse, ajout de tags, mise à jour du statut du ticket |
+
+Actero ne demande pas de scope `impersonate` — chaque action est attribuée au user système "Actero Bot" que tu peux personnaliser dans Zendesk → **Admin Center → Users**.
+
+## Quelles données circulent
+
+- **Tickets** (sujet, body, comments, statut, priorité, requester)
+- **Users & organisations** (email, nom, segment, custom fields)
+- **Macros & tags** (lus pour respecter ta nomenclature)
+- **Articles du Help Center** (lus en option pour enrichir la base de connaissances de l'agent)
+
+## Tags posés par Actero
+
+Comme pour Gorgias, Actero pose des tags sur chaque ticket pour que tu mesures son impact :
+
+| Tag | Signification |
+|---|---|
+| `actero_auto` | Résolu automatiquement |
+| `actero_draft` | Réponse pré-rédigée, validation humaine |
+| `actero_escalated` | Escalade vers un humain (confiance basse ou guardrail) |
+
+Tu peux filtrer tes Views Zendesk par ces tags pour suivre l'activité de l'agent.
+
+## Triggers et automations Zendesk
+
+Actero ne touche pas à tes triggers, automations ou business rules existantes. Tu peux créer un trigger Zendesk qui assigne automatiquement à "Actero Bot" tous les nouveaux tickets d'un canal donné — c'est la façon la plus propre d'intégrer.
+
+<Tip>
+Crée un trigger Zendesk : **When Ticket is Created AND Channel is Email → Assignee = Actero Bot**. Ainsi seuls les emails passent par l'agent, le chat et le téléphone restent gérés par tes humains.
+</Tip>
+
+## Help Center
+
+Si tu actives l'option **"Importer le Help Center"** dans **Intégrations → Zendesk → Options**, Actero indexe tes articles publiés et les utilise comme source de vérité dans la base de connaissances. Toute mise à jour côté Zendesk est resynchronisée toutes les 6 heures.
+
+## Déconnexion
+
+**Intégrations → Zendesk → Déconnecter** révoque le token OAuth, supprime le subscription des webhooks et arrête toute écriture sur ton compte.
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="L'OAuth me dit "Invalid subdomain"">
+    Tu as dû coller l'URL complète. Saisis uniquement la partie avant `.zendesk.com`. Si ton compte est en `ma-boutique.zendesk.com`, écris `ma-boutique`.
+  </Accordion>
+  <Accordion title="L'agent ne poste pas les réponses">
+    Vérifie le mode dans **Intégrations → Zendesk → Mode** (Auto/Draft/Shadow). Si tu es en Auto, vérifie aussi que le ticket dépasse le seuil de confiance configuré.
+  </Accordion>
+  <Accordion title="Mes tickets sont en plusieurs langues, l'agent répond mal">
+    Active la **détection automatique de langue** dans **Configurer l'agent → Multilingue**. Actero détecte la langue de chaque ticket et adapte la réponse (FR, EN, ES, IT, DE supportés).
+  </Accordion>
+  <Accordion title="Les SLA ne sont pas respectés">
+    Vérifie dans Zendesk que "Actero Bot" est bien membre d'un groupe ayant accès aux SLA policies. Sinon ses réponses ne sont pas comptées dans le calcul.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Et Zendesk Chat / Sell / Talk ?">
+    Zendesk **Support** et **Suite** (qui inclut Support) sont supportés. Sell (CRM) et Talk (téléphonie) ne sont pas dans le périmètre actuel.
+  </Accordion>
+  <Accordion title="Multi-brand Zendesk ?">
+    Sur le plan **Entreprise** d'Actero, tu peux mapper plusieurs brands Zendesk vers plusieurs agents Actero. Sur les autres plans, une seule brand active à la fois.
+  </Accordion>
+</AccordionGroup>

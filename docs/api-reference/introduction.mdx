@@ -1,7 +1,9 @@
 ---
 title: "API Actero"
-description: "API REST authentifiée par Bearer token. Rate-limit par user, idempotence sur les webhooks, réponses JSON."
+description: "API REST authentifiée par Bearer token. Rate-limit par client/customer, idempotence sur les webhooks entrants, réponses JSON UTF-8."
 ---
+
+L'API Actero te permet d'envoyer des événements à l'agent Actero, de récupérer ta consommation, d'exporter tes données, et de t'abonner aux événements émis par la plateforme. Elle est consommée par le dashboard React, le widget chat embarqué, le serveur MCP (Claude Desktop / Cursor) et toute intégration tierce.
 
 ## Base URL
 
@@ -9,50 +11,60 @@ description: "API REST authentifiée par Bearer token. Rate-limit par user, idem
 https://actero.fr/api
 ```
 
-Toutes les routes sont HTTPS uniquement. HTTP est redirigé en 308.
+Toutes les routes sont HTTPS uniquement. HTTP est redirigé en 308. La résolution DNS pointe sur Vercel ; les fonctions sont des Vercel Functions Node.js exécutées dans la région `cdg1` (Paris).
+
+<Note>
+Les endpoints Supabase Edge Functions (`/functions/v1/*`) ne sont pas publics. Ils sont uniquement appelés en interne par le serveur Node ou par les webhooks Stripe signés. Considère `https://actero.fr/api` comme la seule surface API publique.
+</Note>
 
 ## Authentification
 
-L'API accepte deux formes d'authentification :
+L'API accepte trois schémas d'authentification, selon le contexte :
 
 ### Bearer JWT (session utilisateur)
 
-Utilisé par le dashboard React. Vous récupérez le token via `supabase.auth.getSession()` côté client et l'envoyez en header :
+Utilisé par le dashboard React. Tu récupères le token via `supabase.auth.getSession()` côté client et tu l'envoies en header :
 
 ```http
 Authorization: Bearer <supabase_jwt>
 ```
 
-Le JWT expire en ~1h. Le client rafraîchit automatiquement.
+Le JWT expire après 1 h. Le SDK Supabase rafraîchit automatiquement.
 
-### API Key (programmatique)
+### API key (programmatique)
 
-Pour les intégrations serveur à serveur, générez une API key dans **Paramètres → API & Webhooks**. Envoyez-la en header :
+Pour les intégrations serveur à serveur, génère une clé depuis **Dashboard → API & Intégrations → Nouvelle clé**. Format : `ak_` suivi de 32 caractères hex. Les clés MCP (issues du flow OAuth Claude Desktop) utilisent le préfixe `mcp_`.
 
 ```http
-Authorization: Bearer ak_live_xxxxxxxxxxxxx
+Authorization: Bearer ak_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
 ```
 
 <Warning>
-Les API keys sont scoped par client. Ne la commitez jamais dans un repo public. Révoquez immédiatement une key compromise depuis le dashboard.
+Les clés sont scopées au tenant `client_id` qui les a créées. Ne les commit jamais dans un repo public. Révoque immédiatement une clé compromise depuis le dashboard — la révocation prend effet en moins d'une seconde.
 </Warning>
+
+### Secret partagé (engine interne)
+
+Les routes du moteur (`/api/engine/gateway`, connecteurs internes) acceptent aussi un secret en header `x-engine-secret` ou `x-internal-secret`. Réservé aux workers internes Actero ; tu n'en as pas besoin pour intégrer.
 
 ## Rate limiting
 
-Toutes les routes sont rate-limitées. Limites par défaut :
+Toutes les routes sont rate-limitées. Les limites varient selon la nature de la route :
 
-| Type de route | Limite | Fenêtre |
-|---|---|---|
-| Auth (signup, login) | 5 req | 60 s / IP |
-| LLM (chat, copilot) | 20-30 req | 60 s / user |
-| Lectures (usage, metrics) | 60 req | 60 s / user |
-| Webhooks entrants | Signature check uniquement | — |
+| Type de route                         | Limite                | Fenêtre        |
+| ------------------------------------- | --------------------- | -------------- |
+| Engine gateway (par client)           | 200 messages          | 60 min         |
+| Engine gateway (par email customer)   | 10 messages           | 10 min         |
+| Auth (signup, verify-code)            | 5 requêtes / IP       | 60 s           |
+| LLM (copilot, simulator, MCP)         | 20-30 requêtes / user | 60 s           |
+| Lectures (`/billing/usage`, metrics)  | 60 requêtes / user    | 60 s           |
+| Webhooks entrants (Stripe, Shopify…)  | Vérification HMAC     | —              |
 
-Dépassement → `429 Too Many Requests` avec header `Retry-After: <seconds>`.
+Dépassement → `429 Too Many Requests`. Voir [Rate limits](/api-reference/rate-limits) pour la stratégie de retry.
 
 ## Format des réponses
 
-Toutes les réponses sont JSON avec UTF-8 :
+Toutes les réponses sont JSON UTF-8 :
 
 ```http
 Content-Type: application/json; charset=utf-8
@@ -60,10 +72,15 @@ Content-Type: application/json; charset=utf-8
 
 ### Succès
 
+Le format dépend de l'endpoint, mais la convention est de retourner directement le payload sans enveloppe :
+
 ```json
 {
-  "success": true,
-  "data": { ... }
+  "event_id": "evt_01H...",
+  "run_id": "run_01H...",
+  "status": "completed",
+  "classification": "order_status",
+  "confidence": 0.92
 }
 ```
 
@@ -71,34 +88,44 @@ Content-Type: application/json; charset=utf-8
 
 ```json
 {
-  "error": "Internal Server Error",
-  "request_id": "abcdef1234567890"
+  "error": "Quota de tickets épuisé. Achetez des crédits ou passez à un plan supérieur.",
+  "tickets_used": 50,
+  "tickets_limit": 50,
+  "upgrade_url": "https://actero.fr/pricing"
 }
 ```
 
-Le `request_id` est un Sentry event ID que vous pouvez partager au support Actero pour tracer le problème.
+Sentry capture automatiquement les `5xx` ; le `request_id` exposé dans certaines réponses est l'event ID Sentry. Partage-le au support pour tracer.
 
-## Idempotence sur les webhooks
+## Idempotence
 
-Les webhooks entrants (Stripe, Shopify, Gorgias, etc.) sont dédupliqués par `(provider, event_id)` pendant 30 jours. Si votre upstream réessaie un même event, Actero retourne 200 sans ré-exécuter le handler.
+Les webhooks **entrants** (Stripe, Shopify, Gorgias…) sont dédupliqués par `(provider, event_id)` pendant 30 jours. Si ton upstream réessaie, Actero retourne `200` sans ré-exécuter.
+
+Pour les requêtes côté `engine/gateway`, utilise un `event_id` stable dans le payload : nous insérons une ligne `engine_events` par appel, donc deux POST identiques créent deux events. La dé-duplication métier (ex. ticket Shopify déjà traité) est faite par le Brain en amont via `external_ticket_id`.
 
 ## Versioning
 
-L'API n'est pas encore versionnée publiquement. Changements breaking annoncés 30 jours à l'avance par email + banner dans le dashboard.
+L'API n'est pas encore versionnée publiquement. Tout changement breaking est annoncé 30 jours à l'avance par email + bannière dashboard. Les ajouts de champs dans les réponses ne sont jamais considérés breaking — code défensivement.
 
 ## Ressources
 
 <CardGroup cols={2}>
   <Card title="Authentication" icon="key" href="/api-reference/authentication">
-    Détails des deux schémas d'auth
+    Détails des trois schémas d'auth
   </Card>
   <Card title="Webhooks sortants" icon="webhook" href="/api-reference/webhooks">
-    S'abonner aux événements Actero
+    S'abonner aux événements émis par l'agent
   </Card>
   <Card title="Rate limits" icon="gauge" href="/api-reference/rate-limits">
-    Comportement et retry strategy
+    Limites, headers, retry strategy
+  </Card>
+  <Card title="Engine gateway" icon="bolt" href="/api-reference/endpoints/engine-gateway">
+    Envoyer un événement à l'agent
+  </Card>
+  <Card title="Billing & usage" icon="chart-line" href="/api-reference/endpoints/billing-usage">
+    Consommation tickets/voice du mois
   </Card>
   <Card title="Export GDPR" icon="download" href="/api-reference/endpoints/export-data">
-    Récupérer toutes vos données
+    Récupérer toutes les données du tenant
   </Card>
 </CardGroup>

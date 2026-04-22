@@ -1,9 +1,143 @@
 ---
-title: "Manual Review"
-description: "Documentation à compléter."
+title: "Validation manuelle"
+description: "Le human-in-the-loop d'Actero : valider, éditer ou réécrire les réponses de l'agent avant envoi."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Ton agent IA est puissant, mais il y aura toujours des messages où tu préfères avoir le dernier mot : un client énervé, une demande complexe, un cas hors politique. C'est exactement à ça que sert l'écran **À traiter** — l'humain garde la main sur les cas sensibles, et chaque décision **améliore** l'agent pour la suite.
+
+Tu trouves cet écran dans la sidebar sous **Mes tickets → À traiter**. Le badge rouge t'indique le nombre de tickets en attente.
+
+## Quand un ticket arrive "À traiter"
+
+L'agent escalade automatiquement vers la validation manuelle quand au moins une de ces conditions est remplie :
+
+| Raison | Description |
+|---|---|
+| `low_confidence` | Score de confiance IA < 60% |
+| `aggressive` | Message client agressif détecté (sentiment ≤ 3/10) |
+| `out_of_policy` | Demande hors du périmètre défini |
+| `legal_mention` | Mention juridique (avocat, plainte, RGPD) |
+| `error` | Erreur technique pendant le run |
+
+Tu peux aussi forcer l'escalade systématique pour certaines catégories via une règle absolue (guardrail), ex: "Toute demande de remboursement doit être validée humainement".
+
+## L'écran À traiter
+
+Chaque carte de ticket affiche :
+- Le **nom du client** (ou "Visiteur du site" si anonyme)
+- Le **sujet** (suivi commande, retour, réclamation, etc.)
+- La **raison de l'escalade**
+- Un **badge "Urgent"** si > 24 h sans réponse
+- L'**heure** d'arrivée
+
+Les tickets urgents (> 24 h) remontent en haut. La couleur rouge du compteur dans la sidebar reflète ces urgences.
+
+## Le drawer de validation
+
+Quand tu cliques sur un ticket, un drawer s'ouvre avec tout le contexte :
+
+<Steps>
+  <Step title="Conversation complète">
+    Tous les messages échangés (client + agent), dans l'ordre chronologique.
+  </Step>
+  <Step title="Données client & commande">
+    Email, prénom, dernières commandes Shopify si disponibles.
+  </Step>
+  <Step title="Réponse proposée par l'IA">
+    Encadrée et mise en avant — c'est la suggestion que l'agent t'offre.
+  </Step>
+  <Step title="Raisonnement de l'agent">
+    Le bouton **Voir le raisonnement** ouvre un panneau qui détaille la classification, le score de confiance, les KB consultées, et les guardrails déclenchés. Utile pour comprendre POURQUOI l'agent a escaladé.
+  </Step>
+</Steps>
+
+## Les 3 actions rapides
+
+En bas du drawer, tu choisis comment répondre :
+
+<CardGroup cols={3}>
+  <Card title="Envoyer la réponse IA" icon="check">
+    Tu valides la suggestion telle quelle. Un clic, c'est parti.
+  </Card>
+  <Card title="Éditer la réponse IA" icon="pen">
+    La suggestion est pré-remplie dans l'éditeur. Tu modifies, tu envoies.
+  </Card>
+  <Card title="Rédiger ma propre réponse" icon="file-pen">
+    L'éditeur est vide. Tu pars de zéro, éventuellement avec un template.
+  </Card>
+</CardGroup>
+
+### Insérer un template
+
+Dans le mode "Rédiger", un sélecteur de **templates de réponse** apparaît. Tu cherches par nom, raccourci ou catégorie, tu cliques, le contenu est inséré. Voir [Templates & variables](/agent/templates-variables) pour la création de templates.
+
+### Ajouter à la base de connaissances
+
+Une checkbox **"Ajouter cette réponse à la KB"** te permet de transformer ta réponse manuelle en entrée de base de connaissances. La prochaine fois que la même question arrive, l'agent saura répondre tout seul.
+
+C'est **le mécanisme principal d'amélioration continue** d'Actero. Plus tu utilises cette case, plus ton taux d'auto-résolution monte.
+
+### Joindre un message audio (optionnel)
+
+Sur les plans Pro+, tu peux générer un fichier audio à partir de ta réponse texte (TTS ElevenLabs) et le joindre à l'email. Utile pour les clients qui apprécient une touche personnelle.
+
+## Envoi & confirmation
+
+Quand tu cliques **Envoyer**, plusieurs choses se passent :
+
+1. La réponse est envoyée au client via son canal d'origine (email SMTP, widget, Gorgias, Zendesk)
+2. Le ticket passe en statut `resolved`
+3. Si la KB est cochée, l'entrée est créée et le brand context est synchronisé en arrière-plan
+4. Le ticket disparaît de "À traiter"
+
+Si l'envoi échoue (SMTP down par exemple), tu vois un message d'erreur précis et la réponse reste en attente — tu peux retenter.
+
+## Ignorer un ticket
+
+Le bouton **Ignorer** ferme le ticket sans envoyer de réponse. Utile pour les spams ou les messages déjà traités hors Actero. Le statut passe à `resolved` mais aucun email ne part.
+
+## Recherche & filtres
+
+Une barre de recherche te permet de chercher par nom, email, contenu ou sujet. Pour des tris avancés (par raison d'escalade, canal), exporte via **Activité → Export CSV**.
+
+## Boucle d'amélioration
+
+Chaque action nourrit l'agent : valider renforce la confiance, éditer track l'écart pour analyse, "Ajouter à la KB" enrichit immédiatement la base, ignorer réduit la priorité de la classification. Le **Co-pilote IA** (panneau latéral) te suggère même de nouvelles règles à ajouter aux guardrails quand il détecte un pattern récurrent dans tes éditions.
+
+## Permissions & SLA
+
+Owner et Admin voient tout, l'Agent voit ses tickets, le Viewer est en lecture seule (gestion dans **Paramètres → Équipe**, voir [Équipe](/essentials/equipe)). Le seuil SLA (24 h par défaut) déclenche le badge "Urgent", une notification Slack si l'intégration est active, et un email à l'owner après 4 h en urgent — réglages dans **Paramètres → Notifications**.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Puis-je désactiver complètement la validation manuelle ?">
+    Non. Certains cas (erreur technique, message agressif) escaladent toujours pour ta sécurité. Tu peux par contre baisser le seuil de confiance dans **Paramètres → Agent** pour réduire le volume d'escalades sur "low_confidence".
+  </Accordion>
+  <Accordion title="Combien de temps un ticket reste-t-il en attente ?">
+    Indéfiniment. Aucun ticket n'est auto-résolu sans action humaine. Le compteur "urgent" passe au rouge après 24 h pour t'alerter.
+  </Accordion>
+  <Accordion title="Le client voit-il qu'il y a eu une escalade humaine ?">
+    Non. La réponse part depuis ta boîte mail (SMTP), avec ta signature et ton ton. Du point de vue du client, c'est ta marque qui répond — pas "un humain" vs "un bot".
+  </Accordion>
+  <Accordion title="Plusieurs personnes peuvent-elles répondre au même ticket ?">
+    Le premier qui clique "Envoyer" gagne. Pas de verrouillage temps réel aujourd'hui — si deux membres répondent en même temps, le second voit une erreur de conflit et son message n'est pas envoyé.
+  </Accordion>
+  <Accordion title="Puis-je intégrer la validation à mon helpdesk existant ?">
+    Oui. Sur Gorgias et Zendesk, l'escalade se traduit par un tag (`@actero-escalated`) directement dans ton helpdesk. Tu peux travailler là-bas et nous re-synchroniser via webhook.
+  </Accordion>
+</AccordionGroup>
+
+## Pour aller plus loin
+
+<CardGroup cols={2}>
+  <Card title="Templates de réponse" icon="file-lines" href="/agent/templates-variables">
+    Crée tes réponses canned pour gagner du temps.
+  </Card>
+  <Card title="Stratégie d'escalade" icon="route" href="/essentials/escalades">
+    Quand et pourquoi l'agent escalade — réglages avancés.
+  </Card>
+  <Card title="Configurer ton agent" icon="wand-magic-sparkles" href="/agent/prompt-builder">
+    Réduis les escalades en améliorant le prompt et la KB.
+  </Card>
+</CardGroup>

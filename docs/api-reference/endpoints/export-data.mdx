@@ -1,9 +1,208 @@
 ---
-title: "Export Data"
-description: "Documentation à compléter."
+title: "GET /client/export-data"
+description: "Export RGPD complet du tenant : conversations, runs, événements, métriques, intégrations, base de connaissance. JSON ou CSV."
 ---
 
+Cet endpoint matérialise le droit à la portabilité prévu par le **RGPD article 20** et la déclaration "Privacy by design" Actero. Il retourne en un seul appel toutes les données stockées sur le tenant de l'utilisateur authentifié, prêtes à être archivées ou migrées chez un autre prestataire.
+
+Voir [Export RGPD](/essentials/export-rgpd) pour le contexte légal et opérationnel.
+
+```http
+GET https://actero.fr/api/client/export-data?format=json
+GET https://actero.fr/api/client/export-data?format=csv
+```
+
+## Authentification
+
+`Authorization: Bearer <jwt>` (Supabase). Les clés API `ak_…` fonctionnent aussi.
+
+Le `client_id` n'est **pas** un paramètre — il est résolu côté serveur depuis l'utilisateur authentifié :
+
+1. Si l'user est `clients.owner_user_id` d'un tenant → ce tenant.
+2. Sinon, premier `client_id` trouvé dans `client_users` pour cet user.
+
+Si l'user n'est lié à aucun client → `403 Aucun client associé`.
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Pour les comptes multi-tenants (rare), seul le premier client lié est exporté. Lance une session séparée par tenant si tu en as plusieurs.
 </Note>
+
+## Query params
+
+<ParamField query="format" type="enum" default="json">
+  `json` (défaut) ou `csv`. Le CSV concatène toutes les tables en un seul fichier avec des sections `## table_name (count)` pour pouvoir l'ouvrir dans Excel ou LibreOffice (BOM UTF-8 inclus).
+</ParamField>
+
+## Headers
+
+| Header          | Valeur                  | Requis |
+| --------------- | ----------------------- | ------ |
+| `Authorization` | `Bearer <token>`        | Oui    |
+
+## Response — `200 OK`
+
+### Format JSON
+
+`Content-Type: application/json; charset=utf-8`
+`Content-Disposition: attachment; filename="actero-export-2026-04-22T10-00-00.json"`
+
+```json
+{
+  "exported_at": "2026-04-22T10:00:00.000Z",
+  "client_id": "01HX2Y...",
+  "client": [ { "id": "01HX...", "brand_name": "Mon Shop", "plan": "pro", ... } ],
+  "settings": [ ... ],
+  "integrations": [
+    { "id": "int_01H...", "provider": "shopify", "status": "connected", "connected_at": "..." }
+  ],
+  "ai_conversations": [ ... ],
+  "automation_events": [ ... ],
+  "engine_runs": [ ... ],
+  "metrics_daily": [ ... ],
+  "escalation_tickets": [ ... ],
+  "sentiment_logs": [ ... ],
+  "churn_predictions": [ ... ],
+  "response_templates": [ ... ],
+  "knowledge_entries": [ ... ]
+}
+```
+
+### Format CSV
+
+`Content-Type: text/csv; charset=utf-8`
+`Content-Disposition: attachment; filename="actero-export-2026-04-22T10-00-00.csv"`
+
+```csv
+
+## client (1)
+id,brand_name,plan,trial_ends_at,...
+01HX...,Mon Shop,pro,,...
+
+## settings (1)
+client_id,widget_api_key,...
+01HX...,ak_a1b2...,...
+
+## ai_conversations (1247)
+id,client_id,customer_email,...
+...
+```
+
+## Tables exportées
+
+| Section JSON           | Table source                | Contenu                                                              |
+| ---------------------- | --------------------------- | -------------------------------------------------------------------- |
+| `client`               | `clients`                   | Métadonnées tenant : nom, plan, dates                                |
+| `settings`             | `client_settings`           | Configuration : prompt système, branding, widget key                 |
+| `integrations`         | `client_integrations`       | Connexions Shopify, Gorgias, etc. (sans tokens OAuth)                |
+| `ai_conversations`     | `ai_conversations`          | Historique conversations avec l'agent IA                             |
+| `automation_events`    | `automation_events`         | Événements bruts entrants (legacy v1)                                |
+| `engine_runs`          | `engine_runs_v2`            | Runs de l'engine v2 : classification, confiance, action plan, durée  |
+| `metrics_daily`        | `metrics_daily`             | Aggregats journaliers : volumes, latences, sentiment moyen           |
+| `escalation_tickets`   | `escalation_tickets`        | Tickets escaladés en validation humaine                              |
+| `sentiment_logs`       | `sentiment_logs`            | Scores de sentiment par conversation                                 |
+| `churn_predictions`    | `churn_predictions`         | Prédictions churn customer                                           |
+| `response_templates`   | `response_templates`        | Templates personnalisés du tenant                                    |
+| `knowledge_entries`    | `client_knowledge_base`     | Articles de la base de connaissance                                  |
+
+<Warning>
+Les tokens OAuth (Shopify, Stripe…) sont volontairement **exclus** de l'export. Ils sont stockés chiffrés et liés à l'instance Actero ; ils ne sont pas portables. Pour migrer, reconnecte tes intégrations chez le nouveau prestataire.
+</Warning>
+
+## Response — autres cas
+
+### `401 Unauthorized`
+
+```json
+{ "error": "Non autorisé" }
+```
+
+### `403 Forbidden`
+
+```json
+{ "error": "Aucun client associé" }
+```
+
+### `405 Method Not Allowed`
+
+Cet endpoint accepte uniquement `GET`.
+
+### Erreurs partielles
+
+Si une table individuelle échoue (problème de droits, table absente d'un déploiement particulier), elle apparaît avec un tableau vide `[]` plutôt que de faire échouer tout l'export. La réponse reste `200 OK`. Cross-vérifie les volumes attendus avant d'archiver.
+
+## Exemples
+
+<CodeGroup>
+
+```bash curl
+# JSON
+curl "https://actero.fr/api/client/export-data?format=json" \
+  -H "Authorization: Bearer $ACTERO_API_KEY" \
+  -o actero-export.json
+
+# CSV
+curl "https://actero.fr/api/client/export-data?format=csv" \
+  -H "Authorization: Bearer $ACTERO_API_KEY" \
+  -o actero-export.csv
+```
+
+```js Node.js
+import { writeFile } from 'node:fs/promises'
+
+const res = await fetch('https://actero.fr/api/client/export-data?format=json', {
+  headers: { Authorization: `Bearer ${process.env.ACTERO_API_KEY}` },
+})
+
+if (!res.ok) {
+  throw new Error(`Export failed: ${res.status} ${await res.text()}`)
+}
+
+const bundle = await res.json()
+console.log(`Exporté ${Object.keys(bundle).length - 2} tables`)
+console.log(`Conversations : ${bundle.ai_conversations.length}`)
+console.log(`Runs engine : ${bundle.engine_runs.length}`)
+
+await writeFile('actero-export.json', JSON.stringify(bundle, null, 2))
+```
+
+```python Python
+import os, requests
+
+res = requests.get(
+    "https://actero.fr/api/client/export-data",
+    params={"format": "json"},
+    headers={"Authorization": f"Bearer {os.environ['ACTERO_API_KEY']}"},
+)
+res.raise_for_status()
+bundle = res.json()
+
+print(f"Exporté {len(bundle) - 2} tables")
+print(f"Conversations : {len(bundle['ai_conversations'])}")
+
+with open("actero-export.json", "wb") as f:
+    f.write(res.content)
+```
+
+</CodeGroup>
+
+## Performance et taille
+
+L'export est synchrone : le serveur lit séquentiellement chaque table puis stream la réponse. Pour un tenant moyen :
+
+| Volume                | Taille JSON | Latence serveur |
+| --------------------- | ----------- | --------------- |
+| < 1 000 conversations | ~500 KB     | < 2 s           |
+| 10 000 conversations  | ~10 MB      | 5-10 s          |
+| 100 000+ conversations | > 100 MB   | > 30 s (timeout possible) |
+
+<Note>
+Si tu hits le timeout Vercel (60 s), contacte `contact@actero.fr` — on a un job async dédié pour les très gros tenants qui dump vers un bucket S3 signé.
+</Note>
+
+## Suppression vs export
+
+L'export ne supprime rien. Pour exercer ton droit à l'effacement (RGPD article 17), envoie un email à `contact@actero.fr` depuis l'adresse owner du tenant — la suppression est manuelle et tracée pour des raisons d'audit.
+
+## Rate limit
+
+5 exports / minute / user. Inutile d'en faire plus — l'export représente un instantané, pas un flux temps réel. Pour streamer les nouvelles données, utilise les [webhooks sortants](/api-reference/webhooks).

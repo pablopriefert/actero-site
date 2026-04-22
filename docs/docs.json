@@ -8,10 +8,14 @@
     "light": "#14A85C",
     "dark": "#0A4A29"
   },
-  "favicon": "/images/favicon.png",
+  "appearance": {
+    "default": "light",
+    "strict": true
+  },
+  "favicon": "/images/favicon.svg",
   "logo": {
-    "light": "/images/logo-light.svg",
-    "dark": "/images/logo-dark.svg",
+    "light": "/images/logo.svg",
+    "dark": "/images/logo.svg",
     "href": "https://actero.fr"
   },
   "navigation": {

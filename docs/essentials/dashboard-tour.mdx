@@ -1,9 +1,126 @@
 ---
-title: "Dashboard Tour"
-description: "Documentation à compléter."
+title: "Tour du dashboard"
+description: "Comprends la sidebar, l'overview et les onglets clés en 5 minutes — pour te repérer vite quand tu ouvres Actero."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Le dashboard Actero est organisé en sections : **Vue d'ensemble** d'abord (le tableau de bord du jour), **Mon Agent** ensuite (tout ce qui pilote ton agent IA), puis **Mes tickets** (ton quotidien opérationnel), et enfin **Système** pour les paramètres de compte.
+
+Ce tour rapide te montre où trouver chaque chose. Si tu cherches un point précis, va directement à la section concernée.
+
+## Vue d'ensemble
+
+C'est ta page d'accueil. Quand tu ouvres `app.actero.fr`, tu atterris ici par défaut.
+
+Tu y trouves :
+
+- **Alertes système** : escalades urgentes, dépassement de quota, fin d'essai. Une alerte visible à la fois, le reste reste replié pour ne pas saturer l'écran.
+- **Today Hero** : statut de ton agent en temps réel, compteur du jour, raccourci vers la prochaine action urgente.
+- **KPI** : 4 cartes avec sparkline (tickets traités, taux de résolution auto, temps économisé, ROI). Tu peux switcher entre 7 / 30 / 90 jours.
+- **Activité live** : flux des dernières conversations + onglets Insights, Heures de pic et Tendances.
+
+<Tip>
+Si tu viens de connecter Shopify et que tu ne vois pas encore de chiffres, c'est normal — l'agent doit d'abord traiter quelques tickets. Compte 24-48 h pour des données significatives.
+</Tip>
+
+## Mon Agent
+
+C'est le cœur du produit. Cinq onglets sous l'icône Bot dans la sidebar.
+
+<Steps>
+  <Step title="Automatisation">
+    Active ou met en pause les playbooks (SAV e-commerce, Panier abandonné, etc.). Chaque playbook a un toggle. C'est ici que tu décides ce que ton agent fait — ou ne fait plus.
+  </Step>
+  <Step title="Agent Email (PRO)">
+    Configure l'IMAP/SMTP pour que ton agent réponde directement depuis ta boîte mail. Disponible à partir du plan Pro.
+  </Step>
+  <Step title="Base de connaissances">
+    Ajoute tes politiques (retours, livraison, remboursements), tes FAQ, tes infos produits. C'est ce que ton agent consulte avant de répondre. Voir [Base de connaissances](/essentials/base-connaissance).
+  </Step>
+  <Step title="Restrictions">
+    Définit les règles absolues que ton agent ne doit jamais enfreindre. Voir [Guardrails](/essentials/guardrails).
+  </Step>
+  <Step title="Tester mon agent (STARTER+)">
+    Simule une conversation avant la mise en production. Voir [Simulateur](/essentials/simulator).
+  </Step>
+</Steps>
+
+## Mes tickets
+
+La zone opérationnelle où tu gères ce qui sort du périmètre automatique.
+
+### À traiter
+
+L'onglet `escalations`. Toutes les conversations que l'agent t'a remontées : confiance trop faible, message agressif, mention juridique, demande hors politique. Un badge rouge en sidebar t'indique le compteur urgent.
+
+Tu peux pour chaque escalade :
+
+- Lire la conversation complète + le raisonnement de l'agent (drawer Reasoning)
+- Envoyer la réponse proposée par l'IA telle quelle, l'éditer, ou rédiger une réponse custom
+- Ajouter un audio TTS en pièce jointe pour les clients VIP
+- Sauvegarder ta réponse comme template réutilisable
+- Cocher "Ajouter à la base de connaissance" pour que l'agent apprenne
+
+Voir [Escalades](/essentials/escalades) pour le détail.
+
+### Activité
+
+Le flux complet de ce qui se passe : tickets résolus auto, escalades, paniers relancés, événements webhook. Filtrable par type, par playbook, par période.
+
+## Sections périphériques
+
+<AccordionGroup>
+  <Accordion title="Portail SAV">
+    Page publique brandée (`tamarque.portal.actero.fr`) où tes clients peuvent suivre leur commande, demander un retour ou ouvrir un ticket en self-service. Disponible dès Starter.
+  </Accordion>
+  <Accordion title="Intégrations">
+    Connecte ou déconnecte Shopify, Gorgias, Zendesk, Intercom, WhatsApp, Slack, Notion, ElevenLabs. Chaque intégration affiche son statut (Connecté / Erreur / Non configuré).
+  </Accordion>
+  <Accordion title="Insights">
+    Rapports agrégés sur la qualité de ton agent : top 10 questions, taux de résolution par catégorie, sentiment client, opportunités de churn.
+  </Accordion>
+</AccordionGroup>
+
+## Système
+
+Tout en bas de la sidebar. Trois sous-pages :
+
+- **Paramètres** : Équipe (voir [Équipe](/essentials/equipe)), API & Webhooks, Notifications, Export RGPD (voir [Export RGPD](/essentials/export-rgpd)).
+- **Mon compte** : email, mot de passe, préférences personnelles.
+- **Facturation** : ton plan actuel, ta consommation du mois, l'historique de tes factures Stripe. Voir [Facturation](/essentials/facturation).
+
+## Sidebar : repères visuels
+
+- **Bot (Mon Agent)** : section star, ouverte par défaut.
+- **Badge rouge** : escalades en attente.
+- **Badge "STARTER" / "PRO"** : fonctionnalité gated par ton plan. Cliquer dessus t'amène à la page Facturation.
+- **Étoile** : onglet star (ex. Automatisation) — c'est l'onglet qu'on te recommande de surveiller.
+
+## Rôles et visibilité
+
+Selon ton rôle dans l'équipe, certains onglets sont masqués :
+
+| Rôle | Voit |
+|---|---|
+| Propriétaire / Manager | Tout |
+| Opérationnel | Pas de Facturation |
+| Support | Vue d'ensemble, À traiter, Modèles, Activité, Sentiment |
+| Finance | Vue d'ensemble, Mon compte, Paramètres, Facturation |
+
+Voir [Équipe](/essentials/equipe) pour gérer les rôles.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Pourquoi je ne vois pas l'onglet Tester mon agent ?">
+    Le Simulateur est inclus à partir du plan Starter. En plan Free, il est masqué. Upgrade depuis [Facturation](/essentials/facturation).
+  </Accordion>
+  <Accordion title="Comment revenir à la vue d'ensemble depuis n'importe où ?">
+    Clique sur le logo Actero en haut à gauche, ou sur **Vue d'ensemble** dans la sidebar.
+  </Accordion>
+  <Accordion title="Le compteur d'escalades urgentes est rouge — que faire ?">
+    Va dans **À traiter** et trie par ordre d'ancienneté. Un ticket dépassant 24 h est marqué `Overdue`. Voir [Escalades](/essentials/escalades).
+  </Accordion>
+  <Accordion title="J'ai cassé un truc — comment annuler ?">
+    Toutes les modifications sont sauvegardées en base et tracées. Pour annuler, modifie à nouveau ou contacte [contact@actero.fr](mailto:contact@actero.fr) — on peut restaurer l'état précédent dans la majorité des cas.
+  </Accordion>
+</AccordionGroup>

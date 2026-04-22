@@ -1,9 +1,113 @@
 ---
 title: "Gmail"
-description: "Documentation à compléter."
+description: "Connecte Gmail à Actero en OAuth Google. Ton agent répond directement aux emails de ta boîte SAV."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Si tu n'utilises pas de helpdesk dédié et que tes clients t'écrivent simplement à `contact@ta-boutique.com` hébergé chez Google Workspace ou Gmail perso, Actero se connecte directement à Gmail en OAuth officiel et traite ta boîte de réception comme un mini-helpdesk.
+
+## Prérequis
+
+- Un compte **Gmail** ou **Google Workspace** actif
+- L'adresse email doit être **celle utilisée pour le SAV** (typiquement `contact@`, `support@`, `sav@`)
+- L'authentification 2FA active recommandée côté Google
+- Un compte Actero sur le plan **Pro** ou supérieur (l'Email Agent est inclus à partir de Pro)
+
+## Connexion (OAuth Google)
+
+<Steps>
+  <Step title="Ouvre Intégrations dans Actero">
+    **Intégrations → Helpdesk → Gmail → Connecter**.
+  </Step>
+  <Step title="Choisis ton compte Google">
+    Tu es redirigé vers `accounts.google.com`. Sélectionne le compte Gmail / Workspace qui reçoit les emails SAV.
+  </Step>
+  <Step title="Approuve les scopes Gmail">
+    Google affiche les permissions demandées (voir ci-dessous). Clique **Continue** puis **Allow**. Si tu vois un écran "Cette app n'est pas vérifiée", clique **Advanced → Continue** — Actero est en cours de vérification Google et l'écran disparaîtra à la prochaine review.
+  </Step>
+  <Step title="Retour dans Actero">
+    Tu reviens dans le dashboard avec le badge **Connecté** et l'adresse email rattachée. L'agent commence à poller la boîte toutes les 2 minutes.
+  </Step>
+</Steps>
+
+## Scopes demandés
+
+| Scope Google | Usage |
+|---|---|
+| `gmail.readonly` | Lire les emails entrants pour comprendre la demande client |
+| `gmail.send` | Envoyer la réponse de l'agent depuis ton adresse |
+| `gmail.modify` | Marquer comme lu, ajouter le label `Actero/répondu`, archiver si configuré |
+| `userinfo.email` | Confirmer l'email connecté (affichage dans le dashboard) |
+
+<Warning>
+Actero **ne télécharge pas** ta boîte historique. Seuls les emails arrivés **après** la connexion sont lus, et seuls ceux qui passent les filtres (voir ci-dessous) déclenchent une réponse.
+</Warning>
+
+## Filtrage : quels emails l'agent traite
+
+Par défaut, l'agent traite **uniquement** les emails qui :
+
+- Arrivent dans la **Inbox primaire** (pas Promotions / Updates / Forums)
+- Ne sont **pas marqués comme spam**
+- Sont **adressés à toi** (pas en CC)
+- Ne sont **pas une réponse à un email envoyé par toi** (déjà géré par toi humainement)
+
+Tu peux affiner ces règles dans **Email Agent → Filtres**.
+
+## Modes Auto / Draft
+
+Comme pour les helpdesks dédiés :
+
+- **Auto-reply** — l'agent envoie la réponse directement depuis ton adresse (avec ta signature)
+- **Draft** — l'agent crée un brouillon Gmail dans ton dossier **Drafts**, tu valides et envoies à la main
+
+Le mode Draft est parfait pour démarrer : tu vois exactement ce que l'agent aurait envoyé, sans risque.
+
+## Labels Gmail
+
+Actero crée automatiquement quatre labels dans ton Gmail :
+
+- `Actero/auto` — emails répondus automatiquement
+- `Actero/draft` — brouillons préparés
+- `Actero/escalated` — emails marqués pour traitement humain
+- `Actero/skipped` — emails écartés par les filtres
+
+Tu peux les afficher comme dossiers normaux dans Gmail pour suivre l'activité.
+
+## Quotas Gmail
+
+L'API Gmail limite à **250 envois/jour** pour Gmail perso et **2 000/jour** pour Google Workspace. Si tu dépasses ces volumes, utilise [Resend](/integrations/resend) (envois transactionnels illimités) ou [SMTP/IMAP](/integrations/smtp-imap) avec ton propre serveur.
+
+## Déconnexion
+
+**Intégrations → Gmail → Déconnecter** révoque le token Google. Tu peux aussi le faire depuis [myaccount.google.com/permissions](https://myaccount.google.com/permissions) en supprimant l'app **Actero**.
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="L'écran "Cette application n'est pas vérifiée" m'inquiète">
+    Actero est en processus de **Google App Verification** (plusieurs semaines de review Google). En attendant, tu peux cliquer **Advanced → Continue to actero.fr (unsafe)** sans risque réel : les scopes restent les mêmes, seul le badge "verified" manque. La review Google ne change rien aux permissions.
+  </Accordion>
+  <Accordion title="L'agent ne répond pas, ou trop lentement">
+    Le polling Gmail tourne toutes les 2 minutes. Si après 5 minutes ton email reste sans réponse, vérifie : (1) l'email est bien dans **Inbox primaire** (pas Promotions), (2) le mode est **Auto** pas Draft, (3) le seuil de confiance est atteint.
+  </Accordion>
+  <Accordion title="Les réponses partent sans ma signature">
+    Va dans **Configurer l'agent → Signature** et copie/colle ta signature Gmail. Actero ne lit pas automatiquement la signature configurée dans Gmail.
+  </Accordion>
+  <Accordion title="Token expiré au bout de quelques jours">
+    Cela arrive si tu as révoqué l'app dans `myaccount.google.com` ou changé ton mot de passe. Reconnecte simplement depuis **Intégrations → Gmail**.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Puis-je connecter plusieurs adresses Gmail ?">
+    Sur le plan **Entreprise**, oui. Sur les autres plans, une seule connexion Gmail par compte Actero. Tu peux toujours mettre des **forwards** dans Gmail pour rediriger plusieurs adresses vers la principale.
+  </Accordion>
+  <Accordion title="Mon Gmail Workspace a SSO (Okta, Azure AD), compatible ?">
+    Oui. L'OAuth Google reste standard, ton SSO te demande juste de te ré-authentifier au moment de l'autorisation.
+  </Accordion>
+  <Accordion title="Quelle différence avec SMTP/IMAP ?">
+    Gmail OAuth est plus sûr (pas de mot de passe stocké) et plus rapide à configurer. [SMTP/IMAP](/integrations/smtp-imap) est utile si tu n'es pas sur Google (OVH Mail, ProtonMail Bridge, serveur custom).
+  </Accordion>
+</AccordionGroup>

@@ -1,9 +1,165 @@
 ---
 title: "Playbooks"
-description: "Documentation à compléter."
+description: "Les automatisations pré-construites de ton agent : SAV e-commerce, relance panier, comptabilité, vocal."
 ---
 
+Un **playbook** est une automatisation prête à l'emploi qui combine un déclencheur (message reçu, panier abandonné, facture en retard…) et une suite d'actions (classification, génération, envoi, escalade). Tu actives ce dont tu as besoin, tu choisis tes canaux, l'agent travaille en continu.
+
+Tu trouves la liste dans le dashboard sous **Mon Agent → Automatisation**.
+
+## Les 4 playbooks disponibles
+
+<CardGroup cols={2}>
+  <Card title="SAV e-commerce" icon="headphones">
+    Répond automatiquement aux questions clients (commandes, retours, produits) sur email, widget, Gorgias, Zendesk.
+  </Card>
+  <Card title="Relance panier" icon="cart-shopping">
+    Envoie un email de relance personnalisé aux clients qui ont abandonné leur panier Shopify.
+  </Card>
+  <Card title="Comptabilité automatisée" icon="calculator">
+    Relances de factures, exports comptables, alertes de trésorerie. Connecté à Axonaut, Pennylane ou iPaidThat.
+  </Card>
+  <Card title="Agent vocal" icon="phone">
+    Un agent téléphonique IA qui répond aux questions par la voix. Voir [Agent Vocal](/agent/agent-vocal).
+  </Card>
+</CardGroup>
+
+## SAV e-commerce (`sav_ecommerce`)
+
+Le cœur du produit. Tout message client entrant déclenche ton agent : il classifie, va chercher le contexte Shopify, génère une réponse dans ton ton, et l'envoie ou escalade.
+
+### Canaux disponibles
+
+| Canal | Intégration requise |
+|---|---|
+| **Email** | Gmail OU SMTP/IMAP |
+| **Chat sur le site** | Shopify (widget injecté en 1 clic) |
+| **Gorgias** | Compte Gorgias connecté |
+| **Zendesk** | Compte Zendesk connecté |
+
+Tu actives le playbook une fois, puis tu coches les canaux que ton agent doit surveiller. Chaque canal peut être activé/désactivé indépendamment.
+
+<Tip>
+Active **email + widget** pour la couverture maximale. Le widget capture les visiteurs avant qu'ils ne quittent le site, l'email gère les demandes asynchrones.
+</Tip>
+
+### Déclenchement
+
+- **Email** : poll IMAP toutes les 2 minutes (cron `email-polling`)
+- **Widget Shopify** : webhook temps réel depuis ton thème
+- **Gorgias / Zendesk** : webhook temps réel depuis leurs API
+
+## Relance panier (`abandoned_cart`)
+
+Récupère les ventes perdues. Quand Shopify détecte un panier abandonné, l'agent envoie un email personnalisé.
+
+**Prérequis :** intégration Shopify active.
+
+**Canaux :** email uniquement (SMTP/IMAP requis).
+
+L'email est rédigé par l'agent dans ton ton de marque, avec :
+- Prénom du client
+- Liste des produits abandonnés
+- Lien direct pour finaliser
+- Éventuellement un code promo si tu en as configuré un dans la KB
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+La cadence d'envoi (15 min, 24 h, 72 h) est gérée côté Shopify Webhooks. Tu peux ajuster dans **Paramètres avancés → Cadence panier**.
 </Note>
+
+## Comptabilité automatisée (`comptabilite_auto`)
+
+Automatise tes relances clients et tes alertes de trésorerie.
+
+**Prérequis :** au moins un connecteur parmi Axonaut, Pennylane, iPaidThat.
+
+**Canaux :** email (Gmail ou SMTP/IMAP), Slack pour les alertes.
+
+À l'activation, un wizard te guide :
+1. Choix du connecteur comptable
+2. Seuils de relance (J+7, J+15, J+30 par défaut)
+3. Templates des emails de relance (variables `{{client.nom}}`, `{{facture.numero}}`, `{{facture.montant}}`, `{{facture.jours_retard}}`)
+4. Seuil d'alerte trésorerie
+
+L'agent tourne chaque nuit (cron `accounting-daily`) et envoie ses relances le matin.
+
+## Agent vocal (`agent_vocal`)
+
+<Note type="warning">
+L'agent vocal est en accès anticipé. Voir [Agent Vocal](/agent/agent-vocal) pour t'inscrire à la liste d'attente.
+</Note>
+
+Un agent téléphonique IA qui répond aux appels via un widget vocal sur ton site Shopify, ou via un numéro de téléphone dédié (à venir).
+
+## Activer un playbook
+
+<Steps>
+  <Step title="Va dans Automatisation">
+    **Mon Agent → Automatisation** dans la sidebar.
+  </Step>
+  <Step title="Vérifie les prérequis">
+    Si une intégration manque, le bouton affiche **Connecter** au lieu d'un toggle. Va d'abord la connecter dans **Intégrations**.
+  </Step>
+  <Step title="Bascule le toggle">
+    Le toggle vert active le playbook. Une vérification de "readiness" peut s'ouvrir pour t'aider à valider que tout est branché correctement (KB non vide, ton de marque configuré, canaux choisis).
+  </Step>
+  <Step title="Coche tes canaux">
+    Une fois le playbook actif, la liste des canaux s'affiche. Coche ceux que tu veux. L'activation du canal **email** active aussi automatiquement l'agent email côté backend.
+  </Step>
+</Steps>
+
+## Limites par plan
+
+Le nombre de playbooks actifs en parallèle dépend de ton plan :
+
+| Plan | Playbooks actifs |
+|---|---|
+| Free | 1 |
+| Starter | 2 |
+| Pro | 4 (tous) |
+| Scale | 4 + custom |
+
+Quand tu atteins la limite, l'activation est bloquée avec un message t'invitant à upgrader.
+
+## Désactiver un playbook
+
+Bascule le toggle. Le playbook est désactivé immédiatement, plus aucun message entrant n'est traité.
+
+<Warning>
+Désactiver le playbook **SAV e-commerce** désinstalle automatiquement le widget chat de ton thème Shopify. À réactiver, le widget est réinstallé.
+</Warning>
+
+## Customisation
+
+Les playbooks sont **standardisés** aujourd'hui. La customisation profonde (modifier les prompts de classification, ajouter des étapes) arrive en Q2 2026 sur Pro+. En attendant, personnalise via le **Prompt Builder**, la **Base de connaissances**, les **Guardrails**, et les **Templates de réponse**.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Puis-je créer mon propre playbook ?">
+    Pas encore via l'UI. Les playbooks customs sont sur la roadmap Q2 2026 (Pro+). Si tu as un cas d'usage spécifique, écris-nous à [contact@actero.fr](mailto:contact@actero.fr) — on développe certains playbooks sur mesure pour les clients Scale.
+  </Accordion>
+  <Accordion title="Que se passe-t-il si j'active 2 playbooks qui se chevauchent ?">
+    Chaque message entrant est traité par **un seul** playbook. La résolution se fait par canal : un email entrant va au playbook SAV, un panier abandonné Shopify au playbook relance. Pas de conflit possible.
+  </Accordion>
+  <Accordion title="Comment savoir si un playbook a bien tourné ?">
+    Va dans **Activité → Historique des runs**. Chaque run affiche le playbook utilisé, le statut (`ok` / `escalated` / `error`), et le détail de la réponse.
+  </Accordion>
+  <Accordion title="L'agent vocal compte-t-il dans la limite de playbooks ?">
+    Oui. Sur Free (1 playbook actif), tu dois choisir entre SAV et vocal. Sur Pro, tu peux tout activer.
+  </Accordion>
+</AccordionGroup>
+
+## Pour aller plus loin
+
+<CardGroup cols={2}>
+  <Card title="Configurer ton agent" icon="wand-magic-sparkles" href="/agent/prompt-builder">
+    Le ton et les règles que les playbooks utilisent.
+  </Card>
+  <Card title="Validation manuelle" icon="inbox" href="/agent/manual-review">
+    Comment gérer les escalades issues des playbooks.
+  </Card>
+  <Card title="Watchdog proactif" icon="shield-check" href="/agent/proactive-watchdog">
+    Aller au-delà : agir avant que le client se plaigne.
+  </Card>
+</CardGroup>

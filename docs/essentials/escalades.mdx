@@ -1,9 +1,165 @@
 ---
-title: "Escalades"
-description: "Documentation à compléter."
+title: "Escalades (À traiter)"
+description: "Quand ton agent passe la main à ton équipe, comment traiter vite, et comment l'aider à apprendre."
 ---
 
+Une escalade, c'est une conversation que ton agent ne peut pas — ou ne doit pas — traiter seul. Plutôt que de répondre à côté, il te la transmet pour validation humaine. Tu valides, tu corriges, ou tu rejettes — et l'agent apprend pour la prochaine fois.
+
+C'est l'onglet le plus important pour tes premières semaines en production.
+
+## Où sont les escalades
+
+Sidebar : **Mes tickets → À traiter**.
+
+Le badge rouge à côté du libellé t'indique le compteur urgent (escalades non traitées de plus de quelques heures).
+
+## Pourquoi une conversation est-elle escaladée
+
+Six motifs possibles, identifiés automatiquement :
+
+| Motif technique | Sens |
+|---|---|
+| `low_confidence` | Score de confiance IA < 60 % — l'agent n'est pas sûr de sa réponse |
+| `aggressive` | Ton agressif détecté chez le client |
+| `out_of_policy` | Une [guardrail](/essentials/guardrails) bloque la réponse |
+| `legal_mention` | Le client mentionne avocat, plainte, mise en demeure, etc. |
+| `error` | Erreur technique pendant le traitement |
+| `default` | Escalade configurée manuellement (ex : tous les VIP) |
+
+Le motif s'affiche en badge sur chaque escalade.
+
+## Anatomie d'un ticket d'escalade
+
+Quand tu cliques sur un ticket, un drawer s'ouvre à droite avec :
+
+- **Conversation complète** : tous les messages échangés
+- **Infos client** : email, nom, commandes Shopify associées, sentiment
+- **Réponse proposée par l'IA** : pré-rédigée, prête à envoyer
+- **Drawer Reasoning** : raisonnement détaillé de l'agent (classification, sources KB consultées, guardrails déclenchées, score de confiance)
+- **Templates** : tes modèles de réponse réutilisables, recherche full-text
+- **Actions** : envoyer / éditer / refuser / sauvegarder en KB
+
+## Traiter une escalade — 3 modes
+
+### Mode 1 : Envoyer la réponse IA telle quelle
+
+<Steps>
+  <Step title="Lis la réponse proposée">
+    Vérifie qu'elle est correcte et conforme à ton ton.
+  </Step>
+  <Step title="Clique 'Envoyer la réponse IA'">
+    L'email part au client. Le ticket passe en statut `resolved`.
+  </Step>
+</Steps>
+
+### Mode 2 : Éditer puis envoyer
+
+<Steps>
+  <Step title="Clique 'Éditer la réponse'">
+    Le texte devient modifiable.
+  </Step>
+  <Step title="Ajuste — ajoute des infos, change le ton, corrige une erreur">
+    Tu peux insérer un template avec la barre de recherche.
+  </Step>
+  <Step title="Coche 'Ajouter à la base de connaissance' si pertinent">
+    L'agent retiendra ta version pour les conversations similaires futures.
+  </Step>
+  <Step title="Envoie">
+    Le ticket est résolu. Ta correction est tracée — c'est du feedback qualitatif que ton agent utilise pour s'améliorer.
+  </Step>
+</Steps>
+
+### Mode 3 : Réponse 100 % custom
+
+<Steps>
+  <Step title="Clique 'Réponse personnalisée'">
+    Zone vide.
+  </Step>
+  <Step title="Rédige depuis zéro">
+    Pour les cas où la réponse IA est totalement à côté.
+  </Step>
+  <Step title="Coche 'Sauvegarder comme template'">
+    Donne un nom et une catégorie. Le template sera proposé pour les futurs cas similaires.
+  </Step>
+</Steps>
+
+## Audio TTS (clients VIP / cas sensibles)
+
+Pour donner un côté plus humain à une réponse importante, tu peux générer un fichier audio (voix ElevenLabs) attaché à ton email.
+
+<Steps>
+  <Step title="Coche 'Joindre un audio' avant d'envoyer">
+    Un preview audio est généré.
+  </Step>
+  <Step title="Écoute le résultat">
+    Si la voix te plaît, valide. Sinon, modifie le texte et regénère.
+  </Step>
+  <Step title="Envoie">
+    Le client reçoit ton email + le fichier audio en pièce jointe.
+  </Step>
+</Steps>
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+La fonctionnalité audio dépend de ton plan. Sur Pro, tu as 200 minutes vocales/mois. Au-delà, l'option est désactivée jusqu'au prochain cycle.
 </Note>
+
+## Mode auto-send
+
+Pour certains cas où tu fais entièrement confiance à l'agent (par exemple, suivi de commande standard), tu peux activer un toggle **Auto-send** dans le drawer. Si l'agent atteint un score de confiance suffisant et qu'aucune guardrail ne se déclenche, la réponse part toute seule sans intervention humaine.
+
+À utiliser avec parcimonie et seulement après 2-3 semaines d'observation manuelle.
+
+## Tri et filtres
+
+En haut de la liste, tu peux trier par :
+
+- **Date** : du plus récent au plus ancien (par défaut)
+- **Urgence** : tickets > 24 h en haut (`Overdue`)
+- **Sentiment** : tickets négatifs en premier
+- **Motif** : grouper par cause d'escalade
+
+## Notifications
+
+Tu peux recevoir une notification quand une escalade arrive :
+
+- **Slack** : intégration native, canal dédié
+- **Email** : digest quotidien ou alerte temps réel
+- **Helpdesk** (Gorgias / Zendesk / Intercom) : tag `@actero-escalated`
+
+Configure tout ça dans **Paramètres → Notifications**.
+
+## SLA et responsabilité
+
+<Warning>
+Une escalade qui dépasse 24 h est marquée `Overdue` et compte négativement dans ton **Health Score**. Si tu utilises Actero pour des engagements SLA contractuels (B2B), définis un seuil interne plus court (4 h, 8 h) et configure une alerte Slack instantanée.
+</Warning>
+
+## Rôles autorisés à traiter les escalades
+
+| Rôle | Peut traiter |
+|---|---|
+| Propriétaire / Manager / Opérationnel | Oui — tout |
+| Support | Oui — escalades + templates |
+| Finance | Non |
+
+Voir [Équipe](/essentials/equipe).
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Combien d'escalades par jour c'est normal ?">
+    En semaine 1 : 30-40 % de tes tickets. En semaine 4 (après que tu aies enrichi la KB) : 10-20 %. En régime stable : 5-15 %. Si tu dépasses 30 % après 2 mois, audit ta KB et tes guardrails.
+  </Accordion>
+  <Accordion title="L'agent escalade trop — comment baisser le volume ?">
+    Trois leviers : 1) Enrichis la [base de connaissance](/essentials/base-connaissance) sur les sujets qui escaladent le plus (regarde les motifs `low_confidence`). 2) Assouplis les [guardrails](/essentials/guardrails) trop strictes. 3) Re-teste dans le [Simulateur](/essentials/simulator).
+  </Accordion>
+  <Accordion title="L'agent n'escalade pas assez et fait des conneries — comment monter le filet ?">
+    1) Ajoute des [guardrails](/essentials/guardrails) explicites sur les sujets sensibles. 2) Désactive l'auto-send. 3) Force une escalade pour tous les nouveaux clients (commande #1) — config dans Paramètres → Notifications.
+  </Accordion>
+  <Accordion title="Je veux qu'un membre voie uniquement les escalades, pas le reste — possible ?">
+    Oui. Crée un membre avec le rôle **Support** (voir [Équipe](/essentials/equipe)). Il aura accès uniquement à À traiter, Modèles, Sentiment, Activité.
+  </Accordion>
+  <Accordion title="L'agent peut-il apprendre tout seul à partir des escalades ?">
+    Oui partiellement. Chaque réponse que tu valides ou édites est tracée. L'agent ajuste sa stratégie sur les conversations similaires. Pour un apprentissage explicite, coche "Ajouter à la KB" — c'est le levier le plus efficace.
+  </Accordion>
+</AccordionGroup>

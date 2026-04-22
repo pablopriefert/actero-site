@@ -1,55 +1,121 @@
 ---
 title: "Shopify"
-description: "Connecter votre boutique Shopify en OAuth 1-clic. Lecture commandes, clients, produits."
+description: "Connecte ta boutique Shopify en OAuth 1-clic. Lecture commandes, clients, produits, paniers abandonnés."
 ---
 
-## Installation (1-clic OAuth)
+Shopify est l'intégration phare d'Actero. Une fois connectée, ton agent répond aux questions WISMO ("où est ma commande ?"), retourne, échange, suivi de panier, recommande des produits et personnalise chaque réponse avec le profil client — sans toucher à ta caisse.
 
-Depuis **Intégrations → Shopify → Connecter**, vous êtes redirigé vers Shopify pour valider les scopes. Après approbation, retour automatique dans Actero.
+## Prérequis
+
+- Une boutique Shopify active (plan Basic, Shopify, Advanced ou Plus — peu importe)
+- Le rôle **Owner** ou **Staff avec permission "Apps"** dans ton compte Shopify
+- Un compte Actero avec au moins le plan **Free** (50 tickets/mois) — plan **Starter** ou supérieur recommandé pour les webhooks paniers abandonnés
+
+## Connexion (OAuth 1-clic)
+
+<Steps>
+  <Step title="Ouvre Intégrations dans Actero">
+    Depuis ton dashboard, va dans **Intégrations → Plateforme e-commerce → Shopify** et clique **Connecter**.
+  </Step>
+  <Step title="Renseigne ton domaine Shopify">
+    Saisis l'URL exacte de ta boutique au format `ma-boutique.myshopify.com` (pas ton domaine personnalisé). Tu le retrouves dans Shopify Admin → **Settings → Domains**.
+  </Step>
+  <Step title="Autorise Actero sur Shopify">
+    Tu es redirigé vers Shopify pour valider les scopes. Approuve la demande. Aucune carte bancaire requise — Actero est gratuit côté Shopify App Store.
+  </Step>
+  <Step title="Retour automatique">
+    Tu reviens dans Actero avec un badge **Connecté** et le nom de ton domaine affiché. Les 30 dernières commandes sont indexées en moins de 20 secondes.
+  </Step>
+</Steps>
+
+<Tip>
+Si tu n'as pas encore configuré ton agent, regarde le [quickstart](/essentials/quickstart) — c'est la suite logique de cette connexion.
+</Tip>
 
 ## Scopes demandés
 
 <AccordionGroup>
   <Accordion title="read_orders, read_customers, read_products">
-    Lecture seule. Actero consulte les commandes pour répondre au "où est ma commande", les clients pour personnaliser les réponses, les produits pour répondre aux questions techniques.
+    Lecture seule. Ton agent consulte les commandes pour répondre aux WISMO, les clients pour personnaliser le ton, les produits pour répondre aux questions techniques (taille, matière, stock).
   </Accordion>
   <Accordion title="read_abandoned_checkouts">
-    Pour le playbook `abandoned_cart`. Actero détecte les paniers abandonnés et déclenche les relances.
+    Pour le playbook `panier abandonné`. Ton agent détecte les paniers laissés en plan et déclenche les relances email selon le délai que tu choisis.
   </Accordion>
-  <Accordion title="write_draft_orders (optionnel, Pro)">
-    Permet à l'agent vocal de créer un devis pendant un appel et de l'envoyer par email au client.
+  <Accordion title="write_draft_orders (optionnel, plan Pro)">
+    Permet à l'agent vocal de créer un devis pendant un appel et de l'envoyer par email au client. Inactif par défaut.
   </Accordion>
 </AccordionGroup>
 
-Aucun scope de paiement, de modification de commande ou de remboursement n'est demandé. **Actero ne peut pas agir sur votre caisse**.
+<Warning>
+Aucun scope de paiement, de modification de commande, de remboursement ou de stock n'est demandé. **Actero ne peut jamais agir sur ta caisse, ni modifier une commande, ni rembourser à ta place.** Tout reste en lecture pure côté Shopify.
+</Warning>
+
+## Quelles données circulent
+
+- **Commandes** (numéro, statut, total, items, tracking) → utilisées pour répondre aux WISMO et au SAV
+- **Clients** (nom, email, langue, historique) → utilisés pour personnaliser le ton et reconnaître les clients VIP
+- **Produits** (titre, description, variantes, prix, stock) → utilisés pour les questions catalogue
+- **Paniers abandonnés** (items, total, email, URL de checkout) → utilisés pour les relances automatiques
+
+Tout est stocké chiffré côté Actero (Supabase, RLS activée, isolation par `client_id`). Aucune donnée n'est jamais partagée avec un autre marchand.
 
 ## Webhooks configurés automatiquement
 
-- `orders/create` → indexation commande pour réponses WISMO
-- `orders/updated` → mise à jour du statut tracking
-- `carts/abandoned` → déclenche playbook `abandoned_cart`
-- `customers/create` → enrichit la base client
+À l'installation, Actero enregistre quatre webhooks signés HMAC SHA-256 (vérification en temps constant via `crypto.timingSafeEqual`) :
 
-Tous signés HMAC SHA-256 avec `SHOPIFY_CLIENT_SECRET`. Vérification constant-time.
+| Webhook | Effet dans Actero |
+|---|---|
+| `orders/create` | Indexe la commande pour les futures réponses WISMO |
+| `orders/updated` | Met à jour le statut tracking en temps réel |
+| `carts/abandoned` | Déclenche le playbook `panier abandonné` |
+| `customers/create` | Enrichit la base client (langue, géo, segment) |
+
+Tu peux désactiver un playbook depuis **Automatisation** sans toucher à l'intégration Shopify.
 
 ## Multi-boutique
 
-Sur le plan Entreprise, une même organisation Actero peut connecter plusieurs boutiques Shopify et les gérer depuis un dashboard unifié. En plan Pro, vous pouvez avoir **un seul domaine Shopify par compte** — créez un second compte Actero si vous gérez plusieurs marques.
+Sur le plan **Entreprise**, une même organisation Actero peut connecter plusieurs boutiques Shopify et les gérer depuis un dashboard unifié.
+
+Sur les plans **Free**, **Starter** et **Pro**, tu as **un seul domaine Shopify par compte Actero**. Si tu gères deux marques distinctes, crée un second compte Actero — chaque agent reste isolé et garde son ton, sa base de connaissances et ses métriques.
+
+<Note>
+Une seule plateforme e-commerce active par compte. Si tu connectes ensuite [WooCommerce](/integrations/woocommerce) ou [Webflow](/integrations/webflow), Actero te demande de déconnecter Shopify d'abord.
+</Note>
 
 ## Déconnexion
 
-Intégrations → Shopify → **Déconnecter**. Actero révoque son token d'accès, supprime les webhooks, et arrête immédiatement de lire vos données. Les conversations passées restent dans l'historique (RGPD).
+Va dans **Intégrations → Shopify → Déconnecter**. Actero révoque immédiatement son token d'accès, supprime les quatre webhooks Shopify et arrête de lire tes données. Les conversations passées restent dans ton historique pour des raisons RGPD (export et suppression possibles depuis **Profil → Mes données**).
 
 ## Problèmes fréquents
 
 <AccordionGroup>
   <Accordion title="L'agent ne trouve pas ma commande #1234">
-    Vérifiez que Shopify est en statut **Connecté** et que le client a bien utilisé un email client Shopify valide. Actero matche d'abord par email, puis par numéro de commande.
+    Vérifie que Shopify est bien en statut **Connecté** dans Intégrations. L'agent matche d'abord par email client, puis par numéro de commande. Si le client a passé sa commande en invité avec une autre adresse email que celle utilisée dans la conversation, demande-lui de confirmer son email d'achat.
   </Accordion>
-  <Accordion title="Relances panier ne partent pas">
-    Vérifiez que `abandoned_cart` est actif dans **Automatisation**, et que votre SMTP ou Gmail est configuré pour l'envoi d'emails sortants.
+  <Accordion title="Webhook error 401 ou 403 dans les logs Shopify">
+    Cela arrive quand le secret HMAC a tourné (rotation de credentials côté Shopify). Déconnecte puis reconnecte l'intégration depuis Actero — les nouveaux webhooks sont régénérés avec un secret frais.
   </Accordion>
-  <Accordion title="Comment tester sans impacter mes vrais clients ?">
-    Utilisez **Tester mon agent** (Simulator) dans le dashboard. Les messages simulés n'envoient rien aux vrais clients.
+  <Accordion title="Relances panier abandonné qui ne partent pas">
+    Trois choses à vérifier : (1) le playbook `panier abandonné` est **activé** dans Automatisation, (2) un service d'envoi est configuré ([Resend](/integrations/resend), [Gmail](/integrations/gmail) ou [SMTP/IMAP](/integrations/smtp-imap)), (3) le client a bien laissé son email à l'étape checkout (sans email, pas de relance possible).
+  </Accordion>
+  <Accordion title="J'ai changé de domaine Shopify (migration .myshopify.com)">
+    Reconnecte l'intégration avec le nouveau domaine. Les commandes historiques restent indexées, le nouveau token prend le relais sans coupure de service.
+  </Accordion>
+  <Accordion title="Comment tester sans impacter mes vrais clients">
+    Utilise **Tester mon agent** (Simulator) dans le dashboard. Les messages simulés n'envoient rien aux vrais clients, ne créent aucune commande et n'écrivent rien dans Shopify.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Actero apparaît-elle dans le Shopify App Store ?">
+    Oui. L'installation passe par le flow OAuth officiel Shopify, ce qui te garantit que les scopes sont visibles, révocables à tout moment et auditables depuis Shopify Admin → **Apps**.
+  </Accordion>
+  <Accordion title="Combien de temps pour indexer toute ma boutique ?">
+    Les 30 dernières commandes sont indexées en ~20 secondes (immédiat). L'indexation complète (catalogue, clients, historique 12 mois) prend de 2 à 30 minutes selon la taille de ta boutique. Tu reçois une notification dans le dashboard quand c'est fini.
+  </Accordion>
+  <Accordion title="Mes clients voient-ils que c'est une IA ?">
+    Tu choisis. Par défaut, l'agent signe avec le nom de ta marque. Tu peux activer une signature explicite ("Réponse assistée par notre agent IA") depuis **Configurer l'agent → Identité**.
   </Accordion>
 </AccordionGroup>

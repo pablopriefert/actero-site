@@ -1,9 +1,113 @@
 ---
-title: "Woocommerce"
-description: "Documentation à compléter."
+title: "WooCommerce"
+description: "Connecte ta boutique WooCommerce à Actero en OAuth 1-clic depuis ton WordPress."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+WooCommerce est la deuxième plateforme e-commerce supportée par Actero. La connexion passe par le flow `wc-auth` officiel WordPress : tu approuves Actero depuis ton admin WP, et ton agent récupère commandes, clients et produits en lecture seule.
+
+## Prérequis
+
+- Une boutique WordPress avec **WooCommerce 5.0+** installé et activé
+- Un compte WordPress avec le rôle **Administrator** (requis pour autoriser une app)
+- HTTPS activé sur ton site (WooCommerce refuse les `wc-auth` en HTTP)
+- Permaliens en mode **Post name** (Settings → Permalinks) — sinon les endpoints REST sont inaccessibles
+- Un compte Actero avec au moins le plan **Starter** pour les webhooks temps réel
+
+## Connexion
+
+<Steps>
+  <Step title="Ouvre Intégrations dans Actero">
+    Va dans **Intégrations → Plateforme e-commerce → WooCommerce** et clique **Connecter**.
+  </Step>
+  <Step title="Renseigne l'URL de ta boutique">
+    Saisis l'adresse complète de ton site WordPress, par exemple `https://ma-boutique.com`. Pas besoin de slash final, Actero normalise l'URL automatiquement.
+  </Step>
+  <Step title="Autorise Actero depuis WordPress">
+    Tu es redirigé vers la page **"Authorize Actero?"** de ton WordPress. Connecte-toi en admin si nécessaire et clique **Approve**. WooCommerce génère alors une `consumer_key` + `consumer_secret` et les POST sur le callback Actero.
+  </Step>
+  <Step title="Retour automatique">
+    Tu reviens dans Actero avec le badge **Connecté**. Les commandes les plus récentes sont indexées en quelques secondes.
+  </Step>
+</Steps>
+
+## Permissions demandées
+
+WooCommerce demande deux niveaux d'accès lors du `wc-auth` : Actero demande **`read`** uniquement.
+
+- Lecture des commandes, clients, produits, catégories
+- **Aucune écriture** : Actero ne peut ni modifier une commande, ni en créer, ni émettre un remboursement
+- **Aucun accès** au panneau d'admin WP, aux utilisateurs ou aux fichiers du site
+
+<Warning>
+Les credentials sont stockés chiffrés côté Supabase, isolés par `client_id` via RLS. Tu peux les révoquer à tout moment depuis WordPress → **WooCommerce → Settings → Advanced → REST API**, ou depuis Actero.
+</Warning>
+
+## Quelles données circulent
+
+- Commandes (statut, ligne items, total, méthode de paiement, méthode de livraison, tracking si plugin)
+- Clients (email, nom, adresses de facturation et livraison, historique d'achat)
+- Produits (titre, description, variations, stock, prix, catégories)
+
+L'agent utilise ces données en temps réel pour répondre aux WISMO, gérer les retours, recommander des produits liés et personnaliser le ton selon le segment client.
+
+## Webhooks (temps réel)
+
+À la connexion, Actero crée trois webhooks WooCommerce signés HMAC :
+
+- `order.created`
+- `order.updated`
+- `customer.created`
+
+Si la création échoue (hébergeur qui bloque les requêtes sortantes, plugin de sécurité agressif), Actero passe automatiquement en mode **polling** toutes les 5 minutes. Tu vois alors un badge **Polling** dans le dashboard au lieu de **Realtime**.
+
+## Plugins compatibles
+
+<AccordionGroup>
+  <Accordion title="WooCommerce Subscriptions">
+    Supporté. Les abonnements actifs sont visibles par l'agent pour répondre aux questions de renouvellement, suspension ou annulation.
+  </Accordion>
+  <Accordion title="WooCommerce Bookings">
+    Supporté en lecture. L'agent peut consulter les réservations mais ne peut pas en créer ni modifier (limite des scopes `read`).
+  </Accordion>
+  <Accordion title="Advanced Shipment Tracking, AfterShip, TrackShip">
+    Si l'un de ces plugins ajoute un meta tracking sur la commande, Actero le lit automatiquement et l'utilise dans les réponses WISMO.
+  </Accordion>
+  <Accordion title="WPML / Polylang (multilingue)">
+    Compatible. L'agent répond dans la langue de la commande détectée par le plugin.
+  </Accordion>
+</AccordionGroup>
+
+## Déconnexion
+
+**Intégrations → WooCommerce → Déconnecter** révoque les credentials côté Actero et désactive les webhooks créés sur ton WordPress. Pour une révocation complète, va aussi dans WordPress → **WooCommerce → Settings → Advanced → REST API** et supprime la clé "Actero".
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="`wc-auth` me renvoie une erreur 404">
+    Tes permaliens WordPress ne sont pas en mode "Post name". Va dans **Settings → Permalinks** et choisis "Post name", puis sauvegarde — cela régénère les routes REST.
+  </Accordion>
+  <Accordion title="L'écran d'autorisation WordPress ne s'affiche pas">
+    Un plugin de sécurité (Wordfence, iThemes Security, Sucuri) bloque probablement les requêtes vers `/wc-auth/v1/authorize`. Whitelist temporairement l'URL ou désactive le plugin pendant l'OAuth.
+  </Accordion>
+  <Accordion title="L'agent ne voit pas mes commandes récentes">
+    Ouvre le dashboard, lance un test depuis **Tester mon agent** avec une commande connue. Si l'agent ne la trouve pas, vérifie que l'intégration est en mode **Realtime** ou attends le prochain cycle de polling (max 5 minutes).
+  </Accordion>
+  <Accordion title="Les webhooks n'arrivent pas sur Actero">
+    Va dans **WooCommerce → Settings → Advanced → Webhooks**. Si tu vois des deliveries en échec avec status 401/403, supprime-les et reconnecte l'intégration depuis Actero pour régénérer les secrets.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Mon site est en HPOS (High Performance Order Storage). Compatible ?">
+    Oui. Actero utilise l'API REST WooCommerce v3 qui supporte HPOS depuis Woo 8.2.
+  </Accordion>
+  <Accordion title="Puis-je connecter plusieurs boutiques WooCommerce ?">
+    Sur le plan **Entreprise**, oui. Sur les autres plans, une seule plateforme e-commerce par compte Actero — crée un second compte si tu gères plusieurs marques.
+  </Accordion>
+  <Accordion title="Quelle est la différence avec Shopify côté agent ?">
+    Aucune. Ton agent répond, escalade, automatise les paniers abandonnés et personnalise les réponses de la même façon. Seules les modalités techniques de la connexion changent.
+  </Accordion>
+</AccordionGroup>

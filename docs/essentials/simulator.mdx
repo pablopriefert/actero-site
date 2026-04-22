@@ -1,9 +1,135 @@
 ---
-title: "Simulator"
-description: "Documentation à compléter."
+title: "Tester ton agent (Simulateur)"
+description: "Joue des conversations simulées avant la mise en production — vérifie le ton, les guardrails, les playbooks, sans risquer un vrai client."
 ---
 
+Le Simulateur, c'est ta sandbox. Tu y joues des messages clients fictifs, tu vois exactement ce que ton agent répondrait, et tu corriges avant que ça touche tes vrais clients.
+
+À utiliser : après chaque modification de [ton de marque](/essentials/ton-marque), de [base de connaissance](/essentials/base-connaissance), ou de [guardrails](/essentials/guardrails).
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Le Simulateur est inclus à partir du plan **Starter**. En plan Free, l'onglet est masqué.
 </Note>
+
+## Où trouver le Simulateur
+
+Sidebar : **Mon Agent → Tester mon agent**.
+
+Tu vois deux zones : la **liste de tes playbooks actifs** en haut, et un **chat libre** en bas pour les tests sur mesure.
+
+## Mode 1 — Tester un playbook avec des scénarios pré-écrits
+
+Pour chaque playbook (SAV e-commerce, Panier abandonné, Suivi commande, etc.), Actero embarque 2 à 4 scénarios types.
+
+<Steps>
+  <Step title="Repère le playbook que tu veux tester">
+    Ex : SAV e-commerce. Sur la carte, tu vois le nombre de scénarios disponibles ("4 scénarios de test").
+  </Step>
+  <Step title="Clique sur la carte du playbook">
+    L'agent exécute tous les scénarios un par un (suivi commande, retour produit, client agressif, question produit).
+  </Step>
+  <Step title="Lis les résultats">
+    Pour chaque scénario, tu vois : la classification IA, le score de confiance, la réponse générée, le statut (`completed` / `needs_review` / `error`), la durée d'exécution.
+  </Step>
+  <Step title="Repère les failles">
+    Une réponse qui ne te plaît pas ? Va corriger : ton de marque, KB, ou guardrails. Reviens et re-teste.
+  </Step>
+</Steps>
+
+### Tester tous les playbooks d'un coup
+
+Bouton **Tester tous les playbooks actifs** en haut à droite. Utile en pré-launch ou après une grosse modification config.
+
+## Mode 2 — Chat libre
+
+Pour les tests sur mesure : tu tapes un message, l'agent répond, comme si c'était un vrai client.
+
+<Steps>
+  <Step title="Tape ton message dans la zone chat">
+    Ex : _"Bonjour, j'ai commandé il y a 12 jours et je n'ai toujours rien reçu. Vous foutez quoi ?"_
+  </Step>
+  <Step title="Envoie">
+    L'agent répond avec ta config actuelle (ton, KB, guardrails). La conversation s'affiche en bulles.
+  </Step>
+  <Step title="Continue le dialogue">
+    Tu peux jouer plusieurs tours pour vérifier que l'agent reste cohérent.
+  </Step>
+  <Step title="Reset quand tu veux">
+    Bouton de reset pour repartir d'une conversation vide.
+  </Step>
+</Steps>
+
+<Tip>
+Joue des cas limites : message vide, message en majuscules, message dans une langue que tu n'as pas configurée, demande de remboursement, mention juridique. C'est là que tu trouves les failles.
+</Tip>
+
+## Scénarios à toujours tester avant un launch
+
+<AccordionGroup>
+  <Accordion title="Suivi de commande basique">
+    _"Où est ma commande #1234 ?"_ — Vérifie que l'agent va chercher le tracking dans Shopify et le restitue dans ton ton.
+  </Accordion>
+  <Accordion title="Demande de retour">
+    _"Je veux retourner mon achat, il ne me convient pas."_ — Vérifie que l'agent applique ta politique de retour (KB) et demande les infos nécessaires.
+  </Accordion>
+  <Accordion title="Client agressif">
+    _"C'est INADMISSIBLE ! 3 semaines sans réponse !"_ — Vérifie que l'agent reste calme, reformule, et escalade si tu as une guardrail anti-agressivité.
+  </Accordion>
+  <Accordion title="Question hors périmètre">
+    _"Vous pensez quoi de la situation politique ?"_ — Vérifie que l'agent décline poliment.
+  </Accordion>
+  <Accordion title="Demande de remboursement direct">
+    _"Je veux un remboursement immédiat sur ma commande #1234."_ — Vérifie que ta guardrail "ne pas promettre de remboursement" déclenche bien une escalade.
+  </Accordion>
+  <Accordion title="Question multilingue">
+    Si tu supportes plusieurs langues : un message en anglais. Si tu ne supportes que le français, vérifie que l'agent escalade.
+  </Accordion>
+</AccordionGroup>
+
+## Lire les résultats de test
+
+Pour chaque test, tu obtiens :
+
+| Champ | Sens |
+|---|---|
+| **Classification** | Catégorie détectée (`order_tracking`, `return_exchange`, `aggressive`, etc.) |
+| **Confiance** | Score 0-100 %. En dessous de 60 %, escalade automatique. |
+| **Réponse** | Le texte exact que l'agent enverrait |
+| **Statut** | `completed` (envoyé), `needs_review` (escaladé), `error` (problème technique) |
+| **Durée** | Latence en ms. Au-delà de 5 s, c'est suspect. |
+
+## Différences entre Simulateur et production
+
+<Warning>
+Le Simulateur appelle le **vrai moteur IA** avec ta vraie config. Mais :
+- Aucun email/notification n'est envoyé au "client de test"
+- Aucune action Shopify n'est déclenchée (pas de modification de commande)
+- Les tests **n'apparaissent pas** dans tes vraies métriques
+- Les tickets de test ne comptent pas dans ton quota mensuel
+
+Tu peux donc tester autant que tu veux, sans risque et sans coût.
+</Warning>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Le Simulateur dit que la réponse est OK, mais en prod l'agent fait autre chose. Pourquoi ?">
+    Trois causes courantes : 1) ta config a changé entre le test et la prod (re-teste). 2) Le contexte client est différent (en prod, l'agent voit l'historique, les commandes Shopify, les conversations passées). 3) Un playbook concurrent est passé avant. Va voir le drawer Reasoning de la conversation en prod pour comprendre.
+  </Accordion>
+  <Accordion title="Puis-je sauvegarder mes scénarios de test custom ?">
+    Pas dans l'interface pour l'instant. Les scénarios pré-écrits sont fixes. Tu peux noter tes scénarios maison dans un doc à part et les rejouer manuellement.
+  </Accordion>
+  <Accordion title="Combien de tests d'un coup ?">
+    Pas de limite. Lancer "Tester tous les playbooks" sur 8 playbooks = ~25 tests = ~30 secondes au total.
+  </Accordion>
+  <Accordion title="Le Simulateur consomme-t-il mes crédits IA ?">
+    Non. Les tests sont sur un budget interne à la plateforme.
+  </Accordion>
+  <Accordion title="Je peux tester en API ?">
+    Pas pour l'instant. L'endpoint `/api/engine/gateway` existe mais c'est un endpoint de production (consomme tes crédits). Le Simulateur via UI est l'outil recommandé.
+  </Accordion>
+</AccordionGroup>
+
+## Étape suivante
+
+Une fois tes tests verts, regarde les [escalades](/essentials/escalades) et le [tour du dashboard](/essentials/dashboard-tour) pour bien gérer la mise en production.

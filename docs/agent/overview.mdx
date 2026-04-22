@@ -1,9 +1,142 @@
 ---
-title: "Overview"
-description: "Documentation à compléter."
+title: "Vue d'ensemble de ton agent"
+description: "Comment l'agent Actero traite un ticket de bout en bout : intention, contexte, génération, garde-fous, escalade."
 ---
 
+Ton agent Actero est un moteur de support client IA spécialisé Shopify. Il lit chaque message entrant, comprend ce que ton client veut, va chercher le bon contexte (commande, suivi, FAQ), rédige une réponse dans **ton** ton de marque, vérifie qu'elle ne casse aucune de tes règles, puis l'envoie ou escalade vers ton équipe humaine.
+
+Cette page t'explique le **modèle mental** : ce qui se passe entre le moment où un client écrit et le moment où ta marque répond.
+
+## Les briques de ton agent
+
+L'agent est composé de cinq couches que tu configures dans le dashboard :
+
+<CardGroup cols={2}>
+  <Card title="Identité & ton" icon="palette">
+    Qui tu es, comment tu parles. Sliders formel/casual, froid/chaleureux, court/détaillé.
+  </Card>
+  <Card title="Base de connaissances" icon="book-open">
+    Tes politiques, FAQ, infos produits. L'agent y puise pour répondre.
+  </Card>
+  <Card title="Guardrails" icon="shield">
+    Règles absolues que l'agent ne violera jamais ("ne promets jamais de remboursement").
+  </Card>
+  <Card title="Playbooks" icon="zap">
+    Les automatisations actives (SAV e-commerce, relance panier, vocal, compta).
+  </Card>
+</CardGroup>
+
+Ces couches sont assemblées dans un seul **prompt système** envoyé à Claude à chaque message. Tu peux voir le prompt final dans **Mon Agent → étape Aperçu**.
+
+## Le cycle de vie d'un ticket
+
+Voici ce qui se passe quand un client envoie "Bonjour, où est ma commande #1042 ?" via ton widget de chat :
+
+<Steps>
+  <Step title="Réception & normalisation">
+    Le webhook (Shopify, Gorgias, Zendesk, Gmail/SMTP, widget) déclenche le moteur. Le message est normalisé en un format unique : `customer_email`, `customer_name`, `message`, `subject`, `channel`.
+  </Step>
+  <Step title="Récupération de mémoire">
+    Si ce client a déjà écrit, l'agent récupère ses interactions passées (Actero Memory) pour ne pas oublier le contexte. Maximum 5 mémoires pertinentes.
+  </Step>
+  <Step title="Classification (Claude #1)">
+    Premier appel à Claude pour classer la demande : `suivi_commande`, `retour`, `question_produit`, `réclamation`, `autre`. L'agent retourne aussi un `confidence` (0 à 1) et un résumé d'une phrase.
+  </Step>
+  <Step title="Routage vers un agent spécialisé">
+    Selon la classification, le message est routé vers un sous-agent dédié :
+    - `order` — questions sur les commandes (suivi, statut)
+    - `return` — retours, échanges, remboursements
+    - `product` — disponibilité, recommandations
+    - `escalation` — clients agressifs ou plaintes
+    - `general` — fallback pour tout le reste
+
+    Chaque sous-agent a son propre prompt focalisé. C'est ce qui réduit les hallucinations.
+  </Step>
+  <Step title="Récupération de contexte Shopify">
+    Si la classification est `order`, l'agent va lire la commande dans Shopify (statut, tracking, items). Si c'est `product`, il cherche dans ton catalogue.
+  </Step>
+  <Step title="Génération de la réponse (Claude #2)">
+    L'agent spécialisé combine ton prompt système (identité + ton + KB + guardrails) avec le contexte récupéré et génère une réponse en JSON strict :
+
+    ```json
+    {
+      "response": "Ta commande #1042 est en transit, livrée demain.",
+      "confidence": 0.92,
+      "should_escalate": false,
+      "escalation_reason": null,
+      "detected_intent": "order_tracking",
+      "sentiment_score": 7,
+      "injection_detected": false
+    }
+    ```
+  </Step>
+  <Step title="Garde-fous & décision d'escalade">
+    L'agent décide d'escalader si :
+    - `confidence < 0.6`
+    - `sentiment_score <= 3` (client très négatif/agressif)
+    - Une règle absolue (guardrail) s'applique
+    - `injection_detected = true` (le client tente de manipuler l'agent)
+    - La demande tombe hors politique
+
+    Sinon il envoie la réponse directement par le bon canal (email SMTP, widget, Gorgias, Zendesk).
+  </Step>
+  <Step title="Logging du run">
+    Tout est tracé : prompt envoyé, réponse, tokens consommés, coût USD, temps d'exécution, statut final. Visible dans **Activité**.
+  </Step>
+</Steps>
+
+## Quand l'agent escalade
+
+Tu retrouves toutes les escalades dans l'onglet **À traiter**. Les raisons possibles :
+
+| Raison | Déclencheur |
+|---|---|
+| `low_confidence` | L'agent n'est pas sûr de sa réponse (< 60%) |
+| `aggressive` | Le client est mécontent, ton agressif détecté |
+| `out_of_policy` | Demande hors du périmètre que tu as défini |
+| `legal_mention` | Le client mentionne avocat, plainte, RGPD |
+| `error` | Erreur technique pendant le run |
+
+Tu peux **valider en 1 clic**, **éditer la proposition IA**, ou **rédiger ta propre réponse**. Voir la page [Validation manuelle](/agent/manual-review).
+
+## Les modèles utilisés
+
+Par défaut, ton agent utilise **Claude Sonnet** d'Anthropic pour la classification et la génération. Le coût moyen par ticket est de **0,003 € à 0,008 €** selon la taille de ta base de connaissances.
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Tu peux suivre la consommation token par token dans **Activité → Historique des runs**. Chaque ligne affiche le coût exact en USD.
 </Note>
+
+## Pour aller plus loin
+
+<CardGroup cols={2}>
+  <Card title="Configurer ton agent" icon="wand-magic-sparkles" href="/agent/prompt-builder">
+    Le builder en 5 étapes pour personnaliser identité, ton, règles.
+  </Card>
+  <Card title="Activer un playbook" icon="rocket" href="/agent/playbooks">
+    Liste des automatisations disponibles et conditions d'activation.
+  </Card>
+  <Card title="Valider une escalade" icon="inbox" href="/agent/manual-review">
+    Le flow humain de validation des messages incertains.
+  </Card>
+  <Card title="Watchdog proactif" icon="shield-check" href="/agent/proactive-watchdog">
+    L'agent qui contacte avant que le client se plaigne.
+  </Card>
+</CardGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="L'agent peut-il agir tout seul (rembourser, modifier une commande) ?">
+    Non, par défaut. Les scopes Shopify d'Actero sont en **lecture seule**. L'agent peut lire les commandes, mais pas les modifier ni rembourser. Toute action transactionnelle est escaladée vers ton équipe.
+  </Accordion>
+  <Accordion title="Combien de temps prend un ticket ?">
+    Entre 2 et 6 secondes du message reçu à la réponse envoyée. La latence vient majoritairement de l'appel Claude (1 à 3 secondes par étape).
+  </Accordion>
+  <Accordion title="L'agent garde-t-il en mémoire les conversations passées ?">
+    Oui, via Actero Memory. Quand un client revient, l'agent récupère ses interactions passées et les injecte dans le contexte. Tu peux désactiver cette mémoire dans **Paramètres**.
+  </Accordion>
+  <Accordion title="Que se passe-t-il si Claude est down ?">
+    Le run est marqué `error`, le ticket est automatiquement escaladé vers **À traiter** avec la raison `error`. Aucun client ne reçoit de réponse cassée.
+  </Accordion>
+</AccordionGroup>

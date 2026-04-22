@@ -1,56 +1,131 @@
 ---
 title: "Export RGPD"
-description: "Téléchargez toutes vos données Actero en JSON ou CSV. Vos données vous appartiennent."
+description: "Télécharge toutes tes données Actero en JSON ou CSV. Tes données t'appartiennent."
 ---
+
+Tu peux à tout moment télécharger l'intégralité des données stockées par Actero pour ton compte. C'est ton droit RGPD (article 20 — droit à la portabilité). L'export est gratuit, illimité, et disponible immédiatement depuis ton dashboard.
 
 ## Où trouver l'export
 
-Depuis le dashboard : **Paramètres → Export de mes données (RGPD)**.
+Sidebar : **Système → Paramètres → Export de mes données (RGPD)**.
 
-Deux formats disponibles :
+Bouton **Télécharger mon export**. L'export est généré en temps réel (jusqu'à 30 secondes pour les gros volumes), pas d'email à attendre.
 
-- **JSON** (recommandé) : structure complète, une section par table
-- **CSV** (Excel-friendly) : concaténation de toutes les tables avec BOM UTF-8
+## Deux formats disponibles
+
+| Format | Pour quoi | Quand le choisir |
+|---|---|---|
+| **JSON** (recommandé) | Structure complète, une section par table | Migration vers un autre outil, audit technique, sauvegarde structurée |
+| **CSV** (Excel-friendly) | Concaténation de toutes les tables avec BOM UTF-8 | Analyse rapide dans Excel / Google Sheets, partage avec ton compta |
 
 ## Ce qui est exporté
 
 | Table | Contenu |
 |---|---|
-| `client` | Vos informations marque, plan, dates |
+| `client` | Tes informations marque, plan, dates |
 | `settings` | Configuration agent, ton, préférences |
 | `integrations` | Intégrations connectées (sans les secrets OAuth — ceux-ci restent chiffrés) |
-| `ai_conversations` | Toutes les conversations avec vos clients |
+| `ai_conversations` | Toutes les conversations avec tes clients |
 | `automation_events` | Événements tracés (tickets résolus, escalades, paniers relancés) |
 | `engine_runs` | Exécutions du moteur IA (prompts, réponses, coûts) |
 | `metrics_daily` | Agrégats quotidiens (temps économisé, ROI) |
-| `escalation_tickets` | Escalades humaines |
-| `sentiment_logs` | Sentiment client tracé |
+| `escalation_tickets` | Escalades humaines avec leurs réponses |
+| `sentiment_logs` | Sentiment client tracé conversation par conversation |
 | `churn_predictions` | Prédictions de churn hebdomadaires |
-| `response_templates` | Vos templates de réponses personnalisés |
-| `knowledge_entries` | Votre base de connaissance |
+| `response_templates` | Tes templates de réponses personnalisés |
+| `knowledge_entries` | Ta base de connaissances complète |
+| `client_users` | Tes membres d'équipe et leurs rôles |
+| `client_guardrails` | Tes règles d'exclusion |
+
+<Tip>
+Si tu cherches une donnée précise et que tu ne sais pas dans quelle table elle est : ouvre le JSON, fais Ctrl+F sur un mot caractéristique (un email client, un mot de la KB, etc.). Toutes les tables sont au même niveau racine.
+</Tip>
 
 ## Ce qui n'est PAS exporté (à raison)
 
-- **Secrets OAuth** (tokens Shopify, Gorgias, etc.) — ils restent en DB chiffrés AES-256-GCM
-- **Données d'autres tenants** — évidemment
-- **Logs système internes** (runs d'infra, monitoring)
+- **Secrets OAuth** (tokens Shopify, Gorgias, etc.) — ils restent en DB chiffrés AES-256-GCM. Ils sont inutiles hors de notre infra.
+- **Données d'autres tenants** — évidemment, RLS Supabase l'empêche.
+- **Logs système internes** (runs d'infra, monitoring, traces Sentry).
+- **Embeddings vectoriels** de la KB — recalculables à partir du contenu texte, pas pertinent à exporter.
 
 ## Endpoint API (équivalent programmatique)
 
-Si vous préférez automatiser :
+Si tu préfères automatiser, par exemple pour une sauvegarde mensuelle vers ton S3 :
 
 ```bash
 curl https://actero.fr/api/client/export-data?format=json \
-  -H "Authorization: Bearer <votre_jwt>" \
+  -H "Authorization: Bearer <ton_jwt>" \
   -o export.json
 ```
 
 Formats supportés : `json` (défaut), `csv`.
 
-## Délai
+Pour récupérer ton JWT : va dans **Paramètres → API & Webhooks → Générer un token**. Le token est valable 30 jours, à régénérer ensuite.
 
-Export généré en temps réel, téléchargement immédiat. Pour les gros volumes (>100k conversations), l'export peut prendre jusqu'à 30 secondes.
+## Délai et taille
+
+- Export généré en temps réel, téléchargement immédiat
+- Pour les gros volumes (>100k conversations), l'export peut prendre jusqu'à 30 secondes
+- Au-delà d'1 Go, on bascule sur un export asynchrone (un email te notifie quand c'est prêt)
 
 ## Suppression de compte (RGPD article 17)
 
-Pour supprimer définitivement toutes vos données Actero, écrivez à [contact@actero.fr](mailto:contact@actero.fr) avec l'email du compte. Suppression sous 30 jours, confirmation écrite.
+Pour supprimer définitivement toutes tes données Actero, écris à [contact@actero.fr](mailto:contact@actero.fr) avec l'email du compte.
+
+<Warning>
+La suppression est **irréversible**. Tu perds :
+- Toutes les conversations clients
+- Toute la configuration de ton agent (KB, guardrails, ton)
+- Toutes tes métriques historiques
+- Tous tes templates et tes intégrations
+
+On te recommande de **télécharger ton export complet** avant de demander la suppression, au cas où.
+</Warning>
+
+Délai : suppression effective sous 30 jours, confirmation écrite. Pendant les 30 jours, tu peux annuler la demande.
+
+## Conformité RGPD côté Actero
+
+- **Données hébergées en UE** (Supabase Frankfurt, Cloudflare workers EU)
+- **Sous-traitants** : OpenAI, Anthropic (Claude), Google (Gemini), ElevenLabs — liste complète et accords DPA disponibles sur demande à [contact@actero.fr](mailto:contact@actero.fr)
+- **Chiffrement** : AES-256-GCM au repos, TLS 1.3 en transit
+- **Logs d'accès** : qui accède à quoi, conservés 12 mois
+- **DPO** : contact@actero.fr (sujet : DPO)
+
+## Et les données de mes clients à moi ?
+
+Les emails et messages de tes clients qui transitent par Actero sont stockés dans `ai_conversations`. Tu en es responsable de traitement, Actero est sous-traitant.
+
+Si un de tes clients te demande l'export ou la suppression de ses données :
+
+<Steps>
+  <Step title="Identifie le client par email dans l'export JSON">
+    Filtre `ai_conversations` sur `customer_email`.
+  </Step>
+  <Step title="Pour un export client, extrait les conversations le concernant">
+    Tu peux les renvoyer en PDF, ou simplement copier-coller le JSON filtré.
+  </Step>
+  <Step title="Pour une suppression, écris à contact@actero.fr">
+    On supprime côté Actero. Pense aussi à supprimer côté Shopify et helpdesk.
+  </Step>
+</Steps>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="L'export contient-il les pièces jointes (audios TTS, fichiers KB) ?">
+    L'export JSON contient les **liens** vers les fichiers (audios générés, uploads KB). Les fichiers eux-mêmes sont dans notre stockage Supabase Storage et accessibles via les URLs jusqu'à expiration (30 jours). Pour une copie locale, télécharge-les manuellement avant.
+  </Accordion>
+  <Accordion title="Je peux planifier un export automatique mensuel ?">
+    Pas via l'UI. Mais l'endpoint API te permet de scripter un cron : un job mensuel qui appelle `/api/client/export-data` et pousse vers ton stockage.
+  </Accordion>
+  <Accordion title="Combien de temps mes données sont conservées ?">
+    Tant que ton compte est actif. Si tu résilies, on garde 90 jours puis suppression complète (sauf demande explicite de suppression immédiate via art. 17). Les logs système sont purgés à 12 mois.
+  </Accordion>
+  <Accordion title="Puis-je obtenir un export uniquement pour une période donnée ?">
+    Pas via le bouton UI (qui exporte tout). L'endpoint API accepte un paramètre `from=YYYY-MM-DD&to=YYYY-MM-DD` pour les tables temporelles (`ai_conversations`, `engine_runs`, `metrics_daily`).
+  </Accordion>
+  <Accordion title="Mon export est vide / incomplet — que vérifier ?">
+    1) Tu es bien connecté avec le bon compte (le bon `client_id`). 2) Le format choisi (JSON contient tout, CSV peut tronquer les champs très longs). 3) Si c'est un export API, vérifie que ton token JWT est valide et a les bons scopes. Si ça persiste, écris à [contact@actero.fr](mailto:contact@actero.fr).
+  </Accordion>
+</AccordionGroup>

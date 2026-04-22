@@ -1,9 +1,108 @@
 ---
 title: "Intercom"
-description: "Documentation à compléter."
+description: "Connecte Intercom à Actero en OAuth 1-clic. Conversations, tickets, base de connaissances Articles."
 ---
 
+**Intercom** combine messaging, helpdesk, base de connaissances et marketing dans une seule plateforme. Actero s'y intègre en OAuth officiel pour traiter automatiquement les conversations entrantes du Messenger ou les tickets email.
+
+## Prérequis
+
+- Un workspace **Intercom** actif (Essential, Advanced, Expert, ou Inbox seul)
+- Le rôle **Workspace Admin** ou un rôle custom avec la permission **"Manage apps & integrations"**
+- Un compte Actero, plan **Starter** ou supérieur
+
+## Connexion
+
+<Steps>
+  <Step title="Ouvre Intégrations dans Actero">
+    **Intégrations → Helpdesk → Intercom → Connecter**.
+  </Step>
+  <Step title="Autorise Actero sur Intercom">
+    Tu es redirigé vers `app.intercom.com/oauth`. Connecte-toi avec ton compte admin et choisis le **workspace** à connecter.
+  </Step>
+  <Step title="Approuve les permissions">
+    Intercom affiche la liste des scopes demandés (voir ci-dessous). Clique **Authorize Access**.
+  </Step>
+  <Step title="Retour dans Actero & choix du mode">
+    Tu reviens automatiquement avec le badge **Connecté**. Choisis le mode opératoire (Auto-reply, Draft, Shadow).
+  </Step>
+</Steps>
+
+## Permissions demandées
+
+| Scope | Pourquoi |
+|---|---|
+| Read & write conversations | Lire les messages entrants, poster les réponses |
+| Read & list users / leads / companies | Personnaliser les réponses avec le profil client et l'historique |
+| Read & list articles | Indexer ta base de connaissances Intercom Articles |
+| Read & write tags | Tagger les conversations traitées par l'agent |
+
+Actero **ne demande pas** d'accès aux Series, Outbound campaigns ou aux données de billing.
+
+## Quelles données circulent
+
+- **Conversations** Messenger (live chat) et email
+- **Profils contacts** (user / lead) avec custom attributes
+- **Companies** si tu fais du B2B
+- **Articles** publiés dans ton centre d'aide Intercom (en option)
+
+## Modes opératoires
+
+Identiques à [Gorgias](/integrations/gorgias) :
+
+- **Auto-reply** — l'agent répond automatiquement quand sa confiance dépasse le seuil (75 % par défaut)
+- **Draft only** — la réponse apparaît comme **note interne** dans la conversation Intercom, ton équipe la copie et la valide
+- **Shadow** — pas d'écriture côté Intercom, l'agent simule en interne pour apprendre
+
+## Tags
+
+Actero ajoute automatiquement les tags suivants sur les conversations Intercom :
+
+- `actero-auto` (résolu auto)
+- `actero-draft` (pré-rédigé)
+- `actero-escalated` (escalade humaine)
+
+Filtre tes Inbox views par tag pour suivre l'activité.
+
+## Articles & base de connaissances
+
+Active l'option **"Indexer mes Intercom Articles"** dans **Intégrations → Intercom → Options** pour qu'Actero ingère ton centre d'aide. Toute modification ou nouvel article est resynchronisé toutes les 6 heures.
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Si tu as une base de connaissances dans [Notion](/integrations/notion) en parallèle, Actero combine les deux sources et privilégie la plus récente en cas de conflit.
 </Note>
+
+## Déconnexion
+
+**Intégrations → Intercom → Déconnecter** révoque le token OAuth et stoppe l'écriture. Tu peux aussi révoquer Actero depuis Intercom → **Settings → Integrations → Apps**.
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="L'agent ne répond pas dans le Messenger">
+    Vérifie que le mode est bien **Auto-reply** (pas Draft ni Shadow), et que ta conversation passe le seuil de confiance. Si tu utilises des **Custom Bots** Intercom, ils peuvent intercepter avant Actero — désactive-les sur les routes que tu veux confier à l'agent.
+  </Accordion>
+  <Accordion title="L'opérateur Intercom voit l'agent comme "anonyme"">
+    Va dans Intercom → **Settings → Teammates** et personnalise le profil de l'app Actero (avatar, nom affiché). Par défaut Actero apparaît avec le logo Actero.
+  </Accordion>
+  <Accordion title="Mes Articles Intercom ne sont pas indexés">
+    L'option doit être activée explicitement (consommation crédits). Va dans **Intégrations → Intercom → Options → Importer Articles** et clique **Synchroniser maintenant** pour forcer une indexation.
+  </Accordion>
+  <Accordion title="Conversations en plusieurs langues mal gérées">
+    Active la détection auto de langue dans **Configurer l'agent → Multilingue**.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Puis-je garder mes Intercom Custom Bots ?">
+    Oui. Tu peux router certaines conversations vers tes bots et d'autres vers Actero via les **Inbox rules**. Beaucoup de clients démarrent en routant uniquement les questions SAV vers Actero, et gardent leurs bots commerciaux ou marketing.
+  </Accordion>
+  <Accordion title="Et le Messenger sur app mobile ?">
+    Supporté. Toute conversation initiée via Messenger (web ou mobile) passe par les mêmes flows que les emails.
+  </Accordion>
+  <Accordion title="Intercom Tickets (objet `Tickets`) supportés ?">
+    Oui, depuis l'API v2.10+. Actero traite les tickets de la même façon que les conversations.
+  </Accordion>
+</AccordionGroup>

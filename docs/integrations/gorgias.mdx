@@ -1,52 +1,121 @@
 ---
 title: "Gorgias"
-description: "Remplacer ou augmenter Gorgias avec Actero. OAuth, HMAC webhooks, mapping tags."
+description: "Remplace ou augmente Gorgias avec Actero. OAuth 1-clic, HMAC webhooks, mapping tags, modes auto/draft/shadow."
 ---
 
-## Pourquoi connecter Gorgias à Actero ?
+Si tu utilises déjà **Gorgias** comme helpdesk e-commerce, Actero s'y branche en OAuth officiel : ton agent traite les tickets entrants avant ton équipe, pré-rédige les réponses sur les cas complexes, et tague chaque ticket pour que tu vois exactement ce qu'il a fait.
 
-Si vous utilisez déjà Gorgias, Actero peut :
+## Pourquoi connecter Gorgias
 
-- **Traiter les tickets entrants** avant qu'ils n'arrivent à votre équipe (60% résolus auto)
-- **Pré-rédiger** une réponse sur les 40% restants — votre agent valide et envoie en 2 secondes
-- **Remplacer vos macros** par des réponses contextuelles (la commande en direct depuis Shopify)
+- **Traiter automatiquement** les tickets entrants (60 % résolus seuls en moyenne)
+- **Pré-rédiger** une réponse sur les 40 % restants — ton agent humain valide et envoie en 2 secondes
+- **Remplacer tes macros** par des réponses contextuelles (la commande Shopify en direct, le tracking, l'historique du client)
+- **Tagger chaque ticket** pour que tu mesures précisément le ROI
 
-## Installation
+## Prérequis
+
+- Un compte **Gorgias** actif (plan Starter, Basic, Pro ou Advanced)
+- Le rôle **Admin** sur ton compte Gorgias (les rôles "Agent" ne peuvent pas installer d'app)
+- Un compte Actero, au minimum sur le plan **Starter** (les webhooks helpdesk sont coupés sur le plan Free)
+- Idéalement [Shopify](/integrations/shopify) ou [WooCommerce](/integrations/woocommerce) déjà connecté côté Actero — sinon les réponses de l'agent seront moins riches
+
+## Connexion
 
 <Steps>
-  <Step title="Gorgias → Settings → App Store">
-    Cherchez "Actero" et cliquez **Install**. Vous êtes redirigé vers Actero pour l'OAuth.
+  <Step title="Ouvre Intégrations dans Actero">
+    **Intégrations → Helpdesk → Gorgias → Connecter**.
   </Step>
-  <Step title="Autorisez Actero sur votre compte Gorgias">
-    Scopes : `read_tickets`, `write_tickets` (pour répondre), `read_customers`.
+  <Step title="Renseigne ton sous-domaine Gorgias">
+    Saisis le sous-domaine de ton compte (par exemple `ma-boutique` si ton URL est `ma-boutique.gorgias.com`).
   </Step>
-  <Step title="Choisissez le mode">
-    - **Auto-reply** : Actero répond automatiquement sur les tickets à score de confiance > 75 %
-    - **Draft only** : Actero pré-rédige la réponse, votre équipe valide
-    - **Shadow** : Actero écoute, compare ses réponses aux vôtres, mais n'envoie rien (mode apprentissage)
+  <Step title="Autorise Actero">
+    Tu es redirigé vers Gorgias pour valider les scopes : `read_tickets`, `write_tickets` (pour répondre), `read_customers`. Clique **Authorize**.
+  </Step>
+  <Step title="Choisis le mode opératoire">
+    De retour dans Actero, choisis comment l'agent intervient :
+    - **Auto-reply** — Actero répond automatiquement sur les tickets à score de confiance > 75 %
+    - **Draft only** — Actero pré-rédige la réponse, ton équipe valide avant envoi
+    - **Shadow** — Actero "écoute", compare ses réponses aux tiennes, mais n'envoie rien (mode apprentissage)
   </Step>
 </Steps>
 
-## Webhook
+<Tip>
+Démarre toujours en mode **Shadow** ou **Draft** la première semaine. Ça te laisse calibrer le ton, enrichir la base de connaissances et bâtir confiance avant de passer en auto.
+</Tip>
 
-Actero reçoit les événements Gorgias via `POST /api/engine/webhooks/gorgias`.
+## Webhook & sécurité
 
-**Authentification** : header `x-actero-webhook-secret` avec le secret généré à l'installation OAuth. Vérification en temps constant via `crypto.timingSafeEqual`.
+Actero reçoit les événements Gorgias (`ticket/created`, `ticket/updated`, `ticket/message_created`) sur `POST /api/engine/webhooks/gorgias`.
 
-Les anciens paramètres `?secret=` en query string **ne sont plus acceptés** (fuite potentielle dans les logs de proxy).
+- **Authentification** : header `x-actero-webhook-secret` avec le secret généré à l'installation OAuth
+- **Vérification** en temps constant via `crypto.timingSafeEqual` pour éviter les attaques par timing
+- Les anciens paramètres `?secret=` en query string **ne sont plus acceptés** (fuite potentielle dans les logs de proxy)
 
 ## Tags & mapping
 
-Actero ajoute automatiquement ces tags sur les tickets :
+Actero ajoute automatiquement ces tags sur les tickets Gorgias pour que tu mesures son impact :
 
 | Tag | Signification |
 |---|---|
 | `actero-auto` | Résolu par l'agent sans intervention humaine |
-| `actero-escalated` | Escaladé vers un humain (confiance < 60% ou guardrail déclenché) |
-| `actero-draft` | Réponse pré-rédigée, en attente de validation |
+| `actero-draft` | Réponse pré-rédigée, en attente de validation humaine |
+| `actero-escalated` | Escaladé vers ton équipe (confiance < 60 % ou guardrail déclenché) |
+| `actero-shadow` | Réponse simulée en mode apprentissage, jamais envoyée au client |
 
-Vous pouvez filtrer dans Gorgias par ces tags pour voir ce que l'agent a fait.
+Filtre dans Gorgias par ces tags pour voir exactement ce que l'agent a fait sur la semaine.
+
+## Quelles données circulent
+
+- Contenu des tickets (sujet, body, threads, pièces jointes texte)
+- Profil client Gorgias (email, nom, segment, historique des tickets)
+- Macros et tags existants (Actero les lit pour respecter ta nomenclature)
+
+Aucune donnée client Gorgias ne quitte le périmètre Supabase d'Actero. Voir [Export RGPD](/essentials/export-rgpd) pour les détails sur la portabilité et la suppression de tes données.
+
+## Escalades
+
+Quand un ticket est marqué `actero-escalated`, ton équipe reçoit :
+
+- Un **email** récapitulatif si tu as activé l'alerte (configurable dans **Notifications**)
+- Un **ping Slack** si [Slack](/integrations/slack) est connecté
+- Le ticket reste assigné à ton workflow Gorgias habituel — Actero n'écrase rien
+
+Pour la logique complète, lis [Escalades](/essentials/escalades).
 
 ## Déconnexion
 
-Intégrations → Gorgias → **Déconnecter**. Révoque le token OAuth, supprime les webhooks, stoppe toute interaction avec Gorgias. L'historique des conversations reste dans Actero.
+**Intégrations → Gorgias → Déconnecter** révoque le token OAuth, supprime les webhooks et stoppe toute interaction avec Gorgias. L'historique des conversations reste dans Actero (RGPD : exportable et supprimable).
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="L'OAuth boucle ou renvoie une erreur 403">
+    Le compte que tu utilises n'a pas le rôle **Admin** sur Gorgias. Demande à l'admin de ta boutique de faire l'OAuth (il peut ensuite te déléguer la gestion côté Actero).
+  </Accordion>
+  <Accordion title="Les tickets sont taggés mais aucune réponse n'est postée">
+    Tu es probablement en mode **Draft only** ou **Shadow**. Va dans **Intégrations → Gorgias → Mode** et passe en **Auto-reply**. Vérifie aussi le seuil de confiance (par défaut 75 %).
+  </Accordion>
+  <Accordion title="L'agent répond avec une réponse générique au lieu d'utiliser la commande">
+    Connecte ta plateforme e-commerce ([Shopify](/integrations/shopify) ou [WooCommerce](/integrations/woocommerce)). Sans elle, l'agent ne peut pas matcher l'email du client à une commande réelle.
+  </Accordion>
+  <Accordion title="Trop d'escalades, je veux que l'agent réponde plus souvent">
+    Baisse le seuil de confiance dans **Configurer l'agent → Auto-reply threshold** (par défaut 75 %, descends à 60 %), et enrichis ta base de connaissances. Plus elle est riche, plus la confiance monte.
+  </Accordion>
+  <Accordion title="Les tags `actero-*` n'apparaissent pas">
+    Vérifie dans Gorgias → **Settings → Tags** que les tags ne sont pas marqués comme "archived". Si oui, désarchive-les. Actero les recrée sinon au prochain ticket.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Puis-je garder mes macros Gorgias en parallèle ?">
+    Oui. Tes agents humains continuent d'utiliser leurs macros normalement. Actero intervient uniquement sur les tickets non encore traités.
+  </Accordion>
+  <Accordion title="Les SLA Gorgias sont-ils respectés ?">
+    Oui. Quand l'agent répond, le timer SLA est arrêté côté Gorgias comme pour une réponse humaine. Les escalades sont prioritisées via le tag `actero-escalated`.
+  </Accordion>
+  <Accordion title="Et les chat widgets Gorgias Chat ?">
+    Supportés. Les conversations chat sont traitées au même titre que les tickets email — même flow auto/draft/shadow.
+  </Accordion>
+</AccordionGroup>

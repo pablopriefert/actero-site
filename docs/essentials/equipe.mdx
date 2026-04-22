@@ -1,9 +1,126 @@
 ---
-title: "Equipe"
-description: "Documentation à compléter."
+title: "Gérer ton équipe"
+description: "Invite tes collègues, attribue des rôles, contrôle ce que chacun peut voir et faire dans Actero."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Tu n'es probablement pas seul à gérer le SAV. Actero te laisse inviter ton équipe, leur donner un rôle adapté, et limiter ce que chacun voit.
+
+## Où gérer l'équipe
+
+Sidebar : **Système → Paramètres → Équipe**.
+
+Tu vois la liste de tous les membres avec leur rôle, leur date d'ajout, et un bouton pour modifier ou retirer.
+
+## Inviter un membre
+
+<Steps>
+  <Step title="Clique 'Inviter'">
+    Le formulaire s'ouvre.
+  </Step>
+  <Step title="Tape l'email professionnel du collègue">
+    Il recevra un lien magique pour rejoindre ton workspace (pas de mot de passe à créer).
+  </Step>
+  <Step title="Choisis un rôle">
+    Voir le tableau ci-dessous pour les permissions de chaque rôle.
+  </Step>
+  <Step title="Envoie">
+    Email d'invitation envoyé. Le membre apparaît dans ta liste avec le statut "Invité en attente" jusqu'à sa première connexion.
+  </Step>
+</Steps>
+
+<Tip>
+Tu peux inviter le même collègue plusieurs fois s'il a perdu le mail — les invitations précédentes ne se cumulent pas.
+</Tip>
+
+## Les 5 rôles
+
+| Rôle | Pour qui | Voit / peut faire |
+|---|---|---|
+| **Propriétaire** | Toi (créateur du compte) | Tout, y compris Facturation et suppression de compte |
+| **Manager** | Ton bras droit, ton CTO | Tout, sauf suppression de compte |
+| **Opérationnel** | Tes agents SAV | Vue d'ensemble, Automatisation, Activité, Escalades, Templates, Intégrations, Configuration agent, Insights — pas de Facturation |
+| **Support** | Agents SAV junior / freelances | Vue d'ensemble, À traiter (escalades), Modèles, Sentiment, Activité — c'est tout |
+| **Finance** | Compta / Direction | Vue d'ensemble, Mon compte, Paramètres, Facturation — pas d'accès opérationnel |
+
+Le rôle **Propriétaire** ne peut pas être modifié ni supprimé. Pour transférer la propriété, contacte [contact@actero.fr](mailto:contact@actero.fr).
+
+## Changer le rôle d'un membre
+
+<Steps>
+  <Step title="Repère la ligne du membre">
+    Dans la liste.
+  </Step>
+  <Step title="Clique sur le badge de rôle">
+    Un menu déroulant s'ouvre.
+  </Step>
+  <Step title="Sélectionne le nouveau rôle">
+    Effet immédiat. Le membre perd / gagne les onglets concernés à son prochain refresh.
+  </Step>
+</Steps>
+
+## Retirer un membre
+
+Clique sur l'icône poubelle à droite de sa ligne. Le membre perd immédiatement l'accès à ton workspace, ses sessions sont invalidées au prochain refresh.
+
+<Warning>
+Retirer un membre **ne supprime pas** son compte Actero — il garde son accès à ses autres workspaces s'il en a. Ses contributions passées (réponses traitées, templates créés) restent dans ton workspace.
+</Warning>
+
+## Limites par plan
+
+| Plan | Membres max |
+|---|---|
+| Free | 1 (toi seul) |
+| Starter | 2 |
+| Pro | 5 |
+| Entreprise | Illimité |
+
+Si tu atteins ta limite, l'invitation est refusée avec un message t'invitant à upgrader. Voir [Facturation](/essentials/facturation).
+
+## Bonnes pratiques
+
+<AccordionGroup>
+  <Accordion title="Démarre minimaliste">
+    1 propriétaire (toi) + 1 manager (ton bras droit). Ajoute des Opérationnels au fur et à mesure que ton volume monte.
+  </Accordion>
+  <Accordion title="Utilise Support pour les freelances et stages">
+    Le rôle Support est conçu pour ça : accès aux escalades, mais pas à la config de l'agent. Ils ne peuvent rien casser.
+  </Accordion>
+  <Accordion title="Garde Finance séparé">
+    Ta compta n'a pas besoin de voir les conversations clients. Le rôle Finance les masque, ce qui simplifie aussi ta conformité RGPD interne.
+  </Accordion>
+  <Accordion title="Audit trimestriel">
+    Tous les 3 mois, fais un tour de ta liste. Retire les anciens collaborateurs, vérifie que les rôles correspondent toujours aux responsabilités actuelles.
+  </Accordion>
+</AccordionGroup>
+
+## Notifications par membre
+
+Chaque membre configure ses propres notifications dans son profil personnel (Slack, email, fréquence). Tu n'as pas à les paramétrer pour eux.
+
+## Sécurité
+
+- Authentification par lien magique (pas de mot de passe stocké côté Actero)
+- Sessions invalidées 30 jours d'inactivité
+- 2FA disponible (à activer dans **Mon compte**)
+- Logs d'audit (qui a fait quoi, quand) consultables sur demande pour les comptes Pro+
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Un membre s'est trompé de rôle, il ne voit pas ce qu'il devrait — que faire ?">
+    Va dans Équipe, clique sur son badge de rôle, change-le. Il devra rafraîchir sa page pour que les nouveaux onglets apparaissent.
+  </Accordion>
+  <Accordion title="Je veux voir ce que mes collègues font — il y a un journal ?">
+    Sur les plans Pro et Entreprise oui : un onglet `Logs d'action` listant qui a modifié quoi (config, KB, guardrails, escalades). Sur Starter, contacte le support pour un export ponctuel.
+  </Accordion>
+  <Accordion title="Mon collègue ne reçoit pas l'invitation — où chercher ?">
+    1) Dossier spam. 2) Filtre anti-pub d'entreprise. 3) Vérifie l'email saisi (pas de typo). 4) Renvoie l'invitation depuis la liste. 5) Sinon, écris à [contact@actero.fr](mailto:contact@actero.fr) avec son email.
+  </Accordion>
+  <Accordion title="Puis-je avoir plusieurs propriétaires ?">
+    Non. Un seul Propriétaire par workspace. Un Manager a quasi tous les pouvoirs sauf la suppression du compte — c'est en général suffisant pour partager la responsabilité.
+  </Accordion>
+  <Accordion title="Comment quitter un workspace dont je suis membre (pas propriétaire) ?">
+    Dans **Mon compte → Workspaces**, clique "Quitter". Tu perds immédiatement l'accès. Si tu es propriétaire, tu dois d'abord transférer la propriété (contact support).
+  </Accordion>
+</AccordionGroup>

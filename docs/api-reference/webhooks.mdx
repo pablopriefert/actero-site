@@ -1,9 +1,169 @@
 ---
 title: "Webhooks"
-description: "Documentation à compléter."
+description: "L'agent Actero peut pousser ses événements vers ton URL en HTTP POST signé HMAC-SHA256. Configuration dans le dashboard, livraisons rejouables, signature vérifiable."
 ---
 
+Quand l'agent Actero termine un ticket, escalade un cas, ou détecte un sentiment critique, tu peux recevoir l'événement en temps réel sur ton propre serveur via un webhook sortant. Chaque livraison est signée HMAC-SHA256 pour que tu puisses vérifier l'origine.
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Les webhooks sortants sont une feature **plan Pro et plus**. Sur Free et Starter, tu peux toujours pull la donnée via [`/api/billing/usage`](/api-reference/endpoints/billing-usage) ou les API admin du dashboard.
 </Note>
+
+## Configuration
+
+Dashboard → **API & Intégrations → Webhooks → Nouveau webhook**.
+
+| Champ      | Description                                                                 |
+| ---------- | --------------------------------------------------------------------------- |
+| `label`    | Nom interne (ex. `n8n-prod`, `slack-bridge`). 100 caractères max.            |
+| `url`      | URL HTTPS qui reçoit le POST. Doit répondre `2xx` en moins de 10 s.          |
+| `events`   | Liste des événements auxquels t'abonner. `*` pour tout recevoir.             |
+| `is_active`| Toggle. Désactivé après 20 échecs consécutifs (auto-disable).                |
+
+À la création, Actero génère un `secret` au format `whsec_` + 48 caractères hex. Stocke-le côté ton serveur — il sert à vérifier la signature.
+
+## Événements disponibles
+
+| ID                                 | Émis quand…                                                |
+| ---------------------------------- | ---------------------------------------------------------- |
+| `ticket.resolved`                  | L'agent a répondu à un ticket avec succès                  |
+| `ticket.escalated`                 | Un ticket nécessite une intervention humaine               |
+| `ticket.response_failed`           | L'agent n'a pas pu générer de réponse (erreur LLM, etc.)   |
+| `conversation.created`             | Un nouvel échange entrant (avant traitement par l'agent)   |
+| `conversation.sentiment_negative`  | Le sentiment d'une conversation passe en zone critique     |
+| `usage.threshold_reached`          | 80 % puis 100 % du quota mensuel atteint                   |
+| `integration.connected`            | Une intégration vient d'être activée (Shopify, Gorgias…)   |
+| `integration.disconnected`         | Une intégration a été déconnectée ou est tombée en erreur  |
+| `playbook.activated`               | Un workflow IA a été activé dans le dashboard              |
+
+Voir [Escalades](/essentials/escalades) pour le contexte métier de `ticket.escalated`, et [Manual review](/agent/manual-review) pour le workflow de validation humaine en aval.
+
+## Format de la requête
+
+Actero POST vers ton URL avec ces headers et ce body :
+
+```http
+POST /your-webhook-endpoint HTTP/1.1
+Host: your-server.com
+Content-Type: application/json
+User-Agent: Actero-Webhooks/1.0
+X-Actero-Event: ticket.resolved
+X-Actero-Timestamp: 1745318400
+X-Actero-Signature: v1=4b5d7e8a9c0b1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e
+```
+
+```json
+{
+  "event": "ticket.resolved",
+  "timestamp": "2026-04-22T10:00:00.000Z",
+  "client_id": "01HX...",
+  "data": {
+    "ticket_id": "tkt_01H...",
+    "customer_email": "client@example.com",
+    "classification": "order_status",
+    "confidence": 0.94,
+    "ai_response": "Bonjour ! Votre commande…",
+    "duration_ms": 2840
+  }
+}
+```
+
+Le contenu de `data` dépend de l'événement. Code défensivement : on peut ajouter des champs sans préavis.
+
+## Vérifier la signature
+
+`X-Actero-Signature` contient `v1=<hex>` où `<hex>` est le HMAC-SHA256 de la chaîne `<timestamp>.<raw_body>` calculée avec ton `secret`.
+
+<CodeGroup>
+
+```js Node.js
+import crypto from 'crypto'
+
+function verifyActeroSignature(req, secret) {
+  const sig = req.headers['x-actero-signature']?.replace(/^v1=/, '')
+  const ts = req.headers['x-actero-timestamp']
+  if (!sig || !ts) return false
+
+  // Anti-rejeu : refuser les requêtes vieilles de plus de 5 minutes.
+  const age = Math.abs(Date.now() / 1000 - Number(ts))
+  if (age > 300) return false
+
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(`${ts}.${req.rawBody}`)
+    .digest('hex')
+
+  return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))
+}
+```
+
+```python Python
+import hmac, hashlib, time
+
+def verify_actero_signature(headers, raw_body, secret):
+    sig = headers.get("x-actero-signature", "").removeprefix("v1=")
+    ts = headers.get("x-actero-timestamp", "")
+    if not sig or not ts:
+        return False
+    if abs(time.time() - int(ts)) > 300:
+        return False  # anti-rejeu
+
+    expected = hmac.new(
+        secret.encode(),
+        f"{ts}.{raw_body.decode()}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(sig, expected)
+```
+
+```bash curl
+# Reproduire une signature en local pour debug
+echo -n "1745318400.$(cat body.json)" \
+  | openssl dgst -sha256 -hmac "$WHSEC" \
+  | awk '{print "v1="$2}'
+```
+
+</CodeGroup>
+
+<Warning>
+Compare toujours en temps constant (`crypto.timingSafeEqual` / `hmac.compare_digest`). Une comparaison `===` classique fuit la longueur du préfixe correct via timing.
+</Warning>
+
+## Réponse attendue
+
+| Statut HTTP | Comportement Actero                                                   |
+| ----------- | --------------------------------------------------------------------- |
+| `2xx`       | Livraison considérée réussie. `failure_count` reset à 0.              |
+| `3xx`       | Pas de suivi de redirect. Considéré comme échec.                      |
+| `4xx`       | Échec. Pas de retry automatique (on suppose que ton handler refuse).  |
+| `5xx`       | Échec. Pas de retry automatique non plus dans la version actuelle.    |
+| Timeout 10 s | Échec, `AbortController` côté Actero. `failure_count` incrémenté.    |
+
+<Note>
+Le retry automatique n'est pas encore implémenté. Si tu manques une livraison, rejoue-la depuis **Dashboard → Webhooks → Livraisons** (50 dernières conservées par webhook).
+</Note>
+
+Après **20 échecs consécutifs**, le webhook est désactivé automatiquement (`is_active = false`). Un email est envoyé à l'owner du tenant.
+
+## Idempotence
+
+Actero n'envoie pas le même événement deux fois pour un même `event_id` métier. Néanmoins, en cas de bug réseau, ton serveur peut recevoir deux POST. Dédupliquer côté ton handler par `(event, data.ticket_id)` est une bonne pratique.
+
+## Rate limit
+
+Pas de rate limit côté webhook : si un client génère 200 tickets/heure (le maximum sur l'engine), ton endpoint reçoit 200 POST/heure. Prévois ton infra en conséquence.
+
+## Tester en local
+
+Le dashboard expose un bouton **Tester** qui envoie un payload `ticket.resolved` factice à ton URL. Combine avec [ngrok](https://ngrok.com) ou [smee.io](https://smee.io) pour développer en local.
+
+```bash
+ngrok http 3000
+# Mets l'URL ngrok dans le dashboard, clique "Tester"
+```
+
+## Limites
+
+- 1 secret par webhook. Pour rotater : crée le nouveau, déploie, supprime l'ancien.
+- 50 livraisons conservées par webhook (rolling). Au-delà, archive côté ton infra.
+- Le body peut atteindre ~50 KB sur un `ticket.resolved` chargé en historique. Configure ton serveur pour accepter au moins 100 KB.

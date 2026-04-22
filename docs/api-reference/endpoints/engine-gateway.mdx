@@ -1,9 +1,240 @@
 ---
-title: "Engine Gateway"
-description: "Documentation à compléter."
+title: "POST /engine/gateway"
+description: "Point d'entrée unique du moteur Actero. Tu pousses un événement, l'agent normalise → classifie → exécute le playbook → te répond avec le résultat."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+L'**Engine Gateway** est l'endpoint principal de l'API. Tout événement client (un ticket Shopify, un email entrant, un message du widget chat, un webhook Gorgias…) y atterrit, est normalisé dans un format unifié, puis dispatché vers le bon playbook qui pilote l'agent Actero.
+
+```http
+POST https://actero.fr/api/engine/gateway
+```
+
+## Authentification
+
+Trois schémas acceptés (le serveur essaie dans cet ordre) :
+
+1. `x-engine-secret: <secret>` — secret partagé interne (workers Actero uniquement).
+2. `x-internal-secret: <secret>` — alias historique du précédent.
+3. `Authorization: Bearer <token>` — JWT Supabase **ou** clé API `ak_…` / `mcp_…`.
+
+Pour une intégration tierce, utilise toujours le schéma 3 avec une clé API dédiée. Voir [Authentication](/api-reference/authentication).
+
+## Headers
+
+| Header           | Valeur                                  | Requis |
+| ---------------- | --------------------------------------- | ------ |
+| `Authorization`  | `Bearer <ak_… ou jwt>`                  | Oui    |
+| `Content-Type`   | `application/json`                      | Oui    |
+
+## Body
+
+<ParamField body="client_id" type="string" required>
+  ULID du tenant Actero qui possède l'événement. Visible dans le dashboard ou retourné à l'inscription. Toute requête sans `client_id` retourne `400`.
+</ParamField>
+
+<ParamField body="event_type" type="string">
+  Type métier de l'événement. Sert à matcher le bon playbook. Exemples : `shopify.order.refund_request`, `email.inbound`, `widget.chat.message`, `gorgias.ticket.created`. Si absent, on utilise `source`, sinon `api_direct`.
+</ParamField>
+
+<ParamField body="source" type="string">
+  Canal d'origine. Exemples : `shopify`, `email`, `widget`, `gorgias`, `whatsapp`, `api_direct`. Stocké tel quel dans `engine_events.source`.
+</ParamField>
+
+<ParamField body="customer_email" type="string">
+  Email du client final. Sert au rate limit anti-spam (10 msg / 10 min) et à l'historique de conversation.
+</ParamField>
+
+<ParamField body="message" type="string">
+  Le texte brut envoyé par le customer. Champ standard que tous les playbooks consomment.
+</ParamField>
+
+<ParamField body="is_test" type="boolean" default="false">
+  Si `true`, l'agent tourne en mode dry-run : Brain seulement, aucune persistance (pas d'event, pas de run, pas de mémoire), aucun side-effect (pas de webhook envoyé, pas de réponse postée). Utile pour valider un playbook depuis ton CI.
+</ParamField>
+
+<ParamField body="*" type="any">
+  Tout autre champ est passé au normalizer puis stocké dans `engine_events.payload`. Pour un ticket Shopify, on attend typiquement `order_number`, `order_id`, `ticket_id`, `subject`. Pour un email, `from`, `to`, `subject`, `html_body`, etc.
+</ParamField>
+
+## Response — `200 OK`
+
+```json
+{
+  "event_id": "evt_01HX2Y3Z...",
+  "run_id": "run_01HX2Y3Z...",
+  "status": "completed",
+  "classification": "order_status",
+  "confidence": 0.92,
+  "response": "Bonjour, votre commande #1042 a été expédiée hier...",
+  "steps_executed": 3,
+  "duration_ms": 2840
+}
+```
+
+<ResponseField name="event_id" type="string">ID de l'event persisté (`engine_events.id`). Utilise-le pour cross-référencer avec les logs Actero.</ResponseField>
+
+<ResponseField name="run_id" type="string">ID de l'exécution (`engine_runs_v2.id`). Visible dans le dashboard → Activité.</ResponseField>
+
+<ResponseField name="status" type="enum">
+  `completed` (l'agent a répondu et exécuté le plan), `needs_review` (envoyé en validation humaine — voir [Manual Review](/agent/manual-review)), `failed` (l'executor a échoué), ou `no_playbook` (aucun playbook actif pour ce `event_type`).
+</ResponseField>
+
+<ResponseField name="classification" type="string">Catégorie détectée par le Brain : `order_status`, `refund_request`, `product_question`, `shipping_issue`, `complaint`, `other`…</ResponseField>
+
+<ResponseField name="confidence" type="number">Score de confiance du Brain entre 0 et 1. En dessous d'un seuil (configurable par playbook), l'agent passe en `needs_review`.</ResponseField>
+
+<ResponseField name="response" type="string">Le texte généré par l'agent. Vide si `status: needs_review` car aucun message client n'a encore été produit.</ResponseField>
+
+<ResponseField name="steps_executed" type="integer">Nombre d'actions de l'`actionPlan` que l'Executor a réellement déclenchées (envoi d'email, refund Stripe, tag Shopify, etc.).</ResponseField>
+
+<ResponseField name="duration_ms" type="integer">Latence totale serveur (normalize + brain + executor + persist).</ResponseField>
+
+## Response — autres cas
+
+### `200 OK` — pas de playbook
+
+```json
+{
+  "status": "no_playbook",
+  "message": "Aucun playbook actif pour le type \"shopify.order.refund_request\". Activez un playbook dans votre dashboard."
+}
+```
+
+### `400 Bad Request`
+
+```json
+{ "error": "client_id requis" }
+```
+
+### `401 Unauthorized`
+
+```json
+{ "error": "Non autorise." }
+```
+
+### `404 Not Found`
+
+```json
+{ "error": "Client non trouve" }
+```
+
+### `429 Too Many Requests`
+
+Quota mensuel atteint sur plan Free :
+
+```json
+{
+  "error": "Quota de tickets épuisé. Achetez des crédits ou passez à un plan supérieur.",
+  "tickets_used": 50,
+  "tickets_limit": 50,
+  "credits_balance": 0,
+  "upgrade_url": "https://actero.fr/pricing",
+  "credits_url": "https://actero.fr/client/billing"
+}
+```
+
+Anti-spam :
+
+```json
+{ "error": "Rate limit: 10 messages/10min depasse pour client@example.com" }
+```
+
+### `500 Internal Server Error`
+
+```json
+{ "error": "<message d'erreur>" }
+```
+
+Toute `5xx` est captée par Sentry. Si tu as un `request_id` côté ton infra, transmets-le au support pour qu'on cross-référence.
+
+## Exemples
+
+<CodeGroup>
+
+```bash curl
+curl https://actero.fr/api/engine/gateway \
+  -X POST \
+  -H "Authorization: Bearer $ACTERO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_id": "01HX2Y3Z4A5B6C7D8E9F0G1H2J",
+    "event_type": "shopify.order.refund_request",
+    "source": "shopify",
+    "customer_email": "lou@example.com",
+    "message": "Bonjour, je veux être remboursée pour la commande #1042, le pull est trop petit.",
+    "order_number": "1042",
+    "order_id": "gid://shopify/Order/123456789"
+  }'
+```
+
+```js Node.js
+const res = await fetch('https://actero.fr/api/engine/gateway', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${process.env.ACTERO_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    client_id: process.env.ACTERO_CLIENT_ID,
+    event_type: 'shopify.order.refund_request',
+    source: 'shopify',
+    customer_email: 'lou@example.com',
+    message: 'Bonjour, je veux être remboursée pour la commande #1042...',
+    order_number: '1042',
+  }),
+})
+
+const data = await res.json()
+if (data.status === 'needs_review') {
+  console.log('Validation humaine requise pour', data.run_id)
+} else if (data.status === 'completed') {
+  console.log('Agent a répondu :', data.response)
+}
+```
+
+```python Python
+import os, requests
+
+res = requests.post(
+    "https://actero.fr/api/engine/gateway",
+    headers={
+        "Authorization": f"Bearer {os.environ['ACTERO_API_KEY']}",
+        "Content-Type": "application/json",
+    },
+    json={
+        "client_id": os.environ["ACTERO_CLIENT_ID"],
+        "event_type": "shopify.order.refund_request",
+        "source": "shopify",
+        "customer_email": "lou@example.com",
+        "message": "Bonjour, je veux être remboursée pour la commande #1042...",
+        "order_number": "1042",
+    },
+    timeout=30,
+)
+data = res.json()
+```
+
+</CodeGroup>
+
+## Mode test (`is_test: true`)
+
+Quand `is_test` vaut `true`, l'agent court-circuite toute persistance et tout side-effect. Tu obtiens la classification + la réponse générée mais :
+
+- Aucune ligne dans `engine_events`, `engine_runs_v2`, `engine_messages`.
+- Aucune mémoire conversation mise à jour.
+- Aucun webhook sortant émis.
+- Aucune action exécutée (pas d'email envoyé, pas de refund Stripe).
+
+C'est l'équivalent d'un dry-run. Idéal pour tester un playbook depuis ton CI ou pour valider une migration de prompt avant un release.
+
+## Rate limit
+
+- **200 messages / heure** par `client_id` (compté sur `engine_messages`).
+- **10 messages / 10 min** par `customer_email` (anti-spam customer final).
+- **Quota mensuel** par plan (50 / 1 000 / 5 000 / illimité). Voir [Rate limits](/api-reference/rate-limits).
+
+## Liens utiles
+
+- [Manual review](/agent/manual-review) — workflow quand `status: needs_review`
+- [Escalades](/essentials/escalades) — règles métier qui déclenchent une escalade humaine
+- [Webhooks sortants](/api-reference/webhooks) — recevoir le résultat en push plutôt qu'en synchrone

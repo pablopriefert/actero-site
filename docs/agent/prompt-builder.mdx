@@ -1,9 +1,151 @@
 ---
 title: "Prompt Builder"
-description: "Documentation à compléter."
+description: "Construis le cerveau de ton agent en 5 étapes : identité, ton, règles, connaissances, aperçu."
 ---
 
+Le Prompt Builder est l'écran central où tu configures **comment ton agent pense et parle**. Tu y construis le prompt système envoyé à Claude à chaque message client. Toute la personnalité, les règles, et les connaissances de ton agent passent par ici.
+
+Tu le trouves dans le dashboard sous **Mon Agent → Automatisation → Configurer mon agent** (icône baguette violette).
+
+## Pourquoi un builder en 5 étapes ?
+
+Un bon prompt n'est pas un bloc de texte libre. Il a une structure précise que Claude attend. Le builder t'oblige à remplir chaque couche dans le bon ordre, et te montre le prompt final assemblé pour que tu valides ce qui sera envoyé à l'IA.
+
+<Tip>
+Tout est sauvegardé automatiquement au fil de la frappe, sans bouton "Enregistrer". L'indicateur "Sauvegardé" en haut à droite confirme.
+</Tip>
+
+## Étape 1 — Identité de marque
+
+C'est l'ADN de ton entreprise. L'agent va s'en inspirer pour que chaque réponse colle à ton image.
+
+Décris en 1 paragraphe :
+- Le nom et le secteur
+- Tes valeurs (transparence, premium, fun, durable…)
+- Ta clientèle cible (âge, genre, segment)
+- Ton positionnement (haut de gamme, accessible, niche)
+
+**Exemple :**
+
+> Marque de cosmétiques bio fondée en 2018, valeurs : transparence, naturel, fait en France. Clientèle premium féminine 25-45 ans. Nous nous positionnons en alternative haut de gamme aux marques industrielles.
+
+Tu choisis aussi la **langue de l'agent** : français, anglais, espagnol, allemand, italien, portugais, néerlandais, ou **multilingue** (auto-détection). En mode multilingue, tu coches les langues officiellement supportées par ta marque. Si un client écrit dans une langue non cochée, l'agent répond en français et propose l'aide humaine.
+
+## Étape 2 — Ton de communication
+
+Trois sliders règlent la voix de ton agent :
+
+| Slider | Effet |
+|---|---|
+| **Formel ↔ Casual** | Vouvoiement et phrases soutenues vs tutoiement et style décontracté |
+| **Froid ↔ Chaleureux** | Réponses neutres et factuelles vs empathiques et rassurantes |
+| **Court ↔ Détaillé** | 1-2 phrases vs explications complètes avec contexte |
+
+La prévisualisation en bas de l'écran te montre **en temps réel** à quoi ressemblera une réponse type avec tes réglages.
+
+Le champ **Style particulier** te permet d'ajouter des indications libres :
+
+> Utilise des expressions françaises décontractées, signe toujours par "L'équipe Aurore", n'utilise jamais d'emojis sauf 🌿 pour la fin de réponse.
+
+## Étape 3 — Règles absolues
+
+Les règles absolues (aussi appelées **guardrails**) sont des contraintes que ton agent ne violera **jamais**. Elles passent avant la base de connaissances et avant le ton.
+
+**Exemples de règles utiles :**
+
+- "Ne jamais proposer de remboursement sans escalade humaine"
+- "Ne jamais partager de code promo non autorisé"
+- "Ne jamais dire 'je suis une IA' — dire 'l'équipe SAV' à la place"
+- "Toujours demander l'email du client avant d'escalader"
+
+Ajoute une règle, valide avec Entrée, elle s'enregistre dans `client_guardrails`. Tu peux désactiver une règle sans la supprimer — elle s'affiche barrée.
+
+<Warning>
+Plus tu as de règles, plus l'agent devient prudent. Reste sous **10 règles** pour ne pas brider la spontanéité des réponses. Si tu en empiles 30, l'agent escalade tout.
+</Warning>
+
+## Étape 4 — Base de connaissances
+
+C'est là que tu mets **ce que ton agent doit savoir** : politique de retour, délais de livraison, FAQ produit, garanties.
+
+Trois façons d'alimenter la base :
+
+<Steps>
+  <Step title="Importer depuis une URL">
+    Colle l'URL de ta page FAQ ou CGV. Actero scrape la page et crée une entrée par section détectée.
+  </Step>
+  <Step title="Uploader un fichier">
+    PDF, TXT, CSV, Markdown ou Word — max 4 Mo. Le contenu est découpé automatiquement.
+  </Step>
+  <Step title="Ajouter manuellement">
+    Pour les infos qui n'existent nulle part en ligne. Titre + contenu, c'est tout.
+  </Step>
+</Steps>
+
+Chaque entrée a un **titre**, un **contenu**, et une **catégorie** (`faq`, `livraison`, `retours`, `produit`…). L'agent cite ces entrées en filtrant par pertinence sémantique.
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Une base de 5 entrées résout déjà 30-40% des tickets. Une base de 30+ entrées atteint 60%+. Voir [Base de connaissances](/essentials/base-connaissance) pour la stratégie complète.
 </Note>
+
+## Étape 5 — Exemples & Aperçu
+
+### Exemples de bonnes réponses (few-shot)
+
+Tu donnes des paires `Question → Réponse idéale` que ton agent doit imiter en termes de ton et de structure. **2 à 3 exemples suffisent**.
+
+**Exemple :**
+
+> **Question :** Mon colis n'est jamais arrivé, je suis énervée
+>
+> **Réponse :** Je comprends ta frustration et je suis vraiment désolée. Je vais regarder ça tout de suite avec toi. Tu peux me donner ton numéro de commande pour que je vérifie le tracking ?
+
+L'agent va caler son style sur ces exemples. C'est plus efficace que 10 paragraphes d'instructions.
+
+### Aperçu du prompt final
+
+C'est ce qui sera envoyé à Claude. Tu vois le prompt assemblé dans l'ordre :
+
+1. Identité de marque
+2. Ton de communication (formel/chaleureux/détaillé)
+3. Style particulier
+4. Règles d'exclusion (guardrails)
+5. Base de connaissances
+6. Exemples few-shot
+7. Format de sortie (JSON strict)
+
+Si quelque chose te paraît bizarre, retourne aux étapes précédentes pour ajuster.
+
+## Tester tes changements
+
+Le bouton **Test rapide** en haut à droite ouvre un mini chat directement contre ton agent en cours de configuration. Tu vois la réponse exacte, la classification, et la confiance — sans toucher à un vrai client.
+
+Pour des tests plus poussés, va dans **Tester mon agent** (plan Starter+) qui simule une vraie conversation multi-tours.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Le builder a-t-il une limite de longueur ?">
+    Pas de limite stricte, mais les 50 premières entrées de KB sont injectées dans le prompt. Au-delà, tu dépendras de la recherche sémantique pour faire remonter les bonnes entrées.
+  </Accordion>
+  <Accordion title="Mes changements sont-ils appliqués immédiatement ?">
+    Oui. Sauvegarde automatique sous 1 seconde, prompt rechargé au prochain message client. Aucun redéploiement nécessaire.
+  </Accordion>
+  <Accordion title="Comment revenir à la config par défaut ?">
+    Pas de bouton "reset" dans l'UI. Vide le champ identité et baisse les sliders à 50/50/50, supprime les guardrails et les exemples. Pour les anciens clients, contacte [contact@actero.fr](mailto:contact@actero.fr).
+  </Accordion>
+  <Accordion title="Puis-je avoir plusieurs prompts (un par marque/site) ?">
+    Un client = un prompt. Si tu gères plusieurs marques, ouvre un compte par marque. Le multi-marques sur un même compte est sur la roadmap Q3 2026.
+  </Accordion>
+</AccordionGroup>
+
+## Pour aller plus loin
+
+<CardGroup cols={2}>
+  <Card title="Activer un playbook" icon="rocket" href="/agent/playbooks">
+    Une fois ton agent configuré, branche-le sur un canal.
+  </Card>
+  <Card title="Templates de réponse" icon="file-lines" href="/agent/templates-variables">
+    Réponses canned pour la validation manuelle.
+  </Card>
+</CardGroup>

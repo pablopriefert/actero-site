@@ -1,9 +1,106 @@
 ---
-title: "Guardrails"
-description: "Documentation à compléter."
+title: "Restrictions (Guardrails)"
+description: "Définis les règles absolues que ton agent ne doit jamais enfreindre — et garde la main sur ce qu'il peut ou non promettre."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Les guardrails sont les **règles absolues** de ton agent. Elles sont vérifiées **avant chaque réponse** et passent devant tout le reste — même la base de connaissances. Si ton agent voit qu'une réponse va enfreindre une guardrail, il escalade au lieu d'envoyer.
+
+C'est ta ligne de sécurité quand tu lâches l'IA en autonomie.
+
+## Où se trouvent les guardrails
+
+Sidebar : **Mon Agent → Restrictions**.
+
+Tu vois la liste de tes règles actives, avec un compteur en haut ("3 règles actives — appliquées avant chaque réponse IA").
+
+## Ajouter une règle
+
+<Steps>
+  <Step title="Tape la règle en français, à l'impératif">
+    Le système accepte du langage naturel. Pas besoin de format spécial.
+  </Step>
+  <Step title="Clique 'Ajouter'">
+    La règle apparaît dans la liste, activée par défaut.
+  </Step>
+  <Step title="Vérifie qu'elle est claire et non ambigüe">
+    Une règle floue donne des résultats flous. Préfère "Ne jamais promettre un délai inférieur à 5 jours ouvrés" plutôt que "Ne pas faire de promesses".
+  </Step>
+</Steps>
+
+### Exemples qui fonctionnent bien
+
+- _"Ne jamais proposer de remboursement sans escalade humaine"_
+- _"Ne jamais mentionner la concurrence par son nom"_
+- _"Toujours rediriger les questions sur les prix B2B vers l'équipe commerciale"_
+- _"Ne jamais partager les données personnelles d'un autre client"_
+- _"Toujours demander le numéro de commande avant de traiter un retour"_
+- _"Ne jamais promettre un délai de livraison spécifique en jours"_
+- _"Ne jamais dire 'je suis une IA' — utiliser 'l'équipe SAV' à la place"_
+- _"Ne jamais répondre à une question juridique — escalader systématiquement"_
+
+## Activer / désactiver / supprimer
+
+Chaque règle a un toggle. Désactive-la temporairement (pendant des soldes par exemple) sans la supprimer. La poubelle supprime définitivement.
+
+Tu peux aussi réordonner par priorité : les règles en haut sont vérifiées en premier.
+
+## Quand une règle se déclenche
+
+Si l'agent détecte qu'il s'apprête à enfreindre une guardrail :
+
+1. Il **n'envoie pas** la réponse au client
+2. Il **escalade** vers ton équipe avec le motif `out_of_policy`
+3. Le ticket apparaît dans **À traiter** avec un drapeau rouge "Guardrail violée"
+
+Tu retrouves ces escalades dans l'onglet [Escalades](/essentials/escalades).
+
+## Bien rédiger une guardrail
+
+<Tip>
+Une bonne guardrail :
+- Commence par "Ne jamais" ou "Toujours"
+- Décrit un comportement observable (pas une intention vague)
+- N'a pas plus d'une condition par règle
+- Précise quoi faire à la place quand c'est utile
+
+Mauvaise : _"Sois prudent avec les remboursements"_  
+Bonne : _"Ne jamais valider un remboursement supérieur à 50 € — escalader systématiquement"_
+</Tip>
+
+## Limites
+
+<AccordionGroup>
+  <Accordion title="Combien de règles je peux ajouter ?">
+    Pas de limite stricte. Au-delà de 20 règles, ton agent devient lent et peut commencer à se contredire. Vise 8-15 règles ciblées.
+  </Accordion>
+  <Accordion title="Une règle peut-elle être conditionnelle ?">
+    Oui, formulée en langage naturel. Ex : _"Si le client demande un remboursement et que sa commande date de plus de 30 jours, escalader"_. L'IA comprend la condition.
+  </Accordion>
+  <Accordion title="Mes règles annulent-elles ma base de connaissance ?">
+    Oui. Si une règle dit "Ne jamais partager le numéro de téléphone du SAV" et qu'une entrée KB contient ce numéro, la règle gagne. L'agent escaladera plutôt que de transmettre.
+  </Accordion>
+</AccordionGroup>
+
+## Workflow recommandé
+
+1. **Démarre avec 3-5 règles génériques** (les exemples ci-dessus). Ça couvre 80 % des risques.
+2. **Teste dans le [Simulateur](/essentials/simulator)** — joue des scénarios qui essayent d'enfreindre tes règles. Vérifie que l'agent escalade.
+3. **Affine après 2 semaines de prod** — regarde les escalades remontées dans [À traiter](/essentials/escalades). Si une situation revient souvent, transforme-la en règle.
+4. **Audite mensuellement** — supprime les règles obsolètes, fusionne les redondantes.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="L'agent a quand même répondu malgré ma règle — bug ?">
+    99 % du temps, c'est que la règle est mal formulée. Va dans le drawer Reasoning de l'escalade pour voir ce que l'agent a interprété. Reformule avec plus de précision et re-teste dans le Simulateur.
+  </Accordion>
+  <Accordion title="Puis-je avoir des règles différentes par canal (email vs chat) ?">
+    Pas encore. Toutes les règles s'appliquent à tous les canaux. Si tu as un cas pressant, contacte [contact@actero.fr](mailto:contact@actero.fr).
+  </Accordion>
+  <Accordion title="Les guardrails comptent-elles dans mes tokens facturés ?">
+    Marginalement. Chaque règle ajoute 10-30 tokens au prompt. À l'échelle d'un mois, l'impact est négligeable.
+  </Accordion>
+  <Accordion title="Et si je veux qu'aucune réponse ne sorte sans validation humaine ?">
+    Active une règle globale : _"Ne jamais envoyer de réponse automatique — toujours escalader pour validation humaine"_. Tu passes en mode "AI assist" pur. Voir aussi le mode auto-send dans [Escalades](/essentials/escalades).
+  </Accordion>
+</AccordionGroup>

@@ -1,9 +1,134 @@
 ---
 title: "Facturation"
-description: "Documentation à compléter."
+description: "Comprends ton plan, suis ta consommation, change de palier, gère tes factures Stripe."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Tout ce qui concerne ton abonnement Actero se passe dans **Système → Facturation**. Cette page est la seule visible aussi par les membres avec le rôle **Finance**.
+
+## Vue d'ensemble
+
+En haut de la page, un bandeau résume :
+
+- **Ton plan actuel** (Free / Starter / Pro / Entreprise) et un badge "Essai" si tu es en période d'essai
+- **Le prix** actuel (€/mois ou €/an)
+- **Ta consommation tickets** (% utilisé du quota mensuel)
+- **Le dépassement** s'il y en a (en € à la fin du mois)
+
+## Section 1 — Plan actuel
+
+Affiche ton plan, son prix, et la date de premier paiement. Bouton **Gérer mon abonnement** : ouvre le portail Stripe (changement de carte, facture d'adresse, annulation).
+
+### Si tu es en essai
+
+Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan, sans carte bancaire.
+
+À la fin de l'essai (7 jours par défaut), tu repasses automatiquement en plan Free si tu n'as pas saisi de moyen de paiement.
+
+## Section 2 — Consommation du mois
+
+Deux barres de progression :
+
+- **Tickets utilisés** : ce mois, sur la limite de ton plan
+- **Minutes vocales** (si tu as l'agent vocal Pro) : minutes consommées
+
+Code couleur :
+
+| Couleur | Sens |
+|---|---|
+| Vert | < 70 % du quota — tout va bien |
+| Orange | 70-89 % — surveille |
+| Rouge | ≥ 90 % — risque de dépassement |
+
+### Dépassement
+
+Si tu dépasses ton quota, chaque ticket supplémentaire est facturé au tarif overage (10 centimes le ticket sur Starter, 8 centimes sur Pro). La facture du mois suivant inclut l'overage.
+
+<Tip>
+Si tu approches systématiquement la limite, calcule : `tickets_estimés × overage_unit` versus `différence_de_prix_avec_le_plan_supérieur`. Au-delà de 200 € d'overage récurrent, l'upgrade est rentable.
+</Tip>
+
+## Section 3 — Changer de plan
+
+Trois cartes : **Starter**, **Pro**, **Entreprise**. Chaque carte affiche les features incluses et un bouton d'action.
+
+### Toggle Mensuel / Annuel
+
+L'annuel donne **-20 %** sur le prix affiché. Tu paies une fois pour l'année, facturation immédiate.
+
+### Upgrade
+
+<Steps>
+  <Step title="Choisis ton nouveau plan">
+    Clique sur le bouton de la carte (ex : "Passer au Pro — Essai 7j gratuit").
+  </Step>
+  <Step title="Tu es redirigé vers Stripe Checkout">
+    Saisis ta carte. Si c'est ton premier paiement Actero, l'essai de 7 jours démarre.
+  </Step>
+  <Step title="Retour automatique au dashboard">
+    Ton plan est mis à jour, tu débloques immédiatement les nouvelles features.
+  </Step>
+</Steps>
+
+### Cas particulier : upgrade instantané
+
+Si tu as déjà une carte enregistrée et que tu changes de plan sans changer ton mode de paiement, l'upgrade est instantané (pas de redirect Stripe). Le prorata est calculé automatiquement par Stripe.
+
+### Downgrade
+
+Pour passer à un plan inférieur, ouvre le portail Stripe via **Gérer mon abonnement**. Le downgrade prend effet **à la fin de ton cycle de facturation actuel** — tu ne perds pas les features payées d'avance.
+
+### Plan Entreprise
+
+Le bouton "Contacter l'équipe" ouvre une page de prise de RDV. On te répond sous 24 h pour calibrer un devis (multi-boutique, white-label, SLA, account manager).
+
+## Section 4 — Crédits à la demande
+
+Si tu sais qu'un mois va être chargé (lancement produit, soldes), tu peux acheter des crédits ponctuels (packs de 500 / 2 000 / 10 000 tickets). Ils s'ajoutent à ton quota du mois.
+
+Pratique pour éviter le dépassement sans changer de plan.
+
+## Section 5 — Historique des factures
+
+Si tu as un `stripe_customer_id`, le bouton **Voir mes factures** t'envoie sur le portail Stripe avec :
+
+- Toutes tes factures passées (PDF téléchargeable)
+- Tes paiements
+- Ta carte enregistrée
+- Tes infos de facturation
+
+Si tu es encore en plan Free, la section affiche "Aucune facture" — c'est normal.
+
+## Référencement et 30 jours gratuits
+
+Si tu es arrivé via un lien de parrainage, ton premier mois Starter ou Pro est offert pour 30 jours au lieu de 7. Le badge change : "Passer au Pro — 30 jours gratuits".
+
+Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Comment annuler mon abonnement ?">
+    Va dans **Gérer mon abonnement** → portail Stripe → Annuler. L'annulation prend effet à la fin du cycle en cours, tu gardes l'accès jusque-là. Aucun remboursement automatique.
+  </Accordion>
+  <Accordion title="Je suis facturé deux fois ce mois — pourquoi ?">
+    En général : un changement de plan a déclenché une nouvelle facture pro-rata. Vérifie l'historique sur le portail Stripe — chaque ligne est détaillée. Si rien n'explique, écris à [contact@actero.fr](mailto:contact@actero.fr).
+  </Accordion>
+  <Accordion title="Mon paiement a échoué — que faire ?">
+    Stripe retente automatiquement 3 fois sur 7 jours. Pendant ce temps, tu reçois un email à chaque échec. Mets à jour ta carte via **Gérer mon abonnement**. Si tous les retries échouent, ton compte passe en `past_due` puis en `unpaid` (suspension de l'agent).
+  </Accordion>
+  <Accordion title="Puis-je payer par virement (SEPA) ?">
+    Oui sur le plan Entreprise. Sur Starter et Pro, c'est carte uniquement (Stripe Checkout).
+  </Accordion>
+  <Accordion title="Mon quota tickets — c'est quoi exactement ?">
+    Un "ticket" = une conversation traitée par l'agent (peu importe le canal : email, chat, helpdesk). Une conversation à plusieurs allers-retours = 1 ticket. Un panier abandonné relancé = 1 ticket. Un appel vocal = 1 ticket + minutes vocales facturées à part.
+  </Accordion>
+  <Accordion title="Je vois un onglet Crédits — c'est différent du plan ?">
+    Oui. Les crédits sont des **achats ponctuels** qui s'ajoutent à ton quota mensuel, sans engagement. Le plan est l'**abonnement récurrent**. Tu peux avoir les deux en parallèle.
+  </Accordion>
+  <Accordion title="Puis-je voir le détail des coûts IA (tokens Claude / Gemini) ?">
+    Pas dans la facturation — c'est inclus dans le prix de ton plan, on absorbe la marge. Si tu veux le détail technique, va dans `Insights → Coût IA` (plans Pro+).
+  </Accordion>
+  <Accordion title="Je veux passer au plan Entreprise mais sans appel commercial — possible ?">
+    Écris à [contact@actero.fr](mailto:contact@actero.fr) avec ton volume mensuel estimé et tes besoins (multi-boutique, white-label). On te fait un devis par email sous 48 h.
+  </Accordion>
+</AccordionGroup>

@@ -1,9 +1,137 @@
 ---
-title: "Proactive Watchdog"
-description: "Documentation à compléter."
+title: "Watchdog proactif"
+description: "L'agent qui contacte tes clients avant qu'ils ne se plaignent : colis bloqués, paiements échoués, VIP silencieux."
 ---
 
+Au lieu d'attendre qu'un client râle parce que son colis traîne, ton agent Actero **surveille en continu** tes commandes, paiements et livraisons. Quand il détecte un signal faible (colis bloqué, paiement non finalisé, VIP qui ne commande plus), il **contacte le client de lui-même** dans ton ton de marque, avant même que le problème ne s'aggrave.
+
+C'est le **Watchdog proactif**. Tu le trouves dans le dashboard sous **Mon Agent → Watchdog proactif**.
+
+## Pourquoi c'est utile
+
+Un ticket SAV évité, c'est :
+- ~4 minutes économisées pour ton équipe
+- Un client qui repart avec une expérience positive (au lieu de râler)
+- Souvent une rétention sauvée
+
+Le Watchdog est calibré pour **réduire le volume de tickets entrants**, pas pour le multiplier. Chaque règle a un seuil ajustable et est désactivable individuellement.
+
+## Comment ça marche
+
+<Steps>
+  <Step title="Vérification automatique toutes les 15 minutes">
+    Un cron tourne en continu (`api/cron/proactive-watchdog`). Pour chaque règle active, il interroge la source de données concernée (Shopify, AfterShip…) et cherche les anomalies.
+  </Step>
+  <Step title="Détection idempotente">
+    Chaque détection génère un `detection_key` unique. Si la même anomalie est détectée plusieurs fois (ex: même colis bloqué à 2 vérifications successives), un seul événement est créé. Pas de doublon, pas de spam client.
+  </Step>
+  <Step title="Composition de l'email proactif">
+    L'agent appelle Claude pour rédiger un email **dans ton ton de marque**, avec le contexte exact (numéro de tracking, raison du blocage, lien pour finaliser un paiement…). L'email est court (5-6 lignes max).
+  </Step>
+  <Step title="Envoi via ton SMTP">
+    L'email part depuis ta propre adresse (SMTP/IMAP requis), avec ta signature. Le client voit ta marque, pas Actero.
+  </Step>
+  <Step title="Logging">
+    Chaque action est tracée dans `proactive_events` avec son statut (`sent`, `failed`, `skipped`, `pending`). Visible dans **Historique des actions** sur la page.
+  </Step>
+</Steps>
+
+## Les 3 signaux surveillés
+
+### Colis retardé (`shipment_delayed`)
+
+L'agent contacte le client quand son colis est bloqué en transit depuis plus de **X heures**.
+
+- **Source de données :** AfterShip
+- **Intégration requise :** AfterShip connecté
+- **Seuil par défaut :** 72 h sans mise à jour de statut
+- **Détection :** statuts `Exception`, `AttemptFail`, ou `InTransit`/`Pending` sans checkpoint > seuil
+
+L'email reconnaît le problème AVANT que le client se plaigne, explique le statut, propose une surveillance renforcée et un recontact sous 48 h.
+
+### Paiement échoué (`failed_payment`)
+
+L'agent relance le client quand sa commande Shopify reste en `pending` ou `unpaid` depuis plus de **X heures**.
+
+- **Source de données :** Shopify Orders
+- **Intégration requise :** Shopify connecté
+- **Seuil par défaut :** 24 h sans paiement
+- **Détection :** `financial_status` ∈ `pending`/`unpaid` ET `created_at` > seuil
+
+L'email rassure ("ta commande est encore réservée 24 h"), met en avant le lien `checkout_url` pour finaliser, et offre de l'aide en cas de problème de carte.
+
+### Client VIP silencieux (`silent_vip`)
+
+L'agent relance tes meilleurs clients (CLV élevée) qui n'ont pas commandé depuis longtemps.
+
+- **Source de données :** Shopify Customers + Orders
+- **Intégration requise :** Shopify connecté
+- **Seuils par défaut :**
+  - CLV minimum : 500 €
+  - Silence : 60 jours
+- **Détection :** `total_spent >= min_clv` ET `last_order_date < today - silent_days`
+
+L'email est chaleureux, exprime que le client manque (sans être pushy), peut proposer un code privilège ou un accès en avant-première.
+
+## Activer une règle
+
+<Steps>
+  <Step title="Connecte les intégrations requises">
+    AfterShip pour `shipment_delayed`, Shopify pour les autres. Si une intégration manque, la règle s'affiche en grisé avec un avertissement.
+  </Step>
+  <Step title="Bascule le toggle">
+    Sur la carte de la règle, clique le toggle pour l'activer.
+  </Step>
+  <Step title="Ajuste les seuils (optionnel)">
+    Le bouton **Configurer** te permet de modifier les seuils par défaut (heures, CLV minimum, jours de silence).
+  </Step>
+</Steps>
+
+Le SMTP doit aussi être configuré côté **Intégrations → Email** pour que l'agent puisse envoyer les emails depuis ton adresse.
+
+## Vérification manuelle
+
+À côté de la règle active, le bouton **Vérifier maintenant** déclenche un check immédiat sans attendre le cron suivant. Pratique pour tester ou pour réagir à un événement particulier (panne transporteur connue, par exemple).
+
+Le résultat affiche le nombre de détections, d'emails envoyés, et d'échecs.
+
+## KPIs & historique
+
+Le hero affiche : **tickets évités 7j / 30j**, **€ économisés** (≈ 2 € par ticket évité), **règles actives**. Sous le hero, la liste chronologique des actions (date, règle, email client, sujet, statut `sent` / `failed` / `skipped` / `pending`). Clique un événement pour voir le contenu exact envoyé.
+
+## Limites connues
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Le Watchdog est en accès **bêta** sur Pro et Scale. Trois règles disponibles aujourd'hui — d'autres détecteurs en développement (rupture de stock, pic de retours, dispute Stripe). AfterShip : 50 trackings max par check. Email uniquement (WhatsApp/SMS non encore supportés).
 </Note>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Que se passe-t-il si le client répond à l'email proactif ?">
+    Sa réponse arrive dans ta boîte mail (SMTP). Si tu as activé le playbook **SAV e-commerce** sur le canal email, l'agent prend le relais et traite la réponse comme un ticket normal.
+  </Accordion>
+  <Accordion title="Puis-je personnaliser le contenu de l'email proactif ?">
+    Pas directement aujourd'hui. Le contenu est généré par Claude à partir de ton ton de marque, ton identité et ta signature email. Pour ajuster, modifie ces réglages dans **Mon Agent → Configurer mon agent**. La customisation par règle arrive en Q2 2026.
+  </Accordion>
+  <Accordion title="Le Watchdog peut-il déclencher un remboursement automatique ?">
+    Non. Le Watchdog **communique** avec le client mais ne peut pas modifier de commande, ni rembourser, ni envoyer de colis de remplacement. Toute action transactionnelle reste manuelle (escalade vers ton équipe).
+  </Accordion>
+  <Accordion title="Combien ça coûte côté tokens ?">
+    Chaque email proactif consomme ~500-800 tokens output (~0,005 € avec Claude Sonnet). Vu le volume (quelques dizaines par mois pour un shop moyen), l'impact sur ta consommation est négligeable.
+  </Accordion>
+  <Accordion title="Comment désactiver tout le Watchdog d'un coup ?">
+    Désactive chaque règle individuellement. Le système ne repart en silence qu'à zéro règle active. Pas de "kill switch" global pour éviter les désactivations accidentelles.
+  </Accordion>
+</AccordionGroup>
+
+## Pour aller plus loin
+
+<CardGroup cols={2}>
+  <Card title="Vue d'ensemble de l'agent" icon="brain" href="/agent/overview">
+    Comment l'agent réactif (SAV) et le Watchdog se complètent.
+  </Card>
+  <Card title="Validation manuelle" icon="inbox" href="/agent/manual-review">
+    Si un client répond négativement à un email proactif, son message arrive ici.
+  </Card>
+</CardGroup>

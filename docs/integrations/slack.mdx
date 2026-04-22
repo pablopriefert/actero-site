@@ -1,9 +1,127 @@
 ---
 title: "Slack"
-description: "Documentation à compléter."
+description: "Reçois les notifications Actero dans Slack, lance des questions à ton agent via /actero, valide les escalades inline."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Connecte Slack pour transformer ton workspace en cockpit Actero : alertes d'escalade en temps réel, résumé quotidien, slash command `/actero` pour interroger ton agent depuis n'importe quel canal, et validation inline des réponses pré-rédigées.
+
+## Prérequis
+
+- Un workspace **Slack** actif (Free, Pro, Business+, Enterprise — tous compatibles)
+- Le rôle **Workspace Owner** ou **Admin** (requis pour installer une app)
+- Un compte Actero, plan **Free** ou supérieur (l'intégration Slack est gratuite sur tous les plans)
+
+## Connexion (OAuth officiel Slack)
+
+<Steps>
+  <Step title="Ouvre Intégrations dans Actero">
+    **Intégrations → Messagerie & notifications → Slack → Connecter**.
+  </Step>
+  <Step title="Choisis ton workspace Slack">
+    Tu es redirigé vers `slack.com/oauth/v2/authorize`. Sélectionne le workspace cible si tu en as plusieurs.
+  </Step>
+  <Step title="Approuve les scopes">
+    Slack affiche les permissions demandées. Clique **Allow**.
+  </Step>
+  <Step title="Choisis le canal de notifications">
+    De retour dans Actero, sélectionne le canal Slack qui recevra les alertes (par défaut `#actero`). Tu peux changer plus tard depuis **Notifications**.
+  </Step>
+</Steps>
+
+## Scopes demandés
+
+Actero demande les scopes minimaux pour faire son boulot :
+
+| Scope | Usage |
+|---|---|
+| `incoming-webhook` | Poster les notifications dans le canal choisi |
+| `chat:write`, `chat:write.public` | Poster des réponses sans avoir à inviter le bot dans chaque canal |
+| `channels:read`, `team:read` | Lister les canaux et infos workspace pour la config |
+| `app_mentions:read` | Recevoir les mentions `@Actero` dans n'importe quel canal |
+| `commands` | Activer la slash command `/actero` |
+| `im:history`, `im:read`, `im:write` | Conversations directes avec le bot Actero |
+
+Pas d'accès aux fichiers, aux DM entre humains, ni aux canaux privés non explicitement invités.
+
+## Ce que tu reçois dans Slack
+
+### Notifications automatiques
+
+- **Escalade** — chaque ticket marqué `escalated` envoie une carte dans le canal avec : email client, sujet, raison de l'escalade, lien pour répondre
+- **Résumé quotidien** — chaque matin à 9 h (configurable), un récap : nombre de tickets traités, taux d'auto, économie horaire estimée, top 3 sujets
+- **Alertes système** — intégration cassée, quota atteint, paiement échoué
+
+### Slash command `/actero`
+
+Tape dans n'importe quel canal :
+
+```
+/actero combien de tickets aujourd'hui ?
+/actero taux d'escalade cette semaine
+/actero quelle recommandation pour aujourd'hui ?
+```
+
+Le bot répond en ephemeral (visible par toi seul). Pratique pour faire un point rapide sans ouvrir le dashboard.
+
+### Mention `@Actero`
+
+Mentionne `@Actero` dans un canal où le bot est invité, et il répond aux questions sur tes KPI ou ton agent. Idéal en stand-up matinal.
+
+### Validation inline des escalades
+
+Sur les escalades en mode **Draft only**, la carte Slack contient deux boutons :
+
+- **Approuver et envoyer** → la réponse pré-rédigée part au client en 1 clic
+- **Modifier** → ouvre le ticket dans Actero pour édition
+
+Plus besoin de switcher vers le helpdesk pour les cas simples.
+
+## Sécurité
+
+- Toutes les requêtes Slack vers Actero sont **vérifiées HMAC** avec `SLACK_SIGNING_SECRET` (replay protection : événements > 5 min rejetés)
+- Isolation tenant : `team_id` Slack mappé sur `client_id` Actero, zéro fuite cross-tenant
+- Le token Slack est chiffré au repos côté Supabase
+
+## Personnalisation
+
+Va dans **Notifications** dans le dashboard pour personnaliser :
+
+- Canal de destination (général, dédié SAV, DM perso)
+- Heure d'envoi du résumé quotidien
+- Filtrage par type d'événement (escalade only, ou tout)
+- Mute pendant les nuits / week-ends
+
+## Déconnexion
+
+**Intégrations → Slack → Déconnecter** révoque le token et arrête tous les envois. Tu peux aussi le faire depuis Slack → **Apps → Actero → Configuration → Remove App**.
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="Le bot ne poste rien dans le canal choisi">
+    Si tu as choisi un **canal privé**, invite le bot manuellement avec `/invite @Actero` dans le canal. Pour les canaux publics, `chat:write.public` suffit normalement.
+  </Accordion>
+  <Accordion title="`/actero` répond "command not found"">
+    Slack met parfois quelques minutes à propager la commande après installation. Recharge ton client Slack (Cmd+R / Ctrl+R) ou attends 5 minutes.
+  </Accordion>
+  <Accordion title="Pas de notification d'escalade">
+    Vérifie que les escalades sont bien activées dans **Notifications → Slack → Escalades**. Si oui, déclenche un test depuis **Notifications → Tester l'envoi**.
+  </Accordion>
+  <Accordion title="Les boutons "Approuver/Modifier" ne marchent pas">
+    Slack désactive les boutons après 30 jours. Si ton escalade est ancienne, ouvre directement le ticket dans Actero.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Peut-on poster dans plusieurs canaux ?">
+    Sur un même workspace, oui. Configure plusieurs **routes de notification** dans **Notifications** (par exemple escalades dans `#sav-escalades`, résumé dans `#management`).
+  </Accordion>
+  <Accordion title="Multi-workspace ?">
+    Plan **Entreprise** requis. Sur les autres plans, un seul workspace Slack par compte Actero.
+  </Accordion>
+  <Accordion title="Compatible Microsoft Teams ?">
+    Pas encore. Roadmap 2026.
+  </Accordion>
+</AccordionGroup>

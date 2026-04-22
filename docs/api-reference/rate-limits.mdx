@@ -1,9 +1,166 @@
 ---
 title: "Rate Limits"
-description: "Documentation à compléter."
+description: "Limites par client, par customer et par IP. Réponses 429, stratégie de retry, comment les contourner légitimement."
 ---
 
+L'API Actero applique plusieurs couches de rate limit pour protéger ton tenant des abus, contenir les coûts LLM, et garantir une latence stable. Chaque couche a sa propre fenêtre et sa propre clé de comptage.
+
+## Limites en vigueur
+
+### Engine gateway
+
+C'est la route la plus chargée — elle déclenche un appel LLM. Deux limites cumulatives :
+
+| Clé de comptage     | Limite        | Fenêtre   | Source                                       |
+| ------------------- | ------------- | --------- | -------------------------------------------- |
+| Par `client_id`     | 200 messages  | 60 min    | `engine_messages` (count) sur la dernière heure |
+| Par `customer_email`| 10 messages   | 10 min    | `engine_messages` filtré sur l'email         |
+
+Un dépassement renvoie `429 Too Many Requests` :
+
+```json
+{
+  "error": "Rate limit: 200 messages/heure depasse pour ce client"
+}
+```
+
+### Quota mensuel (plan-based)
+
+Indépendamment du rate limit court-terme, chaque plan a un quota mensuel de tickets traités :
+
+| Plan       | Tickets / mois | Voice / mois | Overage         |
+| ---------- | -------------- | ------------ | --------------- |
+| Free       | 50             | 0            | Aucun (hard cap) |
+| Starter    | 1 000          | 0            | 0,10 €/ticket    |
+| Pro        | 5 000          | 200 min      | 0,10 €/ticket    |
+| Enterprise | Illimité       | Illimité     | —                |
+
+Au-delà du quota :
+
+- **Free** : bloqué (`429`) jusqu'à achat d'un pack de crédits ou upgrade.
+- **Starter / Pro** : la requête passe, mais le compteur `overage_tickets` est incrémenté et facturé en fin de mois.
+
+```json
+{
+  "error": "Quota de tickets épuisé. Achetez des crédits ou passez à un plan supérieur.",
+  "tickets_used": 50,
+  "tickets_limit": 50,
+  "credits_balance": 0,
+  "upgrade_url": "https://actero.fr/pricing",
+  "credits_url": "https://actero.fr/client/billing"
+}
+```
+
+### Routes auth & lectures
+
+| Route                      | Limite                | Fenêtre |
+| -------------------------- | --------------------- | ------- |
+| `/api/auth/signup`         | 5 / IP                | 60 s    |
+| `/api/auth/verify-code`    | 5 / IP                | 60 s    |
+| `/api/copilot-chat`        | 30 / user             | 60 s    |
+| `/api/simulator-chat`      | 20 / user             | 60 s    |
+| `/api/billing/usage`       | 60 / user             | 60 s    |
+| `/api/client/export-data`  | 5 / user              | 60 s    |
+
+Le rate limiter par IP / user vit en mémoire process (Vercel Functions). En cas de scale horizontal, la limite effective est multipliée par le nombre d'instances chaudes — c'est volontaire et tolérable pour ces volumes.
+
+## Réponse `429`
+
+Toutes les routes répondent en JSON :
+
+```http
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+Retry-After: 60
+```
+
+```json
+{ "error": "Rate limit: ..." }
+```
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Le header `Retry-After` est exposé sur les routes auth/IP-based. Sur l'engine gateway, on ne l'envoie pas systématiquement — calcule ton retry sur la fenêtre de la limite (10 min ou 60 min selon le cas).
 </Note>
+
+## Stratégie de retry recommandée
+
+<CodeGroup>
+
+```js Node.js
+async function postWithRetry(url, body, opts = {}) {
+  const maxRetries = opts.maxRetries ?? 3
+  let attempt = 0
+
+  while (attempt < maxRetries) {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.ACTERO_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (res.status !== 429) return res
+
+    // Backoff exponentiel + jitter, plafonné à 60 s.
+    const retryAfter = Number(res.headers.get('retry-after')) || 0
+    const wait = retryAfter
+      ? retryAfter * 1000
+      : Math.min(60_000, 2 ** attempt * 1000 + Math.random() * 500)
+
+    await new Promise(r => setTimeout(r, wait))
+    attempt++
+  }
+
+  throw new Error('Rate limited après ' + maxRetries + ' tentatives')
+}
+```
+
+```python Python
+import os, time, random, requests
+
+def post_with_retry(url, body, max_retries=3):
+    for attempt in range(max_retries):
+        res = requests.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {os.environ['ACTERO_API_KEY']}",
+                "Content-Type": "application/json",
+            },
+            json=body,
+        )
+        if res.status_code != 429:
+            return res
+
+        retry_after = int(res.headers.get("retry-after", 0))
+        wait = retry_after if retry_after else min(60, 2 ** attempt + random.random())
+        time.sleep(wait)
+
+    raise RuntimeError(f"Rate limited après {max_retries} tentatives")
+```
+
+</CodeGroup>
+
+<Warning>
+**N'attaque pas la même seconde N fois.** Une boucle `while (status === 429) retry()` sans backoff garantit que tu seras toujours rate-limité. Le serveur ne te débloquera pas plus vite parce que tu insistes.
+</Warning>
+
+## Headers de rate limit
+
+Les routes engine n'exposent pas de headers `X-RateLimit-Remaining` ni `X-RateLimit-Reset` aujourd'hui. Pour estimer ta consommation en temps réel, utilise [`GET /api/billing/usage`](/api-reference/endpoints/billing-usage) qui retourne `tickets_used` / `tickets_limit` / `overage_tickets` du mois en cours.
+
+## Augmenter tes limites
+
+| Besoin                                  | Action                                                    |
+| --------------------------------------- | --------------------------------------------------------- |
+| Quota mensuel saturé                    | Upgrade plan ou achète un pack de crédits (Free → Starter) |
+| Pic ponctuel > 200 msg/h sur 1 client   | Contacte `contact@actero.fr`, on lift temporairement       |
+| Anti-spam customer (10 msg/10 min)      | Pas de override : c'est une protection métier, pas commerciale |
+| Webhooks entrants Stripe/Shopify        | Pas de limite (signature HMAC vérifiée à la place)        |
+
+Pour des volumes Enterprise (>50 000 tickets/mois ou >1 000 messages/heure), on peut basculer sur Upstash Redis pour un rate limit cluster-wide. Demande au support.
+
+## Idempotence et anti-rejeu
+
+Voir l'introduction → [Idempotence](/api-reference/introduction#idempotence). En court : les **webhooks entrants** sont dédupliqués par `(provider, event_id)` pendant 30 jours. Ton code peut donc rejouer en toute sécurité un webhook reçu deux fois — l'effet sera identique.

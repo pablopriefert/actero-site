@@ -1,9 +1,163 @@
 ---
-title: "Templates Variables"
-description: "Documentation à compléter."
+title: "Templates & variables"
+description: "Réponses pré-rédigées et variables dynamiques utilisables dans les emails et la validation manuelle."
 ---
 
+Les **templates de réponse** sont des messages pré-rédigés que tu réutilises depuis l'écran **À traiter** quand tu valides une escalade. Ils accélèrent ton travail sur les cas répétitifs (remboursement type, demande d'info supplémentaire, fermeture de ticket…).
+
+Tu les gères dans le dashboard sous **Mes tickets → Templates de réponse**.
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Les templates sont **différents** de la base de connaissances. La KB nourrit l'agent IA pour qu'il génère des réponses originales. Les templates sont des **réponses fixes** que toi, humain, colles dans une réponse manuelle.
 </Note>
+
+## Créer un template
+
+<Steps>
+  <Step title="Va dans Templates de réponse">
+    Sidebar → **Mes tickets → Templates de réponse** (visible dès que tu as au moins une escalade).
+  </Step>
+  <Step title="Clique Nouveau template">
+    Ouvre la modale de création.
+  </Step>
+  <Step title="Remplis les champs">
+    - **Nom** (obligatoire) — ex: "Remboursement livraison retardée"
+    - **Raccourci** (optionnel) — ex: `/rembourse` pour le retrouver vite
+    - **Catégorie** (optionnel) — pour filtrer dans la liste
+    - **Corps du template** (obligatoire) — le texte avec ses variables
+  </Step>
+  <Step title="Enregistre">
+    Le template est immédiatement disponible dans toutes tes escalades.
+  </Step>
+</Steps>
+
+## Utiliser un template dans une escalade
+
+Quand tu ouvres une escalade dans **À traiter** et que tu cliques **Rédiger ma propre réponse**, un sélecteur de templates apparaît au-dessus du champ de réponse. Tu cherches par nom, catégorie, raccourci ou contenu, tu cliques, le contenu est inséré dans ta réponse.
+
+Le compteur `usage_count` du template est incrémenté automatiquement, ce qui te permet de voir tes templates les plus utilisés en premier dans la liste.
+
+## Variables disponibles
+
+Les variables s'écrivent entre doubles accolades : `{{nom_variable}}`. À l'envoi, elles sont remplacées par les vraies valeurs du ticket en cours.
+
+<Warning>
+Le système de variables est **partiel** aujourd'hui. Toutes les variables listées ci-dessous fonctionnent dans les templates de la **comptabilité automatisée** et dans le **widget de chat**. Pour les templates de réponse SAV, l'interpolation complète arrive en Q2 2026 — pour l'instant, considère les variables comme des placeholders à remplacer manuellement.
+</Warning>
+
+### Variables client
+
+| Variable | Description | Exemple |
+|---|---|---|
+| `{{prenom}}` | Prénom du client | Marie |
+| `{{customer_name}}` | Nom complet | Marie Dupont |
+| `{{customer_email}}` | Email du client | marie@example.com |
+
+### Variables commande (Shopify)
+
+| Variable | Description | Exemple |
+|---|---|---|
+| `{{order_number}}` | Numéro de commande | #1042 |
+| `{{order_total}}` | Total de la commande | 89,00 € |
+| `{{order_status}}` | Statut Shopify | fulfilled |
+| `{{tracking_number}}` | Numéro de suivi | LX123456789FR |
+| `{{tracking_url}}` | URL de suivi | https://… |
+| `{{carrier}}` | Transporteur | Colissimo |
+
+### Variables marque
+
+| Variable | Description | Exemple |
+|---|---|---|
+| `{{brand_name}}` | Nom de ta marque | Aurore Cosmétiques |
+| `{{email_signature}}` | Signature configurée | — L'équipe Aurore |
+
+### Variables comptabilité (playbook compta)
+
+Disponibles uniquement dans les templates du playbook **Comptabilité automatisée** :
+
+| Variable | Description |
+|---|---|
+| `{{client.nom}}` | Nom du client final |
+| `{{facture.numero}}` | Numéro de facture |
+| `{{facture.montant}}` | Montant de la facture |
+| `{{facture.jours_retard}}` | Jours depuis l'échéance |
+
+## Exemple de template
+
+**Nom :** Remboursement livraison retardée
+**Raccourci :** `/rembourse-livraison`
+**Catégorie :** Remboursement
+**Corps :**
+
+```
+Bonjour {{prenom}},
+
+Je suis vraiment désolée pour le retard sur ta commande {{order_number}}.
+Suite à notre échange, je viens de procéder au remboursement intégral
+de {{order_total}} sur ta carte d'origine. Tu devrais voir le crédit
+sous 3 à 5 jours ouvrés.
+
+Encore merci pour ta patience.
+
+{{email_signature}}
+```
+
+## Tester un template
+
+Le builder ne propose pas de prévisualisation avec données réelles aujourd'hui. Pour tester, ouvre une escalade existante, clique **Rédiger ma propre réponse**, sélectionne ton template — tu verras le rendu final avant l'envoi.
+
+## Sauvegarder une réponse comme template
+
+Quand tu rédiges une réponse manuelle dans une escalade, un bouton **Sauvegarder comme template** apparaît une fois 30 caractères tapés. Une modale te demande nom + catégorie, et le template est créé sans quitter l'écran.
+
+Ça transforme tes réponses récurrentes en briques réutilisables sans friction.
+
+## Catégories courantes
+
+Pas de liste fermée — tu nommes tes catégories comme tu veux. Quelques conventions chez nos clients :
+
+- **Remboursement** — réponses qui clôturent un remboursement
+- **Info supplémentaire** — demande de précision au client
+- **Excuse** — pour reconnaître un défaut côté marque
+- **Échange** — gestion des échanges de taille/couleur
+- **Hors politique** — refus poli d'une demande non couverte
+
+## Limites par plan
+
+| Plan | Templates max |
+|---|---|
+| Free | 5 |
+| Starter | 20 |
+| Pro | Illimité |
+| Scale | Illimité |
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Puis-je partager mes templates entre membres d'équipe ?">
+    Oui, par défaut. Tous les templates sont scopés au compte client, pas à l'utilisateur. N'importe quel membre de l'équipe peut les voir et les utiliser.
+  </Accordion>
+  <Accordion title="Les variables fonctionnent-elles dans les emails de relance panier ?">
+    Oui, prénom et numéro de commande sont injectés automatiquement par le playbook `abandoned_cart`. Tu n'as pas à toucher au template.
+  </Accordion>
+  <Accordion title="Puis-je avoir des templates en plusieurs langues ?">
+    Oui — crée un template par langue. Convention : préfixer par le code ISO, ex: `[EN] Refund - delayed shipping`.
+  </Accordion>
+  <Accordion title="Que se passe-t-il si une variable n'a pas de valeur ?">
+    La variable est remplacée par une chaîne vide ou un tiret `—` selon le contexte. Pour `{{prenom}}` notamment, l'agent retombe sur "Bonjour" tout court si le prénom est manquant.
+  </Accordion>
+</AccordionGroup>
+
+## Pour aller plus loin
+
+<CardGroup cols={2}>
+  <Card title="Validation manuelle" icon="inbox" href="/agent/manual-review">
+    Le contexte où tu utilises les templates au quotidien.
+  </Card>
+  <Card title="Configurer ton agent" icon="wand-magic-sparkles" href="/agent/prompt-builder">
+    Pour que l'agent réponde déjà bien sans template.
+  </Card>
+  <Card title="Playbooks" icon="rocket" href="/agent/playbooks">
+    Les playbooks qui consomment certaines variables.
+  </Card>
+</CardGroup>

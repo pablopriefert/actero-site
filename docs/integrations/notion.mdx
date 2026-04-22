@@ -1,9 +1,108 @@
 ---
 title: "Notion"
-description: "Documentation à compléter."
+description: "Connecte Notion à Actero pour alimenter automatiquement la base de connaissances de ton agent."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+Si ta documentation interne (politique de retour, FAQ produit, scripts SAV, processus opérationnels) vit dans **Notion**, connecte-le à Actero pour que ton agent y accède en lecture continue. Plus besoin de copier-coller ta doc dans la base de connaissances : tu modifies dans Notion, l'agent se synchronise.
+
+## Prérequis
+
+- Un workspace **Notion** actif (Free, Plus, Business, Enterprise)
+- Le rôle **Admin** ou **Member avec permission "Add & remove integrations"**
+- Une ou plusieurs pages / databases dédiées à la doc client (politique de retour, FAQ, etc.)
+- Un compte Actero, plan **Starter** ou supérieur
+
+## Connexion (OAuth officiel Notion)
+
+<Steps>
+  <Step title="Ouvre Intégrations dans Actero">
+    **Intégrations → Base de connaissances → Notion → Connecter**.
+  </Step>
+  <Step title="Autorise Actero sur ton workspace Notion">
+    Tu es redirigé vers `api.notion.com/v1/oauth/authorize`. Connecte-toi avec ton compte Notion et choisis le **workspace** à connecter.
+  </Step>
+  <Step title="Sélectionne les pages partagées">
+    Notion te demande de **choisir explicitement** les pages et databases qu'Actero peut voir. C'est une sécurité Notion : par défaut Actero ne voit RIEN, tu décides ce qui est partagé. Coche les pages "Politique retour", "FAQ produit", "Scripts SAV", etc.
+  </Step>
+  <Step title="Retour dans Actero">
+    Tu reviens avec le badge **Connecté**. L'indexation initiale (lecture + chunking + embeddings) prend de quelques secondes à quelques minutes selon le volume.
+  </Step>
+</Steps>
+
+<Tip>
+Tu peux ajouter ou retirer des pages plus tard depuis Notion → **clique sur "..." → Connections → Actero → Add/Remove pages**. Actero détecte le changement à la prochaine synchro.
+</Tip>
+
+## Quelles données circulent
+
+- **Contenu textuel** des pages partagées (titres, paragraphes, listes, callouts, tables)
+- **Propriétés de databases** (nom, statut, tags, dates)
+- **Liens internes** suivis pour découvrir les pages liées
+
+Actero **ne lit pas** : commentaires, historique de version, fichiers/images attachés (le contenu binaire n'est pas indexé).
+
+## Synchronisation
+
+- **Initiale** : lors de la connexion, indexation complète des pages partagées
+- **Continue** : Actero re-poll Notion **toutes les 6 heures** pour détecter les modifs
+- **Manuelle** : depuis **Intégrations → Notion → Synchroniser maintenant**, tu forces une resynchro immédiate (utile après un gros update doc)
+
+Chaque page Notion est découpée en **chunks** sémantiques (~500 tokens), embeddings calculés via OpenAI `text-embedding-3-small`, et stockée dans Supabase pgvector. L'agent fait du retrieval contextuel à chaque conversation.
+
+## Bonnes pratiques
+
+<AccordionGroup>
+  <Accordion title="Structurer en pages atomiques">
+    Une page = un sujet. "Politique de retour France", "Politique de retour international", "Garantie produit X" — plutôt qu'une seule mega-page de 50 sections. L'agent retrouve mieux les bonnes infos quand chaque page est ciblée.
+  </Accordion>
+  <Accordion title="Mettre à jour la dernière modif">
+    Tes équipes voient quand la page a été modifiée. Si tu changes une politique, fais un petit commit visible dans Notion — ça aide à debugger si l'agent répond avec une vieille version (cache 6h max).
+  </Accordion>
+  <Accordion title="Éviter les liens externes critiques">
+    Si une réponse dépend d'une page Notion qui pointe vers Google Docs, l'agent ne suit pas le lien. Inline les infos critiques directement dans Notion.
+  </Accordion>
+  <Accordion title="Tagger les pages avec un emoji ou prefix">
+    Préfixer les pages destinées à l'agent par 🤖 ou `[SAV]` aide tes équipes à comprendre que cette page est exposée à Actero.
+  </Accordion>
+</AccordionGroup>
+
+## Combinaison avec d'autres sources
+
+Si tu as déjà une base de connaissances **manuelle** dans Actero, Notion s'ajoute en **complément**. L'agent privilégie la source **la plus récente** en cas de conflit. Tu peux désactiver l'une ou l'autre à tout moment.
+
+Compatible avec [Intercom Articles](/integrations/intercom) et [Zendesk Help Center](/integrations/zendesk) si tu les actives en parallèle — Actero combine les sources et privilégie la plus récente en cas de conflit.
+
+## Déconnexion
+
+**Intégrations → Notion → Déconnecter** révoque le token OAuth et stoppe la synchro. Le contenu déjà indexé est purgé des embeddings sous 24 h. Tu peux aussi révoquer Actero depuis Notion → **Settings → My connections → Actero → Remove**.
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="L'agent répond avec une info périmée">
+    Le cache Notion est de 6 h. Force une resynchro depuis **Intégrations → Notion → Synchroniser maintenant**.
+  </Accordion>
+  <Accordion title="Une page que je viens de partager n'apparaît pas">
+    Notion peut prendre quelques minutes à propager les changements de permissions. Attends 5 minutes puis force une resynchro.
+  </Accordion>
+  <Accordion title="L'agent ne trouve pas une info pourtant dans la page">
+    Vérifie que la page est bien partagée (Notion → page → Connections → Actero). Si oui, c'est probablement un problème de **chunking** : la formulation dans Notion est trop différente de la question client. Reformule la page avec les vrais mots qu'utilisent tes clients.
+  </Accordion>
+  <Accordion title="J'ai un workspace Notion personnel et un workspace pro">
+    L'OAuth te demande de choisir lequel connecter. Tu ne peux en connecter qu'un par compte Actero (Plan Entreprise = multi-workspace).
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Notion supporte-t-il les images / PDFs ?">
+    L'agent lit le **texte**, pas les images ni le contenu des PDFs attachés. Si tu as une politique en PDF, copie le contenu en texte directement dans la page Notion.
+  </Accordion>
+  <Accordion title="Combien de pages puis-je connecter ?">
+    Pas de limite stricte côté Actero, mais Notion limite l'API à 3 requêtes/seconde. Au-delà de 500 pages, la synchro initiale peut prendre 1 h.
+  </Accordion>
+  <Accordion title="Les sub-pages (pages enfants) sont-elles incluses ?">
+    Oui. Quand tu partages une page parent, toutes les sub-pages le sont automatiquement.
+  </Accordion>
+</AccordionGroup>

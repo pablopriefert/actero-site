@@ -1,9 +1,145 @@
 ---
-title: "Base Connaissance"
-description: "Documentation à compléter."
+title: "Base de connaissances"
+description: "Nourris ton agent avec tes politiques, FAQ, infos produits et règles internes — pour qu'il réponde avec tes vraies infos."
 ---
 
-<Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
-</Note>
+La base de connaissances (KB), c'est la mémoire de ton agent. Sans elle, ton agent ne sait rien de spécifique à ta boutique. Avec elle, il répond avec **tes** délais, **tes** politiques, **tes** infos produits.
+
+Plus la base est riche, plus ton agent est autonome. Une base de 5 entrées résout déjà 30-40 % des tickets ; une base de 30+ entrées dépasse 60 %.
+
+## Où se trouve la KB
+
+Sidebar : **Mon Agent → Base de connaissances**.
+
+Tu vois la liste de tes entrées triées par catégorie. Cinq catégories prédéfinies :
+
+| Catégorie | Pour quoi |
+|---|---|
+| **Politiques** | Retours, livraison, remboursement, garantie |
+| **FAQ** | Questions récurrentes type "C'est quoi votre délai ?" |
+| **Produits / Biens** | Caractéristiques, tailles, composition |
+| **Ton & Style** | Règles éditoriales (signature, vocabulaire à éviter) |
+| **Infos temporaires** | Promo en cours, rupture de stock, congés |
+
+## Trois façons de remplir la KB
+
+### 1. Ajout manuel
+
+Le plus simple pour démarrer.
+
+<Steps>
+  <Step title="Choisis une catégorie">
+    Clique sur la catégorie dans le menu de gauche.
+  </Step>
+  <Step title="Clique 'Ajouter une entrée'">
+    Un formulaire apparaît avec deux champs : titre et contenu.
+  </Step>
+  <Step title="Donne un titre clair et orienté question">
+    Ex : _"Politique de retour pour les produits sur mesure"_, pas _"Retours"_. Plus le titre matche une question client, mieux l'agent retrouve l'entrée.
+  </Step>
+  <Step title="Rédige le contenu en langage naturel">
+    Comme si tu expliquais à un nouveau collègue. Évite le jargon interne. Indique délais, conditions, exceptions.
+  </Step>
+  <Step title="Sauvegarde">
+    L'entrée est immédiatement disponible pour la prochaine conversation.
+  </Step>
+</Steps>
+
+### 2. Import depuis une URL
+
+Si tu as déjà une page Help Center ou une page CGV, tu peux l'importer.
+
+<Steps>
+  <Step title="Clique 'Importer depuis URL'">
+    Modal d'import.
+  </Step>
+  <Step title="Colle l'URL de ta page (ex: shop.com/livraison)">
+    L'agent crawle la page, extrait les sections principales et propose un découpage en entrées KB.
+  </Step>
+  <Step title="Valide ou ajuste les entrées proposées">
+    Tu peux retirer celles qui ne sont pas pertinentes avant import définitif.
+  </Step>
+</Steps>
+
+<Tip>
+Bons candidats à l'import URL : page Livraison, page Retours, page FAQ. Mauvais candidats : page À propos, blog, fiche produit (trop spécifique — préfère importer le catalogue Shopify automatiquement via l'intégration).
+</Tip>
+
+### 3. Upload de fichier
+
+Pour les documents internes (PDF interdit pour l'instant — préfère un export texte ou markdown).
+
+<Steps>
+  <Step title="Clique 'Importer un fichier'">
+    Sélectionne un .txt, .md ou .csv (max 4 Mo).
+  </Step>
+  <Step title="L'agent découpe automatiquement en entrées">
+    Une entrée par section H1/H2 pour le markdown, une par ligne pour les CSV bien formés.
+  </Step>
+  <Step title="Vérifie le résultat">
+    Va dans la liste des entrées, supprime ou édite ce qui ne va pas.
+  </Step>
+</Steps>
+
+<Warning>
+Les fichiers > 50 000 caractères sont tronqués. Pour de gros volumes, découpe en plusieurs uploads thématiques.
+</Warning>
+
+## L'éditeur Ton & Style
+
+Une catégorie spéciale dans la KB. Au lieu d'un texte libre, tu remplis un formulaire structuré :
+
+- **Tutoiement / Vouvoiement** : toggle
+- **Ton** : Formel / Professionnel / Décontracté / Amical
+- **Signature** : ce qui apparaît à la fin de chaque message
+- **Mots interdits** : liste séparée par virgules
+- **Instructions custom** : tout le reste
+
+C'est complémentaire de l'éditeur de marque (voir [Ton de marque](/essentials/ton-marque)).
+
+## Bonnes pratiques
+
+<AccordionGroup>
+  <Accordion title="Une entrée = une intention">
+    Une entrée par sujet précis. Mauvais : une entrée "Tout sur les retours" qui mélange délais, conditions, frais, exceptions. Bon : 4 entrées séparées.
+  </Accordion>
+  <Accordion title="Mets-toi à la place du client">
+    Quand tu rédiges, imagine la question exacte qu'un client va poser. Le titre doit y répondre.
+  </Accordion>
+  <Accordion title="Mets à jour les infos temporaires">
+    Si tu mets en KB "Livraison gratuite jusqu'au 31 mars", supprime ou archive l'entrée le 1er avril. L'agent prend les infos à la lettre — il continuera à promettre la livraison gratuite si tu oublies.
+  </Accordion>
+  <Accordion title="Évite les contradictions">
+    Si tu écris dans une entrée "Retours sous 14 jours" et dans une autre "Retours sous 30 jours", l'agent va prendre l'une ou l'autre selon la conversation. Audite régulièrement.
+  </Accordion>
+</AccordionGroup>
+
+## Synchronisation Shopify
+
+Quand l'intégration Shopify est connectée, l'agent a déjà accès en lecture à :
+
+- Les produits et leurs descriptions
+- Les commandes (statut, tracking, articles)
+- Le profil client (historique, panier moyen)
+
+Pas besoin de copier ces infos dans la KB. **La KB est réservée à ce que Shopify ne sait pas** : tes politiques, ton ton, tes règles métier.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Limite d'entrées par plan ?">
+    Plan Free : 10 entrées. Plans Starter / Pro / Entreprise : illimité.
+  </Accordion>
+  <Accordion title="L'agent ignore une de mes entrées — pourquoi ?">
+    Trois causes courantes : 1) le titre ne matche pas la question, reformule plus orienté question. 2) Une entrée plus récente la contredit. 3) Un guardrail interdit le sujet (voir [Guardrails](/essentials/guardrails)).
+  </Accordion>
+  <Accordion title="Comment je teste qu'une nouvelle entrée fonctionne ?">
+    Va dans le [Simulateur](/essentials/simulator) et pose la question correspondante. Si l'agent répond avec ton entrée, c'est OK. Sinon, retravaille le titre ou enrichis le contenu.
+  </Accordion>
+  <Accordion title="Puis-je organiser les entrées par tag ?">
+    Oui : la catégorie sert de tag principal. Les sous-tags ne sont pas exposés dans l'UI mais existent en base — contacte le support si tu en as besoin.
+  </Accordion>
+  <Accordion title="Et le RAG / vecteurs, c'est sous le capot ?">
+    Oui. Les entrées sont indexées vectoriellement à chaque création/édition. La recherche sémantique tourne automatiquement à chaque conversation. Tu n'as rien à configurer.
+  </Accordion>
+</AccordionGroup>

@@ -1,9 +1,174 @@
 ---
-title: "Billing Usage"
-description: "Documentation à compléter."
+title: "GET /billing/usage"
+description: "Récupère la consommation tickets + minutes vocales du mois en cours, le plan actif, et l'overage facturable."
 ---
 
+L'endpoint `billing/usage` te retourne la consommation du mois calendaire courant pour un tenant donné. C'est ce que le dashboard utilise pour afficher la jauge "X / Y tickets utilisés" et estimer la prochaine facture.
+
+```http
+GET https://actero.fr/api/billing/usage?client_id=<id>
+```
+
+## Authentification
+
+`Authorization: Bearer <jwt>` ou `Bearer <ak_…>`.
+
+L'utilisateur doit être :
+
+- **Admin Actero** (équipe interne, accès à tous les tenants), **ou**
+- **Membre du `client_id`** (présent dans la table `client_users`).
+
+Sinon → `403 Acces refuse.`
+
+## Query params
+
+<ParamField query="client_id" type="string" required>
+  ULID du tenant. Si absent → `400 Missing client_id`.
+</ParamField>
+
+## Headers
+
+| Header          | Valeur                  | Requis |
+| --------------- | ----------------------- | ------ |
+| `Authorization` | `Bearer <token>`        | Oui    |
+
+## Response — `200 OK`
+
+```json
+{
+  "plan": "pro",
+  "period": "2026-04",
+  "tickets_used": 1247,
+  "tickets_limit": 5000,
+  "voice_minutes_used": 38,
+  "voice_minutes_limit": 200,
+  "overage_tickets": 0,
+  "overage_cost": 0,
+  "trial_ends_at": null,
+  "next_billing_date": "2026-05-01"
+}
+```
+
+<ResponseField name="plan" type="enum">`free`, `starter`, `pro`, `enterprise`. Lu depuis `clients.plan`.</ResponseField>
+
+<ResponseField name="period" type="string">Mois calendaire au format `YYYY-MM`. Tous les compteurs ci-dessous sont **strictement** sur ce mois — ils repassent à 0 le 1er du mois suivant.</ResponseField>
+
+<ResponseField name="tickets_used" type="integer">Nombre de tickets traités par l'agent ce mois (passage Brain + Executor, peu importe le résultat).</ResponseField>
+
+<ResponseField name="tickets_limit" type="integer">Quota du plan. Vaut **`-1`** si illimité (Enterprise).</ResponseField>
+
+<ResponseField name="voice_minutes_used" type="number">Minutes consommées par l'agent vocal (ElevenLabs). 0 sur les plans Free / Starter qui n'incluent pas la voix.</ResponseField>
+
+<ResponseField name="voice_minutes_limit" type="number">Quota minutes vocales du plan. **`-1`** si illimité.</ResponseField>
+
+<ResponseField name="overage_tickets" type="integer">Nombre de tickets traités au-delà du quota (uniquement Starter / Pro). Facturés au taux du plan.</ResponseField>
+
+<ResponseField name="overage_cost" type="number">Montant en euros qui s'ajoutera à la prochaine facture, arrondi au centime. `overage_tickets * overage_rate`.</ResponseField>
+
+<ResponseField name="trial_ends_at" type="string|null">ISO timestamp de fin de période d'essai. `null` si le tenant n'est pas en trial.</ResponseField>
+
+<ResponseField name="next_billing_date" type="string">Date approximative de prochain prélèvement Stripe (1er du mois suivant). Format `YYYY-MM-DD`.</ResponseField>
+
+## Response — autres cas
+
+### `400 Bad Request`
+
+```json
+{ "error": "Missing client_id" }
+```
+
+### `401 Unauthorized`
+
+```json
+{ "error": "Non autorise." }
+```
+
+### `403 Forbidden`
+
+```json
+{ "error": "Acces refuse." }
+```
+
+### `404 Not Found`
+
+```json
+{ "error": "Client introuvable." }
+```
+
+### `405 Method Not Allowed`
+
+Cet endpoint accepte uniquement `GET`. Tout autre verbe renvoie `405`.
+
+### `500 Internal Server Error`
+
+```json
+{ "error": "Erreur interne." }
+```
+
+## Tarifs d'overage
+
+| Plan       | Tickets inclus | Overage rate         |
+| ---------- | -------------- | -------------------- |
+| Free       | 50             | 0 € (hard cap, pas d'overage) |
+| Starter    | 1 000          | 0,10 € / ticket      |
+| Pro        | 5 000          | 0,10 € / ticket      |
+| Enterprise | Illimité       | —                    |
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Les `price_ids` Stripe ne sont **pas** exposés via l'API publique — ils restent server-side (commit `1e1bd96`). Si tu construis un dashboard custom, lis `overage_cost` directement depuis cet endpoint plutôt que recalculer côté client.
 </Note>
+
+## Exemples
+
+<CodeGroup>
+
+```bash curl
+curl "https://actero.fr/api/billing/usage?client_id=$ACTERO_CLIENT_ID" \
+  -H "Authorization: Bearer $ACTERO_API_KEY"
+```
+
+```js Node.js
+const url = new URL('https://actero.fr/api/billing/usage')
+url.searchParams.set('client_id', process.env.ACTERO_CLIENT_ID)
+
+const res = await fetch(url, {
+  headers: { Authorization: `Bearer ${process.env.ACTERO_API_KEY}` },
+})
+const usage = await res.json()
+
+const pct = (usage.tickets_used / usage.tickets_limit) * 100
+console.log(`${usage.tickets_used}/${usage.tickets_limit} tickets (${pct.toFixed(1)}%)`)
+
+if (usage.overage_cost > 0) {
+  console.warn(`Overage : ${usage.overage_cost} € facturés en plus le ${usage.next_billing_date}`)
+}
+```
+
+```python Python
+import os, requests
+
+res = requests.get(
+    "https://actero.fr/api/billing/usage",
+    params={"client_id": os.environ["ACTERO_CLIENT_ID"]},
+    headers={"Authorization": f"Bearer {os.environ['ACTERO_API_KEY']}"},
+)
+usage = res.json()
+
+if usage["tickets_limit"] != -1:
+    pct = usage["tickets_used"] / usage["tickets_limit"] * 100
+    print(f"{usage['tickets_used']}/{usage['tickets_limit']} tickets ({pct:.1f}%)")
+```
+
+</CodeGroup>
+
+## Polling vs webhook
+
+Pour suivre la consommation en temps réel **sans** poller cet endpoint en continu, abonne-toi à l'événement `usage.threshold_reached` via un [webhook sortant](/api-reference/webhooks). Tu reçois un POST quand le tenant franchit 80 % puis 100 % de son quota mensuel — utile pour :
+
+- Notifier l'équipe finance avant le hard cap (Free).
+- Déclencher un upgrade automatique côté ton CRM.
+- Pause-r ton crawl/import si tu sais que chaque event = 1 ticket.
+
+## Rate limit
+
+60 requêtes / minute / user. Largement suffisant pour un polling raisonnable (1× par heure suffit dans 99 % des cas).

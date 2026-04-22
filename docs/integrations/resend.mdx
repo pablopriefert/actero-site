@@ -1,9 +1,104 @@
 ---
 title: "Resend"
-description: "Documentation à compléter."
+description: "Connecte Resend à Actero pour envoyer les réponses, escalades, résumés et notifications emails de ton agent."
 ---
 
+[Resend](https://resend.com) est un service d'envoi d'emails transactionnels moderne, conçu pour les développeurs. Actero l'utilise comme **service d'envoi recommandé** pour toutes les communications sortantes : réponses agent, alertes d'escalade, résumés hebdo, notifications système. Plus fiable et plus rapide que Gmail ou SMTP, avec une meilleure déliverabilité.
+
+## Prérequis
+
+- Un compte **Resend** (free tier inclut 3 000 emails/mois et 100/jour)
+- Un **domaine vérifié** dans Resend (DKIM, SPF, DMARC configurés — Resend te guide étape par étape)
+- Une **clé API Resend** (`re_xxxxxxxx...`)
+- Un compte Actero, plan **Starter** ou supérieur
+
+## Connexion
+
+<Steps>
+  <Step title="Crée ta clé API dans Resend">
+    Dans Resend, va dans **API Keys → Create API Key**. Donne-lui un nom explicite ("Actero Production"), choisis le scope **Full access** ou **Sending access** (suffisant). Copie la clé qui commence par `re_`.
+  </Step>
+  <Step title="Ouvre Intégrations dans Actero">
+    **Intégrations → Envoi d'emails → Resend → Connecter**.
+  </Step>
+  <Step title="Colle ta clé API">
+    Dans le modal, colle ta clé `re_xxxxxxxxxxxxxxxx`. Actero teste immédiatement la clé (un appel `/domains` côté Resend) et te confirme la validité.
+  </Step>
+  <Step title="Configure ton domaine d'envoi">
+    Dans **Configurer l'agent → Email → From address**, mets l'adresse email d'envoi (par exemple `sav@ta-boutique.com`). Ce domaine doit être **vérifié dans Resend** au préalable, sinon les envois échoueront en 403.
+  </Step>
+</Steps>
+
+<Warning>
+Sans vérification DKIM/SPF/DMARC du domaine côté Resend, tes emails atterrissent en spam ou sont rejetés. Resend a un wizard très clair pour ajouter les enregistrements DNS — compte 10 minutes la première fois.
+</Warning>
+
+## Pour quoi Actero utilise Resend
+
+Une fois Resend connecté, Actero l'utilise pour **tous** les envois sortants automatiques :
+
+- **Réponses de l'agent** aux clients (si tu n'as pas connecté Gmail ou SMTP/IMAP — sinon Resend est secondaire)
+- **Alertes d'escalade** vers ton équipe (HTML formatté avec contexte ticket)
+- **Résumé quotidien / hebdomadaire** des KPI agent
+- **Notifications système** (intégration cassée, quota atteint, paiement)
+- **Onboarding** des nouveaux membres d'équipe ajoutés
+- **Emails portail client** (magic links pour le portail SAV self-service, le cas échéant)
+
+## Quotas
+
+| Plan Resend | Emails/mois | Emails/jour | Prix |
+|---|---|---|---|
+| Free | 3 000 | 100 | Gratuit |
+| Pro | 50 000 | 5 000 | $20/mois |
+| Pro+ | 100 000+ | Illimité | Sur devis |
+
+Vérifie ton volume mensuel avant de choisir le plan. Une boutique avec 200 tickets/mois consomme typiquement < 1 000 emails Resend (réponses + alertes équipe).
+
+## Sécurité
+
+- Ta clé API Resend est **chiffrée au repos** dans Supabase
+- Aucun envoi n'est possible sans une clé Resend valide (fail closed)
+- Resend signe automatiquement DKIM les emails sortants si ton domaine est vérifié
+
+## Logs & déliverabilité
+
+Tous les envois sont visibles dans Resend → **Logs** : ouverture, clic, bounce, complaint, status SMTP. Si un email échoue, Actero retry 3 fois (backoff exponentiel) puis log l'erreur dans le dashboard Actero (**Notifications → Échecs d'envoi**).
+
+## Déconnexion
+
+**Intégrations → Resend → Déconnecter** supprime la clé API de la base Actero. Tu peux aussi révoquer la clé directement dans Resend → **API Keys → Revoke**.
+
 <Note>
-Cette page est un stub. Contenu complet en cours de rédaction.
-Pour toute question immédiate, [contactez le support](mailto:contact@actero.fr).
+Une seule intégration "envoi d'emails" active à la fois. Si tu connectes [SMTP/IMAP](/integrations/smtp-imap) après Resend, Actero te demande lequel garder.
 </Note>
+
+## Problèmes fréquents
+
+<AccordionGroup>
+  <Accordion title="Erreur 403 "Domain not verified"">
+    Le domaine de l'adresse `From` que tu utilises n'est pas vérifié dans Resend. Va dans Resend → **Domains → Verify** et ajoute les enregistrements DNS demandés (DKIM × 3, SPF, DMARC).
+  </Accordion>
+  <Accordion title="Mes emails partent en spam">
+    Trois causes possibles : (1) DKIM/SPF/DMARC pas tous valides, (2) ton domaine est jeune et n'a pas encore de **réputation d'envoi** — envoie un volume modeste pendant 2 semaines pour warm up, (3) ton contenu déclenche des filtres anti-spam (trop de majuscules, beaucoup d'images, mots à risque).
+  </Accordion>
+  <Accordion title="`Daily limit reached` sur le free tier">
+    Tu as dépassé 100 emails/jour. Passe au plan Pro Resend ($20/mois) ou bascule temporairement sur [SMTP/IMAP](/integrations/smtp-imap).
+  </Accordion>
+  <Accordion title="Test "Tester" échoue avec "Invalid API key"">
+    Vérifie que tu as bien copié la clé en entier (commence par `re_`, longue de ~30 caractères). Si la clé a été révoquée côté Resend, génère-en une nouvelle.
+  </Accordion>
+</AccordionGroup>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Pourquoi Resend plutôt que SendGrid / Mailgun / Postmark ?">
+    Resend est le standard recommandé par Actero pour sa simplicité d'onboarding et son free tier généreux. SendGrid et Mailgun fonctionnent aussi, mais nécessitent un setup SMTP custom (passer par [SMTP/IMAP](/integrations/smtp-imap)). Postmark n'est pas encore intégré nativement.
+  </Accordion>
+  <Accordion title="Puis-je utiliser Resend pour Actero ET pour mes propres envois marketing ?">
+    Oui. Crée deux clés API distinctes dans Resend (une "Actero", une "Marketing") pour pouvoir les révoquer indépendamment.
+  </Accordion>
+  <Accordion title="Peut-on combiner Resend (envois auto) + Gmail (envois SAV) ?">
+    Oui. [Gmail](/integrations/gmail) gère les réponses SAV depuis ta boîte humaine, Resend gère les notifications système et résumés. Les deux peuvent coexister.
+  </Accordion>
+</AccordionGroup>
