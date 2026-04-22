@@ -15,15 +15,29 @@ if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.MODE,
+    // Release = commit SHA injected at build time — lets Sentry tie errors to
+    // a specific deploy and show regressions. Mirrors the release name used by
+    // @sentry/vite-plugin to upload sourcemaps.
+    release: import.meta.env.VITE_SENTRY_RELEASE || undefined,
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
         maskAllText: false,
         blockAllMedia: false,
       }),
+      // In-app "Report a bug" button. Users can submit feedback from anywhere
+      // in the dashboard; Sentry attaches the current session + screenshot.
+      Sentry.feedbackIntegration({
+        colorScheme: 'system',
+        buttonLabel: 'Signaler un bug',
+        submitButtonLabel: 'Envoyer',
+        formTitle: 'Signaler un problème',
+        messagePlaceholder: 'Que s\'est-il passé ? (facultatif : vos coordonnées pour un retour)',
+        successMessageText: 'Merci, votre retour a bien été envoyé.',
+      }),
     ],
     tracesSampleRate: 0.1, // 10% of transactions
-    replaysSessionSampleRate: 0.0, // Session replay disabled by default (Amplitude handles it)
+    replaysSessionSampleRate: 0.05, // 5% of normal sessions — UX insight without volume blow-up
     replaysOnErrorSampleRate: 1.0, // 100% of error sessions
     ignoreErrors: [
       'ResizeObserver loop limit exceeded',

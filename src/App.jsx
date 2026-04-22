@@ -87,6 +87,26 @@ function MainRouter() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
+  // Wire Sentry user context to Supabase auth state — any error captured
+  // after this point is tagged with the current user id/email so we can tell
+  // WHICH client hit the bug, not just "someone". Cleared on sign-out.
+  useEffect(() => {
+    if (!supabase || typeof window === "undefined" || !window.Sentry) return;
+    const applyUser = (session) => {
+      if (session?.user) {
+        window.Sentry.setUser({
+          id: session.user.id,
+          email: session.user.email,
+        });
+      } else {
+        window.Sentry.setUser(null);
+      }
+    };
+    supabase.auth.getSession().then(({ data }) => applyUser(data?.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => applyUser(session));
+    return () => sub?.subscription?.unsubscribe();
+  }, []);
+
   const navigate = (path) => {
     window.history.pushState({}, "", path);
     // Strip query params for route matching
@@ -99,6 +119,12 @@ function MainRouter() {
     // Reset Amplitude identity BEFORE signOut so any final queued events land on the
     // correct user, and subsequent anonymous browsing starts a fresh device id.
     resetUser();
+    // Clear Sentry user context too — the onAuthStateChange listener will
+    // also clear it, but being explicit avoids a brief window where a
+    // post-logout error is still attributed to the previous user.
+    if (typeof window !== "undefined" && window.Sentry) {
+      window.Sentry.setUser(null);
+    }
     if (supabase) {
       await supabase.auth.signOut();
     }

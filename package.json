@@ -46,6 +46,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@resvg/resvg-js": "^2.6.2",
+    "@sentry/vite-plugin": "^5.2.0",
     "@tailwindcss/vite": "^4.2.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
