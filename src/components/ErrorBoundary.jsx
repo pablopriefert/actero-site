@@ -32,6 +32,23 @@ class BaseErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
+    // Stale chunk after a new deploy: the hashed bundle filename changed and the
+    // user's cached HTML/JS references a chunk that no longer exists. Force a
+    // hard reload once per session to pick up the new bundle map.
+    const msg = error?.message || ''
+    const isStaleChunk =
+      /Failed to fetch dynamically imported module/i.test(msg) ||
+      /Importing a module script failed/i.test(msg) ||
+      /Loading chunk \d+ failed/i.test(msg)
+    if (isStaleChunk && typeof window !== 'undefined') {
+      const key = 'actero-stale-chunk-reloaded'
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1')
+        window.location.reload()
+        return
+      }
+    }
+
     console.error('[ErrorBoundary]', this.props.scope || 'root', ':', error?.message)
     if (error?.stack) {
       console.error(error.stack.split('\n').slice(0, 5).join('\n'))

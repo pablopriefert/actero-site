@@ -29,6 +29,14 @@ if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
       'ResizeObserver loop limit exceeded',
       'ResizeObserver loop completed with undelivered notifications',
       'Non-Error promise rejection captured',
+      // Supabase GoTrue auto-refresh lock timeout — transient, browser throttles
+      // navigator.locks on backgrounded tabs. Supabase retries on its own.
+      /Acquiring an exclusive Navigator LockManager lock/i,
+      // User navigated away / iOS aborted fetch or media play — not actionable.
+      'AbortError',
+      // Stale bundle after a deploy — ErrorBoundary auto-reloads once per session.
+      /Failed to fetch dynamically imported module/i,
+      /Importing a module script failed/i,
     ],
   })
   // Expose Sentry globally so ErrorBoundary can report errors

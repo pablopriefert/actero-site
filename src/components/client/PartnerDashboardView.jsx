@@ -114,10 +114,10 @@ export const PartnerDashboardView = ({ theme = 'light' }) => {
     )
   }
 
-  if (isError) {
+  if (isError || !data?.partner) {
     return (
       <div className="p-8 text-center">
-        <p className="text-red-500 mb-2">{error?.message}</p>
+        {isError && <p className="text-red-500 mb-2">{error?.message}</p>}
         <p className="text-sm text-[#71717a]">
           Vous n avez pas encore de profil Actero Partner.
         </p>
