@@ -2,7 +2,8 @@
  * OAuth Protected Resource Metadata
  * Tells MCP clients where to find the authorization server
  */
-export default function handler(req, res) {
+import { withSentry } from '../lib/sentry.js'
+function handler(req, res) {
   const siteUrl = process.env.PUBLIC_API_URL || 'https://actero.fr'
 
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -18,3 +19,5 @@ export default function handler(req, res) {
     authorization_servers: [siteUrl],
   })
 }
+
+export default withSentry(handler)

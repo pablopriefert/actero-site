@@ -7,6 +7,7 @@
  * Creates a new partner token + sends the invitation email in one shot.
  * Admin only.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import crypto from 'crypto'
@@ -78,7 +79,7 @@ function renderEmail({ agencyName, contactName, url }) {
 </html>`
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const user = await requireAdmin(req, res)
   if (!user) return
 
@@ -148,3 +149,5 @@ export default async function handler(req, res) {
     })
   }
 }
+
+export default withSentry(handler)

@@ -12,6 +12,7 @@
  * 4. Claude exchanges the code for a token via /api/mcp/token
  * 5. Claude uses the token in Authorization header for all MCP requests
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -160,7 +161,7 @@ async function executeTool(toolName, args, clientId) {
   }
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
@@ -238,3 +239,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
+
+export default withSentry(handler)

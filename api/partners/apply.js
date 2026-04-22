@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js';
 
@@ -14,7 +15,7 @@ function isValidEmail(email) {
  * Public endpoint for the Actero Partners certification program.
  * Creates a partner_applications row with status='pending'.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -103,3 +104,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur serveur. Veuillez réessayer.' });
   }
 }
+
+export default withSentry(handler)

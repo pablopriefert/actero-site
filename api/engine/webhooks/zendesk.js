@@ -8,6 +8,7 @@
  * URL: https://actero.fr/api/engine/webhooks/zendesk?client_id=UUID
  * Or via Zendesk Triggers pointing to this endpoint.
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { processMessage } from '../process.js'
 
@@ -16,7 +17,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -148,3 +149,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

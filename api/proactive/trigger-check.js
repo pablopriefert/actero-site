@@ -7,6 +7,7 @@
  * Body: { client_id }
  * Auth: Bearer JWT.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { runProactiveChecks } from '../lib/proactive-detector.js'
 import { executeProactiveAction } from '../lib/proactive-action.js'
@@ -18,7 +19,7 @@ const supabase = createClient(
 
 export const maxDuration = 60
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const token = req.headers.authorization?.replace('Bearer ', '')
@@ -79,3 +80,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

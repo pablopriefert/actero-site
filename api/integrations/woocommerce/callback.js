@@ -10,6 +10,7 @@
  * This endpoint is called by WooCommerce's server, NOT by the user's browser.
  * No JWT auth — we verify via the client_id (user_id param) and update the integration.
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken } from '../../lib/crypto.js'
 
@@ -18,7 +19,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -92,3 +93,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Internal error' })
   }
 }
+
+export default withSentry(handler)

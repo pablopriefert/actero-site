@@ -1,5 +1,6 @@
 // Send alerts via webhook (Slack/Telegram)
-export default async function handler(req, res) {
+import { withSentry } from './lib/sentry.js'
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -118,3 +119,5 @@ function formatSlackMessage(type, clientName, details) {
     ],
   };
 }
+
+export default withSentry(handler)

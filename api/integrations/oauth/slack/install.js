@@ -1,7 +1,8 @@
+import { withSentry } from '../../../lib/sentry.js'
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const clientId = process.env.SLACK_CLIENT_ID;
   if (!clientId) {
     return res.status(500).json({ error: 'SLACK_CLIENT_ID non configuré' });
@@ -28,3 +29,5 @@ export default async function handler(req, res) {
 
   res.redirect(302, authUrl);
 }
+
+export default withSentry(handler)

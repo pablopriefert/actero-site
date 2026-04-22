@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 
 const PROVIDER_TEST_ENDPOINTS = {
@@ -47,7 +48,7 @@ const PROVIDER_TEST_ENDPOINTS = {
   },
 };
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -148,3 +149,5 @@ async function testProvider(provider, credentials) {
     return { ok: false, message: err.message };
   }
 }
+
+export default withSentry(handler)

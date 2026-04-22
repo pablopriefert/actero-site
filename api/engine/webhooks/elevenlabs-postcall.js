@@ -6,6 +6,7 @@
  *
  * POST /api/engine/webhooks/elevenlabs-postcall
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -30,7 +31,7 @@ async function getRawBody(req) {
   return Buffer.concat(chunks)
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   let rawBody
@@ -297,3 +298,5 @@ export default async function handler(req, res) {
     return res.status(200).json({ received: true, error: err.message })
   }
 }
+
+export default withSentry(handler)

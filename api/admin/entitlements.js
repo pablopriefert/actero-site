@@ -8,6 +8,7 @@
  * POST /api/admin/entitlements?action=sync    → force resync from Stripe
  *   Body: { client_id }
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import {
@@ -34,7 +35,7 @@ async function requireAdmin(req, res) {
   return user
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const user = await requireAdmin(req, res)
   if (!user) return
 
@@ -98,3 +99,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
+
+export default withSentry(handler)

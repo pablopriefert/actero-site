@@ -7,6 +7,7 @@
  * Creates a phone number in ElevenLabs Conversational AI tied to the client's
  * own SIP trunk (OVH, Bouygues Pro, Orange Pro, 3CX, etc.) — no Twilio needed.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 
@@ -28,7 +29,7 @@ function encryptPassword(plaintext) {
   return 'aes:' + iv.toString('base64') + ':' + tag.toString('base64') + ':' + encrypted.toString('base64')
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const token = req.headers.authorization?.replace('Bearer ', '')
@@ -152,3 +153,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

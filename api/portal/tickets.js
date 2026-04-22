@@ -1,7 +1,8 @@
+import { withSentry } from '../lib/sentry.js'
 import { getServiceRoleClient } from './lib/supabase.js';
 import { requirePortalSession } from './lib/session.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'method_not_allowed' });
   let session;
   try { session = await requirePortalSession(req); }
@@ -19,3 +20,5 @@ export default async function handler(req, res) {
   if (error) return res.status(500).json({ error: 'query_failed' });
   return res.status(200).json({ tickets: data });
 }
+
+export default withSentry(handler)

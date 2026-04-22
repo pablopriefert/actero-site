@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -9,7 +10,7 @@ const supabase = createClient(
  * Manual refresh of churn predictions for the current user's client.
  * Rate-limited to 1 call per day per client (based on last predicted_at in churn_predictions).
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const token = req.headers.authorization?.replace('Bearer ', '')
@@ -116,3 +117,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

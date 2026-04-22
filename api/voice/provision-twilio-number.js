@@ -9,6 +9,7 @@
  * POST /api/voice/provision-twilio-number
  *   { client_id, country = 'FR', type = 'mobile' | 'local' }
  */
+import { withSentry } from '../lib/sentry.js'
 import {
   supabaseAdmin,
   authenticateClientAccess,
@@ -21,7 +22,7 @@ import {
 
 const TYPE_TO_TWILIO = { mobile: 'Mobile', local: 'Local' }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   if (!requireElevenLabsKey(res)) return
   if (!requireTwilioCredentials(res)) return
@@ -204,3 +205,5 @@ async function searchAvailable(country, twilioType) {
   }
   return Array.isArray(data?.available_phone_numbers) ? data.available_phone_numbers : []
 }
+
+export default withSentry(handler)

@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit } from '../lib/rate-limit.js';
 
@@ -23,7 +24,7 @@ function generateCode(clientName) {
 // Postgres unique_violation error code
 const PG_UNIQUE_VIOLATION = '23505';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -139,3 +140,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 }
+
+export default withSentry(handler)

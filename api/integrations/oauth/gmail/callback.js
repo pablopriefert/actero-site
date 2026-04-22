@@ -1,7 +1,8 @@
+import { withSentry } from '../../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken } from '../../../lib/crypto.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { code, state, error: oauthError } = req.query;
 
   if (oauthError) {
@@ -107,3 +108,5 @@ export default async function handler(req, res) {
     return res.redirect(302, '/client/integrations?integration=gmail&status=error&message=exception');
   }
 }
+
+export default withSentry(handler)

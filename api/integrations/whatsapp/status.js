@@ -12,13 +12,14 @@
  *
  * Auth: Bearer JWT
  */
+import { withSentry } from '../../lib/sentry.js'
 import {
   supabaseAdmin,
   authenticateClientAccess,
   requireMetaCredentials,
 } from './_helpers.js'
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
   if (!requireMetaCredentials(res)) return
 
@@ -57,3 +58,5 @@ export default async function handler(req, res) {
     ...account,
   })
 }
+
+export default withSentry(handler)

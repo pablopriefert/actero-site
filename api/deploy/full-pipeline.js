@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = () => createClient(
@@ -28,7 +29,7 @@ async function checkAdmin(req) {
   return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -782,3 +783,5 @@ function runChecklist(wfJson, wfType, clientId, brandCtx) {
 
   return checks;
 }
+
+export default withSentry(handler)

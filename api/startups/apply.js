@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
@@ -18,7 +19,7 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
@@ -128,3 +129,5 @@ export default async function handler(req, res) {
     });
   }
 }
+
+export default withSentry(handler)

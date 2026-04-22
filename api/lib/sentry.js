@@ -42,4 +42,38 @@ export function captureMessage(message, level = 'info', context = {}) {
   }
 }
 
+/**
+ * Wrap a Vercel serverless handler so any thrown error (sync or async) is
+ * reported to Sentry and flushed before the lambda terminates.
+ *
+ * Vercel's runtime swallows handler rejections, so global uncaughtException /
+ * unhandledRejection hooks never see them — the wrapper is required to
+ * actually capture errors from API routes.
+ */
+export function withSentry(handler) {
+  return async function wrappedSentryHandler(req, res) {
+    try {
+      return await handler(req, res)
+    } catch (err) {
+      try {
+        Sentry.withScope((scope) => {
+          scope.setTag('endpoint', req.url || 'unknown')
+          scope.setTag('method', req.method || 'unknown')
+          Sentry.captureException(err)
+        })
+        await Sentry.flush(2000)
+      } catch {
+        // Never let error-reporting crash the real response
+      }
+      if (!res.headersSent) {
+        try {
+          res.status(500).json({ error: err?.message || 'Internal Server Error' })
+        } catch {
+          // res already closed — nothing to do
+        }
+      }
+    }
+  }
+}
+
 export { Sentry }

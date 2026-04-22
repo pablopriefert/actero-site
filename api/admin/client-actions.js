@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import crypto from 'crypto'
 import { authenticateAdmin, logAdminAction, readJsonBody, supabaseAdmin } from './_helpers.js'
 
@@ -27,7 +28,7 @@ const ALLOWED_ACTIONS = new Set([
  *
  * Each action is logged to admin_action_logs.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: 'Method Not Allowed' })
@@ -172,3 +173,5 @@ export default async function handler(req, res) {
 
   return res.status(200).json(result)
 }
+
+export default withSentry(handler)

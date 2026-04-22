@@ -12,6 +12,7 @@
  * Body: { client_id: UUID }
  * Auth: Bearer JWT
  */
+import { withSentry } from '../../lib/sentry.js'
 import {
   supabaseAdmin,
   authenticateClientAccess,
@@ -21,7 +22,7 @@ import {
   loadWhatsAppAccount,
 } from './_helpers.js'
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   if (!requireMetaCredentials(res)) return
 
@@ -66,3 +67,5 @@ export default async function handler(req, res) {
     unsubscribe_error: unsubscribeError,
   })
 }
+
+export default withSentry(handler)

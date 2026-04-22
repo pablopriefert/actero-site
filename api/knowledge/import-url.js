@@ -2,6 +2,7 @@
  * Knowledge Base — URL Import via SerpAPI
  * Scrapes a URL's content and uses Claude to extract FAQ pairs.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const SERPAPI_KEY = process.env.SERPAPI_KEY
@@ -12,7 +13,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const token = req.headers.authorization?.replace('Bearer ', '')
@@ -178,3 +179,5 @@ Pas de markdown, pas de commentaires, juste le JSON.`,
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

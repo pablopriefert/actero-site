@@ -15,6 +15,7 @@
  * Env required: META_APP_ID, META_APP_SECRET
  * Env optional: META_GRAPH_VERSION (default v21.0), WHATSAPP_TOKEN_ENCRYPTION_KEY
  */
+import { withSentry } from '../../lib/sentry.js'
 import {
   supabaseAdmin,
   authenticateClientAccess,
@@ -25,7 +26,7 @@ import {
   META_GRAPH_VERSION,
 } from './_helpers.js'
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   if (!requireMetaCredentials(res)) return
 
@@ -183,3 +184,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message || 'Unknown error' })
   }
 }
+
+export default withSentry(handler)

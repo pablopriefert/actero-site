@@ -30,6 +30,7 @@
  * fast.
  */
 
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { loadPlaybook } from '../lib/playbook-loader.js'
@@ -106,7 +107,7 @@ function verifyMetaSignature(rawBody, signatureHeader) {
 /*  Handler                                                                   */
 /* -------------------------------------------------------------------------- */
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // --- GET: Meta verification handshake ---
   if (req.method === 'GET') {
     const mode = req.query?.['hub.mode']
@@ -482,3 +483,5 @@ async function handleInboundMessage({ clientId, account, integration, value, mes
     })
   } catch { /* non-blocking */ }
 }
+
+export default withSentry(handler)

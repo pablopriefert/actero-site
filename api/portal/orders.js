@@ -1,8 +1,9 @@
+import { withSentry } from '../lib/sentry.js'
 import { getServiceRoleClient } from './lib/supabase.js';
 import { requirePortalSession } from './lib/session.js';
 import { listOrdersByCustomerEmail } from './lib/shopify.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'method_not_allowed' });
   let session;
   try { session = await requirePortalSession(req); }
@@ -29,3 +30,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'shopify_query_failed' });
   }
 }
+
+export default withSentry(handler)

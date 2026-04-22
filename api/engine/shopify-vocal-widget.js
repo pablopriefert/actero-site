@@ -2,6 +2,7 @@
  * Actero Engine — Shopify Vocal Widget Auto-Install
  * Installs/uninstalls the ElevenLabs voice agent widget on a Shopify store.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { decryptToken } from '../lib/crypto.js'
 
@@ -13,7 +14,7 @@ const supabase = createClient(
 const VOCAL_TAG = '<!-- ACTERO-VOCAL-WIDGET -->'
 const ELEVENLABS_AGENT_ID = 'agent_6901kns1pd7yfxz9nk6cq0f7gaq4'
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const token = req.headers.authorization?.replace('Bearer ', '')
@@ -91,3 +92,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { Resend } from 'resend';
 import { getServiceRoleClient } from './lib/supabase.js';
 import { generateMagicLinkToken, hashToken } from './lib/auth.js';
@@ -95,7 +96,7 @@ function buildMagicLinkEmailHtml({ url, merchantName, branding }) {
 </html>`;
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
   const { clientId, email, slug } = req.body || {};
   if (!clientId || !email || !slug) return res.status(400).json({ error: 'invalid_input' });
@@ -154,3 +155,5 @@ export default async function handler(req, res) {
 
   return res.status(200).json({ ok: true });
 }
+
+export default withSentry(handler)

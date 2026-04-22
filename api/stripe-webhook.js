@@ -1,3 +1,4 @@
+import { withSentry } from './lib/sentry.js'
 import Stripe from 'stripe';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
@@ -132,7 +133,7 @@ async function onboardClientAfterPayment(funnelClient) {
   return client.id;
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -793,3 +794,5 @@ export default async function handler(req, res) {
 
   return res.status(200).json({ received: true });
 }
+
+export default withSentry(handler)

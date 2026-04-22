@@ -1,6 +1,7 @@
+import { withSentry } from '../../../lib/sentry.js'
 import crypto from 'crypto';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId) {
     return res.status(500).json({ error: 'GOOGLE_CLIENT_ID non configure' });
@@ -24,3 +25,5 @@ export default async function handler(req, res) {
 
   res.redirect(302, authUrl);
 }
+
+export default withSentry(handler)

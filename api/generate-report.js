@@ -1,3 +1,4 @@
+import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -7,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.0-flash';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -172,3 +173,5 @@ RÈGLES :
     });
   }
 }
+
+export default withSentry(handler)

@@ -14,6 +14,7 @@
  *
  * Requires admin role.
  */
+import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { FEATURE_MAP } from '../lib/entitlements.js'
@@ -52,7 +53,7 @@ async function requireAdmin(req, res) {
   return user
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const user = await requireAdmin(req, res)
   if (!user) return
   if (!stripe) return res.status(500).json({ error: 'Stripe non configuré' })
@@ -135,3 +136,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

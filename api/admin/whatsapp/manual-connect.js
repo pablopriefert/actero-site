@@ -16,6 +16,7 @@
  * Body:  { client_id: UUID, access_token: string, phone_number_id: string, waba_id: string }
  * Auth:  Bearer JWT (admin only via requireAdmin)
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { requireAdmin } from '../../lib/admin-auth.js'
 import {
@@ -29,7 +30,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Two auth modes:
@@ -156,3 +157,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message || 'Unknown error' })
   }
 }
+
+export default withSentry(handler)

@@ -4,6 +4,7 @@
  * GET /api/integrations/intercom/authorize?client_id=xxx&token=xxx
  * Requires env: INTERCOM_OAUTH_CLIENT_ID, INTERCOM_OAUTH_CLIENT_SECRET
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -14,7 +15,7 @@ const supabase = createClient(
 const SITE_URL = process.env.PUBLIC_API_URL || 'https://actero.fr'
 const REDIRECT_URI = `${SITE_URL}/api/integrations/intercom/callback`
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { client_id: clientId, token } = req.query
   if (!clientId || !token) return res.status(400).send('Missing client_id or token')
   if (!process.env.INTERCOM_OAUTH_CLIENT_ID) return res.status(500).send('INTERCOM_OAUTH_CLIENT_ID manquant')
@@ -42,3 +43,5 @@ export default async function handler(req, res) {
   res.setHeader('Location', `https://app.intercom.com/oauth?${params}`)
   return res.status(302).end()
 }
+
+export default withSentry(handler)

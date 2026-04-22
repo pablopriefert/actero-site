@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { authenticateAdmin, logAdminAction, readJsonBody, supabaseAdmin } from './_helpers.js'
 
 /**
@@ -14,7 +15,7 @@ import { authenticateAdmin, logAdminAction, readJsonBody, supabaseAdmin } from '
  *  - engine_error     { threshold_pct, window_hours }
  *  - webhook_failure  { threshold, window_minutes }
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   const auth = await authenticateAdmin(req, res)
   if (!auth) return
   const { user: admin } = auth
@@ -142,3 +143,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message || 'Internal error' })
   }
 }
+
+export default withSentry(handler)

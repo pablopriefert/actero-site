@@ -8,6 +8,7 @@
  *
  * POST /api/engine/webhooks/merchant-copilot
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
@@ -17,7 +18,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const { client_id, message } = req.body
@@ -135,3 +136,5 @@ ${dataContext}`,
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

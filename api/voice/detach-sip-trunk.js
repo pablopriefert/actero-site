@@ -4,6 +4,7 @@
  * POST /api/voice/detach-sip-trunk
  * Body: { client_id }
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -13,7 +14,7 @@ const supabase = createClient(
 
 const ELEVENLABS_KEY = process.env.ELEVENLABS_API_KEY
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const token = req.headers.authorization?.replace('Bearer ', '')
@@ -67,3 +68,5 @@ export default async function handler(req, res) {
 
   return res.status(200).json({ success: true })
 }
+
+export default withSentry(handler)

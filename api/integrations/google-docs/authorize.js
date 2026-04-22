@@ -6,6 +6,7 @@
  * Redirects the user to Google OAuth consent with scopes to read Docs & Drive metadata.
  * Requires env: GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -21,7 +22,7 @@ const SCOPES = [
   'https://www.googleapis.com/auth/drive.readonly',
 ].join(' ')
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { client_id: clientId, token } = req.query
   if (!clientId || !token) return res.status(400).send('Missing client_id or token')
   if (!process.env.GOOGLE_OAUTH_CLIENT_ID) return res.status(500).send('GOOGLE_OAUTH_CLIENT_ID manquant')
@@ -54,3 +55,5 @@ export default async function handler(req, res) {
   res.setHeader('Location', `https://accounts.google.com/o/oauth2/v2/auth?${params}`)
   return res.status(302).end()
 }
+
+export default withSentry(handler)

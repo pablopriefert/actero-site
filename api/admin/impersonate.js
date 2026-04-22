@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import crypto from 'crypto'
 import { authenticateAdmin, logAdminAction, readJsonBody, supabaseAdmin } from './_helpers.js'
 
@@ -16,7 +17,7 @@ import { authenticateAdmin, logAdminAction, readJsonBody, supabaseAdmin } from '
  * Note: the actual read-only context switch in ClientDashboard is out of scope
  * for this endpoint — we only mint the token + return the URL.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: 'Method Not Allowed' })
@@ -83,3 +84,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Internal error', message: err.message })
   }
 }
+
+export default withSentry(handler)

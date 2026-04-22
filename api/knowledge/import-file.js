@@ -5,6 +5,7 @@
  * Note: For PDF parsing, the client sends the extracted text (via browser FileReader).
  * Complex PDF parsing would require a library like pdf-parse.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
@@ -19,7 +20,7 @@ export const config = {
   api: { bodyParser: { sizeLimit: '4mb' } },
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const token = req.headers.authorization?.replace('Bearer ', '')
@@ -127,3 +128,5 @@ Reponds UNIQUEMENT en JSON valide:
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

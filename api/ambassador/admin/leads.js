@@ -1,3 +1,4 @@
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '../../lib/admin-auth.js';
 
@@ -7,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const VALID_STATUSES = ['submitted', 'audit_booked', 'second_call', 'client_paid', 'won', 'lost'];
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('X-RateLimit-Limit', '60');
   res.setHeader('X-RateLimit-Window', '60');
 
@@ -92,3 +93,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' });
 }
+
+export default withSentry(handler)

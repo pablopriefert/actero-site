@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { authenticateAdmin, logAdminAction, readJsonBody, supabaseAdmin } from './_helpers.js'
 
 const ALLOWED_TAGS = new Set([
@@ -17,7 +18,7 @@ const ALLOWED_TAGS = new Set([
  * Inserts a row in `engine_run_tags` and logs an entry in `admin_action_logs`.
  * The `correct` tag is treated as an "unflag" but still recorded for audit/training.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: 'Method Not Allowed' })
@@ -80,3 +81,5 @@ export default async function handler(req, res) {
 
   return res.status(200).json({ success: true, id: inserted?.id || null })
 }
+
+export default withSentry(handler)

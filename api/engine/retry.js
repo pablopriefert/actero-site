@@ -4,6 +4,7 @@
  * Re-processes failed messages. Call this via Vercel Cron or n8n schedule.
  * GET /api/engine/retry?secret=ENGINE_WEBHOOK_SECRET
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { processMessage } from './process.js'
 
@@ -16,7 +17,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Auth
   const secret = req.query?.secret || req.headers['x-engine-secret'] || req.headers['x-internal-secret']
   if (secret !== ENGINE_SECRET && secret !== INTERNAL_SECRET) {
@@ -96,3 +97,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

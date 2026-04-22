@@ -2,7 +2,8 @@
  * OAuth Authorization Server Metadata (RFC 8414)
  * Tells MCP clients the OAuth endpoints for authorization
  */
-export default function handler(req, res) {
+import { withSentry } from '../lib/sentry.js'
+function handler(req, res) {
   const siteUrl = process.env.PUBLIC_API_URL || 'https://actero.fr'
 
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -25,3 +26,5 @@ export default function handler(req, res) {
     scopes_supported: ['actero'],
   })
 }
+
+export default withSentry(handler)

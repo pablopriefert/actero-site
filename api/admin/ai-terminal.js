@@ -6,6 +6,7 @@
  *
  * Calls Claude with full Actero context. Can execute read-only Supabase queries.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import Anthropic from '@anthropic-ai/sdk'
 
@@ -148,7 +149,7 @@ async function executeQuery(queryDef) {
   }
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Auth — admin only
@@ -226,3 +227,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur IA: ' + err.message })
   }
 }
+
+export default withSentry(handler)

@@ -6,6 +6,7 @@
  * Webflow redirects here after the user approves. We exchange the
  * authorization code for an access token, then store it in client_integrations.
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken } from '../../lib/crypto.js'
 
@@ -14,7 +15,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -121,3 +122,5 @@ export default async function handler(req, res) {
     return res.redirect(302, `${siteUrl}/client/integrations?integration=webflow&status=error&message=internal`)
   }
 }
+
+export default withSentry(handler)

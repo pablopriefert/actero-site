@@ -19,6 +19,7 @@
  *
  * Auth : JWT Supabase ; scope strict au client_id du caller.
  */
+import { withSentry } from '../lib/sentry.js'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 
@@ -103,7 +104,7 @@ const DRAFTS_SCHEMA = {
   additionalProperties: false,
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: 'Method not allowed' })
@@ -308,3 +309,5 @@ function buildTicketContext(convo) {
 
   return lines.filter(Boolean).join('\n')
 }
+
+export default withSentry(handler)

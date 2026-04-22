@@ -1,8 +1,9 @@
+import { withSentry } from '../lib/sentry.js'
 import { getServiceRoleClient } from './lib/supabase.js';
 
 const PLANS_WITH_CUSTOMIZATION = new Set(['pro', 'enterprise']);
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'method_not_allowed' });
   const hostname = (req.query.hostname || '').toLowerCase();
   if (!hostname) return res.status(400).json({ error: 'hostname_required' });
@@ -45,3 +46,5 @@ export default async function handler(req, res) {
         },
   });
 }
+
+export default withSentry(handler)

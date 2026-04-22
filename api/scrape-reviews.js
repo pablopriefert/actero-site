@@ -1,3 +1,4 @@
+import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from './lib/admin-auth.js';
 
@@ -6,7 +7,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Restrict CORS to our own domain
   const allowedOrigin = process.env.SITE_URL || 'https://actero.fr';
   res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
@@ -155,3 +156,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur lors du scraping: ' + error.message });
   }
 }
+
+export default withSentry(handler)

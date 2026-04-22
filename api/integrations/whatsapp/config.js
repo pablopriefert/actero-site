@@ -14,7 +14,8 @@
  * display a friendly "coming soon" banner instead of crashing. No secrets
  * leave the server — META_APP_SECRET stays backend-only.
  */
-export default function handler(req, res) {
+import { withSentry } from '../../lib/sentry.js'
+function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -43,3 +44,5 @@ export default function handler(req, res) {
     graph_version: graphVersion,
   })
 }
+
+export default withSentry(handler)

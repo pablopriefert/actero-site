@@ -7,6 +7,7 @@
  * Body:  { text, voice_id? }
  * Auth:  Bearer JWT (any authenticated user)
  */
+import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { synthesize, DEFAULT_VOICE_ID } from './lib/tts.js'
 
@@ -15,7 +16,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Auth — any authenticated user can synthesize (rate-limited by ElevenLabs quota).
@@ -41,3 +42,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: error.message || 'TTS failed' })
   }
 }
+
+export default withSentry(handler)

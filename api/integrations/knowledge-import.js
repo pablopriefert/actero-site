@@ -7,6 +7,7 @@
  *
  * Requires Bearer token from authenticated client user.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { decryptToken } from '../lib/crypto.js'
 
@@ -252,7 +253,7 @@ async function fetchNotionPageContent(accessToken, pageId) {
 }
 
 // ─── Main handler ──────────────────────────────────────────
-export default async function handler(req, res) {
+async function handler(req, res) {
   const auth = await requireClient(req, res)
   if (!auth) return
   const { clientId } = auth
@@ -360,3 +361,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

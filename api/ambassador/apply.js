@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js';
 
@@ -18,7 +19,7 @@ function generateCode() {
   return code;
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('X-RateLimit-Limit', '5');
   res.setHeader('X-RateLimit-Window', '60');
 
@@ -217,3 +218,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur serveur.' });
   }
 }
+
+export default withSentry(handler)

@@ -7,6 +7,7 @@
  * DELETE /api/client/webhooks?id=xxx       → delete webhook
  * GET    /api/client/webhooks?id=xxx&deliveries=1 → list last 50 deliveries
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { canAccessFeature } from '../lib/plan-limits.js'
@@ -41,7 +42,7 @@ async function requireClient(req, res) {
   return { user, clientId: link.client_id, plan }
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const auth = await requireClient(req, res)
   if (!auth) return
   const { user, clientId } = auth
@@ -138,3 +139,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
+
+export default withSentry(handler)

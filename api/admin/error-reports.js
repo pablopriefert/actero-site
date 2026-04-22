@@ -7,6 +7,7 @@
  *
  * Admin only.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -60,7 +61,7 @@ async function fetchVercelLogs({ since, until, query }) {
   }
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const user = await requireAdmin(req, res)
   if (!user) return
 
@@ -113,3 +114,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
+
+export default withSentry(handler)

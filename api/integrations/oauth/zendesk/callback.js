@@ -1,3 +1,4 @@
+import { withSentry } from '../../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken } from '../../../lib/crypto.js';
 import { provisionZendeskWebhook } from '../../lib/webhook-provisioner.js';
@@ -17,7 +18,7 @@ import { provisionZendeskWebhook } from '../../lib/webhook-provisioner.js';
  *   — `extra_config.subdomain` pas stocké → connector return
  *     « Zendesk subdomain not configured ». Maintenant persisté.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { code, state, error: oauthError } = req.query;
 
   if (oauthError) {
@@ -133,3 +134,5 @@ export default async function handler(req, res) {
     return res.redirect(302, '/client/integrations?error=zendesk_exception');
   }
 }
+
+export default withSentry(handler)

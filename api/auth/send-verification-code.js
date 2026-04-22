@@ -11,6 +11,7 @@
  *
  * Returns: { success: true }
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import crypto from 'crypto'
@@ -32,7 +33,7 @@ function generateCode() {
   return String(crypto.randomInt(0, 1000000)).padStart(6, '0')
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Rate limit: 5 verification requests per IP per hour
@@ -120,3 +121,5 @@ function renderEmail({ code }) {
 </body>
 </html>`
 }
+
+export default withSentry(handler)

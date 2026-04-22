@@ -10,6 +10,7 @@
  *
  * Returns: { success, redirect }
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
@@ -26,7 +27,7 @@ function hashCode(code) {
   return crypto.createHash('sha256').update(String(code)).digest('hex')
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const ip = getClientIp(req)
@@ -204,3 +205,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur lors de la création du compte.' })
   }
 }
+
+export default withSentry(handler)

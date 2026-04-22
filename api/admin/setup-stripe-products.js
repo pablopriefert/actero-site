@@ -9,10 +9,11 @@
  * Auth: requires admin JWT (Bearer token)
  * Safety: only runs if confirm=yes query param is present
  */
+import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe'
 import { authenticateAdmin } from './_helpers.js'
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' })
 
   // Safety: require explicit confirmation
@@ -138,3 +139,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)

@@ -2,6 +2,7 @@
  * Google Docs OAuth — Callback.
  * Exchanges the code for tokens and stores them in client_integrations.
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken } from '../../lib/crypto.js'
 
@@ -13,7 +14,7 @@ const supabase = createClient(
 const SITE_URL = process.env.PUBLIC_API_URL || 'https://actero.fr'
 const REDIRECT_URI = `${SITE_URL}/api/integrations/google-docs/callback`
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { code, state, error: oauthError } = req.query
 
   const redirectBack = (query) => {
@@ -88,3 +89,5 @@ export default async function handler(req, res) {
     return redirectBack({ integration: 'google_docs', status: 'error', message: err.message })
   }
 }
+
+export default withSentry(handler)

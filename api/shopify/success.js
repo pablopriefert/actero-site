@@ -1,4 +1,5 @@
-export default function handler(req, res) {
+import { withSentry } from '../lib/sentry.js'
+function handler(req, res) {
   const { shop } = req.query;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -63,3 +64,5 @@ export default function handler(req, res) {
     </html>
   `);
 }
+
+export default withSentry(handler)

@@ -7,6 +7,7 @@
  *
  * Auth: Bearer JWT. Body: { client_id }
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { pollOneMailbox } from '../lib/email-poller.js'
 
@@ -17,7 +18,7 @@ const supabase = createClient(
 
 export const maxDuration = 30
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Auth
@@ -86,3 +87,5 @@ export default async function handler(req, res) {
     diagnostics: result.diagnostics,
   })
 }
+
+export default withSentry(handler)

@@ -6,6 +6,7 @@
  * Shows a login page. On submit (native form POST), authenticates the user
  * and returns a 302 redirect with the authorization code.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 
@@ -94,7 +95,7 @@ function renderPage({ redirect_uri, state, code_challenge, code_challenge_method
 </html>`
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
 
   // GET — show login form
@@ -188,3 +189,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
+
+export default withSentry(handler)

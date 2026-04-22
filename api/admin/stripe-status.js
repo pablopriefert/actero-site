@@ -6,9 +6,10 @@
  * Returns which Stripe-related env vars are configured.
  * Auth: requires admin JWT (Bearer token)
  */
+import { withSentry } from '../lib/sentry.js'
 import { authenticateAdmin } from './_helpers.js'
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' })
 
   try {
@@ -32,3 +33,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Internal error', message: err.message })
   }
 }
+
+export default withSentry(handler)

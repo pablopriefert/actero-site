@@ -4,6 +4,7 @@
  *
  * Auth: Bearer JWT. Scoped to caller's client.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { DETECTORS } from '../lib/proactive-detector.js'
 
@@ -29,7 +30,7 @@ async function requireClientAccess(req, res, clientId) {
   return null
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method === 'GET') {
     const clientId = req.query?.client_id
     if (!clientId) return res.status(400).json({ error: 'client_id requis' })
@@ -103,3 +104,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
+
+export default withSentry(handler)

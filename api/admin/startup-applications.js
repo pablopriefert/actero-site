@@ -12,6 +12,7 @@
  *   1. Update DB : status=rejected, rejected_at, notes
  *   2. Send polite rejection email
  */
+import { withSentry } from '../lib/sentry.js'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
@@ -206,7 +207,7 @@ async function sendRejectedEmail({ email, boutique_name, notes }) {
 /*  Handler                                                                   */
 /* -------------------------------------------------------------------------- */
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // Admin auth
   const admin = await requireAdmin(req, res, supabase)
   if (!admin) return
@@ -337,3 +338,5 @@ export default async function handler(req, res) {
 
   return res.status(405).json({ error: 'Method not allowed' })
 }
+
+export default withSentry(handler)

@@ -11,6 +11,7 @@
  *
  * Docs: https://elevenlabs.io/docs/conversational-ai/customization/llm/custom-llm
  */
+import { withSentry } from '../lib/sentry.js'
 import { runBrain } from '../engine/brain.js'
 import { loadPlaybook } from '../engine/lib/playbook-loader.js'
 import { supabaseAdmin, readJsonBody, sanitizeForVoice } from './_helpers.js'
@@ -165,7 +166,7 @@ async function streamResponse(res, callId, text) {
 
 /* --------------------------------- Handler -------------------------------- */
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -260,3 +261,5 @@ export default async function handler(req, res) {
     return res.status(200).json(buildCompletionResponse(callId, FALLBACK_SAFE))
   }
 }
+
+export default withSentry(handler)

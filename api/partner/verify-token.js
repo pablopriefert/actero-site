@@ -6,6 +6,7 @@
  * Verifies the token is valid and active. Increments use count.
  * Returns agency info for personalized display.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -13,7 +14,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
 
   const token = req.query.token || req.body?.token
@@ -62,3 +63,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ valid: false, error: 'Erreur serveur' })
   }
 }
+
+export default withSentry(handler)

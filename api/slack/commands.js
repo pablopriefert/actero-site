@@ -11,6 +11,7 @@
  *   - Ack immediately with "Je cherche…" (ephemeral)
  *   - Process async and POST the final answer to response_url
  */
+import { withSentry } from '../lib/sentry.js'
 import {
   readRawBody,
   verifySlackSignature,
@@ -28,7 +29,7 @@ const supabaseAdmin = createClient(
 
 export const config = { api: { bodyParser: false } }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   let rawBody
@@ -111,3 +112,5 @@ async function processCommand({ teamId, text, responseUrl, userId }) {
     }),
   })
 }
+
+export default withSentry(handler)

@@ -12,6 +12,7 @@
  * customer service window OR the sender must be a newly-registered test
  * number (Meta gives every merchant 5 test recipients during review).
  */
+import { withSentry } from '../../lib/sentry.js'
 import {
   authenticateClientAccess,
   readJsonBody,
@@ -21,7 +22,7 @@ import {
 } from './_helpers.js'
 import { sendWhatsAppMessage } from '../../engine/connectors/whatsapp.js'
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   if (!requireMetaCredentials(res)) return
 
@@ -80,3 +81,5 @@ export default async function handler(req, res) {
     to,
   })
 }
+
+export default withSentry(handler)

@@ -5,6 +5,7 @@
  * Body: { portal_display_name, portal_logo_url, portal_primary_color }
  * Auth: Bearer token (Supabase session)
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { syncProjectDomain } from '../lib/vercel.js'
 
@@ -16,7 +17,7 @@ const supabase = createClient(
 const PRO_PLANS = ['pro', 'enterprise']
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // ── Auth ──────────────────────────────────────────────────────
@@ -185,3 +186,5 @@ export default async function handler(req, res) {
     vercelSync,
   })
 }
+
+export default withSentry(handler)

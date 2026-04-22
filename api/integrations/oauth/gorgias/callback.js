@@ -1,3 +1,4 @@
+import { withSentry } from '../../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken } from '../../../lib/crypto.js';
 import { provisionGorgiasIntegration } from '../../lib/webhook-provisioner.js';
@@ -17,7 +18,7 @@ import { provisionGorgiasIntegration } from '../../lib/webhook-provisioner.js';
  *     certaines instances retournent un 404 — on bascule sur
  *     `<subdomain>.gorgias.com/oauth/token` qui est l'endpoint canonique.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { code, state, error: oauthError } = req.query;
 
   if (oauthError) {
@@ -130,3 +131,5 @@ export default async function handler(req, res) {
     return res.redirect(302, '/client/integrations?error=gorgias_exception');
   }
 }
+
+export default withSentry(handler)

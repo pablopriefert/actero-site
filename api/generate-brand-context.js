@@ -1,4 +1,5 @@
 // Scrape a website's key pages and generate brand context via Gemini
+import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -14,7 +15,7 @@ async function checkAdmin(req) {
   return user.app_metadata?.role === 'admin' || user.email?.endsWith('@actero.fr');
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -134,3 +135,5 @@ function stripHtml(html) {
     .replace(/\s+/g, ' ')
     .trim();
 }
+
+export default withSentry(handler)

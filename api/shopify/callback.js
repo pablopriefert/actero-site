@@ -1,7 +1,8 @@
+import { withSentry } from '../lib/sentry.js'
 import crypto from 'crypto';
 import { encryptToken } from '../lib/crypto.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const { shop, code, state, hmac } = req.query;
 
   // 1. Validate required params
@@ -198,3 +199,5 @@ function parseCookies(cookieHeader) {
   });
   return cookies;
 }
+
+export default withSentry(handler)

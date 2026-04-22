@@ -1,6 +1,7 @@
+import { withSentry } from '../lib/sentry.js'
 import crypto from 'crypto';
 
-export default function handler(req, res) {
+function handler(req, res) {
   const { shop, client, token } = req.query;
 
   if (!shop) {
@@ -31,3 +32,5 @@ export default function handler(req, res) {
 
   res.redirect(302, authUrl);
 }
+
+export default withSentry(handler)

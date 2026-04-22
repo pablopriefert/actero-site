@@ -1,3 +1,4 @@
+import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -92,7 +93,7 @@ async function callGemini(systemPrompt, history, userMessage) {
 // ============================================================
 // HANDLER
 // ============================================================
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -152,3 +153,5 @@ export default async function handler(req, res) {
     });
   }
 }
+
+export default withSentry(handler)

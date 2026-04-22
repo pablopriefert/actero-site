@@ -5,6 +5,7 @@
  * GET /api/engine/stats
  * Requires x-engine-secret or x-internal-secret header.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const ENGINE_SECRET = process.env.ENGINE_WEBHOOK_SECRET
@@ -15,7 +16,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   const secret = req.headers['x-engine-secret'] || req.headers['x-internal-secret']
   if (secret !== ENGINE_SECRET && secret !== INTERNAL_SECRET) {
     return res.status(401).json({ error: 'Non autorise' })
@@ -71,3 +72,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ status: 'error', error: err.message })
   }
 }
+
+export default withSentry(handler)

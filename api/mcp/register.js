@@ -6,9 +6,10 @@
  * MCP clients register themselves automatically before starting the OAuth flow.
  * We accept any registration and return a client_id.
  */
+import { withSentry } from '../lib/sentry.js'
 import crypto from 'crypto'
 
-export default function handler(req, res) {
+function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, MCP-Protocol-Version')
@@ -37,3 +38,5 @@ export default function handler(req, res) {
     token_endpoint_auth_method: 'none',
   })
 }
+
+export default withSentry(handler)

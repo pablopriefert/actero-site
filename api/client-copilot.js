@@ -1,4 +1,5 @@
 // Client Copilot — AI assistant for client dashboard questions
+import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -75,7 +76,7 @@ async function askClaude(systemPrompt, userPrompt, history) {
   return response.content[0]?.text || 'Je ne peux pas répondre pour le moment.'
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY manquante' });
 
@@ -155,3 +156,5 @@ QUESTION DU CLIENT: ${message}`;
     return res.status(500).json({ error: error.message });
   }
 }
+
+export default withSentry(handler)

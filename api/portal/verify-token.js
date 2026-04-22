@@ -1,7 +1,8 @@
+import { withSentry } from '../lib/sentry.js'
 import { getServiceRoleClient } from './lib/supabase.js';
 import { verifyTokenAgainstHash, issueSessionJwt } from './lib/auth.js';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
   const { token, clientId } = req.body || {};
   if (!token || !clientId) return res.status(400).json({ error: 'invalid_input' });
@@ -43,3 +44,5 @@ export default async function handler(req, res) {
 
   return res.status(200).json({ ok: true });
 }
+
+export default withSentry(handler)

@@ -1,3 +1,4 @@
+import { withSentry } from '../../../lib/sentry.js'
 import crypto from 'crypto';
 
 /**
@@ -10,7 +11,7 @@ import crypto from 'crypto';
  *   2) stocker le subdomain dans client_integrations.extra_config pour que
  *      le connector sortant puisse appeler la bonne API.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   const clientId = process.env.ZENDESK_CLIENT_ID;
   if (!clientId) {
     return res.status(500).json({ error: 'ZENDESK_CLIENT_ID non configure' });
@@ -41,3 +42,5 @@ export default async function handler(req, res) {
 
   res.redirect(302, authUrl);
 }
+
+export default withSentry(handler)

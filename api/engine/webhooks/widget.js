@@ -6,6 +6,7 @@
  *
  * Widget authenticates via api_key query param which maps to a client.
  */
+import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { normalizeEvent } from '../lib/normalizer.js'
 import { loadPlaybook } from '../lib/playbook-loader.js'
@@ -18,7 +19,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // CORS for widget embed
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
@@ -302,3 +303,5 @@ export default async function handler(req, res) {
     })
   }
 }
+
+export default withSentry(handler)

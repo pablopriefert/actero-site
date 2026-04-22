@@ -6,7 +6,8 @@
  * Redirects the user to Webflow's OAuth2 authorize endpoint.
  * After the user approves, Webflow redirects back to /callback with a code.
  */
-export default async function handler(req, res) {
+import { withSentry } from '../../lib/sentry.js'
+async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -42,3 +43,5 @@ export default async function handler(req, res) {
 
   return res.redirect(302, authorizeUrl)
 }
+
+export default withSentry(handler)

@@ -1,3 +1,4 @@
+import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '../lib/admin-auth.js';
@@ -17,7 +18,7 @@ const CERTIFICATION_PRICE_EUR = 500;
  * session for the 500€ certification fee, returns the checkout URL, and
  * stores the session id on the application row so the webhook can find it.
  */
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -97,3 +98,5 @@ export default async function handler(req, res) {
       .json({ error: err.message || 'Server error creating checkout.' });
   }
 }
+
+export default withSentry(handler)

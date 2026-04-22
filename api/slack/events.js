@@ -17,6 +17,7 @@
  * Slack requires a response in <3s. We ack immediately, then process the
  * question in the background and post the reply via chat.postMessage.
  */
+import { withSentry } from '../lib/sentry.js'
 import {
   readRawBody,
   verifySlackSignature,
@@ -35,7 +36,7 @@ export const config = { api: { bodyParser: false } }
 // We process synchronously and rely on idempotence for Slack retries.
 export const maxDuration = 60
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   try {
     return await mainHandler(req, res)
   } catch (err) {
@@ -225,3 +226,5 @@ async function processEvent(payload) {
     blocks: formatAsBlocks(reply),
   })
 }
+
+export default withSentry(handler)

@@ -9,6 +9,7 @@
  * Instead of returning the short-lived Supabase JWT, we auto-create
  * a client API key that never expires.
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 
@@ -17,7 +18,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
@@ -167,3 +168,5 @@ export default async function handler(req, res) {
     expires_in: 3600,
   })
 }
+
+export default withSentry(handler)

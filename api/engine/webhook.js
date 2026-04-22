@@ -8,6 +8,7 @@
  * - x-internal-secret header matching INTERNAL_API_SECRET
  * - api_key query parameter matching a client's webhook secret
  */
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { processMessage } from './process.js'
 import { checkRateLimit } from './lib/rate-limiter.js'
@@ -20,7 +21,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -135,3 +136,5 @@ export default async function handler(req, res) {
     })
   }
 }
+
+export default withSentry(handler)

@@ -1,5 +1,6 @@
 // Onboarding Concierge — AI assistant that guides new clients through setup.
 // Separate from /api/client-copilot which is the data-Q&A copilot for active clients.
+import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -60,7 +61,7 @@ Tu DOIS repondre en JSON valide, sans texte autour, sans markdown code fence :
   "escalate_to_human": false
 }`
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
   if (!ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY missing' })
 
@@ -168,3 +169,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: err.message })
   }
 }
+
+export default withSentry(handler)
