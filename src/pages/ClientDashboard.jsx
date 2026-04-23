@@ -664,10 +664,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       children: [
         { id: 'automation', label: 'Automatisation', icon: Rocket, dataTour: 'automation-tab', star: true },
         { id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
-        { id: 'agent-control', label: 'Centre de contrôle', icon: SlidersHorizontal },
         { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
         { id: 'guardrails', label: 'Restrictions', icon: Shield },
         { id: 'simulator', label: 'Tester mon agent', icon: FlaskConical, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+        { id: 'agent-control', label: 'Paramètres', icon: SlidersHorizontal },
       ],
     },
 
@@ -807,7 +807,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "automation" && "Automatisation"}
             {activeTab === "activity" && "Activité de l'agent"}
             {/* {activeTab === "alerts" && "Alertes"} — retiré temporairement */}
-            {activeTab === "agent-control" && "Centre de contrôle"}
+            {activeTab === "agent-control" && "Paramètres de l'agent"}
             {activeTab === "knowledge" && "Base de connaissances"}
             {activeTab === "support" && "Centre d'aide"}
             {activeTab === "referral" && "Parrainage"}
