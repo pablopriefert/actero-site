@@ -253,6 +253,12 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     staleTime: 5 * 60 * 1000,
   });
 
+  // SetupWizard visibility state. Declared early because the tour effect
+  // below reads `showSetupWizard` to avoid stacking with the wizard overlay.
+  // The effect that flips this state lives further down — next to the
+  // `setupCompletion` query it depends on.
+  const [showSetupWizard, setShowSetupWizard] = useState(false);
+
   // Auto-open tour at first login (1.5s after dashboard is ready).
   // Gate on `!showSetupWizard` so the tour never fires while the setup
   // wizard overlay is visible — both would stack and steal focus.
@@ -412,11 +418,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     ? completedSetupSteps < 5
     : !!(currentClient?.created_at && (Date.now() - new Date(currentClient.created_at).getTime()) < 3 * 24 * 60 * 60 * 1000);
 
-  // SetupWizard visibility — show the full-screen wizard on 1st mount if :
+  // SetupWizard visibility flipper — `showSetupWizard` itself is declared
+  // earlier (near the tour effect that reads it). This effect re-checks
+  // visibility whenever setupCompletion changes:
   //  (a) essentials not all done (4 keys on setupCompletion: shopify, email, tone, tested)
   //  (b) user hasn't dismissed the wizard (localStorage key per client)
-  // State is a simple boolean, re-checked when wizard dismisses.
-  const [showSetupWizard, setShowSetupWizard] = useState(() => false) // init false; flipped by effect below
   useEffect(() => {
     if (!currentClient?.id || !setupCompletion) return
     const dismissed = localStorage.getItem(`setup-wizard-dismissed-${currentClient.id}`) === 'true'
