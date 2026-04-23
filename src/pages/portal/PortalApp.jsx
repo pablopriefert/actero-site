@@ -6,9 +6,14 @@ import PortalTicketsListPage from './PortalTicketsListPage.jsx';
 import PortalTicketDetailPage from './PortalTicketDetailPage.jsx';
 import PortalOrdersListPage from './PortalOrdersListPage.jsx';
 import PortalOrderDetailPage from './PortalOrderDetailPage.jsx';
+import { PortalToneContext } from '../../hooks/usePortalTone.js';
+import { DEFAULT_PORTAL_TONE } from '../../lib/portal-tone.js';
+import { usePortalClient } from '../../hooks/usePortalClient.js';
 
 export default function PortalApp() {
   const [route, setRoute] = useState(window.location.pathname);
+  const { client } = usePortalClient();
+
   useEffect(() => {
     const onPop = () => setRoute(window.location.pathname);
     window.addEventListener('popstate', onPop);
@@ -19,6 +24,10 @@ export default function PortalApp() {
     window.history.pushState({}, '', p);
     setRoute(p);
   };
+
+  // Tone pulled from resolve-client response if present, otherwise default.
+  // TODO: extend /api/portal/resolve-client to return client_settings.portal_tone.
+  const tone = client?.portalTone || DEFAULT_PORTAL_TONE;
 
   let page;
   const ticketMatch = route.match(/^\/portal\/tickets\/([^/]+)$/);
@@ -31,5 +40,9 @@ export default function PortalApp() {
   else if (orderMatch) page = <PortalOrderDetailPage orderName={orderMatch[1]} navigate={navigate} />;
   else page = <div>Page à venir · route: {route}</div>;
 
-  return <PortalLayout navigate={navigate}>{page}</PortalLayout>;
+  return (
+    <PortalToneContext.Provider value={tone}>
+      <PortalLayout navigate={navigate}>{page}</PortalLayout>
+    </PortalToneContext.Provider>
+  );
 }

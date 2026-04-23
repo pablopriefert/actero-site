@@ -18,6 +18,7 @@
   let customerName = null
   let messageCount = 0 // track exchanges to ask for email after 2nd reply
   let emailAsked = false
+  let previouslyFocusedEl = null
 
   // Try to restore from localStorage so returning visitors are recognized
   try {
@@ -41,6 +42,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
     #actero-widget-btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(15,95,53,0.4); }
+    #actero-widget-btn:focus-visible { outline: 3px solid #4ade80; outline-offset: 2px; }
     #actero-widget-btn svg { width: 24px; height: 24px; fill: white; }
     #actero-widget-panel {
       position: fixed; bottom: 88px; right: 20px; z-index: 99999;
@@ -54,9 +56,20 @@
       padding: 16px; background: #0F5F35; color: white;
       display: flex; align-items: center; gap: 10px;
     }
-    .actero-header-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; }
+    .actero-header-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+    .actero-header-text { flex: 1; min-width: 0; }
     .actero-header h3 { margin: 0; font-size: 14px; font-weight: 600; }
     .actero-header p { margin: 0; font-size: 11px; opacity: 0.7; }
+    .actero-close-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: transparent; border: none; cursor: pointer;
+      color: white; display: flex; align-items: center; justify-content: center;
+      padding: 0; flex-shrink: 0; transition: background 0.15s;
+      touch-action: manipulation;
+    }
+    .actero-close-btn:hover { background: rgba(255,255,255,0.15); }
+    .actero-close-btn:focus-visible { outline: 2px solid #4ade80; outline-offset: 1px; }
+    .actero-close-btn svg { width: 16px; height: 16px; fill: white; }
     .actero-messages {
       flex: 1; overflow-y: auto; padding: 16px; display: flex;
       flex-direction: column; gap: 10px;
@@ -73,17 +86,31 @@
       align-self: flex-start; background: #f5f5f0; color: #262626;
       border-bottom-left-radius: 4px;
     }
-    .actero-msg.loading { opacity: 0.6; }
+    .actero-msg.loading {
+      display: inline-flex; align-items: center; gap: 4px; min-height: 20px;
+    }
+    .actero-typing-dot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: #5A5A5A; opacity: 0.3;
+      animation: actero-typing 1.2s infinite ease-in-out;
+    }
+    .actero-typing-dot.typing-dot-1 { animation-delay: 0ms; }
+    .actero-typing-dot.typing-dot-2 { animation-delay: 400ms; }
+    .actero-typing-dot.typing-dot-3 { animation-delay: 800ms; }
+    @keyframes actero-typing {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-2px); }
+    }
     .actero-input-area {
       padding: 12px; border-top: 1px solid #e5e5e5;
       display: flex; gap: 8px;
     }
-    .actero-input-area input {
+    .actero-input-area input[type="text"] {
       flex: 1; border: 1px solid #e5e5e5; border-radius: 10px;
       padding: 10px 14px; font-size: 13px; outline: none;
       background: #fafafa;
     }
-    .actero-input-area input:focus { border-color: #0F5F35; background: white; }
+    .actero-input-area input[type="text"]:focus { border-color: #0F5F35; background: white; }
     .actero-input-area button {
       width: 38px; height: 38px; border-radius: 10px;
       background: #0F5F35; border: none; cursor: pointer;
@@ -138,11 +165,21 @@
     }
     .actero-thumb img { width: 100%; height: 100%; object-fit: cover; }
     .actero-thumb-remove {
-      position: absolute; top: 2px; right: 2px; width: 18px; height: 18px;
+      position: absolute; top: 2px; right: 2px; width: 28px; height: 28px;
       border-radius: 50%; background: rgba(0,0,0,0.65); color: white;
-      border: none; cursor: pointer; font-size: 12px; line-height: 1;
+      border: none; cursor: pointer; line-height: 1;
       display: flex; align-items: center; justify-content: center; padding: 0;
+      touch-action: manipulation;
     }
+    .actero-thumb-remove::before {
+      content: ''; position: absolute; top: -8px; right: -8px; bottom: -8px; left: -8px;
+    }
+    .actero-thumb-remove .actero-thumb-remove-glyph {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; font-size: 14px; font-weight: 600;
+      pointer-events: none;
+    }
+    .actero-thumb-remove:focus-visible { outline: 2px solid #4ade80; outline-offset: 2px; }
     .actero-msg img.actero-msg-img {
       display: block; max-width: 100%; border-radius: 8px; margin-top: 6px;
     }
@@ -155,41 +192,45 @@
   // Button
   const btn = document.createElement('button')
   btn.id = 'actero-widget-btn'
-  btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>'
-  btn.onclick = function() {
-    isOpen = !isOpen
-    panel.classList.toggle('open', isOpen)
-    if (isOpen && messages.length === 0) {
-      addBotMessage('Bonjour ! Comment puis-je vous aider ?')
-    }
-  }
+  btn.type = 'button'
+  btn.setAttribute('aria-label', 'Ouvrir le support chat')
+  btn.setAttribute('aria-expanded', 'false')
+  btn.setAttribute('aria-controls', 'actero-widget-panel')
+  btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>'
   document.body.appendChild(btn)
 
   // Panel
   const panel = document.createElement('div')
   panel.id = 'actero-widget-panel'
+  panel.setAttribute('role', 'dialog')
+  panel.setAttribute('aria-modal', 'true')
+  panel.setAttribute('aria-labelledby', 'actero-header-title')
+  panel.setAttribute('aria-label', 'Support chat')
   panel.innerHTML = `
     <div class="actero-header">
-      <div class="actero-header-dot"></div>
-      <div>
-        <h3>Support</h3>
-        <p>En ligne — reponse instantanee</p>
+      <div class="actero-header-dot" aria-hidden="true"></div>
+      <div class="actero-header-text">
+        <h3 id="actero-header-title">Support</h3>
+        <p>En ligne — réponse instantanée</p>
       </div>
+      <button id="actero-close" class="actero-close-btn" type="button" aria-label="Fermer le support chat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
     </div>
-    <div class="actero-messages" id="actero-msgs"></div>
+    <div class="actero-messages" id="actero-msgs" role="log" aria-live="polite" aria-atomic="false"></div>
     <div class="actero-pending-images" id="actero-pending"></div>
-    <div class="actero-attach-error" id="actero-attach-err" style="display:none"></div>
+    <div class="actero-attach-error" id="actero-attach-err" role="alert" style="display:none"></div>
     <div class="actero-input-area">
-      <button id="actero-attach" class="actero-attach-btn" type="button" title="Joindre une photo (max 5 × 5 Mo)">
-        <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z"/></svg>
+      <button id="actero-attach" class="actero-attach-btn" type="button" aria-label="Joindre une photo (max 5 × 5 Mo)" title="Joindre une photo (max 5 × 5 Mo)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z"/></svg>
       </button>
-      <input type="file" id="actero-file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple style="display:none" />
-      <input type="text" id="actero-input" placeholder="Votre message..." />
-      <button id="actero-send">
-        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      <input type="file" id="actero-file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple style="display:none" aria-hidden="true" tabindex="-1" />
+      <input type="text" id="actero-input" placeholder="Votre message..." aria-label="Votre message" />
+      <button id="actero-send" type="button" aria-label="Envoyer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
     </div>
-    <div class="actero-powered">Propulse par <a href="https://actero.fr" target="_blank">Actero</a></div>
+    <div class="actero-powered">Propulsé par <a href="https://actero.fr" target="_blank" rel="noopener noreferrer">Actero</a></div>
   `
   document.body.appendChild(panel)
 
@@ -200,11 +241,77 @@
   const fileInput = document.getElementById('actero-file')
   const pendingEl = document.getElementById('actero-pending')
   const attachErrEl = document.getElementById('actero-attach-err')
+  const closeBtn = document.getElementById('actero-close')
   let sending = false
 
   const MAX_IMAGES = 5
   const MAX_IMAGE_BYTES = 5 * 1024 * 1024
   const pendingImages = [] // array of { dataUrl, thumbEl }
+
+  function getFocusableInPanel() {
+    const selectors = 'button:not([disabled]), [href], input:not([disabled]):not([type="file"]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    return Array.from(panel.querySelectorAll(selectors)).filter(function(el) {
+      return el.offsetParent !== null || el === document.activeElement
+    })
+  }
+
+  function openPanel() {
+    isOpen = true
+    previouslyFocusedEl = document.activeElement
+    panel.classList.add('open')
+    btn.setAttribute('aria-expanded', 'true')
+    if (messages.length === 0) {
+      addBotMessage('Bonjour ! Comment puis-je vous aider ?')
+    }
+    // focus input
+    setTimeout(function() { inputEl.focus() }, 50)
+  }
+
+  function closePanel() {
+    isOpen = false
+    panel.classList.remove('open')
+    btn.setAttribute('aria-expanded', 'false')
+    // Restore focus
+    if (previouslyFocusedEl && typeof previouslyFocusedEl.focus === 'function') {
+      previouslyFocusedEl.focus()
+    } else {
+      btn.focus()
+    }
+  }
+
+  function togglePanel() {
+    if (isOpen) closePanel()
+    else openPanel()
+  }
+
+  btn.onclick = togglePanel
+  closeBtn.onclick = closePanel
+
+  // Keyboard handling: Escape to close, Tab looping for minimal focus trap
+  document.addEventListener('keydown', function(e) {
+    if (!isOpen) return
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      closePanel()
+      return
+    }
+    if (e.key === 'Tab') {
+      const focusable = getFocusableInPanel()
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      const active = document.activeElement
+      // Only trap if focus is inside (or about to leave) the panel
+      if (!panel.contains(active)) return
+      if (e.shiftKey && active === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+  })
 
   function showAttachError(msg) {
     attachErrEl.textContent = msg || ''
@@ -217,11 +324,13 @@
     thumb.className = 'actero-thumb'
     const img = document.createElement('img')
     img.src = dataUrl
+    img.alt = ''
     thumb.appendChild(img)
     const remove = document.createElement('button')
     remove.className = 'actero-thumb-remove'
     remove.type = 'button'
-    remove.textContent = '×'
+    remove.setAttribute('aria-label', 'Retirer la photo')
+    remove.innerHTML = '<span class="actero-thumb-remove-glyph" aria-hidden="true">×</span>'
     remove.onclick = function() {
       const idx = pendingImages.findIndex(function(p) { return p.thumbEl === thumb })
       if (idx >= 0) pendingImages.splice(idx, 1)
@@ -244,7 +353,7 @@
         return
       }
       if (file.size > MAX_IMAGE_BYTES) {
-        showAttachError('"' + file.name + '" depasse 5 Mo.')
+        showAttachError('"' + file.name + '" dépasse 5 Mo.')
         return
       }
       const reader = new FileReader()
@@ -253,6 +362,9 @@
         if (typeof dataUrl !== 'string') return
         const thumbEl = renderThumb(dataUrl)
         pendingImages.push({ dataUrl: dataUrl, thumbEl: thumbEl })
+      }
+      reader.onerror = function() {
+        showAttachError('Le chargement de la photo a échoué.')
       }
       reader.readAsDataURL(file)
     })
@@ -328,6 +440,7 @@
         const img = document.createElement('img')
         img.className = 'actero-msg-img'
         img.src = src
+        img.alt = 'Photo envoyée'
         el.appendChild(img)
       })
     }
@@ -375,10 +488,11 @@
     sendBtn.disabled = true
     attachBtn.disabled = true
 
-    // Loading indicator
+    // Loading indicator — 3 animated dots
     const loader = document.createElement('div')
     loader.className = 'actero-msg bot loading'
-    loader.textContent = '...'
+    loader.setAttribute('aria-label', 'En train de répondre')
+    loader.innerHTML = '<span class="actero-typing-dot typing-dot-1"></span><span class="actero-typing-dot typing-dot-2"></span><span class="actero-typing-dot typing-dot-3"></span>'
     msgsEl.appendChild(loader)
     msgsEl.scrollTop = msgsEl.scrollHeight
 
@@ -397,7 +511,7 @@
       })
       const data = await res.json()
       loader.remove()
-      addBotMessage(data.response || 'Merci, un agent va vous repondre.')
+      addBotMessage(data.response || 'Merci, un agent va vous répondre.')
       if (data.product_recommendations && data.product_recommendations.length > 0) {
         addProductCards(data.product_recommendations)
       }
@@ -407,12 +521,12 @@
       if (messageCount === 2 && !customerEmail && !emailAsked) {
         emailAsked = true
         setTimeout(function() {
-          addBotMessage('Au fait, si vous souhaitez qu\'on puisse vous recontacter, n\'hesitez pas a me laisser votre email dans la conversation.')
+          addBotMessage('Au fait, si vous souhaitez qu\'on puisse vous recontacter, n\'hésitez pas à me laisser votre email dans la conversation.')
         }, 1500)
       }
     } catch {
       loader.remove()
-      addBotMessage('Erreur de connexion. Reessayez dans un instant.')
+      addBotMessage('Erreur de connexion. Réessayez dans un instant.')
     }
 
     sending = false

@@ -11,6 +11,7 @@ import { supabase } from '../../lib/supabase'
 import { generateAndUploadAudio } from '../../hooks/useTTS'
 import { ReasoningDrawer } from './ReasoningDrawer'
 import { AiCopilotPanel } from './AiCopilotPanel'
+import { SkeletonList } from '../ui/Skeleton'
 
 const ESCALATION_REASONS = {
   aggressive: 'Message agressif detecte',
@@ -719,8 +720,9 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 </div>
                 <div className="p-5 space-y-4">
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1.5">Nom du template *</label>
+                    <label htmlFor="esc-template-name" className="block text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">Nom du template *</label>
                     <input
+                      id="esc-template-name"
                       type="text"
                       value={newTplName}
                       onChange={(e) => setNewTplName(e.target.value)}
@@ -729,8 +731,9 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1.5">Categorie</label>
+                    <label htmlFor="esc-template-category" className="block text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">Categorie</label>
                     <input
+                      id="esc-template-category"
                       type="text"
                       value={newTplCategory}
                       onChange={(e) => setNewTplCategory(e.target.value)}
@@ -739,7 +742,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1.5">Apercu</label>
+                    <span className="block text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">Apercu</span>
                     <div className="bg-[#fafafa] border border-[#ebebeb] rounded-lg p-3 text-[12px] text-[#71717a] max-h-32 overflow-y-auto whitespace-pre-wrap">
                       {response}
                     </div>
@@ -768,13 +771,17 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
           )}
         </AnimatePresence>
 
-        {/* Local toast */}
+        {/* Local toast — SR-announced via aria-live.
+            Errors use role="alert"+assertive; success/info use role="status"+polite. */}
         <AnimatePresence>
           {localToast && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
+              role={localToast.type === 'error' ? 'alert' : 'status'}
+              aria-live={localToast.type === 'error' ? 'assertive' : 'polite'}
+              aria-atomic="true"
               className={`fixed bottom-6 right-6 z-[70] flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-2xl border ${
                 localToast.type === 'success'
                   ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
@@ -944,8 +951,8 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
 
       {/* List */}
       {isLoading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" />
+        <div aria-busy="true" aria-label="Chargement des escalades">
+          <SkeletonList n={5} />
         </div>
       ) : filtered.length === 0 ? (
         <div className={`text-center py-16 rounded-2xl border bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>

@@ -1012,6 +1012,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   setupCompletion={setupCompletion}
                   setActiveTab={setActiveTab}
                   theme={theme}
+                  onOpenSetupWizard={() => {
+                    // Clear the per-client dismiss flag so the wizard can reopen,
+                    // then lift it via state (replaces the prior window.location.reload()).
+                    if (currentClient?.id) {
+                      try { localStorage.removeItem(`setup-wizard-dismissed-${currentClient.id}`) } catch { /* noop */ }
+                    }
+                    setShowSetupWizard(true)
+                  }}
                 />
               )}
             </div>

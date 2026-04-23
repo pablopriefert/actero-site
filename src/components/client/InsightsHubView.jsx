@@ -190,23 +190,23 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
           </div>
           <div className="flex items-center gap-4 md:gap-6 flex-wrap">
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Demandes</span>
+              <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Demandes</span>
               <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{total}</span>
-              <span className="text-[10px] text-[#9ca3af]">traitées</span>
+              <span className="text-[10px] text-[#71717a]">traitées</span>
             </div>
             <div className="w-px h-10 bg-gray-200" />
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Temps</span>
+              <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Temps</span>
               <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{hours}h</span>
-              <span className="text-[10px] text-[#9ca3af]">économisées</span>
+              <span className="text-[10px] text-[#71717a]">économisées</span>
             </div>
             <div className="w-px h-10 bg-gray-200" />
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">ROI</span>
+              <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">ROI</span>
               <span className="text-lg font-bold text-cta tabular-nums leading-tight">
                 {roi.toLocaleString('fr-FR')}€
               </span>
-              <span className="text-[10px] text-[#9ca3af]">valeur</span>
+              <span className="text-[10px] text-[#71717a]">valeur</span>
             </div>
           </div>
         </div>
@@ -269,7 +269,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
                 )}
               </div>
               <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-0.5">{card.title}</h3>
-              <p className="text-[11px] text-[#9ca3af] leading-relaxed mb-3">{card.description}</p>
+              <p className="text-[11px] text-[#71717a] leading-relaxed mb-3">{card.description}</p>
 
               {/* Lead metric */}
               <div className="pt-3 border-t border-[#E5E2D7]">

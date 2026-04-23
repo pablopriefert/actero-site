@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import AttachmentUploader from '../../components/portal/AttachmentUploader';
+import { usePortalTone } from '../../hooks/usePortalTone.js';
+import { applyTone } from '../../lib/portal-tone.js';
 
 export default function PortalTicketDetailPage({ ticketId, navigate }) {
+  const tone = usePortalTone();
   const [ticket, setTicket] = useState(null);
   const [reply, setReply] = useState('');
   const [imagePaths, setImagePaths] = useState([]);
@@ -39,7 +42,8 @@ export default function PortalTicketDetailPage({ ticketId, navigate }) {
           <AttachmentUploader onChange={setImagePaths} />
         </div>
         <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={4}
-          className="w-full border border-[#E5E5E5] rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-[#1F3A12]/10 focus:border-[#1F3A12]/40" placeholder="Ta réponse…" />
+          className="w-full border border-[#E5E5E5] rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-[#1F3A12]/10 focus:border-[#1F3A12]/40"
+          placeholder={applyTone('Ta réponse…', 'Votre réponse…', tone)} />
         <button disabled={busy || !reply.trim()}
           className="text-white rounded-full bg-[#1F3A12] hover:bg-[#162C0D] font-medium px-5 py-2 disabled:opacity-50 transition">
           Envoyer

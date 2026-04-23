@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
+import { Package } from 'lucide-react';
+import { EmptyState } from '../../components/ui/EmptyState.jsx';
+import { usePortalTone } from '../../hooks/usePortalTone.js';
+import { applyTone } from '../../lib/portal-tone.js';
 
 export default function PortalOrdersListPage({ navigate }) {
+  const tone = usePortalTone();
   const [orders, setOrders] = useState(null);
   const [error, setError] = useState(null);
 
@@ -13,7 +18,19 @@ export default function PortalOrdersListPage({ navigate }) {
 
   if (error) return <p className="text-red-600">{error}</p>;
   if (!orders) return <p className="text-[#5A5A5A]">Chargement…</p>;
-  if (orders.length === 0) return <p className="text-[#5A5A5A]">Aucune commande trouvée avec ton email.</p>;
+  if (orders.length === 0) {
+    return (
+      <EmptyState
+        icon={Package}
+        title="Aucune commande"
+        description={applyTone(
+          'Les commandes associées à ton email apparaîtront ici.',
+          'Les commandes associées à votre email apparaîtront ici.',
+          tone,
+        )}
+      />
+    );
+  }
 
   function fulfillmentChip(status) {
     const s = status || 'pending';

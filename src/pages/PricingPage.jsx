@@ -626,10 +626,13 @@ export const PricingPage = ({ onNavigate }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
+                role="group"
+                aria-label="Facturation"
                 className="inline-flex items-center gap-3 bg-[#F9F7F1] border border-gray-200 rounded-full px-2 py-1.5"
               >
                 <button
                   onClick={() => setIsAnnual(false)}
+                  aria-pressed={!isAnnual}
                   className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
                     !isAnnual
                       ? "bg-white text-[#262626] shadow-sm"
@@ -640,6 +643,7 @@ export const PricingPage = ({ onNavigate }) => {
                 </button>
                 <button
                   onClick={() => setIsAnnual(true)}
+                  aria-pressed={isAnnual}
                   className={`px-5 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${
                     isAnnual
                       ? "bg-white text-[#262626] shadow-sm"
@@ -760,7 +764,8 @@ export const PricingPage = ({ onNavigate }) => {
                   >
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      className="w-full flex items-center justify-between p-6 text-left"
+                      className="w-full flex items-center justify-between p-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta focus-visible:ring-offset-2 rounded-lg"
+                      aria-expanded={openFaq === i}
                     >
                       <span className="font-bold text-[#262626]">{faq.q}</span>
                       <Plus

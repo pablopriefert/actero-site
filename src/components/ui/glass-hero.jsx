@@ -287,29 +287,35 @@ function HeroKpiRow() {
   ]
 
   return (
-    <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
-      {kpis.map((k, i) => (
-        <div
-          key={i}
-          className="px-5 py-5 rounded-[18px] bg-white border border-[#E8DFC9] text-left transition-all hover:border-[#D4C59E] hover:-translate-y-px"
-        >
+    <div className="mt-10 max-w-3xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {kpis.map((k, i) => (
           <div
-            className="leading-none text-[#1A1A1A] font-normal tabular-nums"
-            style={{ ...fontDisplay, fontSize: 'clamp(38px, 4.6vw, 52px)', letterSpacing: '-0.02em' }}
+            key={i}
+            className="px-5 py-5 rounded-[18px] bg-white border border-[#E8DFC9] text-left transition-all hover:border-[#D4C59E] hover:-translate-y-px"
           >
-            {k.value}
-            <span className="text-[#716D5C] text-[0.45em] font-medium ml-0.5 align-baseline">
-              {k.unit}
-            </span>
+            <div
+              className="leading-none text-[#1A1A1A] font-normal tabular-nums"
+              style={{ ...fontDisplay, fontSize: 'clamp(38px, 4.6vw, 52px)', letterSpacing: '-0.02em' }}
+            >
+              {k.value}
+              <span className="text-[#716D5C] text-[0.45em] font-medium ml-0.5 align-baseline">
+                {k.unit}
+              </span>
+              <span className="text-[#716D5C] text-[0.35em] font-medium ml-0.5 align-super">*</span>
+            </div>
+            <div className="text-[12.5px] font-bold text-[#1A1A1A] mt-2 leading-[1.3]">
+              {k.label}
+            </div>
+            <div className="text-[11px] text-[#716D5C] mt-1 leading-[1.4]">
+              {k.sub}
+            </div>
           </div>
-          <div className="text-[12.5px] font-bold text-[#1A1A1A] mt-2 leading-[1.3]">
-            {k.label}
-          </div>
-          <div className="text-[11px] text-[#716D5C] mt-1 leading-[1.4]">
-            {k.sub}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      <p className="mt-3 text-[11px] italic text-[#716D5C] text-center leading-[1.4]">
+        * Objectifs produit, benchmark pilote
+      </p>
     </div>
   )
 }

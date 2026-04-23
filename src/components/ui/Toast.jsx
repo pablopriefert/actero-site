@@ -49,31 +49,64 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={toastFns}>
       {children}
-      {/* Toast container — fixed bottom-right */}
+      {/* Toast container — fixed bottom-right.
+          Two regions so SR announcements match severity:
+            - errors: role="alert" + aria-live="assertive"
+            - success/info: role="status" + aria-live="polite"
+          Both wrap in one visual stack via CSS pointer-events. */}
       <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-2 pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((t) => {
-            const Icon = ICONS[t.type] || ICONS.info
-            return (
-              <motion.div
-                key={t.id}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg max-w-sm ${STYLES[t.type]}`}
-              >
-                <Icon className={`w-4 h-4 shrink-0 ${ICON_STYLES[t.type]}`} />
-                <p className="text-sm font-medium flex-1">{t.message}</p>
-                <button
-                  onClick={() => removeToast(t.id)}
-                  className="shrink-0 text-[#716D5C] hover:text-[#262626] transition-colors"
+        <div role="status" aria-live="polite" aria-atomic="false" className="flex flex-col gap-2">
+          <AnimatePresence>
+            {toasts.filter(t => t.type !== 'error').map((t) => {
+              const Icon = ICONS[t.type] || ICONS.info
+              return (
+                <motion.div
+                  key={t.id}
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg max-w-sm ${STYLES[t.type]}`}
                 >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </motion.div>
-            )
-          })}
-        </AnimatePresence>
+                  <Icon className={`w-4 h-4 shrink-0 ${ICON_STYLES[t.type]}`} />
+                  <p className="text-sm font-medium flex-1">{t.message}</p>
+                  <button
+                    onClick={() => removeToast(t.id)}
+                    className="shrink-0 text-[#716D5C] hover:text-[#262626] transition-colors"
+                    aria-label="Fermer la notification"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </div>
+        <div role="alert" aria-live="assertive" aria-atomic="true" className="flex flex-col gap-2">
+          <AnimatePresence>
+            {toasts.filter(t => t.type === 'error').map((t) => {
+              const Icon = ICONS.error
+              return (
+                <motion.div
+                  key={t.id}
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg max-w-sm ${STYLES.error}`}
+                >
+                  <Icon className={`w-4 h-4 shrink-0 ${ICON_STYLES.error}`} />
+                  <p className="text-sm font-medium flex-1">{t.message}</p>
+                  <button
+                    onClick={() => removeToast(t.id)}
+                    className="shrink-0 text-[#716D5C] hover:text-[#262626] transition-colors"
+                    aria-label="Fermer la notification"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </div>
       </div>
     </ToastContext.Provider>
   )

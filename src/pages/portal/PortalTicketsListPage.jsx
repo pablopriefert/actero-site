@@ -1,8 +1,17 @@
 import { useEffect, useState } from 'react';
+import { Inbox } from 'lucide-react';
+import { EmptyState } from '../../components/ui/EmptyState.jsx';
+import { usePortalClient } from '../../hooks/usePortalClient.js';
+import { usePortalTone } from '../../hooks/usePortalTone.js';
+import { applyTone } from '../../lib/portal-tone.js';
 
 export default function PortalTicketsListPage({ navigate }) {
+  const { client } = usePortalClient();
+  const tone = usePortalTone();
   const [tickets, setTickets] = useState(null);
   const [error, setError] = useState(null);
+
+  const merchantName = client?.branding?.displayName || client?.merchantName || 'la marque';
 
   useEffect(() => {
     fetch('/api/portal/tickets', { credentials: 'same-origin' })
@@ -13,7 +22,19 @@ export default function PortalTicketsListPage({ navigate }) {
 
   if (error) return <p className="text-red-600">{error}</p>;
   if (!tickets) return <p className="text-[#5A5A5A]">Chargement…</p>;
-  if (tickets.length === 0) return <p className="text-[#5A5A5A]">Aucune conversation pour le moment.</p>;
+  if (tickets.length === 0) {
+    return (
+      <EmptyState
+        icon={Inbox}
+        title="Aucune conversation"
+        description={applyTone(
+          `Tes échanges avec ${merchantName} s'afficheront ici.`,
+          `Vos échanges avec ${merchantName} s'afficheront ici.`,
+          tone,
+        )}
+      />
+    );
+  }
 
   function statusChip(status) {
     if (status === 'resolved') {

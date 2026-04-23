@@ -40,7 +40,7 @@ export function OverviewHome({
   periodStats, selectedPeriod, setSelectedPeriod, dailyMetrics, eventCounts, liveRoi,
   totalEvents, urgentEscalationCount, completedSetupSteps, showShopifyBanner, setupCompletion,
   // Actions
-  setActiveTab, theme,
+  setActiveTab, theme, onOpenSetupWizard,
 }) {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -57,6 +57,7 @@ export function OverviewHome({
         showShopifyBanner={showShopifyBanner}
         setupCompletion={setupCompletion}
         setActiveTab={setActiveTab}
+        onOpenSetupWizard={onOpenSetupWizard}
       />
 
       {/* Zone A — Today hero (primary focal point) */}
@@ -130,7 +131,7 @@ export function OverviewHome({
 function SystemAlertStack({
   urgentEscalationCount, ticketsPercent, ticketsUsed, ticketsLimit,
   planId, inTrial, trialDaysLeft, completedSetupSteps, showShopifyBanner, setupCompletion,
-  setActiveTab,
+  setActiveTab, onOpenSetupWizard,
 }) {
   const [expanded, setExpanded] = useState(false)
 
@@ -174,7 +175,12 @@ function SystemAlertStack({
         tone: 'info',
         title: `Configuration à ${Math.round((completedSetupSteps / 4) * 100)}% — l'agent n'est pas encore actif`,
         ctaLabel: 'Continuer',
-        onClick: () => { /* wizard s'auto-ouvre au refresh */ window.location.reload() },
+        // Prefer lifted state via onOpenSetupWizard; fall back to reload for
+        // callers that haven't wired the prop yet.
+        onClick: () => {
+          if (typeof onOpenSetupWizard === 'function') onOpenSetupWizard()
+          else window.location.reload()
+        },
       })
     }
     if (showShopifyBanner) {
@@ -187,7 +193,7 @@ function SystemAlertStack({
       })
     }
     return list
-  }, [urgentEscalationCount, ticketsPercent, ticketsUsed, ticketsLimit, planId, inTrial, trialDaysLeft, completedSetupSteps, setupCompletion, showShopifyBanner, setActiveTab])
+  }, [urgentEscalationCount, ticketsPercent, ticketsUsed, ticketsLimit, planId, inTrial, trialDaysLeft, completedSetupSteps, setupCompletion, showShopifyBanner, setActiveTab, onOpenSetupWizard])
 
   if (alerts.length === 0) return null
 
@@ -304,7 +310,7 @@ function TodayHero({ clientId, urgentEscalationCount, setActiveTab }) {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Agent actif</span>
             </span>
-            <span className="text-[11px] text-[#9ca3af] font-medium">· Mis à jour il y a moins d'1 min</span>
+            <span className="text-[11px] text-[#71717a] font-medium">· Mis à jour il y a moins d'1 min</span>
           </div>
           <p className="text-[13px] text-[#71717a] font-medium mb-1">Résolutions livrées aujourd'hui</p>
           <div className="flex items-baseline gap-3">
@@ -327,7 +333,7 @@ function TodayHero({ clientId, urgentEscalationCount, setActiveTab }) {
             </p>
           )}
           {today && today.yesterdayTotal > 0 && (
-            <p className="text-[11px] text-[#9ca3af] mt-1">
+            <p className="text-[11px] text-[#71717a] mt-1">
               Hier à la même heure : {today.yesterdayTotal} tickets
             </p>
           )}
@@ -440,7 +446,7 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <h3 className="text-[15px] font-semibold text-[#1a1a1a]">Performance</h3>
-          <span className="text-[11px] text-[#9ca3af] font-medium bg-[#f5f5f5] px-2 py-0.5 rounded">
+          <span className="text-[11px] text-[#71717a] font-medium bg-[#f5f5f5] px-2 py-0.5 rounded">
             {selectedPeriod === 'this_month' ? 'Ce mois' : selectedPeriod === 'last_month' ? 'Mois dernier' : '30 jours'}
           </span>
         </div>
@@ -454,7 +460,7 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
             return (
               <button key={p.id} role="tab" aria-selected={isSelected} tabIndex={isSelected ? 0 : -1}
                 onClick={() => setSelectedPeriod(p.id)}
-                className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${isSelected ? 'bg-white text-[#1a1a1a] shadow-sm' : 'text-[#9ca3af] hover:text-[#1a1a1a]'}`}>
+                className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-all ${isSelected ? 'bg-white text-[#1a1a1a] shadow-sm' : 'text-[#71717a] hover:text-[#1a1a1a]'}`}>
                 {p.label}
               </button>
             )
@@ -462,8 +468,9 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
         </div>
       </div>
 
-      {/* 4-card KPI grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* 4-card KPI grid — stacks to 1-col on <sm (cramped 2-col at 375px
+          made cards unreadable); 2-col from sm:, 4-col from md:. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {kpis.map((kpi, i) => (
           <div key={i} className="bg-white rounded-2xl border border-[#E5E2D7] p-4 md:p-5">
             <p className="text-[11px] font-medium text-[#71717a] leading-tight mb-3 line-clamp-1">{kpi.label}</p>
@@ -474,7 +481,7 @@ function KPIRowWithSparkline({ eventCounts, liveRoi, periodStats, dailyMetrics, 
               {kpi.suffix && <span className="text-[14px] font-semibold text-[#1a1a1a]">{kpi.suffix}</span>}
             </div>
             <div className="flex items-center justify-between gap-2 mt-2">
-              <p className="text-[10px] text-[#9ca3af] leading-tight truncate flex-1">{kpi.sub}</p>
+              <p className="text-[10px] text-[#71717a] leading-tight truncate flex-1">{kpi.sub}</p>
               {kpi.variation !== undefined && kpi.variation !== null && kpi.variation !== 0 && (
                 <span className={`flex-shrink-0 text-[10px] font-bold ${kpi.variation > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                   {kpi.variation > 0 ? '▲' : '▼'} {Math.abs(kpi.variation)}%
@@ -550,7 +557,7 @@ function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-cta animate-pulse" />
             <p className="text-[13px] font-semibold text-[#1a1a1a]">Feed en direct</p>
-            <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider bg-[#f5f5f5] px-2 py-0.5 rounded">Live</span>
+            <span className="text-[10px] font-semibold text-[#71717a] uppercase tracking-wider bg-[#f5f5f5] px-2 py-0.5 rounded">Live</span>
           </div>
           <button onClick={() => setActiveTab('activity')} className="text-[12px] font-medium text-cta hover:underline">
             Tout voir →
@@ -572,7 +579,7 @@ function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
             return (
               <button key={t.id} role="tab" aria-selected={active} tabIndex={active ? 0 : -1}
                 onClick={() => setRightTab(t.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-[12px] font-medium transition-colors ${active ? 'bg-[#f5f5f5] text-[#1a1a1a]' : 'text-[#9ca3af] hover:text-[#1a1a1a]'}`}>
+                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-[12px] font-medium transition-colors ${active ? 'bg-[#f5f5f5] text-[#1a1a1a]' : 'text-[#71717a] hover:text-[#1a1a1a]'}`}>
                 <Icon className="w-3.5 h-3.5" />
                 {t.label}
               </button>
@@ -592,7 +599,7 @@ function SignalsGrid({ clientId, theme, selectedPeriod, setActiveTab }) {
           )}
           {rightTab === 'trends' && (
             <div className="p-4">
-              <p className="text-[11px] text-[#9ca3af] mb-3">Volume de demandes traitées sur la période.</p>
+              <p className="text-[11px] text-[#71717a] mb-3">Volume de demandes traitées sur la période.</p>
               <div className="h-[200px]">
                 <ActivityChart theme={theme} supabase={supabase} selectedPeriod={selectedPeriod} mini={true} />
               </div>

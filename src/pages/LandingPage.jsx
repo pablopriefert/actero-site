@@ -3,6 +3,7 @@ import { SEO } from '../components/SEO'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Check, Shield, Clock, CheckCircle2 } from 'lucide-react'
 import { Navbar } from '../components/layout/Navbar'
+import { Footer } from '../components/layout/Footer'
 import { GlassHero } from '../components/ui/glass-hero'
 import { FadeInUp } from '../components/ui/scroll-animations'
 import { initAmplitude, trackEvent } from '../lib/analytics'
@@ -177,7 +178,7 @@ export const LandingPage = ({ onNavigate }) => {
                     <div key={i} className="border-b border-black/[0.08]">
                       <button
                         onClick={() => setOpenFaqIndex(isOpen ? -1 : i)}
-                        className="w-full text-left bg-transparent border-none py-[22px] cursor-pointer flex justify-between items-center gap-4"
+                        className="w-full text-left bg-transparent border-none py-[22px] cursor-pointer flex justify-between items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta focus-visible:ring-offset-2 rounded-lg"
                         aria-expanded={isOpen}
                       >
                         <span className="text-[16.5px] font-semibold text-[#1A1A1A]">{f.q}</span>
@@ -256,65 +257,8 @@ export const LandingPage = ({ onNavigate }) => {
           </section>
         </main>
 
-        {/* 10. FOOTER (dark 5-col) */}
-        <footer className="py-14 px-6 bg-[#1A1A1A] text-[#F4F0E6]/65">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-8 mb-10 pb-8 border-b border-[#F4F0E6]/10">
-              <div className="col-span-2 md:col-span-1">
-                <div className="flex items-center gap-2 text-white mb-3.5">
-                  <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
-                    <path d="M16 3L29 28H3L16 3Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
-                    <circle cx="16" cy="19" r="3" fill="currentColor" />
-                  </svg>
-                  <span className="text-[17px] font-bold">Actero</span>
-                </div>
-                <p className="text-[13px] leading-[1.5] m-0 max-w-[280px]">
-                  L'agent IA français pour e-commerçants Shopify. Hébergé en France, conforme RGPD,
-                  opt-out TDM.
-                </p>
-              </div>
-              {[
-                {
-                  title: 'Produit',
-                  links: ['Fonctionnalités', 'Tarifs', 'Démo', 'Intégrations', 'Roadmap'],
-                },
-                {
-                  title: 'Ressources',
-                  links: ['Academy', 'Blog', 'Prompt Library', 'Support', 'API Docs'],
-                },
-                {
-                  title: 'Entreprise',
-                  links: ['À propos', 'Partenaires', 'Ambassadeurs', 'Careers', 'Contact'],
-                },
-                {
-                  title: 'Légal',
-                  links: ['Mentions légales', 'Confidentialité', 'CGU', 'DPA', 'Sécurité'],
-                },
-              ].map((col) => (
-                <div key={col.title}>
-                  <div className="text-[12px] font-bold text-white uppercase tracking-[0.12em] mb-3.5">
-                    {col.title}
-                  </div>
-                  {col.links.map((l) => (
-                    <div key={l} className="text-[13px] mb-2 cursor-pointer hover:text-white transition-colors">
-                      {l}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col md:flex-row justify-between gap-4 text-[12px] text-[#F4F0E6]/45">
-              <div>© 2026 Actero SAS · Paris, France · Made with care</div>
-              <div className="flex gap-5">
-                <span>🇫🇷 Français</span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-                  Système opérationnel
-                </span>
-              </div>
-            </div>
-          </div>
-        </footer>
+        {/* 10. FOOTER (unified — cream, 4 cols, real links) */}
+        <Footer onNavigate={onNavigate} />
       </div>
     </>
   )

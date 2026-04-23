@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { KnowledgeImportModal } from './KnowledgeImportModal'
+import { SkeletonList } from '../ui/Skeleton'
 
 const CATEGORIES = [
   { id: 'policy', label: 'Politiques', icon: FileText, color: 'blue' },
@@ -57,6 +58,9 @@ const Toast = ({ message, type = 'success', onClose }) => (
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: 20 }}
+    role={type === 'error' ? 'alert' : 'status'}
+    aria-live={type === 'error' ? 'assertive' : 'polite'}
+    aria-atomic="true"
     className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border ${
       type === 'success'
         ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
@@ -65,11 +69,18 @@ const Toast = ({ message, type = 'success', onClose }) => (
   >
     {type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
     <span className="text-sm font-medium">{message}</span>
-    <button onClick={onClose} className="ml-2"><X className="w-3 h-3" /></button>
+    <button onClick={onClose} className="ml-2" aria-label="Fermer la notification"><X className="w-3 h-3" /></button>
   </motion.div>
 )
 
 const ToneEditor = ({ entry, onSave, saving }) => {
+  const reactId = React.useId()
+  const ids = {
+    tone: `kb-tone-${reactId}`,
+    signature: `kb-tone-signature-${reactId}`,
+    forbidden: `kb-tone-forbidden-${reactId}`,
+    instructions: `kb-tone-instructions-${reactId}`,
+  }
   const [form, setForm] = useState({
     tutoiement: false,
     tone: 'Professionnel',
@@ -96,8 +107,12 @@ const ToneEditor = ({ entry, onSave, saving }) => {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-bold text-[#71717a]">Tutoiement / Vouvoiement</label>
+        <span id={`${reactId}-tutoiement-label`} className="text-sm font-bold text-[#71717a]">Tutoiement / Vouvoiement</span>
         <button
+          type="button"
+          role="switch"
+          aria-checked={form.tutoiement}
+          aria-labelledby={`${reactId}-tutoiement-label`}
           onClick={() => setForm(f => ({ ...f, tutoiement: !f.tutoiement }))}
           className={`relative w-12 h-6 rounded-full transition-colors ${form.tutoiement ? 'bg-blue-500' : 'bg-gray-200'}`}
         >
@@ -107,8 +122,9 @@ const ToneEditor = ({ entry, onSave, saving }) => {
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Ton</label>
+        <label htmlFor={ids.tone} className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Ton</label>
         <select
+          id={ids.tone}
           value={form.tone}
           onChange={(e) => setForm(f => ({ ...f, tone: e.target.value }))}
           className="w-full bg-gray-50 border border-[#E5E2D7] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none"
@@ -120,8 +136,9 @@ const ToneEditor = ({ entry, onSave, saving }) => {
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Signature email</label>
+        <label htmlFor={ids.signature} className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Signature email</label>
         <input
+          id={ids.signature}
           type="text"
           value={form.signature}
           onChange={(e) => setForm(f => ({ ...f, signature: e.target.value }))}
@@ -131,8 +148,9 @@ const ToneEditor = ({ entry, onSave, saving }) => {
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Phrases ou mots interdits (un par ligne)</label>
+        <label htmlFor={ids.forbidden} className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Phrases ou mots interdits (un par ligne)</label>
         <textarea
+          id={ids.forbidden}
           value={form.forbidden}
           onChange={(e) => setForm(f => ({ ...f, forbidden: e.target.value }))}
           rows={4}
@@ -142,8 +160,9 @@ const ToneEditor = ({ entry, onSave, saving }) => {
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Instructions speciales</label>
+        <label htmlFor={ids.instructions} className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Instructions speciales</label>
         <textarea
+          id={ids.instructions}
           value={form.instructions}
           onChange={(e) => setForm(f => ({ ...f, instructions: e.target.value }))}
           rows={4}
@@ -165,6 +184,12 @@ const ToneEditor = ({ entry, onSave, saving }) => {
 }
 
 const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) => {
+  const reactId = React.useId()
+  const ids = {
+    title: `kb-entry-title-${reactId}`,
+    content: `kb-entry-content-${reactId}`,
+    expires: `kb-entry-expires-${reactId}`,
+  }
   const [title, setTitle] = useState(entry?.title || '')
   const [content, setContent] = useState(entry?.content || '')
   const [expiresAt, setExpiresAt] = useState(entry?.expires_at ? entry.expires_at.split('T')[0] : '')
@@ -178,10 +203,11 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
       className="bg-gray-50 border border-[#E5E2D7] rounded-2xl p-5 space-y-4"
     >
       <div>
-        <label className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">
+        <label htmlFor={ids.title} className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">
           {isFaq ? 'Question' : 'Titre'}
         </label>
         <input
+          id={ids.title}
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -191,10 +217,11 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">
+        <label htmlFor={ids.content} className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">
           {isFaq ? 'Reponse' : 'Contenu'}
         </label>
         <textarea
+          id={ids.content}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={6}
@@ -205,8 +232,9 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
 
       {category === 'temporary' && (
         <div>
-          <label className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Valide jusqu&apos;au</label>
+          <label htmlFor={ids.expires} className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">Valide jusqu&apos;au</label>
           <input
+            id={ids.expires}
             type="date"
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
@@ -734,8 +762,8 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
       <div className="space-y-4">
         <div>
           {isLoading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="w-6 h-6 animate-spin text-[#71717a]" />
+            <div aria-busy="true" aria-label="Chargement des entrées">
+              <SkeletonList n={5} />
             </div>
           ) : selectedCategory === 'tone' ? (
             <div className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-[#F9F7F1] border-[#E5E2D7]'}`}>

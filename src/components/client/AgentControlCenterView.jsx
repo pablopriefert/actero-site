@@ -224,23 +224,23 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
           {/* Live metrics 24h */}
           <div className="flex items-center gap-4 md:gap-6 flex-wrap">
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">24h</span>
+              <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">24h</span>
               <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{resolved}</span>
-              <span className="text-[10px] text-[#9ca3af]">{resolved === 1 ? 'résolue' : 'résolues'}</span>
+              <span className="text-[10px] text-[#71717a]">{resolved === 1 ? 'résolue' : 'résolues'}</span>
             </div>
             <div className="w-px h-10 bg-gray-200" />
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Latence</span>
+              <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Latence</span>
               <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{fmtLatency(avgLatency)}</span>
-              <span className="text-[10px] text-[#9ca3af]">moyenne</span>
+              <span className="text-[10px] text-[#71717a]">moyenne</span>
             </div>
             <div className="w-px h-10 bg-gray-200" />
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Qualité</span>
+              <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Qualité</span>
               <span className="text-lg font-bold text-cta tabular-nums leading-tight">
                 {successRate !== null && successRate !== undefined ? `${successRate}%` : '—'}
               </span>
-              <span className="text-[10px] text-[#9ca3af]">feedback +</span>
+              <span className="text-[10px] text-[#71717a]">feedback +</span>
             </div>
           </div>
         </div>
@@ -250,7 +250,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
       <section className="mb-6">
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-[13px] font-bold text-[#1a1a1a]">Configuration</h2>
-          <span className="text-[11px] text-[#9ca3af]">Comment l'agent se comporte</span>
+          <span className="text-[11px] text-[#71717a]">Comment l'agent se comporte</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {configCards.map((c, i) => renderCard(c, i))}
@@ -261,7 +261,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
       <section className="mb-6">
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-[13px] font-bold text-[#1a1a1a]">Tester & itérer</h2>
-          <span className="text-[11px] text-[#9ca3af]">Valider avant mise en prod</span>
+          <span className="text-[11px] text-[#71717a]">Valider avant mise en prod</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {toolingCards.map((c, i) => renderCard(c, i))}
@@ -272,7 +272,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
       <section>
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-[13px] font-bold text-[#1a1a1a]">Capacités avancées</h2>
-          <span className="text-[11px] text-[#9ca3af]">Options IA optionnelles</span>
+          <span className="text-[11px] text-[#71717a]">Options IA optionnelles</span>
         </div>
         <button
           type="button"

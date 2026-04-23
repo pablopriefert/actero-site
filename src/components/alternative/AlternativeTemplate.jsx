@@ -312,54 +312,59 @@ export const AlternativeTemplate = ({ onNavigate, data }) => {
             </div>
           </section>
 
-          {/* ═══════════ TÉMOIGNAGES (placeholder structure) ═══════════ */}
-          <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
-            <div className="max-w-5xl mx-auto">
-              <FadeInUp className="text-center mb-14">
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
-                  Ils ont migré depuis {competitor}
-                </p>
-                <h2
-                  className="font-normal leading-[1.05] text-[#1A1A1A] mb-4"
-                  style={{ ...serif, fontSize: 'clamp(36px, 5vw, 56px)', letterSpacing: '-0.02em' }}
-                >
-                  Des marques qui ont sauté le pas,<br className="hidden md:block" />
-                  <span className="italic text-[#716D5C]">sans regret.</span>
-                </h2>
-              </FadeInUp>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {data.testimonials.map((t, i) => (
-                  <FadeInUp key={i}>
-                    <div className="bg-white rounded-[20px] p-7 border border-black/[0.05] h-full flex flex-col">
-                      {/* Stars */}
-                      <div className="flex gap-0.5 mb-4">
-                        {[...Array(5)].map((_, s) => (
-                          <svg key={s} className="w-4 h-4 text-[#F59E0B]" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.959a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.45a1 1 0 00-.364 1.118l1.287 3.96c.3.921-.755 1.688-1.54 1.118l-3.36-2.45a1 1 0 00-1.175 0l-3.36 2.45c-.784.57-1.838-.197-1.539-1.118l1.285-3.96a1 1 0 00-.362-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.958z" />
-                          </svg>
-                        ))}
-                      </div>
-                      <p className="text-[14.5px] text-[#3A3A3A] leading-[1.65] mb-6 flex-1">
-                        « {t.quote} »
-                      </p>
-                      <div className="pt-5 border-t border-black/[0.06]">
-                        <div className="text-[14px] font-bold text-[#1A1A1A]">{t.author}</div>
-                        <div className="text-[12px] text-[#716D5C] mt-0.5">{t.role}</div>
-                      </div>
-                    </div>
+          {/* ═══════════ TÉMOIGNAGES (hidden until real data is populated) ═══════════
+              Guard : if every testimonial is a placeholder (author empty or contains `[`),
+              the whole section is skipped rather than shipping fake social proof. */}
+          {(() => {
+            const isPlaceholder = (t) => !t?.author || String(t.author).includes('[')
+            const hasRealTestimonials =
+              Array.isArray(data.testimonials) &&
+              data.testimonials.length > 0 &&
+              !data.testimonials.every(isPlaceholder)
+            if (!hasRealTestimonials) return null
+            return (
+              <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
+                <div className="max-w-5xl mx-auto">
+                  <FadeInUp className="text-center mb-14">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
+                      Ils ont migré depuis {competitor}
+                    </p>
+                    <h2
+                      className="font-normal leading-[1.05] text-[#1A1A1A] mb-4"
+                      style={{ ...serif, fontSize: 'clamp(36px, 5vw, 56px)', letterSpacing: '-0.02em' }}
+                    >
+                      Des marques qui ont sauté le pas,<br className="hidden md:block" />
+                      <span className="italic text-[#716D5C]">sans regret.</span>
+                    </h2>
                   </FadeInUp>
-                ))}
-              </div>
 
-              <FadeInUp className="mt-8 text-center">
-                <p className="text-xs text-[#9ca3af] italic">
-                  Les marques affichées sont des exemples types. Vos retours client remplaceront
-                  ces témoignages dès leur collecte — contact@actero.fr.
-                </p>
-              </FadeInUp>
-            </div>
-          </section>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    {data.testimonials.filter((t) => !isPlaceholder(t)).map((t, i) => (
+                      <FadeInUp key={i}>
+                        <div className="bg-white rounded-[20px] p-7 border border-black/[0.05] h-full flex flex-col">
+                          {/* Stars */}
+                          <div className="flex gap-0.5 mb-4">
+                            {[...Array(5)].map((_, s) => (
+                              <svg key={s} className="w-4 h-4 text-[#F59E0B]" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.959a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.45a1 1 0 00-.364 1.118l1.287 3.96c.3.921-.755 1.688-1.54 1.118l-3.36-2.45a1 1 0 00-1.175 0l-3.36 2.45c-.784.57-1.838-.197-1.539-1.118l1.285-3.96a1 1 0 00-.362-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.951-.69l1.286-3.958z" />
+                              </svg>
+                            ))}
+                          </div>
+                          <p className="text-[14.5px] text-[#3A3A3A] leading-[1.65] mb-6 flex-1">
+                            « {t.quote} »
+                          </p>
+                          <div className="pt-5 border-t border-black/[0.06]">
+                            <div className="text-[14px] font-bold text-[#1A1A1A]">{t.author}</div>
+                            <div className="text-[12px] text-[#716D5C] mt-0.5">{t.role}</div>
+                          </div>
+                        </div>
+                      </FadeInUp>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )
+          })()}
 
           {/* ═══════════ CTA (dark, italic accent) ═══════════ */}
           <section className="py-24 md:py-32 bg-[#003725] px-6">

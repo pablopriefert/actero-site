@@ -11,6 +11,7 @@ import { useToast } from '../ui/Toast'
 import { WorkflowReadinessCheck } from './WorkflowReadinessCheck'
 import { buildReadinessChecks } from '../../lib/workflow-readiness'
 import { AutomationHowItWorksModal } from './AutomationHowItWorksModal'
+import { SkeletonCard } from '../ui/Skeleton'
 
 /* ═══════════ AUTOMATION CATALOG ═══════════ */
 
@@ -90,21 +91,21 @@ const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHo
       </div>
       <div className="flex items-center gap-4 md:gap-6 flex-wrap">
         <div className="flex flex-col">
-          <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Cette semaine</span>
+          <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Cette semaine</span>
           <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{weekTickets}</span>
-          <span className="text-[10px] text-[#9ca3af]">{weekTickets === 1 ? 'demande' : 'demandes'}</span>
+          <span className="text-[10px] text-[#71717a]">{weekTickets === 1 ? 'demande' : 'demandes'}</span>
         </div>
         <div className="w-px h-10 bg-gray-200" />
         <div className="flex flex-col">
-          <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Ce mois</span>
+          <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">Ce mois</span>
           <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">{monthHours}h</span>
-          <span className="text-[10px] text-[#9ca3af]">économisées</span>
+          <span className="text-[10px] text-[#71717a]">économisées</span>
         </div>
         <div className="w-px h-10 bg-gray-200" />
         <div className="flex flex-col">
-          <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">ROI mois</span>
+          <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">ROI mois</span>
           <span className="text-lg font-bold text-cta tabular-nums leading-tight">{monthROI.toLocaleString('fr-FR')}€</span>
-          <span className="text-[10px] text-[#9ca3af]">valeur générée</span>
+          <span className="text-[10px] text-[#71717a]">valeur générée</span>
         </div>
       </div>
     </div>
@@ -237,7 +238,7 @@ const AutomationCard = ({
         {/* Channels — liste avec toggle switches explicites */}
         {hasChannels && status !== 'missing' && (
           <div className="mb-4 pt-4 border-t border-[#E5E2D7]">
-            <p className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-2">
+            <p className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider mb-2">
               Canaux {isActive ? '(activez ceux à utiliser)' : '(disponibles)'}
             </p>
             <div className="space-y-1.5">
@@ -725,8 +726,14 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
 
   if (loadingPb) {
     return (
-      <div className="flex justify-center py-16">
-        <Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" />
+      <div
+        className="max-w-6xl mx-auto px-5 md:px-8 pt-6 pb-16 grid grid-cols-1 md:grid-cols-2 gap-4"
+        aria-busy="true"
+        aria-label="Chargement des automatisations"
+      >
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonCard key={i} rows={4} />
+        ))}
       </div>
     )
   }
