@@ -12,6 +12,7 @@ import { LiveActivityWidget } from '../../dashboard/LiveActivityWidget.jsx'
 import { ActivityChart } from '../../dashboard/ActivityChart.jsx'
 import { PeakHoursChart } from '../PeakHoursChart.jsx'
 import { AgentImprovementWidget } from '../AgentImprovementWidget.jsx'
+import VisionUsageWidget from './VisionUsageWidget.jsx'
 
 /**
  * OverviewHome — nouvelle structure de la tab Overview post-setup.
@@ -34,6 +35,7 @@ export function OverviewHome({
   currentClient,
   // Plan state
   planId, planName, inTrial, trialDaysLeft, ticketsUsed, ticketsLimit, ticketsPercent, isOverLimit,
+  limits,
   // Metrics state
   periodStats, selectedPeriod, setSelectedPeriod, dailyMetrics, eventCounts, liveRoi,
   totalEvents, urgentEscalationCount, completedSetupSteps, showShopifyBanner, setupCompletion,
@@ -86,6 +88,16 @@ export function OverviewHome({
           selectedPeriod={selectedPeriod}
           setActiveTab={setActiveTab}
         />
+      )}
+
+      {/* Vision usage */}
+      {clientId && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <VisionUsageWidget
+            clientId={clientId}
+            planLimit={limits?.vision_analyses_per_month}
+          />
+        </div>
       )}
 
       {/* Starter → Pro upsell (reste standalone en bas, contextuel) */}

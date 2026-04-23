@@ -62,6 +62,7 @@ function buildFeatures(plan) {
   if (plan.id === "free") {
     return [
       "50 tickets / mois",
+      "Analyses vision : 10 / mois",
       "1 workflow actif",
       "Intégration Shopify",
       `Base de connaissances (${limits.knowledge_entries} entrées)`,
@@ -77,6 +78,7 @@ function buildFeatures(plan) {
   if (plan.id === "enterprise") {
     return [
       "Tickets illimités",
+      "Analyses vision : illimité",
       "Workflows illimités",
       "Toutes les intégrations",
       "Base de connaissances illimitée",
@@ -101,6 +103,7 @@ function buildFeatures(plan) {
   if (plan.id === "starter") {
     return [
       `${fmt(limits.tickets_per_month)} tickets / mois`,
+      "Analyses vision : 200 / mois",
       `${limits.workflows_active} workflows actifs`,
       `Shopify + ${limits.integrations - 1} intégrations`,
       `Base de connaissances ${limits.knowledge_entries} entrées`,
@@ -121,6 +124,7 @@ function buildFeatures(plan) {
   if (plan.id === "pro") {
     return [
       `${fmt(limits.tickets_per_month)} tickets / mois`,
+      "Analyses vision : 2 000 / mois",
       "Workflows illimités",
       "Toutes les intégrations",
       "Base de connaissances illimitée",

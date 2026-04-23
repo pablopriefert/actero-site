@@ -107,6 +107,10 @@
         {
             "path": "/api/cron/proactive-watchdog",
             "schedule": "*/15 * * * *"
+        },
+        {
+            "path": "/api/cron/purge-vision-images",
+            "schedule": "0 3 * * *"
         }
     ],
     "headers": [

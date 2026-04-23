@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import AttachmentUploader from '../../components/portal/AttachmentUploader';
 
 export default function PortalTicketDetailPage({ ticketId, navigate }) {
   const [ticket, setTicket] = useState(null);
   const [reply, setReply] = useState('');
+  const [imagePaths, setImagePaths] = useState([]);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -17,10 +19,10 @@ export default function PortalTicketDetailPage({ ticketId, navigate }) {
     const r = await fetch('/api/portal/ticket-reply', {
       method: 'POST', credentials: 'same-origin',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ticketId, message: reply }),
+      body: JSON.stringify({ ticketId, message: reply, image_paths: imagePaths }),
     });
     setBusy(false);
-    if (r.ok) { setReply(''); navigate('/portal/tickets'); }
+    if (r.ok) { setReply(''); setImagePaths([]); navigate('/portal/tickets'); }
   }
 
   if (!ticket) return <p className="text-[#5A5A5A]">Chargement…</p>;
@@ -33,6 +35,9 @@ export default function PortalTicketDetailPage({ ticketId, navigate }) {
       <div className="prose prose-sm max-w-none mb-6 whitespace-pre-wrap text-[#1A1A1A]"><strong>Réponse :</strong><br/>{ticket.ai_response || ticket.human_response || '(pas encore de réponse)'}</div>
       {ticket.customer_follow_up && <div className="text-sm text-[#5A5A5A] mb-3 whitespace-pre-wrap"><strong>Ton dernier message :</strong><br/>{ticket.customer_follow_up}</div>}
       <form onSubmit={send}>
+        <div className="mb-3">
+          <AttachmentUploader onChange={setImagePaths} />
+        </div>
         <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={4}
           className="w-full border border-[#E5E5E5] rounded-lg p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-[#1F3A12]/10 focus:border-[#1F3A12]/40" placeholder="Ta réponse…" />
         <button disabled={busy || !reply.trim()}

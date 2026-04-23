@@ -13,23 +13,24 @@
 import { ImapFlow } from 'imapflow'
 import { decryptToken } from './crypto.js'
 import { cleanEmailBody } from './email.js'
+import { uploadToStorage } from '../vision/lib/ingress.js'
 
 const SITE_URL = process.env.SITE_URL || 'https://actero.fr'
 const MAX_MESSAGES_PER_CYCLE = 20
 
 export async function pollOneMailbox({ supabase, clientId, provider, integration }) {
   if (provider === 'gmail') {
-    return pollGmail({ clientId, integration })
+    return pollGmail({ supabase, clientId, integration })
   }
   // default: IMAP
-  return pollImap({ clientId, integration })
+  return pollImap({ supabase, clientId, integration })
 }
 
 /* -------------------------------------------------------------------------- */
 /*  Gmail API poller                                                          */
 /* -------------------------------------------------------------------------- */
 
-async function pollGmail({ clientId, integration }) {
+async function pollGmail({ supabase, clientId, integration }) {
   const diagnostics = { connected: false, mailbox_total: 0, unread_count: 0, last_5: [], folders: [{ path: 'INBOX (Gmail)', specialUse: 'gmail' }] }
   const accessToken = decryptToken(integration.access_token)
   if (!accessToken) return { processed: 0, diagnostics, error: 'Gmail token indéchiffrable' }
@@ -94,11 +95,44 @@ async function pollGmail({ clientId, integration }) {
       try {
         const full = await fetchGmailMessage(bearer, id)
         if (!full) continue
-        const { from, fromName, to, subject, body, messageId, inReplyTo, references } = full
+        const { from, fromName, to, subject, body, messageId, inReplyTo, references, imageAttachmentParts } = full
         if (!body || body.length < 3) {
           await markGmailAsRead(bearer, id)
           continue
         }
+
+        // Download image attachments from Gmail, then upload to storage.
+        let uploadedImages = []
+        try {
+          if (Array.isArray(imageAttachmentParts) && imageAttachmentParts.length > 0) {
+            const images = []
+            for (const p of imageAttachmentParts) {
+              try {
+                const attResp = await fetch(
+                  `https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}/attachments/${p.attachmentId}`,
+                  { headers: { Authorization: `Bearer ${bearer}` } },
+                )
+                if (!attResp.ok) continue
+                const att = await attResp.json()
+                if (!att?.data) continue
+                const buffer = Buffer.from(att.data.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
+                const ext = (p.filename?.split('.').pop() || p.mime?.split('/').pop() || 'bin').toLowerCase()
+                images.push({ buffer, mime: p.mime, ext })
+              } catch { /* skip individual attachment */ }
+            }
+            if (images.length > 0) {
+              uploadedImages = await uploadToStorage({
+                supabase,
+                clientId,
+                ticketId: messageId || `gmail-${id}`,
+                images,
+              })
+            }
+          }
+        } catch (err) {
+          console.warn('[gmail-poll] image upload failed:', err.message)
+        }
+
         const resp = await fetch(
           `${SITE_URL}/api/engine/webhooks/inbound-email?client_id=${clientId}`,
           {
@@ -110,6 +144,7 @@ async function pollGmail({ clientId, integration }) {
             body: JSON.stringify({
               from, from_name: fromName, to, subject, text: body,
               message_id: messageId, in_reply_to: inReplyTo, references,
+              images: uploadedImages,
             }),
           },
         )
@@ -148,6 +183,22 @@ async function fetchGmailMessage(bearer, id) {
   const body = extractGmailBody(m.payload) || ''
   const cleaned = cleanEmailBody(body)
 
+  // Walk payload parts for image attachments (any depth)
+  const imageAttachmentParts = []
+  const walk = (p) => {
+    if (!p) return
+    const mime = p.mimeType || ''
+    if (mime.startsWith('image/') && p.body?.attachmentId) {
+      imageAttachmentParts.push({
+        attachmentId: p.body.attachmentId,
+        mime,
+        filename: p.filename || '',
+      })
+    }
+    if (Array.isArray(p.parts)) p.parts.forEach(walk)
+  }
+  walk(m.payload)
+
   return {
     from,
     fromName,
@@ -157,6 +208,7 @@ async function fetchGmailMessage(bearer, id) {
     messageId: headers['message-id'] || null,
     inReplyTo: headers['in-reply-to'] || null,
     references: headers.references || null,
+    imageAttachmentParts,
   }
 }
 
@@ -245,7 +297,7 @@ async function refreshGmailTokenIfNeeded(integration, currentToken) {
 /*  IMAP poller                                                               */
 /* -------------------------------------------------------------------------- */
 
-async function pollImap({ clientId, integration }) {
+async function pollImap({ supabase, clientId, integration }) {
   const diagnostics = { connected: false, mailbox_total: 0, unread_count: 0, last_5: [], folders: [] }
   const { imap_host, imap_port, username, use_ssl } = integration.extra_config || {}
   const password = decryptToken(integration.api_key) || integration.api_key
@@ -302,13 +354,31 @@ async function pollImap({ clientId, integration }) {
         const env = msg.envelope || {}
         const fromObj = env.from?.[0] || {}
         const toObj = env.to?.[0] || {}
-        const rawSource = msg.source?.toString('utf8') || ''
+        const rawBuf = msg.source || Buffer.alloc(0)
+        const rawSource = rawBuf.toString('utf8') || ''
         const textBody = extractPlainText(rawSource)
         const cleaned = cleanEmailBody(textBody)
         if (!cleaned || cleaned.length < 3) {
           await client.messageFlagsAdd(msg.uid, ['\\Seen'], { uid: true })
           continue
         }
+
+        // Extract image attachments from raw MIME and upload.
+        let uploadedImages = []
+        try {
+          const imgs = extractImageAttachmentsFromMime(rawBuf)
+          if (imgs.length > 0) {
+            uploadedImages = await uploadToStorage({
+              supabase,
+              clientId,
+              ticketId: env.messageId || `imap-${msg.uid}`,
+              images: imgs,
+            })
+          }
+        } catch (err) {
+          console.warn('[imap-poll] image upload failed:', err.message)
+        }
+
         const resp = await fetch(
           `${SITE_URL}/api/engine/webhooks/inbound-email?client_id=${clientId}`,
           {
@@ -326,6 +396,7 @@ async function pollImap({ clientId, integration }) {
               message_id: env.messageId || null,
               in_reply_to: env.inReplyTo || null,
               references: env.references || null,
+              images: uploadedImages,
             }),
           },
         )
@@ -342,6 +413,68 @@ async function pollImap({ clientId, integration }) {
     try { await client.logout() } catch { /* noop */ }
   }
   return { processed, diagnostics, error: errorMsg }
+}
+
+/**
+ * Parse a raw RFC822 buffer and return base64-decoded image attachments.
+ * Returns [{ buffer, mime, ext }, ...]. Best-effort — skips anything it
+ * can't confidently parse. Handles multipart/mixed and multipart/related.
+ */
+function extractImageAttachmentsFromMime(rawBuf) {
+  if (!rawBuf || !rawBuf.length) return []
+  const raw = rawBuf.toString('latin1') // preserve binary for base64 decoding
+  const results = []
+
+  // Find top-level boundary
+  const topBoundaryMatch = raw.match(/Content-Type:\s*multipart\/[^;]+;\s*[\s\S]*?boundary\s*=\s*"?([^";\r\n]+)"?/i)
+  if (!topBoundaryMatch) return []
+
+  const walkParts = (block, boundary) => {
+    const marker = `--${boundary}`
+    const parts = block.split(marker)
+    for (const part of parts) {
+      if (!part || part === '--' || part.trim() === '') continue
+      // Each part has headers then CRLF CRLF then body
+      const headerBodySplit = part.indexOf('\r\n\r\n')
+      const sepLen = headerBodySplit >= 0 ? 4 : part.indexOf('\n\n')
+      if (headerBodySplit < 0) continue
+      const headers = part.slice(0, headerBodySplit)
+      let body = part.slice(headerBodySplit + 4)
+      // Strip trailing CRLF before next boundary
+      body = body.replace(/\r?\n--$/, '').replace(/\r?\n$/, '')
+
+      const ctMatch = headers.match(/Content-Type:\s*([^;\r\n]+)/i)
+      const ct = ctMatch ? ctMatch[1].trim().toLowerCase() : ''
+
+      // Nested multipart — recurse
+      if (ct.startsWith('multipart/')) {
+        const nestedBoundary = headers.match(/boundary\s*=\s*"?([^";\r\n]+)"?/i)?.[1]
+        if (nestedBoundary) walkParts(body, nestedBoundary)
+        continue
+      }
+
+      if (!ct.startsWith('image/')) continue
+
+      const cteMatch = headers.match(/Content-Transfer-Encoding:\s*([^\r\n]+)/i)
+      const cte = cteMatch ? cteMatch[1].trim().toLowerCase() : ''
+      if (cte !== 'base64') continue // we only support base64 here
+
+      const filenameMatch =
+        headers.match(/name\s*=\s*"?([^";\r\n]+)"?/i) ||
+        headers.match(/filename\s*=\s*"?([^";\r\n]+)"?/i)
+      const filename = filenameMatch ? filenameMatch[1] : ''
+      const ext = (filename.split('.').pop() || ct.split('/').pop() || 'bin').toLowerCase()
+
+      try {
+        const cleaned = body.replace(/\s+/g, '')
+        const buffer = Buffer.from(cleaned, 'base64')
+        if (buffer.length > 0) results.push({ buffer, mime: ct, ext })
+      } catch { /* skip */ }
+    }
+  }
+
+  walkParts(raw, topBoundaryMatch[1])
+  return results
 }
 
 function extractPlainText(raw) {

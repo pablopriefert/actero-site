@@ -19,6 +19,7 @@ import { runExecutor } from '../executor.js'
 import { logRun } from '../logger.js'
 import { checkRateLimit } from '../lib/rate-limiter.js'
 import { cleanEmailBody, isExcludedSender, shouldAutoReply } from '../../lib/email.js'
+import { uploadToStorage } from '../../vision/lib/ingress.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -133,6 +134,57 @@ async function handler(req, res) {
 
   const startTime = Date.now()
 
+  // Extract image attachments (Resend / SendGrid shape)
+  // attachments: [{ filename, content: base64|url, content_type, url? }, ...]
+  let uploadedImages = []
+  try {
+    const rawAttachments = Array.isArray(body.attachments) ? body.attachments : []
+    const imageAttachments = rawAttachments.filter(a => {
+      const mime = a?.content_type || a?.contentType || a?.type || ''
+      return typeof mime === 'string' && mime.startsWith('image/')
+    })
+
+    if (imageAttachments.length > 0) {
+      const images = imageAttachments.map(a => {
+        const mime = a.content_type || a.contentType || a.type
+        const filename = a.filename || a.name || ''
+        const ext = (filename.split('.').pop() || mime.split('/').pop() || 'bin').toLowerCase()
+        // If it's a URL reference
+        if (a.url && !a.content) return { url: a.url }
+        if (typeof a.content === 'string' && /^https?:\/\//i.test(a.content)) {
+          return { url: a.content }
+        }
+        // Otherwise treat content as base64
+        if (typeof a.content === 'string') {
+          try {
+            const buffer = Buffer.from(a.content, 'base64')
+            return { buffer, mime, ext }
+          } catch {
+            return null
+          }
+        }
+        return null
+      }).filter(Boolean)
+
+      if (images.length > 0) {
+        const ticketRef = messageId || `email-${Date.now()}`
+        try {
+          uploadedImages = await uploadToStorage({
+            supabase,
+            clientId: resolvedClientId,
+            ticketId: ticketRef,
+            images,
+          })
+        } catch (uploadErr) {
+          console.warn('[inbound-email] uploadToStorage failed (non-fatal):', uploadErr.message)
+          uploadedImages = []
+        }
+      }
+    }
+  } catch (attachErr) {
+    console.warn('[inbound-email] attachment extraction failed (non-fatal):', attachErr.message)
+  }
+
   try {
     // Normalize
     const normalized = normalizeEvent('email_inbound', {
@@ -143,6 +195,7 @@ async function handler(req, res) {
       customer_email: fromEmail,
       customer_name: fromName,
       message: textBody,
+      images: uploadedImages,
     })
 
     // Find playbook

@@ -104,6 +104,54 @@ export async function runBrain(supabase, { event, playbook, clientId, normalized
   // Load full client context
   const clientConfig = await loadClientConfig(supabase, clientId)
 
+  // --- Vision pre-analysis (before classification) ---
+  // If the incoming event carries image paths AND the client has vision enabled,
+  // delegate to /api/vision/analyze which runs Claude Vision on the uploads and
+  // returns structured extractions. A sensitive-document detection short-circuits
+  // the whole flow into a human escalation so we don't spend more tokens.
+  let visionContext = null
+  if (
+    Array.isArray(normalized?.images) &&
+    normalized.images.length > 0 &&
+    clientConfig?.settings?.vision_enabled
+  ) {
+    try {
+      const resp = await fetch(`${process.env.PUBLIC_API_URL || 'https://actero.fr'}/api/vision/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-secret': process.env.INTERNAL_API_SECRET,
+        },
+        body: JSON.stringify({
+          client_id: clientId,
+          ticket_id: normalized.ticket_id || null,
+          image_paths: normalized.images.slice(0, 5),
+          use_case_hint: normalized.vision_use_case_hint,
+          context_text: normalized.message || '',
+        }),
+      })
+      if (resp.ok) {
+        const json = await resp.json()
+        visionContext = json.analyses
+
+        if (Array.isArray(visionContext) && visionContext.some(a => a?.is_sensitive)) {
+          return {
+            classification: 'other',
+            confidence: 1,
+            actionPlan: ['escalate'],
+            aiResponse: 'Photo sensible detectee, escaladee a un humain pour traitement securise.',
+            needsReview: true,
+            reviewReason: 'sensitive_document_detected',
+            agentUsed: 'escalation',
+            visionContext,
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[brain] vision analyze failed, continuing without:', err.message)
+    }
+  }
+
   // --- Token/cost accumulators (aggregated across every Claude call in this run) ---
   let totalTokensIn = 0
   let totalTokensOut = 0
@@ -252,6 +300,7 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
         conversationHistory,
         memoryContext,
         classification,
+        visionContext,
       })
       accumulateUsage(agentResult)
 
@@ -300,6 +349,7 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
       reviewReason: sentimentScore <= 2 ? 'aggressive' : (escalationReason || 'out_of_policy'),
       agentUsed,
       toolsUsed,
+      visionContext,
       usage: buildUsageSummary(),
     }
   }
@@ -325,6 +375,7 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
     productRecommendations,
     agentUsed,
     toolsUsed,
+    visionContext,
     usage: buildUsageSummary(),
   }
 }

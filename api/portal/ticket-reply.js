@@ -8,8 +8,13 @@ async function handler(req, res) {
   try { session = await requirePortalSession(req); }
   catch (e) { return res.status(e.status).json({ error: e.code }); }
 
-  const { ticketId, message } = req.body || {};
+  const { ticketId, message, image_paths } = req.body || {};
   if (!ticketId || !message?.trim()) return res.status(400).json({ error: 'invalid_input' });
+
+  // Sanitize image_paths: keep only strings, cap at 5
+  const imagePaths = Array.isArray(image_paths)
+    ? image_paths.filter((p) => typeof p === 'string' && p.length > 0).slice(0, 5)
+    : [];
 
   const supabase = getServiceRoleClient();
   const { data: ticket, error: ticketErr } = await supabase
@@ -32,7 +37,11 @@ async function handler(req, res) {
     customer_email: session.customerEmail,
     action: 'ticket_reply',
     target_id: ticketId,
-    metadata: { length: message.length },
+    metadata: {
+      length: message.length,
+      image_count: imagePaths.length,
+      ...(imagePaths.length > 0 ? { image_paths: imagePaths } : {}),
+    },
     ip_inet: (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || null,
     user_agent: req.headers['user-agent'] || null,
   });

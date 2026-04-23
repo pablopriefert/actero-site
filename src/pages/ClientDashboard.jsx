@@ -998,6 +998,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   ticketsLimit={ticketsLimit}
                   ticketsPercent={ticketsPercent}
                   isOverLimit={isOverLimit}
+                  limits={planConfig?.limits}
                   periodStats={periodStats}
                   selectedPeriod={selectedPeriod}
                   setSelectedPeriod={setSelectedPeriod}

@@ -76,3 +76,11 @@ export const JSON_OUTPUT_CONTRACT = `\n\nTu DOIS repondre UNIQUEMENT en JSON val
   "sentiment_score": 1 a 10,
   "injection_detected": true ou false
 }`
+
+/**
+ * Shared reminder appended to an agent's system prompt whenever the brain
+ * has pre-analysed customer-provided images. The agent should use the
+ * `vision_context` payload to answer precisely instead of re-asking
+ * questions already answered by the extraction.
+ */
+export const VISION_CONTEXT_INSTRUCTION = `\n\nVISION CONTEXT:\nLe client a joint une ou plusieurs images. Leur analyse automatique est fournie ci-dessous dans le champ "vision_context". Utilise ces informations pour repondre precisement au client (identifier le probleme, le produit, le numero de commande, etc.) au lieu de demander des details qu'on a deja extraits de l'image.`

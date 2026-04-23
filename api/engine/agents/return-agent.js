@@ -12,6 +12,7 @@ import {
   buildClaudeMessages,
   cleanMarkdown,
   CONTINUITY_REMINDER,
+  VISION_CONTEXT_INSTRUCTION,
 } from './_shared.js'
 
 function extractOrderId(message) {
@@ -66,7 +67,7 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     return base + specialization
   },
 
-  async run({ supabase, clientConfig, clientId, normalized, conversationHistory, memoryContext, classification }) {
+  async run({ supabase, clientConfig, clientId, normalized, conversationHistory, memoryContext, classification, visionContext }) {
     let orderContext = null
     const toolsUsed = []
 
@@ -87,7 +88,10 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
       }
     }
 
-    const systemPrompt = this.buildSystemPrompt(clientConfig, memoryContext, orderContext)
+    let systemPrompt = this.buildSystemPrompt(clientConfig, memoryContext, orderContext)
+    if (visionContext) {
+      systemPrompt += VISION_CONTEXT_INSTRUCTION + '\n\nvision_context = ' + JSON.stringify(visionContext)
+    }
     const { claudeMessages, hasHistory } = buildClaudeMessages({
       conversationHistory,
       currentMessage: normalized.message,

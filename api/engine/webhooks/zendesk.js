@@ -12,6 +12,8 @@ import { withSentry } from '../../lib/sentry.js'
 import crypto from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import { processMessage } from '../process.js'
+import { decryptToken } from '../../lib/crypto.js'
+import { uploadToStorage } from '../../vision/lib/ingress.js'
 
 function timingSafeEqStr(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false
@@ -46,7 +48,7 @@ async function handler(req, res) {
   // auront re-OAuth'd.
   const { data: integ } = await supabase
     .from('client_integrations')
-    .select('extra_config')
+    .select('extra_config, access_token')
     .eq('client_id', clientId)
     .eq('provider', 'zendesk')
     .eq('status', 'active')
@@ -62,7 +64,7 @@ async function handler(req, res) {
 
   // Zendesk webhook/trigger payload normalization
   // Zendesk can send various formats depending on trigger configuration
-  let ticketId, customerEmail, customerName, subject, messageBody
+  let ticketId, customerEmail, customerName, subject, messageBody, rawAttachments = []
 
   if (event?.ticket) {
     // Standard Zendesk trigger payload
@@ -72,6 +74,9 @@ async function handler(req, res) {
     subject = event.ticket.subject || event.ticket.title
     // Latest comment
     messageBody = event.ticket.latest_comment?.body || event.ticket.description
+    rawAttachments = Array.isArray(event.ticket.latest_comment?.attachments)
+      ? event.ticket.latest_comment.attachments
+      : []
   } else if (event?.id && event?.subject) {
     // Simplified payload (ticket object directly)
     ticketId = String(event.id)
@@ -79,6 +84,9 @@ async function handler(req, res) {
     customerName = event.requester?.name
     subject = event.subject
     messageBody = event.latest_comment?.body || event.description
+    rawAttachments = Array.isArray(event.latest_comment?.attachments)
+      ? event.latest_comment.attachments
+      : []
   } else {
     // Custom format — try to extract from flat structure
     ticketId = String(event?.ticket_id || event?.id || '')
@@ -86,6 +94,7 @@ async function handler(req, res) {
     customerName = event?.requester_name || event?.customer_name
     subject = event?.subject
     messageBody = event?.comment || event?.message || event?.body
+    rawAttachments = Array.isArray(event?.attachments) ? event.attachments : []
   }
 
   // Skip agent/internal comments
@@ -130,6 +139,44 @@ async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to store message' })
   }
 
+  // Upload image attachments. Zendesk's content_url requires Bearer auth —
+  // fetch the bytes ourselves and pass as buffer to uploadToStorage.
+  let uploadedImages = []
+  try {
+    const imageAttachments = rawAttachments.filter(a => {
+      const mime = a?.content_type || ''
+      return typeof mime === 'string' && mime.startsWith('image/')
+    })
+    if (imageAttachments.length > 0) {
+      const accessToken = decryptToken(integ?.access_token)
+      const images = []
+      for (const a of imageAttachments) {
+        const url = a?.content_url || a?.url
+        if (!url) continue
+        try {
+          const resp = await fetch(url, {
+            headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          })
+          if (!resp.ok) continue
+          const buffer = Buffer.from(await resp.arrayBuffer())
+          const mime = a.content_type
+          const ext = (a.file_name?.split('.').pop() || mime.split('/').pop() || 'bin').toLowerCase()
+          images.push({ buffer, mime, ext })
+        } catch { /* skip */ }
+      }
+      if (images.length > 0) {
+        uploadedImages = await uploadToStorage({
+          supabase,
+          clientId,
+          ticketId,
+          images,
+        })
+      }
+    }
+  } catch (err) {
+    console.warn('[engine/webhooks/zendesk] image upload failed (non-fatal):', err.message)
+  }
+
   // Process
   try {
     const result = await processMessage(supabase, {
@@ -142,6 +189,7 @@ async function handler(req, res) {
       messageBody: cleanMessage,
       externalTicketId: ticketId,
       metadata: {},
+      images: uploadedImages,
     })
 
     return res.status(200).json({

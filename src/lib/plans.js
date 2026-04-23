@@ -26,6 +26,7 @@ export const PLANS = {
       history_days: 7,
       voice_minutes: 0,
       whatsapp: false,
+      vision_analyses_per_month: 10,
     },
     features: {
       brand_editor: false,
@@ -64,6 +65,7 @@ export const PLANS = {
       history_days: 90,
       voice_minutes: 0,
       whatsapp: false,
+      vision_analyses_per_month: 200,
     },
     features: {
       brand_editor: true,
@@ -102,6 +104,7 @@ export const PLANS = {
       history_days: Infinity,
       voice_minutes: 200,
       whatsapp: false,
+      vision_analyses_per_month: 2000,
     },
     features: {
       brand_editor: true,
@@ -140,6 +143,7 @@ export const PLANS = {
       history_days: Infinity,
       voice_minutes: Infinity,
       whatsapp: false,
+      vision_analyses_per_month: Infinity,
     },
     features: {
       brand_editor: true,

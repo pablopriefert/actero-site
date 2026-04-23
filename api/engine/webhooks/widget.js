@@ -13,6 +13,7 @@ import { loadPlaybook } from '../lib/playbook-loader.js'
 import { runBrain } from '../brain.js'
 import { runExecutor } from '../executor.js'
 import { logRun } from '../logger.js'
+import { uploadToStorage } from '../../vision/lib/ingress.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -44,7 +45,7 @@ async function handler(req, res) {
   const clientId = client?.id
   if (!clientId) return res.status(401).json({ error: 'Invalid API key' })
 
-  const { message, email, name, session_id, history } = req.body || {}
+  const { message, email, name, session_id, history, images: widgetImages } = req.body || {}
   if (!message) return res.status(400).json({ error: 'message required' })
 
   // Conversation history: prefer from widget, but fallback to DB (in case widget.js is cached)
@@ -120,12 +121,53 @@ async function handler(req, res) {
       if (firstUser) firstUserMessage = firstUser.content
     }
 
+    // Process inbound images from widget.
+    // Accepts `images: string[]` — each entry is either a data-URL
+    // (data:image/...;base64,...) which we decode & upload, or an already-stored
+    // storage path (pass through).
+    let uploadedImages = []
+    try {
+      if (Array.isArray(widgetImages) && widgetImages.length > 0) {
+        const toUpload = []
+        const passThrough = []
+        for (const item of widgetImages) {
+          if (typeof item !== 'string') continue
+          const dataUrlMatch = item.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/)
+          if (dataUrlMatch) {
+            const mime = dataUrlMatch[1]
+            const b64 = dataUrlMatch[2]
+            try {
+              const buffer = Buffer.from(b64, 'base64')
+              const ext = (mime.split('/').pop() || 'bin').toLowerCase()
+              toUpload.push({ buffer, mime, ext })
+            } catch { /* skip malformed data url */ }
+          } else {
+            // Already a storage path
+            passThrough.push(item)
+          }
+        }
+        if (toUpload.length > 0) {
+          const uploaded = await uploadToStorage({
+            supabase,
+            clientId,
+            ticketId: session_id || engineMessage.id || `widget-${Date.now()}`,
+            images: toUpload,
+          })
+          uploadedImages = uploadedImages.concat(uploaded)
+        }
+        uploadedImages = uploadedImages.concat(passThrough)
+      }
+    } catch (err) {
+      console.warn('[widget] image upload failed (non-fatal):', err.message)
+    }
+
     // Use Engine V2 pipeline (Brain → Executor → Logger)
     const normalized = normalizeEvent('widget_message', {
       customer_email: customerEmail,
       customer_name: name,
       message,
       session_id,
+      images: uploadedImages,
     })
     // Override for logger: use first real message + detected email
     normalized.first_message = firstUserMessage

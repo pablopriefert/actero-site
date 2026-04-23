@@ -11,6 +11,7 @@ import { withSentry } from '../../lib/sentry.js'
 import crypto from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import { processMessage } from '../process.js'
+import { uploadToStorage } from '../../vision/lib/ingress.js'
 
 // Constant-time secret comparison to prevent timing-attack token recovery.
 function timingSafeEqStr(a, b) {
@@ -61,7 +62,7 @@ async function handler(req, res) {
 
   // We only care about customer messages (not agent replies)
   // Gorgias webhook payload varies, normalize it:
-  let ticketId, customerEmail, customerName, subject, messageBody
+  let ticketId, customerEmail, customerName, subject, messageBody, rawAttachments = []
 
   if (event?.ticket) {
     // Ticket-level event
@@ -74,6 +75,7 @@ async function handler(req, res) {
       ?.filter(m => m.source?.type === 'email' && !m.from_agent)
       ?.pop()
     messageBody = lastCustomerMsg?.body_text || lastCustomerMsg?.stripped_text || event.ticket.messages?.[0]?.body_text
+    rawAttachments = Array.isArray(lastCustomerMsg?.attachments) ? lastCustomerMsg.attachments : []
   } else if (event?.message) {
     // Message-level event
     ticketId = String(event.message.ticket_id || event.ticket_id)
@@ -81,6 +83,7 @@ async function handler(req, res) {
     customerName = event.message.sender?.name
     messageBody = event.message.body_text || event.message.stripped_text
     subject = event.message.subject
+    rawAttachments = Array.isArray(event.message.attachments) ? event.message.attachments : []
   }
 
   // Skip if it's an agent reply (not a customer message)
@@ -128,6 +131,30 @@ async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to store message' })
   }
 
+  // Upload image attachments (URL-based from Gorgias)
+  let uploadedImages = []
+  try {
+    const imageAttachments = rawAttachments.filter(a => {
+      const mime = a?.content_type || a?.contentType || ''
+      return typeof mime === 'string' && mime.startsWith('image/')
+    })
+    if (imageAttachments.length > 0) {
+      const images = imageAttachments
+        .map(a => (a.url ? { url: a.url } : null))
+        .filter(Boolean)
+      if (images.length > 0) {
+        uploadedImages = await uploadToStorage({
+          supabase,
+          clientId,
+          ticketId,
+          images,
+        })
+      }
+    }
+  } catch (err) {
+    console.warn('[engine/webhooks/gorgias] image upload failed (non-fatal):', err.message)
+  }
+
   // Process
   try {
     const result = await processMessage(supabase, {
@@ -140,6 +167,7 @@ async function handler(req, res) {
       messageBody: cleanMessage,
       externalTicketId: ticketId,
       metadata: { gorgias_event_type: eventType },
+      images: uploadedImages,
     })
 
     return res.status(200).json({

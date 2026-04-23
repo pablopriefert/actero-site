@@ -26,6 +26,7 @@ export function normalizeEvent(source, payload) {
     ticket_id: normalized.ticket_id || payload.ticket_id || null,
     session_id: payload.session_id || normalized.metadata?.session_id || null,
     channel: source,
+    images: payload.images || normalized.images || [],
     metadata: normalized.metadata || {},
   }
 }
@@ -37,6 +38,7 @@ function normalizeEmail(payload) {
     message: payload.body || payload.text || payload.message,
     subject: payload.subject,
     order_id: extractOrderId(payload.body || payload.message || ''),
+    images: payload.images || [],
     metadata: { original_subject: payload.subject },
   }
 }
@@ -48,6 +50,7 @@ function normalizeShopify(payload) {
     message: payload.note || `Commande ${payload.name || payload.order_number}`,
     subject: `Commande ${payload.name || '#' + payload.order_number}`,
     order_id: payload.name || String(payload.order_number),
+    images: payload.images || [],
     metadata: { shopify_id: payload.id, total_price: payload.total_price, currency: payload.currency },
   }
 }
@@ -59,6 +62,7 @@ function normalizeShopifyCart(payload) {
     message: 'Panier abandonne',
     subject: 'Panier abandonne',
     order_id: null,
+    images: payload.images || [],
     metadata: {
       cart_token: payload.token,
       total_price: payload.total_price,
@@ -77,6 +81,7 @@ function normalizeGorgias(payload) {
     message: stripHtml(body),
     subject: ticket.subject,
     ticket_id: String(ticket.id),
+    images: payload.images || [],
     metadata: { gorgias_ticket_id: ticket.id },
   }
 }
@@ -89,6 +94,7 @@ function normalizeZendesk(payload) {
     message: ticket.latest_comment?.body || ticket.description || payload.comment || payload.message,
     subject: ticket.subject || ticket.title,
     ticket_id: String(ticket.id),
+    images: payload.images || [],
     metadata: { zendesk_ticket_id: ticket.id },
   }
 }
@@ -99,6 +105,7 @@ function normalizeWidget(payload) {
     customer_name: payload.name,
     message: payload.message,
     subject: null,
+    images: payload.images || [],
     metadata: { session_id: payload.session_id },
   }
 }
@@ -111,6 +118,7 @@ function normalizeDirect(payload) {
     subject: payload.subject,
     order_id: payload.order_id,
     ticket_id: payload.ticket_id,
+    images: payload.images || [],
     metadata: payload.metadata || {},
   }
 }

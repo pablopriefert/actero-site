@@ -39,6 +39,7 @@ import { normalizeWhatsAppMessage } from '../lib/whatsapp-normalizer.js'
 import { sendWhatsAppMessage } from '../connectors/whatsapp.js'
 import { decryptToken } from '../../integrations/whatsapp/_helpers.js'
 import { canAccessFeature } from '../../lib/plan-limits.js'
+import { uploadToStorage } from '../../vision/lib/ingress.js'
 
 // Raw body is mandatory for HMAC verification.
 export const config = { api: { bodyParser: false } }
@@ -286,6 +287,43 @@ async function handleInboundMessage({ clientId, account, integration, value, mes
   }
 
   const normalized = normalizeWhatsAppMessage({ value, message, contact })
+
+  // If the message is an image, download via Meta Graph and upload to storage.
+  if (message?.type === 'image' && message?.image?.id) {
+    try {
+      const metaToken = integration.access_token_decrypted
+      // Step 1: Get media URL
+      const metaResp = await fetch(
+        `https://graph.facebook.com/v21.0/${message.image.id}`,
+        { headers: { Authorization: `Bearer ${metaToken}` } },
+      )
+      if (metaResp.ok) {
+        const meta = await metaResp.json()
+        if (meta?.url) {
+          // Step 2: Download bytes (requires bearer)
+          const binResp = await fetch(meta.url, {
+            headers: { Authorization: `Bearer ${metaToken}` },
+          })
+          if (binResp.ok) {
+            const buffer = Buffer.from(await binResp.arrayBuffer())
+            const mime = meta.mime_type || message.image.mime_type || 'image/jpeg'
+            const ext = (mime.split('/').pop() || 'jpg').toLowerCase()
+            const uploaded = await uploadToStorage({
+              supabase,
+              clientId,
+              ticketId: waMessageId,
+              images: [{ buffer, mime, ext }],
+            })
+            normalized.images = Array.isArray(normalized.images)
+              ? [...normalized.images, ...uploaded]
+              : uploaded
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[whatsapp-webhook] image download/upload failed:', err.message)
+    }
+  }
 
   // Admin routing:
   //   1) Legacy slash commands (/help, /kb, /stats, etc.) — fast & deterministic

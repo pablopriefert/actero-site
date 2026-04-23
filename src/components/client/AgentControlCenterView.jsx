@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useQuery } from '@tanstack/react-query'
-import { Bot, Settings, BookOpen, Shield, FlaskConical, ChevronRight, Activity, Clock, CheckCircle2 } from 'lucide-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Bot, Settings, BookOpen, Shield, FlaskConical, ChevronRight, Activity, Clock, CheckCircle2, Eye } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 /**
@@ -14,19 +14,48 @@ import { supabase } from '../../lib/supabase'
  * compact + data-dense + secondary actions groupées.
  */
 export const AgentControlCenterView = ({ clientId, onNavigate }) => {
+  const queryClient = useQueryClient()
   const { data: settings } = useQuery({
     queryKey: ['client-settings', clientId],
     queryFn: async () => {
       if (!clientId) return null
       const { data } = await supabase
         .from('client_settings')
-        .select('agent_enabled, brand_tone, updated_at')
+        .select('agent_enabled, brand_tone, vision_enabled, updated_at')
         .eq('client_id', clientId)
         .maybeSingle()
       return data
     },
     enabled: !!clientId,
   })
+
+  const [visionBusy, setVisionBusy] = useState(false)
+  const visionEnabled = Boolean(settings?.vision_enabled)
+
+  async function toggleVision() {
+    if (!clientId || visionBusy) return
+    setVisionBusy(true)
+    const next = !visionEnabled
+    // Optimistic cache update
+    queryClient.setQueryData(['client-settings', clientId], (prev) => ({
+      ...(prev || {}),
+      vision_enabled: next,
+    }))
+    const { error } = await supabase
+      .from('client_settings')
+      .update({ vision_enabled: next })
+      .eq('client_id', clientId)
+    if (error) {
+      // Rollback on error
+      queryClient.setQueryData(['client-settings', clientId], (prev) => ({
+        ...(prev || {}),
+        vision_enabled: !next,
+      }))
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['client-settings', clientId] })
+    }
+    setVisionBusy(false)
+  }
 
   const { data: kbCount } = useQuery({
     queryKey: ['kb-count', clientId],
@@ -229,7 +258,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
       </section>
 
       {/* ═══════ TOOLING SECTION ═══════ */}
-      <section>
+      <section className="mb-6">
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-[13px] font-bold text-[#1a1a1a]">Tester & itérer</h2>
           <span className="text-[11px] text-[#9ca3af]">Valider avant mise en prod</span>
@@ -237,6 +266,57 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {toolingCards.map((c, i) => renderCard(c, i))}
         </div>
+      </section>
+
+      {/* ═══════ CAPACITES AVANCEES ═══════ */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <h2 className="text-[13px] font-bold text-[#1a1a1a]">Capacités avancées</h2>
+          <span className="text-[11px] text-[#9ca3af]">Options IA optionnelles</span>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={visionEnabled}
+          aria-label={`${visionEnabled ? 'Désactiver' : 'Activer'} l'analyse vision`}
+          onClick={toggleVision}
+          disabled={!clientId || visionBusy}
+          className={`group w-full flex items-center justify-between gap-3 bg-white rounded-2xl border p-5 text-left transition-all ${
+            visionEnabled
+              ? 'border-cta/30 hover:border-cta/50'
+              : 'border-[#E5E2D7] hover:border-cta/30'
+          } disabled:opacity-60 disabled:cursor-not-allowed`}
+        >
+          <div className="flex items-start gap-3 min-w-0">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+              visionEnabled ? 'bg-cta/10 text-cta' : 'bg-[#f5f5f5] text-[#9ca3af]'
+            }`}>
+              <Eye className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-1">
+                Analyse des images envoyees par le client (Claude Vision)
+              </h3>
+              <p className="text-[12px] text-[#71717a] leading-relaxed">
+                Quand activé, l'agent analyse automatiquement les photos jointes par le client (produit cassé, étiquette, reçu…) pour contextualiser sa réponse. Consommation selon votre quota mensuel.
+              </p>
+            </div>
+          </div>
+          <span
+            aria-hidden="true"
+            className={`relative w-[42px] h-[22px] rounded-full transition-colors flex-shrink-0 ${
+              visionEnabled
+                ? 'bg-cta shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]'
+                : 'bg-[#d4d4d8] group-hover:bg-[#a1a1aa]'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)] transition-transform duration-200 ease-out ${
+                visionEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </span>
+        </button>
       </section>
     </div>
   )
