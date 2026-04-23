@@ -118,6 +118,37 @@
     .actero-product-price {
       margin: 2px 0 0; font-size: 12px; color: #0F5F35; font-weight: 700;
     }
+    .actero-attach-btn {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: #f5f5f0; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .actero-attach-btn:hover { background: #e8e8e0; }
+    .actero-attach-btn svg { width: 18px; height: 18px; fill: #5A5A5A; }
+    .actero-attach-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .actero-pending-images {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      padding: 8px 12px 0; max-height: 68px; overflow-y: auto;
+    }
+    .actero-pending-images:empty { display: none; }
+    .actero-thumb {
+      position: relative; width: 56px; height: 56px; border-radius: 8px;
+      overflow: hidden; border: 1px solid #e5e5e5; flex-shrink: 0;
+    }
+    .actero-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .actero-thumb-remove {
+      position: absolute; top: 2px; right: 2px; width: 18px; height: 18px;
+      border-radius: 50%; background: rgba(0,0,0,0.65); color: white;
+      border: none; cursor: pointer; font-size: 12px; line-height: 1;
+      display: flex; align-items: center; justify-content: center; padding: 0;
+    }
+    .actero-msg img.actero-msg-img {
+      display: block; max-width: 100%; border-radius: 8px; margin-top: 6px;
+    }
+    .actero-attach-error {
+      padding: 4px 12px 0; font-size: 11px; color: #c0392b;
+    }
   `
   document.head.appendChild(style)
 
@@ -146,7 +177,13 @@
       </div>
     </div>
     <div class="actero-messages" id="actero-msgs"></div>
+    <div class="actero-pending-images" id="actero-pending"></div>
+    <div class="actero-attach-error" id="actero-attach-err" style="display:none"></div>
     <div class="actero-input-area">
+      <button id="actero-attach" class="actero-attach-btn" type="button" title="Joindre une photo (max 5 × 5 Mo)">
+        <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5a4 4 0 0 1-8 0V5a2.5 2.5 0 0 1 5 0v10.5a1 1 0 0 1-2 0V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4 4 0 0 0-8 0v12.5a5.5 5.5 0 0 0 11 0V6h-1.5z"/></svg>
+      </button>
+      <input type="file" id="actero-file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple style="display:none" />
       <input type="text" id="actero-input" placeholder="Votre message..." />
       <button id="actero-send">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
@@ -159,7 +196,73 @@
   const msgsEl = document.getElementById('actero-msgs')
   const inputEl = document.getElementById('actero-input')
   const sendBtn = document.getElementById('actero-send')
+  const attachBtn = document.getElementById('actero-attach')
+  const fileInput = document.getElementById('actero-file')
+  const pendingEl = document.getElementById('actero-pending')
+  const attachErrEl = document.getElementById('actero-attach-err')
   let sending = false
+
+  const MAX_IMAGES = 5
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024
+  const pendingImages = [] // array of { dataUrl, thumbEl }
+
+  function showAttachError(msg) {
+    attachErrEl.textContent = msg || ''
+    attachErrEl.style.display = msg ? 'block' : 'none'
+    if (msg) setTimeout(function() { showAttachError('') }, 4000)
+  }
+
+  function renderThumb(dataUrl) {
+    const thumb = document.createElement('div')
+    thumb.className = 'actero-thumb'
+    const img = document.createElement('img')
+    img.src = dataUrl
+    thumb.appendChild(img)
+    const remove = document.createElement('button')
+    remove.className = 'actero-thumb-remove'
+    remove.type = 'button'
+    remove.textContent = '×'
+    remove.onclick = function() {
+      const idx = pendingImages.findIndex(function(p) { return p.thumbEl === thumb })
+      if (idx >= 0) pendingImages.splice(idx, 1)
+      thumb.remove()
+    }
+    thumb.appendChild(remove)
+    pendingEl.appendChild(thumb)
+    return thumb
+  }
+
+  function handleFiles(files) {
+    showAttachError('')
+    Array.from(files).forEach(function(file) {
+      if (pendingImages.length >= MAX_IMAGES) {
+        showAttachError('Maximum ' + MAX_IMAGES + ' images.')
+        return
+      }
+      if (!file.type.startsWith('image/')) {
+        showAttachError('"' + file.name + '" n\'est pas une image.')
+        return
+      }
+      if (file.size > MAX_IMAGE_BYTES) {
+        showAttachError('"' + file.name + '" depasse 5 Mo.')
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = function() {
+        const dataUrl = reader.result
+        if (typeof dataUrl !== 'string') return
+        const thumbEl = renderThumb(dataUrl)
+        pendingImages.push({ dataUrl: dataUrl, thumbEl: thumbEl })
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  attachBtn.onclick = function() { if (!sending) fileInput.click() }
+  fileInput.onchange = function(e) {
+    handleFiles(e.target.files)
+    fileInput.value = ''
+  }
 
   // Try to extract email from message text
   function extractEmail(text) {
@@ -215,11 +318,19 @@
     msgsEl.scrollTop = msgsEl.scrollHeight
   }
 
-  function addUserMessage(text) {
+  function addUserMessage(text, imageDataUrls) {
     messages.push({ role: 'user', text })
     const el = document.createElement('div')
     el.className = 'actero-msg user'
-    el.textContent = text
+    if (text) el.textContent = text
+    if (imageDataUrls && imageDataUrls.length) {
+      imageDataUrls.forEach(function(src) {
+        const img = document.createElement('img')
+        img.className = 'actero-msg-img'
+        img.src = src
+        el.appendChild(img)
+      })
+    }
     msgsEl.appendChild(el)
     msgsEl.scrollTop = msgsEl.scrollHeight
   }
@@ -236,9 +347,13 @@
 
   async function send() {
     const text = inputEl.value.trim()
-    if (!text || sending) return
+    const hasImages = pendingImages.length > 0
+    if ((!text && !hasImages) || sending) return
     inputEl.value = ''
-    addUserMessage(text)
+    const imageDataUrls = pendingImages.map(function(p) { return p.dataUrl })
+    addUserMessage(text, imageDataUrls)
+    // Clear pending thumbs
+    pendingImages.splice(0).forEach(function(p) { p.thumbEl.remove() })
 
     // Extract email/name from any message (non-blocking)
     const foundEmail = extractEmail(text)
@@ -258,6 +373,7 @@
 
     sending = true
     sendBtn.disabled = true
+    attachBtn.disabled = true
 
     // Loading indicator
     const loader = document.createElement('div')
@@ -276,6 +392,7 @@
           email: customerEmail,
           name: customerName,
           history: getConversationHistory(),
+          images: imageDataUrls,
         }),
       })
       const data = await res.json()
@@ -300,6 +417,7 @@
 
     sending = false
     sendBtn.disabled = false
+    attachBtn.disabled = false
     inputEl.focus()
   }
 
