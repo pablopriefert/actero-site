@@ -81,6 +81,10 @@
     ],
     "crons": [
         {
+            "path": "/api/cron/process-abandoned-carts",
+            "schedule": "*/5 * * * *"
+        },
+        {
             "path": "/api/cron/process-comptabilite",
             "schedule": "0 8 * * *"
         },
@@ -95,6 +99,14 @@
         {
             "path": "/api/cron/slack-daily-digest",
             "schedule": "30 7 * * 1-5"
+        },
+        {
+            "path": "/api/cron/poll-inbound-emails",
+            "schedule": "*/2 * * * *"
+        },
+        {
+            "path": "/api/cron/proactive-watchdog",
+            "schedule": "*/15 * * * *"
         }
     ],
     "headers": [
