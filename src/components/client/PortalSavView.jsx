@@ -83,9 +83,12 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
     return (
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
-          <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Portail SAV</h2>
-          <p className="text-[13px] text-[#9ca3af] mt-1">
-            Donnez à vos clients un espace en libre-service pour gérer leurs demandes.
+          <h2
+            className="text-2xl italic tracking-tight text-[#1a1a1a]"
+            style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+          >Portail SAV</h2>
+          <p className="text-[15px] text-[#5A5A5A] mt-1">
+            Donne à tes clients un espace en libre-service pour gérer leurs demandes.
           </p>
         </div>
         <div className="max-w-lg mx-auto py-8">
@@ -196,7 +199,10 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Portail SAV</h2>
+        <h2
+            className="text-2xl italic tracking-tight text-[#1a1a1a]"
+            style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+          >Portail SAV</h2>
         <p className="text-[13px] text-[#9ca3af] mt-1">
           Gérez et partagez votre portail self-service client.
         </p>

@@ -383,8 +383,13 @@ export const PromptEditor = ({ clientId, theme }) => {
             <Wand2 className="w-5 h-5 text-violet-600" />
           </div>
           <div>
-            <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Mon Agent</h2>
-            <p className="text-[13px] text-[#9ca3af]">Configurez votre agent en {STEPS.length} etapes simples</p>
+            <h2
+              className="text-2xl italic tracking-tight text-[#1a1a1a]"
+              style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+            >
+              Mon Agent
+            </h2>
+            <p className="text-[15px] text-[#5A5A5A]">Configure ton agent en {STEPS.length} étapes simples.</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
             {saved && (

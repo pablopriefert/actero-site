@@ -106,8 +106,8 @@ export const ProductPage = ({ onNavigate }) => {
   return (
     <>
       <SEO
-        title="Produit Actero — Agent IA Shopify pour SAV et relance paniers"
-        description="Comment fonctionne Actero : agent IA qui répond au SAV Shopify (email, chat, Gorgias, Zendesk) et relance les paniers abandonnés. Installation OAuth 15 min. RGPD, hébergé UE."
+        title="Produit Actero — Agent IA e-commerce : SAV, relance paniers, automatisations"
+        description="Comment fonctionne Actero : agent IA qui gère le SAV Shopify (email, chat, Gorgias, Zendesk, WhatsApp), relance les paniers abandonnés et automatise vos workflows e-commerce. Installation OAuth 15 min. RGPD, hébergé UE."
         canonical="/produit"
       />
 
@@ -131,7 +131,11 @@ export const ProductPage = ({ onNavigate }) => {
                 className="leading-[1.05] text-[#1A1A1A] font-normal"
                 style={{ ...serif, fontSize: 'clamp(38px, 5.2vw, 64px)', letterSpacing: '-0.02em' }}
               >
-                Un agent IA pour votre SAV,
+                Un agent IA pour tout votre{' '}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#003725] to-[#14A85C]">
+                  e-commerce
+                </span>
+                ,
                 <br />
                 <span className="italic text-[#716D5C]">pas un chatbot de plus.</span>
               </h1>
@@ -139,9 +143,9 @@ export const ProductPage = ({ onNavigate }) => {
 
             <FadeInUp delay={0.1} className="mb-2">
               <p className="text-[15px] md:text-base text-[#5A5A5A] leading-[1.55] max-w-xl mx-auto">
-                Actero connecte votre Shopify, apprend votre ton et vos politiques, et répond à
-                vos clients 24h/24 sur email, chat et helpdesk. Chaque réponse est sourcée par
-                vos vraies données produit et commande.
+                Actero connecte votre Shopify, apprend votre ton et vos politiques, puis gère
+                3 choses en parallèle : répondre au SAV 24/7, relancer les paniers abandonnés,
+                et exécuter vos workflows e-commerce — sourcés par vos vraies données.
               </p>
             </FadeInUp>
 

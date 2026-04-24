@@ -1,29 +1,82 @@
-import React from 'react'
-import { ArrowRight, Check } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { ArrowRight, Check, X } from 'lucide-react'
 import { FadeInUp } from './scroll-animations'
-import { TalkToHumanButton } from './TalkToHumanButton'
 import { WatchDemoButton } from './WatchDemoButton'
+import { CONTACT } from '../../config/contact'
+import { trackEvent } from '../../lib/analytics'
 
 /**
  * GlassHero — Variation A (Refined Notion) implementation.
  *
- * Design (depuis le design bundle Claude Design) :
- * — Centré, max-w-1120 (~6xl)
- * — Chip partenaires cream/E8DFC9 avec dot cta + "Powered by ElevenLabs
- *   Grants · Shopify Partner 2026"
- * — Headline Instrument Serif clamp(38,5.2vw,64px), italique muted sur
- *   la 2e ligne "entièrement automatisé."
- * — Subtitle Inter 16px + ligne bold 13px
- * — 2 CTAs pill (primary cta + ghost outline)
- * — Row 3 trust tags avec check icons
- * — Dashboard preview en dessous : window chrome + sidebar + KPIs + chart
+ * Premium upgrade :
+ * — Announcement bar dismissible (localStorage "actero_announce_vision_v1")
+ *   en haut : "Claude Vision est disponible — l'agent comprend maintenant
+ *   les photos clients →"
+ * — Titre Instrument Serif avec 1 mot gradient vert (from #003725 to #14A85C)
+ * — Subtitle 3-piliers (SAV + relance paniers + automatisations)
+ * — CTA primary unique + ghost "Voir la démo"
+ * — Link "Parler à un humain" demoted en text-link avec arrow
+ * — 3 KPIs mappés sur les 3 piliers (60% tickets / +15% CA / 5min setup)
+ * — Dashboard mockup avec aspect-ratio déclaré pour réduire CLS
  */
 export const GlassHero = ({ onNavigate }) => {
   const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
 
+  /* ─── Announcement bar dismiss (localStorage, default visible) ─── */
+  const ANNOUNCE_KEY = 'actero_announce_vision_v1'
+  const [showAnnounce, setShowAnnounce] = useState(true)
+
+  useEffect(() => {
+    try {
+      const dismissed = window.localStorage.getItem(ANNOUNCE_KEY)
+      if (dismissed === '1') setShowAnnounce(false)
+    } catch {
+      /* localStorage unavailable — keep default visible */
+    }
+  }, [])
+
+  const dismissAnnounce = () => {
+    setShowAnnounce(false)
+    try {
+      window.localStorage.setItem(ANNOUNCE_KEY, '1')
+    } catch {
+      /* ignore */
+    }
+  }
+
   return (
     <section className="relative bg-white pt-28 md:pt-24 pb-6 px-6">
       <div className="max-w-6xl mx-auto">
+        {/* ══════════════════ ANNOUNCEMENT BAR ══════════════════ */}
+        {showAnnounce && (
+          <FadeInUp className="mb-8 flex justify-center">
+            <div className="group inline-flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full bg-[#F4F0E6] border border-[#E8DFC9] text-[12.5px] text-[#003725] max-w-full">
+              <span className="shrink-0 text-[#716D5C]" aria-hidden>
+                ✨
+              </span>
+              <button
+                type="button"
+                onClick={() => onNavigate && onNavigate('/produit')}
+                className="inline-flex items-center gap-1.5 font-medium hover:underline underline-offset-2 decoration-[#003725]/40 truncate"
+              >
+                <strong className="font-semibold">Claude Vision est disponible</strong>
+                <span className="hidden sm:inline text-[#5A5A5A]">
+                  — l'agent comprend maintenant les photos clients
+                </span>
+                <ArrowRight className="w-3 h-3 shrink-0 transition-transform group-hover:translate-x-0.5" />
+              </button>
+              <button
+                type="button"
+                onClick={dismissAnnounce}
+                aria-label="Fermer l'annonce"
+                className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[#716D5C] hover:bg-white hover:text-[#003725] transition-colors"
+              >
+                <X className="w-3 h-3" strokeWidth={2.2} />
+              </button>
+            </div>
+          </FadeInUp>
+        )}
+
         {/* ══════════════════ HERO TEXT — centered ══════════════════ */}
         <div className="max-w-3xl mx-auto text-center">
           {/* Eyebrow — partner chip cream */}
@@ -37,7 +90,7 @@ export const GlassHero = ({ onNavigate }) => {
             </div>
           </FadeInUp>
 
-          {/* Headline — Instrument Serif + italic muted suffix */}
+          {/* Headline — Instrument Serif + italic muted suffix + gradient accent */}
           <FadeInUp delay={0.05} className="mb-6">
             <h1
               className="leading-[1.05] text-[#1A1A1A] font-normal"
@@ -47,17 +100,21 @@ export const GlassHero = ({ onNavigate }) => {
                 letterSpacing: '-0.02em',
               }}
             >
-              Votre SAV Shopify,
+              Votre{' '}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#003725] to-[#14A85C]">
+                e-commerce
+              </span>{' '}
+              tourne,
               <br />
-              <span className="italic text-[#716D5C]">entièrement automatisé.</span>
+              <span className="italic text-[#716D5C]">tout seul, 24/7.</span>
             </h1>
           </FadeInUp>
 
-          {/* Subtitle */}
+          {/* Subtitle — 3 piliers explicit */}
           <FadeInUp delay={0.1} className="mb-2">
             <p className="text-[15px] md:text-base text-[#5A5A5A] leading-[1.55] max-w-xl mx-auto">
-              L'agent IA français qui répond aux questions clients, traite les retours et relance
-              les paniers abandonnés pendant que votre équipe se concentre sur la vente.
+              L'agent IA qui gère vos tickets SAV, relance les paniers abandonnés et automatise
+              vos workflows e-commerce — 24/7, en français, avec le ton de votre marque.
             </p>
           </FadeInUp>
 
@@ -68,21 +125,33 @@ export const GlassHero = ({ onNavigate }) => {
             </p>
           </FadeInUp>
 
-          {/* CTAs */}
+          {/* CTAs — primary unique + ghost demo + text-link humain */}
           <FadeInUp delay={0.15}>
-            <div className="flex flex-wrap items-center justify-center gap-3.5 mb-5">
+            <div className="flex flex-wrap items-center justify-center gap-3.5 mb-3">
               <button
                 onClick={() => onNavigate && onNavigate('/signup')}
                 className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
               >
-                Démarrer mon essai gratuit
+                Essai gratuit 7 jours
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
               <WatchDemoButton source="landing_hero" variant="light" />
             </div>
+            <div className="mb-5">
+              <button
+                onClick={() => {
+                  trackEvent('Talk_To_Human_Clicked', { source: 'landing_hero_link' })
+                  window.open(CONTACT.demo.url, '_blank', 'noopener,noreferrer')
+                }}
+                className="inline-flex items-center gap-1 text-[13px] text-[#716D5C] hover:text-[#003725] font-medium transition-colors"
+              >
+                ou parler à un humain
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
           </FadeInUp>
 
-          {/* Hero KPIs — 3 chiffres business */}
+          {/* Hero KPIs — 3 chiffres mappés sur les 3 piliers */}
           <FadeInUp delay={0.18}>
             <HeroKpiRow />
           </FadeInUp>
@@ -115,6 +184,9 @@ export const GlassHero = ({ onNavigate }) => {
             style={{
               background: 'linear-gradient(180deg, #F9F7F1 0%, #F4F0E6 100%)',
               boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 40px 80px -20px rgba(0,55,37,0.15)',
+              /* CLS guard — réserve la hauteur du dashboard preview
+                 (window chrome 36px + grid 480px + padding 32px ≈ 552px) */
+              minHeight: '552px',
             }}
           >
             <DashboardPreview />
@@ -149,7 +221,7 @@ function DashboardPreview() {
   ]
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-black/[0.06]">
+    <div className="bg-white rounded-2xl overflow-hidden border border-black/[0.06] w-full">
       {/* Window chrome */}
       <div className="h-9 bg-[#F9F7F1] border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
         <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
@@ -267,23 +339,36 @@ function DashboardPreview() {
 }
 
 /**
- * HeroKpiRow — 3 KPIs business format Gorgias-style.
+ * HeroKpiRow — 3 KPIs mappés 1:1 sur les 3 piliers du produit.
  *
- * Chiffres sourcés depuis le produit réel (src/components/landing/CapabilitiesA
- * + ROISimulatorA) :
- *   — 60% de résolutions automatiques (agent SAV)
- *   — 15 min pour installer l'agent (OAuth Shopify 1-clic)
- *   — +15% de paniers récupérés en moyenne (relance IA)
+ *   Pilier 1 · Agent SAV          → 60% de tickets auto-résolus
+ *   Pilier 2 · Relance paniers    → +15% de CA récupéré
+ *   Pilier 3 · Automatisations    → 5 min pour activer un playbook
  *
  * Design : 3 cards white rounded-[18px] border cream, chiffre Instrument
- * Serif 44-52px, label uppercase muted. Stack mobile, grid 3 cols dès sm.
+ * Serif 44-52px, label uppercase muted.
  */
 function HeroKpiRow() {
   const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
   const kpis = [
-    { value: '60', unit: '%', label: 'de résolutions automatiques', sub: 'Agent SAV — Email, chat, helpdesk' },
-    { value: '15', unit: 'min', label: 'pour installer l\'agent', sub: 'OAuth Shopify 1-clic · sans code' },
-    { value: '+15', unit: '%', label: 'de paniers récupérés', sub: '3 relances IA personnalisées' },
+    {
+      value: '60',
+      unit: '%',
+      label: 'de tickets auto-résolus',
+      sub: 'Agent SAV — email, chat, Gorgias, Zendesk',
+    },
+    {
+      value: '+15',
+      unit: '%',
+      label: 'de CA paniers récupérés',
+      sub: 'Agent de relance proactif, personnalisé',
+    },
+    {
+      value: '5',
+      unit: 'min',
+      label: "pour activer un playbook",
+      sub: '10+ workflows e-commerce prêts à brancher',
+    },
   ]
 
   return (

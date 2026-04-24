@@ -77,8 +77,8 @@ export function KpiCard({
     trend || (typeof delta === 'number' ? (delta > 0 ? 'up' : delta < 0 ? 'down' : 'neutral') : undefined);
 
   const baseClasses = cn(
-    'rounded-2xl bg-white border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-5 transition-all',
-    href && 'hover:border-cta/20 hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] cursor-pointer block',
+    'rounded-2xl bg-surface-2 border border-[#E5E5E0] shadow-elev-2 p-5 transition-all',
+    href && 'hover:border-cta/20 hover:shadow-elev-3 cursor-pointer block',
     className
   );
 

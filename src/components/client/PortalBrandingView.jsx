@@ -189,8 +189,13 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
       </div>
 
       <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Personnaliser mon portail</h2>
-        <p className="text-[13px] text-[#9ca3af] mt-1">
+        <h2
+          className="text-2xl italic tracking-tight text-[#1a1a1a]"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+        >
+          Personnaliser mon portail
+        </h2>
+        <p className="text-[15px] text-[#5A5A5A] mt-1">
           Mets ton image de marque sur le portail SAV visible par tes clients.
         </p>
       </div>

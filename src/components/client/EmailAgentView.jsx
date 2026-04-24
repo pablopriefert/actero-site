@@ -7,6 +7,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { EmptyState } from '../ui/EmptyState'
 
 /**
  * Email Agent View — the dashboard shown when a client connects IMAP/SMTP.
@@ -567,9 +568,12 @@ function RecentActivity({ activity }) {
         <span className="text-[11px] text-[#9ca3af]">Temps réel — refresh auto 30s</span>
       </div>
       {items.length === 0 ? (
-        <div className="px-5 py-8 text-center text-[12px] text-[#9ca3af]">
-          Aucun email traité pour le moment.
-        </div>
+        <EmptyState
+          icon={Mail}
+          tone="neutral"
+          title="Aucun email traité pour le moment"
+          description="Dès qu'un client t'écrira à l'adresse connectée, ton agent lira le message et répondra ici — tu verras l'historique en temps réel."
+        />
       ) : (
         <div className="divide-y divide-[#f0f0f0]">
           {items.map((it) => {

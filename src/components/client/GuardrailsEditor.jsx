@@ -81,9 +81,14 @@ export const GuardrailsEditor = ({ clientId, theme }) => {
             <ShieldAlert className="w-5 h-5 text-red-500" />
           </div>
           <div>
-            <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Règles d'exclusion</h2>
-            <p className="text-sm text-[#9ca3af]">
-              {activeCount} règle{activeCount !== 1 ? 's' : ''} active{activeCount !== 1 ? 's' : ''} — appliquée{activeCount !== 1 ? 's' : ''} avant chaque réponse IA
+            <h2
+              className="text-2xl italic tracking-tight text-[#1a1a1a]"
+              style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+            >
+              Règles d'exclusion
+            </h2>
+            <p className="text-[15px] text-[#5A5A5A]">
+              {activeCount} règle{activeCount !== 1 ? 's' : ''} active{activeCount !== 1 ? 's' : ''} — appliquée{activeCount !== 1 ? 's' : ''} avant chaque réponse de ton agent.
             </p>
           </div>
         </div>

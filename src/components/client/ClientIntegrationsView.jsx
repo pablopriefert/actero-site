@@ -8,6 +8,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 import { INTEGRATIONS, ALL_INTEGRATIONS, INTEGRATION_CATEGORIES, getIntegrationById, getConflictingActive, getConflictGroup, CONFLICT_GROUPS } from '../../config/integrations'
+import { EmptyState } from '../ui/EmptyState'
 
 const ProviderIcon = ({ provider, connected, size = 40 }) => {
   const config = getIntegrationById(provider.id || provider) || provider;
@@ -681,11 +682,14 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">
+        <h2
+          className="text-2xl italic tracking-tight text-[#1a1a1a]"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+        >
           Intégrations
         </h2>
-        <p className="text-sm mt-1 text-[#71717a]">
-          Connectez vos outils pour permettre à votre agent IA d'agir.
+        <p className="text-[15px] mt-1 text-[#5A5A5A]">
+          Connecte tes outils pour que ton agent puisse agir — lire les commandes, répondre aux tickets, mettre à jour les clients.
         </p>
       </div>
 
@@ -737,6 +741,17 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {!isLoading && connectedCount === 0 && (
+        <div className="rounded-2xl border border-cta/20 bg-cta/[0.03]">
+          <EmptyState
+            icon={Plug}
+            tone="cta"
+            title="Aucune intégration connectée"
+            description="Connecte Shopify en premier pour que ton agent accède aux commandes et réponde précisément à tes clients. Les autres outils (Gmail, Gorgias…) viennent ensuite."
+          />
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex justify-center py-16">

@@ -43,6 +43,8 @@ import {
   UserPlus,
   ScrollText,
   BellRing,
+  History,
+  Lightbulb,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
@@ -68,10 +70,22 @@ export const CommandPalette = ({
   isMac = true,
 }) => {
   const [search, setSearch] = useState('')
+  const [recentTabIds, setRecentTabIds] = useState([])
 
-  // Reset search on close
+  // Reset search on close + refresh recents on open (from localStorage).
   useEffect(() => {
-    if (!open) setSearch('')
+    if (!open) {
+      setSearch('')
+      return
+    }
+    try {
+      const raw = localStorage.getItem('actero-cmdk-recents')
+      const arr = raw ? JSON.parse(raw) : []
+      // Drop the currently-open tab from recents (no point offering "go back here").
+      setRecentTabIds(Array.isArray(arr) ? arr.slice(0, 5) : [])
+    } catch {
+      setRecentTabIds([])
+    }
   }, [open])
 
   // ---------------------------------------------------------------------------
@@ -284,6 +298,50 @@ export const CommandPalette = ({
   ]), [setActiveTab])
 
   // ---------------------------------------------------------------------------
+  // Suggestions contextuelles (client mode) — shortcuts les plus actionables
+  // pour un nouveau client. En mode admin, on reprend les admin quick actions.
+  // ---------------------------------------------------------------------------
+
+  const clientSuggestions = useMemo(() => ([
+    {
+      id: 'sg-add-kb',
+      label: 'Ajouter une entrée KB',
+      subLabel: 'Apprenez à votre agent une nouvelle réponse',
+      icon: BookOpen,
+      action: () => setActiveTab?.('knowledge'),
+    },
+    {
+      id: 'sg-connect-shopify',
+      label: 'Connecter Shopify',
+      subLabel: 'Importez vos commandes pour des réponses contextuelles',
+      icon: ShoppingBag,
+      action: () => setActiveTab?.('integrations'),
+    },
+    {
+      id: 'sg-escalations',
+      label: 'Voir les escalades',
+      subLabel: 'Tickets en attente de votre intervention',
+      icon: AlertTriangle,
+      action: () => setActiveTab?.('escalations'),
+    },
+  ]), [setActiveTab])
+
+  // Map id → nav-item metadata pour reconstruire les "Récents".
+  const navItemsById = useMemo(() => {
+    const src = mode === 'admin' ? adminNavItems : clientNavItems
+    const map = {}
+    src.forEach((it) => { map[it.id] = it })
+    return map
+  }, [mode, adminNavItems, clientNavItems])
+
+  const recentNavItems = useMemo(() => {
+    return recentTabIds
+      .map((id) => navItemsById[id])
+      .filter(Boolean)
+      .slice(0, 5)
+  }, [recentTabIds, navItemsById])
+
+  // ---------------------------------------------------------------------------
   // Handlers selection
   // ---------------------------------------------------------------------------
 
@@ -365,10 +423,41 @@ export const CommandPalette = ({
                   Aucun resultat.
                 </Command.Empty>
 
+                {/* ------------------------- RECENTS ---------------------------- */}
+                {recentNavItems.length > 0 && (
+                  <Command.Group heading={<GroupHeading icon={History} label="Récents" />}>
+                    {recentNavItems.map((item) => (
+                      <PaletteItem
+                        key={`rc-${item.id}`}
+                        value={`recent ${item.label} ${item.id}`}
+                        onSelect={() => goToTab(item.id)}
+                        icon={item.icon}
+                        label={item.label}
+                      />
+                    ))}
+                  </Command.Group>
+                )}
+
+                {/* ------------------------- SUGGESTIONS ------------------------ */}
+                {mode === 'client' && (
+                  <Command.Group heading={<GroupHeading icon={Lightbulb} label="Suggestions" />}>
+                    {clientSuggestions.map((s) => (
+                      <PaletteItem
+                        key={s.id}
+                        value={`suggestion ${s.label}`}
+                        onSelect={() => runAndClose(s.action)}
+                        icon={s.icon}
+                        label={s.label}
+                        subLabel={s.subLabel}
+                      />
+                    ))}
+                  </Command.Group>
+                )}
+
                 {/* ------------------------- NAVIGATION ------------------------- */}
                 <Command.Group
                   heading={
-                    <GroupHeading icon={Compass} label="Aller a..." />
+                    <GroupHeading icon={Compass} label="Toutes les destinations" />
                   }
                 >
                   {(mode === 'admin' ? adminNavItems : clientNavItems).map((item) => (

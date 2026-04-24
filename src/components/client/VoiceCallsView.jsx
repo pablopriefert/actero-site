@@ -99,9 +99,14 @@ export const VoiceCallsView = ({ clientId }) => {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Appels vocaux</h2>
-        <p className="text-[13px] text-[#9ca3af] mt-1">
-          Suivi en temps reel des appels gerees par votre agent vocal IA.
+        <h2
+          className="text-2xl italic tracking-tight text-[#1a1a1a]"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+        >
+          Appels vocaux
+        </h2>
+        <p className="text-[15px] text-[#5A5A5A] mt-1">
+          Suivi en temps réel des appels gérés par ton agent vocal IA.
         </p>
       </div>
 

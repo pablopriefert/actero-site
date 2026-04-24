@@ -158,9 +158,14 @@ export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
     <div className="max-w-5xl mx-auto space-y-6 animate-fade-in-up">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Templates de reponses</h2>
-          <p className="text-[13px] text-[#9ca3af] mt-1">
-            Sauvegardez et reutilisez vos reponses frequentes pour gagner du temps.
+          <h2
+            className="text-2xl italic tracking-tight text-[#1a1a1a]"
+            style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+          >
+            Templates de réponses
+          </h2>
+          <p className="text-[15px] text-[#5A5A5A] mt-1">
+            Sauvegarde et réutilise tes réponses fréquentes pour gagner du temps.
           </p>
         </div>
         <button

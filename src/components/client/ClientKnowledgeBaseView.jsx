@@ -8,8 +8,10 @@ import {
   MessageCircle, Upload,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { toast } from '../../lib/toast'
 import { KnowledgeImportModal } from './KnowledgeImportModal'
 import { SkeletonList } from '../ui/Skeleton'
+import { EmptyState } from '../ui/EmptyState'
 
 const CATEGORIES = [
   { id: 'policy', label: 'Politiques', icon: FileText, color: 'blue' },
@@ -52,26 +54,6 @@ const syncBrandContext = async (clientId) => {
     console.error('Sync brand context error:', e)
   }
 }
-
-const Toast = ({ message, type = 'success', onClose }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: 20 }}
-    role={type === 'error' ? 'alert' : 'status'}
-    aria-live={type === 'error' ? 'assertive' : 'polite'}
-    aria-atomic="true"
-    className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border ${
-      type === 'success'
-        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-        : 'bg-red-500/10 border-red-500/20 text-red-400'
-    }`}
-  >
-    {type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-    <span className="text-sm font-medium">{message}</span>
-    <button onClick={onClose} className="ml-2" aria-label="Fermer la notification"><X className="w-3 h-3" /></button>
-  </motion.div>
-)
 
 const ToneEditor = ({ entry, onSave, saving }) => {
   const reactId = React.useId()
@@ -274,7 +256,6 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
   const [selectedCategory, setSelectedCategory] = useState('policy')
   const [editingEntry, setEditingEntry] = useState(null)
   const [isCreating, setIsCreating] = useState(false)
-  const [toast, setToast] = useState(null)
 
   const [importUrl, setImportUrl] = useState('')
   const [importing, setImporting] = useState(false)
@@ -301,9 +282,11 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
   const [qaQuestion, setQaQuestion] = useState('')
   const [qaAnswer, setQaAnswer] = useState('')
 
+  // Thin wrapper kept to avoid churn on the many call-sites below —
+  // delegates to the app-wide Sonner-based toast helper.
   const showToast = (message, type = 'success') => {
-    setToast({ message, type })
-    setTimeout(() => setToast(null), 4000)
+    if (type === 'error') return toast.error(message)
+    return toast.success(message)
   }
 
   const handleImportUrl = async () => {
@@ -530,8 +513,8 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                 </span>
               )}
             </div>
-            <p className="text-[12px] text-[#71717a]">
-              Configurez les informations que votre IA utilise pour répondre à vos clients.
+            <p className="text-[13px] text-[#5A5A5A]">
+              Configure les informations que ton agent utilise pour répondre à tes clients.
             </p>
           </div>
           <div className="flex items-center gap-4 md:gap-6 flex-wrap">
@@ -777,17 +760,17 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             <>
               {/* Entry list */}
               {filteredEntries.length === 0 && !isCreating ? (
-                <div className={`text-center py-16 rounded-2xl border ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-[#F9F7F1] border-[#E5E2D7]'}`}>
-                  <categoryConfig.icon className={`w-10 h-10 mx-auto mb-3 ${isLight ? 'text-slate-300' : 'text-[#71717a]'}`} />
-                  <p className={`text-sm ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`}>
-                    Ajoutez vos {categoryConfig.label.toLowerCase()} pour que l&apos;IA reponde precisement a vos clients.
-                  </p>
-                  <button
-                    onClick={() => setIsCreating(true)}
-                    className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-[#1a1a1a] hover:bg-gray-100 transition-all"
-                  >
-                    <Plus className="w-4 h-4" /> Ajouter
-                  </button>
+                <div className={`rounded-2xl border ${isLight ? 'bg-white border-[#E5E2D7]' : 'bg-[#F9F7F1] border-[#E5E2D7]'}`}>
+                  <EmptyState
+                    icon={categoryConfig.icon}
+                    tone="info"
+                    title={`Aucune entrée ${categoryConfig.label.toLowerCase()} encore`}
+                    description={`Ajoute tes ${categoryConfig.label.toLowerCase()} pour que ton agent réponde précisément à tes clients. Plus ta base est riche, plus il est autonome.`}
+                    action={{
+                      label: 'Ajouter une entrée',
+                      onClick: () => setIsCreating(true),
+                    }}
+                  />
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -885,10 +868,6 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
       </div>
 
       <AnimatePresence>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      </AnimatePresence>
-
-      <AnimatePresence>
         {importProvider && (
           <KnowledgeImportModal
             clientId={clientId}
@@ -896,7 +875,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             onClose={() => setImportProvider(null)}
             onSuccess={(count) => {
               setImportProvider(null)
-              setToast({ message: `${count} document${count > 1 ? 's' : ''} importé${count > 1 ? 's' : ''}`, type: 'success' })
+              toast.success(`${count} document${count > 1 ? 's' : ''} importé${count > 1 ? 's' : ''}`)
               queryClient.invalidateQueries({ queryKey: ['client-knowledge-base', clientId] })
             }}
           />

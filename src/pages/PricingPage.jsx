@@ -7,6 +7,9 @@ import {
   ChevronRight,
   ChevronDown,
   Sparkles,
+  Zap,
+  Rocket,
+  Crown,
 } from "lucide-react";
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
@@ -54,6 +57,30 @@ const CARD_CLASSES = {
   pro: "border-cta bg-[#003725] text-white shadow-[0_20px_50px_-15px_rgba(0,55,37,0.35)] scale-[1.02]",
   enterprise: "border-black/[0.08] bg-white text-[#1A1A1A]",
 };
+
+/* Per-plan header icon — visual differentiation on the cards */
+const PLAN_ICON = {
+  free: Sparkles,
+  starter: Zap,
+  pro: Rocket,
+  enterprise: Crown,
+};
+
+/**
+ * Derive the real annual savings % from plans.js.
+ * Pro: monthly 399, annual 319 → 20%. Starter: 99 → 79 → ~20%.
+ * We use the largest paid tier that has both prices defined as the canonical figure.
+ */
+function computeAnnualSavingsPct() {
+  const candidates = [PLANS.pro, PLANS.starter].filter(
+    (p) => p?.price?.monthly > 0 && p?.price?.annual > 0
+  );
+  if (!candidates.length) return 20;
+  const p = candidates[0];
+  const pct = Math.round(((p.price.monthly - p.price.annual) / p.price.monthly) * 100);
+  return Number.isFinite(pct) && pct > 0 ? pct : 20;
+}
+const ANNUAL_SAVINGS_PCT = computeAnnualSavingsPct();
 
 function buildFeatures(plan) {
   const { limits, features, support } = plan;
@@ -376,13 +403,16 @@ const CellValue = ({ value }) => {
 };
 
 const ComparisonTable = () => {
-  const [open, setOpen] = useState(false);
+  // Opens by default now — the comparison is the most useful artefact on /tarifs
+  // and hiding it behind an accordion made it easy to miss. Button toggles kept.
+  const [open, setOpen] = useState(true);
 
   return (
     <div className="mt-24 max-w-6xl mx-auto">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-center gap-2 text-lg font-bold text-[#262626] mb-8 hover:text-cta transition-colors"
+        aria-expanded={open}
+        className="w-full flex items-center justify-center gap-2 text-lg font-bold text-[#262626] mb-8 hover:text-cta transition-colors focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 rounded-lg"
       >
         Comparatif détaillé
         <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
@@ -399,7 +429,9 @@ const ComparisonTable = () => {
           >
             <div className="overflow-x-auto rounded-2xl border border-gray-200">
               <table className="w-full min-w-[700px]">
-                <thead>
+                {/* Sticky header — stays visible while scrolling long tables.
+                    top-16 clears the fixed Navbar (h-16). */}
+                <thead className="sticky top-16 z-10 bg-white">
                   <tr className="border-b border-gray-200">
                     <th className="text-left p-4 text-sm font-bold text-[#262626] w-[220px] sticky left-0 bg-white z-10" />
                     {plans.map((plan) => (
@@ -626,59 +658,100 @@ export const PricingPage = ({ onNavigate }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                role="group"
-                aria-label="Facturation"
-                className="inline-flex items-center gap-3 bg-[#F9F7F1] border border-gray-200 rounded-full px-2 py-1.5"
+                className="inline-flex items-center gap-3"
               >
-                <button
-                  onClick={() => setIsAnnual(false)}
-                  aria-pressed={!isAnnual}
-                  className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
-                    !isAnnual
-                      ? "bg-white text-[#262626] shadow-sm"
-                      : "text-[#716D5C] hover:text-[#262626]"
-                  }`}
+                <div
+                  role="group"
+                  aria-label="Facturation"
+                  className="inline-flex items-center gap-3 bg-[#F9F7F1] border border-gray-200 rounded-full px-2 py-1.5"
                 >
-                  Mensuel
-                </button>
-                <button
-                  onClick={() => setIsAnnual(true)}
-                  aria-pressed={isAnnual}
-                  className={`px-5 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${
-                    isAnnual
-                      ? "bg-white text-[#262626] shadow-sm"
-                      : "text-[#716D5C] hover:text-[#262626]"
-                  }`}
-                >
-                  Annuel
-                  <span className="text-[10px] font-bold bg-cta text-white px-2 py-0.5 rounded-full">
-                    -20%
-                  </span>
-                </button>
+                  <button
+                    onClick={() => setIsAnnual(false)}
+                    aria-pressed={!isAnnual}
+                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 ${
+                      !isAnnual
+                        ? "bg-white text-[#262626] shadow-sm"
+                        : "text-[#716D5C] hover:text-[#262626]"
+                    }`}
+                  >
+                    Mensuel
+                  </button>
+                  <button
+                    onClick={() => setIsAnnual(true)}
+                    aria-pressed={isAnnual}
+                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 ${
+                      isAnnual
+                        ? "bg-white text-[#262626] shadow-sm"
+                        : "text-[#716D5C] hover:text-[#262626]"
+                    }`}
+                  >
+                    Annuel
+                    <span className="text-[10px] font-bold bg-cta text-white px-2 py-0.5 rounded-full">
+                      -{ANNUAL_SAVINGS_PCT}%
+                    </span>
+                  </button>
+                </div>
+
+                {/* Savings badge — only surfaces when Annual is picked, to reward the
+                    choice. Uses the cream-friendly green tint from the design brief. */}
+                <AnimatePresence>
+                  {isAnnual && (
+                    <motion.span
+                      key="annual-savings"
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -8 }}
+                      role="status"
+                      aria-live="polite"
+                      className="bg-[#14A85C]/10 text-[#14A85C] px-2 py-0.5 rounded-full text-xs font-semibold"
+                    >
+                      Économisez {ANNUAL_SAVINGS_PCT}%
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </motion.div>
             </div>
 
             {/* ── 4 Plan Cards ── */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              {plans.map((plan, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pt-6">
+              {plans.map((plan, i) => {
+                const PlanIcon = PLAN_ICON[plan.id] || Sparkles;
+                return (
                 <motion.div
                   key={plan.id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * i + 0.3 }}
-                  className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02] ${plan.cardClass}`}
+                  className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02] ${plan.cardClass} ${
+                    plan.highlighted
+                      ? 'ring-2 ring-[#14A85C] ring-offset-2 md:-translate-y-2 shadow-lg'
+                      : ''
+                  }`}
                 >
                   {plan.highlighted && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      <div className="flex items-center gap-1.5 bg-[#A8C490] text-[#003725] text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full">
+                      <div className="flex items-center gap-1.5 bg-[#14A85C] text-white text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full shadow-sm">
                         <Sparkles className="w-2.5 h-2.5" />
-                        Populaire
+                        Recommandé
                       </div>
                     </div>
                   )}
 
                   <div className="mb-6">
-                    <h3 className={`text-xl font-bold mb-1 ${plan.highlighted ? 'text-white' : 'text-[#1A1A1A]'}`}>{plan.name}</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      {/* Icon — 20px lucide in a 36px tinted circle for scannability */}
+                      <div
+                        aria-hidden="true"
+                        className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                          plan.highlighted
+                            ? 'bg-[#A8C490]/20 text-[#A8C490]'
+                            : 'bg-cta/10 text-cta'
+                        }`}
+                      >
+                        <PlanIcon className="w-5 h-5" />
+                      </div>
+                      <h3 className={`text-xl font-bold ${plan.highlighted ? 'text-white' : 'text-[#1A1A1A]'}`}>{plan.name}</h3>
+                    </div>
                     <p className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F0E6]/60' : 'text-[#716D5C]'}`}>{plan.tagline}</p>
                   </div>
 
@@ -710,10 +783,11 @@ export const PricingPage = ({ onNavigate }) => {
                     )}
                   </div>
 
-                  {/* CTA */}
+                  {/* CTA — focus-visible ring matches the savings-badge green so keyboard users
+                      see a consistent brand accent across the page. */}
                   <button
                     onClick={() => handleCTA(plan)}
-                    className={`w-full py-3.5 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2 mb-8 ${
+                    className={`w-full py-3.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 mb-8 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 ${
                       plan.highlighted
                         ? "bg-[#A8C490] text-[#003725] hover:bg-white"
                         : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
@@ -742,7 +816,8 @@ export const PricingPage = ({ onNavigate }) => {
                     </p>
                   )}
                 </motion.div>
-              ))}
+              );
+              })}
             </div>
 
             {/* ── Comparison Table ── */}
@@ -764,7 +839,7 @@ export const PricingPage = ({ onNavigate }) => {
                   >
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      className="w-full flex items-center justify-between p-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cta focus-visible:ring-offset-2 rounded-lg"
+                      className="w-full flex items-center justify-between p-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 rounded-lg"
                       aria-expanded={openFaq === i}
                     >
                       <span className="font-bold text-[#262626]">{faq.q}</span>
@@ -814,7 +889,7 @@ export const PricingPage = ({ onNavigate }) => {
                       trackEvent("Pricing_Bottom_CTA_Clicked");
                       onNavigate("/signup");
                     }}
-                    className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2"
+                    className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2"
                   >
                     Essai gratuit 7 jours <ChevronRight className="w-4 h-4" />
                   </button>

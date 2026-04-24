@@ -39,6 +39,8 @@ import {
   Mail,
   MonitorSmartphone,
   SlidersHorizontal,
+  Search,
+  X,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { canAccessTab } from '../lib/role-permissions'
@@ -106,7 +108,31 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const queryClient = useQueryClient();
-  const { open: cmdkOpen, close: closeCmdk, isMac } = useCommandPalette();
+  const { open: cmdkOpen, setOpen: setCmdkOpen, close: closeCmdk, isMac } = useCommandPalette();
+
+  // Onboarding hint for ⌘K — shown once per user (localStorage gated).
+  // Fires 1.2s after mount on the first-ever visit; auto-dismisses after 6s.
+  const [showCmdkHint, setShowCmdkHint] = useState(false);
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+      if (localStorage.getItem('actero-cmdk-hint-dismissed')) return;
+      const t = setTimeout(() => setShowCmdkHint(true), 1200);
+      return () => clearTimeout(t);
+    } catch { /* ignore localStorage errors (SSR / private mode) */ }
+  }, []);
+  useEffect(() => {
+    if (!showCmdkHint) return;
+    const t = setTimeout(() => {
+      setShowCmdkHint(false);
+      try { localStorage.setItem('actero-cmdk-hint-dismissed', '1'); } catch {}
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [showCmdkHint]);
+  const dismissCmdkHint = () => {
+    setShowCmdkHint(false);
+    try { localStorage.setItem('actero-cmdk-hint-dismissed', '1'); } catch {}
+  };
 
   const getTabFromRoute = (route) => {
     // New unified routes (Notion-style nav — octobre 2026 refonte)
@@ -153,6 +179,18 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     const route = tab === "overview" ? "/client" : `/client/${tab}`;
     onNavigate(route);
   };
+
+  // Track last 5 visited tabs in localStorage — consumed by CommandPalette "Récents".
+  useEffect(() => {
+    if (!activeTab) return;
+    try {
+      const key = 'actero-cmdk-recents';
+      const raw = localStorage.getItem(key);
+      const arr = raw ? JSON.parse(raw) : [];
+      const next = [activeTab, ...arr.filter(t => t !== activeTab)].slice(0, 5);
+      localStorage.setItem(key, JSON.stringify(next));
+    } catch { /* ignore */ }
+  }, [activeTab]);
 
   // 1. Fetch Client Profile (via client_users link OR owner_user_id)
   const { data: currentClient, isLoading: clientLoading } = useQuery({
@@ -645,12 +683,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     trackEvent('ROI Viewed', { roi_euros: roi, tickets_count: tickets, time_saved_hours: periodStats?.time_saved || 0, plan: planId })
   }, [activeTab, periodStats, planId])
 
-  // Sidebar structure — refonte avril 2026 (POV nouveau client).
-  // Narrative : Vue d'ensemble → Mon Agent (star) → Mes tickets → Canaux clients → Outils → Performance → Système.
+  // Sidebar structure — refonte avril 2026 v2 (symétrie & scannabilité).
+  // 5 groupes expandables + 1 lien standalone (Vue d'ensemble). Tous les
+  // regroupements sont expandables pour une hiérarchie visuelle cohérente.
+  // Narrative : Vue d'ensemble → Mon Agent (star) → Mes Tickets → Canaux → Analytics → Système.
   // Memoized: rebuild only when plan-gating (`can`), role, or urgent count changes — avoids recreating
   // the full tree (~30 nodes with icon refs) on every render/rerender of unrelated state.
   const sidebarItems = useMemo(() => [
-    // Lien standalone hors section
+    // Lien standalone hors section — landing par défaut
     { id: 'overview', label: 'Vue d\'ensemble', icon: Home, dataTour: 'overview-tab' },
 
     // MON AGENT — star expandable (cœur du produit, traitement visuel premium)
@@ -672,25 +712,54 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     },
 
     // MES TICKETS — le quotidien opérationnel
-    { type: 'section', label: 'Mes tickets' },
     {
-      id: 'escalations',
-      label: 'À traiter',
+      type: 'expandable',
+      label: 'Mes Tickets',
       icon: Inbox,
-      badge: urgentEscalationCount > 0 ? urgentEscalationCount : null,
-      badgeColor: 'bg-red-100 text-red-600',
+      children: [
+        {
+          id: 'escalations',
+          label: 'À traiter',
+          icon: Inbox,
+          badge: urgentEscalationCount > 0 ? urgentEscalationCount : null,
+          badgeColor: 'bg-red-100 text-red-600',
+        },
+        { id: 'activity', label: 'Activité', icon: Activity },
+        { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+      ],
     },
-    { id: 'activity', label: 'Activité', icon: Activity },
 
-    // Entrées flat (avril 2026) : groupes expandables retirés — 1 seul item
-    // par groupe ne justifiait plus la hiérarchie.
-    { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
-    { id: 'integrations', label: 'Intégrations', icon: Plug },
-    { id: 'insights', label: 'Insights', icon: BarChart3 },
+    // CANAUX — intégrations + (futur) voice, whatsapp...
+    {
+      type: 'expandable',
+      label: 'Canaux',
+      icon: Plug,
+      children: [
+        { id: 'integrations', label: 'Intégrations', icon: Plug },
+        // Futurs canaux (voice, whatsapp) à ajouter ici.
+      ],
+    },
 
-    // SYSTÈME
-    { type: 'section', label: 'Système' },
-    { id: 'settings', label: 'Paramètres', icon: Cog },
+    // ANALYTICS — performance & insights
+    {
+      type: 'expandable',
+      label: 'Analytics',
+      icon: BarChart3,
+      children: [
+        { id: 'insights', label: 'Insights', icon: BarChart3 },
+        { id: 'peak-hours', label: 'Heures de pic', icon: Clock },
+      ],
+    },
+
+    // SYSTÈME — paramètres compte / facturation
+    {
+      type: 'expandable',
+      label: 'Système',
+      icon: Cog,
+      children: [
+        { id: 'settings', label: 'Paramètres', icon: Cog },
+      ],
+    },
   ], [can, urgentEscalationCount]);
 
   const userRole = currentClient?._userRole || 'owner';
@@ -856,6 +925,54 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 <AlertTriangle className="w-3 h-3" /> {urgentEscalationCount}
               </button>
             )}
+            {/* ⌘K command palette launcher — visible discoverability affordance */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setCmdkOpen(true);
+                  if (showCmdkHint) dismissCmdkHint();
+                }}
+                className="hidden md:inline-flex items-center gap-2 text-xs text-[#71717a] hover:text-[#1a1a1a] px-2.5 py-1.5 rounded-lg border border-[#E5E5E0] hover:border-[#003725]/30 transition-colors"
+                aria-label="Ouvrir la palette de commandes"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span>Rechercher</span>
+                <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-[#F4F0E6] rounded border border-[#E5E5E0]">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+              </button>
+
+              {/* First-visit onboarding hint — localStorage gated, one-shot */}
+              <AnimatePresence>
+                {showCmdkHint && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute right-0 top-[calc(100%+8px)] z-50 w-[260px] rounded-xl bg-[#1a1a1a] text-white shadow-2xl border border-[#003725]/40 px-3 py-2.5"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {/* Arrow */}
+                    <div className="absolute -top-1.5 right-5 w-3 h-3 bg-[#1a1a1a] border-l border-t border-[#003725]/40 rotate-45" />
+                    <div className="flex items-start gap-2">
+                      <span className="text-[14px] leading-none mt-0.5">💡</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] font-medium leading-snug">
+                          Astuce : <kbd className="px-1 py-0.5 text-[10px] font-mono bg-white/15 rounded">{isMac ? '⌘K' : 'Ctrl K'}</kbd> pour naviguer partout
+                        </p>
+                      </div>
+                      <button
+                        onClick={dismissCmdkHint}
+                        className="flex-shrink-0 text-white/60 hover:text-white transition-colors"
+                        aria-label="Fermer l'astuce"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </header>
 
@@ -992,6 +1109,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 <OverviewHome
                   clientId={currentClient?.id}
                   currentClient={currentClient}
+                  firstName={userFirstName}
                   planId={planId}
                   planName={planName}
                   inTrial={inTrial}

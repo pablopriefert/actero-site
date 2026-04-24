@@ -129,8 +129,13 @@ export const HelpCenterView = ({ theme }) => {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Centre d'aide</h2>
-          <p className="text-[13px] text-[#9ca3af] mt-1">{GUIDES.length} guides pour vous aider à utiliser Actero</p>
+          <h2
+            className="text-2xl italic tracking-tight text-[#1a1a1a]"
+            style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+          >
+            Centre d'aide
+          </h2>
+          <p className="text-[15px] text-[#5A5A5A] mt-1">{GUIDES.length} guides pour t'aider à utiliser Actero.</p>
         </div>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent('actero:restart-tour'))}

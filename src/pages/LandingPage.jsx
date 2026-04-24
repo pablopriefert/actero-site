@@ -121,14 +121,22 @@ export const LandingPage = ({ onNavigate }) => {
   ]
 
   /* ═════════════════════════════════════════════════════════════════
-     RENDER
+     RENDER — Funnel order :
+       1. Hero (3 piliers + announcement + gradient)
+       2. PartnersMarquee (social proof visuelle)
+       3. CapabilitiesA (3 piliers : SAV / Cart / Automations)
+       4. ROISimulatorA
+       5. PricingA + "Voir tous les plans →" link
+       6. FAQ
+       7. Final CTA (dark, unified)
+       8. Footer (shared)
      ═════════════════════════════════════════════════════════════════ */
   return (
     <>
       <SEO
-        title="Actero — Automatisation IA pour E-commerce Shopify"
-        description="Agent IA français pour SAV Shopify. Résout 60% des tickets automatiquement, relance les paniers abandonnés. Installé en 15 minutes, essai gratuit 7 jours."
-        keywords="agent IA e-commerce, automatisation Shopify, agent SAV IA, chatbot Shopify, alternative Gorgias"
+        title="Actero — Agent IA e-commerce : SAV, relance paniers, automatisations"
+        description="L'agent IA français qui gère votre SAV Shopify, relance les paniers abandonnés et automatise vos workflows e-commerce. 60% des tickets résolus seul, +15% de CA récupéré. Installé en 15 min, essai gratuit 7 jours."
+        keywords="agent IA e-commerce, SAV Shopify automatisé, relance panier abandonné IA, automatisation workflows Shopify, alternative Gorgias, agent IA français"
         canonical="/"
         ogImage="https://actero.fr/og-image.png"
         schemaData={landingSchema}
@@ -141,21 +149,32 @@ export const LandingPage = ({ onNavigate }) => {
         <Navbar onNavigate={onNavigate} scrollToId={scrollToId} />
 
         <main>
-          {/* 1. HERO (centered + dashboard preview) */}
+          {/* 1. HERO (3 piliers + announcement bar + gradient accent) */}
           <GlassHero onNavigate={onNavigate} />
 
-          {/* 2. PARTNERS MARQUEE (4 badges PNG : ElevenLabs Grants,
-              Shopify Partner, Google for Startups, Auth0) */}
+          {/* 2. PARTNERS MARQUEE (social proof — 4 badges PNG) */}
           <PartnersMarquee />
 
-          {/* 3. CAPABILITIES (2 cards — SAV email/chat + Relance paniers) */}
+          {/* 3. CAPABILITIES — 3 piliers :
+              Agent SAV · Relance paniers abandonnés · Automatisations */}
           <CapabilitiesA />
 
-          {/* 5. ROI SIMULATOR (split + dark result panel) */}
+          {/* 4. ROI SIMULATOR (split + dark result panel) */}
           <ROISimulatorA />
 
-          {/* 6. PRICING (4 cards — Pro popular dark) */}
+          {/* 5. PRICING (4 cards — Pro popular dark) + link "Voir tous les plans" */}
           <PricingA onNavigate={onNavigate} />
+          <FadeInUp className="bg-white px-6 pb-24 md:pb-28 -mt-16 md:-mt-20">
+            <div className="max-w-[1200px] mx-auto flex items-center justify-center">
+              <button
+                onClick={() => onNavigate && onNavigate('/tarifs')}
+                className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#003725] hover:text-[#0A4F2C] transition-colors group"
+              >
+                Voir tous les plans et limites
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            </div>
+          </FadeInUp>
 
           {/* 7. FAQ (accordion rond +/-) */}
           <section id="faq" className="py-24 md:py-32 bg-white px-6">

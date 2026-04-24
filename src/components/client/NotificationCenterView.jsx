@@ -190,8 +190,13 @@ export const NotificationCenterView = ({ clientId, theme }) => {
           <Bell className="w-5 h-5 text-cta" />
         </div>
         <div>
-          <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Notifications</h2>
-          <p className="text-sm text-[#9ca3af]">{activeCount} notification{activeCount > 1 ? 's' : ''} active{activeCount > 1 ? 's' : ''} — choisissez quoi recevoir et ou</p>
+          <h2
+            className="text-2xl italic tracking-tight text-[#1a1a1a]"
+            style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+          >
+            Notifications
+          </h2>
+          <p className="text-[15px] text-[#5A5A5A]">{activeCount} notification{activeCount > 1 ? 's' : ''} active{activeCount > 1 ? 's' : ''} — choisis quoi recevoir et où.</p>
         </div>
       </div>
 

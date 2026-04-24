@@ -8,10 +8,12 @@ import {
   Mic, Volume2, BrainCircuit
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { toast } from '../../lib/toast'
 import { generateAndUploadAudio } from '../../hooks/useTTS'
 import { ReasoningDrawer } from './ReasoningDrawer'
 import { AiCopilotPanel } from './AiCopilotPanel'
 import { SkeletonList } from '../ui/Skeleton'
+import { EmptyState } from '../ui/EmptyState'
 
 const ESCALATION_REASONS = {
   aggressive: 'Message agressif detecte',
@@ -97,7 +99,6 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
   const [newTplName, setNewTplName] = useState('')
   const [newTplCategory, setNewTplCategory] = useState('')
   const [savingTpl, setSavingTpl] = useState(false)
-  const [localToast, setLocalToast] = useState(null)
 
   const isRealEmail = conversation.customer_email && !conversation.customer_email.includes('@anonymous.actero.fr')
 
@@ -156,15 +157,13 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
           body: response,
         })
       if (error) throw error
-      setLocalToast({ type: 'success', msg: 'Template sauvegarde' })
+      toast.success('Template sauvegardé')
       setShowSaveTemplateModal(false)
       setNewTplName('')
       setNewTplCategory('')
       queryClient.invalidateQueries({ queryKey: ['response-templates', clientId] })
-      setTimeout(() => setLocalToast(null), 3000)
     } catch (e) {
-      setLocalToast({ type: 'error', msg: 'Erreur sauvegarde template' })
-      setTimeout(() => setLocalToast(null), 3500)
+      toast.error('Erreur sauvegarde template')
     }
     setSavingTpl(false)
   }
@@ -771,28 +770,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
           )}
         </AnimatePresence>
 
-        {/* Local toast — SR-announced via aria-live.
-            Errors use role="alert"+assertive; success/info use role="status"+polite. */}
-        <AnimatePresence>
-          {localToast && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              role={localToast.type === 'error' ? 'alert' : 'status'}
-              aria-live={localToast.type === 'error' ? 'assertive' : 'polite'}
-              aria-atomic="true"
-              className={`fixed bottom-6 right-6 z-[70] flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-2xl border ${
-                localToast.type === 'success'
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                  : 'bg-red-50 border-red-200 text-red-700'
-              }`}
-            >
-              {localToast.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-              <span className="text-[12px] font-semibold">{localToast.msg}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Toasts now go through the global Sonner Toaster mounted in App.jsx. */}
       </motion.div>
     </motion.div>
   )
@@ -894,11 +872,14 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up">
       <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">
+        <h2
+          className="text-2xl italic tracking-tight text-[#1a1a1a]"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+        >
           Escalades
         </h2>
-        <p className="text-[13px] text-[#9ca3af] mt-1">
-          Tickets necessitant votre intervention.
+        <p className="text-[15px] text-[#5A5A5A] mt-1">
+          Les tickets qui nécessitent ton intervention — ton agent a identifié une situation délicate.
         </p>
       </div>
 
@@ -955,11 +936,15 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
           <SkeletonList n={5} />
         </div>
       ) : filtered.length === 0 ? (
-        <div className={`text-center py-16 rounded-2xl border bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>
-          <CheckCircle2 className="w-10 h-10 mx-auto mb-3 text-[#9ca3af] opacity-40" />
-          <p className="text-[13px] text-[#9ca3af]">
-            {filter === 'pending' ? 'Aucun ticket en attente.' : 'Aucune escalade trouvee.'}
-          </p>
+        <div className="rounded-2xl border bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          <EmptyState
+            icon={CheckCircle2}
+            tone="success"
+            title={filter === 'pending' ? 'Aucune escalade en attente' : 'Aucune escalade pour le moment'}
+            description={filter === 'pending'
+              ? 'Ton agent gère tout en autonomie. Les tickets qui nécessitent ton intervention apparaîtront ici.'
+              : 'Dès qu\'un ticket sera escaladé à ton équipe, tu le verras apparaître ici avec le raisonnement de l\'agent.'}
+          />
         </div>
       ) : (
         <div className="space-y-3">

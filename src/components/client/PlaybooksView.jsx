@@ -12,6 +12,7 @@ import { VocalAgentWizard } from './VocalAgentWizard'
 import { ComptabiliteWizard } from './ComptabiliteWizard'
 import { WorkflowReadinessCheck } from './WorkflowReadinessCheck'
 import { buildReadinessChecks } from '../../lib/workflow-readiness'
+import { EmptyState } from '../ui/EmptyState'
 
 /* ═══════════ CATEGORIES ═══════════ */
 
@@ -354,13 +355,33 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Automatisations</h2>
-        <p className="text-[13px] text-[#9ca3af] mt-1">
+        <h2
+          className="text-2xl italic tracking-tight text-[#1a1a1a]"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+        >
+          Automatisations
+        </h2>
+        <p className="text-[15px] text-[#5A5A5A] mt-1">
           {activeCount > 0
-            ? `${activeCount} automatisation${activeCount > 1 ? 's' : ''} active${activeCount > 1 ? 's' : ''}. Votre agent traite les demandes en continu.`
-            : 'Activez vos premieres automatisations pour que votre agent commence a travailler.'}
+            ? `${activeCount} automatisation${activeCount > 1 ? 's' : ''} active${activeCount > 1 ? 's' : ''}. Ton agent traite les demandes en continu.`
+            : 'Active tes premières automatisations pour que ton agent commence à travailler.'}
         </p>
       </div>
+
+      {playbooks.length === 0 && (
+        <div className="rounded-2xl border border-[#E5E2D7] bg-white">
+          <EmptyState
+            icon={Zap}
+            tone="cta"
+            title="Aucune automatisation active"
+            description="Les automatisations apparaîtront ici dès que tu en activeras une. Commence par l'automatisation SAV e-commerce pour que ton agent réponde aux clients."
+            action={{
+              label: 'Découvrir les automatisations',
+              onClick: () => setActiveTab?.('support'),
+            }}
+          />
+        </div>
+      )}
 
       {/* Categories */}
       {CATEGORIES.map(cat => {

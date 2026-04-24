@@ -92,8 +92,13 @@ export const ROISettingsView = ({ clientId, theme }) => {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h2 className="text-[22px] font-semibold text-[#1a1a1a]">Calcul du ROI</h2>
-        <p className="text-[13px] text-[#9ca3af] mt-1">Ces informations permettent de calculer le retour sur investissement de votre agent IA en temps reel.</p>
+        <h2
+          className="text-2xl italic tracking-tight text-[#1a1a1a]"
+          style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+        >
+          Calcul du ROI
+        </h2>
+        <p className="text-[15px] text-[#5A5A5A] mt-1">Ces informations permettent de calculer le retour sur investissement de ton agent IA en temps réel.</p>
       </div>
 
       {/* Live ROI card */}
