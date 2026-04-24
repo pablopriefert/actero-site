@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Bot, Settings, BookOpen, Shield, FlaskConical, ChevronRight, Activity, Clock, CheckCircle2, Eye } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { LivePulseDot } from '../ui/LivePulseDot'
 
 /**
  * Agent Control Center — refondu avril 2026.
@@ -210,7 +211,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
                 <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                   agentEnabled ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-600'
                 }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${agentEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`} />
+                  {agentEnabled ? <LivePulseDot color="emerald" /> : <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />}
                   {agentEnabled ? 'Actif' : 'En pause'}
                 </span>
               </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { SEO } from '../components/SEO'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { ArrowRight, Check, Shield, Clock, CheckCircle2 } from 'lucide-react'
 import { Navbar } from '../components/layout/Navbar'
 import { Footer } from '../components/layout/Footer'
@@ -40,8 +40,30 @@ import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
  * Typo : Instrument Serif pour tous les h1/h2 (font-normal + italic suffix
  * muted sur la 2e ligne). Inter pour corps. DM Mono pour data accents.
  */
+/* TASK 5: reusable section scroll-reveal wrapper */
+function RevealSection({ children, className = '', ...props }) {
+  const prefersReducedMotion = useReducedMotion()
+  return (
+    <motion.section
+      className={className}
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={
+        prefersReducedMotion
+          ? { duration: 0 }
+          : { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+      }
+      {...props}
+    >
+      {children}
+    </motion.section>
+  )
+}
+
 export const LandingPage = ({ onNavigate }) => {
   const [openFaqIndex, setOpenFaqIndex] = useState(-1)
+  const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
     initAmplitude()
@@ -155,15 +177,20 @@ export const LandingPage = ({ onNavigate }) => {
           {/* 2. PARTNERS MARQUEE (social proof — 4 badges PNG) */}
           <PartnersMarquee />
 
-          {/* 3. CAPABILITIES — 3 piliers :
-              Agent SAV · Relance paniers abandonnés · Automatisations */}
-          <CapabilitiesA />
+          {/* 3. CAPABILITIES — TASK 5: section scroll reveal wrapper */}
+          <RevealSection>
+            <CapabilitiesA />
+          </RevealSection>
 
-          {/* 4. ROI SIMULATOR (split + dark result panel) */}
-          <ROISimulatorA />
+          {/* 4. ROI SIMULATOR — TASK 5: section scroll reveal */}
+          <RevealSection>
+            <ROISimulatorA />
+          </RevealSection>
 
-          {/* 5. PRICING (4 cards — Pro popular dark) + link "Voir tous les plans" */}
-          <PricingA onNavigate={onNavigate} />
+          {/* 5. PRICING — TASK 5: section scroll reveal */}
+          <RevealSection>
+            <PricingA onNavigate={onNavigate} />
+          </RevealSection>
           <FadeInUp className="bg-white px-6 pb-24 md:pb-28 -mt-16 md:-mt-20">
             <div className="max-w-[1200px] mx-auto flex items-center justify-center">
               <button
@@ -176,8 +203,8 @@ export const LandingPage = ({ onNavigate }) => {
             </div>
           </FadeInUp>
 
-          {/* 7. FAQ (accordion rond +/-) */}
-          <section id="faq" className="py-24 md:py-32 bg-white px-6">
+          {/* 7. FAQ (accordion rond +/-) — TASK 5: section scroll reveal */}
+          <RevealSection id="faq" className="py-24 md:py-32 bg-white px-6">
             <div className="max-w-[760px] mx-auto">
               <FadeInUp className="text-center mb-14">
                 <h2
@@ -231,10 +258,10 @@ export const LandingPage = ({ onNavigate }) => {
                 })}
               </div>
             </div>
-          </section>
+          </RevealSection>
 
-          {/* 8. FINAL CTA (dark, italic green accent) */}
-          <section className="py-24 md:py-32 bg-[#003725] px-6">
+          {/* 8. FINAL CTA (dark, italic green accent) — TASK 5: section reveal */}
+          <RevealSection className="py-24 md:py-32 bg-[#003725] px-6">
             <div className="max-w-[820px] mx-auto text-center text-white">
               <FadeInUp>
                 <h2
@@ -248,13 +275,18 @@ export const LandingPage = ({ onNavigate }) => {
                   Connectez Shopify en 1 clic, laissez l'IA apprendre votre catalogue, voyez
                   les premières résolutions livrées dans l'heure.
                 </p>
+                {/* TASK 4: CTA button micro-interactions */}
                 <div className="flex flex-wrap gap-3.5 justify-center mb-6">
-                  <button
+                  <motion.button
                     onClick={() => onNavigate('/signup')}
-                    className="inline-flex items-center gap-2 bg-[#F4F0E6] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
+                    className="inline-flex items-center gap-2 bg-[#F4F0E6] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors group"
+                    whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+                    whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   >
-                    Démarrer mon essai gratuit <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                    Démarrer mon essai gratuit
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </motion.button>
                   <TalkToHumanButton source="landing_final_cta" variant="dark" />
                 </div>
                 <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F0E6]/55">
@@ -273,7 +305,7 @@ export const LandingPage = ({ onNavigate }) => {
                 </div>
               </FadeInUp>
             </div>
-          </section>
+          </RevealSection>
         </main>
 
         {/* 10. FOOTER (unified — cream, 4 cols, real links) */}

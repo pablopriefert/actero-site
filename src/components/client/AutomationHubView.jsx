@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
+import { LivePulseDot } from '../ui/LivePulseDot'
 import { WorkflowReadinessCheck } from './WorkflowReadinessCheck'
 import { buildReadinessChecks } from '../../lib/workflow-readiness'
 import { AutomationHowItWorksModal } from './AutomationHowItWorksModal'
@@ -81,7 +82,7 @@ const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHo
           </div>
           <h1 className="text-lg font-bold text-[#1a1a1a]">Automations</h1>
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-cta/10 text-cta text-[10px] font-bold rounded-full uppercase tracking-wider">
-            <span className="w-1.5 h-1.5 rounded-full bg-cta animate-pulse" />
+            <LivePulseDot color="cta" />
             {activeCount}/{totalAvailable} actives
           </span>
         </div>

@@ -1,13 +1,23 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
+/**
+ * FadeInUp — section scroll-reveal with expo-out easing.
+ * TASK 5: y:30 amplitude, 600ms, expo-out [0.16, 1, 0.3, 1].
+ * Respects prefers-reduced-motion (collapses to instant reveal).
+ */
 export const FadeInUp = ({ children, delay = 0, className = "" }) => {
+    const prefersReducedMotion = useReducedMotion();
     return (
         <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94], delay }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={
+                prefersReducedMotion
+                    ? { duration: 0 }
+                    : { duration: 0.6, ease: [0.16, 1, 0.3, 1], delay }
+            }
             className={className}
         >
             {children}
@@ -16,12 +26,17 @@ export const FadeInUp = ({ children, delay = 0, className = "" }) => {
 };
 
 export const SlideInRight = ({ children, delay = 0, className = "" }) => {
+    const prefersReducedMotion = useReducedMotion();
     return (
         <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7, ease: "easeOut", delay }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={
+                prefersReducedMotion
+                    ? { duration: 0 }
+                    : { duration: 0.6, ease: 'easeOut', delay }
+            }
             className={className}
         >
             {children}
@@ -30,12 +45,17 @@ export const SlideInRight = ({ children, delay = 0, className = "" }) => {
 };
 
 export const SlideInLeft = ({ children, delay = 0, className = "" }) => {
+    const prefersReducedMotion = useReducedMotion();
     return (
         <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7, ease: "easeOut", delay }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={
+                prefersReducedMotion
+                    ? { duration: 0 }
+                    : { duration: 0.6, ease: 'easeOut', delay }
+            }
             className={className}
         >
             {children}
@@ -44,12 +64,13 @@ export const SlideInLeft = ({ children, delay = 0, className = "" }) => {
 };
 
 export const StaggerContainer = ({ children, className = "" }) => {
+    const prefersReducedMotion = useReducedMotion();
     const containerVariants = {
-        hidden: { opacity: 0 },
+        hidden: { opacity: prefersReducedMotion ? 1 : 0 },
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.2
+                staggerChildren: prefersReducedMotion ? 0 : 0.2,
             }
         }
     };
@@ -59,7 +80,7 @@ export const StaggerContainer = ({ children, className = "" }) => {
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, amount: 0.2 }}
             className={className}
         >
             {children}
@@ -68,12 +89,13 @@ export const StaggerContainer = ({ children, className = "" }) => {
 };
 
 export const StaggerItem = ({ children, className = "" }) => {
+    const prefersReducedMotion = useReducedMotion();
     const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: prefersReducedMotion ? 1 : 0, y: prefersReducedMotion ? 0 : 20 },
         visible: {
             opacity: 1,
             y: 0,
-            transition: { duration: 0.5, ease: "easeOut" }
+            transition: { duration: prefersReducedMotion ? 0 : 0.5, ease: 'easeOut' }
         }
     };
 
@@ -85,12 +107,17 @@ export const StaggerItem = ({ children, className = "" }) => {
 };
 
 export const ScaleIn = ({ children, delay = 0, className = "" }) => {
+    const prefersReducedMotion = useReducedMotion();
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, ease: "easeOut", delay }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={
+                prefersReducedMotion
+                    ? { duration: 0 }
+                    : { duration: 0.6, ease: 'easeOut', delay }
+            }
             className={className}
         >
             {children}

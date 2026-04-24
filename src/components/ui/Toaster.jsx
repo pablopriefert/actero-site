@@ -14,12 +14,12 @@ import { Toaster as SonnerToaster } from 'sonner'
 export function Toaster() {
   return (
     <SonnerToaster
-      position="bottom-right"
+      position="top-right"
       theme="system"
       duration={5000}
       visibleToasts={3}
       closeButton={false}
-      richColors={false}
+      richColors={true}
       expand={false}
       gap={8}
       offset={24}

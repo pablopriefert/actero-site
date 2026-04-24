@@ -1,5 +1,6 @@
 import React from 'react'
 import { CheckCircle2, MessageSquare, ShoppingCart, Workflow } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { FadeInUp } from '../ui/scroll-animations'
 
 /**
@@ -17,10 +18,12 @@ import { FadeInUp } from '../ui/scroll-animations'
  * — Icon container cream square #F4F0E6 avec Lucide icon
  * — Badge « Dès Free » en pill cta/10
  * — Highlight footer avec check icon + border-t (1 metric par pilier)
- * — Hover : translate-y-[-2px] + shadow dark soft
+ * — Task 3 : stagger reveal (80ms between cards) + hover lift -4px
+ *   + icon scale+rotate on hover + metric scale on hover
  */
 export const CapabilitiesA = () => {
   const serif = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
+  const prefersReducedMotion = useReducedMotion()
 
   const caps = [
     {
@@ -52,6 +55,28 @@ export const CapabilitiesA = () => {
     },
   ]
 
+  /* Stagger parent variants — 80ms between children */
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: prefersReducedMotion ? 0 : 0.08,
+      },
+    },
+  }
+
+  /* Each card fades up */
+  const cardVariants = {
+    hidden: prefersReducedMotion
+      ? { opacity: 1, y: 0 }
+      : { opacity: 0, y: 24 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+    },
+  }
+
   return (
     <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
       <div className="max-w-6xl mx-auto">
@@ -72,41 +97,76 @@ export const CapabilitiesA = () => {
           </p>
         </FadeInUp>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* TASK 3: stagger container */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-5"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           {caps.map((c, i) => {
             const Icon = c.Icon
             return (
-              <FadeInUp key={i} delay={i * 0.06}>
-                <div className="bg-white rounded-[20px] p-8 border border-black/[0.05] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_40px_-10px_rgba(0,55,37,0.12)] h-full flex flex-col">
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-10 h-10 rounded-lg bg-[#F4F0E6] flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-[#003725]" strokeWidth={1.8} />
-                    </div>
-                    <span className="text-[10px] font-bold text-cta bg-[#E8F5EC] px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">
-                      {c.badge}
-                    </span>
-                  </div>
-                  <h3
-                    className="text-[22px] font-bold text-[#1A1A1A] mb-3 leading-[1.15]"
-                    style={{ letterSpacing: '-0.01em' }}
+              <motion.div
+                key={i}
+                variants={cardVariants}
+                whileHover={
+                  prefersReducedMotion
+                    ? {}
+                    : {
+                        y: -4,
+                        boxShadow: '0 14px 40px -10px rgba(0,55,37,0.14)',
+                        transition: { duration: 0.25, ease: 'easeOut' },
+                      }
+                }
+                className="bg-white rounded-[20px] p-8 border border-black/[0.05] h-full flex flex-col group cursor-default"
+              >
+                <div className="flex items-center gap-3 mb-5">
+                  {/* TASK 3: icon scale + rotate on card hover */}
+                  <motion.div
+                    className="w-10 h-10 rounded-lg bg-[#F4F0E6] flex items-center justify-center"
+                    whileHover={
+                      prefersReducedMotion
+                        ? {}
+                        : { scale: 1.1, rotate: 3, transition: { duration: 0.2, ease: 'easeOut' } }
+                    }
                   >
-                    {c.title}
-                  </h3>
-                  <p className="text-[14.5px] text-[#5A5A5A] leading-[1.6] mb-6 flex-1">{c.desc}</p>
-                  <div className="flex items-center gap-2 pt-5 border-t border-black/[0.06]">
-                    <CheckCircle2 className="w-4 h-4 text-cta flex-shrink-0" />
-                    <span className="text-[13.5px] font-semibold text-[#003725]">
-                      {c.highlight}
-                      {c.highlightMarker && (
-                        <sup className="ml-0.5 text-[#716D5C] font-medium">{c.highlightMarker}</sup>
-                      )}
-                    </span>
-                  </div>
+                    <Icon className="w-5 h-5 text-[#003725]" strokeWidth={1.8} />
+                  </motion.div>
+                  <span className="text-[10px] font-bold text-cta bg-[#E8F5EC] px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">
+                    {c.badge}
+                  </span>
                 </div>
-              </FadeInUp>
+                <h3
+                  className="text-[22px] font-bold text-[#1A1A1A] mb-3 leading-[1.15]"
+                  style={{ letterSpacing: '-0.01em' }}
+                >
+                  {c.title}
+                </h3>
+                <p className="text-[14.5px] text-[#5A5A5A] leading-[1.6] mb-6 flex-1">{c.desc}</p>
+                <div className="flex items-center gap-2 pt-5 border-t border-black/[0.06]">
+                  <CheckCircle2 className="w-4 h-4 text-cta flex-shrink-0" />
+                  {/* TASK 3: metric scale on hover */}
+                  <motion.span
+                    className="text-[13.5px] font-semibold text-[#003725]"
+                    whileHover={
+                      prefersReducedMotion
+                        ? {}
+                        : { scale: 1.05, transition: { duration: 0.2, ease: 'easeOut' } }
+                    }
+                    style={{ display: 'inline-block' }}
+                  >
+                    {c.highlight}
+                    {c.highlightMarker && (
+                      <sup className="ml-0.5 text-[#716D5C] font-medium">{c.highlightMarker}</sup>
+                    )}
+                  </motion.span>
+                </div>
+              </motion.div>
             )
           })}
-        </div>
+        </motion.div>
         <p className="mt-5 text-[11px] italic text-[#716D5C] text-center leading-[1.4]">
           * Objectifs produit, benchmark pilote
         </p>

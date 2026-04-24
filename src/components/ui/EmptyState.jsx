@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { tokens } from '../../lib/design-tokens';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
@@ -84,6 +85,15 @@ export function EmptyState({
   const styles = TONE_STYLES[tone] || TONE_STYLES.neutral;
   const actionEl = renderAction(action);
   const secondaryEl = renderSecondary(secondaryAction);
+  const shouldReduceMotion = useReducedMotion();
+
+  const floatAnimation = shouldReduceMotion
+    ? {}
+    : {
+        animate: { y: [0, -4, 0] },
+        transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+      };
+
   return (
     <div
       role="status"
@@ -91,9 +101,12 @@ export function EmptyState({
       className={cn('flex flex-col items-center justify-center text-center py-12 px-6', className)}
     >
       {Icon && (
-        <div className={cn('w-14 h-14 rounded-2xl flex items-center justify-center mb-5', styles.bg, styles.ring)}>
+        <motion.div
+          className={cn('w-14 h-14 rounded-2xl flex items-center justify-center mb-5', styles.bg, styles.ring)}
+          {...floatAnimation}
+        >
           <Icon className={cn('w-6 h-6', styles.icon)} aria-hidden="true" />
-        </div>
+        </motion.div>
       )}
       <div className="text-[15px] font-semibold text-[#1a1a1a] tracking-tight">{title}</div>
       {description && (

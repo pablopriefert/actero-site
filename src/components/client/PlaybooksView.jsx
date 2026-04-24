@@ -411,10 +411,10 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
                 return (
                   <div
                     key={pb.id}
-                    className={`rounded-xl transition-all ${
+                    className={`rounded-xl transition-all duration-200 hover:shadow-elev-3 ${
                       active
                         ? 'bg-cta/[0.04] border border-cta/20'
-                        : 'bg-white border border-[#f0f0f0] shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
+                        : 'bg-white border border-[#f0f0f0] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:-translate-y-0.5'
                     }`}
                   >
                     <div className="flex items-center gap-4 px-5 py-4">

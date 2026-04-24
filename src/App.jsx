@@ -45,6 +45,7 @@ const AlternativeGorgias = lazy(() => import("./pages/AlternativeGorgias").then(
 const AlternativeTidio = lazy(() => import("./pages/AlternativeTidio").then(m => ({ default: m.AlternativeTidio })));
 const AlternativeZendesk = lazy(() => import("./pages/AlternativeZendesk").then(m => ({ default: m.AlternativeZendesk })));
 const PortalApp = lazy(() => import('./pages/portal/PortalApp.jsx'));
+import { MotionConfig } from "framer-motion";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
 import { ToastProvider } from "./components/ui/Toast";
@@ -261,13 +262,15 @@ export default function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <ErrorBoundary>
-            <MainRouter />
-            <Analytics />
-            <Toaster />
-          </ErrorBoundary>
-        </ToastProvider>
+        <MotionConfig reducedMotion="user">
+          <ToastProvider>
+            <ErrorBoundary>
+              <MainRouter />
+              <Analytics />
+              <Toaster />
+            </ErrorBoundary>
+          </ToastProvider>
+        </MotionConfig>
       </QueryClientProvider>
     </HelmetProvider>
   );

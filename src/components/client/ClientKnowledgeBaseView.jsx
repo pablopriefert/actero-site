@@ -658,7 +658,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                 <button
                   onClick={handleAddQA}
                   disabled={!qaQuestion.trim() || !qaAnswer.trim()}
-                  className="w-full py-2.5 bg-cta text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-2.5 bg-cta text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Ajouter la FAQ

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { ArrowRight, Check, X } from 'lucide-react'
+import { motion, useSpring, useTransform, animate, useInView, useReducedMotion } from 'framer-motion'
 import { FadeInUp } from './scroll-animations'
 import { WatchDemoButton } from './WatchDemoButton'
 import { CONTACT } from '../../config/contact'
@@ -16,11 +17,15 @@ import { trackEvent } from '../../lib/analytics'
  * — Subtitle 3-piliers (SAV + relance paniers + automatisations)
  * — CTA primary unique + ghost "Voir la démo"
  * — Link "Parler à un humain" demoted en text-link avec arrow
- * — 3 KPIs mappés sur les 3 piliers (60% tickets / +15% CA / 5min setup)
+ * — 3 KPIs mappés sur les 3 piliers (60%, +15%, 5min setup)
  * — Dashboard mockup avec aspect-ratio déclaré pour réduire CLS
+ * — Task 1 : count-up animated KPI numbers on enter
+ * — Task 2 : ambient aurora glow blobs behind hero (z-0)
+ * — Task 8 : announcement pill spring entrance
  */
 export const GlassHero = ({ onNavigate }) => {
   const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
+  const prefersReducedMotion = useReducedMotion()
 
   /* ─── Announcement bar dismiss (localStorage, default visible) ─── */
   const ANNOUNCE_KEY = 'actero_announce_vision_v1'
@@ -45,11 +50,73 @@ export const GlassHero = ({ onNavigate }) => {
   }
 
   return (
-    <section className="relative bg-white pt-28 md:pt-24 pb-6 px-6">
-      <div className="max-w-6xl mx-auto">
-        {/* ══════════════════ ANNOUNCEMENT BAR ══════════════════ */}
+    <section className="relative bg-white pt-28 md:pt-24 pb-6 px-6 overflow-hidden">
+      {/* ══════════════════ TASK 2: AURORA GLOW BLOBS (z-0, behind everything) ══════════════════ */}
+      {!prefersReducedMotion && (
+        <>
+          <motion.div
+            className="absolute -top-24 -left-32 w-[520px] h-[520px] rounded-full bg-[#14A85C]/[0.07] blur-3xl pointer-events-none"
+            style={{ zIndex: 0 }}
+            animate={{
+              x: [0, 30, -15, 0],
+              y: [0, -20, 25, 0],
+              scale: [1, 1.08, 0.95, 1],
+            }}
+            transition={{
+              duration: 18,
+              ease: 'easeInOut',
+              repeat: Infinity,
+              repeatType: 'loop',
+            }}
+          />
+          <motion.div
+            className="absolute top-1/3 -right-40 w-[480px] h-[480px] rounded-full bg-[#A8C490]/[0.12] blur-3xl pointer-events-none"
+            style={{ zIndex: 0 }}
+            animate={{
+              x: [0, -25, 10, 0],
+              y: [0, 20, -30, 0],
+              scale: [1, 0.92, 1.06, 1],
+            }}
+            transition={{
+              duration: 22,
+              ease: 'easeInOut',
+              repeat: Infinity,
+              repeatType: 'loop',
+              delay: 3,
+            }}
+          />
+          <motion.div
+            className="absolute bottom-0 left-1/3 w-[360px] h-[360px] rounded-full bg-[#14A85C]/[0.05] blur-3xl pointer-events-none"
+            style={{ zIndex: 0 }}
+            animate={{
+              x: [0, 20, -10, 0],
+              y: [0, -15, 10, 0],
+              scale: [1, 1.1, 0.97, 1],
+            }}
+            transition={{
+              duration: 16,
+              ease: 'easeInOut',
+              repeat: Infinity,
+              repeatType: 'loop',
+              delay: 6,
+            }}
+          />
+        </>
+      )}
+
+      <div className="max-w-6xl mx-auto relative" style={{ zIndex: 1 }}>
+        {/* ══════════════════ ANNOUNCEMENT BAR — TASK 8: spring entrance ══════════════════ */}
         {showAnnounce && (
-          <FadeInUp className="mb-8 flex justify-center">
+          <motion.div
+            className="mb-8 flex justify-center"
+            initial={prefersReducedMotion ? false : { opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={
+              prefersReducedMotion
+                ? { duration: 0 }
+                : { type: 'spring', stiffness: 300, damping: 28, delay: 0.1 }
+            }
+          >
             <div className="group inline-flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full bg-[#F4F0E6] border border-[#E8DFC9] text-[12.5px] text-[#003725] max-w-full">
               <span className="shrink-0 text-[#716D5C]" aria-hidden>
                 ✨
@@ -74,7 +141,7 @@ export const GlassHero = ({ onNavigate }) => {
                 <X className="w-3 h-3" strokeWidth={2.2} />
               </button>
             </div>
-          </FadeInUp>
+          </motion.div>
         )}
 
         {/* ══════════════════ HERO TEXT — centered ══════════════════ */}
@@ -128,13 +195,17 @@ export const GlassHero = ({ onNavigate }) => {
           {/* CTAs — primary unique + ghost demo + text-link humain */}
           <FadeInUp delay={0.15}>
             <div className="flex flex-wrap items-center justify-center gap-3.5 mb-3">
-              <button
+              {/* TASK 4: primary CTA with motion micro-interactions */}
+              <motion.button
                 onClick={() => onNavigate && onNavigate('/signup')}
-                className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
+                className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-colors shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] group"
+                whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+                whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               >
                 Essai gratuit 7 jours
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+              </motion.button>
               <WatchDemoButton source="landing_hero" variant="light" />
             </div>
             <div className="mb-5">
@@ -151,7 +222,7 @@ export const GlassHero = ({ onNavigate }) => {
             </div>
           </FadeInUp>
 
-          {/* Hero KPIs — 3 chiffres mappés sur les 3 piliers */}
+          {/* Hero KPIs — 3 chiffres mappés sur les 3 piliers — TASK 1: count-up */}
           <FadeInUp delay={0.18}>
             <HeroKpiRow />
           </FadeInUp>
@@ -194,6 +265,36 @@ export const GlassHero = ({ onNavigate }) => {
         </FadeInUp>
       </div>
     </section>
+  )
+}
+
+/**
+ * AnimatedKpiNumber — count-up on enter into viewport.
+ * Respects prefers-reduced-motion (shows final value immediately).
+ */
+function AnimatedKpiNumber({ target, prefix = '', suffix = '', fontStyle }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, amount: 0.5 })
+  const prefersReducedMotion = useReducedMotion()
+
+  const spring = useSpring(prefersReducedMotion ? target : 0, {
+    damping: 30,
+    stiffness: 100,
+  })
+  const display = useTransform(spring, (v) => Math.round(v).toString())
+
+  useEffect(() => {
+    if (inView && !prefersReducedMotion) {
+      animate(spring, target, { duration: 1.8, ease: 'easeOut' })
+    }
+  }, [inView, prefersReducedMotion, spring, target])
+
+  return (
+    <span ref={ref}>
+      {prefix}
+      <motion.span>{display}</motion.span>
+      {suffix}
+    </span>
   )
 }
 
@@ -340,31 +441,37 @@ function DashboardPreview() {
 
 /**
  * HeroKpiRow — 3 KPIs mappés 1:1 sur les 3 piliers du produit.
+ * TASK 1: animated count-up on viewport enter.
  *
  *   Pilier 1 · Agent SAV          → 60% de tickets auto-résolus
  *   Pilier 2 · Relance paniers    → +15% de CA récupéré
  *   Pilier 3 · Automatisations    → 5 min pour activer un playbook
- *
- * Design : 3 cards white rounded-[18px] border cream, chiffre Instrument
- * Serif 44-52px, label uppercase muted.
  */
 function HeroKpiRow() {
   const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
+  const prefersReducedMotion = useReducedMotion()
+
   const kpis = [
     {
-      value: '60',
+      numericTarget: 60,
+      prefix: '',
+      suffix: '',
       unit: '%',
       label: 'de tickets auto-résolus',
       sub: 'Agent SAV — email, chat, Gorgias, Zendesk',
     },
     {
-      value: '+15',
+      numericTarget: 15,
+      prefix: '+',
+      suffix: '',
       unit: '%',
       label: 'de CA paniers récupérés',
       sub: 'Agent de relance proactif, personnalisé',
     },
     {
-      value: '5',
+      numericTarget: 5,
+      prefix: '',
+      suffix: '',
       unit: 'min',
       label: "pour activer un playbook",
       sub: '10+ workflows e-commerce prêts à brancher',
@@ -375,15 +482,22 @@ function HeroKpiRow() {
     <div className="mt-10 max-w-3xl mx-auto">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {kpis.map((k, i) => (
-          <div
+          <motion.div
             key={i}
-            className="px-5 py-5 rounded-[18px] bg-white border border-[#E8DFC9] text-left transition-all hover:border-[#D4C59E] hover:-translate-y-px"
+            className="px-5 py-5 rounded-[18px] bg-white border border-[#E8DFC9] text-left"
+            whileHover={prefersReducedMotion ? {} : { y: -4, borderColor: '#D4C59E' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20, duration: 0.25 }}
           >
             <div
               className="leading-none text-[#1A1A1A] font-normal tabular-nums"
               style={{ ...fontDisplay, fontSize: 'clamp(38px, 4.6vw, 52px)', letterSpacing: '-0.02em' }}
             >
-              {k.value}
+              <AnimatedKpiNumber
+                target={k.numericTarget}
+                prefix={k.prefix}
+                suffix={k.suffix}
+                fontStyle={fontDisplay}
+              />
               <span className="text-[#716D5C] text-[0.45em] font-medium ml-0.5 align-baseline">
                 {k.unit}
               </span>
@@ -395,7 +509,7 @@ function HeroKpiRow() {
             <div className="text-[11px] text-[#716D5C] mt-1 leading-[1.4]">
               {k.sub}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
       <p className="mt-3 text-[11px] italic text-[#716D5C] text-center leading-[1.4]">

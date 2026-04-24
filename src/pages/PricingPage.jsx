@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Check,
   Minus,
@@ -505,6 +505,7 @@ export const PricingPage = ({ onNavigate }) => {
 
   const [isAnnual, setIsAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
+  const prefersReducedMotion = useReducedMotion();
 
   const getPrice = (plan) => {
     if (plan.monthlyPrice === null) return "Sur devis";
@@ -716,13 +717,18 @@ export const PricingPage = ({ onNavigate }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 pt-6">
               {plans.map((plan, i) => {
                 const PlanIcon = PLAN_ICON[plan.id] || Sparkles;
+                /* TASK 7: hover lift — Pro gets extra lift from its existing -translate-y-2 base */
+                const hoverY = prefersReducedMotion ? {} : plan.highlighted
+                  ? { y: -10, transition: { duration: 0.2 } }
+                  : { y: -6, transition: { duration: 0.2 } };
                 return (
                 <motion.div
                   key={plan.id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 * i + 0.3 }}
-                  className={`relative flex flex-col p-8 rounded-3xl border transition-all duration-300 hover:scale-[1.02] ${plan.cardClass} ${
+                  whileHover={hoverY}
+                  className={`relative flex flex-col p-8 rounded-3xl border transition-shadow duration-300 ${plan.cardClass} ${
                     plan.highlighted
                       ? 'ring-2 ring-[#14A85C] ring-offset-2 md:-translate-y-2 shadow-lg'
                       : ''
@@ -783,18 +789,21 @@ export const PricingPage = ({ onNavigate }) => {
                     )}
                   </div>
 
-                  {/* CTA — focus-visible ring matches the savings-badge green so keyboard users
-                      see a consistent brand accent across the page. */}
-                  <button
+                  {/* CTA — TASK 4: micro-interactions + focus-visible ring */}
+                  <motion.button
                     onClick={() => handleCTA(plan)}
-                    className={`w-full py-3.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2 mb-8 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 ${
+                    whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+                    whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                    className={`w-full py-3.5 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-8 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group ${
                       plan.highlighted
                         ? "bg-[#A8C490] text-[#003725] hover:bg-white"
                         : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
                     }`}
                   >
-                    {plan.cta} <ChevronRight className="w-4 h-4" />
-                  </button>
+                    {plan.cta}
+                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </motion.button>
 
                   {/* Divider */}
                   <div className={`border-t mb-6 ${plan.highlighted ? 'border-[#F4F0E6]/15' : 'border-gray-100'}`} />
@@ -884,15 +893,20 @@ export const PricingPage = ({ onNavigate }) => {
                   Rejoignez les marques qui économisent des dizaines d'heures par semaine grâce à Actero.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <button
+                  {/* TASK 4: bottom CTA micro-interactions */}
+                  <motion.button
                     onClick={() => {
                       trackEvent("Pricing_Bottom_CTA_Clicked");
                       onNavigate("/signup");
                     }}
-                    className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2"
+                    whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
+                    whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                    className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group"
                   >
-                    Essai gratuit 7 jours <ChevronRight className="w-4 h-4" />
-                  </button>
+                    Essai gratuit 7 jours
+                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </motion.button>
                   <TalkToHumanButton
                     source="pricing_bottom_cta"
                     variant="dark"

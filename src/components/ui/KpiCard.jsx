@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useSpring, useTransform, animate, useInView, motion } from 'framer-motion';
 import { tokens } from '../../lib/design-tokens';
 
 /**
@@ -44,6 +45,32 @@ const COLOR_MAP = {
     iconText: 'text-[#9ca3af]',
   },
 };
+
+/**
+ * AnimatedNumber — count-up from 0 to `value` on first intersection.
+ * Falls back to plain text when value is not a finite number.
+ * Framer-motion natively respects `prefers-reduced-motion` when wrapped
+ * in <MotionConfig reducedMotion="user"> — and also because useSpring
+ * skips animation when the reduced-motion media query fires.
+ */
+function AnimatedNumber({ value, className }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, amount: 0.4 })
+  const spring = useSpring(0, { damping: 30, stiffness: 80 })
+  const display = useTransform(spring, (v) => Math.round(v).toLocaleString('fr-FR'))
+
+  useEffect(() => {
+    if (inView && typeof value === 'number' && isFinite(value)) {
+      animate(spring, value, { duration: 1.5, ease: 'easeOut' })
+    }
+  }, [inView, value, spring])
+
+  if (typeof value !== 'number' || !isFinite(value)) {
+    return <span className={className}>{value}</span>
+  }
+
+  return <motion.span ref={ref} className={className}>{display}</motion.span>
+}
 
 /**
  * KpiCard — Card métrique KPI réutilisable.
@@ -104,7 +131,10 @@ export function KpiCard({
         {label}
       </div>
       <div className="flex items-baseline gap-2 mt-2">
-        <div className="text-[28px] font-bold text-[#1a1a1a] tabular-nums leading-none">{value}</div>
+        <AnimatedNumber
+          value={value}
+          className="text-[28px] font-bold text-[#1a1a1a] tabular-nums leading-none"
+        />
         {typeof delta === 'number' && (
           <DeltaBadge delta={delta} trend={resolvedTrend} />
         )}

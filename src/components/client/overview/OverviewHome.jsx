@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef, useEffect } from 'react'
+import { motion, useSpring, useTransform, animate, useInView } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import {
   AlertTriangle, ArrowRight, Sparkles, TrendingUp,
@@ -35,55 +36,98 @@ export function OverviewHome({
   // Actions
   setActiveTab, theme: _theme, onOpenSetupWizard,
 }) {
+  const sectionVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] },
+    }),
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* 1. Greeting */}
-      <GreetingBlock firstName={firstName} />
+      <motion.div
+        custom={0}
+        variants={sectionVariants}
+        initial="initial"
+        animate="animate"
+      >
+        <GreetingBlock firstName={firstName} />
+      </motion.div>
 
       {/* 2. 3 KPI cards (top-level KPIs) */}
-      {totalEvents > 0 ? (
-        <KpiTrio
-          clientId={clientId}
-          eventCounts={eventCounts}
-          periodStats={periodStats}
-          dailyMetrics={dailyMetrics}
-        />
-      ) : (
-        <EmptyKpiHint onOpenSetupWizard={onOpenSetupWizard} setActiveTab={setActiveTab} />
-      )}
+      <motion.div
+        custom={1}
+        variants={sectionVariants}
+        initial="initial"
+        animate="animate"
+      >
+        {totalEvents > 0 ? (
+          <KpiTrio
+            clientId={clientId}
+            eventCounts={eventCounts}
+            periodStats={periodStats}
+            dailyMetrics={dailyMetrics}
+          />
+        ) : (
+          <EmptyKpiHint onOpenSetupWizard={onOpenSetupWizard} setActiveTab={setActiveTab} />
+        )}
+      </motion.div>
 
       {/* 3. Timeline "Depuis ta dernière visite" */}
-      <TimelineSection
-        clientId={clientId}
-        setActiveTab={setActiveTab}
-        hasIntegration={!!setupCompletion?.shopify || completedSetupSteps > 0}
-      />
+      <motion.div
+        custom={2}
+        variants={sectionVariants}
+        initial="initial"
+        animate="animate"
+      >
+        <TimelineSection
+          clientId={clientId}
+          setActiveTab={setActiveTab}
+          hasIntegration={!!setupCompletion?.shopify || completedSetupSteps > 0}
+        />
+      </motion.div>
 
       {/* 4. À faire aujourd'hui */}
-      <TodoSection
-        clientId={clientId}
-        urgentEscalationCount={urgentEscalationCount}
-        showShopifyBanner={showShopifyBanner}
-        ticketsPercent={ticketsPercent}
-        ticketsUsed={ticketsUsed}
-        ticketsLimit={ticketsLimit}
-        planId={planId}
-        inTrial={inTrial}
-        trialDaysLeft={trialDaysLeft}
-        completedSetupSteps={completedSetupSteps}
-        setupCompletion={setupCompletion}
-        setActiveTab={setActiveTab}
-        onOpenSetupWizard={onOpenSetupWizard}
-      />
+      <motion.div
+        custom={3}
+        variants={sectionVariants}
+        initial="initial"
+        animate="animate"
+      >
+        <TodoSection
+          clientId={clientId}
+          urgentEscalationCount={urgentEscalationCount}
+          showShopifyBanner={showShopifyBanner}
+          ticketsPercent={ticketsPercent}
+          ticketsUsed={ticketsUsed}
+          ticketsLimit={ticketsLimit}
+          planId={planId}
+          inTrial={inTrial}
+          trialDaysLeft={trialDaysLeft}
+          completedSetupSteps={completedSetupSteps}
+          setupCompletion={setupCompletion}
+          setActiveTab={setActiveTab}
+          onOpenSetupWizard={onOpenSetupWizard}
+        />
+      </motion.div>
 
       {/* 5. Widgets row — sidebar-level, not hero-level */}
       {clientId && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <motion.div
+          custom={4}
+          variants={sectionVariants}
+          initial="initial"
+          animate="animate"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3"
+        >
           <VisionUsageWidget
             clientId={clientId}
             planLimit={limits?.vision_analyses_per_month}
           />
-        </div>
+        </motion.div>
       )}
 
       {/* Upsell — free only */}
@@ -143,6 +187,28 @@ function GreetingBlock({ firstName }) {
       </p>
     </div>
   )
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   AnimatedKpiNumber — count-up from 0 on first in-view.
+   Respects prefers-reduced-motion natively via framer-motion.
+   ════════════════════════════════════════════════════════════════════ */
+function AnimatedKpiNumber({ value, className }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, amount: 0.4 })
+  const spring = useSpring(0, { damping: 30, stiffness: 80 })
+  const display = useTransform(spring, (v) => Math.round(v).toLocaleString('fr-FR'))
+
+  useEffect(() => {
+    if (inView && typeof value === 'number' && isFinite(value)) {
+      animate(spring, value, { duration: 1.5, ease: 'easeOut' })
+    }
+  }, [inView, value, spring])
+
+  if (typeof value !== 'number' || !isFinite(value)) {
+    return <span className={className}>{value}</span>
+  }
+  return <motion.span ref={ref} className={className}>{display}</motion.span>
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -231,9 +297,10 @@ function KpiTrio({ clientId, eventCounts, periodStats, dailyMetrics }) {
         >
           <p className="text-[12px] font-medium text-[#71717a] leading-tight mb-3">{kpi.label}</p>
           <div className="flex items-baseline gap-1 mb-1">
-            <span className="text-4xl font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none">
-              {typeof kpi.value === 'number' ? kpi.value.toLocaleString('fr-FR') : kpi.value}
-            </span>
+            <AnimatedKpiNumber
+              value={kpi.value}
+              className="text-4xl font-bold text-[#1a1a1a] tracking-tight tabular-nums leading-none"
+            />
             {kpi.suffix && (
               <span className="text-xl font-semibold text-[#1a1a1a]">{kpi.suffix}</span>
             )}

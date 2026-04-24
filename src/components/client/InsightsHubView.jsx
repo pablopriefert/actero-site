@@ -264,10 +264,10 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
               transition={{ duration: 0.2, delay: 0.04 * idx }}
               onClick={() => !card.locked && onNavigate && onNavigate(card.id)}
               disabled={card.locked}
-              className={`group text-left bg-white rounded-2xl border p-5 transition-all ${
+              className={`group text-left bg-white rounded-2xl border p-5 transition-all duration-200 ${
                 card.locked
                   ? 'border-[#E5E2D7] opacity-60 cursor-not-allowed'
-                  : 'border-[#E5E2D7] hover:border-cta/30 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] cursor-pointer'
+                  : 'border-[#E5E2D7] hover:border-cta/30 hover:-translate-y-0.5 hover:shadow-elev-3 cursor-pointer'
               }`}
             >
               <div className="flex items-start justify-between mb-3">

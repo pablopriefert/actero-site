@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { EmptyState } from '../ui/EmptyState'
+import { LivePulseDot } from '../ui/LivePulseDot'
 
 /**
  * Email Agent View — the dashboard shown when a client connects IMAP/SMTP.
@@ -197,7 +198,7 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
               <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                 enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-zinc-100 text-zinc-600'
               }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${enabled ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'}`} />
+                {enabled ? <LivePulseDot color="emerald" /> : <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />}
                 {enabled ? 'Actif' : 'Désactivé'}
               </span>
             </div>

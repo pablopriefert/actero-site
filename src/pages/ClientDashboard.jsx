@@ -797,9 +797,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         trackEvent('Upgrade Clicked', { from_plan: planId, to_plan: planId === 'free' ? 'starter' : 'pro', trigger: 'sidebar_cta', location: 'sidebar' })
         setActiveTab('billing')
       }}
-      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all bg-cta text-white hover:bg-[#003725] shadow-sm"
+      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all bg-cta text-white hover:bg-[#003725] shadow-sm active:scale-[0.98] group"
     >
-      <ArrowUpRight className="w-3.5 h-3.5" />
+      <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
       {planId === 'free' ? 'Passer au Starter — 99€/mois' : 'Passer au Pro — 399€/mois'}
     </button>
   ) : null
@@ -985,7 +985,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               // Analytics
               trackEvent('Upgrade Clicked', { from_plan: planId, to_plan: 'any_paid', trigger: 'trial_bar', location: 'top_bar' })
               setActiveTab('billing')
-            }} className="bg-white text-cta px-3 py-1 rounded-full text-[11px] font-bold hover:bg-white/90 transition">
+            }} className="bg-white text-cta px-3 py-1 rounded-full text-[11px] font-bold hover:bg-white/90 transition active:scale-[0.98]">
               Choisir un plan
             </button>
           </div>
@@ -999,6 +999,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               <span className="sr-only">Chargement…</span>
             </div>
           }>
+          <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
           {activeTab === "overview" && (
             <div className="max-w-6xl mx-auto">
 
@@ -1033,7 +1041,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   {currentClient?.client_type === 'ecommerce' && !setupCompletion?.shopify && (
                     <button
                       onClick={() => setActiveTab('integrations')}
-                      className="w-full mb-6 rounded-2xl bg-cta hover:bg-[#0d5430] transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-6 py-5 flex items-center justify-between group"
+                      className="w-full mb-6 rounded-2xl bg-cta hover:bg-[#0d5430] transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-6 py-5 flex items-center justify-between group active:scale-[0.98]"
                     >
                       <div className="flex items-center gap-4 min-w-0">
                         <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
@@ -1319,6 +1327,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "settings" && (
             <SettingsHubView clientId={currentClient?.id} onNavigate={setActiveTab} />
           )}
+          </motion.div>
+          </AnimatePresence>
           </Suspense>
           </TabErrorBoundary>
 

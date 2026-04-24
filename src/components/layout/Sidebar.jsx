@@ -138,7 +138,7 @@ export const Sidebar = ({
                   <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
                     isActive ? 'bg-white/20' : 'bg-cta/10 group-hover:bg-cta/15'
                   }`}>
-                    {item.icon && <item.icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-cta'}`} />}
+                    {item.icon && <item.icon className={`w-3.5 h-3.5 transition-transform duration-200 motion-safe:group-hover:scale-110 ${isActive ? 'text-white' : 'text-cta'}`} />}
                   </div>
                   <span className="tracking-tight">{item.label}</span>
                 </div>
@@ -186,10 +186,10 @@ export const Sidebar = ({
                       <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
                         hasActiveChild ? 'bg-white/20' : 'bg-cta/10 group-hover:bg-cta/15'
                       }`}>
-                        {item.icon && <item.icon className={`w-3.5 h-3.5 ${hasActiveChild ? 'text-white' : 'text-cta'}`} />}
+                        {item.icon && <item.icon className={`w-3.5 h-3.5 transition-transform duration-200 motion-safe:group-hover:scale-110 ${hasActiveChild ? 'text-white' : 'text-cta'}`} />}
                       </div>
                     ) : (
-                      item.icon && <item.icon className={`w-4 h-4 ${hasActiveChild ? 'text-cta' : 'text-[#9ca3af]'}`} />
+                      item.icon && <item.icon className={`w-4 h-4 transition-transform duration-200 motion-safe:group-hover:scale-110 ${hasActiveChild ? 'text-cta' : 'text-[#9ca3af]'}`} />
                     )}
                     <span className={isPrimary ? 'tracking-tight' : ''}>{item.label}</span>
                   </div>
@@ -240,7 +240,7 @@ export const Sidebar = ({
                           <div className="flex items-center gap-2">
                             {child.icon && (
                               <child.icon
-                                className={`w-3.5 h-3.5 ${
+                                className={`w-3.5 h-3.5 transition-transform duration-200 motion-safe:group-hover:scale-110 ${
                                   isStar || isActive ? 'text-cta' : 'text-[#9ca3af]'
                                 }`}
                               />
@@ -277,7 +277,7 @@ export const Sidebar = ({
               data-tour={item.dataTour}
               onClick={() => { setActiveTab(item.id); if (onClose) onClose() }}
               aria-current={isActive ? 'page' : undefined}
-              className={`w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-150 group ${
+              className={`w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-200 group ${
                 isActive
                   ? "text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta"
                   : "text-[#1a1a1a] font-medium hover:bg-[#fafafa]"
@@ -285,7 +285,7 @@ export const Sidebar = ({
             >
               <div className="flex items-center gap-2.5">
                 {item.icon && (
-                  <item.icon className={`w-4 h-4 ${isActive ? 'text-cta' : 'text-[#9ca3af] group-hover:text-[#71717a]'}`} />
+                  <item.icon className={`w-4 h-4 transition-transform duration-200 motion-safe:group-hover:scale-110 ${isActive ? 'text-cta' : 'text-[#9ca3af] group-hover:text-[#71717a]'}`} />
                 )}
                 <span>{item.label}</span>
               </div>

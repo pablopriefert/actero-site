@@ -6,6 +6,7 @@ import {
   Sparkles, Clock, DollarSign, ChevronRight, PlayCircle, RefreshCw, Settings as SettingsIcon,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { LivePulseDot } from '../ui/LivePulseDot'
 
 /**
  * Proactive Engine Dashboard — "L'agent qui contacte avant le problème"
@@ -114,7 +115,7 @@ export const ProactiveEngineView = ({ clientId }) => {
               <Shield className="w-4 h-4 text-white" />
             </div>
             <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-white/90 bg-white/10 px-2.5 py-1 rounded-full border border-white/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <LivePulseDot color="white" />
               Surveillance active
             </span>
           </div>
@@ -257,7 +258,7 @@ function RuleCard({ rule, onToggle, onConfigure, toggling }) {
           <div className="min-w-0">
             <h3 className="text-[14px] font-semibold text-[#1a1a1a] flex items-center gap-2">
               {rule.label}
-              {rule.is_active && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+              {rule.is_active && <LivePulseDot color="emerald" />}
             </h3>
             <p className="text-[11px] text-[#71717a] mt-0.5 line-clamp-2">{rule.description}</p>
           </div>

@@ -130,6 +130,10 @@ export function PartnersMarquee() {
           animation: partners-scroll 20s linear infinite;
           will-change: transform;
         }
+        /* TASK 6: pause on hover for smooth interactivity */
+        .partners-marquee-wrap:hover .partners-marquee-track {
+          animation-play-state: paused;
+        }
         @media (min-width: 768px) {
           .partners-marquee-track {
             gap: 7rem; /* 112px desktop — plus d'air */

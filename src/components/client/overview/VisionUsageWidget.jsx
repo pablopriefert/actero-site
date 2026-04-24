@@ -23,7 +23,7 @@ export default function VisionUsageWidget({ clientId, planLimit }) {
   const pct = !isUnlimited && limit > 0 ? Math.min(100, (used / limit) * 100) : 0
 
   return (
-    <div className="rounded-2xl border border-[#E5E2D7] p-5 bg-white">
+    <div className="rounded-2xl border border-[#E5E2D7] p-5 bg-white transition-all duration-200 hover:shadow-elev-3">
       <h3 className="text-sm font-semibold text-[#262626]">Analyses vision — ce mois</h3>
       <p className="text-3xl font-bold mt-1">
         {used} <span className="text-sm text-[#999]">/ {isUnlimited ? '∞' : limit}</span>

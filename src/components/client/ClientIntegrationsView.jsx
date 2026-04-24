@@ -54,12 +54,12 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
   const isBlocked = !!blockedBy && !isConnected;
 
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all ${
+    <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200 ${
       isConnected
-        ? 'border-cta/20 bg-cta/[0.03]'
+        ? 'border-cta/20 bg-cta/[0.03] hover:shadow-elev-3'
         : isBlocked
           ? 'border-[#f0f0f0] bg-white opacity-70'
-          : 'border-[#f0f0f0] bg-white hover:border-[#e0e0e0]'
+          : 'border-[#f0f0f0] bg-white hover:border-[#e0e0e0] hover:-translate-y-0.5 hover:shadow-elev-3'
     }`}>
         <ProviderIcon provider={provider} connected={isConnected} size={32} />
         <div className="flex-1 min-w-0">
