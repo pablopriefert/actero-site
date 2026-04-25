@@ -24,6 +24,7 @@ import { Shield } from 'lucide-react'
  *   -------------- | --- | ---------------
  *   auth0    2.2:1 | 42  | ~92px   (surface 3864)
  *   eleven   3.84  | 32  | ~123px  (surface 3936)
+ *   e2b      ~3.5  | 38  | ~133px  (surface ~3990)
  *   google   8.3   | 22  | ~183px  (surface 4026)
  *   shopify  6.2   | 26  | ~161px  (surface 4186)
  */
@@ -32,6 +33,12 @@ const partners = [
     name: 'ElevenLabs Grants',
     src: '/partners/v2/elevenlabs-grants.png',
     href: 'https://elevenlabs.io/startup-grants',
+    mH: 28, dH: 38,
+  },
+  {
+    name: 'E2B for Startups',
+    src: 'https://ejgdwjjcpjtwaqcxptke.supabase.co/storage/v1/object/public/logo/Design%20sans%20titre%20(9).png',
+    href: 'https://e2b.dev/startups',
     mH: 28, dH: 38,
   },
   {

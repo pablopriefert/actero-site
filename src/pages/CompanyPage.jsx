@@ -82,6 +82,10 @@ export const CompanyPage = ({ onNavigate }) => {
       desc: 'Accès aux crédits ElevenLabs pour l\'agent vocal (voix naturelles FR, cloning sur Enterprise).',
     },
     {
+      name: 'E2B for Startups',
+      desc: '20 000 $ de crédits E2B — chaque action agentic (refund, échange, modification commande) tourne dans un sandbox sécurisé isolé. Différenciant majeur vs Gorgias, Tidio et Zendesk.',
+    },
+    {
       name: 'Google for Startups',
       desc: 'Programme startups Cloud — support technique et infrastructure scaling.',
     },
