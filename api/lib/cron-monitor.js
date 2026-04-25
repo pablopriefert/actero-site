@@ -17,6 +17,14 @@ export function withCronMonitor(slug, schedule, handler) {
   }
 
   return async function wrappedCronHandler(req, res) {
-    return Sentry.withMonitor(slug, () => handler(req, res), monitorConfig)
+    try {
+      return await Sentry.withMonitor(slug, () => handler(req, res), monitorConfig)
+    } finally {
+      // Vercel freezes the serverless runtime as soon as the response is sent.
+      // Without an explicit flush, the queued "ok" check-in HTTP request is
+      // dropped before reaching Sentry, which then reports a phantom timeout
+      // after max_runtime expires. Match the pattern used in withSentry().
+      await Sentry.flush(2000).catch(() => {})
+    }
   }
 }

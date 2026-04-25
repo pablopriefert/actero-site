@@ -15,6 +15,11 @@ import { Sandbox } from '@e2b/code-interpreter'
 import { createClient } from '@supabase/supabase-js'
 import * as Sentry from '@sentry/node'
 
+// E2B sandbox spawn + runCode + kill routinely takes 5-15s. Without this,
+// Vercel kills the function at the 10s default and returns its HTML error
+// page, which the dashboard then fails to parse as JSON.
+export const maxDuration = 60
+
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
