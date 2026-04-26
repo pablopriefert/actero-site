@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Bot, Settings, BookOpen, Shield, FlaskConical, ChevronRight, Activity, Clock, CheckCircle2, Eye, Zap, Loader2, AlertCircle } from 'lucide-react'
+import { Bot, Settings, BookOpen, Shield, FlaskConical, ChevronRight, Activity, Clock, CheckCircle2, Eye, Zap, Loader2, AlertCircle, GitBranch } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { LivePulseDot } from '../ui/LivePulseDot'
 
@@ -22,7 +22,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
       if (!clientId) return null
       const { data } = await supabase
         .from('client_settings')
-        .select('agent_enabled, brand_tone, vision_enabled, updated_at')
+        .select('agent_enabled, brand_tone, vision_enabled, linear_auto_issue_enabled, linear_team_name, updated_at')
         .eq('client_id', clientId)
         .maybeSingle()
       return data
@@ -32,6 +32,24 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
 
   const [visionBusy, setVisionBusy] = useState(false)
   const visionEnabled = Boolean(settings?.vision_enabled)
+
+  const [linearBusy, setLinearBusy] = useState(false)
+  const linearAutoIssueEnabled = Boolean(settings?.linear_auto_issue_enabled)
+  const { data: linearIntegration } = useQuery({
+    queryKey: ['linear-integration-status', clientId],
+    queryFn: async () => {
+      if (!clientId) return null
+      const { data } = await supabase
+        .from('client_integrations')
+        .select('status')
+        .eq('client_id', clientId)
+        .eq('provider', 'linear')
+        .maybeSingle()
+      return { connected: data?.status === 'active' }
+    },
+    enabled: !!clientId,
+  })
+  const linearConnected = Boolean(linearIntegration?.connected)
 
   /* ───── E2B sandbox test panel (dry-run agentic action) ─────
    * Spawns a real E2B sandbox from the dashboard with mock customer/order
@@ -109,6 +127,35 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
       queryClient.invalidateQueries({ queryKey: ['client-settings', clientId] })
     }
     setVisionBusy(false)
+  }
+
+  async function toggleLinearAutoIssue() {
+    if (!clientId || linearBusy) return
+    if (!linearConnected) return // disabled in UI; defensive
+    setLinearBusy(true)
+    const next = !linearAutoIssueEnabled
+    queryClient.setQueryData(['client-settings', clientId], (prev) => ({
+      ...(prev || {}),
+      linear_auto_issue_enabled: next,
+    }))
+    const { error } = await supabase
+      .from('client_settings')
+      .upsert(
+        { client_id: clientId, linear_auto_issue_enabled: next },
+        { onConflict: 'client_id' },
+      )
+    if (error) {
+      console.error('[AgentControlCenter] toggleLinearAutoIssue failed:', error)
+      queryClient.setQueryData(['client-settings', clientId], (prev) => ({
+        ...(prev || {}),
+        linear_auto_issue_enabled: !next,
+      }))
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['client-settings', clientId] })
+      // Keep the Integrations tab in sync if the user navigates back.
+      queryClient.invalidateQueries({ queryKey: ['linear-auto-issue', clientId] })
+    }
+    setLinearBusy(false)
   }
 
   // Master agent kill-switch — toggles agent_enabled. Same upsert pattern.
@@ -405,6 +452,59 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
             <span
               className={`absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)] transition-transform duration-200 ease-out ${
                 visionEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </span>
+        </button>
+
+        {/* ═══════ LINEAR AUTO-ISSUE TOGGLE ═══════
+         * Mirror of the Integrations-tab panel — same column on
+         * client_settings (linear_auto_issue_enabled). Disabled when
+         * Linear isn't connected; the merchant has to OAuth from the
+         * Integrations tab first. Team + sentiment threshold stay there. */}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={linearAutoIssueEnabled}
+          aria-label={`${linearAutoIssueEnabled ? 'Désactiver' : 'Activer'} l'auto-issue Linear`}
+          onClick={toggleLinearAutoIssue}
+          disabled={!clientId || linearBusy || !linearConnected}
+          className={`group mt-3 w-full flex items-center justify-between gap-3 bg-white rounded-2xl border p-5 text-left transition-all ${
+            linearAutoIssueEnabled
+              ? 'border-cta/30 hover:border-cta/50'
+              : 'border-[#E5E2D7] hover:border-cta/30'
+          } disabled:opacity-60 disabled:cursor-not-allowed`}
+        >
+          <div className="flex items-start gap-3 min-w-0">
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
+              linearAutoIssueEnabled ? 'bg-cta/10 text-cta' : 'bg-[#f5f5f5] text-[#9ca3af]'
+            }`}>
+              <GitBranch className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-1">
+                Auto-issue Linear sur escalade critique
+              </h3>
+              <p className="text-[12px] text-[#71717a] leading-relaxed">
+                {linearConnected ? (
+                  <>Quand un ticket est escaladé avec un sentiment négatif, Actero crée automatiquement une issue dans <span className="font-semibold text-[#1a1a1a]">{settings?.linear_team_name || 'votre équipe Linear'}</span> pour suivi produit. Configure le seuil et l'équipe dans l'onglet Intégrations.</>
+                ) : (
+                  <>Connecte d'abord Linear depuis l'onglet <span className="font-semibold text-[#1a1a1a]">Intégrations</span> pour activer cette option.</>
+                )}
+              </p>
+            </div>
+          </div>
+          <span
+            aria-hidden="true"
+            className={`relative w-[42px] h-[22px] rounded-full transition-colors flex-shrink-0 ${
+              linearAutoIssueEnabled
+                ? 'bg-cta shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]'
+                : 'bg-[#d4d4d8] group-hover:bg-[#a1a1aa]'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)] transition-transform duration-200 ease-out ${
+                linearAutoIssueEnabled ? 'translate-x-5' : 'translate-x-0'
               }`}
             />
           </span>
