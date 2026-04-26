@@ -22,7 +22,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
       if (!clientId) return null
       const { data } = await supabase
         .from('client_settings')
-        .select('agent_enabled, brand_tone, vision_enabled, linear_auto_issue_enabled, linear_team_name, updated_at')
+        .select('agent_enabled, brand_tone, vision_enabled, linear_auto_issue_enabled, linear_team_name, discount_policy_enabled, discount_policy_code, discount_policy_max_pct, discount_policy_updated_at, updated_at')
         .eq('client_id', clientId)
         .maybeSingle()
       return data
@@ -95,6 +95,112 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
     } catch (err) {
       setE2bTestState('error')
       setE2bTestResult({ error: err.message })
+    }
+  }
+
+  /* ───── Discount Policy sandbox playground (#6) ─────
+   * Merchant writes a Python decide_discount(cart, customer, policy_caps)
+   * function. Each test spawns an isolated E2B sandbox to evaluate it
+   * against mock data. Audit trail in agent_action_logs (action_type =
+   * discount_policy_test). The wrapper enforces max_pct so a buggy policy
+   * can't blow margin. */
+  const DEFAULT_POLICY = `def decide_discount(cart, customer, policy_caps):
+    cart_value = float(cart.get('total_value', 0))
+    clv = float(customer.get('clv', 0))
+    orders = int(customer.get('orders_count', 0))
+    if orders == 0 and cart_value < 50:
+        return {'discount_pct': 0, 'reason': 'first_order_low_cart_no_discount'}
+    if clv >= 500 and cart_value >= 100:
+        return {'discount_pct': 15, 'reason': 'vip_high_cart'}
+    if orders >= 1 and cart_value >= 80:
+        return {'discount_pct': 10, 'reason': 'repeat_customer_above_80'}
+    return {'discount_pct': 5, 'reason': 'standard_default'}
+`
+  const [policyCode, setPolicyCode] = useState('')
+  const [policyMaxPct, setPolicyMaxPct] = useState(15)
+  const [policyMockCart, setPolicyMockCart] = useState(89)
+  const [policyMockClv, setPolicyMockClv] = useState(250)
+  const [policyMockOrders, setPolicyMockOrders] = useState(1)
+  const [policyTestState, setPolicyTestState] = useState('idle')
+  const [policyTestResult, setPolicyTestResult] = useState(null)
+  const [policyDirty, setPolicyDirty] = useState(false)
+
+  // Hydrate the editor from settings the first time settings load
+  React.useEffect(() => {
+    if (!settings) return
+    if (!policyCode && !policyDirty) {
+      setPolicyCode(settings.discount_policy_code || DEFAULT_POLICY)
+    }
+    if (settings.discount_policy_max_pct != null) {
+      setPolicyMaxPct(settings.discount_policy_max_pct)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings])
+
+  async function runDiscountTest({ persist = false } = {}) {
+    if (policyTestState === 'running') return
+    setPolicyTestState('running')
+    setPolicyTestResult(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        setPolicyTestState('error')
+        setPolicyTestResult({ error: 'Session expirée — reconnectez-vous.' })
+        return
+      }
+      const resp = await fetch('/api/engine/test-discount-policy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          client_id: clientId,
+          policy_code: policyCode,
+          max_pct: Number(policyMaxPct) || 15,
+          mock_cart: { total_value: Number(policyMockCart) || 0, currency: 'EUR' },
+          mock_customer: {
+            clv: Number(policyMockClv) || 0,
+            orders_count: Number(policyMockOrders) || 0,
+          },
+          persist,
+        }),
+      })
+      const data = await resp.json()
+      if (!resp.ok || !data.ok) {
+        setPolicyTestState('error')
+        setPolicyTestResult(data)
+        return
+      }
+      setPolicyTestState('success')
+      setPolicyTestResult(data)
+      if (persist) {
+        setPolicyDirty(false)
+        queryClient.invalidateQueries({ queryKey: ['client-settings', clientId] })
+      }
+    } catch (err) {
+      setPolicyTestState('error')
+      setPolicyTestResult({ error: err.message })
+    }
+  }
+
+  async function toggleDiscountPolicy() {
+    if (!clientId) return
+    const next = !Boolean(settings?.discount_policy_enabled)
+    queryClient.setQueryData(['client-settings', clientId], (prev) => ({
+      ...(prev || {}),
+      discount_policy_enabled: next,
+    }))
+    const { error } = await supabase
+      .from('client_settings')
+      .upsert({ client_id: clientId, discount_policy_enabled: next }, { onConflict: 'client_id' })
+    if (error) {
+      queryClient.setQueryData(['client-settings', clientId], (prev) => ({
+        ...(prev || {}),
+        discount_policy_enabled: !next,
+      }))
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['client-settings', clientId] })
     }
   }
 
@@ -638,6 +744,200 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
                 <div className="text-[12px] text-red-700 leading-relaxed">
                   {e2bTestResult.error || 'Erreur inconnue. Réessayez ou consultez les logs E2B.'}
                 </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* ═══════ DISCOUNT POLICY SANDBOX (#6) ═══════ */}
+        <div className="mt-3 bg-white rounded-2xl border border-[#E5E2D7] p-5">
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div className="flex items-start gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-cta/10 text-cta flex-shrink-0">
+                <Shield className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-[14px] font-semibold text-[#1a1a1a]">
+                    Politique de remise (sandbox auditable)
+                  </h3>
+                  {settings?.discount_policy_enabled && (
+                    <span className="text-[10px] font-bold text-cta uppercase tracking-wider">Active</span>
+                  )}
+                </div>
+                <p className="text-[12px] text-[#71717a] leading-relaxed mt-1">
+                  Écris une fonction Python <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[11px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque évaluation. Chaque run est tracé dans <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[11px]">agent_action_logs</code>. Le wrapper applique <em>après</em> ta fonction le plafond <em>max_pct</em> — une policy boguée ne peut pas exploser ta marge.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={toggleDiscountPolicy}
+              role="switch"
+              aria-checked={Boolean(settings?.discount_policy_enabled)}
+              aria-label={`${settings?.discount_policy_enabled ? 'Désactiver' : 'Activer'} la politique`}
+              className={`relative w-[42px] h-[22px] rounded-full transition-colors flex-shrink-0 ${
+                settings?.discount_policy_enabled
+                  ? 'bg-cta shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]'
+                  : 'bg-[#d4d4d8] hover:bg-[#a1a1aa]'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)] transition-transform duration-200 ease-out ${
+                  settings?.discount_policy_enabled ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Code editor */}
+          <div className="mb-4">
+            <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
+              Code de la policy
+            </label>
+            <textarea
+              value={policyCode}
+              onChange={(e) => { setPolicyCode(e.target.value); setPolicyDirty(true) }}
+              spellCheck={false}
+              rows={14}
+              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E5E2D7] bg-[#fafaf7] p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
+            />
+            {policyDirty && (
+              <div className="mt-1 text-[11px] text-amber-700">
+                Tu as des modifications non sauvegardées — utilise « Tester & sauvegarder ».
+              </div>
+            )}
+          </div>
+
+          {/* Mock inputs */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div>
+              <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
+                Plafond (%)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.5"
+                value={policyMaxPct}
+                onChange={(e) => setPolicyMaxPct(e.target.value)}
+                className="w-full text-[13px] rounded-xl border border-[#E5E2D7] bg-white px-3 py-2 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
+                Panier (€)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={policyMockCart}
+                onChange={(e) => setPolicyMockCart(e.target.value)}
+                className="w-full text-[13px] rounded-xl border border-[#E5E2D7] bg-white px-3 py-2 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
+                CLV client (€)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={policyMockClv}
+                onChange={(e) => setPolicyMockClv(e.target.value)}
+                className="w-full text-[13px] rounded-xl border border-[#E5E2D7] bg-white px-3 py-2 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
+                Commandes
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={policyMockOrders}
+                onChange={(e) => setPolicyMockOrders(e.target.value)}
+                className="w-full text-[13px] rounded-xl border border-[#E5E2D7] bg-white px-3 py-2 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => runDiscountTest({ persist: false })}
+              disabled={policyTestState === 'running' || !clientId}
+              className="inline-flex items-center gap-2 rounded-xl bg-white border border-[#E5E2D7] px-4 py-2 text-[13px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50"
+            >
+              {policyTestState === 'running' ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Exécution…</>
+              ) : (
+                <><FlaskConical className="w-4 h-4" /> Tester</>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => runDiscountTest({ persist: true })}
+              disabled={policyTestState === 'running' || !clientId}
+              className="inline-flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#0a4a29] disabled:opacity-50"
+            >
+              <CheckCircle2 className="w-4 h-4" /> Tester &amp; sauvegarder
+            </button>
+            {settings?.discount_policy_updated_at && (
+              <span className="text-[11px] text-[#9ca3af] ml-auto">
+                Sauvegardée {new Date(settings.discount_policy_updated_at).toLocaleString('fr-FR', {
+                  day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+                })}
+              </span>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {policyTestState === 'success' && policyTestResult && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="mt-4 p-4 rounded-xl bg-cta/5 border border-cta/20"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle2 className="w-4 h-4 text-cta" />
+                  <span className="text-[13px] font-semibold text-[#1a1a1a]">
+                    Décision : {policyTestResult.decision?.discount_pct ?? 0}%
+                  </span>
+                  <span className="text-[11px] text-[#71717a]">
+                    · {policyTestResult.decision?.reason || '—'}
+                  </span>
+                  <span className="text-[11px] text-[#9ca3af] ml-auto">
+                    {policyTestResult.duration_ms} ms · sandbox {(policyTestResult.sandbox_id || '—').slice(0, 12)}…
+                  </span>
+                </div>
+                {policyTestResult.decision?.capped_at != null && policyTestResult.decision.discount_pct === policyTestResult.decision.capped_at && (
+                  <div className="text-[11px] text-amber-700 mt-1">
+                    ⚠️ Décision plafonnée par max_pct = {policyTestResult.decision.capped_at}%
+                  </div>
+                )}
+              </motion.div>
+            )}
+            {policyTestState === 'error' && policyTestResult && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="mt-4 p-4 rounded-xl bg-red-50/60 border border-red-100"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <AlertCircle className="w-4 h-4 text-red-600" />
+                  <span className="text-[13px] font-semibold text-red-800">Échec de la policy</span>
+                </div>
+                <div className="text-[12px] text-red-700 leading-relaxed font-mono whitespace-pre-wrap">
+                  {policyTestResult.decision?.detail || policyTestResult.error || 'Erreur inconnue.'}
+                </div>
+                {policyTestResult.decision?.trace && (
+                  <div className="text-[11px] text-red-600/80 mt-2 font-mono whitespace-pre-wrap">
+                    {policyTestResult.decision.trace.join('\n')}
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
