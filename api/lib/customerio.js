@@ -64,40 +64,6 @@ export async function track(userId, name, data = {}) {
 }
 
 /**
- * Identify + track a SHOPPER recovery event in Customer.io.
- *
- * Used by the abandoned-cart cron when the merchant has SMS recovery
- * enabled. Shoppers are namespaced per-merchant via the userId scheme
- * `shopper:<merchant_id>:<email>` so a CIO Journey can filter by the
- * `merchant_id` attribute and route to the right SMS template / sender.
- *
- * Returns silently — never blocks the email recovery path on CIO errors.
- */
-export async function trackShopperRecovery({
-  merchantId, brandName, shopperEmail, shopperPhone, shopperFirstName,
-  cartValue, currency, recoveryUrl, items, eventName = 'cart_abandoned_recovery',
-}) {
-  if (!enabled() || !merchantId || !shopperEmail) return
-  const userId = `shopper:${merchantId}:${shopperEmail.toLowerCase()}`
-  await identify(userId, {
-    email: shopperEmail,
-    phone: shopperPhone || null,
-    first_name: shopperFirstName || null,
-    merchant_id: merchantId,
-    merchant_brand: brandName || null,
-  })
-  await track(userId, eventName, {
-    cart_value: cartValue || 0,
-    currency: currency || 'EUR',
-    recovery_url: recoveryUrl || null,
-    items: items || [],
-    merchant_id: merchantId,
-    merchant_brand: brandName || null,
-    shopper_phone: shopperPhone || null,
-  })
-}
-
-/**
  * Track an anonymous event (before signup / before identify).
  * anonymousId: any stable browser/session identifier.
  */
