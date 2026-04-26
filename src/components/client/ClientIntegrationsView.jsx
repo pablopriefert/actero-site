@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plug, X, Loader2, CheckCircle, AlertCircle, ExternalLink,
-  RefreshCw, Trash2, Star, Search, Mail, GitBranch
+  RefreshCw, Trash2, Star, Search, Mail, GitBranch, MessageSquare
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
@@ -498,7 +498,92 @@ const LinearAutoIssuePanel = ({ clientId }) => {
   )
 }
 
-export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
+/**
+ * Recovery SMS via Customer.io — toggle in the Integrations tab.
+ * When ON, the abandoned-cart cron emits cart_abandoned_recovery events
+ * to Customer.io with the shopper's phone. The merchant wires a CIO
+ * Journey on that event with an SMS step (Twilio backend).
+ */
+const RecoverySmsPanel = ({ clientId }) => {
+  const queryClient = useQueryClient()
+  const { success: toastSuccess, error: toastError } = useToast()
+  const [busy, setBusy] = useState(false)
+
+  const { data } = useQuery({
+    queryKey: ['recovery-sms', clientId],
+    queryFn: async () => {
+      if (!clientId) return null
+      const { data: settings } = await supabase
+        .from('client_settings')
+        .select('recovery_sms_enabled')
+        .eq('client_id', clientId)
+        .maybeSingle()
+      return { enabled: settings?.recovery_sms_enabled === true }
+    },
+    enabled: !!clientId,
+  })
+
+  const toggle = async () => {
+    if (busy) return
+    setBusy(true)
+    const next = !data?.enabled
+    queryClient.setQueryData(['recovery-sms', clientId], { enabled: next })
+    const { error } = await supabase
+      .from('client_settings')
+      .upsert({ client_id: clientId, recovery_sms_enabled: next }, { onConflict: 'client_id' })
+    if (error) {
+      queryClient.setQueryData(['recovery-sms', clientId], { enabled: !next })
+      toastError('Impossible de mettre à jour le réglage')
+    } else {
+      toastSuccess(next ? 'Recovery SMS activé' : 'Recovery SMS désactivé')
+      queryClient.invalidateQueries({ queryKey: ['recovery-sms', clientId] })
+    }
+    setBusy(false)
+  }
+
+  return (
+    <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <MessageSquare className="w-4 h-4 text-[#7C5CFF]" />
+            <h3 className="text-[14px] font-bold text-[#1a1a1a]">Recovery SMS — Customer.io</h3>
+            {data?.enabled && (
+              <span className="text-[10px] font-bold text-[#7C5CFF] uppercase tracking-wider">Actif</span>
+            )}
+          </div>
+          <p className="text-[12px] text-[#71717a] max-w-xl">
+            Pour chaque panier abandonné, Actero envoie l'événement <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[11px]">cart_abandoned_recovery</code> à Customer.io avec le téléphone du shopper et la valeur du panier.
+          </p>
+          <p className="text-[11px] text-[#9ca3af] mt-2">
+            Configure un Journey CIO sur cet event avec un step SMS (Twilio backend) — Actero reste hors carrier, CIO gère opt-in et délivrabilité.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={toggle}
+          disabled={busy}
+          aria-pressed={data?.enabled === true}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 ${
+            data?.enabled ? 'bg-[#7C5CFF]' : 'bg-gray-300'
+          }`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              data?.enabled ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Linear auto-issue config — toggle + sentiment threshold + team display.
+ * Only renders when the merchant has connected Linear; otherwise the
+ * connection card in the integrations grid is the entry point.
+ */
   const queryClient = useQueryClient();
   const { success: toastSuccess, error: toastError } = useToast();
   const isLight = theme === 'light';
@@ -1066,6 +1151,9 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
           </motion.div>
         </div>
       )}
+
+      {/* Recovery SMS via Customer.io */}
+      <RecoverySmsPanel clientId={clientId} />
 
       {/* Linear auto-issue config — appears once Linear is connected */}
       <LinearAutoIssuePanel clientId={clientId} />

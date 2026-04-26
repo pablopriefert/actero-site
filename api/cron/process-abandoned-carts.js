@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { withCronMonitor } from '../lib/cron-monitor.js'
-import { track } from '../lib/customerio.js'
+import { track, trackShopperRecovery } from '../lib/customerio.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -167,14 +167,21 @@ async function handler(req, res) {
 
       const brandName = client?.brand_name || 'Votre boutique'
 
-      // 3. Get SMTP config for client
-      const { data: smtpConfig } = await supabase
-        .from('client_integrations')
-        .select('config')
-        .eq('client_id', client_id)
-        .eq('provider', 'smtp_imap')
-        .eq('status', 'active')
-        .maybeSingle()
+      // 3. Get SMTP config + recovery toggle in parallel
+      const [{ data: smtpConfig }, { data: settings }] = await Promise.all([
+        supabase
+          .from('client_integrations')
+          .select('config')
+          .eq('client_id', client_id)
+          .eq('provider', 'smtp_imap')
+          .eq('status', 'active')
+          .maybeSingle(),
+        supabase
+          .from('client_settings')
+          .select('recovery_sms_enabled')
+          .eq('client_id', client_id)
+          .maybeSingle(),
+      ])
 
       if (!smtpConfig?.config) {
         // No SMTP configured — mark as skipped
@@ -207,6 +214,31 @@ async function handler(req, res) {
         status: 'completed',
         payload: { ...payload, sent_at: new Date().toISOString() },
       }).eq('id', event.id)
+
+      // 5b. SMS recovery via Customer.io — fire-and-forget, off the email path.
+      // The merchant configures a CIO Journey on `cart_abandoned_recovery`
+      // with an SMS step that uses the shopper_phone attribute.
+      if (settings?.recovery_sms_enabled) {
+        const phone = payload.phone
+          || payload.shipping_address?.phone
+          || payload.billing_address?.phone
+          || null
+        trackShopperRecovery({
+          merchantId: client_id,
+          brandName,
+          shopperEmail: payload.email,
+          shopperPhone: phone,
+          shopperFirstName: payload.customer_name?.split(' ')[0] || null,
+          cartValue: payload.total_price,
+          currency: payload.currency,
+          recoveryUrl: payload.abandoned_checkout_url,
+          items: (payload.line_items || []).map((it) => ({
+            title: it.title || it.name,
+            quantity: it.quantity,
+            price: it.price,
+          })).slice(0, 10),
+        }).catch(() => {}) // never block the email path
+      }
 
       // CIO — first_cart_recovered: emit only on the first successful cart recovery for this client
       try {
