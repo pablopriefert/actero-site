@@ -14,17 +14,23 @@
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
+import crypto from 'crypto'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const SERVER_INFO = {
-  protocolVersion: '2025-03-26',
-  capabilities: { tools: {} },
-  serverInfo: { name: 'actero-mcp', version: '1.0.0' },
-}
+// Versions we know how to speak. We echo back the client's preferred
+// version if it matches one of these; otherwise we fall back to our
+// newest. Claude's hosted Connector currently asks for `2025-06-18`,
+// so always returning the older `2025-03-26` (the previous behaviour
+// here) made Claude treat us as an incompatible server and abort.
+const SUPPORTED_PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26']
+const PREFERRED_PROTOCOL_VERSION = '2025-06-18'
+
+const SERVER_CAPABILITIES = { tools: {} }
+const SERVER_METADATA = { name: 'actero-mcp', version: '1.0.0' }
 
 const TOOLS = [
   {
@@ -172,6 +178,17 @@ async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method === 'DELETE') return res.status(200).json({ ok: true })
 
+  // Per spec: validate MCP-Protocol-Version on every request EXCEPT the
+  // very first initialize (where the client doesn't know yet what to send).
+  // If the header is present and unsupported → 400 Bad Request.
+  const clientProtoHeader = req.headers['mcp-protocol-version']
+  if (clientProtoHeader && !SUPPORTED_PROTOCOL_VERSIONS.includes(clientProtoHeader)) {
+    return res.status(400).json({
+      jsonrpc: '2.0', id: null,
+      error: { code: -32600, message: `Unsupported MCP-Protocol-Version: ${clientProtoHeader}` },
+    })
+  }
+
   // Auth
   const clientId = await resolveClientFromToken(req.headers.authorization)
   if (!clientId) {
@@ -212,7 +229,31 @@ async function handler(req, res) {
     // Notifications
     if (id === undefined || id === null) return res.status(202).end()
 
-    if (method === 'initialize') return res.status(200).json({ jsonrpc: '2.0', id, result: SERVER_INFO })
+    if (method === 'initialize') {
+      // Negotiate protocol version: if the client's preferred version is
+      // one we support, echo it back; otherwise return our newest. Claude
+      // checks this echo against what it asked for and aborts on mismatch.
+      const clientPreferred = params?.protocolVersion
+      const negotiated = SUPPORTED_PROTOCOL_VERSIONS.includes(clientPreferred)
+        ? clientPreferred
+        : PREFERRED_PROTOCOL_VERSION
+
+      // Provide a session id so the client can correlate subsequent
+      // requests. Spec says this is OPTIONAL but Claude's hosted Connector
+      // expects it on initialize and routes follow-up traffic by it.
+      const sessionId = req.headers['mcp-session-id'] || crypto.randomUUID()
+      res.setHeader('Mcp-Session-Id', sessionId)
+
+      return res.status(200).json({
+        jsonrpc: '2.0',
+        id,
+        result: {
+          protocolVersion: negotiated,
+          capabilities: SERVER_CAPABILITIES,
+          serverInfo: SERVER_METADATA,
+        },
+      })
+    }
     if (method === 'ping') return res.status(200).json({ jsonrpc: '2.0', id, result: {} })
     if (method === 'tools/list') return res.status(200).json({ jsonrpc: '2.0', id, result: { tools: TOOLS } })
     if (method === 'resources/list') return res.status(200).json({ jsonrpc: '2.0', id, result: { resources: [] } })

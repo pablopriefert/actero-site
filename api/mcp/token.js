@@ -72,6 +72,8 @@ async function handler(req, res) {
       access_token: keyRow.key_value,
       token_type: 'Bearer',
       expires_in: 3600,
+      refresh_token: keyRow.key_value,
+      scope: 'actero',
     })
   }
 
@@ -156,16 +158,24 @@ async function handler(req, res) {
       access_token: authCode.access_token,
       token_type: 'Bearer',
       expires_in: 3600,
+      refresh_token: authCode.access_token,
+      scope: 'actero',
     })
   }
 
   console.log('[mcp/token] Success: API key created for client', link.client_id)
 
-  // Return the long-lived API key (standard OAuth2 token response)
+  // Return the long-lived API key. We return the SAME value as
+  // `refresh_token` so Claude's refresh flow keeps working (we accept
+  // it back at the refresh_token grant above). The `scope` echo is
+  // important — Claude's audience binding compares the granted scope
+  // to what it requested and rejects mismatches.
   return res.status(200).json({
     access_token: apiKeyValue,
     token_type: 'Bearer',
     expires_in: 3600,
+    refresh_token: apiKeyValue,
+    scope: 'actero',
   })
 }
 
