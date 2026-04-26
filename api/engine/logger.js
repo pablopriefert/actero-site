@@ -405,10 +405,6 @@ export async function logRun(supabase, {
       }
     } else {
       // Create new ticket (first message of session)
-      const conversationMetadata = {}
-      if (normalized?.amplitude_device_id) conversationMetadata.amplitude_device_id = normalized.amplitude_device_id
-      if (normalized?.amplitude_session_id) conversationMetadata.amplitude_session_id = normalized.amplitude_session_id
-
       const { error: aiError } = await supabase.from('ai_conversations').insert({
         client_id: clientId,
         session_id: sessionId,
@@ -422,7 +418,6 @@ export async function logRun(supabase, {
         confidence_score: confidence,
         response_time_ms: durationMs,
         escalation_reason: escalationReason,
-        ...(Object.keys(conversationMetadata).length > 0 ? { metadata: conversationMetadata } : {}),
       })
       if (aiError) console.error('[logger] ai_conversations insert error:', aiError.message)
     }

@@ -13,48 +13,6 @@
   const sessionId = 'actero_' + Math.random().toString(36).substring(2, 10)
   const STORAGE_KEY = 'actero_customer_' + apiKey
   let isOpen = false
-
-  // ───── Amplitude Session Replay (opt-in by merchant) ─────
-  // We fetch /api/widget/config once; if the merchant has flipped
-  // `replay_recording_enabled` and AMPLITUDE_API_KEY is set in Actero
-  // env, we inject Amplitude's Browser SDK + Session Replay plugin from
-  // CDN and capture deviceId/sessionId for every chat message. The
-  // engine persists those into ai_conversations.metadata so an Actero
-  // support agent can pull the replay when investigating.
-  let amplitudeDeviceId = null
-  let amplitudeSessionId = null
-  ;(function bootReplay() {
-    fetch(ACTERO_URL + '/api/widget/config?api_key=' + encodeURIComponent(apiKey))
-      .then(function(r) { return r.ok ? r.json() : null })
-      .then(function(cfg) {
-        if (!cfg || !cfg.replay_enabled || !cfg.amplitude_api_key) return
-        // Load SDK + Session Replay plugin sequentially. Both are tiny,
-        // both are async — never blocks the widget UI thread.
-        loadScript('https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz', function() {
-          loadScript('https://cdn.amplitude.com/libs/plugin-session-replay-browser-1.8.0-min.js.gz', function() {
-            try {
-              window.amplitude.add(window.sessionReplay.plugin({ sampleRate: 1 }))
-              window.amplitude.init(cfg.amplitude_api_key, {
-                serverZone: cfg.server_zone === 'US' ? 'US' : 'EU',
-                defaultTracking: { sessions: true, pageViews: true, formInteractions: false, fileDownloads: false },
-              }).promise.then(function() {
-                amplitudeDeviceId = window.amplitude.getDeviceId() || null
-                amplitudeSessionId = String(window.amplitude.getSessionId() || '') || null
-              }).catch(function() { /* swallow — replay is best-effort */ })
-            } catch { /* SDK init failure must not break the widget */ }
-          })
-        })
-      })
-      .catch(function() { /* config fetch failure — widget still works without replay */ })
-  })()
-  function loadScript(src, cb) {
-    var s = document.createElement('script')
-    s.src = src
-    s.async = true
-    s.onload = cb
-    s.onerror = function() { /* swallow — keep widget usable */ }
-    document.head.appendChild(s)
-  }
   let messages = []
   let customerEmail = null
   let customerName = null
@@ -549,8 +507,6 @@
           name: customerName,
           history: getConversationHistory(),
           images: imageDataUrls,
-          amplitude_device_id: amplitudeDeviceId,
-          amplitude_session_id: amplitudeSessionId,
         }),
       })
       const data = await res.json()

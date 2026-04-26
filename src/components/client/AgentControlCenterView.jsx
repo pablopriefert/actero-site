@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Bot, Settings, BookOpen, Shield, FlaskConical, ChevronRight, Activity, Clock, CheckCircle2, Eye, Zap, Loader2, AlertCircle, GitBranch, Video } from 'lucide-react'
+import { Bot, Settings, BookOpen, Shield, FlaskConical, ChevronRight, Activity, Clock, CheckCircle2, Eye, Zap, Loader2, AlertCircle, GitBranch } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { LivePulseDot } from '../ui/LivePulseDot'
 
@@ -22,7 +22,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
       if (!clientId) return null
       const { data } = await supabase
         .from('client_settings')
-        .select('agent_enabled, brand_tone, vision_enabled, linear_auto_issue_enabled, linear_team_name, discount_policy_enabled, discount_policy_code, discount_policy_max_pct, discount_policy_updated_at, replay_recording_enabled, updated_at')
+        .select('agent_enabled, brand_tone, vision_enabled, linear_auto_issue_enabled, linear_team_name, discount_policy_enabled, discount_policy_code, discount_policy_max_pct, discount_policy_updated_at, updated_at')
         .eq('client_id', clientId)
         .maybeSingle()
       return data
@@ -32,33 +32,6 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
 
   const [visionBusy, setVisionBusy] = useState(false)
   const visionEnabled = Boolean(settings?.vision_enabled)
-  const [replayBusy, setReplayBusy] = useState(false)
-  const replayEnabled = Boolean(settings?.replay_recording_enabled)
-
-  async function toggleReplay() {
-    if (!clientId || replayBusy) return
-    setReplayBusy(true)
-    const next = !replayEnabled
-    queryClient.setQueryData(['client-settings', clientId], (prev) => ({
-      ...(prev || {}),
-      replay_recording_enabled: next,
-    }))
-    const { error } = await supabase
-      .from('client_settings')
-      .upsert(
-        { client_id: clientId, replay_recording_enabled: next },
-        { onConflict: 'client_id' },
-      )
-    if (error) {
-      queryClient.setQueryData(['client-settings', clientId], (prev) => ({
-        ...(prev || {}),
-        replay_recording_enabled: !replayEnabled,
-      }))
-    } else {
-      queryClient.invalidateQueries({ queryKey: ['client-settings', clientId] })
-    }
-    setReplayBusy(false)
-  }
 
   const [linearBusy, setLinearBusy] = useState(false)
   const linearAutoIssueEnabled = Boolean(settings?.linear_auto_issue_enabled)
@@ -638,55 +611,6 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
             <span
               className={`absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)] transition-transform duration-200 ease-out ${
                 linearAutoIssueEnabled ? 'translate-x-5' : 'translate-x-0'
-              }`}
-            />
-          </span>
-        </button>
-
-        {/* ═══════ REPLAY RECORDING TOGGLE ═══════
-         * When ON, the embedded chat widget loads Amplitude Session
-         * Replay (Actero EU workspace) and stores deviceId/sessionId on
-         * each conversation so an Actero support agent can pull the
-         * replay during incident review. */}
-        <button
-          type="button"
-          role="switch"
-          aria-checked={replayEnabled}
-          aria-label={`${replayEnabled ? 'Désactiver' : 'Activer'} l'enregistrement de session`}
-          onClick={toggleReplay}
-          disabled={!clientId || replayBusy}
-          className={`group mt-3 w-full flex items-center justify-between gap-3 bg-white rounded-2xl border p-5 text-left transition-all ${
-            replayEnabled
-              ? 'border-cta/30 hover:border-cta/50'
-              : 'border-[#E5E2D7] hover:border-cta/30'
-          } disabled:opacity-60 disabled:cursor-not-allowed`}
-        >
-          <div className="flex items-start gap-3 min-w-0">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-              replayEnabled ? 'bg-cta/10 text-cta' : 'bg-[#f5f5f5] text-[#9ca3af]'
-            }`}>
-              <Video className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-1">
-                Enregistrement de session (replay vidéo joint au ticket)
-              </h3>
-              <p className="text-[12px] text-[#71717a] leading-relaxed">
-                Le widget de chat enregistre la session du visiteur via Amplitude Session Replay (workspace EU Actero, Scholarship plan). Quand un ticket arrive, l'équipe support peut visionner ce que le client faisait juste avant — différentiel énorme sur les tickets « ça bug, je sais pas pourquoi ». Aucun replay sur les pages où ton site appelle <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[11px]">amplitude.setOptOut(true)</code>.
-              </p>
-            </div>
-          </div>
-          <span
-            aria-hidden="true"
-            className={`relative w-[42px] h-[22px] rounded-full transition-colors flex-shrink-0 ${
-              replayEnabled
-                ? 'bg-cta shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]'
-                : 'bg-[#d4d4d8] group-hover:bg-[#a1a1aa]'
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.05)] transition-transform duration-200 ease-out ${
-                replayEnabled ? 'translate-x-5' : 'translate-x-0'
               }`}
             />
           </span>
