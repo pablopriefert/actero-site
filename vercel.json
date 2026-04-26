@@ -119,6 +119,10 @@
         {
             "path": "/api/cron/check-quotas",
             "schedule": "0 6 * * *"
+        },
+        {
+            "path": "/api/cron/slack-canvas-update",
+            "schedule": "*/15 * * * *"
         }
     ],
     "headers": [

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useQuery } from '@tanstack/react-query'
-import { User, Users, Bell, CreditCard, LifeBuoy, Gift, Code, ChevronRight, Award, Cog, Download, Loader2 } from 'lucide-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { User, Users, Bell, CreditCard, LifeBuoy, Gift, Code, ChevronRight, Award, Cog, Download, Loader2, Slack, ExternalLink } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 
@@ -17,7 +17,9 @@ import { useToast } from '../ui/Toast'
  */
 export const SettingsHubView = ({ clientId, onNavigate }) => {
   const { success: toastSuccess, error: toastError } = useToast()
+  const queryClient = useQueryClient()
   const [exporting, setExporting] = useState(null) // 'json' | 'csv' | null
+  const [slackOpsBusy, setSlackOpsBusy] = useState(false)
 
   const handleExport = async (format) => {
     try {
@@ -84,6 +86,58 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
   const teamCount = hubSignals?.teamCount ?? 1
   const notifsOn = hubSignals?.notifsOn !== false
   const emailNotifsOn = hubSignals?.emailNotifsOn !== false
+
+  // Slack Ops Canvas — live operational dashboard pinned in the merchant's Slack.
+  // Shown as a dedicated card; only actionable when a Slack integration exists.
+  const { data: slackOps } = useQuery({
+    queryKey: ['slack-ops', clientId],
+    queryFn: async () => {
+      if (!clientId) return null
+      const [integration, settings] = await Promise.all([
+        supabase
+          .from('client_integrations')
+          .select('id')
+          .eq('client_id', clientId)
+          .eq('provider', 'slack')
+          .eq('status', 'active')
+          .maybeSingle(),
+        supabase
+          .from('client_settings')
+          .select('slack_ops_enabled, slack_ops_canvas_id, slack_ops_last_refreshed_at')
+          .eq('client_id', clientId)
+          .maybeSingle(),
+      ])
+      return {
+        slackConnected: !!integration.data,
+        enabled: settings.data?.slack_ops_enabled === true,
+        canvasId: settings.data?.slack_ops_canvas_id || null,
+        lastRefreshedAt: settings.data?.slack_ops_last_refreshed_at || null,
+      }
+    },
+    enabled: !!clientId,
+  })
+
+  const toggleSlackOps = async () => {
+    if (!clientId || slackOpsBusy) return
+    if (!slackOps?.slackConnected) {
+      toastError('Connecte Slack d\'abord depuis l\'onglet Intégrations')
+      return
+    }
+    setSlackOpsBusy(true)
+    const next = !slackOps.enabled
+    queryClient.setQueryData(['slack-ops', clientId], (prev) => ({ ...(prev || {}), enabled: next }))
+    const { error } = await supabase
+      .from('client_settings')
+      .upsert({ client_id: clientId, slack_ops_enabled: next }, { onConflict: 'client_id' })
+    if (error) {
+      queryClient.setQueryData(['slack-ops', clientId], (prev) => ({ ...(prev || {}), enabled: !next }))
+      toastError('Impossible de mettre à jour le réglage')
+    } else {
+      toastSuccess(next ? 'Live Ops activé — premier refresh sous 15 min' : 'Live Ops désactivé')
+      queryClient.invalidateQueries({ queryKey: ['slack-ops', clientId] })
+    }
+    setSlackOpsBusy(false)
+  }
 
   const groups = [
     {
@@ -239,6 +293,59 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
               CSV
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* ═══════ SLACK OPS CANVAS ═══════ */}
+      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 mb-6">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <Slack className="w-4 h-4 text-cta" />
+              <h2 className="text-[14px] font-bold text-[#1a1a1a]">Live Ops Canvas Slack</h2>
+              {slackOps?.enabled && (
+                <span className="text-[10px] font-bold text-cta uppercase tracking-wider">Actif</span>
+              )}
+            </div>
+            <p className="text-[12px] text-[#71717a] max-w-xl">
+              Une page Canvas Slack rafraîchie toutes les 15 min : tickets ouverts, top sujets, alertes actives, taux de résolution IA. Tu l'épingles dans ton workspace, c'est ta war room.
+            </p>
+            {slackOps?.lastRefreshedAt && (
+              <p className="text-[11px] text-[#9ca3af] mt-1">
+                Dernier refresh :{' '}
+                {new Date(slackOps.lastRefreshedAt).toLocaleString('fr-FR', {
+                  hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit',
+                })}
+                {' · '}
+                <a
+                  href="slack://open"
+                  className="text-cta hover:underline inline-flex items-center gap-1"
+                >
+                  Ouvrir dans Slack <ExternalLink className="w-3 h-3" />
+                </a>
+              </p>
+            )}
+            {!slackOps?.slackConnected && (
+              <p className="text-[11px] text-amber-700 mt-1">
+                Connecte d'abord Slack depuis l'onglet Intégrations.
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={toggleSlackOps}
+            disabled={slackOpsBusy || !slackOps?.slackConnected}
+            aria-pressed={slackOps?.enabled === true}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              slackOps?.enabled ? 'bg-cta' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                slackOps?.enabled ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
         </div>
       </div>
 

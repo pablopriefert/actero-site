@@ -23,7 +23,8 @@ async function handler(req, res) {
   //   - commands                            (slash /actero)
   //   - im:history, im:read, im:write       (DMs with the bot)
   //   - chat:write.public                   (post to channels without being invited)
-  const scopes = 'incoming-webhook,chat:write,chat:write.public,channels:read,team:read,app_mentions:read,commands,im:history,im:read,im:write';
+  //   - canvases:write, canvases:read       (Live Ops Canvas — refreshed by cron)
+  const scopes = 'incoming-webhook,chat:write,chat:write.public,channels:read,team:read,app_mentions:read,commands,im:history,im:read,im:write,canvases:write,canvases:read';
 
   const authUrl = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
 
