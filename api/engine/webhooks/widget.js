@@ -45,7 +45,10 @@ async function handler(req, res) {
   const clientId = client?.id
   if (!clientId) return res.status(401).json({ error: 'Invalid API key' })
 
-  const { message, email, name, session_id, history, images: widgetImages } = req.body || {}
+  const {
+    message, email, name, session_id, history, images: widgetImages,
+    amplitude_device_id, amplitude_session_id,
+  } = req.body || {}
   if (!message) return res.status(400).json({ error: 'message required' })
 
   // Conversation history: prefer from widget, but fallback to DB (in case widget.js is cached)
@@ -101,7 +104,12 @@ async function handler(req, res) {
       customer_email: customerEmail,
       customer_name: name || null,
       message_body: message,
-      metadata: { session_id, user_agent: req.headers['user-agent'] },
+      metadata: {
+        session_id,
+        user_agent: req.headers['user-agent'],
+        amplitude_device_id: amplitude_device_id || null,
+        amplitude_session_id: amplitude_session_id || null,
+      },
       status: 'received',
     })
     .select()
@@ -172,6 +180,10 @@ async function handler(req, res) {
     // Override for logger: use first real message + detected email
     normalized.first_message = firstUserMessage
     normalized.customer_email = customerEmail
+    // Carry Amplitude replay IDs through to ai_conversations.metadata so
+    // the dashboard can deep-link into the Session Replay viewer.
+    if (amplitude_device_id) normalized.amplitude_device_id = amplitude_device_id
+    if (amplitude_session_id) normalized.amplitude_session_id = amplitude_session_id
 
     // Find playbook
     const playbook = await loadPlaybook(supabase, clientId, 'widget_message')

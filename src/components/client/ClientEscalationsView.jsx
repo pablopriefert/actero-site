@@ -5,7 +5,7 @@ import {
   AlertTriangle, Clock, User, Mail, ShoppingCart, Send,
   CheckCircle2, X, Loader2, BookOpen, ChevronDown, TrendingDown,
   MessageCircle, FileText, Check, Edit3, Pen, Save, Search, Sparkles,
-  Mic, Volume2, BrainCircuit
+  Mic, Volume2, BrainCircuit, Video, ExternalLink
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { toast } from '../../lib/toast'
@@ -353,6 +353,22 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               <span className="flex items-center gap-1"><FileText className="w-3 h-3" /> {conversation.ticket_id}</span>
             )}
           </div>
+          {/* Replay deep-link — only shown when the widget captured the
+              Amplitude IDs. Opens the EU Replay viewer (Actero workspace);
+              merchant doesn't have direct access, the link is for Actero
+              support during incident review. */}
+          {conversation.metadata?.amplitude_device_id && conversation.metadata?.amplitude_session_id && (
+            <a
+              href={`https://app.eu.amplitude.com/analytics/sessions/replay/${encodeURIComponent(conversation.metadata.amplitude_device_id)}%2B${encodeURIComponent(conversation.metadata.amplitude_session_id)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold text-cta hover:underline"
+            >
+              <Video className="w-3 h-3" />
+              Voir le replay vidéo de la session
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
+          )}
         </div>
 
         {/* Conversation */}
