@@ -124,6 +124,110 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
   const [policyTestState, setPolicyTestState] = useState('idle')
   const [policyTestResult, setPolicyTestResult] = useState(null)
   const [policyDirty, setPolicyDirty] = useState(false)
+  const [policyShowCode, setPolicyShowCode] = useState(false)
+
+  // Pre-built templates — merchant clicks one to load it into the editor.
+  // Three flavours covering the most common merchant strategies.
+  const POLICY_TEMPLATES = [
+    {
+      id: 'conservative',
+      name: 'Conservatrice',
+      tag: 'Marge protégée',
+      description: 'Pas de remise sur petits paniers, modeste sur gros paniers, généreuse seulement pour les VIP.',
+      maxPct: 10,
+      code: `def decide_discount(cart, customer, policy_caps):
+    cart_value = float(cart.get('total_value', 0))
+    clv = float(customer.get('clv', 0))
+    orders = int(customer.get('orders_count', 0))
+    if cart_value < 50:
+        return {'discount_pct': 0, 'reason': 'panier_trop_petit'}
+    if clv >= 500:
+        return {'discount_pct': 10, 'reason': 'client_vip'}
+    if orders >= 2:
+        return {'discount_pct': 5, 'reason': 'client_fidele'}
+    return {'discount_pct': 0, 'reason': 'pas_de_remise_par_defaut'}
+`,
+    },
+    {
+      id: 'balanced',
+      name: 'Équilibrée',
+      tag: 'Recommandée',
+      description: 'Pas de remise sur tout 1ère commande petit panier, 5/10/15% selon profil et taille du panier.',
+      maxPct: 15,
+      code: `def decide_discount(cart, customer, policy_caps):
+    cart_value = float(cart.get('total_value', 0))
+    clv = float(customer.get('clv', 0))
+    orders = int(customer.get('orders_count', 0))
+    if orders == 0 and cart_value < 50:
+        return {'discount_pct': 0, 'reason': 'premiere_commande_petit_panier'}
+    if clv >= 500 and cart_value >= 100:
+        return {'discount_pct': 15, 'reason': 'vip_gros_panier'}
+    if orders >= 1 and cart_value >= 80:
+        return {'discount_pct': 10, 'reason': 'client_fidele_panier_80'}
+    return {'discount_pct': 5, 'reason': 'remise_standard'}
+`,
+    },
+    {
+      id: 'aggressive',
+      name: 'Agressive',
+      tag: 'Croissance / acquisition',
+      description: 'Remise systématique pour convertir les paniers abandonnés, plus forte pour les VIP.',
+      maxPct: 20,
+      code: `def decide_discount(cart, customer, policy_caps):
+    cart_value = float(cart.get('total_value', 0))
+    clv = float(customer.get('clv', 0))
+    if clv >= 500 and cart_value >= 100:
+        return {'discount_pct': 20, 'reason': 'vip_gros_panier'}
+    if cart_value >= 100:
+        return {'discount_pct': 15, 'reason': 'gros_panier'}
+    if cart_value >= 50:
+        return {'discount_pct': 10, 'reason': 'panier_moyen'}
+    return {'discount_pct': 5, 'reason': 'remise_minimale'}
+`,
+    },
+  ]
+
+  // Pre-set scenarios so the merchant doesn't need to know what to type.
+  const POLICY_SCENARIOS = [
+    {
+      id: 'new_visitor',
+      name: 'Nouveau visiteur',
+      description: '1ère visite, panier 35€, aucune commande passée',
+      cart: 35, clv: 0, orders: 0,
+    },
+    {
+      id: 'returning',
+      name: 'Client qui revient',
+      description: '1 commande passée (89€ moyen), panier actuel 89€',
+      cart: 89, clv: 89, orders: 1,
+    },
+    {
+      id: 'loyal',
+      name: 'Client fidèle',
+      description: '4 commandes passées, dépensé 320€ au total, panier 110€',
+      cart: 110, clv: 320, orders: 4,
+    },
+    {
+      id: 'vip',
+      name: 'Client VIP',
+      description: '12 commandes, dépensé 850€ au total, gros panier 180€',
+      cart: 180, clv: 850, orders: 12,
+    },
+  ]
+  const [policyScenarioId, setPolicyScenarioId] = useState('returning')
+
+  function loadTemplate(t) {
+    setPolicyCode(t.code)
+    setPolicyMaxPct(t.maxPct)
+    setPolicyDirty(true)
+  }
+
+  function applyScenario(s) {
+    setPolicyScenarioId(s.id)
+    setPolicyMockCart(s.cart)
+    setPolicyMockClv(s.clv)
+    setPolicyMockOrders(s.orders)
+  }
 
   // Hydrate the editor from settings the first time settings load
   React.useEffect(() => {
@@ -749,8 +853,9 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
           </AnimatePresence>
         </div>
 
-        {/* ═══════ DISCOUNT POLICY SANDBOX (#6) ═══════ */}
+        {/* ═══════ DISCOUNT POLICY (#6) — redesigned for plain-language ═══════ */}
         <div className="mt-3 bg-white rounded-2xl border border-[#E5E2D7] p-5">
+          {/* Header + master toggle */}
           <div className="flex items-start justify-between gap-3 mb-4">
             <div className="flex items-start gap-3 min-w-0">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-cta/10 text-cta flex-shrink-0">
@@ -759,14 +864,17 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-[14px] font-semibold text-[#1a1a1a]">
-                    Politique de remise (sandbox auditable)
+                    Règles de remise automatiques
                   </h3>
                   {settings?.discount_policy_enabled && (
-                    <span className="text-[10px] font-bold text-cta uppercase tracking-wider">Active</span>
+                    <span className="text-[10px] font-bold text-cta uppercase tracking-wider">Activées</span>
                   )}
                 </div>
                 <p className="text-[12px] text-[#71717a] leading-relaxed mt-1">
-                  Écris une fonction Python <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[11px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque évaluation. Chaque run est tracé dans <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[11px]">agent_action_logs</code>. Le wrapper applique <em>après</em> ta fonction le plafond <em>max_pct</em> — une policy boguée ne peut pas exploser ta marge.
+                  Quand l'agent doit proposer une remise (relance panier abandonné, geste commercial dans le chat, demande de réduction), ces règles décident automatiquement le pourcentage. Tu peux choisir un modèle ci-dessous ou personnaliser.
+                </p>
+                <p className="text-[11px] text-[#9ca3af] mt-1">
+                  <strong className="text-[#71717a]">Garantie marge :</strong> aucune remise ne peut dépasser le plafond ({policyMaxPct}%) — même si la règle se trompe.
                 </p>
               </div>
             </div>
@@ -775,7 +883,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
               onClick={toggleDiscountPolicy}
               role="switch"
               aria-checked={Boolean(settings?.discount_policy_enabled)}
-              aria-label={`${settings?.discount_policy_enabled ? 'Désactiver' : 'Activer'} la politique`}
+              aria-label={`${settings?.discount_policy_enabled ? 'Désactiver' : 'Activer'} les règles`}
               className={`relative w-[42px] h-[22px] rounded-full transition-colors flex-shrink-0 ${
                 settings?.discount_policy_enabled
                   ? 'bg-cta shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]'
@@ -790,83 +898,77 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
             </button>
           </div>
 
-          {/* Code editor */}
-          <div className="mb-4">
-            <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
-              Code de la policy
-            </label>
-            <textarea
-              value={policyCode}
-              onChange={(e) => { setPolicyCode(e.target.value); setPolicyDirty(true) }}
-              spellCheck={false}
-              rows={14}
-              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E5E2D7] bg-[#fafaf7] p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
-            />
-            {policyDirty && (
-              <div className="mt-1 text-[11px] text-amber-700">
-                Tu as des modifications non sauvegardées — utilise « Tester & sauvegarder ».
+          {/* Templates — clic pour charger une stratégie pré-faite */}
+          <div className="mb-5">
+            <p className="text-[11px] font-bold text-[#9ca3af] uppercase tracking-wider mb-2">
+              1. Choisis une stratégie
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {POLICY_TEMPLATES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => loadTemplate(t)}
+                  className="text-left p-3 rounded-xl border border-[#E5E2D7] bg-[#fafaf7] hover:border-cta/40 hover:bg-cta/5 transition"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[13px] font-bold text-[#1a1a1a]">{t.name}</span>
+                    <span className="text-[10px] text-cta font-semibold">{t.tag}</span>
+                  </div>
+                  <p className="text-[11px] text-[#71717a] leading-snug">{t.description}</p>
+                  <p className="text-[10px] text-[#9ca3af] mt-1">Plafond : {t.maxPct}%</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Plafond global — un seul input, lisible */}
+          <div className="mb-5 p-3 rounded-xl bg-[#fafaf7] border border-[#E5E2D7]">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="min-w-0">
+                <p className="text-[12px] font-semibold text-[#1a1a1a]">Plafond max de remise</p>
+                <p className="text-[11px] text-[#71717a]">Aucune remise ne pourra dépasser ce pourcentage, quoi qu'il arrive.</p>
               </div>
-            )}
-          </div>
-
-          {/* Mock inputs */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <div>
-              <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
-                Plafond (%)
-              </label>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                step="0.5"
-                value={policyMaxPct}
-                onChange={(e) => setPolicyMaxPct(e.target.value)}
-                className="w-full text-[13px] rounded-xl border border-[#E5E2D7] bg-white px-3 py-2 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30"
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
-                Panier (€)
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={policyMockCart}
-                onChange={(e) => setPolicyMockCart(e.target.value)}
-                className="w-full text-[13px] rounded-xl border border-[#E5E2D7] bg-white px-3 py-2 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30"
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
-                CLV client (€)
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={policyMockClv}
-                onChange={(e) => setPolicyMockClv(e.target.value)}
-                className="w-full text-[13px] rounded-xl border border-[#E5E2D7] bg-white px-3 py-2 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30"
-              />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider mb-1">
-                Commandes
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={policyMockOrders}
-                onChange={(e) => setPolicyMockOrders(e.target.value)}
-                className="w-full text-[13px] rounded-xl border border-[#E5E2D7] bg-white px-3 py-2 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30"
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value={policyMaxPct}
+                  onChange={(e) => { setPolicyMaxPct(e.target.value); setPolicyDirty(true) }}
+                  className="w-20 text-[13px] rounded-lg border border-[#E5E2D7] bg-white px-3 py-1.5 text-[#1a1a1a] text-right focus:outline-none focus:ring-2 focus:ring-cta/30"
+                />
+                <span className="text-[13px] text-[#71717a]">%</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Scenarios — boutons cliquables avec descriptions claires */}
+          <div className="mb-4">
+            <p className="text-[11px] font-bold text-[#9ca3af] uppercase tracking-wider mb-2">
+              2. Simule un client pour voir la décision
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+              {POLICY_SCENARIOS.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => applyScenario(s)}
+                  className={`text-left p-2 rounded-lg border transition ${
+                    policyScenarioId === s.id
+                      ? 'border-cta/40 bg-cta/5'
+                      : 'border-[#E5E2D7] bg-white hover:border-cta/30'
+                  }`}
+                >
+                  <p className="text-[12px] font-semibold text-[#1a1a1a]">{s.name}</p>
+                  <p className="text-[10px] text-[#71717a] leading-snug">{s.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap mb-2">
             <button
               type="button"
               onClick={() => runDiscountTest({ persist: false })}
@@ -874,9 +976,9 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
               className="inline-flex items-center gap-2 rounded-xl bg-white border border-[#E5E2D7] px-4 py-2 text-[13px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50"
             >
               {policyTestState === 'running' ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Exécution…</>
+                <><Loader2 className="w-4 h-4 animate-spin" /> Test en cours…</>
               ) : (
-                <><FlaskConical className="w-4 h-4" /> Tester</>
+                <><FlaskConical className="w-4 h-4" /> Tester ce scénario</>
               )}
             </button>
             <button
@@ -885,11 +987,11 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
               disabled={policyTestState === 'running' || !clientId}
               className="inline-flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#0a4a29] disabled:opacity-50"
             >
-              <CheckCircle2 className="w-4 h-4" /> Tester &amp; sauvegarder
+              <CheckCircle2 className="w-4 h-4" /> Sauvegarder ces règles
             </button>
             {settings?.discount_policy_updated_at && (
               <span className="text-[11px] text-[#9ca3af] ml-auto">
-                Sauvegardée {new Date(settings.discount_policy_updated_at).toLocaleString('fr-FR', {
+                Dernière sauvegarde {new Date(settings.discount_policy_updated_at).toLocaleString('fr-FR', {
                   day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
                 })}
               </span>
@@ -900,47 +1002,78 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
             {policyTestState === 'success' && policyTestResult && (
               <motion.div
                 initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="mt-4 p-4 rounded-xl bg-cta/5 border border-cta/20"
+                className="mt-3 p-4 rounded-xl bg-cta/5 border border-cta/20"
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle2 className="w-4 h-4 text-cta" />
-                  <span className="text-[13px] font-semibold text-[#1a1a1a]">
-                    Décision : {policyTestResult.decision?.discount_pct ?? 0}%
-                  </span>
-                  <span className="text-[11px] text-[#71717a]">
-                    · {policyTestResult.decision?.reason || '—'}
-                  </span>
-                  <span className="text-[11px] text-[#9ca3af] ml-auto">
-                    {policyTestResult.duration_ms} ms · sandbox {(policyTestResult.sandbox_id || '—').slice(0, 12)}…
+                <div className="flex items-center gap-2 mb-1">
+                  <CheckCircle2 className="w-4 h-4 text-cta flex-shrink-0" />
+                  <span className="text-[14px] font-bold text-[#1a1a1a]">
+                    L'agent proposera <span className="text-cta">{policyTestResult.decision?.discount_pct ?? 0}% de remise</span>
                   </span>
                 </div>
-                {policyTestResult.decision?.capped_at != null && policyTestResult.decision.discount_pct === policyTestResult.decision.capped_at && (
-                  <div className="text-[11px] text-amber-700 mt-1">
-                    ⚠️ Décision plafonnée par max_pct = {policyTestResult.decision.capped_at}%
-                  </div>
+                <p className="text-[12px] text-[#71717a] leading-relaxed pl-6">
+                  Pour ce scénario (panier {policyMockCart}€, CLV {policyMockClv}€, {policyMockOrders} commande{policyMockOrders > 1 ? 's' : ''}), la règle <span className="font-mono text-[#1a1a1a]">{policyTestResult.decision?.reason || '—'}</span> s'applique.
+                </p>
+                {policyTestResult.decision?.capped_at != null && policyTestResult.decision.discount_pct === policyTestResult.decision.capped_at && policyTestResult.decision.discount_pct > 0 && (
+                  <p className="text-[11px] text-amber-700 pl-6 mt-1">
+                    ⚠️ Plafond {policyTestResult.decision.capped_at}% atteint — la règle voulait peut-être plus mais on protège ta marge.
+                  </p>
                 )}
+                <p className="text-[10px] text-[#9ca3af] pl-6 mt-2">
+                  Décision calculée en {policyTestResult.duration_ms} ms · trace dans agent_action_logs · sandbox {(policyTestResult.sandbox_id || '—').slice(0, 12)}
+                </p>
               </motion.div>
             )}
             {policyTestState === 'error' && policyTestResult && (
               <motion.div
                 initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="mt-4 p-4 rounded-xl bg-red-50/60 border border-red-100"
+                className="mt-3 p-4 rounded-xl bg-red-50/60 border border-red-100"
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <AlertCircle className="w-4 h-4 text-red-600" />
-                  <span className="text-[13px] font-semibold text-red-800">Échec de la policy</span>
+                  <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                  <span className="text-[13px] font-semibold text-red-800">La règle a échoué</span>
                 </div>
-                <div className="text-[12px] text-red-700 leading-relaxed font-mono whitespace-pre-wrap">
+                <div className="text-[12px] text-red-700 leading-relaxed pl-6">
                   {policyTestResult.decision?.detail || policyTestResult.error || 'Erreur inconnue.'}
                 </div>
                 {policyTestResult.decision?.trace && (
-                  <div className="text-[11px] text-red-600/80 mt-2 font-mono whitespace-pre-wrap">
+                  <div className="text-[11px] text-red-600/80 mt-2 pl-6 font-mono whitespace-pre-wrap">
                     {policyTestResult.decision.trace.join('\n')}
                   </div>
                 )}
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Mode avancé — éditeur Python pliable */}
+          <div className="mt-5 pt-4 border-t border-[#f3f3ed]">
+            <button
+              type="button"
+              onClick={() => setPolicyShowCode((v) => !v)}
+              className="flex items-center gap-2 text-[12px] font-semibold text-[#71717a] hover:text-[#1a1a1a]"
+            >
+              <ChevronRight className={`w-3.5 h-3.5 transition-transform ${policyShowCode ? 'rotate-90' : ''}`} />
+              Mode avancé — édition du code Python (CTO / dev)
+            </button>
+            {policyShowCode && (
+              <div className="mt-3">
+                <p className="text-[11px] text-[#71717a] mb-2">
+                  La règle est une fonction <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[10px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque appel. Tu peux y mettre n'importe quelle logique conditionnelle Python. Le plafond ci-dessus s'applique <em>après</em> ton retour, donc une coquille ne peut jamais dépasser ta marge.
+                </p>
+                <textarea
+                  value={policyCode}
+                  onChange={(e) => { setPolicyCode(e.target.value); setPolicyDirty(true) }}
+                  spellCheck={false}
+                  rows={14}
+                  className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E5E2D7] bg-[#fafaf7] p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
+                />
+                {policyDirty && (
+                  <div className="mt-1 text-[11px] text-amber-700">
+                    Modifications non sauvegardées — clique sur « Sauvegarder ces règles » plus haut.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>
