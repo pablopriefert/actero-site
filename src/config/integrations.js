@@ -179,6 +179,18 @@ export const INTEGRATIONS = {
       popular: true,
     },
     {
+      id: 'linear',
+      name: 'Linear',
+      description: 'Pousse automatiquement les escalades critiques en issues Linear pour le suivi produit',
+      icon: 'https://cdn.simpleicons.org/linear/5E6AD2',
+      authType: 'oauth',
+      oauthUrl: (params) => `/api/integrations/oauth/linear/install?token=${encodeURIComponent(params.token)}`,
+      category: 'general',
+      docsUrl: 'https://developers.linear.app/docs',
+      color: '#5E6AD2',
+      popular: true,
+    },
+    {
       id: 'resend',
       name: 'Resend',
       description: 'Envoi d\'emails transactionnels — notifications, relances, escalades',

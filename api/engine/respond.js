@@ -6,6 +6,7 @@
  */
 import { getConnector } from './lib/connector-registry.js'
 import { sendViaSlack } from './connectors/slack.js'
+import { pushEscalationToLinear } from '../lib/linear.js'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const RESEND_FROM = process.env.RESEND_FROM_EMAIL || 'support@actero.fr'
@@ -145,10 +146,49 @@ async function handleEscalation(supabase, {
   escalationReason, detectedIntent, sentimentScore,
   source, config, processingTimeMs,
 }) {
-  // 1. Create escalation ticket
+  // 1. Create escalation ticket — capture id so we can attach the Linear
+  // issue identifier to the same row for the dashboard linkback.
+  let escalationRowId = null
   try {
-    await supabase.from('escalation_tickets').insert({ client_id: clientId, status: 'pending' })
+    const { data: row } = await supabase
+      .from('escalation_tickets')
+      .insert({
+        client_id: clientId,
+        conversation_id: conversationId || null,
+        status: 'pending',
+        customer_email: customerEmail || null,
+        customer_name: customerName || null,
+        message_preview: subject?.slice(0, 280) || null,
+      })
+      .select('id')
+      .single()
+    escalationRowId = row?.id || null
   } catch {} // Non-critical
+
+  // 1b. Linear auto-issue — fail-safe (never blocks email/Slack alerts)
+  try {
+    const linearResult = await pushEscalationToLinear(supabase, {
+      clientId,
+      sentimentScore,
+      customerEmail,
+      customerName,
+      subject,
+      escalationReason,
+      detectedIntent,
+    })
+    if (linearResult?.id && escalationRowId) {
+      await supabase
+        .from('escalation_tickets')
+        .update({
+          linear_issue_id: linearResult.id,
+          linear_issue_url: linearResult.url,
+          linear_issue_identifier: linearResult.identifier,
+        })
+        .eq('id', escalationRowId)
+    }
+  } catch (err) {
+    console.error('[engine/respond] Linear push error:', err.message)
+  }
 
   // 2. Send escalation alert email to client
   const { data: notifPrefs } = await supabase

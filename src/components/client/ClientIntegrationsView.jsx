@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plug, X, Loader2, CheckCircle, AlertCircle, ExternalLink,
-  RefreshCw, Trash2, Star, Search, Mail
+  RefreshCw, Trash2, Star, Search, Mail, GitBranch
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
@@ -363,6 +363,140 @@ const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight 
     </motion.div>
   </div>
 );
+
+/**
+ * Linear auto-issue config — toggle + sentiment threshold + team display.
+ * Only renders when the merchant has connected Linear; otherwise the
+ * connection card in the integrations grid is the entry point.
+ */
+const LinearAutoIssuePanel = ({ clientId }) => {
+  const queryClient = useQueryClient()
+  const { success: toastSuccess, error: toastError } = useToast()
+  const [busy, setBusy] = useState(false)
+
+  const { data } = useQuery({
+    queryKey: ['linear-auto-issue', clientId],
+    queryFn: async () => {
+      if (!clientId) return null
+      const [integration, settings] = await Promise.all([
+        supabase
+          .from('client_integrations')
+          .select('id, status')
+          .eq('client_id', clientId)
+          .eq('provider', 'linear')
+          .maybeSingle(),
+        supabase
+          .from('client_settings')
+          .select('linear_auto_issue_enabled, linear_team_name, linear_sentiment_threshold')
+          .eq('client_id', clientId)
+          .maybeSingle(),
+      ])
+      return {
+        connected: integration.data?.status === 'active',
+        enabled: settings.data?.linear_auto_issue_enabled === true,
+        teamName: settings.data?.linear_team_name || null,
+        threshold: settings.data?.linear_sentiment_threshold ?? -0.5,
+      }
+    },
+    enabled: !!clientId,
+  })
+
+  if (!data?.connected) return null
+
+  const toggleEnabled = async () => {
+    if (busy) return
+    setBusy(true)
+    const next = !data.enabled
+    queryClient.setQueryData(['linear-auto-issue', clientId], (prev) => ({ ...(prev || {}), enabled: next }))
+    const { error } = await supabase
+      .from('client_settings')
+      .upsert({ client_id: clientId, linear_auto_issue_enabled: next }, { onConflict: 'client_id' })
+    if (error) {
+      queryClient.setQueryData(['linear-auto-issue', clientId], (prev) => ({ ...(prev || {}), enabled: !next }))
+      toastError('Impossible de mettre à jour le réglage')
+    } else {
+      toastSuccess(next ? 'Auto-issue Linear activé' : 'Auto-issue Linear désactivé')
+      queryClient.invalidateQueries({ queryKey: ['linear-auto-issue', clientId] })
+    }
+    setBusy(false)
+  }
+
+  const updateThreshold = async (raw) => {
+    if (busy) return
+    const value = Math.max(-1, Math.min(0, parseFloat(raw)))
+    if (Number.isNaN(value)) return
+    setBusy(true)
+    queryClient.setQueryData(['linear-auto-issue', clientId], (prev) => ({ ...(prev || {}), threshold: value }))
+    const { error } = await supabase
+      .from('client_settings')
+      .upsert({ client_id: clientId, linear_sentiment_threshold: value }, { onConflict: 'client_id' })
+    if (error) toastError('Impossible de sauvegarder le seuil')
+    else queryClient.invalidateQueries({ queryKey: ['linear-auto-issue', clientId] })
+    setBusy(false)
+  }
+
+  return (
+    <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <GitBranch className="w-4 h-4 text-[#5E6AD2]" />
+            <h3 className="text-[14px] font-bold text-[#1a1a1a]">Linear — Auto-issue sur escalade</h3>
+            {data.enabled && (
+              <span className="text-[10px] font-bold text-[#5E6AD2] uppercase tracking-wider">Actif</span>
+            )}
+          </div>
+          <p className="text-[12px] text-[#71717a] max-w-xl">
+            Quand un ticket est escaladé avec un sentiment ≤ seuil, Actero crée automatiquement une issue Linear dans ton équipe pour suivi produit.
+          </p>
+          <p className="text-[11px] text-[#9ca3af] mt-1">
+            Équipe cible : <span className="font-semibold text-[#1a1a1a]">{data.teamName || 'à choisir'}</span>
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={toggleEnabled}
+          disabled={busy}
+          aria-pressed={data.enabled === true}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 ${
+            data.enabled ? 'bg-[#5E6AD2]' : 'bg-gray-300'
+          }`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+              data.enabled ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
+      </div>
+      {data.enabled && (
+        <div className="mt-4 pt-4 border-t border-[#f3f3ed]">
+          <label htmlFor="linear-threshold" className="text-[11px] font-bold text-[#9ca3af] uppercase tracking-wider">
+            Seuil de sentiment ({data.threshold.toFixed(2)})
+          </label>
+          <div className="flex items-center gap-3 mt-2">
+            <span className="text-[11px] text-[#9ca3af]">−1 (très négatif)</span>
+            <input
+              id="linear-threshold"
+              type="range"
+              min="-1"
+              max="0"
+              step="0.05"
+              value={data.threshold}
+              onChange={(e) => updateThreshold(e.target.value)}
+              disabled={busy}
+              className="flex-1 accent-[#5E6AD2]"
+            />
+            <span className="text-[11px] text-[#9ca3af]">0 (neutre)</span>
+          </div>
+          <p className="text-[11px] text-[#71717a] mt-1">
+            Seuls les tickets avec sentiment ≤ {data.threshold.toFixed(2)} déclenchent une issue. Recommandé : −0.5.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
   const queryClient = useQueryClient();
@@ -932,6 +1066,9 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
           </motion.div>
         </div>
       )}
+
+      {/* Linear auto-issue config — appears once Linear is connected */}
+      <LinearAutoIssuePanel clientId={clientId} />
 
       {/* SMTP Config Modal */}
       {smtpProvider && (
