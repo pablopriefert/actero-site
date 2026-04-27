@@ -24,6 +24,12 @@ function handler(req, res) {
     code_challenge_methods_supported: ['S256', 'plain'],
     token_endpoint_auth_methods_supported: ['none'],
     scopes_supported: ['actero'],
+    // RFC 9207 — we add `iss` to every authorization redirect, advertise it
+    // here so strict clients (Claude, ChatGPT) know they can trust the flow.
+    // Without this declaration, some clients refuse to even attempt the
+    // token exchange and surface a generic "Authorization failed" with no
+    // detail — exactly the symptom the merchant has been hitting.
+    authorization_response_iss_parameter_supported: true,
   })
 }
 

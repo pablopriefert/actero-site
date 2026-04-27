@@ -100,7 +100,12 @@ async function handler(req, res) {
 
   // GET — show login form
   if (req.method === 'GET') {
-    const { redirect_uri, state, code_challenge, code_challenge_method, client_id, error } = req.query
+    const { redirect_uri, state, code_challenge, code_challenge_method, client_id, error, scope, resource } = req.query
+    console.log('[mcp/authorize] GET params:', JSON.stringify({
+      redirect_uri, state: state?.slice(0, 8) + '...', code_challenge: code_challenge?.slice(0, 8) + '...',
+      code_challenge_method, client_id: client_id?.slice(0, 12) + '...', scope, resource,
+      all_keys: Object.keys(req.query),
+    }))
     res.setHeader('Content-Type', 'text/html')
     return res.status(200).send(renderPage({ redirect_uri, state, code_challenge, code_challenge_method, client_id, error }))
   }
@@ -177,8 +182,15 @@ async function handler(req, res) {
       const url = new URL(redirect_uri)
       url.searchParams.set('code', code)
       if (state) url.searchParams.set('state', state)
+      // RFC 9207 (OAuth 2.0 Authorization Server Issuer Identification) —
+      // strict OAuth clients refuse to exchange a code if the redirect
+      // doesn't include `iss` matching the AS metadata's `issuer`. This
+      // is the most common reason a working server gets a generic
+      // "Authorization failed" from Claude/ChatGPT. Adding it.
+      const issuer = process.env.PUBLIC_API_URL || 'https://actero.fr'
+      url.searchParams.set('iss', issuer)
       const redirectUrl = url.toString()
-      console.log('[mcp/authorize] 302 redirect to:', redirectUrl.slice(0, 100))
+      console.log('[mcp/authorize] 302 redirect to:', redirectUrl.slice(0, 200))
       res.setHeader('Location', redirectUrl)
       return res.status(302).end()
     }

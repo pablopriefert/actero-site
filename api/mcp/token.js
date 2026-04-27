@@ -48,7 +48,24 @@ async function handler(req, res) {
   const code_verifier = params.code_verifier
   const refresh_token = params.refresh_token
 
-  console.log('[mcp/token] Request:', { grant_type, code: code?.slice(0, 8) + '...', has_verifier: !!code_verifier, has_refresh: !!refresh_token })
+  // Verbose log — capture every field Claude sends so we can debug why it
+  // rejects our token response client-side. Strip secrets from the log.
+  console.log('[mcp/token] FULL request:', JSON.stringify({
+    grant_type,
+    code: code?.slice(0, 8) + '...',
+    has_verifier: !!code_verifier,
+    has_refresh: !!refresh_token,
+    client_id: params.client_id,
+    redirect_uri: params.redirect_uri,
+    scope: params.scope,
+    resource: params.resource,
+    audience: params.audience,
+    all_keys: Object.keys(params),
+    user_agent: req.headers['user-agent'],
+    origin: req.headers.origin,
+    referer: req.headers.referer,
+    content_type: req.headers['content-type'],
+  }, null, 2))
 
   // Handle refresh_token grant — return the same token (our API keys don't expire)
   if (grant_type === 'refresh_token') {
