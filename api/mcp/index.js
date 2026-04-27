@@ -1,115 +1,60 @@
 /**
- * Actero MCP Server — Main endpoint
+ * Actero MCP Server — rebuilt on the official @modelcontextprotocol/sdk.
  *
- * URL: /api/mcp
- * Transport: Streamable HTTP (MCP 2025-03-26)
- * Auth: Bearer token in Authorization header (obtained via OAuth flow)
+ * Why a rebuild: the previous implementation hand-rolled the JSON-RPC layer
+ * (custom protocolVersion negotiation, hand-set Mcp-Session-Id, etc.) and
+ * Claude.ai's hosted Connector kept rejecting it for subtle spec mismatches
+ * with no surfaced reason. The SDK ships a Streamable HTTP transport that's
+ * tested against every Claude/ChatGPT MCP client out there — using it
+ * eliminates the entire surface where we kept bumping into spec drift.
  *
- * OAuth flow:
- * 1. Claude Desktop opens /api/mcp/authorize in the browser
- * 2. User logs in and clicks "Authorize"
- * 3. Actero redirects back with a code
- * 4. Claude exchanges the code for a token via /api/mcp/token
- * 5. Claude uses the token in Authorization header for all MCP requests
+ * Transport: Streamable HTTP, stateless (sessionIdGenerator: undefined).
+ * One McpServer instance is created per HTTP request — Vercel functions
+ * are short-lived anyway, no point holding state.
+ *
+ * Auth: Bearer token resolved against three stores in order — API keys,
+ * widget keys, and Supabase JWT. Same logic as the previous handler so the
+ * OAuth flow already issuing tokens (api/mcp/authorize + token) keeps
+ * working unchanged.
  */
-import { withSentry } from '../lib/sentry.js'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { createClient } from '@supabase/supabase-js'
-import crypto from 'crypto'
+import { z } from 'zod'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
 
-// Versions we know how to speak. We echo back the client's preferred
-// version if it matches one of these; otherwise we fall back to our
-// newest. We deliberately do NOT 400 on unknown versions in the HTTP
-// header check — different Claude builds send different draft versions,
-// and rejecting them up front blocks the entire OAuth handshake on a
-// negotiation mismatch the spec actually wants us to handle at the
-// initialize call instead.
-const SUPPORTED_PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05']
-const PREFERRED_PROTOCOL_VERSION = '2025-06-18'
-
-const SERVER_CAPABILITIES = { tools: {} }
-const SERVER_METADATA = { name: 'actero-mcp', version: '1.0.0' }
-
-const TOOLS = [
-  {
-    name: 'actero_send_message',
-    description: 'Envoie un message au support IA Actero et retourne la reponse de l\'agent',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', description: 'Le message du client' },
-        session_id: { type: 'string', description: 'Identifiant de session (optionnel)' },
-      },
-      required: ['message'],
-    },
-  },
-  {
-    name: 'actero_get_usage',
-    description: 'Retourne les statistiques de consommation du mois (tickets, plan, limites)',
-    inputSchema: { type: 'object', properties: {} },
-  },
-  {
-    name: 'actero_list_escalations',
-    description: 'Liste les escalades en attente de traitement humain',
-    inputSchema: {
-      type: 'object',
-      properties: { limit: { type: 'number', description: 'Nombre max (defaut 10)' } },
-    },
-  },
-  {
-    name: 'actero_get_conversations',
-    description: 'Retourne les dernieres conversations traitees par l\'agent IA',
-    inputSchema: {
-      type: 'object',
-      properties: { limit: { type: 'number', description: 'Nombre max (defaut 10)' } },
-    },
-  },
-]
-
-// Resolve client from bearer token (API key or Supabase JWT)
+// ───── Auth: bearer → clientId ─────
 async function resolveClientFromToken(authHeader) {
   if (!authHeader) return null
-  const token = authHeader.replace(/^Bearer\s+/i, '')
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim()
   if (!token) return null
-  // Don't log token prefixes — that hands an attacker free reconnaissance via
-  // Vercel logs.
 
-  // Try as API key FIRST (faster, no auth call needed)
+  // 1. API key
   try {
-    const { data: keyRow } = await supabase
+    const { data } = await supabase
       .from('client_api_keys')
       .select('client_id')
       .eq('key_value', token)
       .eq('is_active', true)
       .maybeSingle()
-    if (keyRow) {
-      console.log('[mcp] Resolved via client_api_keys:', keyRow.client_id)
-      return keyRow.client_id
-    }
-  } catch (e) {
-    console.error('[mcp] client_api_keys lookup error:', e.message)
-  }
+    if (data) return data.client_id
+  } catch { /* fall through */ }
 
-  // Try as widget_api_key
+  // 2. Widget key
   try {
-    const { data: settings } = await supabase
+    const { data } = await supabase
       .from('client_settings')
       .select('client_id')
       .eq('widget_api_key', token)
       .maybeSingle()
-    if (settings) {
-      console.log('[mcp] Resolved via widget_api_key:', settings.client_id)
-      return settings.client_id
-    }
-  } catch (e) {
-    console.error('[mcp] widget_api_key lookup error:', e.message)
-  }
+    if (data) return data.client_id
+  } catch { /* fall through */ }
 
-  // Try as Supabase JWT last (most expensive call)
+  // 3. Supabase JWT
   try {
     const { data: { user }, error } = await supabase.auth.getUser(token)
     if (!error && user) {
@@ -119,162 +64,149 @@ async function resolveClientFromToken(authHeader) {
         .eq('user_id', user.id)
         .limit(1)
         .maybeSingle()
-      if (link) {
-        console.log('[mcp] Resolved via JWT:', link.client_id)
-        return link.client_id
-      }
+      if (link) return link.client_id
     }
-  } catch (e) {
-    console.error('[mcp] JWT getUser error:', e.message)
-  }
+  } catch { /* fall through */ }
 
-  console.error('[mcp] Could not resolve client for token:', token.slice(0, 8))
   return null
 }
 
-async function executeTool(toolName, args, clientId) {
-  switch (toolName) {
-    case 'actero_send_message': {
-      const sessionId = args.session_id || `mcp-${Date.now()}`
-      try {
-        const res = await fetch(`${process.env.PUBLIC_API_URL || 'https://actero.fr'}/api/engine/webhooks/widget?api_key=${clientId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: args.message, session_id: sessionId }),
-        })
-        const data = await res.json()
-        return JSON.stringify({ response: data.response || 'Pas de reponse', session_id: sessionId })
-      } catch (err) {
-        return JSON.stringify({ error: err.message })
-      }
-    }
-    case 'actero_get_usage': {
-      const period = new Date().toISOString().slice(0, 7)
-      const [{ data: usage }, { data: client }] = await Promise.all([
-        supabase.from('usage_counters').select('*').eq('client_id', clientId).eq('period', period).maybeSingle(),
-        supabase.from('clients').select('plan, brand_name').eq('id', clientId).maybeSingle(),
-      ])
-      return JSON.stringify({ brand: client?.brand_name, plan: client?.plan || 'free', period, tickets_used: usage?.tickets_used || 0, voice_minutes_used: usage?.voice_minutes_used || 0 })
-    }
-    case 'actero_list_escalations': {
-      const { data } = await supabase.from('escalation_tickets').select('id, customer_email, subject, status, created_at').eq('client_id', clientId).order('created_at', { ascending: false }).limit(args.limit || 10)
-      return JSON.stringify({ escalations: data || [], count: data?.length || 0 })
-    }
-    case 'actero_get_conversations': {
-      const { data } = await supabase.from('ai_conversations').select('id, customer_email, customer_message, ai_response, status, created_at').eq('client_id', clientId).order('created_at', { ascending: false }).limit(args.limit || 10)
-      return JSON.stringify({ conversations: data || [], count: data?.length || 0 })
-    }
-    default:
-      return JSON.stringify({ error: `Unknown tool: ${toolName}` })
+// ───── Tool implementations ─────
+// Each tool returns an MCP `content` array. We use plain text JSON because
+// Claude/ChatGPT both render it predictably and merchants can debug it.
+
+async function toolSendMessage({ message, session_id }, clientId) {
+  const sessionId = session_id || `mcp-${Date.now()}`
+  const url = `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/api/engine/webhooks/widget?api_key=${clientId}`
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, session_id: sessionId }),
+  })
+  const data = await r.json().catch(() => ({}))
+  return { response: data.response || 'Pas de réponse', session_id: sessionId }
+}
+
+async function toolGetUsage(_args, clientId) {
+  const period = new Date().toISOString().slice(0, 7)
+  const [{ data: usage }, { data: client }] = await Promise.all([
+    supabase.from('usage_counters').select('*').eq('client_id', clientId).eq('period', period).maybeSingle(),
+    supabase.from('clients').select('plan, brand_name').eq('id', clientId).maybeSingle(),
+  ])
+  return {
+    brand: client?.brand_name || null,
+    plan: client?.plan || 'free',
+    period,
+    tickets_used: usage?.tickets_used || 0,
+    voice_minutes_used: usage?.voice_minutes_used || 0,
   }
 }
 
-async function handler(req, res) {
+async function toolListEscalations({ limit }, clientId) {
+  const { data } = await supabase
+    .from('escalation_tickets')
+    .select('id, customer_email, status, created_at')
+    .eq('client_id', clientId)
+    .order('created_at', { ascending: false })
+    .limit(limit || 10)
+  return { escalations: data || [], count: data?.length || 0 }
+}
+
+async function toolGetConversations({ limit }, clientId) {
+  const { data } = await supabase
+    .from('ai_conversations')
+    .select('id, customer_email, customer_message, ai_response, status, created_at')
+    .eq('client_id', clientId)
+    .order('created_at', { ascending: false })
+    .limit(limit || 10)
+  return { conversations: data || [], count: data?.length || 0 }
+}
+
+// Wrap a tool implementation to fit the SDK's expected return shape
+// ({ content: [...] }). We always return one text block with JSON so it
+// reads cleanly in any MCP client.
+function toolResponse(payload) {
+  return { content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }] }
+}
+
+function buildServer(clientId) {
+  const server = new McpServer({ name: 'actero-mcp', version: '2.0.0' })
+
+  server.registerTool('actero_send_message', {
+    description: 'Send a customer message to the Actero AI agent and return the agent\'s reply. Use this to test responses, draft replies on behalf of a shopper, or simulate a conversation.',
+    inputSchema: {
+      message: z.string().min(1).describe('The customer message text. Required.'),
+      session_id: z.string().optional().describe('Optional session id to continue an existing conversation. A new one is generated if omitted.'),
+    },
+  }, async (args) => toolResponse(await toolSendMessage(args, clientId)))
+
+  server.registerTool('actero_get_usage', {
+    description: 'Return the merchant\'s current-month usage counters: plan, tickets used, voice minutes used, brand name. Read-only.',
+    inputSchema: {},
+    annotations: { readOnlyHint: true },
+  }, async () => toolResponse(await toolGetUsage({}, clientId)))
+
+  server.registerTool('actero_list_escalations', {
+    description: 'List the merchant\'s pending escalation tickets — conversations the AI handed off to a human. Read-only.',
+    inputSchema: {
+      limit: z.number().int().min(1).max(100).optional().describe('Max number of escalations to return (default 10, max 100).'),
+    },
+    annotations: { readOnlyHint: true },
+  }, async (args) => toolResponse(await toolListEscalations(args, clientId)))
+
+  server.registerTool('actero_get_conversations', {
+    description: 'List the most recent AI conversations for the merchant — customer message, AI response, status, timestamp. Useful for audit, sampling responses, or building reports. Read-only.',
+    inputSchema: {
+      limit: z.number().int().min(1).max(100).optional().describe('Max number of conversations to return (default 10, max 100).'),
+    },
+    annotations: { readOnlyHint: true },
+  }, async (args) => toolResponse(await toolGetConversations(args, clientId)))
+
+  return server
+}
+
+// ───── Vercel handler ─────
+export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, Mcp-Session-Id, MCP-Protocol-Version')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization, Mcp-Session-Id, MCP-Protocol-Version, Last-Event-ID')
   res.setHeader('Access-Control-Expose-Headers', 'Mcp-Session-Id')
-
   res.setHeader('Cache-Control', 'no-store')
+
   if (req.method === 'OPTIONS') return res.status(200).end()
-  if (req.method === 'DELETE') return res.status(200).json({ ok: true })
 
-  // Log the protocol version the client advertises (debug-only, never reject
-  // on this header — the strict 400 check that lived here previously broke
-  // every Claude.ai connection because Claude sends draft versions we don't
-  // hardcode. Negotiation happens at initialize where it belongs.)
-  const clientProtoHeader = req.headers['mcp-protocol-version']
-  if (clientProtoHeader) console.log('[mcp] client MCP-Protocol-Version:', clientProtoHeader)
-
-  // Auth
+  // Auth — return 401 with WWW-Authenticate so the client triggers OAuth.
   const clientId = await resolveClientFromToken(req.headers.authorization)
   if (!clientId) {
     const siteUrl = process.env.PUBLIC_API_URL || 'https://actero.fr'
-    res.setHeader('WWW-Authenticate', `Bearer resource_metadata="${siteUrl}/.well-known/oauth-protected-resource"`)
-    console.log('[mcp] 401 — no client resolved')
-    return res.status(401).json({ error: 'Unauthorized. Use OAuth to connect.' })
-  }
-  console.log('[mcp] Authenticated client:', clientId)
-
-  // GET — SSE stream
-  if (req.method === 'GET') {
-    const accept = req.headers.accept || ''
-    if (!accept.includes('text/event-stream')) {
-      return res.status(405).json({ error: 'GET requires Accept: text/event-stream' })
-    }
-    res.setHeader('Content-Type', 'text/event-stream')
-    res.setHeader('Cache-Control', 'no-cache, no-transform')
-    res.setHeader('Connection', 'keep-alive')
-    res.flushHeaders?.()
-    const ping = setInterval(() => { try { res.write(': ping\n\n') } catch { clearInterval(ping) } }, 25000)
-    setTimeout(() => { clearInterval(ping); try { res.end() } catch {} }, 270000)
-    req.on('close', () => clearInterval(ping))
-    return
+    res.setHeader(
+      'WWW-Authenticate',
+      `Bearer realm="actero-mcp", resource_metadata="${siteUrl}/.well-known/oauth-protected-resource"`,
+    )
+    return res.status(401).json({ error: 'unauthorized' })
   }
 
-  // POST — JSON-RPC
-  if (req.method === 'POST') {
-    let body
-    try {
-      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
-    } catch {
-      return res.status(400).json({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } })
-    }
+  // Stateless Streamable HTTP — no sessions, one transport per request.
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
+  const server = buildServer(clientId)
 
-    const { id, method, params } = body || {}
+  res.on('close', () => { try { transport.close() } catch {} ; try { server.close() } catch {} })
 
-    // Notifications
-    if (id === undefined || id === null) return res.status(202).end()
-
-    if (method === 'initialize') {
-      // Negotiate protocol version: if the client's preferred version is
-      // one we support, echo it back; otherwise return our newest. Claude
-      // checks this echo against what it asked for and aborts on mismatch.
-      const clientPreferred = params?.protocolVersion
-      const negotiated = SUPPORTED_PROTOCOL_VERSIONS.includes(clientPreferred)
-        ? clientPreferred
-        : PREFERRED_PROTOCOL_VERSION
-
-      // Provide a session id so the client can correlate subsequent
-      // requests. Spec says this is OPTIONAL but Claude's hosted Connector
-      // expects it on initialize and routes follow-up traffic by it.
-      const sessionId = req.headers['mcp-session-id'] || crypto.randomUUID()
-      res.setHeader('Mcp-Session-Id', sessionId)
-
-      return res.status(200).json({
+  try {
+    await server.connect(transport)
+    await transport.handleRequest(req, res, req.body)
+  } catch (err) {
+    console.error('[mcp] handler error:', err?.message || err)
+    if (!res.headersSent) {
+      res.status(500).json({
         jsonrpc: '2.0',
-        id,
-        result: {
-          protocolVersion: negotiated,
-          capabilities: SERVER_CAPABILITIES,
-          serverInfo: SERVER_METADATA,
-        },
+        error: { code: -32603, message: 'Internal error' },
+        id: null,
       })
     }
-    if (method === 'ping') return res.status(200).json({ jsonrpc: '2.0', id, result: {} })
-    if (method === 'tools/list') return res.status(200).json({ jsonrpc: '2.0', id, result: { tools: TOOLS } })
-    if (method === 'resources/list') return res.status(200).json({ jsonrpc: '2.0', id, result: { resources: [] } })
-    if (method === 'prompts/list') return res.status(200).json({ jsonrpc: '2.0', id, result: { prompts: [] } })
-
-    if (method === 'tools/call') {
-      const toolName = params?.name
-      const toolArgs = params?.arguments || {}
-      if (!toolName || !TOOLS.find(t => t.name === toolName)) {
-        return res.status(200).json({ jsonrpc: '2.0', id, error: { code: -32602, message: `Unknown tool: ${toolName}` } })
-      }
-      try {
-        const resultText = await executeTool(toolName, toolArgs, clientId)
-        return res.status(200).json({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: resultText }] } })
-      } catch (err) {
-        return res.status(200).json({ jsonrpc: '2.0', id, error: { code: -32000, message: err.message } })
-      }
-    }
-
-    return res.status(200).json({ jsonrpc: '2.0', id, error: { code: -32601, message: `Method not found: ${method}` } })
   }
-
-  return res.status(405).json({ error: 'Method not allowed' })
 }
 
-export default withSentry(handler)
+// Allow up to 60s — same budget as the rest of the engine.
+export const maxDuration = 60
