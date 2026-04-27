@@ -85,13 +85,17 @@ async function handler(req, res) {
     }
 
     console.log('[mcp/token] Refresh success for client:', keyRow.client_id)
-    return res.status(200).json({
+    // Strict OAuth clients (Claude uses python-httpx/authlib-style validation)
+    // reject responses that include `scope` or `refresh_token` they didn't
+    // explicitly ask for in THIS request — treated as scope upgrade. We only
+    // include them when the client actually sent `scope` in the request.
+    const resp = {
       access_token: keyRow.key_value,
       token_type: 'Bearer',
       expires_in: 3600,
-      refresh_token: keyRow.key_value,
-      scope: 'actero',
-    })
+    }
+    if (params.scope) resp.scope = params.scope
+    return res.status(200).json(resp)
   }
 
   if (grant_type !== 'authorization_code') {
@@ -171,29 +175,31 @@ async function handler(req, res) {
   if (insertErr) {
     console.error('[mcp/token] Failed to create API key:', insertErr.message)
     // Fallback: return the Supabase JWT (short-lived but works)
-    return res.status(200).json({
+    const fallback = {
       access_token: authCode.access_token,
       token_type: 'Bearer',
       expires_in: 3600,
-      refresh_token: authCode.access_token,
-      scope: 'actero',
-    })
+    }
+    if (params.scope) fallback.scope = params.scope
+    return res.status(200).json(fallback)
   }
 
   console.log('[mcp/token] Success: API key created for client', link.client_id)
 
-  // Return the long-lived API key. We return the SAME value as
-  // `refresh_token` so Claude's refresh flow keeps working (we accept
-  // it back at the refresh_token grant above). The `scope` echo is
-  // important — Claude's audience binding compares the granted scope
-  // to what it requested and rejects mismatches.
-  return res.status(200).json({
+  // Minimum RFC 6749 §5.1 response: access_token, token_type, expires_in.
+  // We deliberately DO NOT include `refresh_token` (Claude/authlib rejects
+  // a refresh_token whose value matches access_token — flagged as a server
+  // misconfiguration) nor `scope` when the client didn't ask for it (treated
+  // as scope upgrade). Refresh works via the refresh_token grant above with
+  // the access_token value because our API keys never expire — clients that
+  // try to refresh by sending the access_token will succeed.
+  const resp = {
     access_token: apiKeyValue,
     token_type: 'Bearer',
     expires_in: 3600,
-    refresh_token: apiKeyValue,
-    scope: 'actero',
-  })
+  }
+  if (params.scope) resp.scope = params.scope
+  return res.status(200).json(resp)
 }
 
 export default withSentry(handler)
