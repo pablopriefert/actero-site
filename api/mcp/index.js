@@ -23,10 +23,12 @@ const supabase = createClient(
 
 // Versions we know how to speak. We echo back the client's preferred
 // version if it matches one of these; otherwise we fall back to our
-// newest. Claude's hosted Connector currently asks for `2025-06-18`,
-// so always returning the older `2025-03-26` (the previous behaviour
-// here) made Claude treat us as an incompatible server and abort.
-const SUPPORTED_PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26']
+// newest. We deliberately do NOT 400 on unknown versions in the HTTP
+// header check — different Claude builds send different draft versions,
+// and rejecting them up front blocks the entire OAuth handshake on a
+// negotiation mismatch the spec actually wants us to handle at the
+// initialize call instead.
+const SUPPORTED_PROTOCOL_VERSIONS = ['2025-06-18', '2025-03-26', '2024-11-05']
 const PREFERRED_PROTOCOL_VERSION = '2025-06-18'
 
 const SERVER_CAPABILITIES = { tools: {} }
@@ -178,16 +180,12 @@ async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method === 'DELETE') return res.status(200).json({ ok: true })
 
-  // Per spec: validate MCP-Protocol-Version on every request EXCEPT the
-  // very first initialize (where the client doesn't know yet what to send).
-  // If the header is present and unsupported → 400 Bad Request.
+  // Log the protocol version the client advertises (debug-only, never reject
+  // on this header — the strict 400 check that lived here previously broke
+  // every Claude.ai connection because Claude sends draft versions we don't
+  // hardcode. Negotiation happens at initialize where it belongs.)
   const clientProtoHeader = req.headers['mcp-protocol-version']
-  if (clientProtoHeader && !SUPPORTED_PROTOCOL_VERSIONS.includes(clientProtoHeader)) {
-    return res.status(400).json({
-      jsonrpc: '2.0', id: null,
-      error: { code: -32600, message: `Unsupported MCP-Protocol-Version: ${clientProtoHeader}` },
-    })
-  }
+  if (clientProtoHeader) console.log('[mcp] client MCP-Protocol-Version:', clientProtoHeader)
 
   // Auth
   const clientId = await resolveClientFromToken(req.headers.authorization)
