@@ -101,11 +101,13 @@ async function handler(req, res) {
   // GET — show login form
   if (req.method === 'GET') {
     const { redirect_uri, state, code_challenge, code_challenge_method, client_id, error, scope, resource } = req.query
-    console.log('[mcp/authorize] GET params:', JSON.stringify({
-      redirect_uri, state: state?.slice(0, 8) + '...', code_challenge: code_challenge?.slice(0, 8) + '...',
-      code_challenge_method, client_id: client_id?.slice(0, 12) + '...', scope, resource,
-      all_keys: Object.keys(req.query),
-    }))
+    console.log('[mcp/authorize-GET] redirect_uri:', redirect_uri)
+    console.log('[mcp/authorize-GET] client_id:', client_id)
+    console.log('[mcp/authorize-GET] scope:', scope)
+    console.log('[mcp/authorize-GET] resource:', resource)
+    console.log('[mcp/authorize-GET] code_challenge_method:', code_challenge_method)
+    console.log('[mcp/authorize-GET] all_keys:', Object.keys(req.query).join(','))
+    console.log('[mcp/authorize-GET] header user-agent:', req.headers['user-agent'])
     res.setHeader('Content-Type', 'text/html')
     return res.status(200).send(renderPage({ redirect_uri, state, code_challenge, code_challenge_method, client_id, error }))
   }

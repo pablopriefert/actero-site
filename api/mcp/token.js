@@ -48,24 +48,24 @@ async function handler(req, res) {
   const code_verifier = params.code_verifier
   const refresh_token = params.refresh_token
 
-  // Verbose log — capture every field Claude sends so we can debug why it
-  // rejects our token response client-side. Strip secrets from the log.
-  console.log('[mcp/token] FULL request:', JSON.stringify({
-    grant_type,
-    code: code?.slice(0, 8) + '...',
-    has_verifier: !!code_verifier,
-    has_refresh: !!refresh_token,
-    client_id: params.client_id,
-    redirect_uri: params.redirect_uri,
-    scope: params.scope,
-    resource: params.resource,
-    audience: params.audience,
-    all_keys: Object.keys(params),
-    user_agent: req.headers['user-agent'],
-    origin: req.headers.origin,
-    referer: req.headers.referer,
-    content_type: req.headers['content-type'],
-  }, null, 2))
+  // Verbose log — one console.log per field so Vercel's log table view
+  // doesn't truncate them. Strip secrets.
+  console.log('[mcp/token] field grant_type:', grant_type)
+  console.log('[mcp/token] field client_id:', params.client_id)
+  console.log('[mcp/token] field redirect_uri:', params.redirect_uri)
+  console.log('[mcp/token] field scope:', params.scope)
+  console.log('[mcp/token] field resource:', params.resource)
+  console.log('[mcp/token] field audience:', params.audience)
+  console.log('[mcp/token] field has_code:', !!code)
+  console.log('[mcp/token] field has_verifier:', !!code_verifier)
+  console.log('[mcp/token] field has_refresh:', !!refresh_token)
+  console.log('[mcp/token] field all_keys:', Object.keys(params).join(','))
+  console.log('[mcp/token] header user-agent:', req.headers['user-agent'])
+  console.log('[mcp/token] header origin:', req.headers.origin)
+  console.log('[mcp/token] header referer:', req.headers.referer)
+  console.log('[mcp/token] header content-type:', req.headers['content-type'])
+  console.log('[mcp/token] header accept:', req.headers.accept)
+  console.log('[mcp/token] header authorization:', req.headers.authorization ? 'present' : 'absent')
 
   // Handle refresh_token grant — return the same token (our API keys don't expire)
   if (grant_type === 'refresh_token') {
