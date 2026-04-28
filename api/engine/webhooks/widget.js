@@ -32,18 +32,42 @@ async function handler(req, res) {
   const apiKey = req.query?.api_key
   if (!apiKey) return res.status(401).json({ error: 'api_key required' })
 
-  // Look up client by API key (stored in clients.widget_api_key).
-  // SECURITY: previously fell back to matching `api_key` against clients.id.
-  // That meant any leaked client UUID (frequently exposed in dashboard URLs,
-  // support tickets, screenshots) granted unlimited chat-bot access. Removed.
+  // Resolve api_key → client_id. Two valid sources, same precedence as
+  // api/mcp/index.js (kept aligned to avoid drift):
+  //   1. client_api_keys.key_value (active rows) — primary, supports rotation
+  //   2. client_settings.widget_api_key — legacy single-key install
+  // SECURITY: never accept clients.id directly — leaked dashboard UUIDs
+  // would otherwise grant unlimited chat-bot access.
+  let clientId = null
+  try {
+    const { data } = await supabase
+      .from('client_api_keys')
+      .select('client_id')
+      .eq('key_value', apiKey)
+      .eq('is_active', true)
+      .maybeSingle()
+    if (data) clientId = data.client_id
+  } catch { /* fall through */ }
+
+  if (!clientId) {
+    try {
+      const { data } = await supabase
+        .from('client_settings')
+        .select('client_id')
+        .eq('widget_api_key', apiKey)
+        .maybeSingle()
+      if (data) clientId = data.client_id
+    } catch { /* fall through */ }
+  }
+
+  if (!clientId) return res.status(401).json({ error: 'Invalid API key' })
+
   const { data: client } = await supabase
     .from('clients')
     .select('id, brand_name, client_type')
-    .eq('widget_api_key', apiKey)
+    .eq('id', clientId)
     .maybeSingle()
-
-  const clientId = client?.id
-  if (!clientId) return res.status(401).json({ error: 'Invalid API key' })
+  if (!client) return res.status(401).json({ error: 'Invalid API key' })
 
   const { message, email, name, session_id, history, images: widgetImages } = req.body || {}
   if (!message) return res.status(400).json({ error: 'message required' })

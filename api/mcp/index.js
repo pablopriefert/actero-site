@@ -77,7 +77,34 @@ async function resolveClientFromToken(authHeader) {
 
 async function toolSendMessage({ message, session_id }, clientId) {
   const sessionId = session_id || `mcp-${Date.now()}`
-  const url = `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/api/engine/webhooks/widget?api_key=${clientId}`
+
+  // Resolve a real widget api_key for this client. Passing the bare clientId
+  // UUID no longer works (and never should — leaked UUIDs would grant chat
+  // access). Same precedence as resolveClientFromToken above.
+  let apiKey = null
+  const { data: activeKey } = await supabase
+    .from('client_api_keys')
+    .select('key_value')
+    .eq('client_id', clientId)
+    .eq('is_active', true)
+    .limit(1)
+    .maybeSingle()
+  if (activeKey?.key_value) apiKey = activeKey.key_value
+
+  if (!apiKey) {
+    const { data: settings } = await supabase
+      .from('client_settings')
+      .select('widget_api_key')
+      .eq('client_id', clientId)
+      .maybeSingle()
+    if (settings?.widget_api_key) apiKey = settings.widget_api_key
+  }
+
+  if (!apiKey) {
+    return { response: 'Aucune clé widget configurée pour ce client. Créez-en une dans Dashboard → API.', session_id: sessionId }
+  }
+
+  const url = `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/api/engine/webhooks/widget?api_key=${encodeURIComponent(apiKey)}`
   const r = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
