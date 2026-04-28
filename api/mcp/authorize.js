@@ -101,13 +101,18 @@ async function handler(req, res) {
   // GET — show login form
   if (req.method === 'GET') {
     const { redirect_uri, state, code_challenge, code_challenge_method, client_id, error, scope, resource } = req.query
-    console.log('[mcp/authorize-GET] redirect_uri:', redirect_uri)
-    console.log('[mcp/authorize-GET] client_id:', client_id)
-    console.log('[mcp/authorize-GET] scope:', scope)
-    console.log('[mcp/authorize-GET] resource:', resource)
-    console.log('[mcp/authorize-GET] code_challenge_method:', code_challenge_method)
-    console.log('[mcp/authorize-GET] all_keys:', Object.keys(req.query).join(','))
-    console.log('[mcp/authorize-GET] header user-agent:', req.headers['user-agent'])
+    console.log('[mcp/authorize-GET]', JSON.stringify({
+      client_id,
+      has_redirect_uri: !!redirect_uri,
+      has_pkce: !!code_challenge,
+      pkce_method: code_challenge_method || null,
+      scope: scope || null,
+    }))
+    if (process.env.MCP_DEBUG === '1') {
+      console.log('[mcp/authorize-GET][debug]', JSON.stringify({
+        redirect_uri, resource, all_keys: Object.keys(req.query), ua: req.headers['user-agent'],
+      }))
+    }
     res.setHeader('Content-Type', 'text/html')
     return res.status(200).send(renderPage({ redirect_uri, state, code_challenge, code_challenge_method, client_id, error }))
   }
@@ -157,7 +162,8 @@ async function handler(req, res) {
       return redirectWithError(authError?.message || 'Email ou mot de passe incorrect')
     }
 
-    console.log('[mcp/authorize] Auth success for:', email)
+    // Log only the user_id, never the raw email — RGPD / PII hygiene.
+    console.log('[mcp/authorize] Auth success for user_id:', authData.user.id)
 
     // Generate a short-lived authorization code
     const code = crypto.randomBytes(32).toString('hex')
@@ -192,7 +198,12 @@ async function handler(req, res) {
       const issuer = process.env.PUBLIC_API_URL || 'https://actero.fr'
       url.searchParams.set('iss', issuer)
       const redirectUrl = url.toString()
-      console.log('[mcp/authorize] 302 redirect to:', redirectUrl.slice(0, 200))
+      // Don't log the redirect URL — it carries the auth `code` and PII-ish state.
+      if (process.env.MCP_DEBUG === '1') {
+        console.log('[mcp/authorize][debug] 302 redirect to:', redirectUrl.slice(0, 200))
+      } else {
+        console.log('[mcp/authorize] 302 redirect issued')
+      }
       res.setHeader('Location', redirectUrl)
       return res.status(302).end()
     }

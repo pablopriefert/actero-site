@@ -48,24 +48,34 @@ async function handler(req, res) {
   const code_verifier = params.code_verifier
   const refresh_token = params.refresh_token
 
-  // Verbose log — one console.log per field so Vercel's log table view
-  // doesn't truncate them. Strip secrets.
-  console.log('[mcp/token] field grant_type:', grant_type)
-  console.log('[mcp/token] field client_id:', params.client_id)
-  console.log('[mcp/token] field redirect_uri:', params.redirect_uri)
-  console.log('[mcp/token] field scope:', params.scope)
-  console.log('[mcp/token] field resource:', params.resource)
-  console.log('[mcp/token] field audience:', params.audience)
-  console.log('[mcp/token] field has_code:', !!code)
-  console.log('[mcp/token] field has_verifier:', !!code_verifier)
-  console.log('[mcp/token] field has_refresh:', !!refresh_token)
-  console.log('[mcp/token] field all_keys:', Object.keys(params).join(','))
-  console.log('[mcp/token] header user-agent:', req.headers['user-agent'])
-  console.log('[mcp/token] header origin:', req.headers.origin)
-  console.log('[mcp/token] header referer:', req.headers.referer)
-  console.log('[mcp/token] header content-type:', req.headers['content-type'])
-  console.log('[mcp/token] header accept:', req.headers.accept)
-  console.log('[mcp/token] header authorization:', req.headers.authorization ? 'present' : 'absent')
+  // One-line summary — keeps signal in Vercel logs without leaking referers/origins
+  // (which often carry private dashboard URLs). Set MCP_DEBUG=1 to re-enable
+  // the full per-field dump while debugging an OAuth client integration.
+  console.log(
+    '[mcp/token]',
+    JSON.stringify({
+      grant_type,
+      client_id: params.client_id,
+      has_code: !!code,
+      has_verifier: !!code_verifier,
+      has_refresh: !!refresh_token,
+      scope_requested: params.scope || null,
+    })
+  )
+  if (process.env.MCP_DEBUG === '1') {
+    console.log('[mcp/token][debug]', JSON.stringify({
+      redirect_uri: params.redirect_uri,
+      resource: params.resource,
+      audience: params.audience,
+      all_keys: Object.keys(params),
+      ua: req.headers['user-agent'],
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      ct: req.headers['content-type'],
+      accept: req.headers.accept,
+      has_authz: !!req.headers.authorization,
+    }))
+  }
 
   // Handle refresh_token grant — return the same token (our API keys don't expire)
   if (grant_type === 'refresh_token') {
