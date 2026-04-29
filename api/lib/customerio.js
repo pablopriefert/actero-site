@@ -35,7 +35,13 @@ export async function identify(userId, attrs = {}) {
     })
     if (!res.ok) {
       const t = await res.text().catch(() => '')
-      captureError(new Error(`CIO identify ${res.status}: ${t.slice(0, 200)}`), { userId, attrs })
+      // 401/403 = our SITE_ID/API_KEY are revoked or wrong. Not actionable
+      // by retrying — only by a human rotating the key. Don't spam Sentry.
+      if (res.status === 401 || res.status === 403) {
+        console.warn(`[cio.identify] ${res.status} (auth) — check CUSTOMERIO_TRACK_API_KEY`)
+      } else {
+        captureError(new Error(`CIO identify ${res.status}: ${t.slice(0, 200)}`), { userId, attrs })
+      }
     }
   } catch (err) {
     captureError(err, { context: 'cio.identify', userId })
@@ -56,7 +62,11 @@ export async function track(userId, name, data = {}) {
     })
     if (!res.ok) {
       const t = await res.text().catch(() => '')
-      captureError(new Error(`CIO track ${res.status}: ${t.slice(0, 200)}`), { userId, name, data })
+      if (res.status === 401 || res.status === 403) {
+        console.warn(`[cio.track] ${res.status} (auth) — check CUSTOMERIO_TRACK_API_KEY`)
+      } else {
+        captureError(new Error(`CIO track ${res.status}: ${t.slice(0, 200)}`), { userId, name, data })
+      }
     }
   } catch (err) {
     captureError(err, { context: 'cio.track', userId, name })
@@ -77,7 +87,11 @@ export async function trackAnonymous(anonymousId, name, data = {}) {
     })
     if (!res.ok) {
       const t = await res.text().catch(() => '')
-      captureError(new Error(`CIO anon track ${res.status}: ${t.slice(0, 200)}`), { anonymousId, name })
+      if (res.status === 401 || res.status === 403) {
+        console.warn(`[cio.trackAnonymous] ${res.status} (auth) — check CUSTOMERIO_TRACK_API_KEY`)
+      } else {
+        captureError(new Error(`CIO anon track ${res.status}: ${t.slice(0, 200)}`), { anonymousId, name })
+      }
     }
   } catch (err) {
     captureError(err, { context: 'cio.trackAnonymous', anonymousId, name })
