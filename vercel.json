@@ -113,10 +113,6 @@
             "schedule": "0 3 * * *"
         },
         {
-            "path": "/api/cron/cio-sync",
-            "schedule": "0 4 * * *"
-        },
-        {
             "path": "/api/cron/check-quotas",
             "schedule": "0 6 * * *"
         },
