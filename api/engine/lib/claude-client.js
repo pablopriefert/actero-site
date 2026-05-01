@@ -1,23 +1,14 @@
 /**
  * Actero Engine — Claude Client
  * Handles Claude API calls with timeout, retry, and structured JSON parsing.
- *
- * Side-effect: every call emits a `$ai_generation` event to PostHog (when
- * POSTHOG_PROJECT_API_KEY is set). This populates PostHog's LLM Analytics
- * dashboard automatically — cost per model, tokens by tenant, latency
- * percentiles — without any per-caller wiring. Callers can pass an
- * `analytics: { clientId, stage }` block to enrich the event; both are
- * optional and default to anonymous bucketing.
  */
-import { captureClaudeGeneration } from '../../lib/posthog.js'
-import { calculateCost } from './claude-pricing.js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 const MODEL = 'claude-sonnet-4-20250514'
 const MAX_TOKENS = 512
 const TIMEOUT_MS = 8000 // 8s to stay within Vercel's 10s limit
 
-export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKENS, analytics = {} }) {
+export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKENS }) {
   if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured')
 
   const startTime = Date.now()
@@ -98,23 +89,6 @@ export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKEN
         }
       }
 
-      // Emit a fire-and-forget LLM analytics event so PostHog can render
-      // cost / latency / token dashboards without per-call wiring.
-      captureClaudeGeneration({
-        clientId: analytics.clientId,
-        model: modelId,
-        inputTokens: usage.tokensIn,
-        outputTokens: usage.tokensOut,
-        costUsd: calculateCost(modelId, usage.tokensIn, usage.tokensOut),
-        latencyMs: processingTimeMs,
-        success: true,
-        context: {
-          stage: analytics.stage || null,
-          attempt,
-          source: analytics.source || 'engine',
-        },
-      })
-
       return {
         ...parsed,
         processingTimeMs,
@@ -132,23 +106,6 @@ export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKEN
       if (attempt === 0) await new Promise(r => setTimeout(r, 500))
     }
   }
-
-  // All retries exhausted: still report to PostHog so the dashboard shows
-  // error rate, then re-throw so callers handle the failure as before.
-  captureClaudeGeneration({
-    clientId: analytics.clientId,
-    model: MODEL,
-    inputTokens: 0,
-    outputTokens: 0,
-    costUsd: 0,
-    latencyMs: Date.now() - startTime,
-    success: false,
-    error: lastError,
-    context: {
-      stage: analytics.stage || null,
-      source: analytics.source || 'engine',
-    },
-  })
 
   throw lastError
 }
