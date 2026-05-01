@@ -67,6 +67,9 @@ async function handler(req, res) {
         'email_send_delay_seconds',
         'email_attach_voice',
         'email_last_polled_at',
+        'email_last_error',
+        'email_last_error_at',
+        'email_consecutive_failures',
       ].join(','))
       .eq('client_id', clientId)
       .maybeSingle()

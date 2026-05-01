@@ -22,8 +22,16 @@ export const maxDuration = 60
 
 // Each mailbox poll gets its own budget so one slow IMAP can't eat the whole
 // lambda window and starve Sentry's final cron check-in.
-const PER_MAILBOX_TIMEOUT_MS = 15_000
-const MAX_MAILBOXES_PER_RUN = 5
+//
+// Budget math: Vercel maxDuration=60s minus ~5s overhead for Sentry flush
+// and Supabase writes leaves ~55s for polls. With 25s per mailbox × 2
+// mailboxes max = 50s worst case, well under the lambda limit.
+const PER_MAILBOX_TIMEOUT_MS = 25_000
+const MAX_MAILBOXES_PER_RUN = 2
+// 10 failures × 2-min cron = 20 min before a broken mailbox is silenced.
+// That's enough to absorb a transient outage but stops the Sentry alert spam
+// when a merchant rotates their IMAP password without telling us.
+const CIRCUIT_BREAKER_THRESHOLD = 10
 
 function withTimeout(promise, ms, label) {
   return Promise.race([
@@ -73,12 +81,20 @@ async function handler(req, res) {
     const clientIds = Array.from(byClient.keys())
     const { data: settingsRows } = await supabase
       .from('client_settings')
-      .select('client_id, email_agent_enabled, email_last_polled_at')
+      .select('client_id, email_agent_enabled, email_last_polled_at, email_consecutive_failures')
       .in('client_id', clientIds)
 
     const settingsByClient = new Map((settingsRows || []).map((s) => [s.client_id, s]))
     const eligible = Array.from(byClient.values())
-      .filter((i) => settingsByClient.get(i.client_id)?.email_agent_enabled)
+      .filter((i) => {
+        const s = settingsByClient.get(i.client_id)
+        if (!s?.email_agent_enabled) return false
+        // Circuit breaker: skip mailboxes that have failed too many times in a
+        // row. The merchant has to fix the underlying problem (rotate password,
+        // re-auth Gmail, etc.) and reset the counter from the dashboard.
+        if ((s.email_consecutive_failures || 0) >= CIRCUIT_BREAKER_THRESHOLD) return false
+        return true
+      })
       .sort((a, b) => {
         const ta = settingsByClient.get(a.client_id)?.email_last_polled_at || ''
         const tb = settingsByClient.get(b.client_id)?.email_last_polled_at || ''
@@ -88,6 +104,8 @@ async function handler(req, res) {
 
     const results = []
     for (const integration of eligible) {
+      let pollError = null
+      let processed = 0
       try {
         const result = await withTimeout(
           pollOneMailbox({
@@ -99,21 +117,40 @@ async function handler(req, res) {
           PER_MAILBOX_TIMEOUT_MS,
           `pollOneMailbox(${integration.client_id})`,
         )
-
-        await supabase.from('client_settings')
-          .update({ email_last_polled_at: new Date().toISOString() })
-          .eq('client_id', integration.client_id)
-
-        results.push({
-          client_id: integration.client_id,
-          provider: integration.provider,
-          processed: result.processed,
-          error: result.error || null,
-        })
+        processed = result.processed || 0
+        pollError = result.error || null
       } catch (err) {
         console.error(`[poll-inbound] ${integration.client_id}:`, err.message)
-        results.push({ client_id: integration.client_id, error: err.message })
+        pollError = err.message
       }
+
+      // Persist outcome so the merchant can self-diagnose from the dashboard.
+      // On success → reset error state. On failure → bump the counter and
+      // store the message; once it crosses CIRCUIT_BREAKER_THRESHOLD we stop
+      // hammering the broken mailbox until the merchant intervenes.
+      const updates = { email_last_polled_at: new Date().toISOString() }
+      if (pollError) {
+        const prev = settingsByClient.get(integration.client_id)?.email_consecutive_failures || 0
+        updates.email_last_error = pollError.slice(0, 500)
+        updates.email_last_error_at = new Date().toISOString()
+        updates.email_consecutive_failures = prev + 1
+      } else {
+        updates.email_last_error = null
+        updates.email_last_error_at = null
+        updates.email_consecutive_failures = 0
+      }
+      try {
+        await supabase.from('client_settings').update(updates).eq('client_id', integration.client_id)
+      } catch (err) {
+        console.warn(`[poll-inbound] settings update failed for ${integration.client_id}:`, err.message)
+      }
+
+      results.push({
+        client_id: integration.client_id,
+        provider: integration.provider,
+        processed,
+        error: pollError,
+      })
     }
 
     return res.status(200).json({

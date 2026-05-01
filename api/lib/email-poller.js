@@ -16,7 +16,11 @@ import { cleanEmailBody } from './email.js'
 import { uploadToStorage } from '../vision/lib/ingress.js'
 
 const SITE_URL = process.env.SITE_URL || 'https://actero.fr'
-const MAX_MESSAGES_PER_CYCLE = 20
+// Budget per mailbox in the cron is 25s; each fetched message means a
+// network round-trip + an inbound-email webhook call (which itself runs
+// the Brain). Process at most 5 per cycle so a backlog drains gradually
+// rather than timing out the entire poll on the first cron tick.
+const MAX_MESSAGES_PER_CYCLE = 5
 
 export async function pollOneMailbox({ supabase, clientId, provider, integration }) {
   if (provider === 'gmail') {
@@ -306,13 +310,20 @@ async function pollImap({ supabase, clientId, integration }) {
     return { processed: 0, diagnostics, error: 'Config IMAP incomplète' }
   }
 
+  // Fail-fast on connect/auth: if the credentials are revoked or the host is
+  // unreachable we want a clear error inside the cron's per-mailbox budget,
+  // not an undifferentiated "timed out after 25s" that hides the cause.
+  // ImapFlow defaults: connectionTimeout=90s, greetingTimeout=16s, both too
+  // long for a serverless poll budgeted at 25s.
   const client = new ImapFlow({
     host: imap_host,
     port: parseInt(imap_port, 10) || 993,
     secure: use_ssl !== false,
     auth: { user: username, pass: password },
     logger: false,
-    socketTimeout: 15_000,
+    connectionTimeout: 8_000,   // TCP/TLS handshake
+    greetingTimeout: 5_000,     // server banner
+    socketTimeout: 20_000,      // any single IMAP command
   })
 
   let processed = 0

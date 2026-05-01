@@ -154,10 +154,29 @@ export const EmailAgentView = ({ clientId }) => {
 function StatusHero({ clientId, settings, activity, integration, onToggle, toggling, queryClient }) {
   const enabled = settings?.email_agent_enabled
   const lastPoll = settings?.email_last_polled_at
+  const lastError = settings?.email_last_error
+  const consecutiveFailures = settings?.email_consecutive_failures || 0
+  // Mirrors CIRCUIT_BREAKER_THRESHOLD in api/cron/poll-inbound-emails.js
+  const circuitOpen = consecutiveFailures >= 10
   const mailbox = integration?.extra_config?.email || integration?.extra_config?.username || '—'
   const week = activity?.week || { total: 0, auto: 0, escalated: 0, auto_rate: 0 }
 
   const minsAgo = lastPoll ? Math.floor((Date.now() - new Date(lastPoll).getTime()) / 60000) : null
+
+  const resetCircuit = useMutation({
+    mutationFn: async () => {
+      // Resetting via REST is gated by RLS (`client members update own conversations`
+      // / equivalent on client_settings) so users only ever clear their own row.
+      const { error } = await supabase
+        .from('client_settings')
+        .update({ email_consecutive_failures: 0, email_last_error: null, email_last_error_at: null })
+        .eq('client_id', clientId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['email-agent-settings', clientId] })
+    },
+  })
 
   const pollNow = useMutation({
     mutationFn: async () => {
@@ -298,6 +317,44 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
         {pollNow.isError && (
           <div className="w-full mt-2 text-[11px] text-red-700 font-medium">
             ✗ {pollNow.error?.message || 'Erreur'}
+          </div>
+        )}
+
+        {enabled && lastError && (
+          <div className={`w-full mt-2 rounded-lg border p-3 text-[12px] ${
+            circuitOpen ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'
+          }`}>
+            <div className="flex items-start gap-2">
+              <AlertTriangle className={`w-4 h-4 mt-0.5 flex-shrink-0 ${circuitOpen ? 'text-red-700' : 'text-amber-700'}`} />
+              <div className="flex-1 min-w-0">
+                <div className={`font-semibold ${circuitOpen ? 'text-red-900' : 'text-amber-900'}`}>
+                  {circuitOpen
+                    ? `Relève désactivée — ${consecutiveFailures} échecs consécutifs`
+                    : `Dernière relève en échec (${consecutiveFailures} de suite)`}
+                </div>
+                <div className={`mt-1 font-mono text-[11px] break-words ${circuitOpen ? 'text-red-800' : 'text-amber-800'}`}>
+                  {lastError}
+                </div>
+                <div className={`mt-1.5 text-[11px] ${circuitOpen ? 'text-red-700' : 'text-amber-700'}`}>
+                  {circuitOpen
+                    ? 'Vérifie ton mot de passe IMAP / re-connecte Gmail puis clique « Reprendre la relève » ci-dessous.'
+                    : 'Si l\'erreur persiste, vérifie ton mot de passe IMAP ou re-connecte Gmail.'}
+                </div>
+                {circuitOpen && (
+                  <button
+                    onClick={() => resetCircuit.mutate()}
+                    disabled={resetCircuit.isPending}
+                    className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-semibold bg-white border border-red-300 text-red-700 hover:bg-red-100 transition disabled:opacity-50"
+                  >
+                    {resetCircuit.isPending ? (
+                      <><Loader2 className="w-3 h-3 animate-spin" /> Réinitialisation…</>
+                    ) : (
+                      <><RefreshCw className="w-3 h-3" /> Reprendre la relève</>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
