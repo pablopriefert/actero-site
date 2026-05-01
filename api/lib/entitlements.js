@@ -21,7 +21,6 @@ export const FEATURE_MAP = {
   guardrails: 'actero_guardrails',
   simulator: 'actero_simulator',
   voice_agent: 'actero_voice_agent',
-  whatsapp_agent: 'actero_whatsapp_agent',
   specialized_agents: 'actero_specialized_agents',
   api_webhooks: 'actero_api_webhooks',
   pdf_report: 'actero_pdf_report',
@@ -42,7 +41,7 @@ export const REVERSE_FEATURE_MAP = Object.fromEntries(
  *
  * @param {object} supabase — Supabase client
  * @param {string} clientId
- * @param {string} featureKey — e.g. 'whatsapp_agent'
+ * @param {string} featureKey — e.g. 'voice_agent'
  * @returns {Promise<boolean>}
  */
 export async function clientHasEntitlement(supabase, clientId, featureKey) {

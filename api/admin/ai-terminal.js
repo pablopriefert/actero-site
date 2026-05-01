@@ -99,7 +99,6 @@ const ALLOWED_TABLES = new Set([
   'churn_predictions',
   'voice_calls',
   'voice_agent_config',
-  'whatsapp_accounts',
   'sentiment_logs',
   'admin_action_logs',
   'admin_alert_rules',

@@ -34,7 +34,6 @@ import { createClient } from '@supabase/supabase-js'
 import { checkSensitive } from './lib/sensitive-check.js'
 import { analyzeImage } from './lib/main-analysis.js'
 import { getLimits } from '../lib/plan-limits.js'
-import { track } from '../lib/customerio.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -157,15 +156,6 @@ async function handler(req, res) {
       analyses.push({ image_path: path, is_sensitive: false, error: String(err.message || err), recommended_action: 'request_more_info' })
     }
   }))
-
-  // CIO — vision_first_analysis: emit only when this is the first vision analysis ever for this client
-  // (already = count BEFORE this batch; if it was 0, this is the first run)
-  if (already === 0 && analyses.some(a => !a.error)) {
-    track(client_id, 'vision_first_analysis', {
-      images_count: image_paths.length,
-      use_case: use_case_hint || null,
-    }).catch(() => {})
-  }
 
   return res.status(200).json({
     analyses,

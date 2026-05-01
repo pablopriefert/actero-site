@@ -4,7 +4,6 @@
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
-import { track } from '../lib/customerio.js'
 
 const SERPAPI_KEY = process.env.SERPAPI_KEY
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
@@ -162,20 +161,6 @@ Pas de markdown, pas de commentaires, juste le JSON.`,
     if (insertError) throw new Error(insertError.message)
 
     // CIO — kb_first_entry_added (only on first KB entry ever for this client)
-    try {
-      const { count: kbCount } = await supabase
-        .from('client_knowledge_base')
-        .select('id', { count: 'exact', head: true })
-        .eq('client_id', client_id)
-      if (kbCount === toInsert.length) {
-        track(client_id, 'kb_first_entry_added', {
-          entries_count: toInsert.length,
-          source: 'url',
-          source_url: url,
-        }).catch(() => {})
-      }
-    } catch { /* non-blocking */ }
-
     // 4. Sync brand context
     try {
       await fetch(`${req.headers.origin || 'https://actero.fr'}/api/sync-brand-context`, {

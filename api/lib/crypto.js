@@ -8,7 +8,8 @@
  *
  * Key resolution (in order):
  *   1. ENCRYPTION_KEY
- *   2. WHATSAPP_TOKEN_ENCRYPTION_KEY (legacy compat)
+ *   2. WHATSAPP_TOKEN_ENCRYPTION_KEY (legacy env name — kept ONLY for back-compat
+ *      decryption of tokens encrypted before the rename; do not set on new envs)
  *   3. SUPABASE_SERVICE_ROLE_KEY (fallback — better than nothing)
  */
 import crypto from 'crypto'

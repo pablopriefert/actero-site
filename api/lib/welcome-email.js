@@ -51,7 +51,7 @@ function renderWelcomeHtml({ brand_name, has_referral }) {
     </p>
 
     <p style="font-size:15px;line-height:1.6;color:#4a4a4a;margin:0 0 16px">
-      Actero, c'est une plateforme d'automatisation IA pour e-commerce qui transforme votre support client en avantage concurrentiel — tickets résolus en quelques secondes, relances panier automatisées, agent vocal et WhatsApp disponibles 24h/24.
+      Actero, c'est une plateforme d'automatisation IA pour e-commerce qui transforme votre support client en avantage concurrentiel — tickets résolus en quelques secondes, relances panier automatisées, agent vocal disponible 24h/24.
     </p>
 
     ${has_referral ? `

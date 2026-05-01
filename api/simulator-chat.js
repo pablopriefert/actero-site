@@ -1,6 +1,5 @@
 import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
-import { track } from './lib/customerio.js';
 
 // Cap lambda runtime: LLM calls can hang and burn money otherwise.
 export const maxDuration = 60
@@ -68,25 +67,6 @@ async function handler(req, res) {
 
     const data = await anthropicRes.json();
     const text = data?.content?.[0]?.text || '';
-
-    // CIO — agent_first_test: only on first simulator use for this client (fire-and-forget)
-    try {
-      const { data: clientUser } = await supabase
-        .from('client_users')
-        .select('client_id')
-        .eq('user_id', user.id)
-        .limit(1)
-        .maybeSingle()
-      if (clientUser?.client_id) {
-        // Check if this is truly the first simulator message (no prior history)
-        const isFirstMessage = !history || history.length === 0
-        if (isFirstMessage) {
-          track(clientUser.client_id, 'agent_first_test', {
-            prompt_length: prompt.length,
-          }).catch(() => {})
-        }
-      }
-    } catch { /* non-blocking */ }
 
     return res.status(200).json({ text });
   } catch (error) {

@@ -1,5 +1,5 @@
 /**
- * Actero — shared KPI tools for any AI copilot (Slack, WhatsApp, in-dashboard).
+ * Actero — shared KPI tools for any AI copilot (Slack, in-dashboard).
  *
  * Claude tool-use definitions + their implementations, all scoped by client_id
  * so tenant isolation is strict. Zero UI/channel dependencies — each copilot
@@ -376,19 +376,6 @@ REGLES:
 - Reponds en francais.
 - Jamais d'info sur d'autres clients Actero, jamais de donnees sensibles (tokens, cles API).`,
 
-  whatsapp: (brand) => `Tu es Actero Copilot, l'assistant du dirigeant de "${brand}". Tu reponds sur WhatsApp en francais, en langage naturel.
-
-STYLE:
-- Tres concis. 3-6 lignes max.
-- Ton amical mais pro (tutoiement OK).
-- Utilise des emojis simples avec parcimonie.
-- Jamais de "Je vais chercher" — tu utilises directement les outils.
-
-REGLES:
-- Utilise toujours les outils pour les chiffres precis.
-- Si question ambigue : periode par defaut = "semaine".
-- Jamais de tokens, jamais de donnees d'autres clients.`,
-
   default: (brand) => `Tu es Actero Copilot, l'assistant de "${brand}". Tu reponds en francais, concis, avec les donnees reelles via les outils.`,
 }
 
@@ -400,7 +387,7 @@ REGLES:
  *   - clientId: UUID of the Actero tenant
  *   - message: user question (string)
  *   - brandName: display name for the system prompt
- *   - channel: 'slack' | 'whatsapp' | 'default' — picks the style prompt
+ *   - channel: 'slack' | 'default' — picks the style prompt
  *   - maxLoops: max tool-use iterations (default 4)
  * @returns {Promise<{ reply: string, toolCalls: string[] }>}
  */

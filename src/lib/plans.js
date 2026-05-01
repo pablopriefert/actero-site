@@ -25,7 +25,6 @@ export const PLANS = {
       team_members: 1,
       history_days: 7,
       voice_minutes: 0,
-      whatsapp: false,
       vision_analyses_per_month: 10,
     },
     features: {
@@ -33,7 +32,6 @@ export const PLANS = {
       guardrails: true, // Règles & limites — dès Free
       simulator: false,
       voice_agent: false,
-      whatsapp_agent: false,
       specialized_agents: false, // general-agent only
       api_webhooks: false,
       pdf_report: false,
@@ -64,7 +62,6 @@ export const PLANS = {
       team_members: 2,
       history_days: 90,
       voice_minutes: 0,
-      whatsapp: false,
       vision_analyses_per_month: 200,
     },
     features: {
@@ -72,7 +69,6 @@ export const PLANS = {
       guardrails: true, // Règles & limites — dès Free
       simulator: true, // Simulateur — dès Starter
       voice_agent: false,
-      whatsapp_agent: false,
       specialized_agents: false,
       api_webhooks: true, // API — dès Starter
       pdf_report: false,
@@ -103,7 +99,6 @@ export const PLANS = {
       team_members: 5,
       history_days: Infinity,
       voice_minutes: 200,
-      whatsapp: false,
       vision_analyses_per_month: 2000,
     },
     features: {
@@ -111,7 +106,6 @@ export const PLANS = {
       guardrails: true,
       simulator: true,
       voice_agent: true,
-      whatsapp_agent: false,
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,
@@ -142,7 +136,6 @@ export const PLANS = {
       team_members: Infinity,
       history_days: Infinity,
       voice_minutes: Infinity,
-      whatsapp: false,
       vision_analyses_per_month: Infinity,
     },
     features: {
@@ -150,7 +143,6 @@ export const PLANS = {
       guardrails: true,
       simulator: true,
       voice_agent: true,
-      whatsapp_agent: false,
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,

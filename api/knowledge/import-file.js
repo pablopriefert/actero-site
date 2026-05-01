@@ -7,7 +7,6 @@
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
-import { track } from '../lib/customerio.js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
@@ -112,18 +111,6 @@ Reponds UNIQUEMENT en JSON valide:
 
     // CIO — kb_first_entry_added (only on first KB entry ever for this client)
     try {
-      const { count: kbCount } = await supabase
-        .from('client_knowledge_base')
-        .select('id', { count: 'exact', head: true })
-        .eq('client_id', client_id)
-      if (kbCount === toInsert.length) {
-        // Count equals what we just inserted → this was the first batch
-        track(client_id, 'kb_first_entry_added', {
-          entries_count: toInsert.length,
-          source: 'file',
-          filename: filename || '',
-        }).catch(() => {})
-      }
     } catch { /* non-blocking */ }
 
     // Sync brand context

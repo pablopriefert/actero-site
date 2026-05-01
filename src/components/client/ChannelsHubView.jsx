@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
-import { Mail, Phone, MessageCircle, MessagesSquare, ChevronRight, Check, Plus, Radio } from 'lucide-react'
+import { Mail, Phone, MessagesSquare, ChevronRight, Check, Plus, Radio } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 /**
@@ -123,17 +123,6 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
       targetTab: 'voice-agent',
       detail: voiceAgent?.phone || null,
       metric: channelStats?.voice || 0,
-    },
-    {
-      id: 'whatsapp',
-      name: 'WhatsApp Business',
-      description: 'Messaging WhatsApp natif avec l\'agent IA',
-      icon: MessageCircle,
-      color: '#25D366',
-      status: 'coming-soon',
-      targetTab: null,
-      detail: null,
-      metric: 0,
     },
   ]
 

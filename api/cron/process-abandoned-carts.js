@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import { withCronMonitor } from '../lib/cron-monitor.js'
-import { track } from '../lib/customerio.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -207,23 +206,6 @@ async function handler(req, res) {
         status: 'completed',
         payload: { ...payload, sent_at: new Date().toISOString() },
       }).eq('id', event.id)
-
-      // CIO — first_cart_recovered: emit only on the first successful cart recovery for this client
-      try {
-        const { count: recoveredCount } = await supabase
-          .from('engine_events')
-          .select('id', { count: 'exact', head: true })
-          .eq('client_id', client_id)
-          .eq('event_type', 'shopify_abandoned_cart')
-          .eq('status', 'completed')
-        if (recoveredCount === 1) {
-          track(client_id, 'first_cart_recovered', {
-            shop_domain: payload.shop_domain || '',
-            total_price: payload.total_price || 0,
-            currency: payload.currency || 'EUR',
-          }).catch(() => {})
-        }
-      } catch { /* non-blocking */ }
 
       processed++
     } catch (err) {

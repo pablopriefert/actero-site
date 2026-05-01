@@ -1,4 +1,3 @@
-// Renamed from whatsapp-copilot.js — this is an internal merchant KPI assistant, unrelated to WhatsApp Business API.
 /**
  * Actero Engine — Merchant Copilot
  *

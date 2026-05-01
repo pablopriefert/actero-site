@@ -36,21 +36,20 @@ MÉTRIQUES CLÉS:
 PLANS:
 - Free (0€): 50 tickets/mois, 1 workflow, Shopify
 - Starter (99€): 1000 tickets/mois, 3 workflows, 3 intégrations, ROI complet
-- Pro (399€): 5000 tickets/mois, WhatsApp, guardrails, agents spécialisés, API
+- Pro (399€): 5000 tickets/mois, guardrails, agents spécialisés, API
 - Enterprise (sur devis): illimité, multi-boutique, white-label
 
 AUTOMATISATIONS DISPONIBLES:
 - SAV Support Client (tous plans)
 - Relance paniers abandonnés (Shopify)
 - Comptabilité automatisée (factures en retard, alertes trésorerie)
-- WhatsApp Business (Pro+)
 - Agents IA spécialisés (Pro+)
 
 INTÉGRATIONS SUPPORTÉES:
 - E-commerce: Shopify, WooCommerce, Webflow (un seul à la fois)
 - Helpdesk: Gorgias, Zendesk (un seul)
 - Email: Resend ou SMTP personnalisé (un seul)
-- Autres: Slack, Axonaut, Pennylane, iPaidThat, WhatsApp Business
+- Autres: Slack, Axonaut, Pennylane, iPaidThat
 
 TU NE PEUX PAS:
 - Modifier les workflows (dis-leur de contacter le support)

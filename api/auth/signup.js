@@ -1,7 +1,6 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js';
-import { identify, track } from '../lib/customerio.js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -163,21 +162,6 @@ async function handler(req, res) {
         console.error('[SIGNUP] Referral processing error (non-blocking):', refErr);
       }
     }
-
-    // 5b. CIO — identify profile + signup_started (non-blocking, fire-and-forget)
-    identify(clientId, {
-      email,
-      company: brand_name.trim(),
-      plan: 'free',
-      status: 'active',
-      acquisition_source: (typeof acquisition_source === 'object' && acquisition_source) ? JSON.stringify(acquisition_source) : (acquisition_source || ''),
-    }).catch(() => {})
-    track(clientId, 'signup_started', {
-      email,
-      brand_name: brand_name.trim(),
-      has_referral: !!referral_code,
-      acquisition_source: typeof acquisition_source === 'object' ? acquisition_source : {},
-    }).catch(() => {})
 
     // 6. Send welcome email (non-blocking)
     try {

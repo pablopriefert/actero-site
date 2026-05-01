@@ -1,7 +1,6 @@
 import { withSentry } from '../lib/sentry.js'
 import crypto from 'crypto';
 import { encryptToken } from '../lib/crypto.js';
-import { identify, track } from '../lib/customerio.js';
 
 async function handler(req, res) {
   const { shop, code, state, hmac } = req.query;
@@ -162,18 +161,6 @@ async function handler(req, res) {
   if (!upsertResponse.ok) {
     const errText = await upsertResponse.text();
     console.error('Supabase upsert error:', errText);
-  }
-
-  // 6b. CIO — shopify_connected event (only when we have a client_id)
-  if (onboardedClientId) {
-    identify(onboardedClientId, {
-      shopify_connected: true,
-      shopify_store_name: shop,
-    }).catch(() => {})
-    track(onboardedClientId, 'shopify_connected', {
-      shop_domain: shop,
-      scopes: scope || '',
-    }).catch(() => {})
   }
 
   // 6c. Register abandoned cart webhook (checkouts/create)

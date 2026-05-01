@@ -22,7 +22,7 @@ Tu aides les nouveaux clients qui decouvrent Actero a configurer leur compte et 
 
 TES CONNAISSANCES SUR ACTERO :
 - Actero fournit un agent IA qui automatise le service client e-commerce (SAV, paniers abandonnes, comptabilite)
-- L'agent se connecte a Shopify, WooCommerce, Webflow, Gorgias, Zendesk, WhatsApp (Pro+), Slack, Email (SMTP/IMAP), Resend
+- L'agent se connecte a Shopify, WooCommerce, Webflow, Gorgias, Zendesk, Slack, Email (SMTP/IMAP), Resend
 - Le client configure : son identite de marque, le ton de l'agent, les regles absolues, sa base de connaissances
 - Le client peut tester son agent dans l'onglet "Tester"
 - Les escalades apparaissent dans l'onglet "A traiter"

@@ -7,7 +7,6 @@
  */
 import { storeMemory } from './lib/memory.js'
 import { trackServerEvent } from '../lib/amplitude.js'
-import { track } from '../lib/customerio.js'
 
 /**
  * Map a free-text classification to a valid ticket_type enum value.
@@ -337,26 +336,6 @@ export async function logRun(supabase, {
       properties,
     }).catch(() => {})
 
-    // CIO — first_ticket_resolved: only emit once per client
-    if (eventCategory === 'ticket_resolved') {
-      // Count all resolved ai_conversations for this client (including current)
-      supabase
-        .from('ai_conversations')
-        .select('id', { count: 'exact', head: true })
-        .eq('client_id', clientId)
-        .eq('status', 'resolved')
-        .then(({ count }) => {
-          if (count === 1) {
-            // This is the very first resolved ticket
-            track(clientId, 'first_ticket_resolved', {
-              classification: classification || null,
-              confidence: confidence ?? null,
-              channel: normalized?.channel || null,
-            }).catch(() => {})
-          }
-        })
-        .catch(() => {})
-    }
   }
 
   // 3. Write to ai_conversations (feeds "A traiter" tab + activity feed)

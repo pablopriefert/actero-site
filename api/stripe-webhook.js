@@ -5,7 +5,6 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/install.js';
 import { trackServerEvent } from './lib/amplitude.js';
-import { identify, track } from './lib/customerio.js';
 
 // Monthly plan prices for MRR delta computation on upgrade events.
 // Kept in sync with api/billing/upgrade.js + src/lib/plans.js.
@@ -313,19 +312,6 @@ async function handler(req, res) {
             },
           }).catch(() => {});
 
-          // CIO — identify updated plan + emit plan_upgraded or plan_downgraded
-          identify(clientId, {
-            plan: newPlan,
-            stripe_customer_id: session.customer || '',
-            paid_at: Math.floor(Date.now() / 1000),
-          }).catch(() => {});
-          const mrrDelta = (PLAN_MRR[newPlan] ?? 0) - (PLAN_MRR[previousPlan] ?? 0);
-          const cioEvent = mrrDelta >= 0 ? 'plan_upgraded' : 'plan_downgraded';
-          track(clientId, cioEvent, {
-            from_plan: previousPlan,
-            to_plan: newPlan,
-            mrr_delta: mrrDelta,
-          }).catch(() => {});
         } catch (upErr) {
           console.error('[UPGRADE] Update failed:', upErr.message);
         }
@@ -715,11 +701,6 @@ async function handler(req, res) {
 
           // CIO — keep profile in sync whenever subscription changes
           if (updateData.plan || updateData.status) {
-            const cioAttrs = {}
-            if (updateData.plan) cioAttrs.plan = updateData.plan
-            if (updateData.status) cioAttrs.status = updateData.status
-            if (updateData.trial_ends_at) cioAttrs.trial_ends_at = Math.floor(new Date(updateData.trial_ends_at).getTime() / 1000)
-            identify(clientId, cioAttrs).catch(() => {})
           }
 
           // Sync Stripe Entitlements
@@ -829,11 +810,6 @@ async function handler(req, res) {
 
         console.log(`[stripe-webhook] SaaS client ${saasClient.id} subscription canceled, downgraded to free`)
 
-        // CIO — update profile + subscription_canceled event
-        identify(saasClient.id, { plan: 'free', status: 'canceled' }).catch(() => {})
-        track(saasClient.id, 'subscription_canceled', {
-          stripe_subscription_id: subscription.id,
-        }).catch(() => {})
       }
       break;
     }

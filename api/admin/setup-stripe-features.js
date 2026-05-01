@@ -31,7 +31,6 @@ const FEATURE_DEFINITIONS = [
   { key: 'guardrails', name: 'Garde-fous & règles métier' },
   { key: 'simulator', name: 'Simulateur de conversation' },
   { key: 'voice_agent', name: 'Agent vocal IA' },
-  { key: 'whatsapp_agent', name: 'Agent WhatsApp Business' },
   { key: 'specialized_agents', name: 'Agents IA spécialisés' },
   { key: 'api_webhooks', name: 'API + Webhooks sortants' },
   { key: 'pdf_report', name: 'Rapport PDF mensuel' },
