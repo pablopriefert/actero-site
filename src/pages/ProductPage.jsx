@@ -107,7 +107,7 @@ export const ProductPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Produit Actero — Agent IA e-commerce : SAV, relance paniers, automatisations"
-        description="Comment fonctionne Actero : agent IA qui gère le SAV Shopify (email, chat, Gorgias, Zendesk, WhatsApp), relance les paniers abandonnés et automatise vos workflows e-commerce. Installation OAuth 15 min. RGPD, hébergé UE."
+        description="Comment fonctionne Actero : agent IA qui gère le SAV Shopify (email, chat, Gorgias, Zendesk), relance les paniers abandonnés et automatise vos workflows e-commerce. Installation OAuth 15 min. RGPD, hébergé UE."
         canonical="/produit"
       />
 

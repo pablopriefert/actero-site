@@ -729,14 +729,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       ],
     },
 
-    // CANAUX — intégrations + (futur) voice, whatsapp...
+    // CANAUX — intégrations + (futur) voice...
     {
       type: 'expandable',
       label: 'Canaux',
       icon: Plug,
       children: [
         { id: 'integrations', label: 'Intégrations', icon: Plug },
-        // Futurs canaux (voice, whatsapp) à ajouter ici.
+        // Futurs canaux (voice) à ajouter ici.
       ],
     },
 

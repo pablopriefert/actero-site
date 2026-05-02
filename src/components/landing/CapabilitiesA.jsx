@@ -31,7 +31,7 @@ export const CapabilitiesA = () => {
       Icon: MessageSquare,
       title: 'Agent SAV',
       desc:
-        "Répond automatiquement aux tickets, retours, changements d'adresse et questions produit sur email, chat, Gorgias, Zendesk et WhatsApp — avec le ton de votre marque.",
+        "Répond automatiquement aux tickets, retours, changements d'adresse et questions produit sur email, chat, Gorgias et Zendesk — avec le ton de votre marque.",
       highlight: '60% de tickets résolus sans humain',
       highlightMarker: '*',
     },

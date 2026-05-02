@@ -112,7 +112,7 @@ export const ZendeskVsActero = ({ onNavigate }) => {
     faqs: [
       {
         q: 'Zendesk a 1 500 intégrations — Actero peut-il rivaliser ?',
-        a: "Non, Actero n'a pas l'écosystème Zendesk. Mais pour un marchand Shopify, 95% des intégrations utiles sont Shopify, Klaviyo, Loop Returns, ReCharge, WhatsApp — toutes natives Actero ou via webhooks/MCP. Le 'choix infini' Zendesk devient inutile quand le besoin est ciblé e-commerce.",
+        a: "Non, Actero n'a pas l'écosystème Zendesk. Mais pour un marchand Shopify, 95% des intégrations utiles sont Shopify, Klaviyo, Loop Returns, ReCharge — toutes natives Actero ou accessibles via webhooks/MCP. Le 'choix infini' Zendesk devient inutile quand le besoin est ciblé e-commerce.",
       },
       {
         q: 'Combien coûte vraiment Zendesk pour 5 agents avec IA ?',

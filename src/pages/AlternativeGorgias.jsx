@@ -146,8 +146,8 @@ export const AlternativeGorgias = ({ onNavigate }) => {
         a: "Actero importe votre base de connaissances (macros, politiques, FAQs) depuis URL, PDF, Google Docs ou Notion en quelques clics. Les tickets Gorgias existants restent dans Gorgias (historique) — Actero prend le relais sur les nouveaux. Vous pouvez aussi brancher Actero sur Gorgias via connecteur pour continuer à utiliser Gorgias en helpdesk et laisser Actero traiter la première ligne automatiquement.",
       },
       {
-        q: 'Est-ce qu\'Actero gère les mêmes canaux que Gorgias (email, chat, Instagram DM) ?',
-        a: "Actero couvre email (SMTP/IMAP ou Gmail), chat Shopify natif, Gorgias et Zendesk. Instagram DM et WhatsApp sont sur la roadmap (infrastructure de connecteurs déjà en place). Si vous avez un besoin multicanal critique, le plan Pro permet d'activer toutes les intégrations et notre équipe peut ajouter un canal custom sur Enterprise.",
+        q: 'Est-ce qu\'Actero gère les mêmes canaux que Gorgias (email, chat) ?',
+        a: "Actero couvre email (SMTP/IMAP ou Gmail), chat Shopify natif, Gorgias et Zendesk en ingestion. L'agent vocal ElevenLabs ajoute un canal téléphone (numéro FR + voix naturelle) dès le plan Pro. Si vous avez un besoin multicanal critique, le plan Pro permet d'activer toutes les intégrations et notre équipe peut ajouter un canal custom sur Enterprise.",
       },
       {
         q: 'Le plan Starter à 99 €/mois couvre-t-il vraiment tout ?',

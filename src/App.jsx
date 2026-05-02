@@ -48,10 +48,13 @@ const AlternativeIntercom = lazy(() => import("./pages/AlternativeIntercom").the
 const AlternativeSiena = lazy(() => import("./pages/AlternativeSiena").then(m => ({ default: m.AlternativeSiena })));
 const AlternativeCrisp = lazy(() => import("./pages/AlternativeCrisp").then(m => ({ default: m.AlternativeCrisp })));
 const AlternativeReamaze = lazy(() => import("./pages/AlternativeReamaze").then(m => ({ default: m.AlternativeReamaze })));
+const AlternativeEesel = lazy(() => import("./pages/AlternativeEesel").then(m => ({ default: m.AlternativeEesel })));
+const AlternativeCrispHugo = lazy(() => import("./pages/AlternativeCrispHugo").then(m => ({ default: m.AlternativeCrispHugo })));
 const GorgiasVsActero = lazy(() => import("./pages/GorgiasVsActero").then(m => ({ default: m.GorgiasVsActero })));
 const TidioVsActero = lazy(() => import("./pages/TidioVsActero").then(m => ({ default: m.TidioVsActero })));
 const ZendeskVsActero = lazy(() => import("./pages/ZendeskVsActero").then(m => ({ default: m.ZendeskVsActero })));
 const IntercomVsActero = lazy(() => import("./pages/IntercomVsActero").then(m => ({ default: m.IntercomVsActero })));
+const EeselVsActero = lazy(() => import("./pages/EeselVsActero").then(m => ({ default: m.EeselVsActero })));
 const CalculateurGorgiasPage = lazy(() => import("./pages/CalculateurGorgiasPage").then(m => ({ default: m.CalculateurGorgiasPage })));
 const PortalApp = lazy(() => import('./pages/portal/PortalApp.jsx'));
 import { MotionConfig } from "framer-motion";
@@ -231,10 +234,13 @@ function MainRouter() {
   else if (currentRoute === "/alternative-siena") page = <AlternativeSiena onNavigate={navigate} />;
   else if (currentRoute === "/alternative-crisp") page = <AlternativeCrisp onNavigate={navigate} />;
   else if (currentRoute === "/alternative-reamaze") page = <AlternativeReamaze onNavigate={navigate} />;
+  else if (currentRoute === "/alternative-eesel") page = <AlternativeEesel onNavigate={navigate} />;
+  else if (currentRoute === "/alternative-crisp-hugo") page = <AlternativeCrispHugo onNavigate={navigate} />;
   else if (currentRoute === "/gorgias-vs-actero") page = <GorgiasVsActero onNavigate={navigate} />;
   else if (currentRoute === "/tidio-vs-actero") page = <TidioVsActero onNavigate={navigate} />;
   else if (currentRoute === "/zendesk-vs-actero") page = <ZendeskVsActero onNavigate={navigate} />;
   else if (currentRoute === "/intercom-vs-actero") page = <IntercomVsActero onNavigate={navigate} />;
+  else if (currentRoute === "/eesel-vs-actero") page = <EeselVsActero onNavigate={navigate} />;
   else if (currentRoute === "/calculateur-gorgias") page = <CalculateurGorgiasPage onNavigate={navigate} />;
   else if (currentRoute === "/partner") page = <PartnerLandingPage onNavigate={navigate} />;
   else if (currentRoute === "/partners-program") page = <PartnersLandingPage onNavigate={navigate} />;
