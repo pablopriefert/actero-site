@@ -51,7 +51,14 @@ import {
   X,
   Settings,
   AlertTriangle,
-  Bug
+  Bug,
+  Sun,
+  Heart,
+  ThumbsDown,
+  Brain,
+  Wrench,
+  Layers,
+  Megaphone
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -105,6 +112,7 @@ const AdminPartnerTokensView = lazy(() => import('../components/admin/AdminPartn
 const AdminErrorReportsView = lazy(() => import('../components/admin/AdminErrorReportsView').then(m => ({ default: m.AdminErrorReportsView })))
 const AdminActionLogsView = lazy(() => import('../components/admin/AdminActionLogsView').then(m => ({ default: m.AdminActionLogsView })))
 const AdminClientDetailView = lazy(() => import('../components/admin/AdminClientDetailView').then(m => ({ default: m.AdminClientDetailView })))
+const AdminMorningBriefing = lazy(() => import('../components/admin/AdminMorningBriefing').then(m => ({ default: m.AdminMorningBriefing })))
 import { KpiCard, KpiRow } from '../components/ui/KpiCard'
 import { SectionCard } from '../components/ui/SectionCard'
 import { StatusPill } from '../components/ui/StatusPill'
@@ -235,6 +243,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
 
   const getAdminTabFromRoute = (route) => {
+    if (route === "/admin" || route === "/admin/" || route === "/admin/briefing") return "briefing";
+    if (route === "/admin/overview") return "overview";
     if (route === "/admin/ai-terminal") return "ai-terminal";
     if (route === "/admin/startup-applications") return "startup-applications";
     if (route === "/admin/partner-tokens") return "partner-tokens";
@@ -277,13 +287,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     // /admin/clients/<uuid> → detail view. Pathname only, the id is parsed
     // inside AdminClientDetailView from window.location (querystring or slug).
     if (/^\/admin\/clients\/[0-9a-f-]{8,}/i.test(route)) return "client-detail";
-    return "overview";
+    return "briefing";
   };
 
   const activeTab = getAdminTabFromRoute(currentRoute);
-  
+
   const setActiveTab = (tab) => {
-    const route = tab === "overview" ? "/admin" : `/admin/${tab}`;
+    const route = tab === "briefing" ? "/admin" : `/admin/${tab}`;
     onNavigate(route);
   };
 
@@ -331,6 +341,51 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       if (error) throw error;
       return data || [];
     }
+  });
+
+  // ── Sidebar urgency badges — lightweight count queries.
+  // Single composite query keyed on 'admin-sidebar-badges' so they refresh
+  // together. 60s staleTime is enough; the morning briefing has its own
+  // queries with the same staleTime that warm the cache.
+  const { data: sidebarBadges = {} } = useQuery({
+    queryKey: ['admin-sidebar-badges'],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const [errors, reports, ratings, churn, connectors] = await Promise.all([
+        supabase
+          .from('automation_runs')
+          .select('id', { count: 'exact', head: true })
+          .eq('status', 'failed')
+          .gte('created_at', since24h),
+        supabase
+          .from('client_error_reports')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', since24h),
+        supabase
+          .from('ai_conversations')
+          .select('id', { count: 'exact', head: true })
+          .eq('rating', 'negative')
+          .is('added_to_kb', false),
+        supabase
+          .from('churn_predictions')
+          .select('id', { count: 'exact', head: true })
+          .gte('predicted_at', since7d)
+          .gte('churn_probability', 0.6),
+        supabase
+          .from('client_settings')
+          .select('client_id', { count: 'exact', head: true })
+          .gte('email_consecutive_failures', 10),
+      ]);
+      return {
+        errors24h: errors.count || 0,
+        errorReports24h: reports.count || 0,
+        negativeRatings: ratings.count || 0,
+        churnAtRisk: churn.count || 0,
+        connectorIssues: connectors.count || 0,
+      };
+    },
   });
 
   // Overview data: metrics_daily aggregated
@@ -410,50 +465,83 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
   const isLoading = clientsLoading || requestsLoading || leadsLoading;
 
-  // Sidebar compacte (~14 items visibles, pas besoin de scroller)
-  // Les pages retirées de la sidebar restent accessibles via URL directe
+  // Sidebar admin — refonte 2026-05-02 : structure orientée productivité
+  // matinale. La page d'atterrissage est le Briefing (agrégation de tous les
+  // signaux opérationnels critiques en 1 vue). Tous les onglets ci-dessous
+  // sont accessibles depuis la sidebar — plus aucun orphelin.
+  //
+  // Convention badges :
+  //   - Couleur rouge si count > 0 sur un signal urgent (erreurs, reviews,
+  //     ratings négatifs, connecteurs cassés).
+  //   - Couleur ambre pour les signaux "à surveiller" (churn risk).
+  //   - Pas de badge si count = 0.
+  const urgentBadge = (count) =>
+    count > 0
+      ? { badge: count, badgeColor: 'bg-red-50 text-red-700 border border-red-200' }
+      : {};
+  const watchBadge = (count) =>
+    count > 0
+      ? { badge: count, badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }
+      : {};
+
   const sidebarItems = [
-    { type: 'section', label: 'ACCUEIL' },
-    { id: 'ai-terminal', label: 'Terminal IA', icon: TerminalSquare, badge: 'IA', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
-    { id: 'overview', label: 'Vue d\'ensemble', icon: LayoutDashboard },
-    { id: 'clients', label: 'Clients', icon: Users },
-    { id: 'add-enterprise', label: 'Ajout Enterprise', icon: UserPlus },
+    { type: 'section', label: 'AUJOURD\'HUI' },
+    { id: 'briefing', label: 'Briefing matin', icon: Sun, badge: 'NEW', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
+    { id: 'overview', label: 'Stats détaillées', icon: LayoutDashboard },
 
-    { type: 'section', label: 'ENGINE IA' },
+    { type: 'section', label: 'OPÉRATIONS' },
+    { id: 'live-runs', label: 'Live runs', icon: Zap, badge: 'LIVE', badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
+    { id: 'manual-review', label: 'Reviews à faire', icon: Eye, ...urgentBadge(requests.length) },
+    { id: 'top-errors', label: 'Erreurs engine 24h', icon: AlertTriangle, ...urgentBadge(sidebarBadges.errors24h) },
+    { id: 'error-reports', label: 'Erreurs clients', icon: Bug, ...urgentBadge(sidebarBadges.errorReports24h) },
+    { id: 'ratings', label: 'Notes négatives', icon: ThumbsDown, ...urgentBadge(sidebarBadges.negativeRatings) },
+    { id: 'hallucination', label: 'Hallucinations IA', icon: Brain },
+    { id: 'connector-health', label: 'Santé connecteurs', icon: Plug, ...urgentBadge(sidebarBadges.connectorIssues) },
+    { id: 'health', label: 'Santé clients', icon: Heart },
+    { id: 'engine-runs', label: 'Historique runs', icon: ScrollText },
+
+    { type: 'section', label: 'GROWTH' },
+    { id: 'mrr', label: 'Revenus (MRR)', icon: DollarSign },
+    { id: 'churn-cohort', label: 'Churn cohort', icon: TrendingDown, ...watchBadge(sidebarBadges.churnAtRisk) },
+    { id: 'roi-leaderboard', label: 'ROI clients', icon: Trophy },
+    { id: 'funnel', label: 'Funnel conversion', icon: GitBranch },
+    { id: 'conversion-pipeline', label: 'Free → Pro', icon: TrendingUp },
+
+    { type: 'section', label: 'CLIENTS & PROSPECTS' },
+    { id: 'clients', label: 'Tous les clients', icon: Users },
+    { id: 'pipeline', label: 'Pipeline', icon: Layers },
+    { id: 'startup-applications', label: 'Candidatures Startups', icon: Rocket },
+
+    { type: 'section', label: 'PROGRAMMES' },
+    { id: 'partners', label: 'Partenaires', icon: Handshake },
+    { id: 'partner-tokens', label: 'Liens partenaires', icon: Handshake },
+    { id: 'referrals', label: 'Parrainages', icon: Gift },
+
+    { type: 'section', label: 'CONFIG & OUTILS' },
     {
       type: 'expandable',
-      label: 'Monitoring',
-      icon: Activity,
-      defaultOpen: true,
-      children: [
-        { id: 'live-runs', label: 'Live runs', icon: Zap, badge: 'LIVE', badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
-        { id: 'top-errors', label: 'Erreurs engine', icon: AlertTriangle },
-        { id: 'error-reports', label: 'Erreurs clients', icon: Bug },
-        { id: 'engine-runs', label: 'Historique', icon: ScrollText },
-        { id: 'manual-review', label: 'Review', icon: Eye, badge: requests.length > 0 ? requests.length : null },
-      ],
-    },
-
-    { type: 'section', label: 'ANALYTICS' },
-    { id: 'mrr', label: 'Revenus', icon: DollarSign },
-    { id: 'roi-leaderboard', label: 'ROI', icon: Trophy },
-    { id: 'cost-tracker', label: 'Coûts IA', icon: Coins },
-    { id: 'conversion-pipeline', label: 'Conversion Free', icon: TrendingUp },
-
-    {
-      type: 'expandable',
-      label: 'Plus',
+      label: 'Configuration',
       icon: Settings,
       children: [
-        { id: 'startup-applications', label: 'Candidatures Startups', icon: Rocket },
-        { id: 'referrals', label: 'Parrainages', icon: Gift },
-        { id: 'partners', label: 'Partenaires', icon: Handshake },
-        { id: 'partner-tokens', label: 'Liens Partenaires', icon: Handshake },
+        { id: 'cost-tracker', label: 'Coûts IA', icon: Coins },
+        { id: 'tokens', label: 'Tokens', icon: Coins },
+        { id: 'playbooks', label: 'Playbooks', icon: BookOpen },
+        { id: 'agent-heatmap', label: 'Heatmap agents', icon: Grid3x3 },
         { id: 'alert-builder', label: 'Alertes Slack', icon: BellRing },
-        { id: 'billing', label: 'Facturation', icon: Receipt },
         { id: 'shopify', label: 'App Shopify', icon: ShoppingBag },
         { id: 'stripe-setup', label: 'Config Stripe', icon: CreditCard },
+        { id: 'billing', label: 'Facturation', icon: Receipt },
         { id: 'action-logs', label: 'Journal audit', icon: FileText },
+      ],
+    },
+    {
+      type: 'expandable',
+      label: 'Outils',
+      icon: Wrench,
+      children: [
+        { id: 'ai-terminal', label: 'Terminal IA', icon: TerminalSquare, badge: 'IA', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
+        { id: 'engine', label: 'Engine test', icon: Bot },
+        { id: 'monitoring', label: 'Monitoring legacy', icon: Activity },
       ],
     },
   ];
@@ -560,7 +648,8 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         <header className="hidden md:flex h-16 bg-white border-b border-[#f0f0f0] items-center px-8 justify-between">
           <h1 className="text-[18px] font-semibold tracking-tight text-[#1a1a1a]">
             {{
-              overview: 'Accueil équipe',
+              briefing: 'Briefing matin',
+              overview: 'Stats détaillées',
               clients: 'Tous les clients',
               'add-enterprise': 'Ajout client Enterprise',
               'client-detail': 'Fiche client',
@@ -600,8 +689,30 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               intelligence: 'Intelligence clients',
             }[activeTab] || activeTab.replace('-', ' ')}
           </h1>
-          {/* Global search moved to the single Cmd+K CommandPalette (mounted
-             in App.jsx). GlobalSearchBar was redundant and indexed less. */}
+          {/* Quick-add menu — remplaces l'ancien onglet "Ajout Enterprise"
+             dans la sidebar. Une seule entrée pour les actions de création
+             les plus fréquentes (client standard ou enterprise, test engine).
+             Le Cmd+K reste l'autre point d'entrée global. */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleAddClient}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium bg-cta text-white hover:bg-[#003725] transition-colors"
+              title="Ajouter un client (Cmd+N)"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Nouveau client</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('add-enterprise')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium bg-white border border-[#f0f0f0] text-[#1a1a1a] hover:bg-zinc-50 transition-colors"
+              title="Ajouter un client Enterprise"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Enterprise</span>
+            </button>
+          </div>
         </header>
 
         <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-8">
@@ -612,6 +723,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               <span className="sr-only">Chargement…</span>
             </div>
           }>
+          {activeTab === "briefing" && <div className="max-w-7xl mx-auto"><AdminMorningBriefing onTabChange={setActiveTab} /></div>}
           {activeTab === "ai-terminal" && <AdminAITerminal />}
           {activeTab === "partner-tokens" && <AdminPartnerTokensView />}
           {activeTab === "error-reports" && <AdminErrorReportsView />}
