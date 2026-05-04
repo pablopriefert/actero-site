@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { CheckCircle, Zap, Loader2, ArrowRight } from "lucide-react";
 import { trackEvent } from "../lib/analytics";
+import { OnboardingProgress } from "../components/dashboard/OnboardingProgress";
 
 export function ShopifySuccessPage({ onNavigate }) {
   const params = new URLSearchParams(window.location.search);
   const shop = params.get("shop") || "votre boutique";
   const clientId = params.get("client_id");
+  const onboardingJobId = params.get("onboarding_job");
 
   // Analytics — fire once per landing on /shopify-success (= post-OAuth callback)
   useEffect(() => {
@@ -65,6 +67,12 @@ export function ShopifySuccessPage({ onNavigate }) {
         <p className="text-emerald-400 font-bold text-lg mb-8">
           {shop}
         </p>
+
+        {onboardingJobId && (
+          <div className="mb-6 text-left">
+            <OnboardingProgress jobId={onboardingJobId} />
+          </div>
+        )}
 
         {!activated ? (
           <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 mb-6">

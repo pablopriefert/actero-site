@@ -115,6 +115,10 @@
         {
             "path": "/api/cron/slack-canvas-update",
             "schedule": "*/15 * * * *"
+        },
+        {
+            "path": "/api/cron/process-e2b-jobs",
+            "schedule": "*/5 * * * *"
         }
     ],
     "headers": [

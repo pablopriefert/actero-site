@@ -1,6 +1,7 @@
-import { withSentry } from '../lib/sentry.js'
+import { withSentry, captureError } from '../lib/sentry.js'
 import crypto from 'crypto';
 import { encryptToken } from '../lib/crypto.js';
+import { spawnJob } from '../lib/e2b-runner.js';
 
 async function handler(req, res) {
   const { shop, code, state, hmac } = req.query;
@@ -189,6 +190,38 @@ async function handler(req, res) {
     }
   }
 
+  // 6d. Spawn the heavy-lift onboarding job in an E2B sandbox.
+  // The sandbox pulls products / customers / orders / historical convos and
+  // builds the initial knowledge base. We do not block the OAuth response —
+  // the dashboard polls /api/jobs/:id for live progress.
+  let onboardingJobId = null;
+  if (onboardedClientId && process.env.E2B_API_KEY) {
+    try {
+      const { jobId } = await spawnJob({
+        jobType: 'shopify_onboard',
+        clientId: onboardedClientId,
+        scriptName: 'shopify_onboard.py',
+        payload: { shop_domain: shop, sync_range: '90d' },
+        env: {
+          SHOPIFY_ACCESS_TOKEN: access_token,
+          SHOPIFY_SHOP_DOMAIN: shop,
+        },
+        timeoutMinutes: 30,
+      });
+      onboardingJobId = jobId;
+    } catch (err) {
+      // Don't block the OAuth callback — the dashboard will let the merchant
+      // re-trigger onboarding manually if the spawn failed.
+      console.error('Failed to spawn onboarding job:', err.message);
+      captureError(err, {
+        endpoint: '/api/shopify/callback',
+        step: 'spawn_onboarding',
+        client_id: onboardedClientId,
+        shop_domain: shop,
+      });
+    }
+  }
+
   // 7. Clear cookies
   res.setHeader('Set-Cookie', [
     'shopify_nonce=; Path=/; HttpOnly; Secure; Max-Age=0',
@@ -197,9 +230,10 @@ async function handler(req, res) {
   ]);
 
   // 8. Redirect to Shopify success page (React route)
-  const redirectUrl = onboardedClientId
-    ? `/shopify-success?shop=${encodeURIComponent(shop)}&client_id=${encodeURIComponent(onboardedClientId)}`
-    : `/shopify-success?shop=${encodeURIComponent(shop)}`;
+  const params = new URLSearchParams({ shop });
+  if (onboardedClientId) params.set('client_id', onboardedClientId);
+  if (onboardingJobId) params.set('onboarding_job', onboardingJobId);
+  const redirectUrl = `/shopify-success?${params.toString()}`;
 
   res.redirect(302, redirectUrl);
 }

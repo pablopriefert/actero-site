@@ -40,6 +40,7 @@ import {
   MonitorSmartphone,
   SlidersHorizontal,
   Search,
+  Upload,
   X,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -92,6 +93,7 @@ const InsightsHubView = lazy(() => import('../components/client/InsightsHubView'
 const SettingsHubView = lazy(() => import('../components/client/SettingsHubView').then(m => ({ default: m.SettingsHubView })))
 const ClientBillingView = lazy(() => import('../components/client/ClientBillingView').then(m => ({ default: m.ClientBillingView })))
 const HelpCenterView = lazy(() => import('../components/client/HelpCenterView').then(m => ({ default: m.HelpCenterView })))
+const MigrationsView = lazy(() => import('../components/client/MigrationsView').then(m => ({ default: m.MigrationsView })))
 const ROISettingsView = lazy(() => import('../components/client/ROISettingsView').then(m => ({ default: m.ROISettingsView })))
 import { CommandPalette } from '../components/CommandPalette'
 import { useCommandPalette } from '../hooks/useCommandPalette'
@@ -151,6 +153,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/referral") return "referral";
     if (route === "/client/partner") return "partner";
     if (route === "/client/integrations") return "integrations";
+    if (route === "/client/migrations") return "migrations";
     if (route === "/client/portal-sav") return "portal-sav";
     if (route === "/client/portal-branding") return "portal-branding";
     if (route === "/client/api-docs") return "api-docs";
@@ -736,6 +739,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       icon: Plug,
       children: [
         { id: 'integrations', label: 'Intégrations', icon: Plug },
+        { id: 'migrations', label: 'Migration tickets', icon: Upload },
         // Futurs canaux (voice) à ajouter ici.
       ],
     },
@@ -882,6 +886,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "referral" && "Parrainage"}
             {activeTab === "partner" && "Actero Partners"}
             {activeTab === "integrations" && "Intégrations"}
+            {activeTab === "migrations" && "Migration de tickets"}
             {activeTab === "portal-sav" && "Portail SAV"}
             {activeTab === "portal-branding" && "Personnaliser mon portail"}
             {activeTab === "channels" && "Canaux"}
@@ -1190,6 +1195,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               clientType={currentClient?.client_type}
               theme={theme}
             />
+          )}
+
+          {activeTab === "migrations" && (
+            <MigrationsView clientId={currentClient?.id} theme={theme} />
           )}
 
           {activeTab === "portal-sav" && (
