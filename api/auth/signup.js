@@ -189,6 +189,31 @@ async function handler(req, res) {
       console.error('[SIGNUP] Notify error:', notifyErr.message);
     }
 
+    // 6c. Push event to Lightfield CRM (non-blocking, fire-and-forget).
+    // Creates Account + Contact + Opportunity stage "Trial Activated".
+    try {
+      const { pushSignupToLightfield } = await import('../lib/lightfield.js');
+      // acquisition_source on /signup can be either a string ('linkedin') or
+      // a JSON object captured client-side ({ source: 'linkedin', campaign: '...' }).
+      const utmSource = typeof acquisition_source === 'string'
+        ? acquisition_source
+        : acquisition_source?.source || 'direct';
+      const utmCampaign = typeof acquisition_source === 'object'
+        ? acquisition_source?.campaign || ''
+        : '';
+      pushSignupToLightfield({
+        client_id: clientId,
+        email,
+        name: brand_name.trim(),
+        shop_domain: shopify_url ? shopify_url.trim().replace(/^https?:\/\//, '').replace(/\/$/, '') : '',
+        company_name: brand_name.trim(),
+        utm_source: utmSource,
+        utm_campaign: utmCampaign,
+      });
+    } catch (lfErr) {
+      console.error('[SIGNUP] Lightfield push error:', lfErr.message);
+    }
+
     // 7. Redirect to dashboard — Free plan auto-provisioned. Upsell from sidebar.
     return res.status(200).json({
       success: true,
