@@ -312,6 +312,35 @@ async function handler(req, res) {
             },
           }).catch(() => {});
 
+          // Push to Lightfield CRM — moves the Trial Activated opportunity
+          // to "💰 Paid (Closed Won)" with ARR and Slack notif. Only fire
+          // when transitioning to a paid plan (free → paid is the conversion).
+          if (newPlan !== 'free' && previousPlan !== newPlan) {
+            try {
+              const { data: client } = await supabase
+                .from('clients')
+                .select('contact_email, brand_name, shopify_url')
+                .eq('id', clientId)
+                .maybeSingle();
+              if (client?.contact_email) {
+                const { pushSubscriptionToLightfield } = await import('./lib/lightfield.js');
+                pushSubscriptionToLightfield({
+                  client_id: clientId,
+                  email: client.contact_email,
+                  shop_domain: client.shopify_url
+                    ? client.shopify_url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+                    : '',
+                  company_name: client.brand_name || '',
+                  plan: newPlan,
+                  stripe_customer_id: session.customer,
+                  stripe_subscription_id: updateData.stripe_subscription_id || '',
+                });
+              }
+            } catch (lfErr) {
+              console.error('[UPGRADE] Lightfield push error:', lfErr.message);
+            }
+          }
+
         } catch (upErr) {
           console.error('[UPGRADE] Update failed:', upErr.message);
         }

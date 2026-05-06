@@ -98,3 +98,55 @@ export function pushSignupToLightfield(args) {
   // Fire-and-forget: don't await in the calling endpoint.
   pushLightfieldEvent('LIGHTFIELD_WEBHOOK_SIGNUP', payload).catch(() => {})
 }
+
+/**
+ * Plan → monthly EUR price (matches PLAN_MRR in api/stripe-webhook.js).
+ * Used to compute ARR for the Lightfield Opportunity update.
+ */
+const PLAN_MONTHLY_EUR = { free: 0, starter: 99, pro: 399, enterprise: 999 }
+
+function planLabel(plan) {
+  if (!plan) return 'Free'
+  return plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase()
+}
+
+/**
+ * Push a "subscription.created" event to LIGHTFIELD_WEBHOOK_STRIPE.
+ *
+ * Triggered when a trial converts to a paid plan. The Lightfield workflow
+ * "Stripe paid → Closed Won" matches the existing Trial Activated opportunity
+ * (by Contact email or Account domain) and updates the stage to Paid.
+ *
+ * @param {Object} args
+ * @param {string} args.client_id              — Actero client UUID
+ * @param {string} args.email                  — contact email
+ * @param {string} [args.shop_domain]          — myshopify.com domain
+ * @param {string} [args.company_name]         — brand name
+ * @param {'free'|'starter'|'pro'|'enterprise'} args.plan
+ * @param {string} [args.stripe_customer_id]
+ * @param {string} [args.stripe_subscription_id]
+ * @param {Date|string} [args.subscribed_at]   — defaults to now
+ */
+export function pushSubscriptionToLightfield(args) {
+  const monthly = PLAN_MONTHLY_EUR[args.plan] ?? 0
+  const annual = monthly * 12
+
+  const payload = {
+    event: 'subscription.created',
+    client_id: args.client_id,
+    email: args.email,
+    shop_domain: args.shop_domain || '',
+    company_name: args.company_name || args.email || '',
+    plan: planLabel(args.plan),
+    monthly_amount_eur: monthly,
+    annual_arr_eur: annual,
+    stripe_customer_id: args.stripe_customer_id || '',
+    stripe_subscription_id: args.stripe_subscription_id || '',
+    subscribed_at:
+      args.subscribed_at instanceof Date
+        ? args.subscribed_at.toISOString()
+        : args.subscribed_at || new Date().toISOString(),
+  }
+
+  pushLightfieldEvent('LIGHTFIELD_WEBHOOK_STRIPE', payload).catch(() => {})
+}
