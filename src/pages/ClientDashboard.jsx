@@ -109,7 +109,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [selectedPeriod, setSelectedPeriod] = useState("this_month");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
-  const [clientNow] = useState(() => Date.now());
+  const clientNow = Date.now();
   const queryClient = useQueryClient();
   const { open: cmdkOpen, setOpen: setCmdkOpen, close: closeCmdk, isMac } = useCommandPalette();
 

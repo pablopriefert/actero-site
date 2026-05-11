@@ -159,8 +159,7 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
   const mailbox = integration?.extra_config?.email || integration?.extra_config?.username || '—'
   const week = activity?.week || { total: 0, auto: 0, escalated: 0, auto_rate: 0 }
 
-  const [renderNow] = useState(() => Date.now())
-  const minsAgo = lastPoll ? Math.floor((renderNow - new Date(lastPoll).getTime()) / 60000) : null
+  const minsAgo = lastPoll ? Math.floor((Date.now() - new Date(lastPoll).getTime()) / 60000) : null
 
   const resetCircuit = useMutation({
     mutationFn: async () => {

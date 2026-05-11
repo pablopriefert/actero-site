@@ -241,7 +241,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [callNotesClient, setCallNotesClient] = useState(null);
   const [deploymentState, setDeploymentState] = useState(null); // { deploymentId, clientName }
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
-  const [adminNow] = useState(() => Date.now());
+  const adminNow = Date.now();
 
   const getAdminTabFromRoute = (route) => {
     if (route === "/admin" || route === "/admin/" || route === "/admin/briefing") return "briefing";

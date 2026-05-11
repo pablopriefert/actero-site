@@ -101,7 +101,6 @@ export function AdminAlertBuilderView() {
     },
   })
 
-  const [kpiNow] = useState(() => Date.now())
   const kpis = useMemo(() => {
     const active = rules.filter((r) => r.enabled).length
     const last = rules
@@ -109,7 +108,7 @@ export function AdminAlertBuilderView() {
       .filter(Boolean)
       .sort()
       .pop()
-    const since24h = kpiNow - 24 * 3600 * 1000
+    const since24h = Date.now() - 24 * 3600 * 1000
     const triggers24h = rules.reduce((sum, r) => {
       if (r.last_triggered_at && new Date(r.last_triggered_at).getTime() >= since24h) {
         return sum + (r.last_24h_count || 1)
@@ -117,7 +116,7 @@ export function AdminAlertBuilderView() {
       return sum
     }, 0)
     return { active, triggers24h, last }
-  }, [rules, kpiNow])
+  }, [rules])
 
   const openCreate = () => {
     setEditingRule(null)
