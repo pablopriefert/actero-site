@@ -62,7 +62,10 @@ async function handler(req, res) {
     } catch { /* fall through */ }
   }
 
-  if (!clientId) return res.status(401).json({ error: 'Invalid API key' })
+  if (!clientId) {
+    console.error(`[widget] Invalid API key: ${apiKey?.substring(0, 8)}...`)
+    return res.status(401).json({ error: 'Invalid API key', response: 'Configuration en cours. Veuillez réessayer dans quelques instants.' })
+  }
 
   const { data: client } = await supabase
     .from('clients')
@@ -134,7 +137,8 @@ async function handler(req, res) {
     .single()
 
   if (insertError) {
-    return res.status(500).json({ error: 'Failed to store message' })
+    console.error('[widget] engine_messages insert error:', insertError.message)
+    return res.status(500).json({ error: 'Failed to store message', response: 'Un problème technique est survenu. Réessayez dans quelques instants.' })
   }
 
   const startTime = Date.now()

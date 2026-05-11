@@ -224,10 +224,9 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
     setConversationCache((prev) => ({ ...prev, [event.id]: { loading: true } }));
 
     try {
-      // Match by client_id + timestamp window (±8 seconds around the event).
-      // ai_conversations is written ~400ms after the automation_event in the
-      // same run, so this window is safe.
-      const eventTime = new Date(event.created_at + (event.created_at.endsWith('Z') ? '' : 'Z'));
+      const raw = event.created_at
+      const eventTime = new Date(typeof raw === 'string' && !raw.endsWith('Z') && !raw.includes('+') ? raw + 'Z' : raw);
+      if (isNaN(eventTime.getTime())) throw new Error('Date invalide')
       const start = new Date(eventTime.getTime() - 8000).toISOString();
       const end = new Date(eventTime.getTime() + 8000).toISOString();
 
