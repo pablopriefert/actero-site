@@ -6,6 +6,8 @@
  *
  * Widget authenticates via api_key query param which maps to a client.
  */
+export const maxDuration = 60
+
 import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { normalizeEvent } from '../lib/normalizer.js'

@@ -509,20 +509,25 @@
           images: imageDataUrls,
         }),
       })
-      const data = await res.json()
+      var data
+      try { data = await res.json() } catch { data = {} }
       loader.remove()
-      addBotMessage(data.response || 'Merci, un agent va vous répondre.')
-      if (data.product_recommendations && data.product_recommendations.length > 0) {
-        addProductCards(data.product_recommendations)
-      }
-      messageCount++
+      if (!res.ok || data.error) {
+        addBotMessage(data.response || 'Un instant, je traite votre demande... Réessayez dans quelques secondes.')
+      } else {
+        addBotMessage(data.response || 'Merci pour votre message. Un membre de notre équipe va vous répondre.')
+        if (data.product_recommendations && data.product_recommendations.length > 0) {
+          addProductCards(data.product_recommendations)
+        }
+        messageCount++
 
-      // After 2nd AI response, politely ask for email (non-blocking)
-      if (messageCount === 2 && !customerEmail && !emailAsked) {
-        emailAsked = true
-        setTimeout(function() {
-          addBotMessage('Au fait, si vous souhaitez qu\'on puisse vous recontacter, n\'hésitez pas à me laisser votre email dans la conversation.')
-        }, 1500)
+        // After 2nd AI response, politely ask for email (non-blocking)
+        if (messageCount === 2 && !customerEmail && !emailAsked) {
+          emailAsked = true
+          setTimeout(function() {
+            addBotMessage('Au fait, si vous souhaitez qu\'on puisse vous recontacter, n\'hésitez pas à me laisser votre email dans la conversation.')
+          }, 1500)
+        }
       }
     } catch {
       loader.remove()

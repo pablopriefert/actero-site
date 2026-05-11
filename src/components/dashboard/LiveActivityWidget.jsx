@@ -57,8 +57,8 @@ export const FeedbackButtons = ({ eventId, currentFeedback, supabase }) => {
  * Connection pulse + link to activity tab. Rendered in a compact card
  * (bg-white, border, rounded-2xl) — le parent décide du wrapping.
  */
-export const LiveActivityWidget = ({ supabase, setActiveTab, compact = false }) => {
-  const { events, isConnected } = useLiveActivityFeed(supabase)
+export const LiveActivityWidget = ({ supabase, setActiveTab, compact = false, clientId }) => {
+  const { events, isConnected } = useLiveActivityFeed(supabase, clientId)
   const recent = events.slice(0, compact ? 5 : 6)
 
   return (

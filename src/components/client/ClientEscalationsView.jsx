@@ -805,8 +805,8 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
         .from('ai_conversations')
         .select('*')
         .eq('client_id', clientId)
-        .or('status.eq.escalated,human_response.not.is.null')
         .order('created_at', { ascending: false })
+        .limit(100)
       if (error) throw error
       return data
     },
@@ -866,7 +866,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
   const filtered = filter === 'pending'
     ? allEscalations.filter(e => e.status === 'escalated' && !e.human_response)
     : filter === 'resolved'
-      ? allEscalations.filter(e => e.human_response)
+      ? allEscalations.filter(e => e.status === 'resolved' || e.human_response)
       : allEscalations
 
   const pendingCount = allEscalations.filter(e => e.status === 'escalated' && !e.human_response).length
@@ -905,8 +905,8 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
       <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-[#fafafa] w-fit">
         {[
           { id: 'pending', label: 'À traiter', count: pendingCount },
-          { id: 'resolved', label: 'Traités' },
-          { id: 'all', label: 'Tous' },
+          { id: 'resolved', label: 'Résolus' },
+          { id: 'all', label: 'Tous', count: allEscalations.length },
         ].map((f) => (
           <button
             key={f.id}
@@ -942,17 +942,18 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
           <EmptyState
             icon={CheckCircle2}
             tone="success"
-            title={filter === 'pending' ? 'Aucune escalade en attente' : 'Aucune escalade pour le moment'}
+            title={filter === 'pending' ? 'Aucune escalade en attente' : 'Aucune conversation pour le moment'}
             description={filter === 'pending'
               ? 'Ton agent gère tout en autonomie. Les tickets qui nécessitent ton intervention apparaîtront ici.'
-              : 'Dès qu\'un ticket sera escaladé à ton équipe, tu le verras apparaître ici avec le raisonnement de l\'agent.'}
+              : 'Les conversations avec tes clients apparaîtront ici dès qu\'un message sera reçu via le widget ou par email.'}
           />
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map((conv) => {
-            const overdue = isOverdue(conv.created_at) && !conv.human_response
-            const reason = ESCALATION_REASONS[conv.escalation_reason] || ESCALATION_REASONS.default
+            const isAutoResolved = conv.status === 'resolved' && !conv.escalation_reason
+            const overdue = !isAutoResolved && isOverdue(conv.created_at) && !conv.human_response
+            const reason = isAutoResolved ? null : (ESCALATION_REASONS[conv.escalation_reason] || ESCALATION_REASONS.default)
             return (
               <motion.div
                 key={conv.id}
@@ -963,7 +964,11 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      {conv.human_response ? (
+                      {isAutoResolved ? (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                          IA — Résolu
+                        </span>
+                      ) : conv.human_response ? (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                           Resolu
                         </span>
@@ -972,9 +977,16 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                           En attente
                         </span>
                       )}
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#fafafa] text-[#9ca3af] border border-[#f0f0f0]">
-                        {reason}
-                      </span>
+                      {reason && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#fafafa] text-[#9ca3af] border border-[#f0f0f0]">
+                          {reason}
+                        </span>
+                      )}
+                      {conv.confidence_score && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-600 border border-violet-100">
+                          {Math.round(conv.confidence_score * 100)}%
+                        </span>
+                      )}
                       <span className={`text-xs flex items-center gap-1 ${overdue ? 'text-red-400' : 'text-[#9ca3af]'}`}>
                         <Clock className="w-3 h-3" />
                         {formatTimeAgo(conv.created_at)}

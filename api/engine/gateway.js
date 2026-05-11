@@ -6,6 +6,8 @@
  *
  * POST /api/engine/gateway
  */
+export const maxDuration = 60
+
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { normalizeEvent } from './lib/normalizer.js'

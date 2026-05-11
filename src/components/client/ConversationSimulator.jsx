@@ -108,6 +108,18 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
     enabled: !!clientId,
   })
 
+  // Fetch client's widget API key (for free chat via engine pipeline)
+  const { data: widgetApiKey } = useQuery({
+    queryKey: ['widget-api-key', clientId],
+    queryFn: async () => {
+      const { data } = await supabase.from('client_api_keys').select('key_value').eq('client_id', clientId).eq('is_active', true).limit(1).maybeSingle()
+      if (data) return data.key_value
+      const { data: settings } = await supabase.from('client_settings').select('widget_api_key').eq('client_id', clientId).maybeSingle()
+      return settings?.widget_api_key || null
+    },
+    enabled: !!clientId,
+  })
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [chatMessages])
@@ -196,28 +208,48 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
     toast.success('Tous les playbooks testes')
   }
 
-  // Free chat with the simulator
+  // Free chat — routes through the real engine pipeline (Brain + KB + Playbook)
   const sendChat = async (text) => {
     if (!text.trim() || chatLoading) return
     const userMsg = { role: 'user', content: text.trim() }
-    setChatMessages(prev => [...prev, userMsg])
+    const updatedMessages = [...chatMessages, userMsg]
+    setChatMessages(updatedMessages)
     setChatInput('')
     setChatLoading(true)
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const res = await fetch('/api/simulator-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({
-          prompt: text.trim(),
-          systemPrompt: null, // Uses default from client config
-          history: chatMessages.map(m => ({ role: m.role, content: m.content })),
-        }),
-      })
-      const data = await res.json()
-      const response = (data.text || '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim()
-      setChatMessages(prev => [...prev, { role: 'assistant', content: response || 'Pas de reponse.' }])
+      if (widgetApiKey) {
+        const res = await fetch(`/api/engine/webhooks/widget?api_key=${widgetApiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: text.trim(),
+            session_id: `simulator_${clientId}`,
+            history: updatedMessages.map(m => ({ role: m.role, content: m.content })),
+          }),
+        })
+        const data = await res.json()
+        const response = (data.response || '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim()
+        setChatMessages(prev => [...prev, { role: 'assistant', content: response || 'Pas de reponse.' }])
+      } else {
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch('/api/engine/gateway', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({
+            client_id: clientId,
+            event_type: 'widget_message',
+            source: 'widget_message',
+            customer_email: 'test@actero-simulator.com',
+            customer_name: 'Test Simulator',
+            message: text.trim(),
+            is_test: true,
+          }),
+        })
+        const data = await res.json()
+        const response = (data.response || '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim()
+        setChatMessages(prev => [...prev, { role: 'assistant', content: response || 'Pas de reponse.' }])
+      }
     } catch {
       setChatMessages(prev => [...prev, { role: 'assistant', content: 'Erreur lors du test.', error: true }])
     }

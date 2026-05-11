@@ -22,7 +22,7 @@ export const formatRelativeTime = (date) => {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useLiveActivityFeed = (supabase) => {
+export const useLiveActivityFeed = (supabase, clientId) => {
   const [events, setEvents] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,15 +32,16 @@ export const useLiveActivityFeed = (supabase) => {
 
     let mounted = true;
 
-    // Fetch initial 50 events
     const fetchInitial = async () => {
       setIsLoading(true);
-      const { data, error: _fetchError } = await supabase
+      let query = supabase
         .from('automation_events')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
-      
+      if (clientId) query = query.eq('client_id', clientId);
+      const { data } = await query;
+
       if (mounted) {
         if (data) setEvents(data);
         setIsLoading(false);
@@ -48,15 +49,18 @@ export const useLiveActivityFeed = (supabase) => {
     };
     fetchInitial();
 
-    // Subscribe to new events
+    const channelFilter = clientId
+      ? `client_id=eq.${clientId}`
+      : undefined;
     const channel = supabase
-      .channel('live-activity-feed')
+      .channel(`live-activity-feed-${clientId || 'all'}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'automation_events',
+          ...(channelFilter ? { filter: channelFilter } : {}),
         },
         (payload) => {
           if (mounted) {
@@ -74,7 +78,7 @@ export const useLiveActivityFeed = (supabase) => {
       mounted = false;
       supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [supabase, clientId]);
 
   return { events, isConnected, isLoading };
 };
@@ -197,8 +201,8 @@ const maskEmail = (email) => {
   return `${maskedLocal}@${domain}`;
 };
 
-export const ActivityView = ({ supabase, theme: _theme = "dark" }) => {
-  const { events, isConnected, isLoading } = useLiveActivityFeed(supabase);
+export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => {
+  const { events, isConnected, isLoading } = useLiveActivityFeed(supabase, clientId);
   const [filter, setFilter] = useState("all");
   const [expandedId, setExpandedId] = useState(null);
   // eventId -> { loading, conversation, error }

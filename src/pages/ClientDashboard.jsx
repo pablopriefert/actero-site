@@ -1164,7 +1164,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             </div>
           )}
 
-          {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} />}
+          {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} clientId={currentClient?.id} />}
 
           {activeTab === "profile" && <ClientProfileView theme={theme} />}
 
