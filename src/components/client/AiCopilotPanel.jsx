@@ -75,9 +75,11 @@ export function AiCopilotPanel({ conversationId, onUseDraft }) {
   }, [conversationId])
 
   // Auto-fetch on mount + when conversation changes
+  /* eslint-disable react-hooks/set-state-in-effect -- async fetch: setState is inside awaited callback */
   useEffect(() => {
     fetchDrafts()
   }, [fetchDrafts])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleUseDraft = (draft, idx) => {
     trackEvent('Copilot_Draft_Used', {

@@ -83,7 +83,7 @@ export function AdminClientQuickActions({ client, onAction, align = 'right' }) {
         setOpen(false)
       }
     },
-    [client.id, onAction, toast]
+    [client.id, client.brand_name, onAction, toast]
   )
 
   const handleImpersonate = useCallback(async () => {
@@ -116,7 +116,7 @@ export function AdminClientQuickActions({ client, onAction, align = 'right' }) {
       setLoadingAction(null)
       setOpen(false)
     }
-  }, [client.id, onAction, toast])
+  }, [client.id, client.brand_name, onAction, toast])
 
   const handlePause = () => callClientAction('pause_agent')
   const handleResume = () => callClientAction('resume_agent')

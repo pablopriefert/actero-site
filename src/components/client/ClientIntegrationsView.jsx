@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plug, X, Loader2, CheckCircle, AlertCircle, ExternalLink,
@@ -10,7 +10,7 @@ import { useToast } from '../ui/Toast'
 import { INTEGRATIONS, ALL_INTEGRATIONS, INTEGRATION_CATEGORIES, getIntegrationById, getConflictingActive, getConflictGroup, CONFLICT_GROUPS } from '../../config/integrations'
 import { EmptyState } from '../ui/EmptyState'
 
-const ProviderIcon = ({ provider, connected, size = 40 }) => {
+const ProviderIcon = ({ provider, connected: _connected, size = 40 }) => {
   const config = getIntegrationById(provider.id || provider) || provider;
   const hasIcon = !!config.icon;
   return (
@@ -44,7 +44,7 @@ const STATUS_BADGES = {
   pending: { label: 'En attente', className: 'bg-blue-50 text-blue-600 border-blue-200' },
 };
 
-const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain, onOAuthConnect, onDisconnect, onTest, isLight, blockedBy }) => {
+const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain, onOAuthConnect, onDisconnect, onTest, isLight: _isLight, blockedBy }) => {
   const isShopify = provider.id === 'shopify';
   const isConnected = isShopify ? shopifyConnected : !!connection;
   const status = isShopify ? (shopifyConnected ? 'active' : null) : connection?.status;
@@ -168,7 +168,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
   );
 };
 
-const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
+const ConnectModal = ({ provider, onClose, onSuccess, isLight: _isLight }) => {
   const [credentials, setCredentials] = useState({});
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
@@ -332,7 +332,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight }) => {
   );
 };
 
-const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight }) => (
+const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight: _isLight }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center">
     <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" onClick={onClose} />
     <motion.div
@@ -498,55 +498,50 @@ const LinearAutoIssuePanel = ({ clientId }) => {
   )
 }
 
-export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
+export const ClientIntegrationsView = ({ clientId, clientType: _clientType, theme }) => {
   const queryClient = useQueryClient();
   const { success: toastSuccess, error: toastError } = useToast();
   const isLight = theme === 'light';
   const [disconnectTarget, setDisconnectTarget] = useState(null);
   const [disconnecting, setDisconnecting] = useState(false);
   const [search, setSearch] = useState('');
-  const [oauthMessage, setOauthMessage] = useState(null);
-  const [oauthPromptProvider, setOauthPromptProvider] = useState(null);
-  const [oauthPromptValue, setOauthPromptValue] = useState('');
-
-  // Handle OAuth callback messages
-  // Supports two formats:
-  //   1. Legacy: ?success=notion or ?error=...
-  //   2. New: ?integration=notion&status=success OR ?integration=notion&status=error&message=...
-  useEffect(() => {
+  // Parse OAuth callback URL params on mount (initializer avoids setState-in-effect)
+  const [oauthMessage, setOauthMessage] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-
     // New format (from /api/integrations/*/callback)
     const integration = params.get('integration');
     const status = params.get('status');
     const message = params.get('message');
     if (integration && status) {
       const providerLabel = getIntegrationById(integration)?.name || integration;
-      if (status === 'success') {
-        setOauthMessage({ type: 'success', text: `${providerLabel} connecté avec succès !` });
-        queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
-      } else {
-        setOauthMessage({
-          type: 'error',
-          text: `Erreur ${providerLabel} : ${(message || 'connexion échouée').replace(/_/g, ' ')}`,
-        });
-      }
       window.history.replaceState({}, '', window.location.pathname);
-      return;
+      if (status === 'success') {
+        return { type: 'success', text: `${providerLabel} connecté avec succès !`, _invalidate: true };
+      }
+      return { type: 'error', text: `Erreur ${providerLabel} : ${(message || 'connexion échouée').replace(/_/g, ' ')}` };
     }
-
     // Legacy format
     const success = params.get('success');
     const error = params.get('error');
     if (success) {
-      setOauthMessage({ type: 'success', text: `${success.charAt(0).toUpperCase() + success.slice(1)} connecté avec succès !` });
-      queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
       window.history.replaceState({}, '', window.location.pathname);
-    } else if (error) {
-      setOauthMessage({ type: 'error', text: `Erreur de connexion : ${error.replace(/_/g, ' ')}` });
-      window.history.replaceState({}, '', window.location.pathname);
+      return { type: 'success', text: `${success.charAt(0).toUpperCase() + success.slice(1)} connecté avec succès !`, _invalidate: true };
     }
-  }, [queryClient]);
+    if (error) {
+      window.history.replaceState({}, '', window.location.pathname);
+      return { type: 'error', text: `Erreur de connexion : ${error.replace(/_/g, ' ')}` };
+    }
+    return null;
+  });
+  const [oauthPromptProvider, setOauthPromptProvider] = useState(null);
+  const [oauthPromptValue, setOauthPromptValue] = useState('');
+
+  // Invalidate integrations cache if OAuth callback indicated success
+  useEffect(() => {
+    if (oauthMessage?._invalidate) {
+      queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTestConnection = async (integrationId) => {
     try {
@@ -633,7 +628,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       const connectedCount = integrations?.filter(i => i.status === 'active')?.length || 0
       if (integLimit !== Infinity && connectedCount >= integLimit) {
         const planName = getPlanConfig(plan).name
-        toast?.error?.(`Limite atteinte : ${integLimit} integration${integLimit > 1 ? 's' : ''} sur le plan ${planName}. Passez au plan superieur.`)
+        toastError(`Limite atteinte : ${integLimit} integration${integLimit > 1 ? 's' : ''} sur le plan ${planName}. Passez au plan superieur.`)
         return
       }
     } catch { /* skip if plans.js not available */ }
@@ -670,7 +665,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       return;
     }
     if (provider.authType === 'embedded_signup' && provider.wizardRoute) {
-      window.location.href = provider.wizardRoute;
+      window.location.assign(provider.wizardRoute);
       return;
     }
 
@@ -682,7 +677,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       setOauthPromptValue('');
     } else if (provider.oauthUrl) {
       const url = provider.oauthUrl({ token: session.access_token, client_id: clientId });
-      window.location.href = url;
+      window.location.assign(url);
     }
   };
 
@@ -716,7 +711,7 @@ export const ClientIntegrationsView = ({ clientId, clientType, theme }) => {
       setApiKeyProvider(null);
       setApiKeyValue('');
       if (res.ok) toastSuccess('Intégration connectée');
-    } catch (err) {
+    } catch (_err) {
       // Fallback: save directly to DB
       try {
         const { error } = await supabase.from('client_integrations').upsert({

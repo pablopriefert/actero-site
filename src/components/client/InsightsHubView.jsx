@@ -22,9 +22,10 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
   const [period, setPeriod] = useState('7d') // '7d' | '30d'
 
   const days = period === '7d' ? 7 : 30
-  const since = useMemo(() => new Date(Date.now() - days * 24 * 3600 * 1000).toISOString(), [days])
-  const prevSince = useMemo(() => new Date(Date.now() - 2 * days * 24 * 3600 * 1000).toISOString(), [days])
-  const prevEnd = useMemo(() => new Date(Date.now() - days * 24 * 3600 * 1000).toISOString(), [days])
+  const [insightsNow] = useState(() => Date.now())
+  const since = useMemo(() => new Date(insightsNow - days * 24 * 3600 * 1000).toISOString(), [days, insightsNow])
+  const prevSince = useMemo(() => new Date(insightsNow - 2 * days * 24 * 3600 * 1000).toISOString(), [days, insightsNow])
+  const prevEnd = useMemo(() => new Date(insightsNow - days * 24 * 3600 * 1000).toISOString(), [days, insightsNow])
 
   // Single query that feeds all the lead metrics below
   const { data: insights } = useQuery({

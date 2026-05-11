@@ -1,17 +1,13 @@
 import React, { useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sparkles, ThumbsUp, ThumbsDown, TrendingUp, CheckCircle2,
   ArrowRight, Loader2, Lightbulb, X,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { useToast } from '../ui/Toast'
 
-export const AgentImprovementWidget = ({ clientId, theme }) => {
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  const [applying, setApplying] = useState(null)
+export const AgentImprovementWidget = ({ clientId, theme: _theme }) => {
   const [dismissed, setDismissed] = useState([])
 
   // Fetch negative feedback patterns from last 30 days
@@ -134,11 +130,6 @@ export const AgentImprovementWidget = ({ clientId, theme }) => {
   const visibleSuggestions = suggestions.filter(s => !dismissed.includes(s.id))
 
   if (isLoading || visibleSuggestions.length === 0) return null
-
-  const handleApply = (suggestion, setActiveTab) => {
-    // Navigate to the relevant tab — we'll pass via toast action
-    toast.success(`Ouverture de ${suggestion.action}...`)
-  }
 
   return (
     <motion.div

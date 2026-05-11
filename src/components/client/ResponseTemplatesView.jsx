@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase'
 
 const emptyForm = { name: '', shortcut: '', category: '', body: '' }
 
-export const ResponseTemplatesView = ({ clientId, theme = 'light' }) => {
+export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')

@@ -79,8 +79,6 @@ export const EmailAgentView = ({ clientId }) => {
 
   const settings = settingsData?.settings || {}
   const isConnected = integration?.status === 'active'
-  const providerKind = integration?.provider // 'gmail' or 'smtp_imap'
-
   const updateMutation = useMutation({
     mutationFn: async (patch) => {
       const res = await fetch('/api/email/settings', {
@@ -161,7 +159,8 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
   const mailbox = integration?.extra_config?.email || integration?.extra_config?.username || '—'
   const week = activity?.week || { total: 0, auto: 0, escalated: 0, auto_rate: 0 }
 
-  const minsAgo = lastPoll ? Math.floor((Date.now() - new Date(lastPoll).getTime()) / 60000) : null
+  const [renderNow] = useState(() => Date.now())
+  const minsAgo = lastPoll ? Math.floor((renderNow - new Date(lastPoll).getTime()) / 60000) : null
 
   const resetCircuit = useMutation({
     mutationFn: async () => {
@@ -392,11 +391,16 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
   const [excl, setExcl] = useState(() => Array.isArray(settings.email_exclusions) ? settings.email_exclusions : [])
   const [newExcl, setNewExcl] = useState('')
 
-  // Sync with props when settings load
-  React.useEffect(() => {
+  // Sync with props when settings load (during render, not in effect)
+  const prevSettingsRef = React.useRef({ sig: settings.email_signature, excl: settings.email_exclusions })
+  if (
+    prevSettingsRef.current.sig !== settings.email_signature ||
+    prevSettingsRef.current.excl !== settings.email_exclusions
+  ) {
+    prevSettingsRef.current = { sig: settings.email_signature, excl: settings.email_exclusions }
     setSig(settings.email_signature || '')
     setExcl(Array.isArray(settings.email_exclusions) ? settings.email_exclusions : [])
-  }, [settings.email_signature, settings.email_exclusions])
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-[#f0f0f0] overflow-hidden">

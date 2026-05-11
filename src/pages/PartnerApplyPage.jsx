@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { CheckCircle2, Send, Award, AlertCircle } from 'lucide-react'
 import { Navbar } from '../components/layout/Navbar'
 import { Footer } from '../components/layout/Footer'
@@ -22,22 +22,21 @@ export const PartnerApplyPage = ({ onNavigate }) => {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
-  const [banner, setBanner] = useState(null)
-
-  useEffect(() => {
+  const [banner] = useState(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('certified') === '1') {
-      setBanner({
+      return {
         kind: 'success',
         text: 'Paiement reçu ! Votre profil partner est en cours de création. Vous allez recevoir un email pour accéder à votre dashboard.',
-      })
+      }
     } else if (params.get('canceled') === '1') {
-      setBanner({
+      return {
         kind: 'error',
         text: 'Paiement annulé. Vous pourrez retenter plus tard via votre lien d approbation.',
-      })
+      }
     }
-  }, [])
+    return null
+  })
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))

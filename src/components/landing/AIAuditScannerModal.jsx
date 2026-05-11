@@ -34,11 +34,17 @@ export const AIAuditScannerModal = ({ isOpen, onClose, onNavigate }) => {
   const [isRealScanDone, setIsRealScanDone] = useState(false);
   const [scanError, setScanError] = useState(null);
 
+  // Snap progress to 100% during render when conditions met
+  const shouldComplete = progress >= 95 && isRealScanDone && scanState === "scanning"
+  if (shouldComplete && progress < 100) {
+    setProgress(100)
+  }
+
+  // Delayed transition to complete/error state (setTimeout is async)
   useEffect(() => {
-    if (progress >= 95 && isRealScanDone && scanState === "scanning") {
-      setProgress(100);
-      setTimeout(() => setScanState(scanError ? "error" : "complete"), 600);
-    }
+    if (progress < 100 || !isRealScanDone || scanState !== "scanning") return
+    const t = setTimeout(() => setScanState(scanError ? "error" : "complete"), 600)
+    return () => clearTimeout(t)
   }, [progress, isRealScanDone, scanState, scanError]);
 
   const fetchRealAudit = async (targetUrl) => {

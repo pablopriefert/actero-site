@@ -46,7 +46,7 @@ export default function AttachmentUploader({ onChange }) {
       if (!resp.ok) throw new Error('upload-failed')
       const { path } = await resp.json()
       return { ...item, path, uploading: false, error: null }
-    } catch (e) {
+    } catch (_e) {
       return { ...item, uploading: false, error: 'Upload echoue' }
     }
   }, [])
@@ -94,7 +94,6 @@ export default function AttachmentUploader({ onChange }) {
 
     // Upload sequentially (endpoint is small / keeps request count predictable)
     for (const item of newItems) {
-      // eslint-disable-next-line no-await-in-loop
       const result = await uploadOne(item)
       setItems(prev => {
         const next = prev.map(i => (i.id === item.id ? result : i))
@@ -185,7 +184,6 @@ export default function AttachmentUploader({ onChange }) {
           {items.map(item => (
             <li key={item.id} className="relative">
               <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#C9BFA6] bg-[#F4F0E6]">
-                {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <img
                   src={item.preview}
                   alt={item.name}

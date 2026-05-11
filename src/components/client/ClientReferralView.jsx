@@ -17,7 +17,7 @@ const STATUS_CONFIG = {
   cancelled: { label: 'Annulé', color: 'text-red-500 bg-red-50', icon: XCircle },
 }
 
-export const ClientReferralView = ({ clientId, theme = 'light' }) => {
+export const ClientReferralView = ({ clientId, theme: _theme = 'light' }) => {
   const [copied, setCopied] = useState(false)
 
   // Fetch or generate referral code

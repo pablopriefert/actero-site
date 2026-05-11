@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Command } from 'cmdk'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
@@ -71,22 +71,23 @@ export const CommandPalette = ({
 }) => {
   const [search, setSearch] = useState('')
   const [recentTabIds, setRecentTabIds] = useState([])
+  const prevOpenRef = React.useRef(open)
 
-  // Reset search on close + refresh recents on open (from localStorage).
-  useEffect(() => {
+  // Reset search on close + refresh recents on open (during render, not in effect).
+  if (prevOpenRef.current !== open) {
+    prevOpenRef.current = open
     if (!open) {
       setSearch('')
-      return
+    } else {
+      try {
+        const raw = localStorage.getItem('actero-cmdk-recents')
+        const arr = raw ? JSON.parse(raw) : []
+        setRecentTabIds(Array.isArray(arr) ? arr.slice(0, 5) : [])
+      } catch {
+        setRecentTabIds([])
+      }
     }
-    try {
-      const raw = localStorage.getItem('actero-cmdk-recents')
-      const arr = raw ? JSON.parse(raw) : []
-      // Drop the currently-open tab from recents (no point offering "go back here").
-      setRecentTabIds(Array.isArray(arr) ? arr.slice(0, 5) : [])
-    } catch {
-      setRecentTabIds([])
-    }
-  }, [open])
+  }
 
   // ---------------------------------------------------------------------------
   // Sources de donnees (async via Supabase, staleTime 30s)
@@ -353,18 +354,18 @@ export const CommandPalette = ({
 
   const goToTicket = (ticketId) => runAndClose(() => {
     // On stocke l'id du ticket cible pour que la vue escalations puisse le lire
-    try { sessionStorage.setItem('actero:focus-ticket', ticketId) } catch {}
+    try { sessionStorage.setItem('actero:focus-ticket', ticketId) } catch { /* ignored */ }
     if (setActiveTab) setActiveTab('escalations')
     else if (onNavigate) onNavigate(`/client/escalations?ticket=${encodeURIComponent(ticketId)}`)
   })
 
   const goToKbEntry = (kbId) => runAndClose(() => {
-    try { sessionStorage.setItem('actero:focus-kb', kbId) } catch {}
+    try { sessionStorage.setItem('actero:focus-kb', kbId) } catch { /* ignored */ }
     setActiveTab?.('knowledge')
   })
 
   const goToClient = (cid) => runAndClose(() => {
-    try { sessionStorage.setItem('actero:focus-client', cid) } catch {}
+    try { sessionStorage.setItem('actero:focus-client', cid) } catch { /* ignored */ }
     setActiveTab?.('clients')
   })
 

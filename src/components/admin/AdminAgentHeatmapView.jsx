@@ -18,10 +18,6 @@ function colorForRate(rate, total) {
   return '#ef4444'
 }
 
-function formatHour(h) {
-  return `${String(h).padStart(2, '0')}:00`
-}
-
 export const AdminAgentHeatmapView = () => {
   const [selectedCell, setSelectedCell] = useState(null) // { agent, hour }
 

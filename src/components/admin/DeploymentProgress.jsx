@@ -32,7 +32,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
   const [expandedStep, setExpandedStep] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [copiedUrl, setCopiedUrl] = useState(null);
-  const startTimeRef = useRef(Date.now());
+  const [startTime] = useState(() => Date.now());
 
   // Poll deployment status
   const { data: deployment, isLoading } = useQuery({
@@ -53,25 +53,32 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
     enabled: !!deploymentId,
   });
 
-  // Timer
+  // Timer — compute elapsed from deployment status (during render for final value)
+  const prevDeployStatusRef = useRef(deployment?.status);
+  if (prevDeployStatusRef.current !== deployment?.status) {
+    prevDeployStatusRef.current = deployment?.status;
+    if (deployment?.status !== 'running' && deployment?.total_duration_ms) {
+      setElapsed(deployment.total_duration_ms);
+    }
+  }
+
   useEffect(() => {
     if (!deployment || deployment.status === 'running') {
       const interval = setInterval(() => {
-        setElapsed(Date.now() - startTimeRef.current);
+        setElapsed(Date.now() - startTime);
       }, 100);
       return () => clearInterval(interval);
-    } else if (deployment?.total_duration_ms) {
-      setElapsed(deployment.total_duration_ms);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- only restart timer when status changes, not on every poll
   }, [deployment?.status]);
 
-  // Auto-expand running step
-  useEffect(() => {
-    if (deployment?.steps) {
-      const runningStep = deployment.steps.find(s => s.status === 'running');
-      if (runningStep) setExpandedStep(runningStep.name);
-    }
-  }, [deployment?.steps]);
+  // Auto-expand running step (during render when steps change)
+  const prevStepsRef = useRef(deployment?.steps);
+  if (prevStepsRef.current !== deployment?.steps && deployment?.steps) {
+    prevStepsRef.current = deployment?.steps;
+    const runningStep = deployment.steps.find(s => s.status === 'running');
+    if (runningStep) setExpandedStep(runningStep.name);
+  }
 
   const formatDuration = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);

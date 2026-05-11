@@ -208,10 +208,12 @@ export function AdminClientsListView() {
     }
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async fetch: setState is inside awaited callbacks */
   useEffect(() => {
     loadClients()
     loadKpi()
   }, [loadClients, loadKpi])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const filteredSorted = useMemo(() => {
     let rows = [...clients]

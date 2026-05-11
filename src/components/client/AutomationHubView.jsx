@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
@@ -353,7 +353,7 @@ const AutomationCard = ({
 
 /* ═══════════ MAIN VIEW ═══════════ */
 
-export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
+export const AutomationHubView = ({ clientId, theme: _theme, setActiveTab }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const [readinessState, setReadinessState] = useState({ open: false, checks: [], playbookName: null, playbookLabel: null, activating: false })
@@ -473,31 +473,35 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
 
   /* ---- Derived state ---- */
 
-  // Load saved channels from client_playbooks custom_config.
+  // Derive saved channels from client_playbooks custom_config.
   // NOTE : on remplace complètement l'objet — avant on mergeait, ce qui
   // empêchait les toggles OFF d'être reflétés après refetch (une clé mise
   // à false restait true dans l'état local). Set full map = source of truth.
-  useEffect(() => {
-    if (clientPlaybooks.length > 0 && playbooks.length > 0) {
-      const saved = {}
-      clientPlaybooks.forEach(cp => {
-        const pb = playbooks.find(p => p.id === cp.playbook_id)
-        if (pb && cp.custom_config?.channels) {
-          cp.custom_config.channels.forEach(ch => {
-            saved[`${pb.name}_${ch}`] = true
-          })
-        }
-      })
-      setSelectedChannels(saved)
-    }
-  }, [clientPlaybooks, playbooks])
-
-  const isActivePlaybook = (name) => {
-    const pb = playbooks.find(p => p.name === name)
-    return pb ? clientPlaybooks.some(cp => cp.playbook_id === pb.id && cp.is_active) : false
+  const prevPlaybookDataRef = React.useRef({ clientPlaybooks, playbooks })
+  if (
+    clientPlaybooks.length > 0 && playbooks.length > 0 &&
+    (prevPlaybookDataRef.current.clientPlaybooks !== clientPlaybooks ||
+     prevPlaybookDataRef.current.playbooks !== playbooks)
+  ) {
+    prevPlaybookDataRef.current = { clientPlaybooks, playbooks }
+    const saved = {}
+    clientPlaybooks.forEach(cp => {
+      const pb = playbooks.find(p => p.id === cp.playbook_id)
+      if (pb && cp.custom_config?.channels) {
+        cp.custom_config.channels.forEach(ch => {
+          saved[`${pb.name}_${ch}`] = true
+        })
+      }
+    })
+    setSelectedChannels(saved)
   }
 
-  const checkReqs = (meta) => {
+  const isActivePlaybook = useCallback((name) => {
+    const pb = playbooks.find(p => p.name === name)
+    return pb ? clientPlaybooks.some(cp => cp.playbook_id === pb.id && cp.is_active) : false
+  }, [playbooks, clientPlaybooks])
+
+  const checkReqs = useCallback((meta) => {
     if (!meta?.requires || meta.requires.length === 0) return { met: true, missing: [] }
     const missing = []
     for (const req of meta.requires) {
@@ -505,7 +509,7 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
       if (req.type === 'any' && !req.providers.some(p => connectedProviders.includes(p))) missing.push(req.label)
     }
     return { met: missing.length === 0, missing }
-  }
+  }, [connectedProviders])
 
   // Build the full list of automations with status
   const automationList = useMemo(() => {
@@ -526,7 +530,7 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
       })
     }
     return list
-  }, [playbooks, clientPlaybooks, connectedProviders, clientSettings])
+  }, [playbooks, isActivePlaybook, checkReqs])
 
   const totalAvailable = automationList.length
   const activeCount = automationList.filter(a => a.active).length
@@ -713,7 +717,7 @@ export const AutomationHubView = ({ clientId, theme, setActiveTab }) => {
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
             body: JSON.stringify({ action: 'uninstall', client_id: clientId }),
           })
-        } catch {}
+        } catch { /* ignored */ }
       }
     }
 

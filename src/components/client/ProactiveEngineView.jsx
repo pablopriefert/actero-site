@@ -39,7 +39,7 @@ const RULE_COLORS = {
 
 export const ProactiveEngineView = ({ clientId }) => {
   const queryClient = useQueryClient()
-  const [configRule, setConfigRule] = useState(null) // rule_name or null
+  const [, setConfigRule] = useState(null) // rule_name or null
 
   const { data: rulesData, isLoading: loadingRules } = useQuery({
     queryKey: ['proactive-rules', clientId],

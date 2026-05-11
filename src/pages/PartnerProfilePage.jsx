@@ -44,7 +44,7 @@ export const PartnerProfilePage = ({ slug, onNavigate }) => {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(referralLink)
-    } catch {}
+    } catch { /* ignored */ }
   }
 
   if (isLoading) {

@@ -143,4 +143,5 @@ export function EmptyStateInline({ icon: Icon, title, description, action, tone 
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const __EMPTY_STATE_TOKENS__ = tokens;

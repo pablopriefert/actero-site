@@ -22,45 +22,41 @@ import { SEO } from "../components/SEO";
 
 export const AuditPage = ({ onNavigate }) => {
   const [openFaq, setOpenFaq] = useState(null);
-  const [referralCode, setReferralCode] = useState(null);
+  const [urlParams] = useState(() => new URLSearchParams(window.location.search));
+  const [referralCode] = useState(() => urlParams.get('referral_code'));
   const [referrerName, setReferrerName] = useState(null);
-  const [ambassadorRef, setAmbassadorRef] = useState(null);
+  const [ambassadorRef] = useState(() => urlParams.get('ref'));
   const [ambassadorName, setAmbassadorName] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    const params = new URLSearchParams(window.location.search);
 
-    // Check for client referral code — only from URL param
-    const code = params.get('referral_code');
-    if (code) {
-      setReferralCode(code);
+    // Track referral click and fetch referrer name
+    if (referralCode) {
       fetch('/api/referral/track-click', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ code: referralCode })
       })
         .then(r => r.json())
         .then(d => { if (d.referrer_name) setReferrerName(d.referrer_name); })
         .catch(() => {});
     }
 
-    // Check for ambassador ref code — only from URL param, not cookie
-    const ref = params.get('ref');
-    if (ref) {
-      setAmbassadorRef(ref);
+    // Track ambassador click and fetch ambassador name
+    if (ambassadorRef) {
       // Save cookie for 90 days
-      document.cookie = `actero_ambassador_ref=${ref}; path=/; max-age=${90 * 24 * 60 * 60}; SameSite=Lax`;
+      document.cookie = `actero_ambassador_ref=${ambassadorRef}; path=/; max-age=${90 * 24 * 60 * 60}; SameSite=Lax`;
       // Track click
-      fetch(`/api/ambassador/track-click?code=${ref}`).catch(() => {});
+      fetch(`/api/ambassador/track-click?code=${ambassadorRef}`).catch(() => {});
       // Fetch ambassador name
       import('@supabase/supabase-js').then(({ createClient }) => {
         const sb = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
-        sb.from('ambassadors').select('first_name').eq('ambassador_code', ref).maybeSingle()
+        sb.from('ambassadors').select('first_name').eq('ambassador_code', ambassadorRef).maybeSingle()
           .then(({ data }) => { if (data?.first_name) setAmbassadorName(data.first_name); });
       });
     }
-  }, []);
+  }, [ambassadorRef, referralCode]);
 
   const auditFaqs = [
     {

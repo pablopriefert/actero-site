@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -138,7 +138,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
           client_id: clientId,
           voice_greeting: val,
         })
-      } catch (e) {
+      } catch (_e) {
         toast.error('Sauvegarde du message echouee')
       } finally {
         setGreetingSaving(false)

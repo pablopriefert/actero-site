@@ -63,6 +63,7 @@ const StarRating = ({ rating = 0, size = 'sm' }) => {
 }
 
 // Returns a credible social-proof badge based on install count
+// eslint-disable-next-line react-refresh/only-export-components
 export const getInstallBadge = (count = 0) => {
   const n = Number(count) || 0
   if (n >= 50) {
@@ -93,6 +94,7 @@ export const getInstallBadge = (count = 0) => {
 }
 
 // Returns rating display info — StarRating or "Non noté" when no ratings
+// eslint-disable-next-line react-refresh/only-export-components
 export const getRatingDisplay = (rating = 0, count = 0) => {
   const rCount = Number(count) || 0
   const rValue = Number(rating) || 0

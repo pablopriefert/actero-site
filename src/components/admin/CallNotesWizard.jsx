@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   X, ChevronLeft, ChevronRight, Check, Save, Rocket,
   Building2, ShoppingBag, Globe, Mail, Workflow, Loader2,
@@ -116,35 +116,37 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
     enabled: !!client?.id,
   });
 
-  // Populate form from existing notes
-  useEffect(() => {
-    if (existingNotes) {
-      setForm(prev => ({
-        ...prev,
-        ...Object.fromEntries(
-          Object.entries(existingNotes).filter(([k, v]) => v !== null && k in prev)
-        ),
-        workflows_requested: existingNotes.workflows_requested || [],
-      }));
-    }
-  }, [existingNotes]);
+  // Populate form from existing notes (during render when data arrives)
+  const prevExistingNotesRef = React.useRef(existingNotes);
+  if (existingNotes && prevExistingNotesRef.current !== existingNotes) {
+    prevExistingNotesRef.current = existingNotes;
+    setForm(prev => ({
+      ...prev,
+      ...Object.fromEntries(
+        Object.entries(existingNotes).filter(([k, v]) => v !== null && k in prev)
+      ),
+      workflows_requested: existingNotes.workflows_requested || [],
+    }));
+  }
 
-  // Pre-fill Shopify URL
-  useEffect(() => {
-    if (shopifyConn?.shop_domain && !form.shopify_store_url) {
-      setForm(prev => ({ ...prev, shopify_store_url: shopifyConn.shop_domain }));
-    }
-  }, [shopifyConn]);
+  // Pre-fill Shopify URL (during render when connection data arrives)
+  const prevShopifyRef = React.useRef(shopifyConn);
+  if (shopifyConn?.shop_domain && prevShopifyRef.current !== shopifyConn) {
+    prevShopifyRef.current = shopifyConn;
+    setForm(prev => prev.shopify_store_url ? prev : { ...prev, shopify_store_url: shopifyConn.shop_domain });
+  }
 
-  // Set default workflows when vertical changes
-  useEffect(() => {
+  // Set default workflows when vertical changes (during render)
+  const prevVerticalRef = React.useRef(form.vertical);
+  if (prevVerticalRef.current !== form.vertical) {
+    prevVerticalRef.current = form.vertical;
     if (!existingNotes && form.workflows_requested.length === 0) {
       const defaults = form.vertical === 'ecommerce'
         ? ECOMMERCE_WORKFLOWS.filter(w => w.default).map(w => w.id)
         : IMMOBILIER_WORKFLOWS.filter(w => w.default).map(w => w.id);
       setForm(prev => ({ ...prev, workflows_requested: defaults }));
     }
-  }, [form.vertical, existingNotes]);
+  }
 
   const updateField = useCallback((field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -204,7 +206,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
       console.error('Save draft error:', err);
     }
     setSaving(false);
-  }, [client?.id, form]);
+  }, [client, form]);
 
   const handleStepChange = async (newStep) => {
     await saveDraft();
@@ -286,7 +288,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
       for (const path of attempt.paths) {
         try {
           const testUrl = `${baseUrl}${path}`;
-          const res = await fetch(testUrl, { method: 'HEAD', mode: 'no-cors', signal: AbortSignal.timeout(3000) });
+          await fetch(testUrl, { method: 'HEAD', mode: 'no-cors', signal: AbortSignal.timeout(3000) });
           newUrls[attempt.field] = testUrl;
           break;
         } catch {

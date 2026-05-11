@@ -17,7 +17,9 @@ export function usePortalAuth() {
     }
   }, []);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async fetch: setState is inside awaited callback in refresh */
   useEffect(() => { refresh(); }, [refresh]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const logout = useCallback(async () => {
     await fetch('/api/portal/logout', { method: 'POST', credentials: 'same-origin' });

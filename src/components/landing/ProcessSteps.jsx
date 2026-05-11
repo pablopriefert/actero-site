@@ -141,7 +141,7 @@ const MockupDashboard = ({ isImmo }) => {
 
 /* ── Main Component ── */
 
-export const ProcessSteps = ({ vertical, onNavigate }) => {
+export const ProcessSteps = ({ vertical, onNavigate: _onNavigate }) => {
   const isImmo = vertical === 'immobilier'
 
   const steps = isImmo ? [

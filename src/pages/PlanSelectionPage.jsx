@@ -39,7 +39,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
     setError(null);
 
     if (planId === "enterprise") {
-      window.location.href = "mailto:contact@actero.fr?subject=Actero Enterprise";
+      window.location.assign("mailto:contact@actero.fr?subject=Actero Enterprise");
       return;
     }
 
@@ -132,7 +132,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
 
       const data = await res.json();
       if (data.checkout_url) {
-        window.location.href = data.checkout_url;
+        window.location.assign(data.checkout_url);
       } else if (data.error === "Stripe not configured") {
         setError("Paiement indisponible. Contactez le support.");
         setLoading(null);
@@ -143,7 +143,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
         // Fallback: redirect to dashboard
         onNavigate("/client/overview");
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Erreur réseau. Réessayez.");
       setLoading(null);
     }

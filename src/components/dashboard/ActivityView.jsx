@@ -197,7 +197,7 @@ const maskEmail = (email) => {
   return `${maskedLocal}@${domain}`;
 };
 
-export const ActivityView = ({ supabase, theme = "dark" }) => {
+export const ActivityView = ({ supabase, theme: _theme = "dark" }) => {
   const { events, isConnected, isLoading } = useLiveActivityFeed(supabase);
   const [filter, setFilter] = useState("all");
   const [expandedId, setExpandedId] = useState(null);

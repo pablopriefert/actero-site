@@ -32,7 +32,7 @@ const StatBox = ({ label, value, suffix, icon: Icon, color, theme }) => {
   )
 }
 
-export const ROICalculator = ({ periodStats, metrics, clientSettings, theme }) => {
+export const ROICalculator = ({ periodStats, metrics: _metrics, clientSettings, theme }) => {
   const isLight = theme === 'light'
 
   // Calculate ROI metrics

@@ -39,9 +39,11 @@ export function TypedConfirmModal({
   const [loading, setLoading] = useState(false)
   const inputRef = useRef(null)
   const previousFocus = useRef(null)
+  const prevOpenRef = useRef(open)
 
-  // Reset state on close. Preserve focus ownership for screen readers.
-  useEffect(() => {
+  // Reset state on open/close transitions (during render, not in effect)
+  if (prevOpenRef.current !== open) {
+    prevOpenRef.current = open
     if (open) {
       previousFocus.current = document.activeElement
       setTyped('')
@@ -50,7 +52,7 @@ export function TypedConfirmModal({
       // Return focus to the trigger element on close
       previousFocus.current.focus()
     }
-  }, [open])
+  }
 
   // Escape closes (unless an action is in-flight)
   useEffect(() => {

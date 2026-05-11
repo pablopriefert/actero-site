@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
@@ -7,7 +7,6 @@ import {
   Loader2, Zap, Shield, TrendingUp,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { useToast } from '../ui/Toast'
 
 const HOURS = Array.from({ length: 17 }, (_, i) => i + 6)
 
@@ -69,10 +68,8 @@ const Toggle = ({ isOn, onToggle, small }) => (
   </button>
 )
 
-export const NotificationCenterView = ({ clientId, theme }) => {
-  const toast = useToast()
+export const NotificationCenterView = ({ clientId, theme: _theme }) => {
   const queryClient = useQueryClient()
-  const isLight = theme === 'light'
 
   // Fetch existing preferences
   const { data: prefs, isLoading } = useQuery({
@@ -103,6 +100,20 @@ export const NotificationCenterView = ({ clientId, theme }) => {
   const [quietStart, setQuietStart] = useState(22)
   const [quietEnd, setQuietEnd] = useState(7)
 
+  const buildDefaultChannelPrefs = useCallback((currentPrefs) => {
+    const defaults = {}
+    NOTIFICATION_TYPES.forEach(section => {
+      section.items.forEach(item => {
+        defaults[item.key] = {}
+        item.channels.forEach(ch => {
+          defaults[item.key][ch] = item.defaultChannels.includes(ch) || (currentPrefs?.[item.key] ?? false)
+        })
+      })
+    })
+    setChannelPrefs(defaults)
+  }, [])
+
+  /* eslint-disable react-hooks/set-state-in-effect -- syncing local form state from fetched prefs object */
   useEffect(() => {
     if (prefs) {
       setPreferredHour(prefs.preferred_hour ?? 8)
@@ -111,29 +122,17 @@ export const NotificationCenterView = ({ clientId, theme }) => {
         try {
           setChannelPrefs(typeof prefs.notification_channels === 'string' ? JSON.parse(prefs.notification_channels) : prefs.notification_channels)
         } catch {
-          buildDefaultChannelPrefs()
+          buildDefaultChannelPrefs(prefs)
         }
       } else {
-        buildDefaultChannelPrefs()
+        buildDefaultChannelPrefs(prefs)
       }
       setQuietHoursEnabled(prefs.quiet_hours_enabled ?? false)
       setQuietStart(prefs.quiet_hours_start ?? 22)
       setQuietEnd(prefs.quiet_hours_end ?? 7)
     }
-  }, [prefs])
-
-  const buildDefaultChannelPrefs = () => {
-    const defaults = {}
-    NOTIFICATION_TYPES.forEach(section => {
-      section.items.forEach(item => {
-        defaults[item.key] = {}
-        item.channels.forEach(ch => {
-          defaults[item.key][ch] = item.defaultChannels.includes(ch) || (prefs?.[item.key] ?? false)
-        })
-      })
-    })
-    setChannelPrefs(defaults)
-  }
+  }, [prefs, buildDefaultChannelPrefs])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const updatePref = useMutation({
     mutationFn: async (updates) => {

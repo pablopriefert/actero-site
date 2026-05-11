@@ -111,7 +111,7 @@ const TypingIndicator = ({ theme }) => {
 // ============================================================
 // DATA CONTEXT PILLS
 // ============================================================
-const DataPills = ({ metrics, periodStats, theme }) => {
+const DataPills = ({ metrics: _metrics, periodStats, theme }) => {
   const isLight = theme === 'light'
   const pills = [
     { icon: Clock, label: `${periodStats?.time_saved || 0}h économisées`, color: 'emerald' },

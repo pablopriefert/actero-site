@@ -56,7 +56,7 @@ const EditKbEntry = ({ entry, onSave, onCancel }) => {
   )
 }
 
-export const PromptEditor = ({ clientId, theme }) => {
+export const PromptEditor = ({ clientId, theme: _theme }) => {
   const queryClient = useQueryClient()
   const toast = useToast()
   const [currentStep, setCurrentStep] = useState(0)
@@ -134,27 +134,28 @@ export const PromptEditor = ({ clientId, theme }) => {
     tone_detail: 50,
   })
 
-  useEffect(() => {
-    if (settings) {
-      setForm({
-        brand_tone: settings.brand_tone || 'professionnel et chaleureux',
-        brand_language: settings.brand_language || 'fr',
-        supported_languages: Array.isArray(settings.supported_languages) && settings.supported_languages.length > 0
-          ? settings.supported_languages
-          : ['fr', 'en'],
-        return_policy: settings.return_policy || '',
-        excluded_products: settings.excluded_products || '',
-        custom_instructions: settings.custom_instructions || '',
-        greeting_template: settings.greeting_template || '',
-        tone_formality: settings.tone_formality ?? 30,
-        tone_warmth: settings.tone_warmth ?? 70,
-        tone_detail: settings.tone_detail ?? 50,
-        brand_identity: settings.brand_identity || '',
-        tone_style: settings.tone_style || '',
-        example_responses: Array.isArray(settings.example_responses) ? settings.example_responses : [],
-      })
-    }
-  }, [settings])
+  // Hydrate form when settings data arrives (during render, not in effect)
+  const prevSettingsRef = React.useRef(settings)
+  if (settings && prevSettingsRef.current !== settings) {
+    prevSettingsRef.current = settings
+    setForm({
+      brand_tone: settings.brand_tone || 'professionnel et chaleureux',
+      brand_language: settings.brand_language || 'fr',
+      supported_languages: Array.isArray(settings.supported_languages) && settings.supported_languages.length > 0
+        ? settings.supported_languages
+        : ['fr', 'en'],
+      return_policy: settings.return_policy || '',
+      excluded_products: settings.excluded_products || '',
+      custom_instructions: settings.custom_instructions || '',
+      greeting_template: settings.greeting_template || '',
+      tone_formality: settings.tone_formality ?? 30,
+      tone_warmth: settings.tone_warmth ?? 70,
+      tone_detail: settings.tone_detail ?? 50,
+      brand_identity: settings.brand_identity || '',
+      tone_style: settings.tone_style || '',
+      example_responses: Array.isArray(settings.example_responses) ? settings.example_responses : [],
+    })
+  }
 
   // -------- Auto-save (Feature 18) --------
   const saveTimer = useRef(null)

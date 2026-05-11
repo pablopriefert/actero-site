@@ -4,6 +4,7 @@ import { X, Lock, ArrowRight } from "lucide-react";
 
 const STORAGE_KEY = "actero_academy_email";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function getStoredAcademyEmail() {
   try {
     return localStorage.getItem(STORAGE_KEY) || null;
@@ -12,6 +13,7 @@ export function getStoredAcademyEmail() {
   }
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function setStoredAcademyEmail(email) {
   try {
     localStorage.setItem(STORAGE_KEY, email);

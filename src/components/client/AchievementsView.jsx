@@ -199,16 +199,22 @@ export const AchievementsToast = ({ clientId }) => {
   const { newlyUnlocked, dismissNewlyUnlocked } = useAchievements(clientId)
   const [visible, setVisible] = useState([])
 
+  // Show newly unlocked badges (during render when they arrive)
+  const prevUnlockedRef = React.useRef(newlyUnlocked)
+  if (newlyUnlocked && newlyUnlocked.length > 0 && prevUnlockedRef.current !== newlyUnlocked) {
+    prevUnlockedRef.current = newlyUnlocked
+    setVisible(newlyUnlocked)
+  }
+
+  // Auto-dismiss after 5 seconds
   useEffect(() => {
-    if (newlyUnlocked && newlyUnlocked.length > 0) {
-      setVisible(newlyUnlocked)
-      const t = setTimeout(() => {
-        setVisible([])
-        dismissNewlyUnlocked && dismissNewlyUnlocked()
-      }, 5000)
-      return () => clearTimeout(t)
-    }
-  }, [newlyUnlocked, dismissNewlyUnlocked])
+    if (visible.length === 0) return
+    const t = setTimeout(() => {
+      setVisible([])
+      dismissNewlyUnlocked && dismissNewlyUnlocked()
+    }, 5000)
+    return () => clearTimeout(t)
+  }, [visible, dismissNewlyUnlocked])
 
   return (
     <div className="fixed bottom-4 right-4 z-[60] flex flex-col gap-2 pointer-events-none">

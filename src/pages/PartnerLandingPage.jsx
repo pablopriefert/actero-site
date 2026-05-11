@@ -36,32 +36,30 @@ import { SEO } from '../components/SEO'
 
 // Private page gate — accessible only via /partner?token=xxx sent in cold emails
 const PartnerAccessGate = ({ children }) => {
-  const [state, setState] = useState('checking') // checking | granted | denied
-  const [agencyName, setAgencyName] = useState(null)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
+  // Parse token from URL params at init (useState initializer avoids setState-in-effect)
+  const [tokenInit] = useState(() => {
     const params = new URLSearchParams(window.location.search)
     const token = params.get('token')
-    if (!token) {
-      setState('denied')
-      setError('Cette page est privée et accessible uniquement sur invitation.')
-      return
-    }
-
-    // Persist token in sessionStorage so internal navigation keeps access
+    if (!token) return { state: 'denied', error: 'Cette page est privée et accessible uniquement sur invitation.' }
     const cached = sessionStorage.getItem(`partner_token_${token}`)
     if (cached === 'valid') {
-      setState('granted')
-      setAgencyName(sessionStorage.getItem('partner_agency_name'))
-      return
+      return { state: 'granted', agencyName: sessionStorage.getItem('partner_agency_name'), token }
     }
+    return { state: 'checking', token }
+  })
 
-    fetch(`/api/partner/verify-token?token=${encodeURIComponent(token)}`)
+  const [state, setState] = useState(tokenInit.state)
+  const [agencyName, setAgencyName] = useState(tokenInit.agencyName || null)
+  const [error, setError] = useState(tokenInit.error || null)
+
+  useEffect(() => {
+    if (tokenInit.state !== 'checking') return
+
+    fetch(`/api/partner/verify-token?token=${encodeURIComponent(tokenInit.token)}`)
       .then((r) => r.json())
       .then((data) => {
         if (data.valid) {
-          sessionStorage.setItem(`partner_token_${token}`, 'valid')
+          sessionStorage.setItem(`partner_token_${tokenInit.token}`, 'valid')
           if (data.agency_name) sessionStorage.setItem('partner_agency_name', data.agency_name)
           setAgencyName(data.agency_name)
           setState('granted')
@@ -74,7 +72,7 @@ const PartnerAccessGate = ({ children }) => {
         setState('denied')
         setError('Erreur de vérification')
       })
-  }, [])
+  }, [tokenInit.state, tokenInit.token])
 
   if (state === 'checking') {
     return (

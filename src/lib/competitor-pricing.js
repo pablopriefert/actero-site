@@ -112,7 +112,7 @@ export const COMPETITORS = {
     name: 'Zendesk AI',
     pricingModel: 'Suite (55-115 $/agent) + Advanced AI 50 $/agent + Copilot 50 $/agent',
     notes: 'IA Suite Growth 89 $ + AI add-on 50 $ = 139 $/agent. Zendesk Relate 21 mai 2026.',
-    calculate: (tickets, aiRate) => {
+    calculate: (tickets, _aiRate) => {
       // 1 agent Suite Growth + Advanced AI : 89 + 50 = 139 $/mois pour 1 agent
       // À partir de 1000 tickets/mois on suppose 2 agents, 3000 → 3 agents, etc.
       const seats = Math.max(1, Math.ceil(tickets / 1500))
@@ -130,7 +130,7 @@ export const COMPETITORS = {
     name: 'Tidio',
     pricingModel: 'Plans + add-ons Lyro AI / Flows. Premium à 2 999 $/mois.',
     notes: 'Plan Premium = 2 999 $/mois avec garantie 50% résolution Lyro.',
-    calculate: (tickets, aiRate) => {
+    calculate: (tickets, _aiRate) => {
       // Plan Starter ~25 $ + Lyro AI add-on ~32,50 $ + Flows 24 $ ≈ 81,50 $ pour 100 conv
       // Au-delà : pricing très opaque, on extrapole linéairement
       let totalUsd

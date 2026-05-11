@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShieldAlert, Plus, Trash2, Loader2, CheckCircle2, GripVertical,
@@ -18,7 +18,7 @@ const EXAMPLES = [
   "Ne jamais promettre un delai de livraison specifique",
 ]
 
-export const GuardrailsEditor = ({ clientId, theme }) => {
+export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
   const toast = useToast();
   const queryClient = useQueryClient()
   const [newRule, setNewRule] = useState('')
@@ -502,17 +502,18 @@ const EscalationThresholds = ({ clientId }) => {
 
   const [form, setForm] = useState(null)
 
-  React.useEffect(() => {
-    if (thresholds && !form) {
-      setForm({
-        order_value_threshold: thresholds.order_value_threshold || 0,
-        repeat_customer_orders: thresholds.repeat_customer_orders || 0,
-        aggressive_tone_enabled: thresholds.aggressive_tone_enabled ?? true,
-        low_confidence_threshold: thresholds.low_confidence_threshold || 60,
-        keywords: (thresholds.keywords || []).join(', '),
-      })
-    }
-  }, [thresholds])
+  // Hydrate form once when thresholds data arrives (during render, not in effect)
+  const prevThresholdsRef = React.useRef(thresholds)
+  if (thresholds && !form && prevThresholdsRef.current !== thresholds) {
+    prevThresholdsRef.current = thresholds
+    setForm({
+      order_value_threshold: thresholds.order_value_threshold || 0,
+      repeat_customer_orders: thresholds.repeat_customer_orders || 0,
+      aggressive_tone_enabled: thresholds.aggressive_tone_enabled ?? true,
+      low_confidence_threshold: thresholds.low_confidence_threshold || 60,
+      keywords: (thresholds.keywords || []).join(', '),
+    })
+  }
 
   const handleSave = async () => {
     if (!form || !thresholds?.id) return
@@ -673,7 +674,6 @@ const EscalationThresholds = ({ clientId }) => {
  * trail in agent_action_logs. */
 const DiscountPolicyPanel = ({ clientId }) => {
   const queryClient = useQueryClient()
-  const toast = useToast()
 
   const { data: settings } = useQuery({
     queryKey: ['discount-policy-settings', clientId],
@@ -753,16 +753,17 @@ const DiscountPolicyPanel = ({ clientId }) => {
   const [policyShowCode, setPolicyShowCode] = useState(false)
   const [policyScenarioId, setPolicyScenarioId] = useState('returning')
 
-  React.useEffect(() => {
-    if (!settings) return
+  // Hydrate policy code/max from settings (during render, not in effect)
+  const prevSettingsForPolicyRef = React.useRef(settings)
+  if (settings && prevSettingsForPolicyRef.current !== settings) {
+    prevSettingsForPolicyRef.current = settings
     if (!policyCode && !policyDirty) {
       setPolicyCode(settings.discount_policy_code || DEFAULT_POLICY)
     }
     if (settings.discount_policy_max_pct != null) {
       setPolicyMaxPct(settings.discount_policy_max_pct)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings])
+  }
 
   const loadTemplate = (t) => {
     setPolicyCode(t.code)
@@ -820,7 +821,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
 
   async function toggleDiscountPolicy() {
     if (!clientId) return
-    const next = !Boolean(settings?.discount_policy_enabled)
+    const next = !settings?.discount_policy_enabled
     queryClient.setQueryData(['discount-policy-settings', clientId], (prev) => ({ ...(prev || {}), discount_policy_enabled: next }))
     const { error } = await supabase
       .from('client_settings')

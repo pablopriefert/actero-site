@@ -22,9 +22,6 @@ export const WeeklySummary = ({ clientId, setActiveTab }) => {
     return { startISO: monday.toISOString(), endISO: sunday.toISOString() }
   }, [])
 
-  const startDate = startISO.split('T')[0]
-  const endDate = endISO.split('T')[0]
-
   // Single source of truth: client_settings + automation_events (same as ROI page)
   const { data: weeklyData } = useQuery({
     queryKey: ['weekly-summary', clientId, startISO, endISO],

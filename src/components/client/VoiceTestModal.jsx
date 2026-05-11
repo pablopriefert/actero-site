@@ -63,15 +63,16 @@ export const VoiceTestModal = ({ clientId, agentId, onClose }) => {
 
   // Inject custom element once agentId is known
   useEffect(() => {
-    if (!agentId || !containerRef.current) return
+    const container = containerRef.current
+    if (!agentId || !container) return
     // Clean any previous child
-    containerRef.current.innerHTML = ''
+    container.innerHTML = ''
     const el = document.createElement('elevenlabs-convai')
     el.setAttribute('agent-id', agentId)
     if (signedUrl) el.setAttribute('signed-url', signedUrl)
-    containerRef.current.appendChild(el)
+    container.appendChild(el)
     return () => {
-      if (containerRef.current) containerRef.current.innerHTML = ''
+      container.innerHTML = ''
     }
   }, [agentId, signedUrl])
 

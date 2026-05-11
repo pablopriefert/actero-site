@@ -4,7 +4,6 @@ import {
   Zap, Send, Loader2, CheckCircle2, XCircle, Copy, Check,
   Plus, Trash2, ChevronDown,
 } from 'lucide-react'
-import { useToast } from '../ui/Toast'
 
 const DEFAULT_BODY = `{
   "client_id": "",
@@ -24,7 +23,6 @@ const PRESETS = [
 ]
 
 export const AdminEngineTestView = () => {
-  const toast = useToast()
   const [method, setMethod] = useState('POST')
   const [url, setUrl] = useState('/api/engine/webhook')
   const [body, setBody] = useState(DEFAULT_BODY)
@@ -62,7 +60,7 @@ export const AdminEngineTestView = () => {
         try {
           const parsed = JSON.parse(supabaseToken)
           if (parsed?.access_token) reqHeaders['Authorization'] = `Bearer ${parsed.access_token}`
-        } catch {}
+        } catch { /* ignored */ }
       }
 
       const opts = { method, headers: reqHeaders }

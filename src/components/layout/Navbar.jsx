@@ -8,7 +8,6 @@ import { Logo } from './Logo'
 import { ButtonColorful } from '../ui/button-colorful'
 
 export const Navbar = ({ onNavigate, trackEvent }) => {
-  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -17,11 +16,6 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  const scrollToId = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">

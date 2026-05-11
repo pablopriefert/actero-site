@@ -129,7 +129,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
       if (!res.ok) throw new Error(json.error || 'Erreur serveur')
       return json
     },
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       setSaveStatus('success')
       queryClient.invalidateQueries({ queryKey: ['portal-client-row', clientId] })
       // Reset after 3s

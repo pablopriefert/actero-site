@@ -98,7 +98,7 @@ function UsageBar({ used, limit, label, unit = '' }) {
 }
 
 // ─── Main component ─────────────────────────────────────────────
-export const ClientBillingView = ({ theme }) => {
+export const ClientBillingView = ({ theme: _theme }) => {
   const toast = useToast()
   const [loadingPortal, setLoadingPortal] = useState(false)
   const [upgradingPlan, setUpgradingPlan] = useState(null)
@@ -192,7 +192,7 @@ export const ClientBillingView = ({ theme }) => {
         window.location.reload()
       } else if (data.checkout_url) {
         // New subscription — redirect to Stripe Checkout
-        window.location.href = data.checkout_url
+        window.location.assign(data.checkout_url)
       } else if (data.error === 'Stripe not configured') {
         toast.error('Paiement indisponible. Contactez le support.')
       } else if (data.error === 'enterprise_contact') {

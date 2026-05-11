@@ -67,10 +67,12 @@ export const CommandPalette = ({ onNavigate, commands = defaultCommands }) => {
     );
   }, [query, commands]);
 
-  // Reset selection when results change
-  useEffect(() => {
+  // Reset selection when results change (during render, not in effect)
+  const prevFilteredLenRef = React.useRef(filtered.length);
+  if (prevFilteredLenRef.current !== filtered.length) {
+    prevFilteredLenRef.current = filtered.length;
     setSelectedIndex(0);
-  }, [filtered.length]);
+  }
 
   const handleSelect = (cmd) => {
     setIsOpen(false);

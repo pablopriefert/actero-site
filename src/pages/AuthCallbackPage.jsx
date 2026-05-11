@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { supabase, INITIAL_URL } from '../lib/supabase'
 import { fetchUserRole } from '../lib/auth-utils'
@@ -19,7 +19,7 @@ export function AuthCallbackPage({ onNavigate }) {
     return hash.includes("type=invite") || params.get("type") === "invite";
   };
 
-  const redirectUser = async (session) => {
+  const redirectUser = useCallback(async (session) => {
     // If this is an invite flow, redirect to set password page
     if (isInviteFlow()) {
       logger("Invite flow detected → redirecting to /setup-password");
@@ -29,7 +29,7 @@ export function AuthCallbackPage({ onNavigate }) {
     // Otherwise, redirect based on role
     const userRole = await fetchUserRole(session.user.id);
     onNavigate(userRole === "admin" ? "/admin" : "/client");
-  };
+  }, [onNavigate]);
 
   useEffect(() => {
     logger("Mounted. Checking for session...");
@@ -92,7 +92,7 @@ export function AuthCallbackPage({ onNavigate }) {
       subscription.unsubscribe();
       clearTimeout(timeout);
     };
-  }, [onNavigate]);
+  }, [onNavigate, redirectUser]);
 
   if (errorMsg) {
     return (

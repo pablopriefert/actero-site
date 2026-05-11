@@ -7,22 +7,21 @@ import { applyTone } from '../../lib/portal-tone.js';
 export default function PortalVerifyPage({ navigate }) {
   const { client } = usePortalClient();
   const tone = usePortalTone();
-  const [state, setState] = useState('verifying');
+  const [verifyToken] = useState(() => new URLSearchParams(window.location.search).get('token'));
+  const [state, setState] = useState(() => verifyToken ? 'verifying' : 'error');
 
   useEffect(() => {
-    if (!client) return;
-    const token = new URLSearchParams(window.location.search).get('token');
-    if (!token) { setState('error'); return; }
+    if (!client || !verifyToken) return;
     fetch('/api/portal/verify-token', {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ token, clientId: client.clientId }),
+      body: JSON.stringify({ token: verifyToken, clientId: client.clientId }),
     }).then((r) => {
       if (r.ok) { setState('ok'); navigate('/portal/tickets'); }
       else setState('expired');
     }).catch(() => setState('error'));
-  }, [client, navigate]);
+  }, [client, navigate, verifyToken]);
 
   // Auto-redirect on expired state after 4s
   useEffect(() => {

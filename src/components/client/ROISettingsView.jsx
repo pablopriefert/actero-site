@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   DollarSign, Clock, Loader2, CheckCircle2, TrendingUp,
@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 import { HelpTooltip } from '../ui/HelpTooltip'
 
-export const ROISettingsView = ({ clientId, theme }) => {
+export const ROISettingsView = ({ clientId, theme: _theme }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const [saving, setSaving] = useState(false)
@@ -48,15 +48,16 @@ export const ROISettingsView = ({ clientId, theme }) => {
     enabled: !!clientId,
   })
 
-  useEffect(() => {
-    if (settings) {
-      setForm({
-        hourly_cost: settings.hourly_cost || '',
-        avg_ticket_time_min: settings.avg_ticket_time_min || '',
-        actero_monthly_price: settings.actero_monthly_price || '',
-      })
-    }
-  }, [settings])
+  // Hydrate form when settings data arrives (during render, not in effect)
+  const prevSettingsRef = React.useRef(settings)
+  if (settings && prevSettingsRef.current !== settings) {
+    prevSettingsRef.current = settings
+    setForm({
+      hourly_cost: settings.hourly_cost || '',
+      avg_ticket_time_min: settings.avg_ticket_time_min || '',
+      actero_monthly_price: settings.actero_monthly_price || '',
+    })
+  }
 
   const handleSave = async () => {
     setSaving(true)

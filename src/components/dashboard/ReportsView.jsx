@@ -32,7 +32,7 @@ const ReportSection = ({ title, children, theme }) => {
 // ============================================================
 // MAIN COMPONENT
 // ============================================================
-export const ReportsView = ({ client, metrics, periodStats, dailyMetrics, events, supabase, theme }) => {
+export const ReportsView = ({ client, metrics: _metrics, periodStats, dailyMetrics: _dailyMetrics, events: _events, supabase: _supabase, theme }) => {
   const isLight = theme === 'light'
   const [report, setReport] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -60,7 +60,6 @@ export const ReportsView = ({ client, metrics, periodStats, dailyMetrics, events
     }
   }
 
-  const clientType = client?.client_type || 'ecommerce'
   const now = new Date()
   const monthName = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
 

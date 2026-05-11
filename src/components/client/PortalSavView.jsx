@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import React, { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   MonitorSmartphone, Copy, CheckCheck, ExternalLink,
   ToggleLeft, ToggleRight, Loader2, Palette, BarChart3,
@@ -77,43 +77,7 @@ function StatCard({ label, value }) {
 export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigate }) => {
   const queryClient = useQueryClient()
   const plan = client?.plan || 'free'
-
-  // ── If free plan — full upgrade wall ─────────────────────────
-  if (!canAccess(plan, 'portal_enabled')) {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div>
-          <h2
-            className="text-2xl italic tracking-tight text-[#1a1a1a]"
-            style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
-          >Portail SAV</h2>
-          <p className="text-[15px] text-[#5A5A5A] mt-1">
-            Donne à tes clients un espace en libre-service pour gérer leurs demandes.
-          </p>
-        </div>
-        <div className="max-w-lg mx-auto py-8">
-          <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#E8F5EC] border border-[#A8C490] flex items-center justify-center mx-auto mb-5">
-              <MonitorSmartphone className="w-7 h-7 text-[#1F3A12]" />
-            </div>
-            <h3 className="text-[20px] font-semibold text-[#1a1a1a] mb-2">
-              Portail SAV self-service
-            </h3>
-            <p className="text-[14px] text-[#71717a] leading-relaxed max-w-sm mx-auto mb-6">
-              Donne à tes clients un espace privé pour suivre leurs commandes, demander un remboursement ou un retour — 100% en autonomie.
-            </p>
-            <button
-              onClick={onUpgrade}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1F3A12] text-white text-[14px] font-semibold hover:bg-[#162C0D] transition-colors shadow-sm"
-            >
-              Passer au plan Starter
-            </button>
-            <p className="text-[11px] text-[#9ca3af] mt-4">Essai gratuit 7 jours, sans engagement</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const hasPortalAccess = canAccess(plan, 'portal_enabled')
 
   // ── Fetch full client row for portal fields ───────────────────
   const { data: clientRow, isLoading } = useQuery({
@@ -122,7 +86,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
       const { data } = await supabase.from('clients').select('*').eq('id', clientId).single()
       return data
     },
-    enabled: !!clientId,
+    enabled: !!clientId && hasPortalAccess,
     initialData: client,
   })
 
@@ -170,8 +134,45 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
       ).length
       return { logins, tickets, selfservice }
     },
-    enabled: !!clientId,
+    enabled: !!clientId && hasPortalAccess,
   })
+
+  // ── If free plan — full upgrade wall ─────────────────────────
+  if (!hasPortalAccess) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div>
+          <h2
+            className="text-2xl italic tracking-tight text-[#1a1a1a]"
+            style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+          >Portail SAV</h2>
+          <p className="text-[15px] text-[#5A5A5A] mt-1">
+            Donne à tes clients un espace en libre-service pour gérer leurs demandes.
+          </p>
+        </div>
+        <div className="max-w-lg mx-auto py-8">
+          <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-10 text-center">
+            <div className="w-16 h-16 rounded-full bg-[#E8F5EC] border border-[#A8C490] flex items-center justify-center mx-auto mb-5">
+              <MonitorSmartphone className="w-7 h-7 text-[#1F3A12]" />
+            </div>
+            <h3 className="text-[20px] font-semibold text-[#1a1a1a] mb-2">
+              Portail SAV self-service
+            </h3>
+            <p className="text-[14px] text-[#71717a] leading-relaxed max-w-sm mx-auto mb-6">
+              Donne à tes clients un espace privé pour suivre leurs commandes, demander un remboursement ou un retour — 100% en autonomie.
+            </p>
+            <button
+              onClick={onUpgrade}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1F3A12] text-white text-[14px] font-semibold hover:bg-[#162C0D] transition-colors shadow-sm"
+            >
+              Passer au plan Starter
+            </button>
+            <p className="text-[11px] text-[#9ca3af] mt-4">Essai gratuit 7 jours, sans engagement</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (
@@ -416,7 +417,12 @@ function CustomDomainSection({ clientRow, clientId, canCustomize, supabase, quer
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
 
-  useEffect(() => { setDomain(existing) }, [existing])
+  // Sync domain when prop changes (during render, not in effect)
+  const prevExistingRef = React.useRef(existing)
+  if (prevExistingRef.current !== existing) {
+    prevExistingRef.current = existing
+    setDomain(existing)
+  }
 
   // Poll domain status every 30s while a domain is configured (so DNS propagation
   // reflects automatically in the UI).
@@ -553,7 +559,12 @@ function HideBrandingSection({ clientRow, clientId, canCustomize, supabase, quer
   const [value, setValue] = useState(current)
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => { setValue(current) }, [current])
+  // Sync value when prop changes (during render, not in effect)
+  const prevCurrentRef = React.useRef(current)
+  if (prevCurrentRef.current !== current) {
+    prevCurrentRef.current = current
+    setValue(current)
+  }
 
   const handleToggle = async () => {
     const next = !value

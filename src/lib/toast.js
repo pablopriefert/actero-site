@@ -99,7 +99,6 @@ export const toast = {
           try {
             onAction?.()
           } catch (e) {
-            // eslint-disable-next-line no-console
             console.error('[toast.action] onAction threw:', e)
           }
         },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Zap, ShoppingBag, Headphones, Loader2,
@@ -93,7 +93,7 @@ const PLAYBOOK_META = {
 
 /* ═══════════ COMPONENT ═══════════ */
 
-export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
+export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const [showVocalWizard, setShowVocalWizard] = useState(false)
@@ -132,21 +132,25 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme }) => {
     enabled: !!clientId,
   })
 
-  // Load saved channels from client_playbooks custom_config
-  useEffect(() => {
-    if (clientPlaybooks.length > 0 && playbooks.length > 0) {
-      const saved = {}
-      clientPlaybooks.forEach(cp => {
-        const pb = playbooks.find(p => p.id === cp.playbook_id)
-        if (pb && cp.custom_config?.channels) {
-          cp.custom_config.channels.forEach(ch => {
-            saved[`${pb.name}_${ch}`] = true
-          })
-        }
-      })
-      setSelectedChannels(prev => ({ ...prev, ...saved }))
-    }
-  }, [clientPlaybooks, playbooks])
+  // Load saved channels from client_playbooks custom_config (during render, not in effect)
+  const prevPlaybookDataRef = React.useRef({ clientPlaybooks, playbooks })
+  if (
+    clientPlaybooks.length > 0 && playbooks.length > 0 &&
+    (prevPlaybookDataRef.current.clientPlaybooks !== clientPlaybooks ||
+     prevPlaybookDataRef.current.playbooks !== playbooks)
+  ) {
+    prevPlaybookDataRef.current = { clientPlaybooks, playbooks }
+    const saved = {}
+    clientPlaybooks.forEach(cp => {
+      const pb = playbooks.find(p => p.id === cp.playbook_id)
+      if (pb && cp.custom_config?.channels) {
+        cp.custom_config.channels.forEach(ch => {
+          saved[`${pb.name}_${ch}`] = true
+        })
+      }
+    })
+    setSelectedChannels(prev => ({ ...prev, ...saved }))
+  }
 
   // Save selected channels to DB
   const saveChannels = async (playbookName, channelId, isSelected) => {

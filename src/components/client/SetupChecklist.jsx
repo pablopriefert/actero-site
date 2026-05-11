@@ -156,9 +156,6 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
   const progress = Math.round((essentialsDone / essentials.length) * 100)
   const allEssentialsDone = essentialsDone === essentials.length
   const allDone = completedCount === totalSteps
-  // Legacy-compat: some pages check `steps` length (keep for backward compat)
-  const steps = [...essentials, ...extras]
-
   const handleDismiss = () => {
     localStorage.setItem(`setup-checklist-dismissed-${clientId}`, 'true')
     setDismissed(true)

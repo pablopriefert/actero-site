@@ -21,6 +21,7 @@ export function OnboardingProgress({ jobId, onComplete, compact = false }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState(null)
   const [dismissed, setDismissed] = useState(false)
+  const [hasCompleted, setHasCompleted] = useState(false)
   const completedRef = useRef(false)
 
   const fetchJob = useCallback(async () => {
@@ -46,6 +47,7 @@ export function OnboardingProgress({ jobId, onComplete, compact = false }) {
 
       if (data.status === 'completed' && !completedRef.current) {
         completedRef.current = true
+        setHasCompleted(true)
         if (typeof onComplete === 'function') onComplete(data)
       }
     } catch (err) {
@@ -53,12 +55,14 @@ export function OnboardingProgress({ jobId, onComplete, compact = false }) {
     }
   }, [jobId, onComplete])
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async fetch + interval: setState is inside awaited callback in fetchJob */
   useEffect(() => {
     if (!jobId || dismissed) return
     fetchJob()
     const interval = setInterval(fetchJob, 5000)
     return () => clearInterval(interval)
   }, [jobId, dismissed, fetchJob])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!jobId || dismissed) return null
 
@@ -69,7 +73,7 @@ export function OnboardingProgress({ jobId, onComplete, compact = false }) {
   const isError = ['failed', 'timeout'].includes(status)
 
   if (compact) {
-    if (status === 'completed' && completedRef.current) return null
+    if (status === 'completed' && hasCompleted) return null
     return (
       <div className="rounded-xl border border-cta/30 bg-cta/5 px-4 py-3 flex items-center gap-3">
         <Loader2 className={`w-4 h-4 text-cta ${!isFinal ? 'animate-spin' : ''}`} />

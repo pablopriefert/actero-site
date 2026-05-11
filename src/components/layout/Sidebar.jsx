@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { X, LogOut, ChevronDown, Bell, Users, Gift, User, CreditCard, Award, Search } from 'lucide-react'
 import { Logo } from './Logo'
 
@@ -17,7 +17,7 @@ export const Sidebar = ({
   onLogout,
   isOpen: _isOpen,
   onClose,
-  theme = "light",
+  theme: _theme = "light",
   userName,
   userEmail,
   upgradeCta,

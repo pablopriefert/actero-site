@@ -106,25 +106,25 @@ function getInitialRoute() {
 }
 
 function MainRouter() {
-  if (isPortalHostname(window.location.hostname)) {
-    return <PortalApp />;
-  }
+  const isPortal = isPortalHostname(window.location.hostname);
 
   const [currentRoute, setCurrentRoute] = useState(getInitialRoute);
   const [isRouting, _setIsRouting] = useState(false);
 
   useEffect(() => {
+    if (isPortal) return;
     const handlePopState = () => {
       setCurrentRoute(window.location.pathname);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
+  }, [isPortal]);
 
   // Wire Sentry user context to Supabase auth state — any error captured
   // after this point is tagged with the current user id/email so we can tell
   // WHICH client hit the bug, not just "someone". Cleared on sign-out.
   useEffect(() => {
+    if (isPortal) return;
     if (!supabase || typeof window === "undefined" || !window.Sentry) return;
     const applyUser = (session) => {
       if (session?.user) {
@@ -139,7 +139,11 @@ function MainRouter() {
     supabase.auth.getSession().then(({ data }) => applyUser(data?.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => applyUser(session));
     return () => sub?.subscription?.unsubscribe();
-  }, []);
+  }, [isPortal]);
+
+  if (isPortal) {
+    return <PortalApp />;
+  }
 
   const navigate = (path) => {
     window.history.pushState({}, "", path);

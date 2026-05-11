@@ -77,11 +77,13 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
     setActiveJob(running || null)
   }, [clientId])
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async fetch: setState is inside awaited callback in loadHistory */
   useEffect(() => {
     loadHistory()
     const id = setInterval(loadHistory, 5000)
     return () => clearInterval(id)
   }, [loadHistory])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleField = (key) => (e) => {
     setCredentials((prev) => ({ ...prev, [key]: e.target.value }))

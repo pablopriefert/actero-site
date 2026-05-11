@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import {
@@ -167,7 +167,7 @@ const NotificationPreferences = ({ clientId, isLight }) => {
   )
 }
 
-const StripePortalButton = ({ clientId, isLight }) => {
+const StripePortalButton = ({ clientId, isLight: _isLight }) => {
   const toast = useToast();
   const [loading, setLoading] = useState(false)
 
@@ -250,14 +250,15 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
     enabled: !!session,
   })
 
-  useEffect(() => {
-    if (client) {
-      setForm({
-        brand_name: client.brand_name || '',
-        contact_email: client.contact_email || '',
-      })
-    }
-  }, [client])
+  // Sync form when client data arrives (during render, not in effect)
+  const prevClientRef = React.useRef(client)
+  if (client && prevClientRef.current !== client) {
+    prevClientRef.current = client
+    setForm({
+      brand_name: client.brand_name || '',
+      contact_email: client.contact_email || '',
+    })
+  }
 
   const saveMutation = useMutation({
     mutationFn: async () => {

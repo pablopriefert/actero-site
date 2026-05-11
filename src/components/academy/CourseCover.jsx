@@ -1,6 +1,7 @@
 import React from "react";
 import { PlayCircle } from "lucide-react";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const GRADIENT_MAP = {
   emerald: ["#064e3b", "#10b981"],
   teal: ["#134e4a", "#14b8a6"],
@@ -19,6 +20,7 @@ export const GRADIENT_MAP = {
   red: ["#7f1d1d", "#ef4444"],
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function resolveGradient(cover) {
   const key = (cover || "").startsWith("gradient:") ? cover.split(":")[1] : "emerald";
   const [from, to] = GRADIENT_MAP[key] || GRADIENT_MAP.emerald;

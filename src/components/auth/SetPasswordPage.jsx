@@ -66,6 +66,7 @@ export function SetPasswordPage({ onNavigate }) {
       if (subscription) subscription.unsubscribe()
       clearTimeout(timeout)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only: sessionReady is read inside a timeout, not as a reactive dependency
   }, [])
 
   const isValid = password.length >= 8 && password === confirmPassword

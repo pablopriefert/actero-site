@@ -40,7 +40,7 @@ export const PeakHoursChart = ({ clientId }) => {
     enabled: !!clientId,
   })
 
-  const { hourly, peakStart, peakEnd, peakHour, total } = useMemo(() => {
+  const { hourly, peakStart, total } = useMemo(() => {
     const buckets = Array.from({ length: 24 }, (_, h) => ({ hour: h, label: `${h}h`, count: 0 }))
     const all = [...(conversations || []), ...(events || [])]
     all.forEach(row => {

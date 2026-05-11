@@ -62,4 +62,5 @@ export function SearchInput({
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const __SEARCH_INPUT_TOKENS__ = tokens;

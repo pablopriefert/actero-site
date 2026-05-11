@@ -76,12 +76,13 @@ export const TicketReplay = () => {
     setHasPlayed(true)
   }
 
+  // Stop playing during render when we reach the last step
+  if (isPlaying && activeStep >= STEPS.length - 1) {
+    setIsPlaying(false)
+  }
+
   useEffect(() => {
-    if (!isPlaying) return
-    if (activeStep >= STEPS.length - 1) {
-      setIsPlaying(false)
-      return
-    }
+    if (!isPlaying || activeStep >= STEPS.length - 1) return
 
     const timer = setTimeout(() => {
       setActiveStep(prev => prev + 1)

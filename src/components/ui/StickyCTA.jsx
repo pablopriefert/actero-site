@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 
-export const StickyCTA = ({ onNavigate, vertical }) => {
+export const StickyCTA = ({ onNavigate, vertical: _vertical }) => {
   const [visible, setVisible] = useState(false)
-  const isImmo = vertical === 'immobilier'
-
   useEffect(() => {
     const handleScroll = () => setVisible(window.scrollY > 400)
     window.addEventListener('scroll', handleScroll, { passive: true })

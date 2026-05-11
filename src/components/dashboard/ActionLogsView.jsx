@@ -46,21 +46,6 @@ const FILTERS = [
 // ============================================================
 // TIME FORMAT
 // ============================================================
-function timeAgo(dateStr) {
-  const now = new Date()
-  const date = new Date(dateStr)
-  const diffMs = now - date
-  const diffMin = Math.floor(diffMs / 60000)
-  const diffHr = Math.floor(diffMs / 3600000)
-  const diffDays = Math.floor(diffMs / 86400000)
-
-  if (diffMin < 1) return "À l'instant"
-  if (diffMin < 60) return `Il y a ${diffMin} min`
-  if (diffHr < 24) return `Il y a ${diffHr}h`
-  if (diffDays < 7) return `Il y a ${diffDays}j`
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-}
-
 function formatTime(dateStr) {
   return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 }

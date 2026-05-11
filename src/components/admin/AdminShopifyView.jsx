@@ -64,7 +64,7 @@ export function AdminShopifyView() {
 
       if (!res.ok) {
         let msg = `Erreur ${res.status}`
-        try { const d = await res.json(); msg = d.error || msg } catch {}
+        try { const d = await res.json(); msg = d.error || msg } catch { /* ignored */ }
         throw new Error(msg)
       }
 

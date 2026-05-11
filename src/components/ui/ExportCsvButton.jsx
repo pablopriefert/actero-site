@@ -25,6 +25,7 @@ function escapeCell(value) {
   return s
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function buildCsv(rows, columns) {
   const header = columns.map((c) => escapeCell(c.label ?? c.key)).join(',')
   const body = rows

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { X, Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export const AnnouncementBar = ({ onNavigate, vertical }) => {
+export const AnnouncementBar = ({ onNavigate, vertical: _vertical }) => {
   const [dismissed, setDismissed] = useState(false)
   const isImmo = false
 

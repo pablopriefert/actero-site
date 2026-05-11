@@ -2,11 +2,9 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Target } from 'lucide-react'
 
-export const AgentCarousel = ({ agents, vertical }) => {
+export const AgentCarousel = ({ agents, vertical: _vertical }) => {
   const [activeIdx, setActiveIdx] = useState(0)
   const active = agents[activeIdx]
-  const isImmo = vertical === 'immobilier'
-
   return (
     <div>
       {/* Avatar row */}

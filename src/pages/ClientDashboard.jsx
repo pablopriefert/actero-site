@@ -109,6 +109,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [selectedPeriod, setSelectedPeriod] = useState("this_month");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [clientNow] = useState(() => Date.now());
   const queryClient = useQueryClient();
   const { open: cmdkOpen, setOpen: setCmdkOpen, close: closeCmdk, isMac } = useCommandPalette();
 
@@ -127,13 +128,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (!showCmdkHint) return;
     const t = setTimeout(() => {
       setShowCmdkHint(false);
-      try { localStorage.setItem('actero-cmdk-hint-dismissed', '1'); } catch {}
+      try { localStorage.setItem('actero-cmdk-hint-dismissed', '1'); } catch { /* ignored */ }
     }, 6000);
     return () => clearTimeout(t);
   }, [showCmdkHint]);
   const dismissCmdkHint = () => {
     setShowCmdkHint(false);
-    try { localStorage.setItem('actero-cmdk-hint-dismissed', '1'); } catch {}
+    try { localStorage.setItem('actero-cmdk-hint-dismissed', '1'); } catch { /* ignored */ }
   };
 
   const getTabFromRoute = (route) => {
@@ -337,7 +338,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   };
 
   // 2. Fetch Metrics (legacy/global)
-  const { data: metrics, isLoading: metricsLoading } = useQuery({
+  const { data: _metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["client-metrics", currentClient?.id],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("recompute_client_metrics", { p_client_id: currentClient.id });
@@ -367,7 +368,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // (requests query removed — now handled by SupportTicketsView)
 
   // 5. Fetch Events (simplified for health score)
-  const { data: events = [] } = useQuery({
+  const { data: _events = [] } = useQuery({
     queryKey: ["client-events-brief", currentClient?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -458,19 +459,24 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   // During first load (setupCompletion undefined) we assume setup mode for brand-new clients (<3 days old).
   const isSetupMode = setupCompletion
     ? completedSetupSteps < 5
-    : !!(currentClient?.created_at && (Date.now() - new Date(currentClient.created_at).getTime()) < 3 * 24 * 60 * 60 * 1000);
+    : !!(currentClient?.created_at && (clientNow - new Date(currentClient.created_at).getTime()) < 3 * 24 * 60 * 60 * 1000);
 
   // SetupWizard visibility flipper — `showSetupWizard` itself is declared
   // earlier (near the tour effect that reads it). This effect re-checks
   // visibility whenever setupCompletion changes:
   //  (a) essentials not all done (4 keys on setupCompletion: shopify, email, tone, tested)
   //  (b) user hasn't dismissed the wizard (localStorage key per client)
-  useEffect(() => {
-    if (!currentClient?.id || !setupCompletion) return
+  // Re-check wizard visibility when setupCompletion changes (during render, not in effect)
+  const prevSetupRef = React.useRef({ clientId: currentClient?.id, setupCompletion })
+  if (
+    currentClient?.id && setupCompletion &&
+    (prevSetupRef.current.clientId !== currentClient.id || prevSetupRef.current.setupCompletion !== setupCompletion)
+  ) {
+    prevSetupRef.current = { clientId: currentClient.id, setupCompletion }
     const dismissed = localStorage.getItem(`setup-wizard-dismissed-${currentClient.id}`) === 'true'
     const essentialsDone = !!(setupCompletion.shopify && setupCompletion.email && setupCompletion.tone && setupCompletion.tested)
     setShowSetupWizard(!dismissed && !essentialsDone)
-  }, [currentClient?.id, setupCompletion])
+  }
 
   // First name for welcome hero (from auth metadata, fallback to brand_name)
   const { data: userFirstName } = useQuery({
@@ -631,7 +637,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   }, [dailyMetrics, selectedPeriod]);
 
   // Specific growthPct for the ROIGlowChart
-  const growthPct = useMemo(() => {
+  const _growthPct = useMemo(() => {
     if (!dailyMetrics || !dailyMetrics.length) return 0;
     const now = new Date();
     const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -667,12 +673,12 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
   const urgentEscalationCount = useMemo(() => {
     if (!pendingEscalations || !Array.isArray(pendingEscalations)) return 0
-    const cutoff = Date.now() - 2 * 60 * 60 * 1000 // >2h
+    const cutoff = clientNow - 2 * 60 * 60 * 1000 // >2h
     return pendingEscalations.filter(e => {
       if (!e.created_at) return false
       return new Date(e.created_at).getTime() < cutoff
     }).length
-  }, [pendingEscalations]);
+  }, [pendingEscalations, clientNow]);
 
   // Analytics — fire "ROI Viewed" when the overview tab is open AND ROI data
   // has loaded with non-zero value. One-shot per session via ref.
@@ -790,7 +796,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     return true;
   }), [sidebarItems, userRole]);
 
-  const isLoading = clientLoading || metricsLoading || dailyMetricsLoading;
+  const _isLoading = clientLoading || metricsLoading || dailyMetricsLoading;
   const isLight = theme === "light";
 
   // Upgrade CTA for sidebar — only shown for Free and Starter plans

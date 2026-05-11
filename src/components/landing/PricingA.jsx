@@ -88,7 +88,7 @@ export const PricingA = ({ onNavigate }) => {
       cta: "Contacter l'équipe",
       ctaStyle: 'dark',
       onClick: () => {
-        window.location.href = 'mailto:contact@actero.fr'
+        window.location.assign('mailto:contact@actero.fr')
       },
     },
   ]

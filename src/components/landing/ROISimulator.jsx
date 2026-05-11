@@ -13,6 +13,35 @@ function getRecommendedPlan(tickets) {
   return PLAN_RECO.find(p => tickets <= p.max) || PLAN_RECO[3]
 }
 
+const SliderInput = ({ label, value, onChange, min, max, step: s = 1, unit, icon: Icon }) => (
+  <div className="space-y-2">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <Icon className="w-4 h-4 text-cta" />
+        <span className="text-[13px] font-medium text-[#71717a]">{label}</span>
+      </div>
+      <span className="text-[15px] font-bold text-[#1a1a1a] tabular-nums">{value.toLocaleString('fr-FR')}{unit}</span>
+    </div>
+    <input
+      type="range"
+      min={min}
+      max={max}
+      step={s}
+      value={value}
+      onChange={e => onChange(Number(e.target.value))}
+      className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#f0f0f0]
+        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
+        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cta
+        [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(15,95,53,0.3)]
+        [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing"
+    />
+    <div className="flex justify-between text-[10px] text-[#9ca3af] font-mono">
+      <span>{min.toLocaleString('fr-FR')}{unit}</span>
+      <span>{max.toLocaleString('fr-FR')}{unit}</span>
+    </div>
+  </div>
+)
+
 export const ROISimulator = ({ onNavigate }) => {
   const [tickets, setTickets] = useState(440)
   const [avgCart, setAvgCart] = useState(160)
@@ -40,35 +69,6 @@ export const ROISimulator = ({ onNavigate }) => {
   }, [tickets, avgCart, abandonRate, monthlyVisitors])
 
   const reco = getRecommendedPlan(tickets)
-
-  const SliderInput = ({ label, value, onChange, min, max, step: s = 1, unit, icon: Icon }) => (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-cta" />
-          <span className="text-[13px] font-medium text-[#71717a]">{label}</span>
-        </div>
-        <span className="text-[15px] font-bold text-[#1a1a1a] tabular-nums">{value.toLocaleString('fr-FR')}{unit}</span>
-      </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={s}
-        value={value}
-        onChange={e => onChange(Number(e.target.value))}
-        className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#f0f0f0]
-          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
-          [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cta
-          [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(15,95,53,0.3)]
-          [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing"
-      />
-      <div className="flex justify-between text-[10px] text-[#9ca3af] font-mono">
-        <span>{min.toLocaleString('fr-FR')}{unit}</span>
-        <span>{max.toLocaleString('fr-FR')}{unit}</span>
-      </div>
-    </div>
-  )
 
   return (
     <section className="py-20 md:py-28 bg-white px-6 relative z-10" id="simulateur-roi">

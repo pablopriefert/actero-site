@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -139,7 +139,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
         .update({ usage_count: (tpl.usage_count || 0) + 1, updated_at: new Date().toISOString() })
         .eq('id', tpl.id)
       queryClient.invalidateQueries({ queryKey: ['response-templates', clientId] })
-    } catch (e) {
+    } catch (_e) {
       // non-blocking
     }
   }
@@ -162,7 +162,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
       setNewTplName('')
       setNewTplCategory('')
       queryClient.invalidateQueries({ queryKey: ['response-templates', clientId] })
-    } catch (e) {
+    } catch (_e) {
       toast.error('Erreur sauvegarde template')
     }
     setSavingTpl(false)
@@ -273,12 +273,14 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
   })
 
   // Auto-send flow when user picks "Envoyer la reponse IA telle quelle"
+  /* eslint-disable react-hooks/set-state-in-effect -- intentional: setAutoSend(false) gates the mutation to fire once */
   useEffect(() => {
     if (autoSend && response.trim() && !respondMutation.isPending) {
       setAutoSend(false)
       respondMutation.mutate()
     }
   }, [autoSend, response]) // eslint-disable-line react-hooks/exhaustive-deps
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleQuickActionSendAI = () => {
     const ai = conversation.ai_response || ''
@@ -781,7 +783,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
   const [filter, setFilter] = useState('pending')
   const [selectedConversation, setSelectedConversation] = useState(null)
 
-  const { data: escalations = [], isLoading } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ['escalations', clientId],
     queryFn: async () => {
       const { data, error } = await supabase

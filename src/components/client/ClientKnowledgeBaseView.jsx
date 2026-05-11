@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -71,16 +71,17 @@ const ToneEditor = ({ entry, onSave, saving }) => {
     instructions: '',
   })
 
-  useEffect(() => {
-    if (entry?.content) {
-      try {
-        const parsed = JSON.parse(entry.content)
-        setForm(parsed)
-      } catch {
-        setForm({ tutoiement: false, tone: 'Professionnel', signature: '', forbidden: '', instructions: entry.content })
-      }
+  // Sync form when entry data changes (during render, not in effect)
+  const prevEntryRef = React.useRef(entry)
+  if (entry?.content && prevEntryRef.current !== entry) {
+    prevEntryRef.current = entry
+    try {
+      const parsed = JSON.parse(entry.content)
+      setForm(parsed)
+    } catch {
+      setForm({ tutoiement: false, tone: 'Professionnel', signature: '', forbidden: '', instructions: entry.content })
     }
-  }, [entry])
+  }
 
   const handleSave = () => {
     onSave({ ...entry, title: 'Ton & Style', content: JSON.stringify(form) })

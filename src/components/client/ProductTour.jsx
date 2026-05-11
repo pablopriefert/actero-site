@@ -155,6 +155,23 @@ export default function ProductTour({ isOpen, onClose }) {
     }
   }, [isOpen, measure])
 
+  const handleClose = useCallback(() => {
+    setCurrentStep(0)
+    onClose?.()
+  }, [onClose])
+
+  const handleNext = useCallback(() => {
+    if (currentStep < total - 1) {
+      setCurrentStep((s) => s + 1)
+    } else {
+      handleClose()
+    }
+  }, [currentStep, total, handleClose])
+
+  const handlePrev = useCallback(() => {
+    if (currentStep > 0) setCurrentStep((s) => s - 1)
+  }, [currentStep])
+
   // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return
@@ -165,23 +182,7 @@ export default function ProductTour({ isOpen, onClose }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, currentStep])
-
-  const handleNext = () => {
-    if (currentStep < total - 1) {
-      setCurrentStep((s) => s + 1)
-    } else {
-      handleClose()
-    }
-  }
-  const handlePrev = () => {
-    if (currentStep > 0) setCurrentStep((s) => s - 1)
-  }
-  const handleClose = () => {
-    setCurrentStep(0)
-    onClose?.()
-  }
+  }, [isOpen, currentStep, handleClose, handleNext, handlePrev])
 
   if (!isOpen || !step) return null
 

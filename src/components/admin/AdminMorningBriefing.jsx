@@ -41,7 +41,6 @@ import { LivePulseDot } from '../ui/LivePulseDot'
 const since24h = () => new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 const since7d = () => new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 const since14d = () => new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-const todayStart = () => new Date(new Date().toISOString().slice(0, 10)).toISOString()
 
 export const AdminMorningBriefing = ({ onTabChange }) => {
   // ── 24h engine errors ──────────────────────────────────────────────

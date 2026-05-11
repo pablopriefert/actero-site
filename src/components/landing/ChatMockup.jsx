@@ -44,12 +44,18 @@ export const ChatMockup = ({ vertical }) => {
   const [isTyping, setIsTyping] = useState(false)
   const timerRef = useRef([])
 
+  // Reset state during render when vertical changes
+  const prevVerticalRef = useRef(vertical)
+  if (prevVerticalRef.current !== vertical) {
+    prevVerticalRef.current = vertical
+    setVisibleCount(0)
+    setIsTyping(false)
+  }
+
   useEffect(() => {
     // Clear previous timers
     timerRef.current.forEach(clearTimeout)
     timerRef.current = []
-    setVisibleCount(0)
-    setIsTyping(false)
 
     let delay = 400
     messages.forEach((msg, i) => {
@@ -72,7 +78,7 @@ export const ChatMockup = ({ vertical }) => {
     })
 
     return () => timerRef.current.forEach(clearTimeout)
-  }, [vertical])
+  }, [vertical, messages])
 
   return (
     <div className="grid md:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">

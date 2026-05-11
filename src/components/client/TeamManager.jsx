@@ -10,6 +10,7 @@ import { useToast } from '../ui/Toast'
 // Re-export the role-permission policy so existing imports from this file
 // (e.g. `import { canAccessTab } from '.../TeamManager'`) keep working —
 // but also surface the canonical location for new callers.
+// eslint-disable-next-line react-refresh/only-export-components
 export { ROLE_PERMISSIONS, canAccessTab } from '../../lib/role-permissions'
 
 const ROLES = [

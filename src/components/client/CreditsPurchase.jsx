@@ -26,7 +26,7 @@ export const CreditsPurchase = ({ clientId }) => {
   const [loading, setLoading] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
 
-  const { data, refetch } = useQuery({
+  const { data } = useQuery({
     queryKey: ['credits-balance', clientId],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession()

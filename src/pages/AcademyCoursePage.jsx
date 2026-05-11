@@ -45,7 +45,7 @@ async function enrollUser(email, courseId) {
       body: JSON.stringify({ email, course_id: courseId }),
     });
     if (!res.ok) throw new Error("Inscription impossible");
-  } catch (err) {
+  } catch (_err) {
     // Fallback direct insert if API unavailable (dev)
     if (supabase) {
       await supabase
@@ -64,12 +64,11 @@ export const AcademyCoursePage = ({ slug, onNavigate }) => {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("description");
   const [gateOpen, setGateOpen] = useState(false);
-  const [enrolledEmail, setEnrolledEmail] = useState(null);
+  const [enrolledEmail, setEnrolledEmail] = useState(() => getStoredAcademyEmail());
   const [progress, setProgress] = useState({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    setEnrolledEmail(getStoredAcademyEmail());
   }, []);
 
   useEffect(() => {

@@ -97,7 +97,7 @@ const GUIDES = [
     content: "Plusieurs moyens de nous joindre :\n\n- Email : support@actero.fr (réponse sous 24h en semaine)\n- Copilot IA : la bulle violette en bas à droite répond à la plupart des questions instantanément\n- Chat support : cliquez 'Contacter le support' dans le menu latéral\n\nLes clients Pro et Enterprise bénéficient d'un support prioritaire avec réponse sous 4h ouvrées." },
 ]
 
-export const HelpCenterView = ({ theme }) => {
+export const HelpCenterView = ({ theme: _theme }) => {
   const [search, setSearch] = useState('')
   const [selectedGuide, setSelectedGuide] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState(null)

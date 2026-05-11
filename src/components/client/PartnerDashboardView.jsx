@@ -21,7 +21,7 @@ import { supabase } from '../../lib/supabase'
  * matching row in the `partners` table. Shows stats, commissions,
  * the unique referral link, and a profile editor.
  */
-export const PartnerDashboardView = ({ theme = 'light' }) => {
+export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
   const queryClient = useQueryClient()
   const [copied, setCopied] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -103,7 +103,7 @@ export const PartnerDashboardView = ({ theme = 'light' }) => {
       await navigator.clipboard.writeText(data.referral_url)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch {}
+    } catch { /* ignored */ }
   }
 
   if (isLoading) {

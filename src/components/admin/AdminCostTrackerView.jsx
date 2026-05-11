@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   BarChart,
@@ -70,8 +70,9 @@ export const AdminCostTrackerView = () => {
     return m
   }, [clients])
 
+  const [statsNow] = useState(() => Date.now())
   const stats = useMemo(() => {
-    const now = Date.now()
+    const now = statsNow
     const day = 24 * 60 * 60 * 1000
     let cost24h = 0
     let cost30d = 0
@@ -103,9 +104,8 @@ export const AdminCostTrackerView = () => {
 
     const avgCost24h = runs24h > 0 ? cost24h / runs24h : 0
 
-    // Month-to-date projection: cost over days_elapsed of current month * 30
-    const daysElapsed = Math.max(1, Math.min(30, 30)) // simple: window is 30d
-    const projection = cost30d // already 30d window
+    // Month-to-date projection: already 30d window
+    const projection = cost30d
 
     const clientRows = Array.from(byClient.values())
       .map((b) => ({
@@ -123,7 +123,7 @@ export const AdminCostTrackerView = () => {
       projection,
       clientRows,
     }
-  }, [runs, clientMap])
+  }, [runs, clientMap, statsNow])
 
   const chartData = useMemo(
     () =>

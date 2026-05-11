@@ -111,7 +111,7 @@ export function AdminFunnelView() {
 
       if (!emailRes.ok) {
         let errMsg = `Email send failed (${emailRes.status})`
-        try { const errData = await emailRes.json(); errMsg = errData.error || errMsg } catch {}
+        try { const errData = await emailRes.json(); errMsg = errData.error || errMsg } catch { /* ignored */ }
         console.error(errMsg)
         // Client created but email failed — don't throw, just warn
       } else {

@@ -29,16 +29,14 @@ export const GlassHero = ({ onNavigate }) => {
 
   /* ─── Announcement bar dismiss (localStorage, default visible) ─── */
   const ANNOUNCE_KEY = 'actero_announce_vision_v1'
-  const [showAnnounce, setShowAnnounce] = useState(true)
-
-  useEffect(() => {
+  const [showAnnounce, setShowAnnounce] = useState(() => {
     try {
-      const dismissed = window.localStorage.getItem(ANNOUNCE_KEY)
-      if (dismissed === '1') setShowAnnounce(false)
+      return window.localStorage.getItem(ANNOUNCE_KEY) !== '1'
     } catch {
       /* localStorage unavailable — keep default visible */
+      return true
     }
-  }, [])
+  })
 
   const dismissAnnounce = () => {
     setShowAnnounce(false)
@@ -272,7 +270,7 @@ export const GlassHero = ({ onNavigate }) => {
  * AnimatedKpiNumber — count-up on enter into viewport.
  * Respects prefers-reduced-motion (shows final value immediately).
  */
-function AnimatedKpiNumber({ target, prefix = '', suffix = '', fontStyle }) {
+function AnimatedKpiNumber({ target, prefix = '', suffix = '', fontStyle: _fontStyle }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, amount: 0.5 })
   const prefersReducedMotion = useReducedMotion()

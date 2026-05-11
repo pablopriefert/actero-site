@@ -127,14 +127,20 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
   const [loading, setLoading] = useState(true);
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [progress, setProgress] = useState({});
-  const [gateOpen, setGateOpen] = useState(false);
-  const [enrolledEmail, setEnrolledEmail] = useState(null);
+  const [enrolledEmail, setEnrolledEmail] = useState(() => getStoredAcademyEmail());
+  const [gateOpen, setGateOpen] = useState(() => !getStoredAcademyEmail());
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  // Reset scroll and update enrolled email on slug change
+  const prevModuleSlugRef = React.useRef(moduleSlug);
+  if (prevModuleSlugRef.current !== moduleSlug) {
+    prevModuleSlugRef.current = moduleSlug;
     const email = getStoredAcademyEmail();
     setEnrolledEmail(email);
     if (!email) setGateOpen(true);
+  }
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
   }, [moduleSlug]);
 
   useEffect(() => {

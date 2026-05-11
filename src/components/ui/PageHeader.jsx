@@ -38,4 +38,5 @@ export function PageHeader({ title, subtitle, actions, breadcrumb, badge, classN
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const __PAGE_HEADER_TOKENS__ = tokens;

@@ -113,4 +113,5 @@ export function DashboardLayout({
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const __DASHBOARD_LAYOUT_TOKENS__ = tokens;

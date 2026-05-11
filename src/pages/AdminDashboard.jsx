@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react'
+import React, { useState, lazy, Suspense } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -241,6 +241,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [callNotesClient, setCallNotesClient] = useState(null);
   const [deploymentState, setDeploymentState] = useState(null); // { deploymentId, clientName }
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
+  const [adminNow] = useState(() => Date.now());
 
   const getAdminTabFromRoute = (route) => {
     if (route === "/admin" || route === "/admin/" || route === "/admin/briefing") return "briefing";
@@ -773,7 +774,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
             // MRR: only count clients with an active Stripe subscription, NOT in trial,
             // NOT test accounts (@actero.fr), and status=active
-            const now = Date.now();
+            const now = adminNow;
             const isTestEmail = (email) => !email || email.endsWith('@actero.fr') || email.includes('+test');
             const mrrClients = clients.filter(c => {
               if (!c.plan || c.plan === 'free') return false;

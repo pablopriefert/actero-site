@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -78,7 +78,7 @@ const PLAYBOOK_TESTS = {
 
 /* ═══════════ COMPONENT ═══════════ */
 
-export const ConversationSimulator = ({ clientId, clientType, theme }) => {
+export const ConversationSimulator = ({ clientId, clientType: _clientType, theme: _theme }) => {
   const toast = useToast()
   const [selectedPlaybook, setSelectedPlaybook] = useState(null)
   const [testResults, setTestResults] = useState([])
@@ -113,7 +113,7 @@ export const ConversationSimulator = ({ clientId, clientType, theme }) => {
   }, [chatMessages])
 
   // Test a single scenario via the Engine Gateway
-  const runTest = async (playbook, scenario) => {
+  const runTest = useCallback(async (playbook, scenario) => {
     const startTime = Date.now()
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -155,7 +155,7 @@ export const ConversationSimulator = ({ clientId, clientType, theme }) => {
         durationMs: Date.now() - startTime,
       }
     }
-  }
+  }, [clientId])
 
   // Test all scenarios for a playbook
   const testPlaybook = async (playbook) => {

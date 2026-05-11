@@ -35,8 +35,6 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
   const [activated, setActivated] = useState(false)
 
   const currentStep = STEPS[step]
-  const toolConnected = selectedTool === 'none' || connectedProviders.includes(selectedTool)
-
   const handleActivate = async () => {
     setActivating(true)
     try {

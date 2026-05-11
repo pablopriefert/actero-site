@@ -8,7 +8,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 
-function computeHealthScore(client, metrics, events, lastLogin) {
+function computeHealthScore(client, metrics, events, _lastLogin) {
   let score = 0
   const factors = []
 

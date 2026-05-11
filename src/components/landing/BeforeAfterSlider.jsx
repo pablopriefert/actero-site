@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { motion } from 'framer-motion'
 import { X, Check, Clock, Euro, Zap, ArrowRight, Minus } from 'lucide-react'
 
@@ -17,8 +17,6 @@ const afterItems = [
 ]
 
 export const BeforeAfterSlider = () => {
-  const [position, setPosition] = useState(50)
-
   return (
     <section className="py-24 md:py-32 bg-white px-6 relative z-10 border-t border-gray-200">
       <div className="max-w-5xl mx-auto">

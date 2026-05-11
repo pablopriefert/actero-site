@@ -67,4 +67,5 @@ export function SectionCard({
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const __SECTION_CARD_TOKENS__ = tokens;

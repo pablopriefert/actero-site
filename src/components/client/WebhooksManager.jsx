@@ -288,7 +288,7 @@ const CreateWebhookForm = ({ onCancel, onSubmit, loading }) => {
   )
 }
 
-const WebhookRow = ({ webhook, expanded, onToggleExpand, onToggleActive, onDelete, onCopySecret, copied }) => {
+const WebhookRow = ({ webhook, expanded, onToggleExpand, onToggleActive, onDelete, onCopySecret: _onCopySecret, copied: _copied }) => {
   const statusColor = !webhook.is_active
     ? 'text-gray-400 bg-gray-100'
     : webhook.last_delivery_status && webhook.last_delivery_status >= 200 && webhook.last_delivery_status < 300
@@ -300,6 +300,7 @@ const WebhookRow = ({ webhook, expanded, onToggleExpand, onToggleActive, onDelet
   const [deliveries, setDeliveries] = React.useState(null)
   const [loadingDeliveries, setLoadingDeliveries] = React.useState(false)
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async fetch: setState is inside .then() callbacks */
   React.useEffect(() => {
     if (expanded && !deliveries) {
       setLoadingDeliveries(true)
@@ -313,6 +314,7 @@ const WebhookRow = ({ webhook, expanded, onToggleExpand, onToggleActive, onDelet
       })
     }
   }, [expanded, webhook.id, deliveries])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">

@@ -84,7 +84,7 @@ function computeAnnualSavingsPct() {
 const ANNUAL_SAVINGS_PCT = computeAnnualSavingsPct();
 
 function buildFeatures(plan) {
-  const { limits, features, support } = plan;
+  const { limits, features: _features, support } = plan;
 
   // ── FREE ──────────────────────────────────────────────────────────
   if (plan.id === "free") {
@@ -430,7 +430,7 @@ export const PricingPage = ({ onNavigate }) => {
       // Enterprise: open Cal.com booking in new tab
       window.open(plan.ctaLink, "_blank", "noopener,noreferrer");
     } else if (plan.ctaLink.startsWith("mailto:")) {
-      window.location.href = plan.ctaLink;
+      window.location.assign(plan.ctaLink);
     } else {
       onNavigate(plan.ctaLink);
     }

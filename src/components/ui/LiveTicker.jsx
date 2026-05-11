@@ -17,13 +17,20 @@ const STATS = {
 }
 
 export const LiveTicker = ({ vertical }) => {
-  const [idx, setIdx] = useState(0)
   const stats = STATS[vertical] || STATS.ecommerce
+  const [idx, setIdx] = useState(0)
+  const prevVerticalRef = React.useRef(vertical)
+
+  // Reset index during render when vertical changes (no effect needed)
+  if (prevVerticalRef.current !== vertical) {
+    prevVerticalRef.current = vertical
+    setIdx(0)
+  }
 
   useEffect(() => {
-    setIdx(0)
+    const len = stats.length
     const interval = setInterval(() => {
-      setIdx(i => (i + 1) % stats.length)
+      setIdx(i => (i + 1) % len)
     }, 3500)
     return () => clearInterval(interval)
   }, [vertical, stats.length])
