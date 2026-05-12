@@ -109,13 +109,14 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
   })
 
   // Fetch client's widget API key (for free chat via engine pipeline)
+  // Falls back to clientId itself (the widget endpoint accepts UUIDs too)
   const { data: widgetApiKey } = useQuery({
     queryKey: ['widget-api-key', clientId],
     queryFn: async () => {
       const { data } = await supabase.from('client_api_keys').select('key_value').eq('client_id', clientId).eq('is_active', true).limit(1).maybeSingle()
       if (data) return data.key_value
       const { data: settings } = await supabase.from('client_settings').select('widget_api_key').eq('client_id', clientId).maybeSingle()
-      return settings?.widget_api_key || null
+      return settings?.widget_api_key || clientId
     },
     enabled: !!clientId,
   })

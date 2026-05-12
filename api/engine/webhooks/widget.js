@@ -62,8 +62,21 @@ async function handler(req, res) {
     } catch { /* fall through */ }
   }
 
+  // Fallback 3: treat api_key as client_id (UUID) — for embed snippets
+  // that use the client UUID directly instead of a generated key.
+  if (!clientId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(apiKey)) {
+    try {
+      const { data } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('id', apiKey)
+        .maybeSingle()
+      if (data) clientId = data.id
+    } catch { /* fall through */ }
+  }
+
   if (!clientId) {
-    console.error(`[widget] Invalid API key: ${apiKey?.substring(0, 8)}...`)
+    console.error(`[widget] Invalid API key: ${apiKey?.substring(0, 12)}...`)
     return res.status(401).json({ error: 'Invalid API key', response: 'Configuration en cours. Veuillez réessayer dans quelques instants.' })
   }
 
