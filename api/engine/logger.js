@@ -286,12 +286,22 @@ export async function logRun(supabase, {
   // ROI = time saved in hours * hourly cost
   const estimatedRoi = isResolved ? Math.round((timeSaved / 3600) * hourlyCost * 100) / 100 : 0
 
+  const sourceChannel = normalized?.channel || normalized?.source || 'web_widget'
+  const customerSnippet = (normalized?.message || '').slice(0, 60)
+  const eventTitle = eventCategory === 'ticket_resolved'
+    ? `Résolu auto : ${customerSnippet || 'demande client'}${customerSnippet.length >= 60 ? '…' : ''}`
+    : eventCategory === 'ticket_escalated'
+      ? `Escalade : ${customerSnippet || 'demande client'}${customerSnippet.length >= 60 ? '…' : ''}`
+      : `${classification || 'Événement'} : ${customerSnippet || 'demande client'}`
+
   try {
     const { error: aeError } = await supabase.from('automation_events').insert({
       client_id: clientId,
       event_category: eventCategory,
       event_type: classification || 'engine_run',
+      event_title: eventTitle,
       ticket_type: ticketType,
+      source_channel: sourceChannel,
       time_saved_seconds: timeSaved,
       description: `[Engine] ${classification} — ${status} (${Math.round((confidence || 0) * 100)}% confiance, ${durationMs}ms)`,
       metadata: {

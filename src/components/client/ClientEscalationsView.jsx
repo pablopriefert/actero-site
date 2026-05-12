@@ -796,6 +796,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
       return data
     },
     enabled: !!clientId,
+    refetchInterval: 30_000,
   })
 
   const { data: allEscalations = [] } = useQuery({
@@ -811,6 +812,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
       return data
     },
     enabled: !!clientId,
+    refetchInterval: 30_000,
   })
 
   const { data: stats } = useQuery({

@@ -450,12 +450,17 @@
 
   // Build conversation history for the API (last 10 exchanges max)
   function getConversationHistory() {
-    // Skip the initial greeting, send real exchanges only
-    const history = messages
-      .filter(m => m.role === 'user' || m.role === 'assistant')
-      .slice(-20) // last 20 messages (10 exchanges)
-      .map(m => ({ role: m.role, content: m.text }))
-    return history
+    // Skip the initial greeting so the AI doesn't think it already spoke
+    var start = 0
+    if (messages.length > 0 && messages[0].role === 'assistant') start = 1
+    var history = []
+    for (var i = start; i < messages.length; i++) {
+      var m = messages[i]
+      if (m.role === 'user' || m.role === 'assistant') {
+        history.push({ role: m.role, content: m.text })
+      }
+    }
+    return history.slice(-20)
   }
 
   async function send() {

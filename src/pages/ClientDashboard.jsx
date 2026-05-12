@@ -363,6 +363,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       return data;
     },
     enabled: !!supabase && !!currentClient?.id,
+    refetchInterval: 60_000,
   });
 
   // (requests query removed — now handled by SupportTicketsView)
@@ -381,6 +382,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       return data;
     },
     enabled: !!supabase && !!currentClient?.id,
+    refetchInterval: 30_000,
   });
 
   // 5b. Check Shopify connection (e-commerce clients only)
@@ -562,6 +564,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       return counts;
     },
     enabled: !!supabase && !!currentClient?.id,
+    refetchInterval: 30_000,
   });
 
   const totalEvents = useMemo(

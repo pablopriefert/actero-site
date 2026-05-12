@@ -32,7 +32,7 @@ export function OverviewHome({
   limits,
   // Metrics state
   periodStats, selectedPeriod: _selectedPeriod, setSelectedPeriod: _setSelectedPeriod, dailyMetrics, eventCounts, liveRoi: _liveRoi,
-  totalEvents, urgentEscalationCount, completedSetupSteps, showShopifyBanner, setupCompletion,
+  totalEvents: _totalEvents, urgentEscalationCount, completedSetupSteps, showShopifyBanner, setupCompletion,
   // Actions
   setActiveTab, theme: _theme, onOpenSetupWizard,
 }) {
@@ -64,16 +64,14 @@ export function OverviewHome({
         initial="initial"
         animate="animate"
       >
-        {totalEvents > 0 ? (
-          <KpiTrio
-            clientId={clientId}
-            eventCounts={eventCounts}
-            periodStats={periodStats}
-            dailyMetrics={dailyMetrics}
-          />
-        ) : (
-          <EmptyKpiHint onOpenSetupWizard={onOpenSetupWizard} setActiveTab={setActiveTab} />
-        )}
+        <KpiTrio
+          clientId={clientId}
+          eventCounts={eventCounts}
+          periodStats={periodStats}
+          dailyMetrics={dailyMetrics}
+          onOpenSetupWizard={onOpenSetupWizard}
+          setActiveTab={setActiveTab}
+        />
       </motion.div>
 
       {/* 3. Timeline "Depuis ta dernière visite" */}
@@ -214,26 +212,33 @@ function AnimatedKpiNumber({ value, className }) {
 /* ═══════════════════════════════════════════════════════════════════
    2. KpiTrio — 3 top-level KPIs, sparkline 14j, variation
    ═══════════════════════════════════════════════════════════════════ */
-function KpiTrio({ clientId, eventCounts, periodStats, dailyMetrics }) {
-  // Today's count
+function KpiTrio({ clientId, eventCounts, periodStats, dailyMetrics, onOpenSetupWizard, setActiveTab }) {
+  // Today's count + check if client has any events at all
   const { data: today } = useQuery({
     queryKey: ['overview-today-trio', clientId],
     queryFn: async () => {
       if (!clientId) return null
       const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0)
-      const { data } = await supabase
-        .from('automation_events')
-        .select('event_category')
-        .eq('client_id', clientId)
-        .gte('created_at', startOfToday.toISOString())
-      const events = data || []
+      const [todayRes, anyRes] = await Promise.all([
+        supabase
+          .from('automation_events')
+          .select('event_category')
+          .eq('client_id', clientId)
+          .gte('created_at', startOfToday.toISOString()),
+        supabase
+          .from('automation_events')
+          .select('id', { count: 'exact', head: true })
+          .eq('client_id', clientId),
+      ])
+      const events = todayRes.data || []
       return {
         total: events.length,
         resolved: events.filter(e => e.event_category === 'ticket_resolved').length,
+        hasAnyEvents: (anyRes.count || 0) > 0,
       }
     },
     enabled: !!clientId,
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
   })
 
   // Sparklines — last 14 days
@@ -257,6 +262,11 @@ function KpiTrio({ clientId, eventCounts, periodStats, dailyMetrics }) {
   const totalAll = totalResolved + totalEscalated
   const autoRate = totalAll > 0 ? Math.round((totalResolved / totalAll) * 100) : 0
   const pending = eventCounts?.ticket_escalated || 0
+
+  const hasData = today?.hasAnyEvents || totalAll > 0 || (today?.total ?? 0) > 0
+  if (!hasData) {
+    return <EmptyKpiHint onOpenSetupWizard={onOpenSetupWizard} setActiveTab={setActiveTab} />
+  }
 
   const kpis = [
     {
