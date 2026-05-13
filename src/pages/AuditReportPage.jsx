@@ -74,9 +74,46 @@ export const AuditReportPage = ({ onNavigate }) => {
 
   // Extract token from URL path: /audit-report/:token
   const token = window.location.pathname.split('/audit-report/')[1]
+  const isPreview = new URLSearchParams(window.location.search).get('preview') === '1'
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
+
+    // Preview mode: use mock data for dev/demo
+    if (isPreview) {
+      setAudit({
+        store_name: 'Maison Durand',
+        store_url: 'https://maison-durand.com',
+        average_rating: 3.2,
+        total_reviews: 847,
+        negative_reviews_count: 12,
+        reviews_source: 'trustpilot+google',
+        support_score: 38,
+        created_at: new Date().toISOString(),
+        analysis: {
+          summary: 'Le support client de Maison Durand souffre de délais de réponse élevés et d\'un manque de suivi après achat. 34% des avis négatifs mentionnent le service client.',
+          top_issues: [
+            { category: 'Temps de réponse lent', severity: 'critical', percentage: 42, description: 'Les clients attendent en moyenne 4 jours pour une réponse.' },
+            { category: 'Suivi commande absent', severity: 'high', percentage: 28, description: 'Aucune mise à jour proactive sur l\'état des commandes.' },
+            { category: 'Réponses génériques', severity: 'medium', percentage: 18, description: 'Les réponses ne sont pas personnalisées au contexte du client.' },
+          ],
+          recommendations: [
+            { title: 'Agent IA pour les questions fréquentes', impact: 'high', description: 'Automatiser 70% des demandes récurrentes (suivi, retours, FAQ) avec réponse instantanée.' },
+            { title: 'Notifications proactives', impact: 'high', description: 'Envoyer automatiquement des mises à jour de commande à chaque étape.' },
+            { title: 'Escalade intelligente', impact: 'medium', description: 'Router les cas complexes vers un humain avec tout le contexte pré-chargé.' },
+          ],
+          estimated_savings: {
+            hours_per_month: 45,
+            tickets_automatable: 72,
+            response_time_improvement: '4j → 2min',
+          },
+          email_hook: '34% de vos avis négatifs mentionnent votre support client — Actero peut transformer ces plaintes en clients fidèles.',
+        },
+      })
+      setLoading(false)
+      return
+    }
+
     if (!token) {
       setError('Lien invalide')
       setLoading(false)
@@ -91,7 +128,7 @@ export const AuditReportPage = ({ onNavigate }) => {
       .then(setAudit)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
-  }, [token])
+  }, [token, isPreview])
 
   if (loading) {
     return (
