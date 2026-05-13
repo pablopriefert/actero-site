@@ -111,6 +111,7 @@ const AdminAITerminal = lazy(() => import('../components/admin/AdminAITerminal')
 const AdminPartnerTokensView = lazy(() => import('../components/admin/AdminPartnerTokensView').then(m => ({ default: m.AdminPartnerTokensView })))
 const AdminErrorReportsView = lazy(() => import('../components/admin/AdminErrorReportsView').then(m => ({ default: m.AdminErrorReportsView })))
 const AdminActionLogsView = lazy(() => import('../components/admin/AdminActionLogsView').then(m => ({ default: m.AdminActionLogsView })))
+const AdminProspectAuditsView = lazy(() => import('../components/admin/AdminProspectAuditsView').then(m => ({ default: m.AdminProspectAuditsView })))
 const AdminClientDetailView = lazy(() => import('../components/admin/AdminClientDetailView').then(m => ({ default: m.AdminClientDetailView })))
 const AdminMorningBriefing = lazy(() => import('../components/admin/AdminMorningBriefing').then(m => ({ default: m.AdminMorningBriefing })))
 import { KpiCard, KpiRow } from '../components/ui/KpiCard'
@@ -511,6 +512,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { type: 'section', label: 'CLIENTS & PROSPECTS' },
     { id: 'clients', label: 'Tous les clients', icon: Users },
     { id: 'pipeline', label: 'Pipeline', icon: Layers },
+    { id: 'prospect-audits', label: 'Audits prospects', icon: Megaphone, badge: 'NEW', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
     { id: 'startup-applications', label: 'Candidatures Startups', icon: Rocket },
 
     { type: 'section', label: 'PROGRAMMES' },
@@ -1105,6 +1107,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "stripe-setup" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminStripeSetupView /></div>}
           {activeTab === "conversion-pipeline" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminConversionPipelineView /></div>}
           {activeTab === "action-logs" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminActionLogsView /></div>}
+          {activeTab === "prospect-audits" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminProspectAuditsView /></div>}
           {activeTab === "client-detail" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminClientDetailView /></div>}
 
           {activeTab === "requests" && (

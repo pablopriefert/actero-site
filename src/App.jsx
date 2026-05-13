@@ -21,6 +21,7 @@ const PricingPage = lazy(() => import("./pages/PricingPage").then(m => ({ defaul
 const ProductPage = lazy(() => import("./pages/ProductPage").then(m => ({ default: m.ProductPage })));
 const FaqPage = lazy(() => import("./pages/FaqPage").then(m => ({ default: m.FaqPage })));
 const AuditPage = lazy(() => import("./pages/AuditPage").then(m => ({ default: m.AuditPage })));
+const AuditReportPage = lazy(() => import("./pages/AuditReportPage").then(m => ({ default: m.AuditReportPage })));
 const DemoDashboardPage = lazy(() => import("./components/ui/demo-dashboard").then(m => ({ default: m.DemoDashboardPage })));
 const ProspectDemoPage = lazy(() => import("./pages/ProspectDemoPage").then(m => ({ default: m.ProspectDemoPage })));
 const PromptLibraryPage = lazy(() => import("./components/ui/prompt-library-page").then(m => ({ default: m.PromptLibraryPage })));
@@ -189,6 +190,7 @@ function MainRouter() {
   else if (currentRoute === "/mentions-legales") page = <LegalPage onNavigate={navigate} />;
   else if (currentRoute === "/utilisation") page = <TermsPage onNavigate={navigate} />;
   else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
+  else if (currentRoute.startsWith("/audit-report/")) page = <AuditReportPage onNavigate={navigate} />;
   else if (currentRoute.startsWith("/demo-prospect")) page = <ProspectDemoPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
   else if (currentRoute === "/marketplace" || currentRoute.startsWith("/marketplace/")) {
