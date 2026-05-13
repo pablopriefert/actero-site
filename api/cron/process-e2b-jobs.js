@@ -118,4 +118,4 @@ function isAuthorised(req) {
   return token && token === process.env.CRON_SECRET
 }
 
-export default withCronMonitor(handler, { slug: 'process-e2b-jobs' })
+export default withCronMonitor('cron-process-e2b-jobs', '*/5 * * * *', handler)
