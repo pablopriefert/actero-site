@@ -283,6 +283,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/manual-review") return "manual-review";
     if (route === "/admin/playbooks") return "playbooks";
     if (route === "/admin/action-logs") return "action-logs";
+    if (route === "/admin/prospect-audits") return "prospect-audits";
     if (route === "/admin/add-enterprise") return "add-enterprise";
     if (route === "/admin/stripe-setup") return "stripe-setup";
     if (route === "/admin/conversion-pipeline") return "conversion-pipeline";
