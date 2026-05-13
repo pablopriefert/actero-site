@@ -33,7 +33,10 @@ create index if not exists idx_prospect_audits_created_at on public.prospect_aud
 alter table public.prospect_audits enable row level security;
 
 -- Allow service role full access (API endpoints use SUPABASE_SERVICE_ROLE_KEY)
--- No policies needed since service_role bypasses RLS.
+-- service_role bypasses RLS automatically.
+-- Authenticated users can read (admin check is app-level in the dashboard).
+create policy "Authenticated users can read prospect_audits"
+  on public.prospect_audits for select to authenticated using (true);
 
 -- Auto-update updated_at
 create or replace function public.set_prospect_audit_updated_at()
