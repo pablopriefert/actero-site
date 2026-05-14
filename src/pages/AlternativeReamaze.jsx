@@ -115,14 +115,7 @@ export const AlternativeReamaze = ({ onNavigate }) => {
       },
     ],
 
-    testimonials: [
-      {
-        quote:
-          "Re:amaze nous coûtait trop cher avec son pricing par agent et l'overage IA à 0,85 $. On a basculé sur Actero — voice inclus, ROI dashboard partageable, facture totale en baisse de 40 %.",
-        author: '[À compléter]',
-        role: 'Founder · Beauté FR',
-      },
-    ],
+    testimonials: [],
 
     faqs: [
       {

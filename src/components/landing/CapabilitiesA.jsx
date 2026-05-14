@@ -32,7 +32,7 @@ export const CapabilitiesA = () => {
       title: 'Agent SAV',
       desc:
         "Répond automatiquement aux tickets, retours, changements d'adresse et questions produit sur email, chat, Gorgias et Zendesk — avec le ton de votre marque.",
-      highlight: '60% de tickets résolus sans humain',
+      highlight: '82% de tickets résolus sans humain',
       highlightMarker: '*',
     },
     {

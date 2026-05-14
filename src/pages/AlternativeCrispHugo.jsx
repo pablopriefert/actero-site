@@ -137,14 +137,7 @@ export const AlternativeCrispHugo = ({ onNavigate }) => {
       },
     ],
 
-    testimonials: [
-      {
-        quote:
-          "On a testé Hugo AI à son lancement Product Hunt, mais à 50 usages/mois sur Essentials c'était inutilisable, et 295 €/mois pour Plus on n'y était pas prêts. Actero à 99 € avec IA illimitée et lookup Shopify live, c'était évident.",
-        author: '[À compléter]',
-        role: 'Founder · Marque DTC beauté FR',
-      },
-    ],
+    testimonials: [],
 
     faqs: [
       {

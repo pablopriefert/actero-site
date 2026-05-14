@@ -157,7 +157,7 @@ export const LandingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Actero — Agent IA e-commerce : SAV, relance paniers, automatisations"
-        description="L'agent IA français qui gère votre SAV Shopify, relance les paniers abandonnés et automatise vos workflows e-commerce. 60% des tickets résolus seul, +15% de CA récupéré. Installé en 15 min, essai gratuit 7 jours."
+        description="L'agent IA français qui gère votre SAV Shopify, relance les paniers abandonnés et automatise vos workflows e-commerce. 82% des tickets résolus seul, +15% de CA récupéré. Installé en 15 min, essai gratuit 7 jours."
         keywords="agent IA e-commerce, SAV Shopify automatisé, relance panier abandonné IA, automatisation workflows Shopify, alternative Gorgias, agent IA français"
         canonical="/"
         ogImage="https://actero.fr/og-image.png"

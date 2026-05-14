@@ -21,14 +21,14 @@ export const AlternativeGorgias = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Gorgias pour Shopify — Actero | IA SAV E-commerce FR',
       description:
-        "Cherchez une alternative à Gorgias moins chère, en français et RGPD ? Actero automatise 60 % des tickets Shopify dès 99 €/mois. Installation OAuth en 15 min, hébergé UE, opt-out TDM. Migration en 1 jour.",
+        "Cherchez une alternative à Gorgias moins chère, en français et RGPD ? Actero automatise 82 % des tickets Shopify dès 99 €/mois. Installation OAuth en 15 min, hébergé UE, opt-out TDM. Migration en 1 jour.",
       keywords:
         'alternative gorgias, gorgias vs actero, gorgias français, remplacer gorgias, alternative gorgias shopify, helpdesk ia français, sav automatisé shopify, gorgias alternative rgpd',
     },
 
     hero: {
       subtitle:
-        "Gorgias facture chaque résolution IA, empile les add-ons (voice, SMS, automation) et impose 2 à 5 jours de configuration manuelle avec un consultant. L'interface reste anglo-centrée, le support anglophone, l'hébergement US. Actero automatise 60 % des tickets dès le premier jour, en français, hébergé UE, à partir de 99 €/mois forfait tout inclus.",
+        "Gorgias facture chaque résolution IA, empile les add-ons (voice, SMS, automation) et impose 2 à 5 jours de configuration manuelle avec un consultant. L'interface reste anglo-centrée, le support anglophone, l'hébergement US. Actero automatise 82 % des tickets dès le premier jour, en français, hébergé UE, à partir de 99 €/mois forfait tout inclus.",
     },
 
     comparison: [
@@ -54,7 +54,7 @@ export const AlternativeGorgias = ({ onNavigate }) => {
       },
       {
         label: '% de résolutions automatiques',
-        actero: { main: '60 %', sub: 'Sans add-on' },
+        actero: { main: '82 %', sub: 'Sans add-on' },
         competitor: { main: 'Variable', sub: 'Auto-reply payant' },
       },
       {
@@ -119,26 +119,7 @@ export const AlternativeGorgias = ({ onNavigate }) => {
       },
     ],
 
-    testimonials: [
-      {
-        quote:
-          "On payait 450 $ par mois chez Gorgias avec l'add-on Automation. Passé à Actero Pro à 399 €/mois, plus cher en nominal mais l'agent vocal et les paniers sont inclus. Retour sur investissement en 3 semaines.",
-        author: '[À compléter]',
-        role: 'Head of CX · Marque mode DTC',
-      },
-      {
-        quote:
-          "L'équipe ne comprenait pas toutes les macros Gorgias et on avait des règles cassées partout. Actero a tout unifié : un agent, une base de connaissances, des guardrails. Plus simple, plus mesurable.",
-        author: '[À compléter]',
-        role: 'Fondateur · Beauté clean FR',
-      },
-      {
-        quote:
-          "La migration a pris une après-midi. On a connecté Shopify, importé la FAQ depuis Notion, testé sur 50 tickets, déployé. Gorgias tournait encore 3 jours en parallèle par sécurité — aucune régression.",
-        author: '[À compléter]',
-        role: 'Ops Manager · Food & supplements',
-      },
-    ],
+    testimonials: [],
 
     faqs: [
       {

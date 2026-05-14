@@ -3,6 +3,8 @@ import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from './lib/admin-auth.js'
 
+export const maxDuration = 60;
+
 const N8N_URL = process.env.N8N_API_URL;
 const N8N_KEY = process.env.N8N_API_KEY;
 const GEMINI_KEY = process.env.GEMINI_API_KEY;

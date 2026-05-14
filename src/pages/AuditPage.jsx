@@ -141,10 +141,10 @@ export const AuditPage = ({ onNavigate }) => {
                     )}
                   </div>
                   <h3 className="text-lg font-bold text-[#262626]">
-                    Vos frais de setup de <span className="line-through text-[#716D5C]">800€</span> sont <span className="text-cta">offerts</span>
+                    Audit gratuit, <span className="text-cta">sans engagement</span>
                   </h3>
                   <p className="text-sm text-[#716D5C] mt-1">
-                    Grâce à votre parrain, vous bénéficiez d'une installation gratuite. Réservez votre audit pour en profiter.
+                    Grâce à votre parrain, vous bénéficiez d'un accompagnement prioritaire. Réservez votre audit pour en profiter.
                   </p>
                 </div>
               </div>

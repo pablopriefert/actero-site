@@ -142,14 +142,7 @@ export const AlternativeEesel = ({ onNavigate }) => {
       },
     ],
 
-    testimonials: [
-      {
-        quote:
-          "On testait eesel en pay-as-you-go, mais à 3 000 tickets/mois ça devenait 1 200 $ et on perdait toute prévisibilité budget. Avec Actero, c'est forfait fixe et on facture en euros, hébergé en France. Beaucoup plus serein.",
-        author: '[À compléter]',
-        role: 'CEO · Marque DTC mode FR',
-      },
-    ],
+    testimonials: [],
 
     faqs: [
       {

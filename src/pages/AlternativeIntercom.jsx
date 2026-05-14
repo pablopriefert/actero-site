@@ -115,20 +115,7 @@ export const AlternativeIntercom = ({ onNavigate }) => {
       },
     ],
 
-    testimonials: [
-      {
-        quote:
-          'Avec Intercom Fin on payait 1 200 $/mois en outcomes plus les seats. La même charge sur Actero Pro à 399 €/mois, voice inclus. Le calcul est vite fait.',
-        author: '[À compléter]',
-        role: 'CX Lead · DTC mode',
-      },
-      {
-        quote:
-          "Intercom marchait pour notre SaaS, mais sur notre store Shopify on rebriquait des macros à chaque demande client. Actero comprend nos commandes nativement, c'est un autre monde — et la facture a chuté.",
-        author: '[À compléter]',
-        role: 'Fondateur · Beauté DTC',
-      },
-    ],
+    testimonials: [],
 
     faqs: [
       {

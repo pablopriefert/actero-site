@@ -20,7 +20,7 @@ export const AlternativeTidio = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Tidio pour Shopify — Actero | IA SAV E-commerce FR',
       description:
-        "Tidio est un chatbot générique. Actero est un agent IA spécialisé Shopify qui résout 60 % des tickets, relance les paniers abandonnés et affiche un ROI temps réel. Dès 99 €/mois, en français, hébergé UE. Migration en 1 jour.",
+        "Tidio est un chatbot générique. Actero est un agent IA spécialisé Shopify qui résout 82 % des tickets, relance les paniers abandonnés et affiche un ROI temps réel. Dès 99 €/mois, en français, hébergé UE. Migration en 1 jour.",
       keywords:
         'alternative tidio, tidio vs actero, alternative tidio français, chatbot ia shopify français, remplacer tidio, lyro ai alternative, sav automatisé shopify, alternative chatbot rgpd',
     },
@@ -48,7 +48,7 @@ export const AlternativeTidio = ({ onNavigate }) => {
       },
       {
         label: '% de résolutions automatiques',
-        actero: { main: '60 %', sub: 'Sans add-on' },
+        actero: { main: '82 %', sub: 'Sans add-on' },
         competitor: { main: '~25 %', sub: 'Lyro AI séparé' },
       },
       {
@@ -123,26 +123,7 @@ export const AlternativeTidio = ({ onNavigate }) => {
       },
     ],
 
-    testimonials: [
-      {
-        quote:
-          "On avait Tidio + Lyro depuis 2 ans. Ça répondait sur le chat, mais rien sur email et pas de suivi du ROI. Avec Actero on a unifié email, chat Shopify et relance panier — et on voit enfin combien l'IA nous fait économiser.",
-        author: '[À compléter]',
-        role: 'Co-fondatrice · Cosmétique FR',
-      },
-      {
-        quote:
-          "Tidio répondait à 25 % des questions, Actero monte à 60 % parce qu'il connaît le catalogue et les commandes. La différence entre un chatbot et un vrai agent IA métier.",
-        author: '[À compléter]',
-        role: 'Responsable SAV · Sport & outdoor',
-      },
-      {
-        quote:
-          "Le portail SAV avec notre propre nom de domaine, branché au dashboard Actero, c'est ce qui nous a décidés. Tidio nous imposait son branding.",
-        author: '[À compléter]',
-        role: 'E-commerce Manager · Food DTC',
-      },
-    ],
+    testimonials: [],
 
     faqs: [
       {

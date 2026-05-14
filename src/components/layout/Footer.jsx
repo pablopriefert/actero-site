@@ -25,31 +25,24 @@ export const Footer = ({ onNavigate }) => {
     {
       title: 'Produit',
       links: [
-        { label: 'Fonctionnalités', path: '/fonctionnalites' },
+        { label: 'Produit', path: '/produit' },
         { label: 'Tarifs', path: '/tarifs' },
         { label: 'Démo', path: '/demo' },
-        { label: 'Intégrations', path: '/integrations' },
-        { label: 'Roadmap', path: '/roadmap' },
       ],
     },
     {
       title: 'Ressources',
       links: [
-        { label: 'Academy', path: '/academy' },
-        { label: 'Blog', path: '/blog' },
-        { label: 'Prompt Library', path: '/prompt-library' },
+        { label: 'Prompt Library', path: '/ressources' },
         { label: 'Support', path: '/support' },
-        { label: 'API Docs', path: '/api-docs' },
+        { label: 'FAQ', path: '/faq' },
       ],
     },
     {
       title: 'Entreprise',
       links: [
-        { label: 'À propos', path: '/a-propos' },
-        { label: 'Partenaires', path: '/partenaires' },
-        { label: 'Ambassadeurs', path: '/ambassadeurs' },
-        { label: 'Careers', path: '/careers' },
-        { label: 'Contact', path: '/contact' },
+        { label: 'À propos', path: '/entreprise' },
+        { label: 'Partenaires', path: '/partners' },
       ],
     },
     {
@@ -57,9 +50,7 @@ export const Footer = ({ onNavigate }) => {
       links: [
         { label: 'Mentions légales', path: '/mentions-legales' },
         { label: 'Confidentialité', path: '/confidentialite' },
-        { label: 'CGU', path: '/cgu' },
-        { label: 'DPA', path: '/dpa' },
-        { label: 'Sécurité', path: '/securite' },
+        { label: 'CGU', path: '/utilisation' },
       ],
     },
   ]

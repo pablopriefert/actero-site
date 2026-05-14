@@ -40,7 +40,7 @@ async function handler(req, res) {
   }
 
   // --- Verify user belongs to client ---
-  const isAdmin = await isActeroAdmin(user, supabase);
+  const isAdmin = await isActeroAdmin(user, supabaseAdmin);
   if (!isAdmin) {
     const { data: link } = await supabaseAdmin
       .from('client_users')

@@ -23,7 +23,7 @@ const CONVERSATIONS = {
 const STATS = {
   ecommerce: [
     { label: 'Résolutions', value: '847', suffix: '/mois', color: 'emerald' },
-    { label: 'Taux de résolution', value: '94', suffix: '%', color: 'emerald' },
+    { label: 'Taux de résolution', value: '82', suffix: '%', color: 'emerald' },
     { label: 'Temps de réponse', value: '<2', suffix: 'sec', color: 'cyan' },
   ],
   immobilier: [

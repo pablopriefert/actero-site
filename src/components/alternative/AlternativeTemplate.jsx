@@ -54,7 +54,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
       applicationSubCategory: 'Customer Service Software',
       operatingSystem: 'Web',
       description:
-        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. Agent IA qui résout 60% des tickets automatiquement, installation OAuth en 15 minutes, hébergement UE RGPD.",
+        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. Agent IA qui résout 82% des tickets automatiquement, installation OAuth en 15 minutes, hébergement UE RGPD.",
       offers: [
         {
           '@type': 'Offer',

@@ -25,7 +25,7 @@ async function handler(req, res) {
   }
 
   // --- Verify access ---
-  const isAdmin = await isActeroAdmin(user, supabase);
+  const isAdmin = await isActeroAdmin(user, supabaseAdmin);
   if (!isAdmin) {
     const { data: link } = await supabaseAdmin
       .from('client_users')

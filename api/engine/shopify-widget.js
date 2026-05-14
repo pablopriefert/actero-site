@@ -68,9 +68,9 @@ async function handler(req, res) {
         // Replace existing widget with fresh cache-busted version
         const existingRegex = new RegExp(`\\n${WIDGET_TAG}\\n[\\s\\S]*?\\n${WIDGET_TAG}`)
         content = content.replace(existingRegex, widgetScript)
-        await fetch(`https://${shop}/admin/api/2025-01/themes/${themeId}/assets.json`, {
+        await fetch(`${baseUrl}/themes/${activeTheme.id}/assets.json`, {
           method: 'PUT',
-          headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ asset: { key: 'layout/theme.liquid', value: content } }),
         })
         return res.status(200).json({ success: true, message: 'Widget mis a jour' })

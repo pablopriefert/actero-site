@@ -6,14 +6,16 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { withSentry } from '../lib/sentry.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
+async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', process.env.SITE_URL || 'https://actero.fr')
+  res.setHeader('Vary', 'Origin')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -50,3 +52,5 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Server error' })
   }
 }
+
+export default withSentry(handler)

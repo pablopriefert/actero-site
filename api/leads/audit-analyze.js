@@ -225,23 +225,33 @@ function dedupeAndReturn(reviews, averageRating, totalReviews, sources) {
 async function analyzeWithClaude(storeName, reviews, averageRating, totalReviews) {
   if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured')
 
+  // Format each review for the prompt. If stars is 0 (e.g., Tavily snippets where the
+  // rating wasn't extractable), display "?★" so Claude infers polarity from text.
   const reviewTexts = reviews
-    .map((r, i) => `[${i + 1}] ${r.stars}★ (${r.source}) — "${r.text}"`)
+    .map((r, i) => `[${i + 1}] ${r.stars > 0 ? `${r.stars}★` : '?★'} (${r.source}) — "${r.text}"`)
     .join('\n')
 
   const negCount = reviews.filter(r => r.stars > 0 && r.stars <= 3).length
   const posCount = reviews.filter(r => r.stars >= 4).length
+  const unknownCount = reviews.filter(r => !r.stars).length
 
-  const systemPrompt = `Tu es un expert en expérience client e-commerce. Tu produis des audits RIGOUREUX basés sur des données réelles. INTERDIT d'inventer des chiffres. Chaque pourcentage doit être calculé sur les avis fournis. Si une catégorie n'est mentionnée par aucun avis, ne l'inclus PAS dans top_issues.
+  const systemPrompt = `Tu es un expert en expérience client e-commerce. Tu produis des audits RIGOUREUX basés sur des données réelles.
+
+Règles ABSOLUES :
+- INTERDIT d'inventer des chiffres. Chaque pourcentage doit refléter les avis effectivement présents dans l'échantillon.
+- Si une catégorie de problème n'est mentionnée par AUCUN avis fourni, ne l'inclus PAS dans top_issues.
+- Pour les avis sans note ("?★"), infère le sentiment uniquement depuis le texte (mots-clés négatifs : "déçu", "retard", "remboursement", "jamais reçu", "aucune réponse", etc. ; positifs : "merci", "top", "rapide", "satisfait").
+- Si l'échantillon contient peu de signaux négatifs, le support_score doit refléter cette réalité (note >70 si majorité positive).
+- email_hook doit citer un détail concret réellement présent dans les avis, jamais générique.
 
 Réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks.`
 
   const userMessage = `Analyse les avis de "${storeName}".
 
 Données :
-- Note moyenne : ${averageRating}/5
+- Note moyenne publique : ${averageRating}/5
 - Total avis publics : ${totalReviews}
-- Avis analysés ici : ${reviews.length} (${negCount} négatifs 1-3★, ${posCount} positifs 4-5★)
+- Avis analysés ici : ${reviews.length} (${negCount} négatifs 1-3★, ${posCount} positifs 4-5★, ${unknownCount} sans note explicite — infère depuis le texte)
 
 Avis collectés :
 ${reviewTexts}
@@ -373,10 +383,9 @@ async function handler(req, res) {
 
     if (insertError) {
       console.error('prospect_audits insert error:', insertError)
-      // Return audit even if DB save fails
-      return res.status(200).json({
-        ...auditRow,
-        _db_error: insertError.message,
+      return res.status(500).json({
+        error: 'Failed to persist audit',
+        details: insertError.message,
       })
     }
 

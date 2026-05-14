@@ -22,7 +22,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
   const [period, setPeriod] = useState('7d') // '7d' | '30d'
 
   const days = period === '7d' ? 7 : 30
-  const now = Date.now()
+  const [now] = useState(() => Date.now())
   const since = useMemo(() => new Date(now - days * 24 * 3600 * 1000).toISOString(), [days, now])
   const prevSince = useMemo(() => new Date(now - 2 * days * 24 * 3600 * 1000).toISOString(), [days, now])
   const prevEnd = useMemo(() => new Date(now - days * 24 * 3600 * 1000).toISOString(), [days, now])

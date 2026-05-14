@@ -186,6 +186,29 @@ async function handler(req, res) {
       console.error('[verify-code] notify error:', notifyErr.message)
     }
 
+    // 6c. Push signup to Lightfield CRM (non-blocking) — creates a Trial Activated
+    // opportunity in the CRM. Mirrors api/auth/signup.js to make sure code-verified
+    // signups (the real signup path) also land in the pipeline.
+    try {
+      const { pushSignupToLightfield } = await import('../lib/lightfield.js')
+      pushSignupToLightfield({
+        client_id: clientId,
+        email: normalizedEmail,
+        name: brand_name,
+        shop_domain: shopify_url || null,
+        company_name: brand_name,
+        utm_source:
+          (typeof acquisition_source === 'object' && acquisition_source?.utm_source) ||
+          (typeof acquisition_source === 'string' ? acquisition_source : null),
+        utm_campaign:
+          (typeof acquisition_source === 'object' && acquisition_source?.utm_campaign) ||
+          null,
+        signup_at: new Date().toISOString(),
+      }).catch(() => { /* silent — fire-and-forget */ })
+    } catch (lightfieldErr) {
+      console.error('[verify-code] lightfield push error:', lightfieldErr.message)
+    }
+
     // 7. Return success — redirect DIRECTLY to dashboard.
     // Free plan is auto-provisioned on account creation (clients.plan = 'free' by default
     // in migration, see 20260201_*). We removed the forced /signup/plan step to cut signup

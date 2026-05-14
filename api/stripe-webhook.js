@@ -6,6 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/install.js';
 import { trackServerEvent } from './lib/amplitude.js';
 
+export const maxDuration = 60;
+
 // Monthly plan prices for MRR delta computation on upgrade events.
 // Kept in sync with api/billing/upgrade.js + src/lib/plans.js.
 const PLAN_MRR = { free: 0, starter: 99, pro: 399, enterprise: 999 };
@@ -281,20 +283,24 @@ async function handler(req, res) {
             if (prior?.plan) previousPlan = prior.plan;
           } catch { /* non-blocking */ }
 
+          // Atomic-first: write the subscription_id from session.subscription
+          // directly so the upgrade row is never inconsistent if the optional
+          // retrieve below fails. We only call retrieve to enrich with the
+          // trial_end timestamp, which is non-critical.
           const updateData = {
             plan: newPlan,
             stripe_customer_id: session.customer,
             status: 'active',
+            ...(session.subscription && { stripe_subscription_id: session.subscription }),
           };
           if (session.subscription) {
             try {
               const subscription = await stripe.subscriptions.retrieve(session.subscription);
-              updateData.stripe_subscription_id = subscription.id;
               if (subscription.trial_end) {
                 updateData.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString();
               }
             } catch (subErr) {
-              console.error('[UPGRADE] Failed to retrieve subscription:', subErr.message);
+              console.error('[UPGRADE] Failed to retrieve subscription (non-fatal):', subErr.message);
             }
           }
           await supabase.from('clients').update(updateData).eq('id', clientId);

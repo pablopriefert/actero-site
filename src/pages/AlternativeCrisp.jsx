@@ -115,14 +115,7 @@ export const AlternativeCrisp = ({ onNavigate }) => {
       },
     ],
 
-    testimonials: [
-      {
-        quote:
-          "On utilisait Crisp mais l'IA tournait en rond avec ses crédits qui s'épuisaient. Actero a doublé notre auto-résolution dès la première semaine, sans plafond.",
-        author: '[À compléter]',
-        role: 'Ops Manager · Mode FR',
-      },
-    ],
+    testimonials: [],
 
     faqs: [
       {

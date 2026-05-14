@@ -34,12 +34,17 @@ async function handler(req, res) {
   const apiKey = req.query?.api_key
   if (!apiKey) return res.status(401).json({ error: 'api_key required' })
 
-  // Resolve api_key → client_id. Two valid sources, same precedence as
-  // api/mcp/index.js (kept aligned to avoid drift):
+  // Resolve api_key → client_id. Three accepted sources, in precedence order
+  // (mirrors api/mcp/index.js — keep aligned):
   //   1. client_api_keys.key_value (active rows) — primary, supports rotation
   //   2. client_settings.widget_api_key — legacy single-key install
-  // SECURITY: never accept clients.id directly — leaked dashboard UUIDs
-  // would otherwise grant unlimited chat-bot access.
+  //   3. clients.id UUID directly — backwards-compat for embeds shipped before
+  //      we introduced rotating keys. Lower-trust path: a leaked dashboard
+  //      UUID would otherwise let anyone send messages on the client's behalf.
+  //      Mitigated below by the `client.status === 'active'` check + Vercel's
+  //      platform rate limits.
+  //      TODO(security): rotate every legacy widget to a proper api_key, then
+  //      remove this fallback.
   let clientId = null
   try {
     const { data } = await supabase
@@ -49,7 +54,7 @@ async function handler(req, res) {
       .eq('is_active', true)
       .maybeSingle()
     if (data) clientId = data.client_id
-  } catch { /* fall through */ }
+  } catch (e) { console.warn('[widget] api_key resolution step failed:', e?.message) }
 
   if (!clientId) {
     try {
@@ -59,7 +64,7 @@ async function handler(req, res) {
         .eq('widget_api_key', apiKey)
         .maybeSingle()
       if (data) clientId = data.client_id
-    } catch { /* fall through */ }
+    } catch (e) { console.warn('[widget] api_key resolution step failed:', e?.message) }
   }
 
   // Fallback 3: treat api_key as client_id (UUID) — for embed snippets
@@ -72,7 +77,7 @@ async function handler(req, res) {
         .eq('id', apiKey)
         .maybeSingle()
       if (data) clientId = data.id
-    } catch { /* fall through */ }
+    } catch (e) { console.warn('[widget] api_key resolution step failed:', e?.message) }
   }
 
   if (!clientId) {
@@ -80,12 +85,21 @@ async function handler(req, res) {
     return res.status(401).json({ error: 'Invalid API key', response: 'Configuration en cours. Veuillez réessayer dans quelques instants.' })
   }
 
+  // Defense-in-depth: refuse to process messages for inactive clients.
+  // This limits the blast radius of a leaked client UUID (see fallback above).
   const { data: client } = await supabase
     .from('clients')
-    .select('id, brand_name, client_type')
+    .select('id, brand_name, client_type, status')
     .eq('id', clientId)
     .maybeSingle()
   if (!client) return res.status(401).json({ error: 'Invalid API key' })
+  if (client.status && client.status !== 'active') {
+    console.warn(`[widget] Blocked request for client ${clientId} with status=${client.status}`)
+    return res.status(403).json({
+      error: 'Client not active',
+      response: 'Le service est temporairement indisponible. Réessayez plus tard.',
+    })
+  }
 
   const { message, email, name, session_id, history, images: widgetImages } = req.body || {}
   if (!message) return res.status(400).json({ error: 'message required' })
@@ -113,7 +127,7 @@ async function handler(req, res) {
           }
         }
       }
-    } catch {}
+    } catch (e) { console.warn('[widget] conversation history rebuild failed:', e?.message) }
   }
 
   console.log(`[widget] session=${session_id} message="${message.substring(0,50)}" history_length=${conversationHistory.length} from=${conversationHistory.length > 0 && !Array.isArray(history) ? 'db' : 'widget'}`)

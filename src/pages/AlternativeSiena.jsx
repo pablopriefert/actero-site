@@ -114,14 +114,7 @@ export const AlternativeSiena = ({ onNavigate }) => {
       },
     ],
 
-    testimonials: [
-      {
-        quote:
-          'On avait commencé l\'évaluation Siena, sales call de 45 min puis silence radio sur le prix. Actero, j\'ai signé en 20 minutes en lisant la grille tarifaire.',
-        author: '[À compléter]',
-        role: 'Founder · DTC food FR',
-      },
-    ],
+    testimonials: [],
 
     faqs: [
       {

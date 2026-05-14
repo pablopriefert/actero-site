@@ -3,6 +3,8 @@ import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from './lib/admin-auth.js';
 
+export const maxDuration = 60;
+
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
 
 const supabase = createClient(
