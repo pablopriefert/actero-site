@@ -80,7 +80,15 @@ const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHo
           <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center">
             <Rocket className="w-3.5 h-3.5 text-cta" />
           </div>
-          <h1 className="text-lg font-bold text-[#1a1a1a]">Automations</h1>
+          <h1 className="text-lg font-bold text-[#1a1a1a]">
+            Mon{' '}
+            <span
+              className="italic font-normal"
+              style={{ fontFamily: "'Instrument Serif', Georgia, serif" }}
+            >
+              agent
+            </span>
+          </h1>
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-cta/10 text-cta text-[10px] font-bold rounded-full uppercase tracking-wider">
             <LivePulseDot color="cta" />
             {activeCount}/{totalAvailable} actives

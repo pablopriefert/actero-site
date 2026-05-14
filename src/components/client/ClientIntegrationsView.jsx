@@ -324,7 +324,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight: _isLight }) => {
             className="flex-1 flex justify-center items-center gap-2 py-3 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 transition-colors"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-            Sauvegarder
+            Enregistrer
           </button>
         </div>
       </motion.div>

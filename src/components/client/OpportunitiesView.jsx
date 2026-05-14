@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { TrendingUp, Target, DollarSign, Users, Zap, ArrowRight, Gift } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { SkeletonCard } from '../ui/Skeleton'
 
 /**
  * Opportunities — growth-oriented landing that highlights what the client
@@ -10,7 +11,7 @@ import { supabase } from '../../lib/supabase'
  * usage. Mix of static best-practices + actionable metrics.
  */
 export const OpportunitiesView = ({ clientId, onNavigate }) => {
-  const { data: kbCount } = useQuery({
+  const { data: kbCount, isLoading: kbLoading } = useQuery({
     queryKey: ['kb-count-opp', clientId],
     queryFn: async () => {
       if (!clientId) return 0
@@ -24,7 +25,7 @@ export const OpportunitiesView = ({ clientId, onNavigate }) => {
     enabled: !!clientId,
   })
 
-  const { data: integrationsCount } = useQuery({
+  const { data: integrationsCount, isLoading: integrationsLoading } = useQuery({
     queryKey: ['integrations-count-opp', clientId],
     queryFn: async () => {
       if (!clientId) return 0
@@ -84,6 +85,21 @@ export const OpportunitiesView = ({ clientId, onNavigate }) => {
       urgent: false,
     },
   ]
+
+  const isLoading = kbLoading || integrationsLoading
+
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SkeletonCard rows={3} />
+          <SkeletonCard rows={3} />
+          <SkeletonCard rows={3} />
+          <SkeletonCard rows={3} />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">

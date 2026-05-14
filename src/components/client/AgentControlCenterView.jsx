@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Bot, Settings, BookOpen, Shield, FlaskConical, ChevronRight, Activity, Clock, CheckCircle2, Eye, Zap, Loader2, AlertCircle, GitBranch } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { LivePulseDot } from '../ui/LivePulseDot'
+import { SkeletonCard, SkeletonStatRow } from '../ui/Skeleton'
 
 /**
  * Agent Control Center — refondu avril 2026.
@@ -16,7 +17,7 @@ import { LivePulseDot } from '../ui/LivePulseDot'
  */
 export const AgentControlCenterView = ({ clientId, onNavigate }) => {
   const queryClient = useQueryClient()
-  const { data: settings } = useQuery({
+  const { data: settings, isLoading: settingsLoading } = useQuery({
     queryKey: ['client-settings', clientId],
     queryFn: async () => {
       if (!clientId) return null
@@ -35,7 +36,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
 
   const [linearBusy, setLinearBusy] = useState(false)
   const linearAutoIssueEnabled = Boolean(settings?.linear_auto_issue_enabled)
-  const { data: linearIntegration } = useQuery({
+  const { data: linearIntegration, isLoading: linearLoading } = useQuery({
     queryKey: ['linear-integration-status', clientId],
     queryFn: async () => {
       if (!clientId) return null
@@ -187,7 +188,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
     setAgentBusy(false)
   }
 
-  const { data: kbCount } = useQuery({
+  const { data: kbCount, isLoading: kbLoading } = useQuery({
     queryKey: ['kb-count', clientId],
     queryFn: async () => {
       if (!clientId) return 0
@@ -202,7 +203,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
   })
 
   // Live metrics 24h — tickets résolus + latence moyenne + success rate
-  const { data: liveStats } = useQuery({
+  const { data: liveStats, isLoading: liveLoading } = useQuery({
     queryKey: ['agent-live-stats-24h', clientId],
     queryFn: async () => {
       if (!clientId) return null
@@ -320,6 +321,20 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
           <span className="text-[11px] font-semibold text-[#71717a]">{card.readyLabel}</span>
         )}
       </motion.button>
+    )
+  }
+
+  const isLoading = settingsLoading || linearLoading || kbLoading || liveLoading
+
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
+        <SkeletonStatRow n={3} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SkeletonCard rows={3} />
+          <SkeletonCard rows={3} />
+        </div>
+      </div>
     )
   }
 

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { EmptyState } from '../ui/EmptyState'
+import { SkeletonCard, SkeletonStatRow } from '../ui/Skeleton'
 
 /**
  * Insights Hub — refondu avril 2026.
@@ -28,7 +29,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
   const prevEnd = useMemo(() => new Date(now - days * 24 * 3600 * 1000).toISOString(), [days, now])
 
   // Single query that feeds all the lead metrics below
-  const { data: insights } = useQuery({
+  const { data: insights, isLoading } = useQuery({
     queryKey: ['insights-hub', clientId, period],
     queryFn: async () => {
       if (!clientId) return null
@@ -170,6 +171,20 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
         : (canAccessVoice ? `Sur ${shortLabel}` : 'Agent vocal ElevenLabs'),
     },
   ]
+
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
+        <SkeletonStatRow n={3} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SkeletonCard rows={2} />
+          <SkeletonCard rows={2} />
+          <SkeletonCard rows={2} />
+          <SkeletonCard rows={2} />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">

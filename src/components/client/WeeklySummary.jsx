@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Sparkles } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { SkeletonCard } from '../ui/Skeleton'
 
 /**
  * WeeklySummary — affiche une phrase resumee de la semaine en cours
@@ -23,7 +24,7 @@ export const WeeklySummary = ({ clientId, setActiveTab }) => {
   }, [])
 
   // Single source of truth: client_settings + automation_events (same as ROI page)
-  const { data: weeklyData } = useQuery({
+  const { data: weeklyData, isLoading } = useQuery({
     queryKey: ['weekly-summary', clientId, startISO, endISO],
     queryFn: async () => {
       const [{ data: settings }, { data: events }, { count: pendingCount }] = await Promise.all([
@@ -79,6 +80,10 @@ export const WeeklySummary = ({ clientId, setActiveTab }) => {
     const min = Math.round((h - whole) * 60)
     if (min === 0) return `${whole}h`
     return `${whole}h${String(min).padStart(2, '0')}`
+  }
+
+  if (isLoading) {
+    return <SkeletonCard rows={2} showHeader={false} className="mb-6" />
   }
 
   return (

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { Clock } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { SkeletonCard } from '../ui/Skeleton'
 
 /**
  * PeakHoursChart — volume horaire des messages sur les 30 derniers jours.
@@ -10,7 +11,7 @@ import { supabase } from '../../lib/supabase'
  * et highlight la tranche de pic en vert.
  */
 export const PeakHoursChart = ({ clientId }) => {
-  const { data: conversations = [] } = useQuery({
+  const { data: conversations = [], isLoading: convsLoading } = useQuery({
     queryKey: ['peak-hours-convs', clientId],
     queryFn: async () => {
       const start = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -25,7 +26,7 @@ export const PeakHoursChart = ({ clientId }) => {
     enabled: !!clientId,
   })
 
-  const { data: events = [] } = useQuery({
+  const { data: events = [], isLoading: eventsLoading } = useQuery({
     queryKey: ['peak-hours-events', clientId],
     queryFn: async () => {
       const start = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -76,6 +77,12 @@ export const PeakHoursChart = ({ clientId }) => {
   const peakSet = new Set([peakStart, (peakStart + 1) % 24, (peakStart + 2) % 24])
 
   const formatHourRange = (start, end) => `${start}h et ${end}h`
+
+  const isLoading = convsLoading || eventsLoading
+
+  if (isLoading) {
+    return <SkeletonCard rows={4} />
+  }
 
   if (total === 0) {
     return (

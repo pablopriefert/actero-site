@@ -454,7 +454,7 @@ function TimelineSection({ clientId, setActiveTab, hasIntegration }) {
       return data || []
     },
     enabled: !!clientId,
-    refetchInterval: 120_000,
+    refetchInterval: 45_000,
   })
 
   return (

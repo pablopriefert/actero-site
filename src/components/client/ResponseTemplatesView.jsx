@@ -6,6 +6,7 @@ import {
   CheckCircle2, AlertTriangle, FileText, TrendingUp,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { EmptyState } from '../ui/EmptyState'
 
 const emptyForm = { name: '', shortcut: '', category: '', body: '' }
 
@@ -224,13 +225,22 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
           <Loader2 className="w-6 h-6 animate-spin text-[#9ca3af]" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 rounded-2xl border bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
-          <FileText className="w-10 h-10 mx-auto mb-3 text-[#9ca3af] opacity-40" />
-          <p className="text-[13px] text-[#9ca3af]">
-            {templates.length === 0
-              ? 'Aucun template. Creez votre premier template !'
-              : 'Aucun template ne correspond a votre recherche.'}
-          </p>
+        <div className="rounded-2xl border bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]">
+          {templates.length === 0 ? (
+            <EmptyState
+              icon={FileText}
+              title="Pas encore de template"
+              description="Crée le premier et gagne 30 secondes par réponse."
+              action={{ label: 'Créer un template', onClick: openCreate }}
+              tone="info"
+            />
+          ) : (
+            <EmptyState
+              icon={Search}
+              title="Aucun résultat"
+              description="Aucun template ne correspond à ta recherche."
+            />
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -320,7 +330,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                     type="text"
                     value={form.name}
                     onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                    placeholder="Ex : Remboursement livraison retardee"
+                    placeholder="Ex : Remboursement livraison retardée"
                     className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                   />
                 </div>
@@ -336,7 +346,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1.5">Categorie</label>
+                    <label className="block text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1.5">Catégorie</label>
                     <input
                       type="text"
                       value={form.category}

@@ -272,7 +272,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
     },
   })
 
-  // Auto-send flow when user picks "Envoyer la reponse IA telle quelle"
+  // Auto-send flow when user picks "Envoyer la réponse IA telle quelle"
   /* eslint-disable react-hooks/set-state-in-effect -- intentional: setAutoSend(false) gates the mutation to fire once */
   useEffect(() => {
     if (autoSend && response.trim() && !respondMutation.isPending) {
@@ -368,7 +368,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider">Reponse IA</p>
+              <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider">Réponse IA</p>
               <button
                 type="button"
                 onClick={() => setReasoningOpen(true)}
@@ -549,7 +549,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 value={response}
                 onChange={(e) => setResponse(e.target.value)}
                 rows={5}
-                placeholder="Redigez votre reponse..."
+                placeholder="Rédigez votre réponse..."
                 className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-4 py-3 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-cta/30"
               />
             </div>
@@ -667,10 +667,10 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 onClick={() => setShowSaveTemplateModal(true)}
                 disabled={!response.trim()}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold bg-white text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#fafafa] transition-all disabled:opacity-50"
-                title="Sauvegarder cette réponse comme template réutilisable"
+                title="Enregistrer cette réponse comme template réutilisable"
               >
                 <Save className="w-4 h-4" />
-                Sauvegarder comme template
+                Enregistrer comme template
               </button>
               <button
                 onClick={() => ignoreMutation.mutate()}
@@ -685,13 +685,13 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
           <div className="p-6 border-t border-[#f0f0f0]">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Repondu</p>
+              <p className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Répondu</p>
             </div>
             <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-4 py-3 text-sm text-[#9ca3af] whitespace-pre-wrap">
               {conversation.human_response}
             </div>
             <p className="text-xs text-[#9ca3af] mt-2">
-              Repondu le {new Date(conversation.human_responded_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              Répondu le {new Date(conversation.human_responded_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
         )}
@@ -714,7 +714,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 className="bg-white border border-[#f0f0f0] rounded-2xl shadow-2xl w-full max-w-md"
               >
                 <div className="flex items-center justify-between p-5 border-b border-[#f0f0f0]">
-                  <h3 className="text-[14px] font-bold text-[#1a1a1a]">Sauvegarder comme template</h3>
+                  <h3 className="text-[14px] font-bold text-[#1a1a1a]">Enregistrer comme template</h3>
                   <button onClick={() => setShowSaveTemplateModal(false)} className="text-[#9ca3af] hover:text-[#1a1a1a]">
                     <X className="w-4 h-4" />
                   </button>
@@ -727,12 +727,12 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                       type="text"
                       value={newTplName}
                       onChange={(e) => setNewTplName(e.target.value)}
-                      placeholder="Ex : Remboursement livraison retardee"
+                      placeholder="Ex : Remboursement livraison retardée"
                       className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                   <div>
-                    <label htmlFor="esc-template-category" className="block text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">Categorie</label>
+                    <label htmlFor="esc-template-category" className="block text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">Catégorie</label>
                     <input
                       id="esc-template-category"
                       type="text"
@@ -743,7 +743,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                     />
                   </div>
                   <div>
-                    <span className="block text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">Apercu</span>
+                    <span className="block text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">Aperçu</span>
                     <div className="bg-[#fafafa] border border-[#ebebeb] rounded-lg p-3 text-[12px] text-[#71717a] max-h-32 overflow-y-auto whitespace-pre-wrap">
                       {response}
                     </div>
@@ -764,7 +764,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                     className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all disabled:opacity-50"
                   >
                     {savingTpl ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    Sauvegarder
+                    Enregistrer
                   </button>
                 </div>
               </motion.div>
@@ -781,7 +781,27 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
 export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
   const isLight = theme === 'light'
   const [filter, setFilter] = useState('pending')
+  const [dateRange, setDateRange] = useState('7d') // 'today' | '7d' | '30d' | 'all'
   const [selectedConversation, setSelectedConversation] = useState(null)
+  // Anchor "now" once on mount so useMemo stays pure across re-renders.
+  const [nowMs] = useState(() => Date.now())
+
+  const dateRangeCutoff = useMemo(() => {
+    switch (dateRange) {
+      case 'today': {
+        const d = new Date(nowMs)
+        d.setHours(0, 0, 0, 0)
+        return d.toISOString()
+      }
+      case '7d':
+        return new Date(nowMs - 7 * 24 * 3600 * 1000).toISOString()
+      case '30d':
+        return new Date(nowMs - 30 * 24 * 3600 * 1000).toISOString()
+      case 'all':
+      default:
+        return null
+    }
+  }, [dateRange, nowMs])
 
   const { isLoading } = useQuery({
     queryKey: ['escalations', clientId],
@@ -800,14 +820,16 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
   })
 
   const { data: allEscalations = [] } = useQuery({
-    queryKey: ['all-escalations', clientId],
+    queryKey: ['all-escalations', clientId, dateRangeCutoff],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from('ai_conversations')
         .select('*')
         .eq('client_id', clientId)
         .order('created_at', { ascending: false })
         .limit(100)
+      if (dateRangeCutoff) q = q.gte('created_at', dateRangeCutoff)
+      const { data, error } = await q
       if (error) throw error
       return data
     },
@@ -894,7 +916,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
           <p className={`text-2xl font-bold mt-1 text-[#1a1a1a]`}>{stats?.monthCount || 0}</p>
         </div>
         <div className={`rounded-xl border p-4 bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>
-          <p className={`text-xs font-bold uppercase tracking-wider text-[#9ca3af]`}>Temps moyen de reponse</p>
+          <p className={`text-xs font-bold uppercase tracking-wider text-[#9ca3af]`}>Temps moyen de réponse</p>
           <p className={`text-2xl font-bold mt-1 text-[#1a1a1a]`}>{stats?.avgResponseHours || 0}h</p>
         </div>
         <div className={`rounded-xl border p-4 bg-white border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)]`}>
@@ -904,33 +926,57 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
       </div>
 
       {/* Filters */}
-      <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-[#fafafa] w-fit">
-        {[
-          { id: 'pending', label: 'À traiter', count: pendingCount },
-          { id: 'resolved', label: 'Résolus' },
-          { id: 'all', label: 'Tous', count: allEscalations.length },
-        ].map((f) => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.id)}
-            className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition-all flex items-center gap-2 ${
-              filter === f.id
-                ? 'bg-white text-[#1a1a1a] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
-                : 'text-[#9ca3af] hover:text-[#1a1a1a]'
-            }`}
-          >
-            {f.label}
-            {f.count > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-400">{f.count}</span>
-            )}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-[#fafafa] w-fit">
+          {[
+            { id: 'pending', label: 'À traiter', count: pendingCount },
+            { id: 'resolved', label: 'Résolus' },
+            { id: 'all', label: 'Tous', count: allEscalations.length },
+          ].map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition-all flex items-center gap-2 ${
+                filter === f.id
+                  ? 'bg-white text-[#1a1a1a] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                  : 'text-[#9ca3af] hover:text-[#1a1a1a]'
+              }`}
+            >
+              {f.label}
+              {f.count > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-400">{f.count}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Date-range pills — restreint la fenêtre temporelle */}
+        <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-[#fafafa] w-fit">
+          {[
+            { id: 'today', label: "Aujourd'hui" },
+            { id: '7d', label: '7j' },
+            { id: '30d', label: '30j' },
+            { id: 'all', label: 'Tout' },
+          ].map((d) => (
+            <button
+              key={d.id}
+              onClick={() => setDateRange(d.id)}
+              className={`px-3 py-2 rounded-lg text-[12px] font-semibold transition-all ${
+                dateRange === d.id
+                  ? 'bg-white text-[#1a1a1a] shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+                  : 'text-[#9ca3af] hover:text-[#1a1a1a]'
+              }`}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {pendingCount > 0 && (
         <p className={`text-sm font-medium ${isLight ? 'text-amber-600' : 'text-amber-400'}`}>
           <AlertTriangle className="w-4 h-4 inline mr-1" />
-          {pendingCount} ticket{pendingCount > 1 ? 's' : ''} en attente de reponse
+          {pendingCount} ticket{pendingCount > 1 ? 's' : ''} en attente de réponse
         </p>
       )}
 
@@ -944,10 +990,20 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
           <EmptyState
             icon={CheckCircle2}
             tone="success"
-            title={filter === 'pending' ? 'Aucune escalade en attente' : 'Aucune conversation pour le moment'}
-            description={filter === 'pending'
-              ? 'Ton agent gère tout en autonomie. Les tickets qui nécessitent ton intervention apparaîtront ici.'
-              : 'Les conversations avec tes clients apparaîtront ici dès qu\'un message sera reçu via le widget ou par email.'}
+            title={
+              filter === 'pending'
+                ? 'rien à traiter pour toi'
+                : filter === 'resolved'
+                  ? 'aucune escalade résolue pour l\'instant'
+                  : 'aucune conversation pour le moment'
+            }
+            description={
+              filter === 'pending'
+                ? 'ton agent gère tout en autonomie. profite-en, c\'est calme.'
+                : filter === 'resolved'
+                  ? 'profite-en, c\'est calme. les escalades résolues s\'afficheront ici.'
+                  : 'les conversations avec tes clients apparaîtront ici dès qu\'un message sera reçu via le widget ou par email.'
+            }
           />
         </div>
       ) : (
@@ -972,7 +1028,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                         </span>
                       ) : conv.human_response ? (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          Resolu
+                          Résolu
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
@@ -985,7 +1041,10 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                         </span>
                       )}
                       {conv.confidence_score && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-600 border border-violet-100">
+                        <span
+                          className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-600 border border-violet-100"
+                          title="Confiance de l'IA dans sa réponse"
+                        >
                           {Math.round(conv.confidence_score * 100)}%
                         </span>
                       )}

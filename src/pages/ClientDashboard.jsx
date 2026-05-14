@@ -708,6 +708,25 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     refetchInterval: 60 * 1000, // refresh urgency every minute
   })
 
+  // Has at least one successfully completed migration job?
+  // Used to auto-hide the "Migration tickets" sidebar item once onboarding is done.
+  const { data: hasCompletedMigration = false } = useQuery({
+    queryKey: ['has-completed-migration', currentClient?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('e2b_jobs')
+        .select('id')
+        .eq('client_id', currentClient.id)
+        .like('job_type', 'migrate_%')
+        .eq('status', 'completed')
+        .limit(1)
+      if (error) return false
+      return (data || []).length > 0
+    },
+    enabled: !!currentClient?.id,
+    staleTime: 5 * 60 * 1000,
+  })
+
   const urgentEscalationCount = useMemo(() => {
     if (!pendingEscalations || !Array.isArray(pendingEscalations)) return 0
     const cutoff = clientNow - 2 * 60 * 60 * 1000 // >2h
@@ -771,18 +790,19 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           badgeColor: 'bg-red-100 text-red-600',
         },
         { id: 'activity', label: 'Activité', icon: Activity },
-        { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
       ],
     },
 
-    // CANAUX — intégrations + (futur) voice...
+    // CANAUX — intégrations + portail SAV + (futur) voice...
     {
       type: 'expandable',
       label: 'Canaux',
       icon: Plug,
       children: [
         { id: 'integrations', label: 'Intégrations', icon: Plug },
-        { id: 'migrations', label: 'Migration tickets', icon: Upload },
+        { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+        // Migration tickets — visible only while no completed migration exists.
+        ...(hasCompletedMigration ? [] : [{ id: 'migrations', label: 'Migration tickets', icon: Upload }]),
         // Futurs canaux (voice) à ajouter ici.
       ],
     },
@@ -798,16 +818,9 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       ],
     },
 
-    // SYSTÈME — paramètres compte / facturation
-    {
-      type: 'expandable',
-      label: 'Système',
-      icon: Cog,
-      children: [
-        { id: 'settings', label: 'Paramètres', icon: Cog },
-      ],
-    },
-  ], [can, urgentEscalationCount]);
+    // SYSTÈME — paramètres compte / facturation (lien standalone, plus d'expandable à un seul enfant)
+    { id: 'settings', label: 'Paramètres', icon: Settings },
+  ], [can, urgentEscalationCount, hasCompletedMigration]);
 
   const userRole = currentClient?._userRole || 'owner';
 
@@ -973,6 +986,15 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                 <AlertTriangle className="w-3 h-3" /> {urgentEscalationCount}
               </button>
             )}
+            {/* "Tester mon agent" persistent CTA — discoverability of the simulator */}
+            <button
+              onClick={() => setActiveTab('simulator')}
+              className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-[#003725]/5 text-[#003725] border border-[#003725]/20 px-3 py-1.5 text-sm font-medium hover:bg-[#003725]/10 transition-colors"
+              aria-label="Tester mon agent"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Tester
+            </button>
             {/* ⌘K command palette launcher — visible discoverability affordance */}
             <div className="relative">
               <button

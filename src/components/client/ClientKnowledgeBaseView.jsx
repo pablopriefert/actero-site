@@ -765,8 +765,8 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                   <EmptyState
                     icon={categoryConfig.icon}
                     tone="info"
-                    title={`Aucune entrée ${categoryConfig.label.toLowerCase()} encore`}
-                    description={`Ajoute tes ${categoryConfig.label.toLowerCase()} pour que ton agent réponde précisément à tes clients. Plus ta base est riche, plus il est autonome.`}
+                    title={`Ta base ${categoryConfig.label.toLowerCase()} est vide`}
+                    description={`Ajoute une première entrée et l'agent commence à apprendre. Plus tu nourris sa mémoire, plus il devient autonome.`}
                     action={{
                       label: 'Ajouter une entrée',
                       onClick: () => setIsCreating(true),
