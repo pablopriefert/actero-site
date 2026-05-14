@@ -57,6 +57,8 @@ import { AutomationHubView } from '../components/client/AutomationHubView'
 import { WeeklySummary } from '../components/client/WeeklySummary'
 import { PeakHoursChart } from '../components/client/PeakHoursChart'
 import { SetupChecklist } from '../components/client/SetupChecklist'
+import { MockConversation } from '../components/dashboard/MockConversation'
+import confetti from 'canvas-confetti'
 import { SetupWizard } from '../components/client/SetupWizard'
 import { OverviewHome } from '../components/client/overview/OverviewHome'
 import { AchievementsToast } from '../components/client/AchievementsView'
@@ -260,6 +262,38 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     // Analytics
     trackEvent('Dashboard Visited', { section: activeTab, plan: planId || 'unknown' })
   }, [activeTab, planId])
+
+  // Confetti welcome moment — fired exactly once, the first time a brand-new client
+  // (created within the last 60s) lands on the dashboard. Guarded by localStorage so
+  // a refresh during onboarding doesn't re-trigger it.
+  const confettiFiredRef = React.useRef(false)
+  useEffect(() => {
+    if (confettiFiredRef.current) return
+    if (!currentClient?.id || !currentClient?.created_at) return
+    const ageMs = Date.now() - new Date(currentClient.created_at).getTime()
+    if (ageMs < 0 || ageMs > 60_000) return
+    const flagKey = `welcome-confetti-fired-${currentClient.id}`
+    if (typeof window !== 'undefined' && localStorage.getItem(flagKey) === '1') return
+    confettiFiredRef.current = true
+    try { localStorage.setItem(flagKey, '1') } catch { /* storage might be unavailable */ }
+    const t1 = setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#003725', '#A8C490', '#F9F7F1'],
+      })
+    }, 200)
+    const t2 = setTimeout(() => {
+      confetti({
+        particleCount: 60,
+        spread: 90,
+        origin: { y: 0.6 },
+        colors: ['#003725', '#A8C490', '#F9F7F1'],
+      })
+    }, 1200)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [currentClient?.id, currentClient?.created_at])
 
   // Analytics — fire "Trial Limit Hit" when a free-plan user crosses 80% or 100%.
   // Fired once per threshold-per-session via a ref so we don't spam Amplitude on
@@ -1044,7 +1078,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         </p>
                         {setupCompletion && (
                           <p className="text-[11px] text-white/70 mt-3 font-medium">
-                            {completedSetupSteps}/7 étapes complétées
+                            {[setupCompletion.shopify, setupCompletion.email, setupCompletion.tone, setupCompletion.tested].filter(Boolean).length}/4 étapes essentielles
                           </p>
                         )}
                       </div>
@@ -1121,6 +1155,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         </button>
                       );
                     })}
+                    {/* Aha moment: live mock conversation showing what the agent will do */}
+                    <MockConversation />
                   </div>
                 </>
               ) : (

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, Store, Gift, ArrowLeft } from "lucide-react";
+import { Mail, Lock, Store, Gift, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Logo } from "../components/layout/Logo";
 import { supabase } from "../lib/supabase";
 import { SEO } from "../components/SEO";
@@ -12,11 +12,41 @@ export const SignupPage = ({ onNavigate }) => {
   const [step, setStep] = useState("form"); // 'form' | 'verify'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [brandName, setBrandName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailExists, setEmailExists] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [cooldownSec, setCooldownSec] = useState(0);
+  const cooldownTimerRef = useRef(null);
+
+  // Cleanup cooldown interval on unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownTimerRef.current) {
+        clearInterval(cooldownTimerRef.current);
+        cooldownTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  const startCooldown = (seconds = 30) => {
+    setCooldownSec(seconds);
+    if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current);
+    cooldownTimerRef.current = setInterval(() => {
+      setCooldownSec((s) => {
+        if (s <= 1) {
+          if (cooldownTimerRef.current) {
+            clearInterval(cooldownTimerRef.current);
+            cooldownTimerRef.current = null;
+          }
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  };
 
   // Verification step
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -62,6 +92,7 @@ export const SignupPage = ({ onNavigate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setEmailExists(false);
     setSuccessMessage("");
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -70,10 +101,6 @@ export const SignupPage = ({ onNavigate }) => {
     }
     if (!password || password.length < 8) {
       setError("Le mot de passe doit contenir au moins 8 caractères.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
       return;
     }
     if (!brandName.trim()) {
@@ -96,7 +123,12 @@ export const SignupPage = ({ onNavigate }) => {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Une erreur est survenue.");
+        const msg = data.error || "Une erreur est survenue.";
+        setError(msg);
+        // 409 = email already exists. Surface inline "Se connecter" CTA.
+        if (res.status === 409 || /existe déjà/i.test(msg)) {
+          setEmailExists(true);
+        }
         setLoading(false);
         return;
       }
@@ -167,6 +199,7 @@ export const SignupPage = ({ onNavigate }) => {
   };
 
   const handleResendCode = async () => {
+    if (cooldownSec > 0) return;
     setLoading(true);
     setError("");
     try {
@@ -184,6 +217,7 @@ export const SignupPage = ({ onNavigate }) => {
       setSuccessMessage("Nouveau code envoyé !");
       setCode(["", "", "", "", "", ""]);
       setAttemptsLeft(null);
+      startCooldown(30);
       setTimeout(() => setSuccessMessage(""), 3000);
     } catch {
       setError("Erreur réseau.");
@@ -299,10 +333,10 @@ export const SignupPage = ({ onNavigate }) => {
                   </button>
                   <button
                     onClick={handleResendCode}
-                    disabled={loading}
-                    className="text-cta hover:underline font-semibold disabled:opacity-50"
+                    disabled={loading || cooldownSec > 0}
+                    className="text-cta hover:underline font-semibold disabled:opacity-50 disabled:no-underline"
                   >
-                    Renvoyer le code
+                    {cooldownSec > 0 ? `Renvoyer le code (${cooldownSec}s)` : "Renvoyer le code"}
                   </button>
                 </div>
               </>
@@ -322,7 +356,19 @@ export const SignupPage = ({ onNavigate }) => {
             {/* Alerts */}
             {error && (
               <div className="p-3 mb-4 bg-red-50 text-red-600 text-xs font-medium rounded-xl border border-red-100 text-center">
-                {error}
+                <div>{error}</div>
+                {emailExists && (
+                  <div className="mt-2 text-[#71717a] font-normal">
+                    Vous avez déjà un compte ?{" "}
+                    <button
+                      type="button"
+                      onClick={() => onNavigate(`/login?email=${encodeURIComponent(email)}`)}
+                      className="text-[#003725] font-semibold underline-offset-2 hover:underline"
+                    >
+                      Se connecter avec cet email
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             {successMessage && (
@@ -330,6 +376,32 @@ export const SignupPage = ({ onNavigate }) => {
                 {successMessage}
               </div>
             )}
+
+            {/* OAuth — moved above the form to reduce signup friction (Linear/Vercel pattern) */}
+            <div role="group" aria-label="Inscription via réseaux sociaux">
+              <button
+                type="button"
+                onClick={handleGoogleSignup}
+                disabled={loading}
+                aria-label="S'inscrire avec Google"
+                className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all disabled:opacity-50"
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                </svg>
+                <span className="text-[14px] font-semibold text-[#262626]">Continuer avec Google</span>
+              </button>
+            </div>
+
+            {/* Separator */}
+            <div className="flex items-center gap-4 my-6">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-[10px] text-[#716D5C] font-medium uppercase tracking-widest">ou</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
@@ -347,41 +419,28 @@ export const SignupPage = ({ onNavigate }) => {
                 />
               </div>
 
-              {/* Password */}
+              {/* Password with eye-toggle */}
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#716D5C]" aria-hidden="true" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   minLength={8}
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   aria-label="Mot de passe (minimum 8 caractères)"
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
+                  className="w-full pl-11 pr-11 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="Mot de passe (min. 8 caractères)"
                 />
-              </div>
-
-              {/* Confirm password */}
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#716D5C]" aria-hidden="true" />
-                <input
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  aria-label="Confirmer le mot de passe"
-                  aria-invalid={!!(confirmPassword && password !== confirmPassword)}
-                  className={`w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none transition-all ${
-                    confirmPassword && password !== confirmPassword
-                      ? 'border-red-300 focus:border-red-400'
-                      : 'border-gray-200 focus:border-cta/40'
-                  }`}
-                  placeholder="Confirmer le mot de passe"
-                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#716D5C] hover:text-[#262626] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
 
               {/* Brand name */}
@@ -413,32 +472,6 @@ export const SignupPage = ({ onNavigate }) => {
                 ) : "Commencer mon essai gratuit"}
               </button>
             </form>
-
-            {/* OAuth separator */}
-            <div className="flex items-center gap-4 my-6">
-              <div className="flex-1 h-px bg-gray-200" />
-              <span className="text-[10px] text-[#716D5C] font-medium uppercase tracking-widest">ou</span>
-              <div className="flex-1 h-px bg-gray-200" />
-            </div>
-
-            {/* OAuth buttons */}
-            <div role="group" aria-label="Inscription via réseaux sociaux">
-              <button
-                type="button"
-                onClick={handleGoogleSignup}
-                disabled={loading}
-                aria-label="S'inscrire avec Google"
-                className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all disabled:opacity-50"
-              >
-                <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                </svg>
-                <span className="text-[14px] font-semibold text-[#262626]">Continuer avec Google</span>
-              </button>
-            </div>
 
             <p className="text-center text-[13px] text-[#71717a] mt-6">
               Déjà un compte ?{" "}

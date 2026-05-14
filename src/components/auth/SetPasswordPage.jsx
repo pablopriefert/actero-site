@@ -12,6 +12,7 @@ export function SetPasswordPage({ onNavigate }) {
   const [errorMsg, setErrorMsg] = useState('')
   const [success, setSuccess] = useState(false)
   const [sessionReady, setSessionReady] = useState(false)
+  const [brandName, setBrandName] = useState(null)
 
   useEffect(() => {
     let mounted = true;
@@ -32,6 +33,8 @@ export function SetPasswordPage({ onNavigate }) {
           if (data?.session && mounted) {
             window.history.replaceState({}, '', '/setup-password')
             setSessionReady(true)
+            const bn = data.session.user?.user_metadata?.brand_name
+            if (bn) setBrandName(bn)
             return
           }
         }
@@ -39,6 +42,8 @@ export function SetPasswordPage({ onNavigate }) {
         const { data: { session } } = await supabase.auth.getSession()
         if (session && mounted) {
           setSessionReady(true)
+          const bn = session.user?.user_metadata?.brand_name
+          if (bn) setBrandName(bn)
           return
         }
       } catch (err) {
@@ -51,6 +56,8 @@ export function SetPasswordPage({ onNavigate }) {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session && mounted) {
         setSessionReady(true)
+        const bn = session?.user?.user_metadata?.brand_name
+        if (bn) setBrandName(bn)
       }
     })
     subscription = authListener?.subscription
@@ -138,6 +145,11 @@ export function SetPasswordPage({ onNavigate }) {
             <span className="text-[#262626] font-bold text-xl tracking-tight">Actero</span>
           </div>
 
+          {brandName && (
+            <p className="text-[12px] font-semibold text-[#003725] mb-2 uppercase tracking-wider">
+              Vous rejoignez {brandName}
+            </p>
+          )}
           <h1 className="text-3xl font-bold text-[#262626] mb-2 tracking-tight">
             Créez votre mot de passe
           </h1>

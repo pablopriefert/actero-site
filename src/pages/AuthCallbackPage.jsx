@@ -80,13 +80,13 @@ export function AuthCallbackPage({ onNavigate }) {
       }
     });
 
-    // 8s timeout fallback if something gets stuck
+    // 15s timeout fallback if something gets stuck (was 8s — too tight on slow networks)
     const timeout = setTimeout(() => {
       if (mounted) {
         logger("Timeout reached. No session resolved.");
         setErrorMsg("Le lien a expiré ou est invalide. Veuillez réessayer.");
       }
-    }, 8000);
+    }, 15000);
 
     return () => {
       mounted = false;
