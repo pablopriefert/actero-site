@@ -165,13 +165,14 @@ export const GlassHero = ({ onNavigate }) => {
                 letterSpacing: '-0.02em',
               }}
             >
-              Votre{' '}
+              <span className="italic text-[#716D5C]">L'agent SAV Shopify</span>{' '}
+              qui résout{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#003725] to-[#14A85C]">
-                e-commerce
+                82%
               </span>{' '}
-              tourne,
+              des tickets
               <br />
-              <span className="italic text-[#716D5C]">tout seul, 24/7.</span>
+              — en français, hébergé en UE.
             </h1>
           </FadeInUp>
 
@@ -246,8 +247,8 @@ export const GlassHero = ({ onNavigate }) => {
           </FadeInUp>
         </div>
 
-        {/* ══════════════════ DASHBOARD PREVIEW ══════════════════ */}
-        <FadeInUp delay={0.25} className="mt-16">
+        {/* ══════════════════ DASHBOARD PREVIEW (desktop only — fixed 220px sidebar cramps mobile) ══════════════════ */}
+        <FadeInUp delay={0.25} className="mt-16 hidden md:block">
           <div
             className="relative rounded-3xl p-4 border border-[#E8DFC9]"
             style={{

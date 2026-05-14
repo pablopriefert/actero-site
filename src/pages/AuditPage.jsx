@@ -126,15 +126,15 @@ export const AuditPage = ({ onNavigate }) => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-5xl mx-auto mb-8"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-violet-200 bg-violet-50 p-6">
+            <div className="relative overflow-hidden rounded-2xl border border-[#003725]/20 bg-[#003725]/5 p-6">
               <div className="relative flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-violet-100 border border-violet-200 flex items-center justify-center flex-shrink-0">
-                  <Gift className="w-6 h-6 text-violet-600" />
+                <div className="w-12 h-12 rounded-xl bg-[#003725]/10 border border-[#003725]/20 flex items-center justify-center flex-shrink-0">
+                  <Gift className="w-6 h-6 text-[#003725]" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     {referrerName && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-violet-100 border border-violet-200 text-violet-700 text-xs font-bold">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#003725]/10 border border-[#003725]/20 text-[#003725] text-xs font-bold">
                         <Sparkles className="w-3 h-3" />
                         Recommandé par {referrerName}
                       </span>
@@ -227,7 +227,7 @@ export const AuditPage = ({ onNavigate }) => {
             <div className="grid md:grid-cols-3 gap-6">
               <FadeInUp delay={0.1}>
                 <div className="bg-white rounded-2xl p-8 border border-gray-200 h-full hover:border-gray-300 transition-colors">
-                  <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mb-6 text-indigo-600">
+                  <div className="w-12 h-12 bg-[#003725]/5 rounded-xl flex items-center justify-center mb-6 text-[#003725]">
                     <Database className="w-6 h-6" />
                   </div>
                   <h3 className="text-xl font-bold text-[#262626] mb-3">Audit de votre Stack</h3>
@@ -238,7 +238,7 @@ export const AuditPage = ({ onNavigate }) => {
               </FadeInUp>
               <FadeInUp delay={0.2}>
                 <div className="bg-white rounded-2xl p-8 border border-gray-200 h-full hover:border-gray-300 transition-colors">
-                  <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center mb-6 text-rose-600">
+                  <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-6 text-amber-700">
                     <Activity className="w-6 h-6" />
                   </div>
                   <h3 className="text-xl font-bold text-[#262626] mb-3">Détection des Failles</h3>

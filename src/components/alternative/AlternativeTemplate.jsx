@@ -78,13 +78,6 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
           description: '5 000 tickets/mois, agent vocal, workflows illimités',
         },
       ],
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.8',
-        reviewCount: '27',
-        bestRating: '5',
-        worstRating: '1',
-      },
       url: `https://actero.fr/alternative-${data.competitorKey}`,
       provider: {
         '@type': 'Organization',
@@ -140,9 +133,9 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                   className="leading-[1.05] text-[#1A1A1A] font-normal"
                   style={{ ...serif, fontSize: 'clamp(38px, 5.2vw, 64px)', letterSpacing: '-0.02em' }}
                 >
-                  La meilleure alternative à {competitor}
+                  L'alternative française à {competitor}
                   <br />
-                  <span className="italic text-[#716D5C]">pour les e-commerçants Shopify français.</span>
+                  <span className="italic text-[#716D5C]">pour les e-commerçants Shopify.</span>
                 </h1>
               </FadeInUp>
 
@@ -167,7 +160,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                     }}
                     className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
                   >
-                    Essayer Actero gratuitement
+                    Essai gratuit 7 jours
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <WatchDemoButton source={`alternative_${data.competitorKey}_hero`} variant="light" />
@@ -178,7 +171,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                 <div className="inline-flex flex-wrap items-center justify-center gap-4 text-xs text-[#9ca3af]">
                   <span className="inline-flex items-center gap-1.5">
                     <Check className="w-3 h-3 text-cta" strokeWidth={2.5} />
-                    60% de résolutions automatiques
+                    82% de résolutions automatiques
                   </span>
                   <span className="text-[#E8DFC9]">·</span>
                   <span className="inline-flex items-center gap-1.5">
@@ -396,7 +389,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                     }}
                     className="inline-flex items-center gap-2 bg-[#F4F0E6] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                   >
-                    Démarrer mon essai gratuit <ArrowRight className="w-3.5 h-3.5" />
+                    Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <TalkToHumanButton source={`alternative_${data.competitorKey}_final_cta`} variant="dark" />
                 </div>

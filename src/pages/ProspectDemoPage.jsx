@@ -125,8 +125,8 @@ const KPICard = ({ kpi }) => {
   const colorMap = {
     emerald: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
     amber: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
-    violet: 'bg-violet-500/10 border-violet-500/20 text-violet-400',
-    blue: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
+    violet: 'bg-[#003725]/10 border-[#003725]/20 text-[#003725]',
+    blue: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700',
   }
   const Icon = kpi.icon
   return (
@@ -179,7 +179,7 @@ const BenchmarkRow = ({ b }) => (
   <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02]">
     <span className="text-xs font-medium text-zinc-400">{b.label}</span>
     <div className="flex items-center gap-3">
-      <span className="text-sm font-bold text-violet-400">{b.yours}</span>
+      <span className="text-sm font-bold text-[#003725]">{b.yours}</span>
       <span className="text-[10px] text-zinc-600">vs {b.sector}</span>
       <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
         {b.improvement}
@@ -190,9 +190,9 @@ const BenchmarkRow = ({ b }) => (
 
 const LogItem = ({ log }) => {
   const categoryColors = {
-    ticket: 'bg-emerald-500', cart: 'bg-violet-500', email: 'bg-blue-500',
-    escalation: 'bg-amber-500', lead: 'bg-violet-500', sms: 'bg-emerald-500',
-    visit: 'bg-amber-500', scoring: 'bg-blue-500',
+    ticket: 'bg-emerald-500', cart: 'bg-[#003725]', email: 'bg-emerald-600',
+    escalation: 'bg-amber-500', lead: 'bg-[#003725]', sms: 'bg-emerald-500',
+    visit: 'bg-amber-500', scoring: 'bg-emerald-600',
   }
   return (
     <motion.div
@@ -240,15 +240,15 @@ export const ProspectDemoPage = ({ onNavigate }) => {
         canonical="/demo"
       />
       {/* Demo Banner */}
-      <div className="bg-violet-500/10 border-b border-violet-500/20 py-3 px-6 text-center sticky top-0 z-50 backdrop-blur-md">
+      <div className="bg-[#003725]/10 border-b border-[#003725]/20 py-3 px-6 text-center sticky top-0 z-50 backdrop-blur-md">
         <div className="flex items-center justify-center gap-4">
-          <p className="text-violet-300 text-sm font-bold flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+          <p className="text-[#003725] text-sm font-bold flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#003725] animate-pulse" />
             Simulation live — {config.name} ({config.vertical})
           </p>
           <button
             onClick={() => onNavigate('/audit')}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold hover:bg-violet-500 transition-all"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#003725] text-white text-xs font-bold hover:bg-[#0A4F2C] transition-all"
           >
             Obtenir mon vrai dashboard <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -290,7 +290,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
 
           <div className="mt-auto border-t border-white/5 pt-4">
             <div className="flex items-center gap-3 px-2">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-violet-500 to-blue-500 flex items-center justify-center text-xs font-bold">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#003725] to-emerald-500 flex items-center justify-center text-xs font-bold">
                 {config.name.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -307,7 +307,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
             {/* Header */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="px-3 py-1 bg-violet-500/10 border border-violet-500/20 rounded-full text-xs font-bold uppercase tracking-widest text-violet-400">
+                <span className="px-3 py-1 bg-[#003725]/10 border border-[#003725]/20 rounded-full text-xs font-bold uppercase tracking-widest text-[#003725]">
                   {config.badge} {config.vertical}
                 </span>
                 <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-bold text-emerald-400">
@@ -334,11 +334,11 @@ export const ProspectDemoPage = ({ onNavigate }) => {
               {/* Objectives */}
               <div className="p-6 rounded-2xl bg-[#0a0a0a] border border-white/10">
                 <div className="flex items-center gap-2 mb-4">
-                  <Target className="w-4 h-4 text-violet-400" />
+                  <Target className="w-4 h-4 text-[#A8C490]" />
                   <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600">
                     Objectifs du mois
                   </h3>
-                  <span className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-md bg-violet-500/10 text-[10px] font-bold text-violet-400">
+                  <span className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#003725]/10 text-[10px] font-bold text-[#A8C490]">
                     <Sparkles className="w-3 h-3" /> Prédiction IA
                   </span>
                 </div>
@@ -352,7 +352,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
               {/* Benchmarks */}
               <div className="p-6 rounded-2xl bg-[#0a0a0a] border border-white/10">
                 <div className="flex items-center gap-2 mb-4">
-                  <BarChart3 className="w-4 h-4 text-violet-400" />
+                  <BarChart3 className="w-4 h-4 text-[#A8C490]" />
                   <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600">
                     Benchmarks sectoriels
                   </h3>
@@ -392,7 +392,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
             </div>
 
             {/* ROI Summary */}
-            <div className="p-6 rounded-2xl bg-gradient-to-r from-violet-500/[0.06] to-emerald-500/[0.04] border border-violet-500/10">
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-[#003725]/[0.06] to-emerald-500/[0.04] border border-[#003725]/10">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
                   <h3 className="text-lg font-bold text-white mb-1">
@@ -409,7 +409,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
                   </div>
                   <button
                     onClick={() => onNavigate('/audit')}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-violet-600 text-white font-bold hover:bg-violet-500 transition-all text-sm"
+                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#003725] text-white font-bold hover:bg-[#0A4F2C] transition-all text-sm"
                   >
                     Voir mon vrai potentiel <ArrowRight className="w-4 h-4" />
                   </button>

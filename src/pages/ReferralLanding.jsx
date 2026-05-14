@@ -59,7 +59,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center text-[#262626]">
         <div className="text-center">
-          <p className="text-red-400 text-lg mb-4">{error}</p>
+          <p className="text-amber-700 text-lg mb-4">{error}</p>
           <button onClick={() => onNavigate('/')} className="text-emerald-400 font-bold">
             Retour a l'accueil
           </button>
@@ -332,7 +332,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-emerald-500/20 rounded-3xl p-10"
+            className="bg-gradient-to-br from-[#003725]/10 to-emerald-500/10 border border-emerald-500/20 rounded-3xl p-10"
           >
             <Gift className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
             <h3 className="text-2xl font-bold mb-3">Votre premier mois est offert</h3>

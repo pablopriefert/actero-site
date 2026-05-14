@@ -103,7 +103,7 @@ export function PartnersMarquee() {
         {/* Trust mini-footer */}
         <div className="mt-6 flex items-center justify-center gap-2 text-[11px] font-medium text-[#9ca3af]">
           <Shield className="w-3.5 h-3.5" />
-          <span>Hébergé en UE · Conforme RGPD · SOC 2 en cours</span>
+          <span>SOC 2 en cours · DPA disponible · AES-256 · Hébergement Supabase EU</span>
         </div>
       </div>
 

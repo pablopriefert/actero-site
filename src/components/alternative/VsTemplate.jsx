@@ -58,13 +58,6 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
         { '@type': 'Offer', name: 'Starter', price: '99', priceCurrency: 'EUR' },
         { '@type': 'Offer', name: 'Pro', price: '399', priceCurrency: 'EUR' },
       ],
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.8',
-        reviewCount: '27',
-        bestRating: '5',
-        worstRating: '1',
-      },
       url: `https://actero.fr/${data.competitorKey}-vs-actero`,
       provider: { '@type': 'Organization', name: 'Actero SAS', url: 'https://actero.fr' },
     },
@@ -143,7 +136,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                     }}
                     className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
                   >
-                    Tester Actero gratuitement
+                    Essai gratuit 7 jours
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <WatchDemoButton source={`vs_${data.competitorKey}_hero`} variant="light" />
@@ -320,7 +313,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                     }}
                     className="inline-flex items-center gap-2 bg-cta hover:bg-[#0A4F2C] text-white px-[26px] py-[14px] rounded-full text-[15px] font-semibold transition-colors"
                   >
-                    Démarrer mon essai gratuit <ArrowRight className="w-3.5 h-3.5" />
+                    Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <TalkToHumanButton source={`vs_${data.competitorKey}_final_cta`} variant="light" />
                 </div>

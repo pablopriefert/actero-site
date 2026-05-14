@@ -236,7 +236,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
           }}
           className="inline-flex items-center justify-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[14.5px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
         >
-          Démarrer mon essai gratuit Actero <ArrowRight className="w-3.5 h-3.5" />
+          Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
 

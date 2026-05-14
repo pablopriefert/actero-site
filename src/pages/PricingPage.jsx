@@ -530,8 +530,8 @@ export const PricingPage = ({ onNavigate }) => {
                 className="font-normal leading-[1.05] text-[#1A1A1A] mb-6"
                 style={{ fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)', fontSize: 'clamp(38px, 5.2vw, 64px)', letterSpacing: '-0.02em' }}
               >
-                Un prix qui paie 40h<br className="hidden md:block" />
-                <span className="italic text-[#716D5C]">de votre équipe.</span>
+                Starter à 99€/mois ≈ 1 200€<br className="hidden md:block" />
+                <span className="italic text-[#716D5C]">d'heures SAV économisées.</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -539,7 +539,7 @@ export const PricingPage = ({ onNavigate }) => {
                 transition={{ delay: 0.1 }}
                 className="text-[17px] text-[#5A5A5A] max-w-xl mx-auto mb-4 leading-[1.5]"
               >
-                Le plan Starter à 99€ remplace environ 20 heures hebdo de support humain.
+                Environ 20 heures hebdo de support humain remplacées, à 15€/h chargé.
                 Démarrez gratuitement, scalez quand vos tickets grimpent.
               </motion.p>
               <motion.p
@@ -592,23 +592,6 @@ export const PricingPage = ({ onNavigate }) => {
                   </button>
                 </div>
 
-                {/* Savings badge — only surfaces when Annual is picked, to reward the
-                    choice. Uses the cream-friendly green tint from the design brief. */}
-                <AnimatePresence>
-                  {isAnnual && (
-                    <motion.span
-                      key="annual-savings"
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -8 }}
-                      role="status"
-                      aria-live="polite"
-                      className="bg-[#14A85C]/10 text-[#14A85C] px-2 py-0.5 rounded-full text-xs font-semibold"
-                    >
-                      Économisez {ANNUAL_SAVINGS_PCT}%
-                    </motion.span>
-                  )}
-                </AnimatePresence>
               </motion.div>
             </div>
 
@@ -694,7 +677,7 @@ export const PricingPage = ({ onNavigate }) => {
                     whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
                     whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    className={`w-full py-3.5 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-8 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group ${
+                    className={`w-full py-3.5 rounded-full font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-8 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group ${
                       plan.highlighted
                         ? "bg-[#A8C490] text-[#003725] hover:bg-white"
                         : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
@@ -807,7 +790,7 @@ export const PricingPage = ({ onNavigate }) => {
                     whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
                     whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    className="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group"
+                    className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group"
                   >
                     Essai gratuit 7 jours
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />

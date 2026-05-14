@@ -284,7 +284,7 @@ export const LandingPage = ({ onNavigate }) => {
                     whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   >
-                    Démarrer mon essai gratuit
+                    Essai gratuit 7 jours
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </motion.button>
                   <TalkToHumanButton source="landing_final_cta" variant="dark" />
