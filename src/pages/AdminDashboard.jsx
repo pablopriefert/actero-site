@@ -487,46 +487,63 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       ? { badge: count, badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }
       : {};
 
+  // Sidebar condensée — 8 essentiels en haut, tout le reste dans 2 expandables.
+  // Critère "essentiel" : ce qu'on regarde au moins 1x par jour.
+  // Tout le reste (config, programmes, outils, vues legacy) est accessible
+  // mais replié par défaut pour réduire la charge cognitive.
+  //
+  // Total des onglets de l'app : ~30. Visible par défaut : 8.
   const sidebarItems = [
     { type: 'section', label: 'AUJOURD\'HUI' },
-    { id: 'briefing', label: 'Briefing matin', icon: Sun, badge: 'NEW', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
-    { id: 'overview', label: 'Stats détaillées', icon: LayoutDashboard },
+    { id: 'briefing', label: 'Briefing matin', icon: Sun },
+    { id: 'overview', label: 'Stats', icon: LayoutDashboard },
 
-    { type: 'section', label: 'OPÉRATIONS' },
-    { id: 'live-runs', label: 'Live runs', icon: Zap, badge: 'LIVE', badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200' },
-    { id: 'manual-review', label: 'Reviews à faire', icon: Eye, ...urgentBadge(requests.length) },
-    { id: 'top-errors', label: 'Erreurs engine 24h', icon: AlertTriangle, ...urgentBadge(sidebarBadges.errors24h) },
-    { id: 'error-reports', label: 'Erreurs clients', icon: Bug, ...urgentBadge(sidebarBadges.errorReports24h) },
+    { type: 'section', label: 'À TRAITER' },
+    { id: 'manual-review', label: 'Reviews', icon: Eye, ...urgentBadge(requests.length) },
+    { id: 'top-errors', label: 'Erreurs engine', icon: AlertTriangle, ...urgentBadge(sidebarBadges.errors24h) },
     { id: 'ratings', label: 'Notes négatives', icon: ThumbsDown, ...urgentBadge(sidebarBadges.negativeRatings) },
-    { id: 'hallucination', label: 'Hallucinations IA', icon: Brain },
-    { id: 'connector-health', label: 'Santé connecteurs', icon: Plug, ...urgentBadge(sidebarBadges.connectorIssues) },
-    { id: 'health', label: 'Santé clients', icon: Heart },
-    { id: 'engine-runs', label: 'Historique runs', icon: ScrollText },
 
-    { type: 'section', label: 'GROWTH' },
-    { id: 'mrr', label: 'Revenus (MRR)', icon: DollarSign },
-    { id: 'churn-cohort', label: 'Churn cohort', icon: TrendingDown, ...watchBadge(sidebarBadges.churnAtRisk) },
-    { id: 'roi-leaderboard', label: 'ROI clients', icon: Trophy },
-    { id: 'funnel', label: 'Funnel conversion', icon: GitBranch },
-    { id: 'conversion-pipeline', label: 'Free → Pro', icon: TrendingUp },
-
-    { type: 'section', label: 'CLIENTS & PROSPECTS' },
-    { id: 'clients', label: 'Tous les clients', icon: Users },
-    { id: 'pipeline', label: 'Pipeline', icon: Layers },
+    { type: 'section', label: 'BUSINESS' },
+    { id: 'clients', label: 'Clients', icon: Users },
     { id: 'prospect-audits', label: 'Audits prospects', icon: Megaphone, badge: 'NEW', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
-    { id: 'startup-applications', label: 'Candidatures Startups', icon: Rocket },
+    { id: 'mrr', label: 'Revenus', icon: DollarSign },
 
-    { type: 'section', label: 'PROGRAMMES' },
-    { id: 'partners', label: 'Partenaires', icon: Handshake },
-    { id: 'partner-tokens', label: 'Liens partenaires', icon: Handshake },
-    { id: 'referrals', label: 'Parrainages', icon: Gift },
-
-    { type: 'section', label: 'CONFIG & OUTILS' },
+    { type: 'section', label: 'PLUS' },
     {
       type: 'expandable',
-      label: 'Configuration',
+      label: 'Opérations',
+      icon: Activity,
+      children: [
+        { id: 'live-runs', label: 'Live runs', icon: Zap },
+        { id: 'error-reports', label: 'Erreurs clients', icon: Bug, ...urgentBadge(sidebarBadges.errorReports24h) },
+        { id: 'hallucination', label: 'Hallucinations IA', icon: Brain },
+        { id: 'connector-health', label: 'Santé connecteurs', icon: Plug, ...urgentBadge(sidebarBadges.connectorIssues) },
+        { id: 'health', label: 'Santé clients', icon: Heart },
+        { id: 'engine-runs', label: 'Historique runs', icon: ScrollText },
+      ],
+    },
+    {
+      type: 'expandable',
+      label: 'Growth',
+      icon: TrendingUp,
+      children: [
+        { id: 'churn-cohort', label: 'Churn cohort', icon: TrendingDown, ...watchBadge(sidebarBadges.churnAtRisk) },
+        { id: 'roi-leaderboard', label: 'ROI clients', icon: Trophy },
+        { id: 'funnel', label: 'Funnel', icon: GitBranch },
+        { id: 'conversion-pipeline', label: 'Free → Pro', icon: TrendingUp },
+        { id: 'pipeline', label: 'Pipeline', icon: Layers },
+        { id: 'startup-applications', label: 'Candidatures startups', icon: Rocket },
+        { id: 'partners', label: 'Partenaires', icon: Handshake },
+        { id: 'partner-tokens', label: 'Liens partenaires', icon: Handshake },
+        { id: 'referrals', label: 'Parrainages', icon: Gift },
+      ],
+    },
+    {
+      type: 'expandable',
+      label: 'Config & outils',
       icon: Settings,
       children: [
+        { id: 'ai-terminal', label: 'Terminal IA', icon: TerminalSquare, badge: 'IA', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
         { id: 'cost-tracker', label: 'Coûts IA', icon: Coins },
         { id: 'tokens', label: 'Tokens', icon: Coins },
         { id: 'playbooks', label: 'Playbooks', icon: BookOpen },
@@ -536,14 +553,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'stripe-setup', label: 'Config Stripe', icon: CreditCard },
         { id: 'billing', label: 'Facturation', icon: Receipt },
         { id: 'action-logs', label: 'Journal audit', icon: FileText },
-      ],
-    },
-    {
-      type: 'expandable',
-      label: 'Outils',
-      icon: Wrench,
-      children: [
-        { id: 'ai-terminal', label: 'Terminal IA', icon: TerminalSquare, badge: 'IA', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
         { id: 'engine', label: 'Engine test', icon: Bot },
         { id: 'monitoring', label: 'Monitoring legacy', icon: Activity },
       ],
