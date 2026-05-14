@@ -29,82 +29,110 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 async function scrapeReviews(storeName) {
   if (!SERPAPI_KEY) throw new Error('SERPAPI_KEY not configured')
 
-  const searchQuery = `${storeName} avis clients site:trustpilot.com OR site:google.com`
-  const searchUrl = `https://serpapi.com/search.json?q=${encodeURIComponent(searchQuery)}&hl=fr&gl=fr&api_key=${SERPAPI_KEY}`
-
-  const searchRes = await fetch(searchUrl)
-  const searchData = await searchRes.json()
-
   let reviews = []
   let averageRating = 0
   let totalReviews = 0
-  let source = 'google'
+  const sources = new Set()
 
-  // Knowledge graph
+  // ── A. Google general search (knowledge graph + Trustpilot snippet rating)
+  const searchQuery = `${storeName} avis clients trustpilot`
+  const searchUrl = `https://serpapi.com/search.json?q=${encodeURIComponent(searchQuery)}&hl=fr&gl=fr&api_key=${SERPAPI_KEY}`
+  const searchRes = await fetch(searchUrl)
+  const searchData = await searchRes.json()
+
   if (searchData.knowledge_graph?.reviews) {
     averageRating = searchData.knowledge_graph.reviews.rating || 0
     totalReviews = searchData.knowledge_graph.reviews.total || 0
   }
 
-  // Google Maps reviews
-  const placeSearchUrl = `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(storeName)}&hl=fr&api_key=${SERPAPI_KEY}`
-  const placeRes = await fetch(placeSearchUrl)
-  const placeData = await placeRes.json()
+  // ── B. Google Maps reviews (no rating filter — Claude needs full distribution)
+  try {
+    const placeSearchUrl = `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(storeName)}&hl=fr&api_key=${SERPAPI_KEY}`
+    const placeRes = await fetch(placeSearchUrl)
+    const placeData = await placeRes.json()
 
-  if (placeData.place_results?.place_id) {
-    const reviewsUrl = `https://serpapi.com/search.json?engine=google_maps_reviews&place_id=${placeData.place_results.place_id}&hl=fr&sort_by=newestFirst&api_key=${SERPAPI_KEY}`
-    const reviewsRes = await fetch(reviewsUrl)
-    const reviewsData = await reviewsRes.json()
+    const placeId =
+      placeData.place_results?.place_id ||
+      placeData.local_results?.[0]?.place_id
 
-    if (reviewsData.reviews) {
-      reviews = reviewsData.reviews
-        .filter(r => r.rating <= 3) // Include 1-3 star reviews for analysis
-        .slice(0, 15)
-        .map(r => ({
-          author: r.user?.name || 'Anonyme',
-          stars: r.rating || 1,
-          date: r.date || '',
-          text: r.snippet || r.extracted_snippet?.original || '',
-          source: 'google',
-        }))
-      averageRating = reviewsData.place_info?.rating || averageRating
-      totalReviews = reviewsData.place_info?.reviews || totalReviews
+    if (placeId) {
+      const reviewsUrl = `https://serpapi.com/search.json?engine=google_maps_reviews&place_id=${placeId}&hl=fr&sort_by=newestFirst&api_key=${SERPAPI_KEY}`
+      const reviewsRes = await fetch(reviewsUrl)
+      const reviewsData = await reviewsRes.json()
+
+      if (reviewsData.reviews?.length) {
+        const gReviews = reviewsData.reviews
+          .slice(0, 30)
+          .map(r => ({
+            author: r.user?.name || 'Anonyme',
+            stars: r.rating || 0,
+            date: r.date || '',
+            text: r.snippet || r.extracted_snippet?.original || '',
+            source: 'google',
+          }))
+          .filter(r => r.text) // drop empty reviews
+        reviews.push(...gReviews)
+        if (gReviews.length) sources.add('google')
+      }
+      if (reviewsData.place_info?.rating) averageRating = reviewsData.place_info.rating
+      if (reviewsData.place_info?.reviews) totalReviews = reviewsData.place_info.reviews
     }
+  } catch (e) {
+    console.warn('[audit] Google Maps reviews fetch failed:', e.message)
   }
 
-  // Trustpilot via organic results
+  // ── C. Trustpilot — extract rating + snippets from organic search
   const trustpilotResult = searchData.organic_results?.find(r =>
     r.link?.includes('trustpilot.com') || r.link?.includes('trustpilot.fr'),
   )
 
   if (trustpilotResult) {
-    const tpSearchUrl = `https://serpapi.com/search.json?q=${encodeURIComponent(storeName + ' avis 1 etoile site:trustpilot.com')}&hl=fr&gl=fr&num=10&api_key=${SERPAPI_KEY}`
-    const tpRes = await fetch(tpSearchUrl)
-    const tpData = await tpRes.json()
-
-    if (tpData.organic_results) {
-      const tpReviews = tpData.organic_results
-        .filter(r => r.link?.includes('trustpilot'))
-        .slice(0, 5)
-        .map(r => ({
-          author: 'Trustpilot User',
-          stars: 1,
-          date: r.date || '',
-          text: r.snippet || '',
-          source: 'trustpilot',
-        }))
-      reviews = [...reviews, ...tpReviews]
-      source = 'trustpilot+google'
+    // Rating from Trustpilot snippet (e.g., "Note 4,2 sur 5")
+    if (trustpilotResult.snippet) {
+      const ratingMatch = trustpilotResult.snippet.match(/(\d[.,]\d)\s*\/?\s*5|sur\s*5/i)
+      const m = trustpilotResult.snippet.match(/(\d[.,]\d)/)
+      if (m && !averageRating) averageRating = parseFloat(m[1].replace(',', '.'))
+      if (ratingMatch) sources.add('trustpilot')
     }
 
-    if (trustpilotResult.snippet) {
-      const ratingMatch = trustpilotResult.snippet.match(/(\d[.,]\d)/)
-      if (ratingMatch) {
-        averageRating = parseFloat(ratingMatch[1].replace(',', '.'))
+    // Pull negative review snippets via targeted queries
+    for (const query of [
+      `${storeName} avis 1 étoile site:trustpilot.com`,
+      `${storeName} avis 2 étoiles site:trustpilot.com`,
+      `${storeName} problème site:trustpilot.com`,
+    ]) {
+      try {
+        const tpUrl = `https://serpapi.com/search.json?q=${encodeURIComponent(query)}&hl=fr&gl=fr&num=10&api_key=${SERPAPI_KEY}`
+        const tpRes = await fetch(tpUrl)
+        const tpData = await tpRes.json()
+        const hits = (tpData.organic_results || [])
+          .filter(r => r.link?.includes('trustpilot') && r.snippet)
+          .slice(0, 5)
+          .map(r => ({
+            author: r.title?.split(' a donné')?.[0] || 'Trustpilot User',
+            stars: query.includes('1 étoile') ? 1 : query.includes('2 étoiles') ? 2 : 0,
+            date: r.date || '',
+            text: r.snippet,
+            source: 'trustpilot',
+          }))
+        reviews.push(...hits)
+        if (hits.length) sources.add('trustpilot')
+      } catch (e) {
+        console.warn('[audit] Trustpilot query failed:', e.message)
       }
     }
   }
 
+  // Dedupe by text
+  const seen = new Set()
+  reviews = reviews.filter(r => {
+    const key = (r.text || '').slice(0, 80)
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+
+  const source = sources.size ? [...sources].join('+') : 'none'
   return { reviews, averageRating, totalReviews, source }
 }
 
@@ -114,17 +142,25 @@ async function analyzeWithClaude(storeName, reviews, averageRating, totalReviews
   if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured')
 
   const reviewTexts = reviews
-    .map((r, i) => `[${i + 1}] ${r.stars}★ — "${r.text}" (${r.source})`)
+    .map((r, i) => `[${i + 1}] ${r.stars}★ (${r.source}) — "${r.text}"`)
     .join('\n')
 
-  const systemPrompt = `Tu es un expert en expérience client e-commerce. Tu analyses les avis négatifs d'une boutique pour identifier les problèmes de support client et proposer des solutions concrètes.
+  const negCount = reviews.filter(r => r.stars > 0 && r.stars <= 3).length
+  const posCount = reviews.filter(r => r.stars >= 4).length
+
+  const systemPrompt = `Tu es un expert en expérience client e-commerce. Tu produis des audits RIGOUREUX basés sur des données réelles. INTERDIT d'inventer des chiffres. Chaque pourcentage doit être calculé sur les avis fournis. Si une catégorie n'est mentionnée par aucun avis, ne l'inclus PAS dans top_issues.
 
 Réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks.`
 
-  const userMessage = `Analyse les avis négatifs de "${storeName}" (note moyenne: ${averageRating}/5, ${totalReviews} avis au total).
+  const userMessage = `Analyse les avis de "${storeName}".
 
-Voici ${reviews.length} avis négatifs récents :
-${reviewTexts || '(Aucun avis négatif trouvé)'}
+Données :
+- Note moyenne : ${averageRating}/5
+- Total avis publics : ${totalReviews}
+- Avis analysés ici : ${reviews.length} (${negCount} négatifs 1-3★, ${posCount} positifs 4-5★)
+
+Avis collectés :
+${reviewTexts}
 
 Génère un rapport d'audit structuré en JSON avec ce format exact :
 {
@@ -203,6 +239,18 @@ async function handler(req, res) {
   try {
     // Step 1: Scrape reviews
     const scraped = await scrapeReviews(store_name)
+
+    // Hard fail if no reviews — avoid generating fabricated insights.
+    if (!scraped.reviews.length) {
+      return res.status(422).json({
+        error: `Aucun avis trouvé pour "${store_name}". Vérifie le nom (essaie le nom commercial complet) ou cette marque n'est pas indexée sur Google Maps / Trustpilot.`,
+        scraped_meta: {
+          source: scraped.source,
+          average_rating: scraped.averageRating,
+          total_reviews: scraped.totalReviews,
+        },
+      })
+    }
 
     // Step 2: Claude analysis
     const analysis = await analyzeWithClaude(
