@@ -23,16 +23,94 @@ const supabase = createClient(
 
 const SERPAPI_KEY = process.env.SERPAPI_KEY
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
+const TAVILY_API_KEY = process.env.TAVILY_API_KEY
+
+// ── Trustpilot via Tavily (bypasses WAF that blocks direct fetch) ────
+
+async function searchTrustpilotViaTavily(storeName) {
+  if (!TAVILY_API_KEY) return { reviews: [], rating: 0, totalReviews: 0 }
+
+  const queries = [
+    `${storeName} avis clients`,
+    `${storeName} avis négatifs problèmes`,
+    `${storeName} livraison service client`,
+  ]
+
+  const allReviews = []
+  let rating = 0
+  let totalReviews = 0
+
+  for (const query of queries) {
+    try {
+      const res = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: TAVILY_API_KEY,
+          query,
+          search_depth: 'advanced',
+          include_domains: ['trustpilot.com', 'trustpilot.fr'],
+          max_results: 10,
+        }),
+      })
+      if (!res.ok) continue
+      const data = await res.json()
+
+      for (const r of data.results || []) {
+        // Extract rating + total review count from titles like "Horace Avis 769 - Trustpilot"
+        const totalMatch = r.title?.match(/Avis\s+(\d{1,6})/i)
+        if (totalMatch && !totalReviews) totalReviews = parseInt(totalMatch[1])
+
+        const ratingMatch =
+          r.content?.match(/note\s+de\s+(\d[.,]?\d?)\s+étoiles?/i) ||
+          r.content?.match(/(\d[.,]\d)\s*\/\s*5/)
+        if (ratingMatch && !rating) rating = parseFloat(ratingMatch[1].replace(',', '.'))
+
+        if (r.content && r.content.length > 40) {
+          allReviews.push({
+            author: 'Trustpilot User',
+            stars: 0, // unknown — Claude will infer sentiment from text
+            date: '',
+            text: r.content.trim(),
+            source: 'trustpilot',
+            url: r.url,
+          })
+        }
+      }
+    } catch (e) {
+      console.warn('[audit] Tavily query failed:', e.message)
+    }
+  }
+
+  return { reviews: allReviews, rating, totalReviews }
+}
 
 // ── Step 1: Scrape reviews (inlined from scrape-reviews.js) ──────────
 
 async function scrapeReviews(storeName) {
-  if (!SERPAPI_KEY) throw new Error('SERPAPI_KEY not configured')
+  if (!SERPAPI_KEY && !TAVILY_API_KEY) {
+    throw new Error('Neither SERPAPI_KEY nor TAVILY_API_KEY configured')
+  }
 
   let reviews = []
   let averageRating = 0
   let totalReviews = 0
   const sources = new Set()
+
+  // ── 0. Trustpilot via Tavily (primary source for e-commerce brands)
+  if (TAVILY_API_KEY) {
+    const tp = await searchTrustpilotViaTavily(storeName)
+    if (tp.reviews.length) {
+      reviews.push(...tp.reviews)
+      sources.add('trustpilot')
+    }
+    if (tp.rating) averageRating = tp.rating
+    if (tp.totalReviews) totalReviews = tp.totalReviews
+  }
+
+  if (!SERPAPI_KEY) {
+    return dedupeAndReturn(reviews, averageRating, totalReviews, sources)
+  }
 
   // ── A. Google general search (knowledge graph + Trustpilot snippet rating)
   const searchQuery = `${storeName} avis clients trustpilot`
@@ -123,17 +201,23 @@ async function scrapeReviews(storeName) {
     }
   }
 
-  // Dedupe by text
+  return dedupeAndReturn(reviews, averageRating, totalReviews, sources)
+}
+
+function dedupeAndReturn(reviews, averageRating, totalReviews, sources) {
   const seen = new Set()
-  reviews = reviews.filter(r => {
+  const deduped = reviews.filter(r => {
     const key = (r.text || '').slice(0, 80)
     if (!key || seen.has(key)) return false
     seen.add(key)
     return true
   })
-
-  const source = sources.size ? [...sources].join('+') : 'none'
-  return { reviews, averageRating, totalReviews, source }
+  return {
+    reviews: deduped,
+    averageRating,
+    totalReviews,
+    source: sources.size ? [...sources].join('+') : 'none',
+  }
 }
 
 // ── Step 2: Claude AI analysis ───────────────────────────────────────
