@@ -1,4 +1,5 @@
 import { XCircle, RotateCcw } from "lucide-react";
+import { SEO } from "../components/SEO";
 
 export function CancelPage({ onNavigate }) {
   const params = new URLSearchParams(window.location.search);
@@ -6,6 +7,11 @@ export function CancelPage({ onNavigate }) {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
+      <SEO
+        title="Paiement annulé | Actero"
+        description="Votre paiement a été annulé. Aucune somme n'a été débitée."
+        noindex={true}
+      />
       <div className="text-center max-w-md w-full">
         <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-8">
           <XCircle className="w-10 h-10 text-red-500" />

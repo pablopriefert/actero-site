@@ -105,24 +105,21 @@ export const AuditReportPage = ({ onNavigate }) => {
   const isPreview = new URLSearchParams(window.location.search).get('preview') === '1'
   const previewActive = isPreview && import.meta.env.DEV
 
-  // Initialise from preview mock directly so the effect never has to setState
-  // for the dev case (avoids react-hooks/set-state-in-effect).
+  // Compute initial state synchronously from the URL — this lets us skip
+  // setState-in-effect calls for the deterministic cases (preview mock,
+  // missing token). The async fetch path still uses setState in the effect
+  // callback, which is the legitimate use case.
   const [audit, setAudit] = useState(() =>
     previewActive ? { ...PREVIEW_MOCK, created_at: new Date().toISOString() } : null,
   )
-  const [loading, setLoading] = useState(() => !previewActive)
-  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(() => !previewActive && Boolean(token))
+  const [error, setError] = useState(() => (!previewActive && !token ? 'Lien invalide' : null))
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })
 
-    if (previewActive) return // mock already loaded synchronously
-
-    if (!token) {
-      setError('Lien invalide')
-      setLoading(false)
-      return
-    }
+    // Preview path + no-token path: state already correct from useState init.
+    if (previewActive || !token) return
 
     fetch(`/api/leads/audit-report?token=${encodeURIComponent(token)}`)
       .then((r) => {

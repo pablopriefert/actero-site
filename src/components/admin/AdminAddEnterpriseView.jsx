@@ -144,7 +144,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               type="text"
               value={form.brand_name}
               onChange={(e) => update('brand_name', e.target.value)}
-              placeholder="Maison Durand, Nike FR..."
+              placeholder="Le Slip Français, Sézane..."
               className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               required
               autoFocus

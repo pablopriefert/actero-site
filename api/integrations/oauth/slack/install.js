@@ -1,6 +1,5 @@
 import { withSentry } from '../../../lib/sentry.js'
 import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
 
 async function handler(req, res) {
   const clientId = process.env.SLACK_CLIENT_ID;

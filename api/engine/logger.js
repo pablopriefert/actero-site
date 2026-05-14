@@ -278,7 +278,7 @@ export async function logRun(supabase, {
     if (clientSettings?.hourly_cost) {
       hourlyCost = clientSettings.hourly_cost
     }
-  } catch {}
+  } catch { /* non-blocking */ }
 
   const isResolved = status === 'completed' && !actionPlan?.includes('escalate')
   const timeSaved = isResolved ? avgTicketTimeSec : 0

@@ -30,7 +30,7 @@ function escapeHtml(str) {
  * Execute an action plan step by step.
  * Returns: { success, steps: [{action, status, duration_ms, error}], error }
  */
-export async function runExecutor(supabase, { event, playbook, clientId, normalized, brainResult }) {
+export async function runExecutor(supabase, { event: _event, playbook: _playbook, clientId, normalized, brainResult }) {
   const { actionPlan, aiResponse, classification } = brainResult
   const steps = []
   let overallSuccess = true
@@ -180,7 +180,7 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
           stepResult.result = { escalated: true }
           break
 
-        case 'notify_slack':
+        case 'notify_slack': {
           const { data: slackIntegration } = await supabase
             .from('client_integrations')
             .select('access_token, extra_config')
@@ -212,6 +212,7 @@ export async function runExecutor(supabase, { event, playbook, clientId, normali
             stepResult.result = { slack_notified: true }
           }
           break
+        }
 
         case 'tag_contact':
           // Persist tag to the most recent ai_conversations entry for this client

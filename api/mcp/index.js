@@ -218,7 +218,7 @@ export default async function handler(req, res) {
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined })
   const server = buildServer(clientId)
 
-  res.on('close', () => { try { transport.close() } catch {} ; try { server.close() } catch {} })
+  res.on('close', () => { try { transport.close() } catch { /* non-blocking */ } ; try { server.close() } catch { /* non-blocking */ } })
 
   try {
     await server.connect(transport)

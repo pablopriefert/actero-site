@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { CheckCircle, Zap, Loader2, ArrowRight } from "lucide-react";
 import { trackEvent } from "../lib/analytics";
 import { OnboardingProgress } from "../components/dashboard/OnboardingProgress";
+import { SEO } from "../components/SEO";
 
 export function ShopifySuccessPage({ onNavigate }) {
   const params = new URLSearchParams(window.location.search);
@@ -52,6 +53,11 @@ export function ShopifySuccessPage({ onNavigate }) {
 
   return (
     <div className="min-h-screen bg-[#030303] flex items-center justify-center px-4">
+      <SEO
+        title="Connexion Shopify réussie | Actero"
+        description="Votre boutique Shopify est connectée à Actero. L'onboarding démarre."
+        noindex={true}
+      />
       <div className="text-center max-w-lg w-full">
         <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-8">
           <CheckCircle className="w-10 h-10 text-emerald-500" />

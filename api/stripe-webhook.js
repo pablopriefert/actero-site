@@ -638,8 +638,6 @@ async function handler(req, res) {
       // 5. Email post-paiement — confirmation + lien Shopify (e-commerce uniquement)
       const clientEmail = funnelClient?.email || session.customer_details?.email || session.customer_email;
       const clientCompany = funnelClient?.company_name || session.customer_details?.name || '';
-      const clientType = funnelClient?.client_type || 'ecommerce';
-
       if (clientEmail) {
         try {
           await resend.emails.send({
@@ -736,6 +734,7 @@ async function handler(req, res) {
 
           // CIO — keep profile in sync whenever subscription changes
           if (updateData.plan || updateData.status) {
+            /* hook handled elsewhere */
           }
 
           // Sync Stripe Entitlements
@@ -758,7 +757,6 @@ async function handler(req, res) {
       const subscription = event.data.object;
       try {
         const clientId = subscription.metadata?.client_id;
-        const customerEmail = subscription.customer ? null : null;
         // Retrieve customer email
         let email = null;
         if (subscription.customer) {

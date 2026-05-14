@@ -24,6 +24,7 @@ import {
   CalendarCheck,
   ChevronRight,
 } from 'lucide-react'
+import { SEO } from '../components/SEO'
 
 // ============================================================
 // PROSPECT PROFILES (customizable per vertical)
@@ -233,6 +234,11 @@ export const ProspectDemoPage = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-[#030303] text-white font-sans">
+      <SEO
+        title="Démo Actero — agent IA support client | Actero"
+        description="Découvrez Actero en action : un agent IA qui gère votre service client e-commerce 24/7, intégré à Shopify."
+        canonical="/demo"
+      />
       {/* Demo Banner */}
       <div className="bg-violet-500/10 border-b border-violet-500/20 py-3 px-6 text-center sticky top-0 z-50 backdrop-blur-md">
         <div className="flex items-center justify-center gap-4">

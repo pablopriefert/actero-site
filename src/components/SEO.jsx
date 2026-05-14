@@ -12,6 +12,7 @@ export function SEO({
   ogImage = DEFAULT_OG_IMAGE,
   ogType = "website",
   schemaData,
+  noindex = false,
 }) {
   const fullTitle = title ? `${title}` : SITE_NAME;
   const canonicalUrl = canonical
@@ -25,7 +26,7 @@ export function SEO({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <meta name="robots" content="index, follow" />
+      <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
 
       {/* Open Graph */}

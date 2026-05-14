@@ -165,7 +165,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               type="text"
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
-              placeholder="Actero, Maison Durand..."
+              placeholder="Nom commercial de la marque..."
               className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
               autoFocus
               required

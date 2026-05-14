@@ -1,6 +1,7 @@
 import { CheckCircle, ArrowRight, Zap, BookOpen, MessageCircle } from "lucide-react";
 import { useEffect } from "react";
 import { trackEvent } from "../lib/analytics";
+import { SEO } from "../components/SEO";
 
 /**
  * SuccessPage — affichée après un paiement Stripe réussi.
@@ -21,6 +22,11 @@ export function SuccessPage({ onNavigate }) {
 
   return (
     <div className="min-h-screen bg-[#F9F7F1] flex items-center justify-center px-4 py-16">
+      <SEO
+        title="Paiement confirmé | Actero"
+        description="Bienvenue ! Votre compte Actero est activé."
+        noindex={true}
+      />
       <div className="max-w-2xl w-full">
         {/* Hero — confirmation */}
         <div className="text-center mb-12">

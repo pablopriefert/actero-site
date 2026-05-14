@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useToast } from '../components/ui/Toast'
+import { SEO } from '../components/SEO'
 
 const StarRow = ({ rating = 0, size = 'md' }) => {
   const sizeClass = size === 'md' ? 'w-4 h-4' : 'w-5 h-5'
@@ -238,6 +239,10 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-[#1a1a1a]">
+      <SEO
+        title="Template Actero — automatisation support client"
+        description="Template prêt à déployer dans Actero pour automatiser votre support client e-commerce."
+      />
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-[#f0f0f0]">
         <div className="max-w-6xl mx-auto px-5 md:px-8 h-14 flex items-center justify-between">
           <button

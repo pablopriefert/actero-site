@@ -9,7 +9,7 @@ import { decryptToken } from '../../lib/crypto.js'
  * @param {object} supabase - Supabase client
  * @param {object} params - { clientId, response, customerEmail, customerName, subject, brandName, isEscalation, escalationReason }
  */
-export async function sendViaSlack(supabase, { clientId, response, customerEmail, customerName, subject, brandName, isEscalation, escalationReason }) {
+export async function sendViaSlack(supabase, { clientId, response, customerEmail, customerName, subject, brandName: _brandName, isEscalation, escalationReason }) {
   // Load Slack credentials
   const { data: integration } = await supabase
     .from('client_integrations')

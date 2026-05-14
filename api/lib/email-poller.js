@@ -269,7 +269,7 @@ async function markGmailAsRead(bearer, id) {
   } catch { /* noop */ }
 }
 
-async function refreshGmailTokenIfNeeded(integration, currentToken) {
+async function refreshGmailTokenIfNeeded(integration, _currentToken) {
   const expiresAt = integration.expires_at
   if (!expiresAt) return null
   const expiry = new Date(expiresAt).getTime()
@@ -447,7 +447,6 @@ function extractImageAttachmentsFromMime(rawBuf) {
       if (!part || part === '--' || part.trim() === '') continue
       // Each part has headers then CRLF CRLF then body
       const headerBodySplit = part.indexOf('\r\n\r\n')
-      const sepLen = headerBodySplit >= 0 ? 4 : part.indexOf('\n\n')
       if (headerBodySplit < 0) continue
       const headers = part.slice(0, headerBodySplit)
       let body = part.slice(headerBodySplit + 4)

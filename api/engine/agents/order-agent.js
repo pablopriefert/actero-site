@@ -74,7 +74,7 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     return base + specialization
   },
 
-  async run({ supabase, clientConfig, clientId, normalized, conversationHistory, memoryContext, classification }) {
+  async run({ supabase, clientConfig, clientId, normalized, conversationHistory, memoryContext, classification: _classification }) {
     // 1. Try to fetch the real order from Shopify
     let orderContext = null
     let trackingContext = null

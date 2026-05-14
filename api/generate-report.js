@@ -40,8 +40,6 @@ async function handler(req, res) {
       return res.status(404).json({ error: 'Client not found' });
     }
 
-    const vertical = client.client_type || 'ecommerce';
-
     // 2. Fetch current month metrics
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();

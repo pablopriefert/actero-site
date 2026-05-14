@@ -196,7 +196,7 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
 {"classification": "<categorie>", "confidence": <0.0-1.0>, "summary": "<resume 1 phrase>"}
 `
 
-  let classification, confidence, summary
+  let classification, confidence
   try {
     // Sandbox the raw customer message inside clear delimiters so Claude cannot be
     // tricked by "ignore previous instructions" style prompt injection attempts.
@@ -210,7 +210,6 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
 
     classification = classResult.classification || 'autre'
     confidence = classResult.confidence || 0.5
-    summary = classResult.summary || ''
   } catch (err) {
     console.error('[brain] Classification error:', err.message)
     return {
@@ -259,7 +258,7 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
       })
       accumulateUsage(respResult)
       proposedResponse = respResult.response || respResult.rawText
-    } catch {}
+    } catch { /* non-blocking */ }
 
     return {
       classification,

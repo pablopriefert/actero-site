@@ -95,7 +95,7 @@ function NewAuditModal({ onClose, onSubmit, isLoading }) {
               type="text"
               value={form.store_name}
               onChange={(e) => setForm(f => ({ ...f, store_name: e.target.value }))}
-              placeholder="Ex: Maison Durand"
+              placeholder="Ex: Le Slip Français"
               className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
               autoFocus
               required
@@ -107,7 +107,7 @@ function NewAuditModal({ onClose, onSubmit, isLoading }) {
               type="url"
               value={form.store_url}
               onChange={(e) => setForm(f => ({ ...f, store_url: e.target.value }))}
-              placeholder="https://maison-durand.com"
+              placeholder="https://leslipfrancais.fr"
               className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
             />
           </div>
@@ -117,7 +117,7 @@ function NewAuditModal({ onClose, onSubmit, isLoading }) {
               type="email"
               value={form.contact_email}
               onChange={(e) => setForm(f => ({ ...f, contact_email: e.target.value }))}
-              placeholder="contact@maison-durand.com"
+              placeholder="contact@boutique.com"
               className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
             />
           </div>

@@ -54,7 +54,7 @@ export async function routeResponse(supabase, {
  * Auto-reply: send response to the customer via the source channel.
  */
 async function handleAutoReply(supabase, {
-  messageId, clientId, conversationId, threadId,
+  messageId, clientId, conversationId, threadId: _threadId,
   source, customerEmail, customerName, subject,
   response, confidence, detectedIntent, sentimentScore,
   injectionDetected, processingTimeMs, config,
@@ -107,7 +107,7 @@ async function handleAutoReply(supabase, {
           clientId, response, customerEmail, customerName, subject, brandName,
           isEscalation: false,
         })
-      } catch {} // Non-blocking
+      } catch { /* Non-blocking */ }
     }
 
   } catch (err) {
@@ -141,7 +141,7 @@ async function handleAutoReply(supabase, {
  * Escalation: notify the client team via email and/or Slack.
  */
 async function handleEscalation(supabase, {
-  messageId, clientId, conversationId, threadId,
+  messageId, clientId, conversationId, threadId: _threadId,
   customerEmail, customerName, subject,
   escalationReason, detectedIntent, sentimentScore,
   source, config, processingTimeMs,
@@ -163,7 +163,7 @@ async function handleEscalation(supabase, {
       .select('id')
       .single()
     escalationRowId = row?.id || null
-  } catch {} // Non-critical
+  } catch { /* Non-critical */ }
 
   // 1b. Linear auto-issue — fail-safe (never blocks email/Slack alerts)
   try {
@@ -231,7 +231,7 @@ async function handleEscalation(supabase, {
         brandName: config.client?.brand_name || 'Actero',
         isEscalation: true, escalationReason,
       })
-    } catch {} // Non-blocking
+    } catch { /* Non-blocking */ }
   }
 
   // 3. Log escalation response
@@ -251,24 +251,6 @@ async function handleEscalation(supabase, {
   })
 
   return { delivered: true, channel: 'escalation' }
-}
-
-/**
- * Build HTML email for auto-reply.
- */
-function buildEmailHtml(response, brandName, customerName) {
-  const greeting = customerName ? `Bonjour ${customerName},` : 'Bonjour,'
-  return `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-      <p style="color: #262626; font-size: 15px; line-height: 1.6;">${greeting}</p>
-      <p style="color: #262626; font-size: 15px; line-height: 1.6;">${response.replace(/\n/g, '<br/>')}</p>
-      <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;" />
-      <p style="color: #999; font-size: 12px;">
-        ${brandName} — Service client assiste par IA<br/>
-        Si vous avez besoin d'une aide supplementaire, repondez directement a cet email.
-      </p>
-    </div>
-  `
 }
 
 /**

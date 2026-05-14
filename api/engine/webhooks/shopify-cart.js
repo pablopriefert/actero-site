@@ -63,7 +63,7 @@ async function handler(req, res) {
   let parsedBody
   try {
     parsedBody = JSON.parse(rawBody.toString('utf8'))
-  } catch (err) {
+  } catch (_err) {
     return res.status(400).json({ error: 'Invalid JSON body' })
   }
   req.body = parsedBody

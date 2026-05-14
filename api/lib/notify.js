@@ -15,8 +15,6 @@
  *   })
  */
 
-import { sendViaSlack } from '../engine/connectors/slack.js'
-
 /**
  * Send a client-facing notification through all enabled channels.
  * Fails silently: individual channel failures are logged, never throw.

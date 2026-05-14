@@ -57,7 +57,7 @@ async function handler(req, res) {
       });
       const info = await infoRes.json();
       userEmail = info.email;
-    } catch {}
+    } catch { /* non-blocking */ }
 
     // Find client_id
     const { data: clientUser } = await supabase
@@ -104,7 +104,7 @@ async function handler(req, res) {
     }
 
     return res.redirect(302, '/client/integrations?integration=gmail&status=success');
-  } catch (err) {
+  } catch (_err) {
     return res.redirect(302, '/client/integrations?integration=gmail&status=error&message=exception');
   }
 }

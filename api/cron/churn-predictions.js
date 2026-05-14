@@ -113,7 +113,6 @@ async function processClient(client) {
   }
 
   // 3. Sentiment history for this client (for sentiment scoring)
-  const emails = Array.from(byEmail.keys())
   const { data: sentimentLogs } = await supabase
     .from('sentiment_logs')
     .select('customer_name, score, category, created_at')

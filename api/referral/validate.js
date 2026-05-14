@@ -22,7 +22,7 @@ async function handler(req, res) {
     return res.status(403).json({ error: 'Accès non autorisé' });
   }
 
-  const { referral_code, referee_client_id, stripe_customer_id } = req.body;
+  const { referral_code, referee_client_id } = req.body;
 
   if (!referral_code) {
     return res.status(400).json({ error: 'Code de parrainage manquant' });

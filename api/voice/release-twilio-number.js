@@ -41,7 +41,7 @@ async function handler(req, res) {
         await elevenLabsFetch(`/v1/convai/phone-numbers/${settings.voice_phone_number_id}`, {
           method: 'DELETE',
         })
-      } catch (e) {
+      } catch (_e) {
         // best effort
       }
     }
@@ -52,7 +52,7 @@ async function handler(req, res) {
         await twilioFetch(`/IncomingPhoneNumbers/${settings.voice_phone_twilio_sid}.json`, {
           method: 'DELETE',
         })
-      } catch (e) {
+      } catch (_e) {
         // best effort
       }
     }

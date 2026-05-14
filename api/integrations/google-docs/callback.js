@@ -26,13 +26,12 @@ async function handler(req, res) {
   if (oauthError) return redirectBack({ integration: 'google_docs', status: 'error', message: oauthError })
   if (!code || !state) return redirectBack({ integration: 'google_docs', status: 'error', message: 'missing_code' })
 
-  let clientId, userId
+  let clientId
   try {
     const decoded = Buffer.from(state, 'base64url').toString()
-    const [cid, uid, ts] = decoded.split('|')
+    const [cid, _uid, ts] = decoded.split('|')
     if (Date.now() - parseInt(ts, 10) > 10 * 60 * 1000) throw new Error('state_expired')
     clientId = cid
-    userId = uid
   } catch {
     return redirectBack({ integration: 'google_docs', status: 'error', message: 'invalid_state' })
   }

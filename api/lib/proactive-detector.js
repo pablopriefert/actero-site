@@ -16,7 +16,6 @@
  *   - failed_payment : Shopify orders avec financial_status = 'pending'/'unpaid' depuis > seuil
  *   - silent_vip : VIP client (>500€ total) sans commande depuis > seuil
  */
-import { getTrackingsByEmail } from '../engine/connectors/aftership.js'
 import { decryptToken } from './crypto.js'
 
 /* -------------------------------------------------------------------------- */
@@ -207,7 +206,7 @@ async function detectSilentVip(supabase, clientId, config) {
   const minClvEuros = Number(config?.min_clv_euros || 500)
   const silentDays = Number(config?.silent_days || 60)
   const shopify = await getIntegration(supabase, clientId, 'shopify')
-  const conn = shopify
+  let conn = shopify
     ? {
         shop_domain: shopify.extra_config?.shop_domain,
         access_token: decryptToken(shopify.access_token) || shopify.access_token,
@@ -220,7 +219,7 @@ async function detectSilentVip(supabase, clientId, config) {
       .eq('client_id', clientId)
       .maybeSingle()
     if (!alt) return []
-    Object.assign(conn ||= {}, alt)
+    conn = { ...alt }
   }
 
   if (!conn?.shop_domain || !conn?.access_token) return []

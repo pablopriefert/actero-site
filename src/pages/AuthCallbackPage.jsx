@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { supabase, INITIAL_URL } from '../lib/supabase'
 import { fetchUserRole } from '../lib/auth-utils'
+import { SEO } from '../components/SEO'
 
 const DEBUG_AUTH = false;
 const logger = (...args) => {
@@ -126,6 +127,11 @@ export function AuthCallbackPage({ onNavigate }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4 font-sans text-[#262626]">
+      <SEO
+        title="Connexion en cours… | Actero"
+        description="Validation de votre session."
+        noindex={true}
+      />
       <svg
         className="animate-spin h-8 w-8 text-[#262626]"
         fill="none"

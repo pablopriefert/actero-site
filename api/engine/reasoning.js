@@ -99,7 +99,6 @@ async function handler(req, res) {
         run = data
           .map(r => ({ ...r, _diff: Math.abs(new Date(r.created_at).getTime() - convoTs) }))
           .sort((a, b) => a._diff - b._diff)[0]
-        // eslint-disable-next-line no-unused-vars
         const { _diff, ...clean } = run
         run = clean
       }

@@ -256,7 +256,7 @@ async function handler(req, res) {
   } catch (err) {
     console.error('[voice/custom-llm] Brain error:', err.message)
     if (stream) {
-      try { return await streamResponse(res, callId, FALLBACK_SAFE) } catch {}
+      try { return await streamResponse(res, callId, FALLBACK_SAFE) } catch { /* non-blocking */ }
     }
     return res.status(200).json(buildCompletionResponse(callId, FALLBACK_SAFE))
   }

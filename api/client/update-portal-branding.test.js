@@ -18,7 +18,7 @@ vi.mock('@supabase/supabase-js', () => {
       },
       from: (table) => ({
         select: (cols) => ({
-          eq: (col, val) => ({
+          eq: (_col, _val) => ({
             maybeSingle: async () => {
               if (table === 'client_users') {
                 return { data: mockClientLink, error: null }

@@ -14,7 +14,7 @@ async function handler(req, res) {
   try { session = await requirePortalSession(req) }
   catch (e) { return res.status(e.status).json({ error: e.code }) }
 
-  const { data_url, filename } = req.body || {}
+  const { data_url } = req.body || {}
   if (!data_url?.startsWith('data:image/')) return res.status(400).json({ error: 'invalid_data_url' })
 
   const [header, b64] = data_url.split(',')

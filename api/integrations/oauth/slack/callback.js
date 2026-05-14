@@ -13,7 +13,7 @@ async function handler(req, res) {
     return res.redirect(302, '/client/integrations?error=slack_missing_params');
   }
 
-  const [nonce, userToken] = state.split(':');
+  const [, userToken] = state.split(':');
   if (!userToken) {
     return res.redirect(302, '/client/integrations?error=slack_invalid_state');
   }
@@ -93,7 +93,7 @@ async function handler(req, res) {
     }
 
     return res.redirect(302, '/client/integrations?success=slack');
-  } catch (err) {
+  } catch (_err) {
     return res.redirect(302, `/client/integrations?error=slack_exception`);
   }
 }

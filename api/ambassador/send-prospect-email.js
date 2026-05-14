@@ -16,7 +16,7 @@ async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return res.status(401).json({ error: 'Non autorisé' });
 
-  const { prospect_name, prospect_email, company_name, ambassador_code } = req.body || {};
+  const { prospect_name, prospect_email, company_name } = req.body || {};
 
   if (!prospect_email || !prospect_name || !company_name) {
     return res.status(400).json({ error: 'Nom, email et entreprise requis.' });

@@ -67,7 +67,7 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     return base + specialization
   },
 
-  async run({ supabase, clientConfig, clientId, normalized, conversationHistory, memoryContext, classification, visionContext }) {
+  async run({ supabase, clientConfig, clientId, normalized, conversationHistory, memoryContext, classification: _classification, visionContext }) {
     let orderContext = null
     const toolsUsed = []
 

@@ -111,6 +111,7 @@ Reponds UNIQUEMENT en JSON valide:
 
     // CIO — kb_first_entry_added (only on first KB entry ever for this client)
     try {
+      /* non-blocking */
     } catch { /* non-blocking */ }
 
     // Sync brand context
@@ -120,7 +121,7 @@ Reponds UNIQUEMENT en JSON valide:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client_id }),
       })
-    } catch {}
+    } catch { /* non-blocking */ }
 
     return res.status(200).json({
       imported: entries.length,

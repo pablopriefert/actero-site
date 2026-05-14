@@ -8,7 +8,7 @@ function escapeHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function buildEmailHtml({ company_name, slug, setup_price, monthly_price, message, client_type }) {
+function buildEmailHtml({ company_name, slug, setup_price, monthly_price, message, client_type: _client_type }) {
   const safeName = escapeHtml(company_name);
   const safeMessage = escapeHtml(message);
   const link = `${process.env.SITE_URL || 'https://actero.fr'}/start/${encodeURIComponent(slug)}`;

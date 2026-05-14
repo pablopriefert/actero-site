@@ -90,7 +90,7 @@ async function handler(req, res) {
   let decryptedToken
   try {
     decryptedToken = decryptToken(connection.access_token)
-  } catch (err) {
+  } catch (_err) {
     return res.status(500).json({ error: 'Failed to decrypt Shopify token' })
   }
 

@@ -20,7 +20,7 @@ async function sendViaSMTP(smtpConfig, { to, subject, html, brandName }) {
   } catch (e1) {
     try {
       nodemailer = require('nodemailer')
-    } catch (e2) {
+    } catch (_e2) {
       throw new Error('nodemailer not available: ' + e1.message)
     }
   }

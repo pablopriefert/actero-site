@@ -3,7 +3,7 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { isActeroAdmin } from '../lib/admin-auth.js'
-import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
+import { checkRateLimit } from '../lib/rate-limit.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,

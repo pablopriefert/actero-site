@@ -16,10 +16,10 @@ const TIMEOUT_MS = 15000   // 15s — vision calls are slower than text
 const MAX_TOKENS = 600
 
 function safeJson(raw) {
-  try { return JSON.parse(raw) } catch {}
+  try { return JSON.parse(raw) } catch { /* fallthrough */ }
   const m = raw.match(/\{[\s\S]*\}/)
   if (m) {
-    try { return JSON.parse(m[0]) } catch {}
+    try { return JSON.parse(m[0]) } catch { /* fallthrough */ }
   }
   return null
 }

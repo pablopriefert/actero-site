@@ -74,7 +74,7 @@ async function handler(req, res) {
             .trim()
             .substring(0, 8000) // Limit to ~8k chars for Claude context
         }
-      } catch {} // Direct fetch failed, use what we have
+      } catch { /* Direct fetch failed, use what we have */ }
     }
 
     if (!pageContent || pageContent.trim().length < 50) {
@@ -168,7 +168,7 @@ Pas de markdown, pas de commentaires, juste le JSON.`,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client_id }),
       })
-    } catch {} // Non-critical
+    } catch { /* Non-critical */ }
 
     return res.status(200).json({
       imported: entries.length,

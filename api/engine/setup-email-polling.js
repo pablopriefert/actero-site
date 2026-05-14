@@ -52,7 +52,7 @@ async function handler(req, res) {
     }
 
     const config = integration.extra_config || {}
-    const { imap_host, imap_port, username, email, use_ssl } = config
+    const { imap_host, imap_port, username, use_ssl } = config
     const password = integration.api_key
 
     if (!imap_host || !username || !password) {
@@ -83,7 +83,7 @@ async function handler(req, res) {
           method: 'POST',
           headers: { 'X-N8N-API-KEY': N8N_API_KEY },
         })
-      } catch {}
+      } catch { /* non-blocking */ }
       return res.status(200).json({ success: true, message: 'Workflow email deja existant, reactive', workflow_id: existingWorkflow.n8n_workflow_id })
     }
 

@@ -57,7 +57,7 @@ async function sendViaSMTP(smtpConfig, { to, subject, html, brandName }) {
   } catch (e1) {
     try {
       nodemailer = require('nodemailer')
-    } catch (e2) {
+    } catch (_e2) {
       throw new Error('nodemailer not available: ' + e1.message)
     }
   }
@@ -341,14 +341,14 @@ async function resolveRecipient(client) {
     try {
       const { data: { user } } = await supabase.auth.admin.getUserById(link.user_id)
       if (user?.email) return user.email
-    } catch {}
+    } catch { /* non-blocking */ }
   }
   // Fallback: owner user
   if (client.owner_user_id) {
     try {
       const { data: { user } } = await supabase.auth.admin.getUserById(client.owner_user_id)
       if (user?.email) return user.email
-    } catch {}
+    } catch { /* non-blocking */ }
   }
   return null
 }

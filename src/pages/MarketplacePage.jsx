@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { SEO } from '../components/SEO'
 
 const CATEGORIES = [
   { id: 'all', label: 'Toutes les categories' },
@@ -279,6 +280,11 @@ export const MarketplacePage = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-[#1a1a1a]">
+      <SEO
+        title="Marketplace de templates IA pour e-commerce | Actero"
+        description="Découvrez des templates prêts à l'emploi pour automatiser votre service client : SAV, suivi commande, retours, FAQ — directement intégrables dans Actero."
+        canonical="/marketplace"
+      />
       {/* Top bar */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-[#f0f0f0]">
         <div className="max-w-7xl mx-auto px-5 md:px-8 h-14 flex items-center justify-between gap-4">

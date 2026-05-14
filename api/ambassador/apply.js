@@ -116,7 +116,7 @@ async function handler(req, res) {
     }
 
     // STEP 3: Create ambassador record (no network_type to avoid check constraint)
-    const { data: ambassador, error: insertError } = await supabase
+    const { data: _ambassador, error: insertError } = await supabase
       .from('ambassadors')
       .insert({
         user_id: userId,

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Gift, ArrowRight, CheckCircle2, Shield, Zap, Clock, Star, Check, Crown } from 'lucide-react'
 import { Logo } from '../components/layout/Logo'
 import { PLANS, PLAN_ORDER } from '../lib/plans'
+import { SEO } from '../components/SEO'
 
 export const ReferralLanding = ({ code, onNavigate }) => {
   const [referrerName, setReferrerName] = useState(null)
@@ -69,6 +70,11 @@ export const ReferralLanding = ({ code, onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-white text-[#262626] overflow-hidden">
+      <SEO
+        title="Parrainage Actero — 30 jours offerts | Actero"
+        description="Profitez de 30 jours gratuits sur Actero grâce au parrainage. Automatisez votre service client e-commerce dès aujourd'hui."
+        canonical="/referral"
+      />
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">

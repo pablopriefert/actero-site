@@ -7,7 +7,7 @@
 import { loadClientConfig } from './lib/config-loader.js'
 import { buildSystemPrompt, buildMessages } from './lib/prompt-builder.js'
 import { callClaude } from './lib/claude-client.js'
-import { findOrCreateThread, appendMessage, getConversationHistory, resolveThread, escalateThread } from './lib/conversation-manager.js'
+import { findOrCreateThread, appendMessage, getConversationHistory } from './lib/conversation-manager.js'
 import { routeResponse } from './respond.js'
 import { lookupOrder } from './lib/shopify-client.js'
 
@@ -25,7 +25,7 @@ export async function processMessage(supabase, {
   messageBody,
   externalTicketId,
   orderId,
-  metadata = {},
+  metadata: _metadata = {},
 }) {
   const startTime = Date.now()
 

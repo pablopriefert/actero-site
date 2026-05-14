@@ -13,7 +13,7 @@
  * All feature keys match src/lib/plans.js PLANS.*.features.
  */
 
-import { canAccessFeature as planCanAccess, getLimits as planGetLimits } from './plan-limits.js'
+import { canAccessFeature as planCanAccess } from './plan-limits.js'
 
 // Map feature key → Stripe lookup_key (must match lookup_keys created in Stripe Dashboard)
 export const FEATURE_MAP = {

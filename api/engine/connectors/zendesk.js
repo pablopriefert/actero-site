@@ -9,7 +9,7 @@ import { decryptToken } from '../../lib/crypto.js'
  * @param {object} supabase - Supabase client
  * @param {object} params - { clientId, ticketId, response, customerEmail, brandName }
  */
-export async function sendViaZendesk(supabase, { clientId, ticketId, response, customerEmail, brandName }) {
+export async function sendViaZendesk(supabase, { clientId, ticketId, response, customerEmail: _customerEmail, brandName: _brandName }) {
   if (!ticketId) return { success: false, error: 'No ticket ID for Zendesk reply' }
 
   // Load Zendesk credentials

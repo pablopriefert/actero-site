@@ -79,7 +79,7 @@ async function handler(req, res) {
   })
 }
 
-async function processCommand({ teamId, text, responseUrl, userId }) {
+async function processCommand({ teamId, text, responseUrl, userId: _userId }) {
   const team = await resolveTeam(teamId)
   if (!team) {
     await fetch(responseUrl, {

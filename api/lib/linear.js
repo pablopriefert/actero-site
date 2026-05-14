@@ -113,7 +113,7 @@ export async function pushEscalationToLinear(supabase, {
 /**
  * Create an issue. Returns { id, url, identifier } on success.
  */
-export async function createIssue({ apiKey, teamId, title, description, labels = [] }) {
+export async function createIssue({ apiKey, teamId, title, description, labels: _labels = [] }) {
   if (!apiKey || !teamId) return { error: 'missing_credentials' }
   const r = await gql({
     apiKey,

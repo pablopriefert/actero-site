@@ -39,7 +39,7 @@ async function handler(req, res) {
   const isAdmin = await checkAdmin(req);
   if (!isAdmin) return res.status(403).json({ error: 'Accès refusé.' });
 
-  const { client_id, step: resumeStep } = req.body || {};
+  const { client_id } = req.body || {};
   if (!client_id) {
     return res.status(400).json({ error: 'Missing client_id' });
   }
@@ -82,7 +82,6 @@ async function handler(req, res) {
 }
 
 async function runPipeline(db, deploymentId, clientId) {
-  let currentStepIndex = 0;
   let workflowsDeployed = [];
   let brandContextGenerated = false;
   let emailConfigured = false;
@@ -446,11 +445,6 @@ Réponds UNIQUEMENT avec le texte de l'agency_context. Un texte structuré que l
             replacements['TEMPLATE_SHOP'] = shopifyConnection.shop_domain;
             replacements['TEMPLATE_SHOPIFY_TOKEN'] = shopifyConnection.access_token;
           }
-
-          // Also inject hourly cost
-          const hourlyCost = callNotes.vertical === 'ecommerce'
-            ? (callNotes.hourly_support_cost || 25)
-            : (callNotes.hourly_agent_cost || 30);
 
           const replaced = deepReplace(cleanTpl, replacements);
           replaced.name = clientWorkflowName;

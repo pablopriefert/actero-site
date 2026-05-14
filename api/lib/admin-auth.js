@@ -32,7 +32,7 @@ export async function isActeroAdmin(user, supabase) {
       .eq('id', user.id)
       .maybeSingle();
     if (profile?.role === 'admin') return true;
-  } catch {}
+  } catch { /* non-blocking */ }
 
   try {
     const { data: adminRow } = await supabase
@@ -41,7 +41,7 @@ export async function isActeroAdmin(user, supabase) {
       .eq('user_id', user.id)
       .maybeSingle();
     if (adminRow) return true;
-  } catch {}
+  } catch { /* non-blocking */ }
 
   return false;
 }
@@ -71,7 +71,7 @@ export async function requireAdmin(req, res, supabase) {
       .eq('id', user.id)
       .maybeSingle();
     if (profile?.role === 'admin') return user;
-  } catch {}
+  } catch { /* non-blocking */ }
 
   // 3) admin_users table membership
   try {
@@ -81,7 +81,7 @@ export async function requireAdmin(req, res, supabase) {
       .eq('user_id', user.id)
       .maybeSingle();
     if (adminRow) return user;
-  } catch {}
+  } catch { /* non-blocking */ }
 
   res.status(403).json({ error: 'Admin access required' });
   return null;

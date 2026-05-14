@@ -6,7 +6,6 @@
  * so storeMemory / retrieveMemories keep working without external calls.
  */
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
-// eslint-disable-next-line no-unused-vars
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
 /**

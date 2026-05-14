@@ -145,7 +145,6 @@ async function handler(req, res) {
     }
   }
   const customerEmail = email || emailFromMessage || emailFromHistory || `widget-${session_id || Date.now()}@anonymous.actero.fr`
-  const isRealEmail = !customerEmail.includes('@anonymous.actero.fr')
 
   // Insert message
   const { data: engineMessage, error: insertError } = await supabase
@@ -235,7 +234,6 @@ async function handler(req, res) {
 
     if (!playbook) {
       // No playbook — use simple simulator-chat as fallback
-      const { data: { session: authSession } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }))
       return res.status(200).json({
         response: 'Merci pour votre message. Un membre de notre equipe va vous repondre rapidement.',
         escalated: true,
@@ -366,7 +364,7 @@ async function handler(req, res) {
         if (codeBlock) jsonStr = codeBlock[1]
         const parsed = JSON.parse(jsonStr.match(/\{[\s\S]*\}/)?.[0] || jsonStr)
         if (parsed.response) cleanResponse = parsed.response
-      } catch {}
+      } catch { /* non-blocking */ }
     }
     // Strip any remaining markdown/code artifacts
     cleanResponse = cleanResponse.replace(/^```(?:json)?\s*/gm, '').replace(/```\s*$/gm, '').trim()
@@ -376,7 +374,7 @@ async function handler(req, res) {
       await supabase.from('engine_messages')
         .update({ metadata: { session_id, ai_response: cleanResponse, user_agent: req.headers['user-agent'] } })
         .eq('id', engineMessage.id)
-    } catch {}
+    } catch { /* non-blocking */ }
 
     return res.status(200).json({
       response: cleanResponse,

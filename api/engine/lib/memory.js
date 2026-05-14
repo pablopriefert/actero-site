@@ -67,7 +67,7 @@ export async function retrieveMemories(supabase, { clientId, customerEmail, quer
             .update({ last_referenced_at: new Date().toISOString() })
             .in('id', ids)
         }
-      } catch {}
+      } catch { /* non-blocking */ }
       return data
     }
 
