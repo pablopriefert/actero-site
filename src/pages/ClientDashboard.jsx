@@ -799,11 +799,13 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       label: 'Canaux',
       icon: Plug,
       children: [
+        { id: 'channels', label: 'Tous les canaux', icon: MessageSquare },
         { id: 'integrations', label: 'Intégrations', icon: Plug },
+        { id: 'voice-agent', label: 'Agent vocal', icon: Phone },
+        { id: 'voice-calls', label: 'Appels vocaux', icon: Phone },
         { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
         // Migration tickets — visible only while no completed migration exists.
         ...(hasCompletedMigration ? [] : [{ id: 'migrations', label: 'Migration tickets', icon: Upload }]),
-        // Futurs canaux (voice) à ajouter ici.
       ],
     },
 

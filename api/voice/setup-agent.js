@@ -36,9 +36,17 @@ async function handler(req, res) {
     const clientConfig = await loadClientConfig(supabaseAdmin, clientId)
     const voicePrompt = buildVoiceSystemPrompt(clientConfig)
 
+    // Compliance (CNIL / Code du travail Art. L1222-4): every caller must be
+    // told the call may be recorded and that they are talking to an AI before
+    // any processing. We prepend this disclosure to the DEFAULT greeting only.
+    // If the client sets a custom greeting via /api/voice/update-agent, it is
+    // used as-is and the disclosure is NOT injected — the merchant is then
+    // responsible for keeping a compliant recording/AI notice in their text.
+    const RECORDING_DISCLOSURE = `Bonjour, vous etes en relation avec l'assistant vocal IA de ${clientConfig.client.brand_name}. Cet appel peut etre enregistre et analyse pour ameliorer notre service. `
+
     const greeting =
       clientConfig.settings?.voice_greeting ||
-      `Bonjour, vous etes chez ${clientConfig.client.brand_name}, comment puis-je vous aider ?`
+      `${RECORDING_DISCLOSURE}Comment puis-je vous aider ?`
 
     // Resolve a usable voice: prefer client setting, then env default, then
     // fall back to the FIRST voice in the workspace. ElevenLabs requires a

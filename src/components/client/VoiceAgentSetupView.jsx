@@ -54,6 +54,8 @@ export const VoiceAgentSetupView = ({ clientId }) => {
   })
   const [attaching, setAttaching] = useState(false)
   const [attachError, setAttachError] = useState(null)
+  const [provisioning, setProvisioning] = useState(false)
+  const [provisionError, setProvisionError] = useState(null)
   const greetingTimer = useRef(null)
   const didInitGreeting = useRef(false)
 
@@ -62,7 +64,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
     queryFn: async () => {
       const { data } = await supabase
         .from('client_settings')
-        .select('voice_agent_enabled, elevenlabs_agent_id, elevenlabs_voice_id, voice_phone_number, voice_greeting, voice_phone_provider, voice_phone_country, voice_phone_type, voice_phone_provisioned_at, voice_sip_phone_number, voice_sip_server, voice_sip_username, voice_sip_transport, voice_sip_attached_at')
+        .select('voice_agent_enabled, elevenlabs_agent_id, elevenlabs_voice_id, voice_phone_number, voice_phone_number_id, voice_greeting, voice_phone_provider, voice_phone_country, voice_phone_type, voice_phone_provisioned_at, voice_sip_phone_number, voice_sip_server, voice_sip_username, voice_sip_transport, voice_sip_attached_at')
         .eq('client_id', clientId)
         .maybeSingle()
       return data || {}
@@ -115,7 +117,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
     try {
       await apiCall('/api/voice/update-agent', {
         client_id: clientId,
-        elevenlabs_voice_id: voiceIdInput.trim(),
+        voice_id: voiceIdInput.trim(),
       })
       toast.success('Voix mise a jour')
       refresh()
@@ -136,7 +138,7 @@ export const VoiceAgentSetupView = ({ clientId }) => {
       try {
         await apiCall('/api/voice/update-agent', {
           client_id: clientId,
-          voice_greeting: val,
+          greeting: val,
         })
       } catch (_e) {
         toast.error('Sauvegarde du message echouee')
@@ -171,12 +173,41 @@ export const VoiceAgentSetupView = ({ clientId }) => {
     }
   }
 
+  const handleProvisionTwilio = async () => {
+    setProvisioning(true)
+    setProvisionError(null)
+    try {
+      // Uses the same Supabase Bearer-token apiCall pattern as every other
+      // call in this component (see apiCall() above).
+      await apiCall('/api/voice/provision-twilio-number', { client_id: clientId })
+      toast.success('Numéro français provisionné avec succès')
+      refresh()
+    } catch (e) {
+      // Surface the server error verbatim (e.g. 503 = Twilio not configured)
+      // so the merchant/admin knows it is an ops setup issue, not a bug.
+      setProvisionError(e.message || 'Impossible de provisionner un numéro')
+    } finally {
+      setProvisioning(false)
+    }
+  }
+
   const handleRelease = async () => {
-    if (!window.confirm('Déconnecter votre SIP trunk ? Les appels entrants ne seront plus routés vers l\'agent IA.')) return
+    // Signal: a Twilio/ElevenLabs-managed number (1-click provisioning) writes
+    // `voice_phone_number_id` (the ElevenLabs phone-number id). SIP-trunk
+    // numbers never set it — they use the voice_sip_* fields. So we route
+    // managed numbers to release-twilio-number and SIP to detach-sip-trunk.
+    const isTwilioManaged = !!settings?.voice_phone_number_id
+    const confirmMsg = isTwilioManaged
+      ? 'Libérer ce numéro ? Il sera détaché de l\'agent et restitué (Twilio).'
+      : 'Déconnecter votre SIP trunk ? Les appels entrants ne seront plus routés vers l\'agent IA.'
+    if (!window.confirm(confirmMsg)) return
     setReleasing(true)
     try {
-      await apiCall('/api/voice/detach-sip-trunk', { client_id: clientId })
-      toast.success('SIP trunk déconnecté')
+      await apiCall(
+        isTwilioManaged ? '/api/voice/release-twilio-number' : '/api/voice/detach-sip-trunk',
+        { client_id: clientId },
+      )
+      toast.success(isTwilioManaged ? 'Numéro libéré' : 'SIP trunk déconnecté')
       refresh()
     } catch (e) {
       toast.error(e.message || 'Échec de la déconnexion')
@@ -283,6 +314,50 @@ export const VoiceAgentSetupView = ({ clientId }) => {
               </div>
             ) : (
               <div className="space-y-4">
+                {/* Primary path — Twilio 1-click FR number provisioning */}
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-[14px] font-medium text-[#1a1a1a]">Obtenez un numéro français instantanément</p>
+                    <p className="text-[12px] text-[#9ca3af] mt-1">
+                      Nous achetons et configurons un numéro français pour vous — prêt en quelques secondes.
+                    </p>
+                  </div>
+
+                  {provisionError && (
+                    <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
+                      <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-[12px] text-red-700">{provisionError}</p>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleProvisionTwilio}
+                    disabled={provisioning}
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-cta hover:bg-[#0c4e2b] disabled:opacity-60 text-white text-[13px] font-semibold transition-colors"
+                  >
+                    {provisioning ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Provisionnement en cours…
+                      </>
+                    ) : (
+                      <>
+                        <Phone className="w-4 h-4" />
+                        Obtenir un numéro français (1 clic)
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Divider — SIP trunk is the secondary / alternative option */}
+                <div className="flex items-center gap-3 py-1">
+                  <div className="flex-1 h-px bg-[#f0f0f0]" />
+                  <span className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider">
+                    ou connecter un trunk SIP existant
+                  </span>
+                  <div className="flex-1 h-px bg-[#f0f0f0]" />
+                </div>
+
                 <div>
                   <p className="text-[14px] font-medium text-[#1a1a1a]">Connectez votre numéro existant (SIP)</p>
                   <p className="text-[12px] text-[#9ca3af] mt-1">

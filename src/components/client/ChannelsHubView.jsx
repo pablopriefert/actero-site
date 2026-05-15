@@ -33,13 +33,13 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
       if (!clientId) return null
       const { data } = await supabase
         .from('client_settings')
-        .select('voice_agent_enabled, elevenlabs_agent_id, voice_agent_phone')
+        .select('voice_agent_enabled, elevenlabs_agent_id, voice_phone_number')
         .eq('client_id', clientId)
         .maybeSingle()
       return data
         ? {
             status: (data.voice_agent_enabled && data.elevenlabs_agent_id) ? 'active' : null,
-            phone: data.voice_agent_phone,
+            phone: data.voice_phone_number,
           }
         : null
     },

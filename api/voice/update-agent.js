@@ -46,6 +46,11 @@ async function handler(req, res) {
       voicePrompt += `\n\nINSTRUCTIONS SUPPLEMENTAIRES:\n${extra_instructions.trim()}`
     }
 
+    // COMPLIANCE NOTE (CNIL / Art. L1222-4): a custom greeting set here is sent
+    // verbatim — we intentionally do NOT inject the call-recording / AI
+    // disclosure (that is done for the DEFAULT greeting in setup-agent.js).
+    // The merchant is responsible for keeping a compliant recording + AI notice
+    // in any custom greeting they configure.
     const finalGreeting = greeting || clientConfig.settings?.voice_greeting
     const finalVoiceId =
       voice_id ||
