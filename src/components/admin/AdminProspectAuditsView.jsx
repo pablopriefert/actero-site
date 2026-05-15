@@ -21,10 +21,77 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
+  Upload,
+  Play,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 
 const SITE_URL = window.location.origin
+
+// ── Tiny CSV parser (handles quoted fields, escaped quotes, CRLF) ─────
+// No papaparse dependency in this project — hand-rolled.
+
+function parseCsv(text) {
+  const rows = []
+  let row = []
+  let field = ''
+  let inQuotes = false
+  const src = String(text || '').replace(/^\uFEFF/, '') // strip BOM
+
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i]
+    if (inQuotes) {
+      if (c === '"') {
+        if (src[i + 1] === '"') {
+          field += '"'
+          i++
+        } else {
+          inQuotes = false
+        }
+      } else {
+        field += c
+      }
+    } else if (c === '"') {
+      inQuotes = true
+    } else if (c === ',') {
+      row.push(field)
+      field = ''
+    } else if (c === '\n' || c === '\r') {
+      if (c === '\r' && src[i + 1] === '\n') i++
+      row.push(field)
+      rows.push(row)
+      row = []
+      field = ''
+    } else {
+      field += c
+    }
+  }
+  if (field.length > 0 || row.length > 0) {
+    row.push(field)
+    rows.push(row)
+  }
+
+  const nonEmpty = rows.filter(
+    (r) => r.length && !(r.length === 1 && r[0].trim() === ''),
+  )
+  if (!nonEmpty.length) return []
+
+  const header = nonEmpty[0].map((h) => h.trim().toLowerCase())
+  return nonEmpty.slice(1).map((cells) => {
+    const obj = {}
+    header.forEach((h, idx) => {
+      obj[h] = (cells[idx] ?? '').trim()
+    })
+    return obj
+  })
+}
+
+// 16-char hex token, browser crypto (matches the server's report_token shape).
+function genReportToken() {
+  const bytes = new Uint8Array(8)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+}
 
 // ── Status badge ─────────────────────────────────────────────────────
 
@@ -41,6 +108,29 @@ function StatusBadge({ status }) {
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${config.color}`}>
       <Icon className="w-3 h-3" />
+      {config.label}
+    </span>
+  )
+}
+
+// ── Pipeline status badge ────────────────────────────────────────────
+
+const PIPELINE_CONFIG = {
+  queued: { label: 'En file', color: 'bg-gray-50 text-gray-600 border-gray-200' },
+  audited: { label: 'Audité', color: 'bg-blue-50 text-blue-600 border-blue-200' },
+  emailed: { label: 'Emailé', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+  skipped: { label: 'Ignoré', color: 'bg-amber-50 text-amber-600 border-amber-200' },
+  failed: { label: 'Échec', color: 'bg-red-50 text-red-600 border-red-200' },
+}
+
+function PipelineBadge({ status }) {
+  if (!status) return <span className="text-[11px] text-[#71717a]">—</span>
+  const config = PIPELINE_CONFIG[status] || {
+    label: status,
+    color: 'bg-gray-50 text-gray-600 border-gray-200',
+  }
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border ${config.color}`}>
       {config.label}
     </span>
   )
@@ -278,13 +368,223 @@ function AuditDetailPanel({ audit }) {
   )
 }
 
+// ── CSV import modal ─────────────────────────────────────────────────
+
+function CsvImportModal({ onClose, onConfirm, isImporting }) {
+  const [raw, setRaw] = useState('')
+  const [parsed, setParsed] = useState([])
+  const [dupCount, setDupCount] = useState(null)
+  const [checking, setChecking] = useState(false)
+  const [error, setError] = useState('')
+
+  const ingest = (text) => {
+    setError('')
+    setDupCount(null)
+    try {
+      const rows = parseCsv(text)
+        .map((r) => ({
+          store_name: (r.store_name || '').trim(),
+          store_url: (r.store_url || '').trim(),
+          contact_email: (r.contact_email || '').trim(),
+          contact_name: (r.contact_name || '').trim(),
+        }))
+        .filter((r) => r.store_name)
+      if (!rows.length) {
+        setError('Aucune ligne valide. La colonne "store_name" est requise.')
+        setParsed([])
+        return
+      }
+      setParsed(rows)
+      checkDuplicates(rows)
+    } catch {
+      setError('Impossible de parser le CSV.')
+      setParsed([])
+    }
+  }
+
+  const handleFile = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      setRaw(String(reader.result || ''))
+      ingest(String(reader.result || ''))
+    }
+    reader.readAsText(file)
+  }
+
+  const checkDuplicates = async (rows) => {
+    setChecking(true)
+    try {
+      const names = [...new Set(rows.map((r) => r.store_name))]
+      const emails = [
+        ...new Set(
+          rows.map((r) => r.contact_email.toLowerCase()).filter(Boolean),
+        ),
+      ]
+      const [{ data: existing }, { data: suppressed }] = await Promise.all([
+        supabase
+          .from('prospect_audits')
+          .select('store_name, contact_email')
+          .or(
+            `store_name.in.(${names
+              .map((n) => `"${n.replace(/"/g, '')}"`)
+              .join(',')})`,
+          ),
+        emails.length
+          ? supabase
+              .from('email_suppressions')
+              .select('email')
+              .in('email', emails)
+          : Promise.resolve({ data: [] }),
+      ])
+      const existingNames = new Set(
+        (existing || []).map((e) => (e.store_name || '').toLowerCase()),
+      )
+      const existingEmails = new Set(
+        (existing || [])
+          .map((e) => (e.contact_email || '').toLowerCase())
+          .filter(Boolean),
+      )
+      const suppressedSet = new Set(
+        (suppressed || []).map((s) => (s.email || '').toLowerCase()),
+      )
+      const dups = rows.filter((r) => {
+        const em = r.contact_email.toLowerCase()
+        return (
+          existingNames.has(r.store_name.toLowerCase()) ||
+          (em && existingEmails.has(em)) ||
+          (em && suppressedSet.has(em))
+        )
+      }).length
+      setDupCount(dups)
+    } catch {
+      setDupCount(null)
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        className="w-full max-w-2xl bg-white rounded-2xl border border-[#f0f0f0] shadow-xl overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#f0f0f0]">
+          <h3 className="text-[15px] font-semibold text-[#1a1a1a]">Importer un CSV de prospects</h3>
+          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#fafafa] text-[#71717a]">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+          <p className="text-[12px] text-[#71717a]">
+            Colonnes attendues (ligne d'en-tête) : <strong>store_name</strong> (requis),
+            store_url, contact_email, contact_name. Colonnes en trop tolérées.
+          </p>
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            onChange={handleFile}
+            className="block w-full text-[12px] text-[#1a1a1a] file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-[#003725] file:text-white file:text-[12px] file:font-semibold file:cursor-pointer"
+          />
+          <div>
+            <label className="block text-[12px] font-semibold text-[#1a1a1a] mb-1.5">Ou coller le CSV ici</label>
+            <textarea
+              value={raw}
+              onChange={(e) => {
+                setRaw(e.target.value)
+                ingest(e.target.value)
+              }}
+              rows={5}
+              placeholder="store_name,store_url,contact_email,contact_name&#10;Le Slip Français,https://leslipfrancais.fr,contact@lsf.fr,Jean Dupont"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[12px] font-mono text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
+            />
+          </div>
+
+          {error && (
+            <div className="text-[12px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {error}
+            </div>
+          )}
+
+          {parsed.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[12px] font-semibold text-[#1a1a1a]">
+                  {parsed.length} ligne{parsed.length > 1 ? 's' : ''} détectée{parsed.length > 1 ? 's' : ''}
+                </span>
+                <span className="text-[12px] text-amber-600">
+                  {checking
+                    ? 'Vérification doublons…'
+                    : dupCount != null
+                      ? `${dupCount} ignoré(s) (doublon / désinscrit)`
+                      : ''}
+                </span>
+              </div>
+              <div className="border border-[#f0f0f0] rounded-xl overflow-hidden">
+                <table className="w-full text-[12px]">
+                  <thead className="bg-[#fafafa]">
+                    <tr>
+                      <th className="text-left px-3 py-2 font-semibold text-[#71717a]">Boutique</th>
+                      <th className="text-left px-3 py-2 font-semibold text-[#71717a]">Email</th>
+                      <th className="text-left px-3 py-2 font-semibold text-[#71717a]">Contact</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {parsed.slice(0, 10).map((r, i) => (
+                      <tr key={i} className="border-t border-[#f0f0f0]">
+                        <td className="px-3 py-1.5 text-[#1a1a1a]">{r.store_name}</td>
+                        <td className="px-3 py-1.5 text-[#71717a]">{r.contact_email || '—'}</td>
+                        <td className="px-3 py-1.5 text-[#71717a]">{r.contact_name || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {parsed.length > 10 && (
+                  <div className="px-3 py-2 text-[11px] text-[#71717a] bg-[#fafafa] border-t border-[#f0f0f0]">
+                    + {parsed.length - 10} autres lignes…
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <button
+            disabled={!parsed.length || isImporting}
+            onClick={() => onConfirm(parsed)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#003725] text-white text-[13px] font-semibold hover:bg-[#004d33] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isImporting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Import en cours…
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4" />
+                Importer {parsed.length || ''} prospect{parsed.length > 1 ? 's' : ''} en file
+              </>
+            )}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
 // ── Main view ────────────────────────────────────────────────────────
 
 export function AdminProspectAuditsView() {
   const queryClient = useQueryClient()
   const [showNewModal, setShowNewModal] = useState(false)
+  const [showCsvModal, setShowCsvModal] = useState(false)
   const [expandedId, setExpandedId] = useState(null)
   const [search, setSearch] = useState('')
+  const [batchToast, setBatchToast] = useState(null)
+  const [lastBatchId, setLastBatchId] = useState(null)
 
   // Fetch all audits
   const { data: audits = [], isLoading } = useQuery({
@@ -348,6 +648,69 @@ export function AdminProspectAuditsView() {
     },
   })
 
+  // CSV bulk import → queued rows with a shared batch_id
+  const importCsv = useMutation({
+    mutationFn: async (rows) => {
+      const batchId = `batch_${Date.now()}`
+      const payload = rows.map((r) => ({
+        store_name: r.store_name,
+        store_url: r.store_url || null,
+        contact_email: r.contact_email || null,
+        contact_name: r.contact_name || null,
+        report_token: genReportToken(),
+        pipeline_status: 'queued',
+        batch_id: batchId,
+        email_status: 'pending',
+        support_score: 0,
+        created_at: new Date().toISOString(),
+      }))
+      const { error } = await supabase.from('prospect_audits').insert(payload)
+      if (error) throw new Error(error.message)
+      return { batchId, count: payload.length }
+    },
+    onSuccess: ({ batchId, count }) => {
+      queryClient.invalidateQueries({ queryKey: ['prospect-audits'] })
+      setShowCsvModal(false)
+      setLastBatchId(batchId)
+      setBatchToast({ type: 'success', msg: `${count} prospect(s) importé(s) en file.` })
+    },
+  })
+
+  // Launch the batch runner (processes ≤25 queued per invocation)
+  const runBatch = useMutation({
+    mutationFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/leads/audit-batch-run', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify(lastBatchId ? { batch_id: lastBatchId } : {}),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Erreur serveur' }))
+        throw new Error(err.error || `Erreur ${res.status}`)
+      }
+      return res.json()
+    },
+    onSuccess: (stats) => {
+      queryClient.invalidateQueries({ queryKey: ['prospect-audits'] })
+      setBatchToast({
+        type: 'success',
+        msg: `Batch: ${stats.emailed} emailé(s), ${stats.skipped} ignoré(s), ${stats.failed} échec(s). ${
+          stats.remaining_queued > 0 ? `Encore ${stats.remaining_queued} en file.` : 'File vide.'
+        }`,
+        remaining: stats.remaining_queued,
+      })
+    },
+    onError: (e) => {
+      setBatchToast({ type: 'error', msg: e.message || 'Erreur batch' })
+    },
+  })
+
+  const queuedCount = audits.filter(a => a.pipeline_status === 'queued').length
+
   // Filter
   const filtered = audits.filter(a => {
     if (!search) return true
@@ -375,13 +738,38 @@ export function AdminProspectAuditsView() {
           <h2 className="text-[30px] font-bold text-[#1a1a1a]">Audits Prospects</h2>
           <p className="text-[#71717a] text-sm">Scrape les avis, analyse avec l'IA, envoie un cold email personnalisé.</p>
         </div>
-        <button
-          onClick={() => setShowNewModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#003725] text-white text-[13px] font-semibold hover:bg-[#004d33] transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Nouvel audit
-        </button>
+        <div className="flex items-center gap-2">
+          {queuedCount > 0 && (
+            <button
+              onClick={() => runBatch.mutate()}
+              disabled={runBatch.isPending}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-[13px] font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {runBatch.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              {batchToast?.remaining > 0
+                ? `Encore ${batchToast.remaining} en file — relancer`
+                : `Lancer le batch (${queuedCount} en file)`}
+            </button>
+          )}
+          <button
+            onClick={() => setShowCsvModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#003725] text-[#003725] text-[13px] font-semibold hover:bg-[#003725]/5 transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            Importer CSV
+          </button>
+          <button
+            onClick={() => setShowNewModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#003725] text-white text-[13px] font-semibold hover:bg-[#004d33] transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Nouvel audit
+          </button>
+        </div>
       </div>
 
       {/* Stats row */}
@@ -434,10 +822,11 @@ export function AdminProspectAuditsView() {
         ) : (
           <div>
             {/* Header */}
-            <div className="grid grid-cols-[1fr_140px_80px_100px_120px_80px] gap-2 px-6 py-3 border-b border-[#f0f0f0] bg-[#fafafa]">
+            <div className="grid grid-cols-[1fr_140px_80px_100px_90px_120px_80px] gap-2 px-6 py-3 border-b border-[#f0f0f0] bg-[#fafafa]">
               <span className="text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Boutique</span>
               <span className="text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Email</span>
               <span className="text-[11px] font-bold text-[#71717a] uppercase tracking-wider text-center">Score</span>
+              <span className="text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Pipeline</span>
               <span className="text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Statut</span>
               <span className="text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Date</span>
               <span className="text-[11px] font-bold text-[#71717a] uppercase tracking-wider text-center">Actions</span>
@@ -447,7 +836,7 @@ export function AdminProspectAuditsView() {
             {filtered.map((audit) => (
               <div key={audit.id}>
                 <div
-                  className="grid grid-cols-[1fr_140px_80px_100px_120px_80px] gap-2 px-6 py-3 border-b border-[#f0f0f0] hover:bg-[#fafafa] cursor-pointer transition-colors items-center"
+                  className="grid grid-cols-[1fr_140px_80px_100px_90px_120px_80px] gap-2 px-6 py-3 border-b border-[#f0f0f0] hover:bg-[#fafafa] cursor-pointer transition-colors items-center"
                   onClick={() => setExpandedId(expandedId === audit.id ? null : audit.id)}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -467,6 +856,7 @@ export function AdminProspectAuditsView() {
                     </div>
                     <div className="text-[10px] text-[#71717a]">{audit.total_reviews || 0} avis</div>
                   </div>
+                  <div><PipelineBadge status={audit.pipeline_status} /></div>
                   <StatusBadge status={audit.email_status} />
                   <div className="text-[12px] text-[#71717a]">
                     {new Date(audit.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
@@ -511,7 +901,44 @@ export function AdminProspectAuditsView() {
             isLoading={runAudit.isPending}
           />
         )}
+        {showCsvModal && (
+          <CsvImportModal
+            onClose={() => setShowCsvModal(false)}
+            onConfirm={(rows) => importCsv.mutate(rows)}
+            isImporting={importCsv.isPending}
+          />
+        )}
       </AnimatePresence>
+
+      {/* Batch / import toast */}
+      {batchToast && (
+        <div
+          className={`fixed bottom-4 right-4 z-50 px-4 py-3 rounded-xl text-[13px] font-medium shadow-lg border ${
+            batchToast.type === 'error'
+              ? 'bg-red-50 border-red-200 text-red-700'
+              : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+          }`}
+        >
+          {batchToast.type === 'error' ? (
+            <AlertTriangle className="w-4 h-4 inline mr-2" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 inline mr-2" />
+          )}
+          {batchToast.msg}
+          <button
+            onClick={() => setBatchToast(null)}
+            className="ml-3 opacity-60 hover:opacity-100"
+          >
+            <X className="w-3.5 h-3.5 inline" />
+          </button>
+        </div>
+      )}
+      {importCsv.isError && (
+        <div className="fixed bottom-4 right-4 z-50 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-[13px] font-medium shadow-lg">
+          <AlertTriangle className="w-4 h-4 inline mr-2" />
+          {importCsv.error?.message || 'Erreur import CSV'}
+        </div>
+      )}
 
       {/* Error toasts */}
       {runAudit.isError && (
