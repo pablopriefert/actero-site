@@ -15,14 +15,16 @@ import { supabase } from '../../lib/supabase'
  * Props:
  *   - jobId       (required) — UUID of the e2b_jobs row
  *   - onComplete  (optional) — called once when status flips to 'completed'
+ *   - onFailed    (optional) — called once when status flips to 'failed'/'timeout'
  *   - compact     (optional) — when true, renders a slim banner instead of card
  */
-export function OnboardingProgress({ jobId, onComplete, compact = false }) {
+export function OnboardingProgress({ jobId, onComplete, onFailed, compact = false }) {
   const [job, setJob] = useState(null)
   const [error, setError] = useState(null)
   const [dismissed, setDismissed] = useState(false)
   const [hasCompleted, setHasCompleted] = useState(false)
   const completedRef = useRef(false)
+  const failedRef = useRef(false)
 
   const fetchJob = useCallback(async () => {
     if (!jobId) return
@@ -50,10 +52,15 @@ export function OnboardingProgress({ jobId, onComplete, compact = false }) {
         setHasCompleted(true)
         if (typeof onComplete === 'function') onComplete(data)
       }
+
+      if (['failed', 'timeout'].includes(data.status) && !failedRef.current) {
+        failedRef.current = true
+        if (typeof onFailed === 'function') onFailed(data)
+      }
     } catch (err) {
       setError(err.message || 'Network error')
     }
-  }, [jobId, onComplete])
+  }, [jobId, onComplete, onFailed])
 
   /* eslint-disable react-hooks/set-state-in-effect -- async fetch + interval: setState is inside awaited callback in fetchJob */
   useEffect(() => {

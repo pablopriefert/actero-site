@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url'
 import { Sandbox } from '@e2b/code-interpreter'
 import { createClient } from '@supabase/supabase-js'
 import { captureError } from './sentry.js'
+import { notifyOnboardingFailure } from './notify-onboarding.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -228,6 +229,23 @@ async function markJobFailed(jobId, errorMessage) {
         completed_at: new Date().toISOString(),
       })
       .eq('id', jobId)
+
+    // Alert the internal team for onboarding failures so a stuck merchant
+    // never goes unnoticed. Fire-and-forget — never block the caller.
+    const { data: failed } = await supabase
+      .from('e2b_jobs')
+      .select('job_type, client_id, payload')
+      .eq('id', jobId)
+      .maybeSingle()
+    if (failed?.job_type === 'shopify_onboard') {
+      notifyOnboardingFailure({
+        jobId,
+        clientId: failed.client_id,
+        shopDomain: failed.payload?.shop_domain,
+        status: 'failed',
+        error: errorMessage,
+      }).catch(() => {})
+    }
   } catch (err) {
     console.error('[e2b-runner] markJobFailed error:', err)
   }

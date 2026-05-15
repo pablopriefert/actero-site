@@ -10,6 +10,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { withSentry } from '../lib/sentry.js'
+import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -26,6 +27,10 @@ async function handler(req, res) {
     res.setHeader('Allow', 'POST')
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(`gorgias-pdf:${ip}`, 10, 60 * 60 * 1000)
+  if (!rl.allowed) return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' })
 
   const { email, tickets, aiPercent, source } = req.body || {}
 

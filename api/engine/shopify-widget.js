@@ -59,8 +59,36 @@ async function handler(req, res) {
     const { asset } = await assetRes.json()
     let content = asset.value
 
+    // Resolve a real widget API key (same precedence as the widget endpoint).
+    // Embedding clients.id directly is the legacy lower-trust path — only
+    // fall back to it if the client has no key at all (logged for migration
+    // tracking). New/re-injected themes now ship a proper rotating key.
+    let widgetKey = null
+    const { data: apiKeyRow } = await supabase
+      .from('client_api_keys')
+      .select('key_value')
+      .eq('client_id', client_id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (apiKeyRow?.key_value) {
+      widgetKey = apiKeyRow.key_value
+    } else {
+      const { data: settingsRow } = await supabase
+        .from('client_settings')
+        .select('widget_api_key')
+        .eq('client_id', client_id)
+        .maybeSingle()
+      widgetKey = settingsRow?.widget_api_key || null
+    }
+    if (!widgetKey) {
+      console.warn(`[shopify-widget] No api_key for client ${client_id} — embedding clients.id (legacy fallback). Backfill a widget_api_key to remove this.`)
+      widgetKey = client_id
+    }
+
     const cacheBuster = Date.now()
-    const widgetScript = `\n${WIDGET_TAG}\n<script src="https://actero.fr/widget.js?v=${cacheBuster}" data-actero-key="${client_id}"></script>\n${WIDGET_TAG}`
+    const widgetScript = `\n${WIDGET_TAG}\n<script src="https://actero.fr/widget.js?v=${cacheBuster}" data-actero-key="${widgetKey}"></script>\n${WIDGET_TAG}`
 
     if (action === 'install') {
       // Check if already installed — update the widget script to latest version

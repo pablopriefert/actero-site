@@ -3,12 +3,20 @@ import { CheckCircle, Zap, Loader2, ArrowRight } from "lucide-react";
 import { trackEvent } from "../lib/analytics";
 import { OnboardingProgress } from "../components/dashboard/OnboardingProgress";
 import { SEO } from "../components/SEO";
+import { supabase } from "../lib/supabase";
 
 export function ShopifySuccessPage({ onNavigate }) {
   const params = new URLSearchParams(window.location.search);
   const shop = params.get("shop") || "votre boutique";
   const clientId = params.get("client_id");
-  const onboardingJobId = params.get("onboarding_job");
+  const initialJobId = params.get("onboarding_job");
+  const spawnFailed = params.get("onboarding_failed") === "1";
+  const [onboardingJobId, setOnboardingJobId] = useState(initialJobId);
+  const [retrying, setRetrying] = useState(false);
+  const [retryError, setRetryError] = useState(null);
+  // True when the OAuth callback could not even spawn the job, OR a retry has
+  // not yet produced a fresh job id.
+  const [onboardingFailed, setOnboardingFailed] = useState(spawnFailed);
 
   // Analytics — fire once per landing on /shopify-success (= post-OAuth callback)
   useEffect(() => {
@@ -21,9 +29,46 @@ export function ShopifySuccessPage({ onNavigate }) {
   const [activated, setActivated] = useState(false);
   const [error, setError] = useState(null);
   // Gate the "Activer mes automations" card until the OnboardingProgress component
-  // reports completion. Without a job id, treat onboarding as already done so the
-  // card still appears (legacy paths that don't pass an onboarding_job query param).
-  const [onboardingDone, setOnboardingDone] = useState(!onboardingJobId);
+  // reports completion. Without a job id (and no spawn failure), treat onboarding
+  // as already done so the card still appears (legacy paths that don't pass an
+  // onboarding_job query param).
+  const [onboardingDone, setOnboardingDone] = useState(!initialJobId && !spawnFailed);
+
+  const handleRetryOnboarding = async () => {
+    if (!clientId) {
+      setRetryError("Identifiant client manquant. Contactez support@actero.fr.");
+      return;
+    }
+    setRetrying(true);
+    setRetryError(null);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      const res = await fetch("/api/jobs/shopify-onboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({ clientId, shopDomain: shop }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok && res.status !== 409) {
+        throw new Error(data.error || `Erreur ${res.status}`);
+      }
+      // 409 means a job is already in progress — reuse its id.
+      if (data.jobId) {
+        setOnboardingJobId(data.jobId);
+        setOnboardingFailed(false);
+      } else {
+        throw new Error("Aucun identifiant de tâche renvoyé");
+      }
+    } catch (err) {
+      setRetryError(err.message || "Échec du relancement");
+    } finally {
+      setRetrying(false);
+    }
+  };
 
   const handleActivate = async () => {
     if (!clientId) {
@@ -83,11 +128,42 @@ export function ShopifySuccessPage({ onNavigate }) {
             <OnboardingProgress
               jobId={onboardingJobId}
               onComplete={() => setOnboardingDone(true)}
+              onFailed={() => setOnboardingFailed(true)}
             />
           </div>
         )}
 
-        {!onboardingDone ? (
+        {onboardingFailed ? (
+          <div className="bg-white border border-red-100 rounded-2xl p-6 mb-6">
+            <p className="text-sm font-semibold text-[#1a1a1a] mb-2">
+              La synchronisation a échoué
+            </p>
+            <p className="text-xs text-[#71717a] leading-relaxed mb-4">
+              Le démarrage de l'import de votre boutique n'a pas abouti. Notre
+              équipe a été alertée. Vous pouvez relancer la synchronisation
+              maintenant.
+            </p>
+            {retryError && (
+              <p className="text-sm text-red-600 mb-4 bg-red-50 border border-red-100 rounded-xl p-3">
+                {retryError}
+              </p>
+            )}
+            <button
+              onClick={handleRetryOnboarding}
+              disabled={retrying}
+              className="w-full px-6 py-3 bg-[#003725] hover:bg-[#0d5430] text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {retrying ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Relancement…
+                </>
+              ) : (
+                "Réessayer la synchronisation"
+              )}
+            </button>
+          </div>
+        ) : !onboardingDone ? (
           <div className="bg-white border border-[#f0f0f0] rounded-2xl p-6 mb-6">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Loader2 className="w-4 h-4 text-[#003725] animate-spin" />

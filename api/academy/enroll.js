@@ -1,4 +1,5 @@
 import { withSentry } from '../lib/sentry.js'
+import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
@@ -58,6 +59,10 @@ async function handler(req, res) {
   }
   res.setHeader('Access-Control-Allow-Origin', process.env.SITE_URL || 'https://actero.fr');
   res.setHeader('Vary', 'Origin');
+
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(`academy-enroll:${ip}`, 10, 60 * 60 * 1000)
+  if (!rl.allowed) return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' })
 
   try {
     const { email, course_id } = req.body || {};

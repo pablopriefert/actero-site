@@ -15,6 +15,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { withCronMonitor } from '../lib/cron-monitor.js'
 import { killSandbox, listActiveSandboxes } from '../lib/e2b-runner.js'
+import { notifyOnboardingFailure } from '../lib/notify-onboarding.js'
 
 export const maxDuration = 60
 
@@ -35,7 +36,7 @@ async function handler(req, res) {
   // 1. Time-out jobs whose deadline has passed.
   const { data: expired, error: expiredErr } = await supabase
     .from('e2b_jobs')
-    .select('id, sandbox_id')
+    .select('id, sandbox_id, job_type, client_id, payload')
     .lt('expires_at', now)
     .in('status', ['queued', 'running'])
     .limit(50)
@@ -58,6 +59,18 @@ async function handler(req, res) {
         })
         .eq('id', job.id)
       stats.timed_out++
+
+      // Surface onboarding timeouts to the internal team — the merchant is
+      // otherwise stuck waiting for a "ready" signal that will never come.
+      if (job.job_type === 'shopify_onboard') {
+        notifyOnboardingFailure({
+          jobId: job.id,
+          clientId: job.client_id,
+          shopDomain: job.payload?.shop_domain,
+          status: 'timeout',
+          error: 'Sandbox exceeded its time budget',
+        }).catch(() => {})
+      }
     } catch (err) {
       console.error(`[process-e2b-jobs] failed to timeout job ${job.id}:`, err)
       stats.errors++

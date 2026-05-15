@@ -195,6 +195,7 @@ async function handler(req, res) {
   // builds the initial knowledge base. We do not block the OAuth response —
   // the dashboard polls /api/jobs/:id for live progress.
   let onboardingJobId = null;
+  let onboardingSpawnFailed = false;
   if (onboardedClientId && process.env.E2B_API_KEY) {
     try {
       const { jobId } = await spawnJob({
@@ -210,8 +211,11 @@ async function handler(req, res) {
       });
       onboardingJobId = jobId;
     } catch (err) {
-      // Don't block the OAuth callback — the dashboard will let the merchant
-      // re-trigger onboarding manually if the spawn failed.
+      // Don't block the OAuth callback — but flag the failure so the success
+      // page surfaces a retry instead of pretending onboarding is done.
+      // (Slack alerting is owned by markJobFailed in e2b-runner when the job
+      // row exists; this flag covers the merchant-facing UX.)
+      onboardingSpawnFailed = true;
       console.error('Failed to spawn onboarding job:', err.message);
       captureError(err, {
         endpoint: '/api/shopify/callback',
@@ -233,6 +237,7 @@ async function handler(req, res) {
   const params = new URLSearchParams({ shop });
   if (onboardedClientId) params.set('client_id', onboardedClientId);
   if (onboardingJobId) params.set('onboarding_job', onboardingJobId);
+  if (onboardingSpawnFailed) params.set('onboarding_failed', '1');
   const redirectUrl = `/shopify-success?${params.toString()}`;
 
   res.redirect(302, redirectUrl);

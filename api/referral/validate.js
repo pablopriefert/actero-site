@@ -1,4 +1,5 @@
 import { withSentry } from '../lib/sentry.js'
+import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
@@ -11,6 +12,10 @@ async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(`referral-validate:${ip}`, 30, 60 * 60 * 1000)
+  if (!rl.allowed) return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' })
 
   // Internal only — fail closed if no secret is configured.
   const internalSecret = process.env.INTERNAL_API_SECRET;

@@ -1,4 +1,5 @@
 import { withSentry } from '../lib/sentry.js'
+import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
@@ -23,6 +24,10 @@ async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
+
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(`startup-apply:${ip}`, 5, 60 * 60 * 1000)
+  if (!rl.allowed) return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' })
 
   try {
     const { boutique_name, url, email, revenue, platform, motivation } = req.body || {};
