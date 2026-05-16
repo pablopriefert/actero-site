@@ -165,22 +165,20 @@ export const GlassHero = ({ onNavigate }) => {
                 letterSpacing: '-0.02em',
               }}
             >
-              <span className="italic text-[#716D5C]">L'agent SAV Shopify</span>{' '}
-              qui résout{' '}
+              Ne répondez{' '}
+              <span className="italic text-[#716D5C]">plus jamais</span>{' '}
+              à{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#003725] to-[#14A85C]">
-                82%
-              </span>{' '}
-              des tickets
-              <br />
-              — en français, hébergé en UE.
+                «&nbsp;où est ma commande&nbsp;?&nbsp;»
+              </span>
             </h1>
           </FadeInUp>
 
-          {/* Subtitle — 3 piliers explicit */}
+          {/* Subtitle — what it actually does */}
           <FadeInUp delay={0.1} className="mb-2">
             <p className="text-[15px] md:text-base text-[#5A5A5A] leading-[1.55] max-w-xl mx-auto">
-              L'agent IA qui gère vos tickets SAV, relance les paniers abandonnés et automatise
-              vos workflows e-commerce — 24/7, en français, avec le ton de votre marque.
+              L'agent IA qui gère tout votre SAV Shopify à votre place — suivi commande,
+              retours, réclamations. 24/7, en français, dans le ton de votre marque.
             </p>
           </FadeInUp>
 
