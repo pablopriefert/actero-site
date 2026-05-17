@@ -1,11 +1,18 @@
 /**
- * Knowledge Base — URL Import via SerpAPI
- * Scrapes a URL's content and uses Claude to extract FAQ pairs.
+ * Knowledge Base — URL Import via Tavily Extract
+ *
+ * Tavily is purpose-built for this: URL -> clean, LLM-ready content
+ * (handles JS-rendered + WAF-protected pages). Far better signal than the
+ * old SerpAPI `site:` snippet scrape (which only returned Google search
+ * snippets, not the actual page body). Claude then turns the clean content
+ * into structured KB entries.
+ *
+ * Fallback: a best-effort raw fetch + HTML strip if Tavily is unavailable.
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
-const SERPAPI_KEY = process.env.SERPAPI_KEY
+const TAVILY_API_KEY = process.env.TAVILY_API_KEY
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
 const supabase = createClient(
@@ -26,30 +33,37 @@ async function handler(req, res) {
   if (!client_id) return res.status(400).json({ error: 'client_id requis' })
 
   try {
-    // 1. Scrape the URL via SerpAPI (Google cached version)
+    // 1. Extract clean, LLM-ready content via Tavily Extract
     let pageContent = ''
 
-    if (SERPAPI_KEY) {
-      // Use SerpAPI to get the page content via Google search
-      const searchUrl = `https://serpapi.com/search.json?q=site:${encodeURIComponent(url)}&api_key=${SERPAPI_KEY}&hl=fr`
-      const searchRes = await fetch(searchUrl)
-      const searchData = await searchRes.json()
-
-      // Extract snippets from organic results
-      if (searchData.organic_results) {
-        pageContent = searchData.organic_results
-          .slice(0, 10)
-          .map(r => `${r.title || ''}\n${r.snippet || ''}`)
-          .join('\n\n')
-      }
-
-      // Also try to get the knowledge graph if available
-      if (searchData.knowledge_graph?.description) {
-        pageContent = searchData.knowledge_graph.description + '\n\n' + pageContent
+    if (TAVILY_API_KEY) {
+      try {
+        const tavilyRes = await fetch('https://api.tavily.com/extract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            api_key: TAVILY_API_KEY,
+            urls: [url],
+            extract_depth: 'advanced', // handles JS-rendered / protected pages
+            format: 'markdown',
+          }),
+          signal: AbortSignal.timeout(20000),
+        })
+        if (tavilyRes.ok) {
+          const tavilyData = await tavilyRes.json()
+          const result = tavilyData?.results?.[0]
+          if (result?.raw_content) {
+            pageContent = String(result.raw_content).trim().substring(0, 12000)
+          }
+        } else {
+          console.warn(`[knowledge/import-url] Tavily extract ${tavilyRes.status}`)
+        }
+      } catch (e) {
+        console.warn('[knowledge/import-url] Tavily extract failed:', e?.message)
       }
     }
 
-    // Fallback: direct fetch if SerpAPI didn't return content
+    // Fallback: best-effort raw fetch if Tavily is unavailable / returned nothing
     if (!pageContent || pageContent.trim().length < 100) {
       try {
         const directRes = await fetch(url, {
@@ -109,7 +123,7 @@ Reponds UNIQUEMENT en JSON valide:
 ]
 
 Pas de markdown, pas de commentaires, juste le JSON.`,
-        messages: [{ role: 'user', content: `Contenu de la page ${url}:\n\n${pageContent.substring(0, 6000)}` }],
+        messages: [{ role: 'user', content: `Contenu de la page ${url}:\n\n${pageContent.substring(0, 9000)}` }],
       }),
     })
 
