@@ -222,7 +222,7 @@ export const AITeamBuilder = ({ onNavigate }) => {
                                 <motion.button
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    onClick={() => onNavigate('/audit')}
+                                    onClick={() => onNavigate('/signup')}
                                     className="w-full mt-6 py-4 rounded-xl font-bold text-sm bg-white text-black hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 relative z-10"
                                 >
                                     Déployer cette infrastructure <ArrowRight className="w-4 h-4" />

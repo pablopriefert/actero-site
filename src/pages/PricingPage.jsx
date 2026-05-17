@@ -510,7 +510,7 @@ export const PricingPage = ({ onNavigate }) => {
       />
 
       <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
-        <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/signup")} trackEvent={trackEvent} />
+        <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
         <main className="pt-32 pb-24 px-6">
           <div className="max-w-7xl mx-auto">

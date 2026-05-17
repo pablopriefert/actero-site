@@ -170,7 +170,7 @@ export const FaqPage = ({ onNavigate }) => {
         schemaData={faqSchema}
       />
     <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
-      <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} trackEvent={trackEvent} />
+      <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
       <main className="pt-32 pb-24 px-6">
         <div className="max-w-4xl mx-auto">
@@ -252,7 +252,7 @@ export const FaqPage = ({ onNavigate }) => {
             <p className="text-[#716D5C] mb-8 max-w-md mx-auto">
               Notre équipe d'ingénieurs est disponible pour discuter de votre architecture spécifique.
             </p>
-            <ButtonColorful onClick={() => onNavigate("/audit")}>
+            <ButtonColorful onClick={() => onNavigate("/signup")}>
               Lancer un scan gratuit <ArrowRight className="ml-2 w-4 h-4" />
             </ButtonColorful>
           </div>

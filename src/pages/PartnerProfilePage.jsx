@@ -58,7 +58,7 @@ export const PartnerProfilePage = ({ slug, onNavigate }) => {
   if (!partner) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate('/audit')} />
+        <Navbar onNavigate={onNavigate} />
         <div className="pt-32 text-center px-6">
           <h1 className="text-3xl font-bold mb-4">Partenaire introuvable</h1>
           <p className="text-[#716D5C] mb-6">Ce profil n existe pas ou n est plus public.</p>
@@ -84,7 +84,7 @@ export const PartnerProfilePage = ({ slug, onNavigate }) => {
         <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#F9F7F1] to-white" />
 
         <div className="relative z-10 w-full">
-          <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate('/audit')} />
+          <Navbar onNavigate={onNavigate} />
 
           <main className="pt-32 pb-20 px-6">
             <div className="max-w-4xl mx-auto">

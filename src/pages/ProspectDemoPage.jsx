@@ -247,7 +247,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
             Simulation live — {config.name} ({config.vertical})
           </p>
           <button
-            onClick={() => onNavigate('/audit')}
+            onClick={() => onNavigate('/signup')}
             className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#003725] text-white text-xs font-bold hover:bg-[#0A4F2C] transition-all"
           >
             Obtenir mon vrai dashboard <ArrowRight className="w-3.5 h-3.5" />
@@ -408,7 +408,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
                     <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">Multiplicateur ROI</p>
                   </div>
                   <button
-                    onClick={() => onNavigate('/audit')}
+                    onClick={() => onNavigate('/signup')}
                     className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#003725] text-white font-bold hover:bg-[#0A4F2C] transition-all text-sm"
                   >
                     Voir mon vrai potentiel <ArrowRight className="w-4 h-4" />

@@ -76,7 +76,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
         <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#F9F7F1] to-white" />
 
         <div className="relative z-10 w-full">
-          <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate('/audit')} />
+          <Navbar onNavigate={onNavigate} />
 
           <main className="pt-32 pb-20 px-6">
             <div className="max-w-2xl mx-auto">

@@ -57,8 +57,7 @@ import {
   ThumbsDown,
   Brain,
   Wrench,
-  Layers,
-  Megaphone
+  Layers
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { AdminClientSettingsModal } from '../components/admin/AdminClientSettingsModal'
@@ -111,7 +110,6 @@ const AdminAITerminal = lazy(() => import('../components/admin/AdminAITerminal')
 const AdminPartnerTokensView = lazy(() => import('../components/admin/AdminPartnerTokensView').then(m => ({ default: m.AdminPartnerTokensView })))
 const AdminErrorReportsView = lazy(() => import('../components/admin/AdminErrorReportsView').then(m => ({ default: m.AdminErrorReportsView })))
 const AdminActionLogsView = lazy(() => import('../components/admin/AdminActionLogsView').then(m => ({ default: m.AdminActionLogsView })))
-const AdminProspectAuditsView = lazy(() => import('../components/admin/AdminProspectAuditsView').then(m => ({ default: m.AdminProspectAuditsView })))
 const AdminClientDetailView = lazy(() => import('../components/admin/AdminClientDetailView').then(m => ({ default: m.AdminClientDetailView })))
 const AdminMorningBriefing = lazy(() => import('../components/admin/AdminMorningBriefing').then(m => ({ default: m.AdminMorningBriefing })))
 import { KpiCard, KpiRow } from '../components/ui/KpiCard'
@@ -283,7 +281,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/manual-review") return "manual-review";
     if (route === "/admin/playbooks") return "playbooks";
     if (route === "/admin/action-logs") return "action-logs";
-    if (route === "/admin/prospect-audits") return "prospect-audits";
     if (route === "/admin/add-enterprise") return "add-enterprise";
     if (route === "/admin/stripe-setup") return "stripe-setup";
     if (route === "/admin/conversion-pipeline") return "conversion-pipeline";
@@ -505,7 +502,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
     { type: 'section', label: 'BUSINESS' },
     { id: 'clients', label: 'Clients', icon: Users },
-    { id: 'prospect-audits', label: 'Audits prospects', icon: Megaphone, badge: 'NEW', badgeColor: 'bg-violet-50 text-violet-600 border border-violet-200' },
     { id: 'mrr', label: 'Revenus', icon: DollarSign },
 
     { type: 'section', label: 'PLUS' },
@@ -1117,7 +1113,6 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "stripe-setup" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminStripeSetupView /></div>}
           {activeTab === "conversion-pipeline" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminConversionPipelineView /></div>}
           {activeTab === "action-logs" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminActionLogsView /></div>}
-          {activeTab === "prospect-audits" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminProspectAuditsView /></div>}
           {activeTab === "client-detail" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminClientDetailView /></div>}
 
           {activeTab === "requests" && (

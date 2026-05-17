@@ -1069,7 +1069,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
           canonical="/support"
         />
         <div className="relative min-h-screen bg-white font-sans text-[#262626]">
-          <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} />
+          <Navbar onNavigate={onNavigate} />
           <main className="pt-28 md:pt-36 pb-24 px-6">
             <div className="max-w-3xl mx-auto">
               {/* Back button */}
@@ -1145,7 +1145,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
         canonical="/support"
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626]">
-        <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} />
+        <Navbar onNavigate={onNavigate} />
 
         <main className="pt-28 md:pt-36 pb-24 px-6">
           <div className="max-w-4xl mx-auto">
@@ -1255,7 +1255,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
                   <Mail className="w-4 h-4" /> contact@actero.fr
                 </a>
                 <button
-                  onClick={() => onNavigate('/audit')}
+                  onClick={() => onNavigate('/signup')}
                   className="inline-flex items-center gap-2 px-6 py-3 text-[#003725] font-semibold underline underline-offset-4 decoration-[#003725]/40 hover:decoration-[#003725] transition-colors"
                 >
                   Reserver un audit gratuit <ArrowRight className="w-4 h-4" />

@@ -131,7 +131,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
                                 <h1 className="text-3xl font-bold tracking-tight mb-2">Bonjour, John</h1>
                                 <p className="text-gray-400">Voici l'impact de votre infrastructure IA sur les 7 derniers jours.</p>
                             </div>
-                            <button onClick={() => onNavigate('/audit')} className="inline-flex items-center gap-2 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                            <button onClick={() => onNavigate('/signup')} className="inline-flex items-center gap-2 bg-emerald-500 text-black px-6 py-3 rounded-xl font-bold hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.3)]">
                                 Passer à l'action en vrai <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
@@ -256,7 +256,7 @@ export const DemoDashboardPage = ({ onNavigate }) => {
                         Ce simulateur n'est qu'un aperçu. Réservez un audit gratuit pour voir ce que l'IA peut faire sur votre propre infrastructure.
                     </p>
                     <button
-                        onClick={() => onNavigate('/audit')}
+                        onClick={() => onNavigate('/signup')}
                         className="inline-flex items-center gap-2 bg-emerald-500 text-black px-8 py-4 rounded-xl font-bold hover:bg-emerald-400 transition-colors shadow-[0_0_30px_rgba(16,185,129,0.3)] text-lg"
                     >
                         Demander mon audit gratuit <ArrowRight className="w-5 h-5" />

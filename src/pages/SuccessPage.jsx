@@ -109,7 +109,7 @@ export function SuccessPage({ onNavigate }) {
             <p className="text-[11px] text-[#9ca3af] mt-0.5">Réponse sous 2h</p>
           </a>
           <a
-            href="/audit"
+            href="/signup"
             className="bg-white rounded-xl border border-[#f0f0f0] p-5 hover:border-cta/30 transition-colors group"
           >
             <Zap className="w-5 h-5 text-cta mx-auto mb-2" />

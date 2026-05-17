@@ -180,7 +180,7 @@ export const PromptLibraryPage = ({ onNavigate }) => {
                         <h3 className="text-white font-bold text-lg mb-2 relative z-10">Trop complexe à déployer ?</h3>
                         <p className="text-gray-400 text-sm mb-4 max-w-xs relative z-10">Nos ingénieurs déploient ces systèmes directement dans votre stack existante.</p>
                         <button
-                            onClick={() => onNavigate('/audit')}
+                            onClick={() => onNavigate('/signup')}
                             className="text-sm font-bold bg-white text-black px-5 py-2.5 rounded-xl hover:bg-gray-200 transition-colors w-full flex items-center justify-center gap-2 relative z-10"
                         >
                             Auditer mon site <ArrowRight className="w-4 h-4" />

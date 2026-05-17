@@ -68,7 +68,7 @@ export const PrivacyPage = ({ onNavigate }) => {
         canonical="/confidentialite"
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626]">
-        <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate("/audit")} />
+        <Navbar onNavigate={onNavigate} />
 
         <main className="pt-28 md:pt-36 pb-24 px-6">
           <div className="max-w-3xl mx-auto">

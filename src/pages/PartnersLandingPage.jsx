@@ -115,7 +115,7 @@ export const PartnersLandingPage = ({ onNavigate }) => {
         </div>
 
         <div className="relative z-10 w-full">
-          <Navbar onNavigate={onNavigate} onAuditOpen={() => onNavigate('/audit')} />
+          <Navbar onNavigate={onNavigate} />
 
           <main>
             {/* HERO */}
