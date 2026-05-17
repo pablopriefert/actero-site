@@ -8,11 +8,15 @@
  * into structured KB entries.
  *
  * Fallback: a best-effort raw fetch + HTML strip if Tavily is unavailable.
+ *
+ * The Tavily + Claude pipeline lives in ../lib/kb-extract.js and is shared
+ * with the auto-crawl flow. This endpoint's request/response contract and
+ * the rows it inserts are unchanged.
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
+import { tavilyExtract, extractKbEntriesWithClaude } from '../lib/kb-extract.js'
 
-const TAVILY_API_KEY = process.env.TAVILY_API_KEY
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
 const supabase = createClient(
@@ -33,35 +37,9 @@ async function handler(req, res) {
   if (!client_id) return res.status(400).json({ error: 'client_id requis' })
 
   try {
-    // 1. Extract clean, LLM-ready content via Tavily Extract
-    let pageContent = ''
-
-    if (TAVILY_API_KEY) {
-      try {
-        const tavilyRes = await fetch('https://api.tavily.com/extract', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            api_key: TAVILY_API_KEY,
-            urls: [url],
-            extract_depth: 'advanced', // handles JS-rendered / protected pages
-            format: 'markdown',
-          }),
-          signal: AbortSignal.timeout(20000),
-        })
-        if (tavilyRes.ok) {
-          const tavilyData = await tavilyRes.json()
-          const result = tavilyData?.results?.[0]
-          if (result?.raw_content) {
-            pageContent = String(result.raw_content).trim().substring(0, 12000)
-          }
-        } else {
-          console.warn(`[knowledge/import-url] Tavily extract ${tavilyRes.status}`)
-        }
-      } catch (e) {
-        console.warn('[knowledge/import-url] Tavily extract failed:', e?.message)
-      }
-    }
+    // 1. Extract clean, LLM-ready content via Tavily Extract (shared lib).
+    //    tavilyExtract never throws — returns '' if unavailable / nothing.
+    let pageContent = await tavilyExtract([url], { perResultCap: 12000, totalCap: 12000 })
 
     // Fallback: best-effort raw fetch if Tavily is unavailable / returned nothing
     if (!pageContent || pageContent.trim().length < 100) {
@@ -95,67 +73,27 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'Impossible d\'extraire du contenu de cette URL. Verifiez qu\'elle est accessible.' })
     }
 
-    // 2. Use Claude to extract FAQ pairs
+    // 2. Use Claude to extract FAQ pairs (shared lib).
     if (!ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
     }
 
-    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        system: `Tu es un extracteur de contenu pour un agent de support client IA. A partir du contenu d'une page web, genere des entrees pour une base de connaissances.
-
-Genere entre 5 et 15 entrees, melange de:
-- FAQ (question/reponse) — categorie "faq"
-- Politiques (livraison, retour, remboursement) — categorie "policy"
-- Informations produit — categorie "product"
-
-Reponds UNIQUEMENT en JSON valide:
-[
-  {"category": "faq|policy|product", "title": "titre ou question", "content": "contenu detaille de la reponse"}
-]
-
-Pas de markdown, pas de commentaires, juste le JSON.`,
-        messages: [{ role: 'user', content: `Contenu de la page ${url}:\n\n${pageContent.substring(0, 9000)}` }],
-      }),
-    })
-
-    if (!claudeRes.ok) throw new Error(`Claude ${claudeRes.status}`)
-    const claudeData = await claudeRes.json()
-    let rawText = claudeData?.content?.[0]?.text || '[]'
-
-    // Clean Claude response — sometimes wraps JSON in ```json blocks
-    rawText = rawText
-      .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/\s*```$/i, '')
-      .trim()
-
-    // Try to extract JSON array from the response
-    const jsonMatch = rawText.match(/\[[\s\S]*\]/)
-    if (jsonMatch) rawText = jsonMatch[0]
-
     let entries
     try {
-      entries = JSON.parse(rawText)
-    } catch {
-      // Last resort: try to fix common JSON issues
-      try {
-        entries = JSON.parse(rawText.replace(/,\s*]/g, ']').replace(/,\s*}/g, '}'))
-      } catch {
+      // Single-URL path: no dedup (existingTitles: []) — preserves behaviour.
+      entries = await extractKbEntriesWithClaude({
+        content: pageContent,
+        sourceLabel: url,
+        existingTitles: [],
+      })
+    } catch (e) {
+      if (e.message === 'Erreur parsing des resultats') {
         return res.status(500).json({ error: 'Erreur parsing des resultats. Essayez une autre URL.' })
       }
-    }
-
-    if (!Array.isArray(entries) || entries.length === 0) {
-      return res.status(400).json({ error: 'Aucune entree extraite de cette page' })
+      if (e.message === 'Aucune entree extraite') {
+        return res.status(400).json({ error: 'Aucune entree extraite de cette page' })
+      }
+      throw e
     }
 
     // 3. Insert entries into knowledge base

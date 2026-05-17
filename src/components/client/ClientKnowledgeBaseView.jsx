@@ -453,6 +453,21 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
     onError: () => showToast('Erreur lors de la sauvegarde', 'error'),
   })
 
+  const validateMutation = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase
+        .from('client_knowledge_base')
+        .update({ needs_review: false })
+        .eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['knowledge-base', clientId] })
+      showToast('Entrée validée.')
+    },
+    onError: () => showToast('Erreur lors de la validation', 'error'),
+  })
+
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
       const { error } = await supabase
@@ -487,6 +502,8 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
     if (diff < 1440) return `il y a ${Math.round(diff / 60)}h`
     return `il y a ${Math.round(diff / 1440)}j`
   }
+
+  const reviewCount = entries.filter(e => e.needs_review === true).length
 
   const productLabel = clientType === 'immobilier' ? 'bien' : 'produit'
 
@@ -539,6 +556,16 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
           </div>
         </div>
       </div>
+
+      {/* Auto-crawl review banner */}
+      {reviewCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <p className="text-[13px] font-medium">
+            {reviewCount} entrée{reviewCount > 1 ? 's' : ''} importée{reviewCount > 1 ? 's' : ''} automatiquement de votre site — vérifiez-{reviewCount > 1 ? 'les' : 'la'} avant de vous y fier.
+          </p>
+        </div>
+      )}
 
       {/* Quick Actions: Import URL + File Upload + Q&A Builder */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -820,12 +847,28 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                                   Expire dans {daysLeft}j
                                 </span>
                               )}
+                              {entry.needs_review === true && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                  À vérifier
+                                </span>
+                              )}
                             </div>
                             <p className={`text-xs line-clamp-2 ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`}>
                               {entry.content}
                             </p>
                           </div>
-                          <ChevronRight className={`w-4 h-4 flex-shrink-0 mt-1 ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`} />
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {entry.needs_review === true && (
+                              <button
+                                onClick={(ev) => { ev.stopPropagation(); validateMutation.mutate(entry.id) }}
+                                disabled={validateMutation.isPending}
+                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition-colors disabled:opacity-50"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" /> Valider
+                              </button>
+                            )}
+                            <ChevronRight className={`w-4 h-4 mt-1 ${isLight ? 'text-[#71717a]' : 'text-[#71717a]'}`} />
+                          </div>
                         </div>
                       </motion.div>
                     )

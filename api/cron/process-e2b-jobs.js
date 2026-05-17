@@ -97,6 +97,47 @@ async function handler(req, res) {
     }
   }
 
+  // 2b. Auto-seed the KB from the merchant's storefront once the Shopify
+  //     onboarding job has completed. Fire-and-forget POST to crawl-site;
+  //     idempotency is enforced both by client_settings.kb_autocrawl_done
+  //     (checked here) and by the crawl-site endpoint itself (belt & braces).
+  try {
+    const { data: onboardJobs } = await supabase
+      .from('e2b_jobs')
+      .select('id, client_id, job_type')
+      .eq('status', 'completed')
+      .eq('job_type', 'shopify_onboard')
+      .not('client_id', 'is', null)
+      .gte('completed_at', new Date(Date.now() - 30 * 60_000).toISOString())
+      .limit(50)
+
+    for (const job of onboardJobs || []) {
+      try {
+        const { data: cs } = await supabase
+          .from('client_settings')
+          .select('kb_autocrawl_done')
+          .eq('client_id', job.client_id)
+          .maybeSingle()
+        if (cs?.kb_autocrawl_done === true) continue
+
+        const base = process.env.PUBLIC_API_URL || 'https://actero.fr'
+        // Fire-and-forget: a slow/broken crawl must never block the cron.
+        fetch(`${base}/api/knowledge/crawl-site`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.CRON_SECRET}`,
+          },
+          body: JSON.stringify({ client_id: job.client_id }),
+        }).catch(() => {})
+      } catch (err) {
+        console.warn(`[process-e2b-jobs] kb autocrawl trigger failed for job ${job.id}:`, err.message)
+      }
+    }
+  } catch (err) {
+    console.warn('[process-e2b-jobs] kb autocrawl scan failed:', err.message)
+  }
+
   // 3. Detect orphan sandboxes (alive in E2B but no matching active job row).
   try {
     const active = await listActiveSandboxes()

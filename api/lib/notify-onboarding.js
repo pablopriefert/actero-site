@@ -45,3 +45,37 @@ export async function notifyOnboardingFailure({
     return { sent: false, error: err.message }
   }
 }
+
+/**
+ * Lightweight Slack alert when the storefront auto-crawl (KB seeding from the
+ * merchant's site) fails. Non-blocking — never throws. Same webhook pattern.
+ */
+export async function notifyCrawlFailure({ clientId, storefrontUrl, error }) {
+  const url = process.env.SLACK_WEBHOOK_URL
+  if (!url) {
+    console.log('[notify-onboarding] Crawl alert skipped (SLACK_WEBHOOK_URL not set)')
+    return { sent: false, reason: 'not_configured' }
+  }
+
+  const text =
+    `⚠️ *KB auto-crawl failed*\n` +
+    `🏪 \`${storefrontUrl || 'unknown storefront'}\` — client \`${clientId || 'n/a'}\`\n` +
+    `📝 ${error || 'no error message'}\n` +
+    `_KB seeded from Shopify data only; merchant can still import manually._`
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
+    if (!res.ok) {
+      console.error('[notify-onboarding] Crawl Slack webhook non-OK:', res.status)
+      return { sent: false, status: res.status }
+    }
+    return { sent: true }
+  } catch (err) {
+    console.error('[notify-onboarding] Crawl exception:', err.message)
+    return { sent: false, error: err.message }
+  }
+}
