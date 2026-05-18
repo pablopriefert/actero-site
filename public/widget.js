@@ -10,8 +10,18 @@
   const apiKey = script?.getAttribute('data-actero-key')
   if (!apiKey) return console.warn('[Actero] Missing data-actero-key attribute')
 
-  const sessionId = 'actero_' + Math.random().toString(36).substring(2, 10)
+  // Stable session id across reloads (sessionStorage), so the thread restores
+  const SESSION_KEY = 'actero_session_' + apiKey
+  let sessionId
+  try {
+    sessionId = sessionStorage.getItem(SESSION_KEY)
+  } catch {}
+  if (!sessionId) {
+    sessionId = 'actero_' + Math.random().toString(36).substring(2, 10)
+    try { sessionStorage.setItem(SESSION_KEY, sessionId) } catch {}
+  }
   const STORAGE_KEY = 'actero_customer_' + apiKey
+  const THREAD_KEY = 'actero_thread_' + apiKey
   let isOpen = false
   let messages = []
   let customerEmail = null
@@ -50,6 +60,12 @@
       background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
       display: none; flex-direction: column; overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    @media (max-width: 480px) {
+      #actero-widget-panel {
+        bottom: 0; right: 0; left: 0; width: 100%; max-width: 100%;
+        height: 100dvh; max-height: 100dvh; border-radius: 0;
+      }
     }
     #actero-widget-panel.open { display: flex; }
     .actero-header {
@@ -101,13 +117,27 @@
       0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
       30% { opacity: 1; transform: translateY(-2px); }
     }
+    @media (prefers-reduced-motion: reduce) {
+      .actero-typing-dot { animation: none; opacity: 0.6; }
+      #actero-widget-btn { transition: none; }
+      #actero-widget-btn:hover { transform: none; }
+    }
+    .actero-msg-row {
+      display: flex; flex-direction: column; gap: 2px; max-width: 80%;
+    }
+    .actero-msg-row.user { align-self: flex-end; align-items: flex-end; }
+    .actero-msg-row.bot { align-self: flex-start; align-items: flex-start; }
+    .actero-msg-row .actero-msg { max-width: 100%; }
+    .actero-msg-time {
+      font-size: 10px; color: #9a9a9a; padding: 0 6px; user-select: none;
+    }
     .actero-input-area {
       padding: 12px; border-top: 1px solid #e5e5e5;
       display: flex; gap: 8px;
     }
     .actero-input-area input[type="text"] {
       flex: 1; border: 1px solid #e5e5e5; border-radius: 10px;
-      padding: 10px 14px; font-size: 13px; outline: none;
+      padding: 10px 14px; font-size: 16px; outline: none;
       background: #fafafa;
     }
     .actero-input-area input[type="text"]:focus { border-color: #0F5F35; background: white; }
@@ -261,7 +291,10 @@
     panel.classList.add('open')
     btn.setAttribute('aria-expanded', 'true')
     if (messages.length === 0) {
-      addBotMessage('Bonjour ! Comment puis-je vous aider ?')
+      const restored = restoreThread()
+      if (!restored) {
+        addBotMessage('Bonjour ! Comment puis-je vous aider ?')
+      }
     }
     // focus input
     setTimeout(function() { inputEl.focus() }, 50)
@@ -395,13 +428,75 @@
     return null
   }
 
-  function addBotMessage(text) {
-    messages.push({ role: 'assistant', text })
+  function scrollToLatest() {
+    try {
+      msgsEl.scrollTo({ top: msgsEl.scrollHeight, behavior: 'smooth' })
+    } catch {
+      msgsEl.scrollTop = msgsEl.scrollHeight
+    }
+  }
+
+  function formatTime(ts) {
+    const d = ts ? new Date(ts) : new Date()
+    try {
+      return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    } catch {
+      return ''
+    }
+  }
+
+  function renderMessageRow(role, ts) {
+    const row = document.createElement('div')
+    row.className = 'actero-msg-row ' + (role === 'user' ? 'user' : 'bot')
     const el = document.createElement('div')
-    el.className = 'actero-msg bot'
+    el.className = 'actero-msg ' + (role === 'user' ? 'user' : 'bot')
+    row.appendChild(el)
+    const time = document.createElement('div')
+    time.className = 'actero-msg-time'
+    time.textContent = formatTime(ts)
+    row.appendChild(time)
+    msgsEl.appendChild(row)
+    return el
+  }
+
+  // Minimal client-side thread persistence so a refresh doesn't lose bubbles.
+  // Backend rebuilds history server-side; this only restores visible text.
+  function saveThread() {
+    try {
+      const slim = messages
+        .filter(function(m) { return m.role === 'user' || m.role === 'assistant' })
+        .slice(-40)
+        .map(function(m) { return { role: m.role, text: m.text, ts: m.ts || null } })
+      sessionStorage.setItem(THREAD_KEY, JSON.stringify({ session: sessionId, messages: slim }))
+    } catch {}
+  }
+
+  function restoreThread() {
+    try {
+      const raw = JSON.parse(sessionStorage.getItem(THREAD_KEY) || '{}')
+      if (!raw || raw.session !== sessionId || !Array.isArray(raw.messages)) return false
+      let restored = false
+      raw.messages.forEach(function(m) {
+        if (!m || (m.role !== 'user' && m.role !== 'assistant') || !m.text) return
+        messages.push({ role: m.role, text: m.text, ts: m.ts })
+        const el = renderMessageRow(m.role, m.ts)
+        el.textContent = m.text
+        restored = true
+      })
+      if (restored) scrollToLatest()
+      return restored
+    } catch {
+      return false
+    }
+  }
+
+  function addBotMessage(text) {
+    const ts = Date.now()
+    messages.push({ role: 'assistant', text, ts })
+    const el = renderMessageRow('assistant', ts)
     el.textContent = text
-    msgsEl.appendChild(el)
-    msgsEl.scrollTop = msgsEl.scrollHeight
+    scrollToLatest()
+    saveThread()
   }
 
   function addProductCards(products) {
@@ -427,13 +522,13 @@
       container.appendChild(card)
     })
     msgsEl.appendChild(container)
-    msgsEl.scrollTop = msgsEl.scrollHeight
+    scrollToLatest()
   }
 
   function addUserMessage(text, imageDataUrls) {
-    messages.push({ role: 'user', text })
-    const el = document.createElement('div')
-    el.className = 'actero-msg user'
+    const ts = Date.now()
+    messages.push({ role: 'user', text, ts })
+    const el = renderMessageRow('user', ts)
     if (text) el.textContent = text
     if (imageDataUrls && imageDataUrls.length) {
       imageDataUrls.forEach(function(src) {
@@ -444,8 +539,8 @@
         el.appendChild(img)
       })
     }
-    msgsEl.appendChild(el)
-    msgsEl.scrollTop = msgsEl.scrollHeight
+    scrollToLatest()
+    saveThread()
   }
 
   // Build conversation history for the API (last 10 exchanges max)
@@ -518,7 +613,7 @@
       try { data = await res.json() } catch { data = {} }
       loader.remove()
       if (!res.ok || data.error) {
-        addBotMessage(data.response || 'Un instant, je traite votre demande... Réessayez dans quelques secondes.')
+        addBotMessage(data.response || 'Un instant, je rencontre un souci technique — réessayez dans quelques secondes 🙏')
       } else {
         addBotMessage(data.response || 'Merci pour votre message. Un membre de notre équipe va vous répondre.')
         if (data.product_recommendations && data.product_recommendations.length > 0) {
@@ -536,7 +631,7 @@
       }
     } catch {
       loader.remove()
-      addBotMessage('Erreur de connexion. Réessayez dans un instant.')
+      addBotMessage('Un instant, je rencontre un souci technique — réessayez dans quelques secondes 🙏')
     }
 
     sending = false
@@ -546,5 +641,25 @@
   }
 
   sendBtn.onclick = send
-  inputEl.onkeydown = function(e) { if (e.key === 'Enter') send() }
+  inputEl.onkeydown = function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      send()
+    }
+  }
+
+  // Mobile: keep the input visible above the on-screen keyboard
+  inputEl.addEventListener('focus', function() {
+    setTimeout(function() {
+      try {
+        inputEl.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      } catch {}
+      scrollToLatest()
+    }, 300)
+  })
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', function() {
+      if (isOpen && document.activeElement === inputEl) scrollToLatest()
+    })
+  }
 })()
