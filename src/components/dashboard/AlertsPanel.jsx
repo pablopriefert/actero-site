@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { formatCurrency } from '../../lib/format'
 import {
   Bell,
   TrendingUp,
@@ -26,7 +27,7 @@ function generateAlerts(periodStats, prevPeriodStats, metrics, events, clientTyp
       type: 'success',
       icon: TrendingUp,
       title: `ROI en hausse de ${periodStats.roi_var}%`,
-      message: `Votre ROI a atteint ${periodStats.roi.toLocaleString()}€ ce mois — en forte progression.`,
+      message: `Votre ROI a atteint ${formatCurrency(periodStats.roi)} ce mois — en forte progression.`,
       priority: 90,
       time: now,
     })

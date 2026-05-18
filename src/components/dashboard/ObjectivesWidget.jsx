@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { formatNumber } from '../../lib/format'
 import {
   Target,
   TrendingUp,
@@ -117,10 +118,10 @@ const ObjectiveCard = ({ objective, current, theme }) => {
 
       <div className="flex items-baseline gap-1 mb-3">
         <span className={`text-2xl font-bold font-mono tracking-tighter ${isLight ? 'text-slate-900' : 'text-white'}`}>
-          {current.toLocaleString()}{objective.unit}
+          {formatNumber(current)}{objective.unit}
         </span>
         <span className={`text-xs ${isLight ? 'text-slate-400' : 'text-zinc-600'}`}>
-          / {objective.target.toLocaleString()}{objective.unit}
+          / {formatNumber(objective.target)}{objective.unit}
         </span>
       </div>
 

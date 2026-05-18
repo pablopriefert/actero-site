@@ -253,7 +253,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight: _isLight }) => {
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#9ca3af] hover:text-[#1a1a1a] transition-colors">
+          <button onClick={onClose} aria-label="Fermer" className="p-2 -m-2 text-[#9ca3af] hover:text-[#1a1a1a] transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>

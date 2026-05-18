@@ -66,6 +66,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
   }
 
   const deleteRule = async (id) => {
+    if (!window.confirm('Supprimer cette règle ? Cette action est irréversible.')) return
     await supabase.from('client_guardrails').delete().eq('id', id)
     queryClient.invalidateQueries({ queryKey: ['guardrails', clientId] })
   }

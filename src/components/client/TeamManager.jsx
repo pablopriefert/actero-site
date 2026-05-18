@@ -126,6 +126,7 @@ export const TeamManager = ({ clientId }) => {
       toast.error('Impossible de supprimer le proprietaire')
       return
     }
+    if (!window.confirm(`Retirer ${member.email || 'ce membre'} de l'équipe ?`)) return
     try {
       await supabase
         .from('client_users')

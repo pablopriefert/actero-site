@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { formatCurrency } from '../../lib/format'
 import {
   Sparkles,
   Send,
@@ -115,7 +116,7 @@ const DataPills = ({ metrics: _metrics, periodStats, theme }) => {
   const isLight = theme === 'light'
   const pills = [
     { icon: Clock, label: `${periodStats?.time_saved || 0}h économisées`, color: 'emerald' },
-    { icon: DollarSign, label: `${(periodStats?.roi || 0).toLocaleString()}€ ROI`, color: 'amber' },
+    { icon: DollarSign, label: `${formatCurrency(periodStats?.roi || 0)} ROI`, color: 'amber' },
     { icon: Activity, label: `${periodStats?.tasks_executed || 0} actions IA`, color: 'blue' },
   ]
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { formatCurrency } from '../../lib/format'
 import {
   FileText,
   Download,
@@ -78,7 +79,7 @@ export const ReportsView = ({ client, metrics: _metrics, periodStats, dailyMetri
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Temps économisé', value: `${periodStats?.time_saved || 0}h`, icon: Clock, color: 'emerald' },
-          { label: 'ROI généré', value: `${(periodStats?.roi || 0).toLocaleString()}€`, icon: DollarSign, color: 'amber' },
+          { label: 'ROI généré', value: formatCurrency(periodStats?.roi || 0), icon: DollarSign, color: 'amber' },
           { label: 'Actions IA', value: periodStats?.tasks_executed || 0, icon: Activity, color: 'blue' },
           { label: 'Variation ROI', value: `${periodStats?.roi_var > 0 ? '+' : ''}${periodStats?.roi_var || 0}%`, icon: TrendingUp, color: 'violet' },
         ].map((stat, i) => {

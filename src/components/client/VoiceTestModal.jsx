@@ -115,7 +115,7 @@ export const VoiceTestModal = ({ clientId, agentId, onClose }) => {
               Parlez a votre agent IA directement depuis votre navigateur
             </p>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-[#fafafa] rounded-lg">
+          <button onClick={onClose} aria-label="Fermer" className="p-1.5 hover:bg-[#fafafa] rounded-lg">
             <X className="w-4 h-4 text-[#9ca3af]" />
           </button>
         </div>

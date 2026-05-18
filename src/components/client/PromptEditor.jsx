@@ -207,6 +207,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
   }
 
   const handleDeleteKb = async (id) => {
+    if (!window.confirm('Supprimer cette entrée de la base de connaissances ?')) return
     await supabase.from('client_knowledge_base').delete().eq('id', id)
     queryClient.invalidateQueries({ queryKey: ['kb-entries', clientId] })
     toast.success('Entree supprimee')
@@ -279,6 +280,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
     }
   }
   const handleDeleteAbsoluteRule = async (id) => {
+    if (!window.confirm('Supprimer cette règle absolue ? Cette action est irréversible.')) return
     await supabase.from('client_guardrails').delete().eq('id', id)
     queryClient.invalidateQueries({ queryKey: ['pe-guardrails', clientId] })
   }

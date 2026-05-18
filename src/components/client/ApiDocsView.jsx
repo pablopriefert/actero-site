@@ -61,7 +61,7 @@ export function ApiDocsView({ clientId }) {
     try {
       await navigator.clipboard.writeText(text)
       setCopiedId(id)
-      toast.success('Copié !')
+      toast.success('Copié dans le presse-papiers')
       setTimeout(() => setCopiedId(null), 2000)
     } catch (err) {
       // Clipboard API can fail on insecure contexts or when the document isn't focused.

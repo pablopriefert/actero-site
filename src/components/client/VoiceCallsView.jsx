@@ -293,7 +293,7 @@ const CallDrawer = ({ call, onClose }) => {
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-[#fafafa] rounded-lg">
+          <button onClick={onClose} aria-label="Fermer" className="p-2 hover:bg-[#fafafa] rounded-lg">
             <X className="w-4 h-4 text-[#9ca3af]" />
           </button>
         </div>

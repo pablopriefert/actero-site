@@ -104,7 +104,7 @@ export const KnowledgeImportModal = ({ clientId, provider, onClose, onSuccess })
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100">
+          <button onClick={onClose} aria-label="Fermer" className="p-1.5 rounded-lg hover:bg-gray-100">
             <X className="w-4 h-4 text-[#71717a]" />
           </button>
         </div>
