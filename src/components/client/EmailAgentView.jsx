@@ -623,8 +623,8 @@ function RecentActivity({ activity }) {
         <EmptyState
           icon={Mail}
           tone="neutral"
-          title="Aucun email traité pour le moment"
-          description="Dès qu'un client t'écrira à l'adresse connectée, ton agent lira le message et répondra ici — tu verras l'historique en temps réel."
+          title="aucun email traité pour le moment"
+          description="dès qu'un client écrit à l'adresse connectée, ton agent lit le message et répond ici — tu suis tout l'historique en temps réel."
         />
       ) : (
         <div className="divide-y divide-[#f0f0f0]">

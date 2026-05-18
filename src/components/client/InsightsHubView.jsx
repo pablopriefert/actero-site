@@ -255,8 +255,8 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
           <EmptyState
             icon={BarChart3}
             tone="neutral"
-            title="Pas encore de données"
-            description="Dès que ton agent traitera ses premières demandes, tu verras ici les performances, le ROI estimé et les heures de pic."
+            title="pas encore de données à montrer"
+            description="dès que ton agent traite ses premières demandes, tu vois ici ses performances, le roi estimé et tes heures de pic."
             action={{
               label: 'Configurer mon agent',
               onClick: () => onNavigate?.('agent-config'),

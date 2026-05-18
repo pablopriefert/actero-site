@@ -1140,7 +1140,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   {/* ── "Voici ce qui vous attend" preview cards ── */}
                   <div className="mb-4">
                     <h3 className="text-[15px] font-semibold text-[#1a1a1a] mb-1">Voici ce qui vous attend</h3>
-                    <p className="text-[12px] text-[#9ca3af]">Une fois votre agent configuré, vous pourrez accéder à ces fonctionnalités.</p>
+                    <p className="text-[12px] text-[#9ca3af]">Un aperçu de ce que fera votre agent une fois la configuration terminée.</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                     {[

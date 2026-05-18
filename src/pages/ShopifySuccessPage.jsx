@@ -169,8 +169,11 @@ export function ShopifySuccessPage({ onNavigate }) {
               <Loader2 className="w-4 h-4 text-[#003725] animate-spin" />
               <span className="text-sm font-semibold text-[#1a1a1a]">Configuration en cours…</span>
             </div>
-            <p className="text-xs text-[#71717a] leading-relaxed">
-              Votre boutique se synchronise (~3 minutes). L'activation des automations apparaîtra dès que tout est prêt.
+            <p className="text-xs text-[#71717a] leading-relaxed mb-3">
+              On importe votre catalogue et on lit vos politiques pour préparer votre agent. Cela prend généralement 5 à 15 minutes — l'activation des automations apparaîtra dès que tout est prêt.
+            </p>
+            <p className="text-xs text-[#9ca3af] leading-relaxed">
+              Vous pouvez fermer cet onglet : votre agent continue de se préparer en arrière-plan.
             </p>
           </div>
         ) : !activated ? (

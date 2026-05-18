@@ -876,8 +876,8 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
           <EmptyState
             icon={Plug}
             tone="cta"
-            title="Aucune intégration connectée"
-            description="Connecte Shopify en premier pour que ton agent accède aux commandes et réponde précisément à tes clients. Les autres outils (Gmail, Gorgias…) viennent ensuite."
+            title="rien de connecté pour l'instant"
+            description="commence par shopify juste en dessous — ton agent pourra lire les commandes et répondre précisément à tes clients. le reste (gmail, gorgias…) suivra ensuite."
           />
         </div>
       )}

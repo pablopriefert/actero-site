@@ -99,7 +99,7 @@ export const WeeklySummary = ({ clientId, setActiveTab }) => {
       <div className="flex-1 min-w-0 pt-1">
         {!stats.hasActivity ? (
           <p className="text-[14px] text-[#1a1a1a] leading-relaxed">
-            Votre agent est prêt — aucun message reçu cette semaine.
+            ton agent est en place et veille — aucun message cette semaine, profite du calme.
           </p>
         ) : (
           <p className="text-[14px] text-[#1a1a1a] leading-relaxed">

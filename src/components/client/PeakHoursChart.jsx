@@ -92,7 +92,7 @@ export const PeakHoursChart = ({ clientId }) => {
           <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Heures de pic (30 jours)</h3>
         </div>
         <p className="text-[13px] text-[#9ca3af]">
-          Pas assez de donnees pour determiner vos heures de pic. Le graphique apparaitra apres quelques messages.
+          encore trop tôt pour tes heures de pic — le graphique se dessine tout seul dès les premiers messages de tes clients.
         </p>
       </div>
     )

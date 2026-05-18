@@ -491,7 +491,7 @@ function TimelineSection({ clientId, setActiveTab, hasIntegration }) {
           <EmptyState
             icon={Sparkles}
             tone="cta"
-            title="Rien ne s'est encore passé"
+            title="rien ne s'est encore passé"
             description={
               hasIntegration
                 ? 'Ton agent attend les premiers messages clients — il se réveille automatiquement dès qu\'un ticket arrive.'
@@ -687,8 +687,8 @@ function TodoSection({
           <EmptyState
             icon={CheckCircle2}
             tone="success"
-            title="Tout est en ordre"
-            description="Rien n'attend ton attention — ton agent gère tout en autonomie."
+            title="tout est en ordre"
+            description="rien n'attend ton attention — ton agent gère tout en autonomie."
           />
         </div>
       ) : (

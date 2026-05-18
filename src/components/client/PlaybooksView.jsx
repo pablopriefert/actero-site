@@ -377,8 +377,8 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
           <EmptyState
             icon={Zap}
             tone="cta"
-            title="Aucune automatisation active"
-            description="Les automatisations apparaîtront ici dès que tu en activeras une. Commence par l'automatisation SAV e-commerce pour que ton agent réponde aux clients."
+            title="aucune automatisation active pour l'instant"
+            description="dès que tu en actives une, elle apparaît ici. commence par le sav e-commerce — ton agent répondra à tes clients tout seul."
             action={{
               label: 'Découvrir les automatisations',
               onClick: () => setActiveTab?.('support'),

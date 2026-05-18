@@ -154,8 +154,8 @@ export const VoiceCallsView = ({ clientId }) => {
           <EmptyState
             icon={Phone}
             tone="neutral"
-            title="Aucun appel pour le moment"
-            description="Les appels de tes clients apparaîtront ici dès que ton agent vocal sera actif."
+            title="aucun appel pour le moment"
+            description="les appels de tes clients s'afficheront ici dès que ton agent vocal sera actif."
           />
         ) : (
           <div className="divide-y divide-[#f5f5f5]">

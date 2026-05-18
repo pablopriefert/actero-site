@@ -75,7 +75,18 @@ export function OnboardingProgress({ jobId, onComplete, onFailed, compact = fals
 
   const status = job?.status || 'queued'
   const progress = Math.max(0, Math.min(100, job?.progress ?? 0))
-  const message = job?.progress_message || 'Démarrage…'
+  // Honest, progress-aware narrative so the card never reads as "frozen" even
+  // when the backend hasn't pushed a fresh progress_message yet. We never
+  // invent a precise % or countdown — just describe the phase we're in.
+  const phaseLabel =
+    status === 'queued'
+      ? 'On démarre la synchronisation de votre boutique…'
+      : progress < 35
+        ? 'On importe vos produits…'
+        : progress < 70
+          ? 'On lit vos politiques de livraison & retours…'
+          : 'On prépare votre agent…'
+  const message = job?.progress_message || phaseLabel
   const isFinal = ['completed', 'failed', 'timeout', 'cancelled'].includes(status)
   const isError = ['failed', 'timeout'].includes(status)
 
@@ -148,8 +159,12 @@ export function OnboardingProgress({ jobId, onComplete, onFailed, compact = fals
               </div>
               <div className="flex items-center justify-between mt-2 text-[11px] text-gray-500">
                 <span>{progress}% terminé</span>
-                <span>Mise à jour toutes les 5 secondes</span>
+                <span>Cela prend généralement 5 à 15 minutes</span>
               </div>
+              <p className="mt-3 text-[12px] text-gray-400 leading-relaxed">
+                Vous pouvez fermer cet onglet — votre agent continue de se
+                préparer en arrière-plan. Tout sera prêt dans votre dashboard.
+              </p>
             </div>
           )}
 
