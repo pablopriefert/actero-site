@@ -138,6 +138,75 @@ async function handler(req, res) {
     console.warn('[process-e2b-jobs] kb autocrawl scan failed:', err.message)
   }
 
+  // 2c. Periodic DEEP KB refresh. Re-crawl the merchant's full help center
+  //     in a sandbox for clients that completed onboarding and whose last
+  //     deep crawl is NULL or older than 30 days. Fire-and-forget POST to
+  //     /api/jobs/kb-deep-crawl; the endpoint itself 409s on an in-flight
+  //     job (belt & braces with the check here). Capped at 3 clients/tick
+  //     and fully wrapped so a slow/broken refresh never blocks the cron.
+  try {
+    const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60_000).toISOString()
+
+    // Onboarded clients = those with a completed shopify_onboard job.
+    const { data: onboarded } = await supabase
+      .from('e2b_jobs')
+      .select('client_id')
+      .eq('status', 'completed')
+      .eq('job_type', 'shopify_onboard')
+      .not('client_id', 'is', null)
+      .limit(500)
+
+    const onboardedIds = Array.from(
+      new Set((onboarded || []).map((j) => j.client_id).filter(Boolean)),
+    )
+
+    if (onboardedIds.length > 0) {
+      // Settings for those clients — pick the ones due for a refresh.
+      const { data: settingsRows } = await supabase
+        .from('client_settings')
+        .select('client_id, kb_last_deep_crawl_at')
+        .in('client_id', onboardedIds)
+
+      const due = (settingsRows || [])
+        .filter((r) => !r.kb_last_deep_crawl_at || r.kb_last_deep_crawl_at < cutoff)
+        .map((r) => r.client_id)
+
+      // Clients with no completed deep crawl at all also have no settings
+      // row matched above only if kb_last_deep_crawl_at is NULL — which is
+      // already covered. Skip any client with an in-flight deep crawl job.
+      let fired = 0
+      for (const clientId of due) {
+        if (fired >= 3) break
+        try {
+          const { data: inFlight } = await supabase
+            .from('e2b_jobs')
+            .select('id')
+            .eq('client_id', clientId)
+            .eq('job_type', 'kb_deep_crawl')
+            .in('status', ['queued', 'running'])
+            .maybeSingle()
+          if (inFlight) continue
+
+          const base = process.env.PUBLIC_API_URL || 'https://actero.fr'
+          // Fire-and-forget: a slow/broken refresh must never block the cron.
+          fetch(`${base}/api/jobs/kb-deep-crawl`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.CRON_SECRET}`,
+            },
+            body: JSON.stringify({ client_id: clientId }),
+          }).catch(() => {})
+          fired++
+        } catch (err) {
+          console.warn(`[process-e2b-jobs] kb deep refresh trigger failed for ${clientId}:`, err.message)
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[process-e2b-jobs] kb deep refresh scan failed:', err.message)
+  }
+
   // 3. Detect orphan sandboxes (alive in E2B but no matching active job row).
   try {
     const active = await listActiveSandboxes()
