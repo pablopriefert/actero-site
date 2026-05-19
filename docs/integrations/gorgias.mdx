@@ -7,7 +7,7 @@ Si tu utilises déjà **Gorgias** comme helpdesk e-commerce, Actero s'y branche 
 
 ## Pourquoi connecter Gorgias
 
-- **Traiter automatiquement** les tickets entrants (60 % résolus seuls en moyenne)
+- **Traiter automatiquement** les tickets entrants (82 % résolus seuls en moyenne)
 - **Pré-rédiger** une réponse sur les 40 % restants — ton agent humain valide et envoie en 2 secondes
 - **Remplacer tes macros** par des réponses contextuelles (la commande Shopify en direct, le tracking, l'historique du client)
 - **Tagger chaque ticket** pour que tu mesures précisément le ROI
@@ -33,14 +33,15 @@ Si tu utilises déjà **Gorgias** comme helpdesk e-commerce, Actero s'y branche 
   </Step>
   <Step title="Choisis le mode opératoire">
     De retour dans Actero, choisis comment l'agent intervient :
-    - **Auto-reply** — Actero répond automatiquement sur les tickets à score de confiance > 75 %
+
+    - **Auto-reply** — Actero répond automatiquement sur les tickets à score de confiance \> 75 %
     - **Draft only** — Actero pré-rédige la réponse, ton équipe valide avant envoi
     - **Shadow** — Actero "écoute", compare ses réponses aux tiennes, mais n'envoie rien (mode apprentissage)
   </Step>
 </Steps>
 
 <Tip>
-Démarre toujours en mode **Shadow** ou **Draft** la première semaine. Ça te laisse calibrer le ton, enrichir la base de connaissances et bâtir confiance avant de passer en auto.
+  Démarre toujours en mode **Shadow** ou **Draft** la première semaine. Ça te laisse calibrer le ton, enrichir la base de connaissances et bâtir confiance avant de passer en auto.
 </Tip>
 
 ## Webhook & sécurité
@@ -56,10 +57,10 @@ Actero reçoit les événements Gorgias (`ticket/created`, `ticket/updated`, `ti
 Actero ajoute automatiquement ces tags sur les tickets Gorgias pour que tu mesures son impact :
 
 | Tag | Signification |
-|---|---|
+| --- | --- |
 | `actero-auto` | Résolu par l'agent sans intervention humaine |
 | `actero-draft` | Réponse pré-rédigée, en attente de validation humaine |
-| `actero-escalated` | Escaladé vers ton équipe (confiance < 60 % ou guardrail déclenché) |
+| `actero-escalated` | Escaladé vers ton équipe (confiance \< 60 % ou guardrail déclenché) |
 | `actero-shadow` | Réponse simulée en mode apprentissage, jamais envoyée au client |
 
 Filtre dans Gorgias par ces tags pour voir exactement ce que l'agent a fait sur la semaine.
@@ -92,15 +93,19 @@ Pour la logique complète, lis [Escalades](/essentials/escalades).
   <Accordion title="L'OAuth boucle ou renvoie une erreur 403">
     Le compte que tu utilises n'a pas le rôle **Admin** sur Gorgias. Demande à l'admin de ta boutique de faire l'OAuth (il peut ensuite te déléguer la gestion côté Actero).
   </Accordion>
+
   <Accordion title="Les tickets sont taggés mais aucune réponse n'est postée">
     Tu es probablement en mode **Draft only** ou **Shadow**. Va dans **Intégrations → Gorgias → Mode** et passe en **Auto-reply**. Vérifie aussi le seuil de confiance (par défaut 75 %).
   </Accordion>
+
   <Accordion title="L'agent répond avec une réponse générique au lieu d'utiliser la commande">
     Connecte ta plateforme e-commerce ([Shopify](/integrations/shopify) ou [WooCommerce](/integrations/woocommerce)). Sans elle, l'agent ne peut pas matcher l'email du client à une commande réelle.
   </Accordion>
+
   <Accordion title="Trop d'escalades, je veux que l'agent réponde plus souvent">
     Baisse le seuil de confiance dans **Configurer l'agent → Auto-reply threshold** (par défaut 75 %, descends à 60 %), et enrichis ta base de connaissances. Plus elle est riche, plus la confiance monte.
   </Accordion>
+
   <Accordion title="Les tags `actero-*` n'apparaissent pas">
     Vérifie dans Gorgias → **Settings → Tags** que les tags ne sont pas marqués comme "archived". Si oui, désarchive-les. Actero les recrée sinon au prochain ticket.
   </Accordion>
@@ -112,9 +117,11 @@ Pour la logique complète, lis [Escalades](/essentials/escalades).
   <Accordion title="Puis-je garder mes macros Gorgias en parallèle ?">
     Oui. Tes agents humains continuent d'utiliser leurs macros normalement. Actero intervient uniquement sur les tickets non encore traités.
   </Accordion>
+
   <Accordion title="Les SLA Gorgias sont-ils respectés ?">
     Oui. Quand l'agent répond, le timer SLA est arrêté côté Gorgias comme pour une réponse humaine. Les escalades sont prioritisées via le tag `actero-escalated`.
   </Accordion>
+
   <Accordion title="Et les chat widgets Gorgias Chat ?">
     Supportés. Les conversations chat sont traitées au même titre que les tickets email — même flow auto/draft/shadow.
   </Accordion>

@@ -5,7 +5,7 @@ description: "Nourris ton agent avec tes politiques, FAQ, infos produits et règ
 
 La base de connaissances (KB), c'est la mémoire de ton agent. Sans elle, ton agent ne sait rien de spécifique à ta boutique. Avec elle, il répond avec **tes** délais, **tes** politiques, **tes** infos produits.
 
-Plus la base est riche, plus ton agent est autonome. Une base de 5 entrées résout déjà 30-40 % des tickets ; une base de 30+ entrées dépasse 60 %.
+Plus la base est riche, plus ton agent est autonome. Une base de 5 entrées résout déjà 30-40 % des tickets ; une base de 30\+ entrées dépasse 80 %.
 
 ## Où se trouve la KB
 
@@ -14,7 +14,7 @@ Sidebar : **Mon Agent → Base de connaissances**.
 Tu vois la liste de tes entrées triées par catégorie. Cinq catégories prédéfinies :
 
 | Catégorie | Pour quoi |
-|---|---|
+| --- | --- |
 | **Politiques** | Retours, livraison, remboursement, garantie |
 | **FAQ** | Questions récurrentes type "C'est quoi votre délai ?" |
 | **Produits / Biens** | Caractéristiques, tailles, composition |
@@ -62,7 +62,7 @@ Si tu as déjà une page Help Center ou une page CGV, tu peux l'importer.
 </Steps>
 
 <Tip>
-Bons candidats à l'import URL : page Livraison, page Retours, page FAQ. Mauvais candidats : page À propos, blog, fiche produit (trop spécifique — préfère importer le catalogue Shopify automatiquement via l'intégration).
+  Bons candidats à l'import URL : page Livraison, page Retours, page FAQ. Mauvais candidats : page À propos, blog, fiche produit (trop spécifique — préfère importer le catalogue Shopify automatiquement via l'intégration).
 </Tip>
 
 ### 3. Upload de fichier
@@ -82,8 +82,14 @@ Pour les documents internes (PDF interdit pour l'instant — préfère un export
 </Steps>
 
 <Warning>
-Les fichiers > 50 000 caractères sont tronqués. Pour de gros volumes, découpe en plusieurs uploads thématiques.
+  Les fichiers \> 50 000 caractères sont tronqués. Pour de gros volumes, découpe en plusieurs uploads thématiques.
 </Warning>
+
+## Crawl automatique de ton site
+
+À la connexion de ta boutique, Actero **crawle automatiquement les pages clés de ton site public** (FAQ, livraison, retours, CGV, contact…) et en extrait des entrées de KB — tu n'as rien à faire. Cette base se rafraîchit aussi périodiquement pour rester à jour avec ton site.
+
+Les entrées créées automatiquement apparaissent avec un badge **« à vérifier »** et un bandeau ambre en haut de la KB. C'est volontaire : l'agent les utilise dès le départ (valeur immédiate), mais tu es invité à les relire et cliquer **« Valider »** pour confirmer qu'elles reflètent bien tes politiques. Une politique de retour mal extraite reste ta responsabilité — vérifie-les.
 
 ## L'éditeur Ton & Style
 
@@ -103,12 +109,15 @@ C'est complémentaire de l'éditeur de marque (voir [Ton de marque](/essentials/
   <Accordion title="Une entrée = une intention">
     Une entrée par sujet précis. Mauvais : une entrée "Tout sur les retours" qui mélange délais, conditions, frais, exceptions. Bon : 4 entrées séparées.
   </Accordion>
+
   <Accordion title="Mets-toi à la place du client">
     Quand tu rédiges, imagine la question exacte qu'un client va poser. Le titre doit y répondre.
   </Accordion>
+
   <Accordion title="Mets à jour les infos temporaires">
     Si tu mets en KB "Livraison gratuite jusqu'au 31 mars", supprime ou archive l'entrée le 1er avril. L'agent prend les infos à la lettre — il continuera à promettre la livraison gratuite si tu oublies.
   </Accordion>
+
   <Accordion title="Évite les contradictions">
     Si tu écris dans une entrée "Retours sous 14 jours" et dans une autre "Retours sous 30 jours", l'agent va prendre l'une ou l'autre selon la conversation. Audite régulièrement.
   </Accordion>
@@ -130,15 +139,19 @@ Pas besoin de copier ces infos dans la KB. **La KB est réservée à ce que Shop
   <Accordion title="Limite d'entrées par plan ?">
     Plan Free : 10 entrées. Plans Starter / Pro / Entreprise : illimité.
   </Accordion>
+
   <Accordion title="L'agent ignore une de mes entrées — pourquoi ?">
     Trois causes courantes : 1) le titre ne matche pas la question, reformule plus orienté question. 2) Une entrée plus récente la contredit. 3) Un guardrail interdit le sujet (voir [Guardrails](/essentials/guardrails)).
   </Accordion>
+
   <Accordion title="Comment je teste qu'une nouvelle entrée fonctionne ?">
     Va dans le [Simulateur](/essentials/simulator) et pose la question correspondante. Si l'agent répond avec ton entrée, c'est OK. Sinon, retravaille le titre ou enrichis le contenu.
   </Accordion>
+
   <Accordion title="Puis-je organiser les entrées par tag ?">
     Oui : la catégorie sert de tag principal. Les sous-tags ne sont pas exposés dans l'UI mais existent en base — contacte le support si tu en as besoin.
   </Accordion>
+
   <Accordion title="Et le RAG / vecteurs, c'est sous le capot ?">
     Oui. Les entrées sont indexées vectoriellement à chaque création/édition. La recherche sémantique tourne automatiquement à chaque conversation. Tu n'as rien à configurer.
   </Accordion>
