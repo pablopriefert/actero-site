@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   ArrowLeft,
@@ -11,6 +11,10 @@ import {
   TrendingUp,
   Zap,
   ExternalLink,
+  Gauge,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { PageHeader } from '../ui/PageHeader'
@@ -35,6 +39,297 @@ import { AdminClientNotesPanel } from './AdminClientNotesPanel'
  *  5. Notes (editable)
  *  6. Integrations connected
  */
+/**
+ * Backtest tickets card — triggers the DRY-RUN ticket backtest harness and
+ * shows the latest result ("X% des N tickets passés auraient été résolus").
+ */
+function BacktestCard({ clientId }) {
+  const [launching, setLaunching] = useState(false)
+  const [launchError, setLaunchError] = useState(null)
+
+  const { data: latest, refetch, isFetching } = useQuery({
+    queryKey: ['admin-client-backtest', clientId],
+    queryFn: async () => {
+      if (!clientId) return null
+      const { data } = await supabase
+        .from('ticket_backtests')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      return data || null
+    },
+    enabled: !!clientId,
+    refetchInterval: (q) => (q.state.data?.status === 'running' ? 5000 : false),
+  })
+
+  const handleLaunch = async () => {
+    setLaunching(true)
+    setLaunchError(null)
+    try {
+      const { data: sess } = await supabase.auth.getSession()
+      const token = sess?.session?.access_token
+      const resp = await fetch('/api/jobs/backtest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ client_id: clientId }),
+      })
+      const json = await resp.json().catch(() => ({}))
+      if (!resp.ok) {
+        throw new Error(json.error || `Erreur ${resp.status}`)
+      }
+      await refetch()
+    } catch (err) {
+      setLaunchError(err.message || 'Échec du lancement')
+    } finally {
+      setLaunching(false)
+    }
+  }
+
+  const isRunning = latest?.status === 'running'
+  const sample = Array.isArray(latest?.sample) ? latest.sample : []
+
+  return (
+    <SectionCard
+      title="Backtest tickets"
+      icon={Gauge}
+      action={
+        <button
+          type="button"
+          onClick={handleLaunch}
+          disabled={launching || isRunning}
+          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-[#003725] text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
+        >
+          {launching || isRunning ? 'En cours…' : 'Lancer le backtest'}
+        </button>
+      }
+    >
+      {!latest ? (
+        <p className="text-[12px] text-[#71717a] py-2">
+          Aucun backtest. Rejoue les tickets historiques importés en dry-run pour
+          mesurer le taux de résolution d'Actero.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <StatusPill
+              label={latest.status}
+              tone={
+                latest.status === 'completed'
+                  ? 'ok'
+                  : latest.status === 'failed'
+                    ? 'danger'
+                    : 'warn'
+              }
+            />
+            {isFetching && (
+              <span className="text-[10px] text-[#9ca3af]">actualisation…</span>
+            )}
+          </div>
+
+          {latest.status === 'completed' && (
+            <div className="rounded-lg bg-[#fdfcf7] border border-[#f0ead8] p-3">
+              <p className="text-[22px] font-bold text-[#003725] tabular-nums">
+                {Number(latest.resolution_rate ?? 0).toFixed(1)}%
+              </p>
+              <p className="text-[12px] text-[#71717a]">
+                des {latest.total_tickets} tickets passés auraient été résolus
+                par Actero
+              </p>
+              <p className="text-[11px] text-[#9ca3af] mt-1">
+                {latest.would_resolve_count} résolus ·{' '}
+                {latest.would_escalate_count} escaladés
+              </p>
+            </div>
+          )}
+
+          {latest.status === 'failed' && latest.error && (
+            <p className="text-[11px] text-[#b91c1c] break-words">{latest.error}</p>
+          )}
+
+          {sample.length > 0 && (
+            <ul className="divide-y divide-[#f0f0f0]">
+              {sample.map((s, i) => (
+                <li key={i} className="py-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] uppercase font-bold text-[#9ca3af]">
+                      {s.classification || '—'}
+                    </span>
+                    <StatusPill
+                      label={s.would_resolve ? 'résolu' : 'escaladé'}
+                      tone={s.would_resolve ? 'ok' : 'warn'}
+                    />
+                  </div>
+                  <p className="text-[11px] text-[#71717a] truncate">{s.message}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {launchError && (
+        <p className="text-[11px] text-[#b91c1c] mt-2">{launchError}</p>
+      )}
+    </SectionCard>
+  )
+}
+
+/**
+ * Widget Install QA card — triggers a headless storefront check (E2B sandbox)
+ * that verifies the Actero chat widget is actually present & visible on the
+ * client's live boutique, and shows the latest widget_health row.
+ */
+function relTime(iso) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  const diff = Date.now() - d.getTime()
+  if (Number.isNaN(diff)) return '—'
+  const m = Math.round(diff / 60000)
+  if (m < 1) return "à l'instant"
+  if (m < 60) return `il y a ${m} min`
+  const h = Math.round(m / 60)
+  if (h < 24) return `il y a ${h} h`
+  const days = Math.round(h / 24)
+  return `il y a ${days} j`
+}
+
+function WidgetQaCard({ clientId }) {
+  const [launching, setLaunching] = useState(false)
+  const [launchError, setLaunchError] = useState(null)
+
+  const { data: latest, refetch, isFetching } = useQuery({
+    queryKey: ['admin-client-widget-health', clientId],
+    queryFn: async () => {
+      if (!clientId) return null
+      const { data } = await supabase
+        .from('widget_health')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('checked_at', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      return data || null
+    },
+    enabled: !!clientId,
+    // Poll while a check is still pending (row not yet checked_at-stamped).
+    refetchInterval: (q) =>
+      q.state.data && !q.state.data.checked_at ? 5000 : false,
+  })
+
+  const handleLaunch = async () => {
+    setLaunching(true)
+    setLaunchError(null)
+    try {
+      const { data: sess } = await supabase.auth.getSession()
+      const token = sess?.session?.access_token
+      const resp = await fetch('/api/jobs/widget-qa', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ client_id: clientId }),
+      })
+      const json = await resp.json().catch(() => ({}))
+      if (!resp.ok) {
+        throw new Error(json.error || `Erreur ${resp.status}`)
+      }
+      await refetch()
+    } catch (err) {
+      setLaunchError(err.message || 'Échec du lancement')
+    } finally {
+      setLaunching(false)
+    }
+  }
+
+  const pending = latest && !latest.checked_at && !latest.error
+  let variant = 'neutral'
+  let StatusIcon = AlertTriangle
+  let label = 'Non vérifié'
+  if (latest?.error) {
+    variant = 'danger'
+    StatusIcon = XCircle
+    label = 'Erreur'
+  } else if (latest?.checked_at) {
+    if (latest.widget_found && latest.widget_visible) {
+      variant = 'success'
+      StatusIcon = CheckCircle2
+      label = 'Installé & visible'
+    } else if (latest.widget_found) {
+      variant = 'warning'
+      StatusIcon = AlertTriangle
+      label = 'Présent mais désactivé'
+    } else {
+      variant = 'warning'
+      StatusIcon = AlertTriangle
+      label = 'Introuvable'
+    }
+  }
+
+  return (
+    <SectionCard
+      title="Widget installé ?"
+      icon={Globe}
+      action={
+        <button
+          type="button"
+          onClick={handleLaunch}
+          disabled={launching || pending}
+          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-[#003725] text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
+        >
+          {launching || pending ? 'Vérification…' : 'Vérifier le widget'}
+        </button>
+      }
+    >
+      {!latest ? (
+        <p className="text-[12px] text-[#71717a] py-2">
+          Aucune vérification. Visite la boutique en ligne du client pour
+          confirmer que le widget de chat Actero est bien présent et visible.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <StatusPill variant={variant} icon={StatusIcon}>
+              {pending ? 'Vérification en cours…' : label}
+            </StatusPill>
+            {isFetching && (
+              <span className="text-[10px] text-[#9ca3af]">actualisation…</span>
+            )}
+          </div>
+
+          {latest.url_checked && (
+            <p className="text-[11px] text-[#71717a] break-all">
+              {latest.url_checked}
+            </p>
+          )}
+
+          {latest.error && (
+            <p className="text-[11px] text-[#b91c1c] break-words">
+              {latest.error}
+            </p>
+          )}
+
+          <p className="text-[11px] text-[#9ca3af]">
+            {latest.checked_at
+              ? `Vérifié ${relTime(latest.checked_at)}`
+              : 'En attente du résultat…'}
+          </p>
+        </div>
+      )}
+
+      {launchError && (
+        <p className="text-[11px] text-[#b91c1c] mt-2">{launchError}</p>
+      )}
+    </SectionCard>
+  )
+}
+
 export function AdminClientDetailView() {
   // Client ID resolution: first try querystring, fallback to last segment of pathname.
   const clientId = useMemo(() => {
@@ -313,6 +608,10 @@ export function AdminClientDetailView() {
                 </ul>
               )}
             </SectionCard>
+
+            <BacktestCard clientId={clientId} />
+
+            <WidgetQaCard clientId={clientId} />
 
             <SectionCard title="Notes internes" icon={Users}>
               <AdminClientNotesPanel clientId={clientId} />
