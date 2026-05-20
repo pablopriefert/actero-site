@@ -1,0 +1,79 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+#
+# This file is the SOURCE OF TRUTH for the Actero Shopify App configuration on
+# the App Store. Any change to scopes, webhooks, or URLs MUST be made here and
+# pushed with `shopify app deploy`. Do not edit the same fields in the Shopify
+# dev dashboard UI — they will be overwritten on the next deploy.
+
+client_id = "fcb9a2aafa1c3d00a213ba7dd16a584c"
+
+# Smart router endpoint: handles both "Open app" from Shopify Admin (when
+# already installed, redirects to /dashboard) and first-time install (kicks
+# off the OAuth flow via /api/shopify/install). See api/shopify/app.js.
+application_url = "https://actero.fr/api/shopify/app"
+
+# Non-embedded — Actero opens in a new tab on actero.fr, we do NOT use the
+# App Bridge SDK. Keep this aligned with the "Intégrée" capability declared
+# in the Shopify dev dashboard.
+embedded = false
+
+name = "Actero"
+
+[access_scopes]
+# REQUIRED — every feature of the agent depends on these. read_themes /
+# write_themes are mandatory because api/engine/shopify-widget.js injects
+# the chat widget into the merchant's theme via the Themes API.
+scopes = "read_orders,read_customers,read_products,read_fulfillments,read_checkouts,read_inventory,read_returns,read_themes,write_themes"
+
+# OPTIONAL — the merchant can decline these without breaking install. Power
+# features (refunds, upsells, live shipping rates) light up automatically
+# when the merchant accepts them.
+optional_scopes = [ "write_orders", "read_draft_orders", "read_shipping" ]
+
+# Managed installation flow — Shopify handles the OAuth grant and we receive
+# the access token via the callback. Legacy flow is not used.
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [ "https://actero.fr/api/shopify/callback" ]
+
+[webhooks]
+api_version = "2026-01"
+
+  # ----- GDPR / mandatory compliance webhooks ----------------------------------
+  # Shopify sends these regardless of merchant install state — they are
+  # configured at the app level. Each endpoint verifies HMAC-SHA256 against
+  # SHOPIFY_CLIENT_SECRET and logs into the shopify_gdpr_log audit table.
+  # See api/shopify/webhooks/_lib/verify-hmac.js and the migration
+  # supabase/migrations/20260521000000_shopify_gdpr_webhooks.sql.
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request" ]
+  uri = "https://actero.fr/api/shopify/webhooks/customers/data-request"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/redact" ]
+  uri = "https://actero.fr/api/shopify/webhooks/customers/redact"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "shop/redact" ]
+  uri = "https://actero.fr/api/shopify/webhooks/shop/redact"
+
+  # ----- Lifecycle webhook -----------------------------------------------------
+  # Fires when a merchant removes the app from their Shopify admin. We mark
+  # clients.status='uninstalled', disable the widget and Slack-notify the team.
+  # Also registered again from api/shopify/callback.js at install time as a
+  # belt-and-braces guarantee against config drift.
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "https://actero.fr/api/shopify/webhooks/app/uninstalled"
+
+  # ----- Business webhooks -----------------------------------------------------
+  # checkouts/create powers the abandoned-cart playbook. The same URL is
+  # registered per-shop from api/shopify/callback.js to stay backward-compatible
+  # with merchants installed before this toml-based config existed.
+
+  [[webhooks.subscriptions]]
+  topics = [ "checkouts/create" ]
+  uri = "https://actero.fr/api/engine/webhooks/shopify-cart"
