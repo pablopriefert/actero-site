@@ -1,30 +1,32 @@
 ---
 title: "Shopify"
-description: "Connecte ta boutique Shopify en OAuth 1-clic. Lecture commandes, clients, produits, paniers abandonnés."
+description: "Installe Actero depuis le Shopify App Store en 1 clic. Scopes auditables, webhooks RGPD, désinstallation propre."
 ---
 
-Shopify est l'intégration phare d'Actero. Une fois connectée, ton agent répond aux questions WISMO ("où est ma commande ?"), retourne, échange, suivi de panier, recommande des produits et personnalise chaque réponse avec le profil client — sans toucher à ta caisse.
+Shopify est l'intégration phare d'Actero. Une fois connectée, ton agent répond aux WISMO (« où est ma commande ? »), gère retours, échanges, suivi, recommande des produits et personnalise chaque réponse avec le profil client — sans toucher à ta caisse.
 
 ## Prérequis
 
 - Une boutique Shopify active (plan Basic, Shopify, Advanced ou Plus — peu importe)
-- Le rôle **Owner** ou **Staff avec permission "Apps"** dans ton compte Shopify
-- Un compte Actero avec au moins le plan **Free** (50 tickets/mois) — plan **Starter** ou supérieur recommandé pour les webhooks paniers abandonnés
+- Le rôle **Owner** ou **Staff avec permission « Apps »** dans ton compte Shopify
+- Un compte Actero avec au moins le plan **Free** (50 tickets/mois) — plan **Starter** ou supérieur recommandé pour les playbooks panier abandonné
 
-## Connexion (OAuth 1-clic)
+## Installer Actero depuis le Shopify App Store
+
+Actero est listée sur le Shopify App Store. L'installation est gratuite et passe par le flow OAuth officiel — tu vois exactement ce que l'agent peut lire avant de valider.
 
 <Steps>
-  <Step title="Ouvre Intégrations dans Actero">
-    Depuis ton dashboard, va dans **Intégrations → Plateforme e-commerce → Shopify** et clique **Connecter**.
+  <Step title="Ouvre la fiche Actero sur le Shopify App Store">
+    Depuis le [Shopify App Store](https://apps.shopify.com), cherche **Actero** et clique **Ajouter l'app**. Tu peux aussi partir d'Actero : **Intégrations → Shopify → Connecter**, puis saisir ton domaine `ma-boutique.myshopify.com`.
   </Step>
-  <Step title="Renseigne ton domaine Shopify">
-    Saisis l'URL exacte de ta boutique au format `ma-boutique.myshopify.com` (pas ton domaine personnalisé). Tu le retrouves dans Shopify Admin → **Settings → Domains**.
+  <Step title="Valide les scopes requis et optionnels">
+    Shopify affiche deux blocs distincts : les permissions **requises** (sans elles, l'agent ne peut pas fonctionner) et les permissions **optionnelles** (tu peux les décliner — l'agent dégradera gracieusement les fonctionnalités concernées). Voir [Scopes demandés](#scopes-demand%C3%A9s).
   </Step>
-  <Step title="Autorise Actero sur Shopify">
-    Tu es redirigé vers Shopify pour valider les scopes. Approuve la demande. Aucune carte bancaire requise — Actero est gratuit côté Shopify App Store.
+  <Step title="Approuve l'installation">
+    Tu reviens automatiquement sur `actero.fr`. Aucune carte bancaire requise côté Shopify — Actero est facturée séparément depuis ton compte Actero.
   </Step>
-  <Step title="Retour automatique">
-    Tu reviens dans Actero avec un badge **Connecté** et le nom de ton domaine affiché. Les 30 dernières commandes sont indexées en moins de 20 secondes.
+  <Step title="Le widget s'injecte tout seul">
+    Avec les scopes `read_themes` / `write_themes` accordés, Actero injecte le widget de chat dans le thème actif de ta boutique. Les 30 dernières commandes sont indexées en moins de 20 secondes.
   </Step>
 </Steps>
 
@@ -32,45 +34,91 @@ Shopify est l'intégration phare d'Actero. Une fois connectée, ton agent répon
 Si tu n'as pas encore configuré ton agent, regarde le [quickstart](/essentials/quickstart) — c'est la suite logique de cette connexion.
 </Tip>
 
+### Bouton « Open app » dans Shopify Admin
+
+Une fois installée, Actero apparaît dans **Apps** dans ton Shopify Admin. Cliquer dessus t'envoie automatiquement vers le bon endroit :
+
+- **Boutique déjà connectée** → redirection directe vers ton dashboard Actero
+- **Première fois** → relance du flow OAuth pour finaliser l'install
+
+Tu n'as donc jamais à coller manuellement une URL : Shopify Admin reste ton point d'entrée.
+
 ## Scopes demandés
 
+Actero sépare scopes **requis** et **optionnels**. Tu peux décliner les optionnels sans casser l'install ; les fonctionnalités correspondantes restent simplement inactives jusqu'à ce que tu les accordes.
+
+### Scopes requis
+
 <AccordionGroup>
-  <Accordion title="read_orders, read_customers, read_products">
-    Lecture seule. Ton agent consulte les commandes pour répondre aux WISMO, les clients pour personnaliser le ton, les produits pour répondre aux questions techniques (taille, matière, stock).
+  <Accordion title="read_orders, read_fulfillments">
+    Lecture des commandes et des expéditions. Indispensable pour répondre aux WISMO et donner un ETA fiable au client.
   </Accordion>
-  <Accordion title="read_abandoned_checkouts">
-    Pour le playbook `panier abandonné`. Ton agent détecte les paniers laissés en plan et déclenche les relances email selon le délai que tu choisis.
+  <Accordion title="read_customers">
+    Identifier le client qui pose la question, personnaliser le ton et reconnaître les clients VIP.
   </Accordion>
-  <Accordion title="write_draft_orders (optionnel, plan Pro)">
-    Permet à l'agent vocal de créer un devis pendant un appel et de l'envoyer par email au client. Inactif par défaut.
+  <Accordion title="read_products, read_inventory">
+    Répondre aux questions catalogue (taille, matière, prix) et stock (« est-ce qu'il en reste en M ? »).
+  </Accordion>
+  <Accordion title="read_checkouts">
+    Détecter les paniers abandonnés pour le playbook de relance.
+  </Accordion>
+  <Accordion title="read_returns">
+    Répondre aux questions sur la politique et le statut des retours.
+  </Accordion>
+  <Accordion title="read_themes, write_themes">
+    Injecter automatiquement le widget de chat Actero dans le thème actif de ta boutique. Sans ces scopes, tu devrais coller le snippet à la main dans `theme.liquid`.
+  </Accordion>
+</AccordionGroup>
+
+### Scopes optionnels
+
+<AccordionGroup>
+  <Accordion title="write_orders (recommandé)">
+    Permet à l'agent de déclencher remboursements et annulations quand ta politique le permet. Sans ce scope, l'agent escalade systématiquement à un humain pour ces actions.
+  </Accordion>
+  <Accordion title="read_draft_orders">
+    Donne du contexte d'upsell dans les conversations (devis en cours, panier construit par un staff). Sans ce scope, l'agent ignore les drafts.
+  </Accordion>
+  <Accordion title="read_shipping">
+    Permet à l'agent de citer un tarif de livraison en direct (« combien coûte une livraison express vers Lyon ? »). Sans ce scope, l'agent répond avec une formulation générique.
   </Accordion>
 </AccordionGroup>
 
 <Warning>
-Aucun scope de paiement, de modification de commande, de remboursement ou de stock n'est demandé. **Actero ne peut jamais agir sur ta caisse, ni modifier une commande, ni rembourser à ta place.** Tout reste en lecture pure côté Shopify.
+Aucun scope de paiement ni de modification de stock n'est demandé. Même avec `write_orders` accordé, l'agent ne peut ni encaisser, ni modifier un produit, ni toucher à ton inventaire.
 </Warning>
-
-## Quelles données circulent
-
-- **Commandes** (numéro, statut, total, items, tracking) → utilisées pour répondre aux WISMO et au SAV
-- **Clients** (nom, email, langue, historique) → utilisés pour personnaliser le ton et reconnaître les clients VIP
-- **Produits** (titre, description, variantes, prix, stock) → utilisés pour les questions catalogue
-- **Paniers abandonnés** (items, total, email, URL de checkout) → utilisés pour les relances automatiques
-
-Tout est stocké chiffré côté Actero (Supabase, RLS activée, isolation par `client_id`). Aucune donnée n'est jamais partagée avec un autre marchand.
 
 ## Webhooks configurés automatiquement
 
-À l'installation, Actero enregistre quatre webhooks signés HMAC SHA-256 (vérification en temps constant via `crypto.timingSafeEqual`) :
+À l'installation, Actero enregistre cinq webhooks. Tous sont signés HMAC-SHA256 et vérifiés en temps constant (`crypto.timingSafeEqual`) côté Actero.
+
+### Conformité (obligatoires App Store)
 
 | Webhook | Effet dans Actero |
 |---|---|
-| `orders/create` | Indexe la commande pour les futures réponses WISMO |
-| `orders/updated` | Met à jour le statut tracking en temps réel |
-| `carts/abandoned` | Déclenche le playbook `panier abandonné` |
-| `customers/create` | Enrichit la base client (langue, géo, segment) |
+| `customers/data_request` | Accusé de réception, traitement manuel sous 30 jours via [contact@actero.fr](mailto:contact@actero.fr) |
+| `customers/redact` | Suppression définitive des PII du client concerné (email, nom, historique de conversations) |
+| `shop/redact` | Suppression définitive de toutes les données scoped au marchand, 48h après la désinstallation |
+| `app/uninstalled` | Marque la boutique comme désinstallée, désactive le widget, alerte l'équipe Actero pour suivi |
+
+Chaque appel à un webhook de conformité est tracé (hash SHA-256 du payload, jamais le payload brut) dans un journal d'audit append-only conservé pour démontrer la conformité RGPD.
+
+### Métier
+
+| Webhook | Effet dans Actero |
+|---|---|
+| `checkouts/create` | Déclenche le playbook **panier abandonné** (relance email selon le délai que tu choisis) |
 
 Tu peux désactiver un playbook depuis **Automatisation** sans toucher à l'intégration Shopify.
+
+## Quelles données circulent
+
+- **Commandes** (numéro, statut, total, items, tracking) → réponses WISMO et SAV
+- **Clients** (nom, email, langue, historique) → personnalisation du ton, reconnaissance des VIP
+- **Produits** (titre, description, variantes, prix, stock) → questions catalogue
+- **Paniers abandonnés** (items, total, email, URL de checkout) → relances automatiques
+
+Tout est stocké chiffré côté Actero (Supabase, RLS activée, isolation par `client_id`). Aucune donnée n'est jamais partagée avec un autre marchand.
 
 ## Multi-boutique
 
@@ -82,9 +130,14 @@ Sur les plans **Free**, **Starter** et **Pro**, tu as **un seul domaine Shopify 
 Une seule plateforme e-commerce active par compte. Si tu connectes ensuite [WooCommerce](/integrations/woocommerce) ou [Webflow](/integrations/webflow), Actero te demande de déconnecter Shopify d'abord.
 </Note>
 
-## Déconnexion
+## Désinstallation
 
-Va dans **Intégrations → Shopify → Déconnecter**. Actero révoque immédiatement son token d'accès, supprime les quatre webhooks Shopify et arrête de lire tes données. Les conversations passées restent dans ton historique pour des raisons RGPD (export et suppression possibles depuis **Profil → Mes données**).
+Deux chemins, même résultat :
+
+- **Depuis Shopify Admin** → **Apps → Actero → Supprimer l'app**. Shopify déclenche le webhook `app/uninstalled` ; Actero révoque le token, désactive le widget et marque ta boutique comme désinstallée dans les secondes qui suivent.
+- **Depuis Actero** → **Intégrations → Shopify → Déconnecter**. Effet équivalent côté Actero, plus suppression manuelle des webhooks via l'API Shopify Admin.
+
+Les conversations passées restent dans ton historique pour des raisons RGPD (export et suppression possibles depuis [Export RGPD](/essentials/export-rgpd)). Si Shopify déclenche `shop/redact` 48h après la désinstallation, toutes les données scoped à ta boutique sont effacées définitivement côté Actero.
 
 ## Problèmes fréquents
 
@@ -93,10 +146,13 @@ Va dans **Intégrations → Shopify → Déconnecter**. Actero révoque immédia
     Vérifie que Shopify est bien en statut **Connecté** dans Intégrations. L'agent matche d'abord par email client, puis par numéro de commande. Si le client a passé sa commande en invité avec une autre adresse email que celle utilisée dans la conversation, demande-lui de confirmer son email d'achat.
   </Accordion>
   <Accordion title="Webhook error 401 ou 403 dans les logs Shopify">
-    Cela arrive quand le secret HMAC a tourné (rotation de credentials côté Shopify). Déconnecte puis reconnecte l'intégration depuis Actero — les nouveaux webhooks sont régénérés avec un secret frais.
+    Le secret HMAC a probablement tourné (rotation côté Shopify). Déconnecte puis reconnecte l'intégration depuis Actero — les webhooks sont régénérés avec un secret frais.
   </Accordion>
   <Accordion title="Relances panier abandonné qui ne partent pas">
     Trois choses à vérifier : (1) le playbook `panier abandonné` est **activé** dans Automatisation, (2) un service d'envoi est configuré ([Resend](/integrations/resend), [Gmail](/integrations/gmail) ou [SMTP/IMAP](/integrations/smtp-imap)), (3) le client a bien laissé son email à l'étape checkout (sans email, pas de relance possible).
+  </Accordion>
+  <Accordion title="Le widget ne s'affiche pas sur ma boutique">
+    Vérifie que tu as accordé `read_themes` et `write_themes` à l'install. Sinon, reconnecte Actero : Shopify te redemande ces scopes et l'injection se fait automatiquement. Tu peux aussi désactiver puis réactiver le thème pour forcer un rechargement.
   </Accordion>
   <Accordion title="J'ai changé de domaine Shopify (migration .myshopify.com)">
     Reconnecte l'intégration avec le nouveau domaine. Les commandes historiques restent indexées, le nouveau token prend le relais sans coupure de service.
@@ -109,13 +165,16 @@ Va dans **Intégrations → Shopify → Déconnecter**. Actero révoque immédia
 ## FAQ
 
 <AccordionGroup>
-  <Accordion title="Actero apparaît-elle dans le Shopify App Store ?">
-    Oui. L'installation passe par le flow OAuth officiel Shopify, ce qui te garantit que les scopes sont visibles, révocables à tout moment et auditables depuis Shopify Admin → **Apps**.
+  <Accordion title="Actero est-elle listée sur le Shopify App Store ?">
+    Oui. L'installation passe par le flow OAuth officiel Shopify, ce qui te garantit que les scopes sont visibles, révocables à tout moment et auditables depuis Shopify Admin → **Apps → Actero → Voir les détails de l'app**.
   </Accordion>
   <Accordion title="Combien de temps pour indexer toute ma boutique ?">
     Les 30 dernières commandes sont indexées en ~20 secondes (immédiat). L'indexation complète (catalogue, clients, historique 12 mois) prend de 2 à 30 minutes selon la taille de ta boutique. Tu reçois une notification dans le dashboard quand c'est fini.
   </Accordion>
   <Accordion title="Mes clients voient-ils que c'est une IA ?">
-    Tu choisis. Par défaut, l'agent signe avec le nom de ta marque. Tu peux activer une signature explicite ("Réponse assistée par notre agent IA") depuis **Configurer l'agent → Identité**.
+    Tu choisis. Par défaut, l'agent signe avec le nom de ta marque. Tu peux activer une signature explicite (« Réponse assistée par notre agent IA ») depuis **Configurer l'agent → Identité**.
+  </Accordion>
+  <Accordion title="Que se passe-t-il si je désinstalle puis réinstalle plus tard ?">
+    Si tu réinstalles dans les 48h, tes données sont encore là — tu retrouves ton agent configuré tel quel. Au-delà, Shopify a déclenché `shop/redact` et tout a été effacé : tu repars d'une page blanche.
   </Accordion>
 </AccordionGroup>
