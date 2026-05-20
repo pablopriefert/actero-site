@@ -1,6 +1,6 @@
 ---
-title: "Shopify"
-description: "Connecte ta boutique Shopify en OAuth 1-clic. Lecture commandes, clients, produits, paniers abandonnés."
+title: "Connecter Shopify à Actero en OAuth 1-clic"
+description: "Installe l'app Actero sur Shopify, configure les scopes OAuth requis et optionnels, et active les webhooks commandes, clients et panier abandonné."
 ---
 
 Shopify est l'intégration phare d'Actero. Une fois connectée, ton agent répond aux questions WISMO ("où est ma commande ?"), retourne, échange, suivi de panier, recommande des produits et personnalise chaque réponse avec le profil client — sans toucher à ta caisse.
@@ -32,22 +32,52 @@ Shopify est l'intégration phare d'Actero. Une fois connectée, ton agent répon
 Si tu n'as pas encore configuré ton agent, regarde le [quickstart](/essentials/quickstart) — c'est la suite logique de cette connexion.
 </Tip>
 
+## Ouvrir Actero depuis Shopify Admin
+
+Une fois l'app installée, la tuile **Actero** apparaît dans Shopify Admin → **Apps**. Cliquer sur la tuile t'amène directement au dashboard Actero, déjà scopé sur ta boutique — pas besoin de retaper ton email ni de choisir un tenant.
+
+Sous le capot, Shopify redirige vers `https://actero.fr/api/shopify/app` avec une signature HMAC. Actero :
+
+1. Vérifie la signature HMAC pour s'assurer que la redirection vient bien de Shopify.
+2. Cherche le `shop_domain` dans la table des connexions.
+3. Si la boutique est **déjà connectée**, te renvoie sur `/dashboard?shop=ma-boutique.myshopify.com`.
+4. Si la boutique **n'est pas encore connectée** (cas rare — installation interrompue), te renvoie sur le flow OAuth `/api/shopify/install`.
+
+<Note>
+Tu n'as rien à configurer côté Actero pour activer ce raccourci — il est câblé automatiquement à la première installation via le Shopify App Store.
+</Note>
+
 ## Scopes demandés
 
-<AccordionGroup>
-  <Accordion title="read_orders, read_customers, read_products">
-    Lecture seule. Ton agent consulte les commandes pour répondre aux WISMO, les clients pour personnaliser le ton, les produits pour répondre aux questions techniques (taille, matière, stock).
-  </Accordion>
-  <Accordion title="read_abandoned_checkouts">
-    Pour le playbook `panier abandonné`. Ton agent détecte les paniers laissés en plan et déclenche les relances email selon le délai que tu choisis.
-  </Accordion>
-  <Accordion title="write_draft_orders (optionnel, plan Pro)">
-    Permet à l'agent vocal de créer un devis pendant un appel et de l'envoyer par email au client. Inactif par défaut.
-  </Accordion>
-</AccordionGroup>
+Shopify sépare désormais les scopes **requis** (impossibles à refuser sans annuler l'installation) et les scopes **optionnels** (que tu peux décliner — l'agent fonctionne quand même, en mode dégradé sur les features concernées).
+
+### Requis
+
+| Scope | À quoi ça sert |
+|---|---|
+| `read_orders`, `read_fulfillments` | Réponses WISMO, statut tracking, ETA livraison |
+| `read_customers` | Identifier le client qui pose la question, personnaliser le ton |
+| `read_products`, `read_inventory` | Questions catalogue, réponses stock |
+| `read_checkouts` | Playbook `panier abandonné` |
+| `read_returns` | Réponses politique de retour |
+| `read_themes`, `write_themes` | Injection automatique du widget dans le thème actif via l'API `assets.json` |
+
+<Note>
+Les scopes `read_themes` / `write_themes` sont requis parce que sans eux, le widget de chat ne peut pas s'installer tout seul sur ta boutique. Actero écrit uniquement le snippet du widget — aucun autre fichier de thème n'est modifié.
+</Note>
+
+### Optionnels
+
+| Scope | Feature débloquée si accordé |
+|---|---|
+| `write_orders` | Remboursements et annulations pilotés par l'agent |
+| `read_draft_orders` | Contexte upsell dans les conversations |
+| `read_shipping` | Réponses temps réel sur les tarifs de livraison |
+
+Si tu décoches un scope optionnel sur l'écran Shopify, l'installation se poursuit et la feature correspondante reste désactivée tant que tu n'as pas réinstallé l'app pour la regranter.
 
 <Warning>
-Aucun scope de paiement, de modification de commande, de remboursement ou de stock n'est demandé. **Actero ne peut jamais agir sur ta caisse, ni modifier une commande, ni rembourser à ta place.** Tout reste en lecture pure côté Shopify.
+Aucun scope de paiement n'est demandé. **Actero ne peut jamais encaisser, modifier un mode de paiement, ni accéder à tes données bancaires.** Les actions d'écriture (remboursement, annulation, devis) sont opt-in via les scopes optionnels et toujours auditables depuis Shopify Admin → **Apps**.
 </Warning>
 
 ## Quelles données circulent
@@ -61,7 +91,7 @@ Tout est stocké chiffré côté Actero (Supabase, RLS activée, isolation par `
 
 ## Webhooks configurés automatiquement
 
-À l'installation, Actero enregistre quatre webhooks signés HMAC SHA-256 (vérification en temps constant via `crypto.timingSafeEqual`) :
+À l'installation, Actero enregistre cinq webhooks signés HMAC SHA-256 (vérification en temps constant via `crypto.timingSafeEqual`) :
 
 | Webhook | Effet dans Actero |
 |---|---|
@@ -69,8 +99,13 @@ Tout est stocké chiffré côté Actero (Supabase, RLS activée, isolation par `
 | `orders/updated` | Met à jour le statut tracking en temps réel |
 | `carts/abandoned` | Déclenche le playbook `panier abandonné` |
 | `customers/create` | Enrichit la base client (langue, géo, segment) |
+| `app/uninstalled` | Coupe immédiatement la lecture Shopify si tu désinstalles l'app |
 
 Tu peux désactiver un playbook depuis **Automatisation** sans toucher à l'intégration Shopify.
+
+<Note>
+Le webhook `app/uninstalled` est aussi déclaré côté Partner Dashboard pour respecter les exigences App Store. Le double enregistrement (Partner + API Admin) garantit que la désinstallation est toujours détectée, même en cas de mauvaise configuration côté Shopify.
+</Note>
 
 ## Multi-boutique
 
