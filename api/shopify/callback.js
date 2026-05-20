@@ -190,6 +190,45 @@ async function handler(req, res) {
     }
   }
 
+  // 6c-bis. Register app/uninstalled webhook (App Store requirement).
+  //
+  // We also declare this URL in the Partner Dashboard's mandatory compliance
+  // webhooks section, but Shopify recommends registering it again via the
+  // Admin API at install time so it survives any Partner Dashboard misconfig.
+  // The handler lives at api/shopify/webhooks/app/uninstalled.js and verifies
+  // HMAC on the raw body (same pattern as the GDPR webhooks shipped earlier).
+  if (access_token) {
+    try {
+      const uninstallRes = await fetch(`https://${shop}/admin/api/2025-01/webhooks.json`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': access_token,
+        },
+        body: JSON.stringify({
+          webhook: {
+            topic: 'app/uninstalled',
+            address: 'https://actero.fr/api/shopify/webhooks/app/uninstalled',
+            format: 'json',
+          },
+        }),
+      });
+      if (!uninstallRes.ok) {
+        // Shopify returns 422 if the webhook already exists — that's expected
+        // on re-install, so log warn instead of error to avoid noise.
+        const txt = await uninstallRes.text();
+        const isDuplicate = uninstallRes.status === 422 && txt.includes('already been taken');
+        if (isDuplicate) {
+          console.log('[shopify-callback] app/uninstalled webhook already registered (re-install)');
+        } else {
+          console.error('app/uninstalled webhook registration failed:', txt);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to register app/uninstalled webhook:', err.message);
+    }
+  }
+
   // 6d. Spawn the heavy-lift onboarding job in an E2B sandbox.
   // The sandbox pulls products / customers / orders / historical convos and
   // builds the initial knowledge base. We do not block the OAuth response —
