@@ -1,7 +1,12 @@
 /**
  * Actero Engine — Claude Client
  * Handles Claude API calls with timeout, retry, and structured JSON parsing.
+ *
+ * Wrapped in a Braintrust span ("claude.call") for observability — fail-soft,
+ * never blocks the actual Claude call if Braintrust is unavailable.
  */
+
+import { trace } from './braintrust-init.js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 const MODEL = 'claude-sonnet-4-20250514'
@@ -11,6 +16,17 @@ const TIMEOUT_MS = 8000 // 8s to stay within Vercel's 10s limit
 export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKENS }) {
   if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured')
 
+  return trace(
+    'claude.call',
+    {
+      input: { system: systemPrompt, messages },
+      metadata: { model: MODEL, max_tokens: maxTokens },
+    },
+    async (span) => _callClaudeInner({ systemPrompt, messages, maxTokens }, span),
+  )
+}
+
+async function _callClaudeInner({ systemPrompt, messages, maxTokens }, span) {
   const startTime = Date.now()
   let lastError = null
 
@@ -89,6 +105,22 @@ export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKEN
         }
       }
 
+      try {
+        span?.log({
+          output: rawText,
+          metadata: {
+            model_id: modelId,
+            tokens_in: usage.tokensIn,
+            tokens_out: usage.tokensOut,
+            processing_time_ms: processingTimeMs,
+            attempt: attempt + 1,
+            parsed_intent: parsed?.detected_intent,
+            parsed_confidence: parsed?.confidence,
+            should_escalate: parsed?.should_escalate,
+          },
+        })
+      } catch { /* observability never blocks */ }
+
       return {
         ...parsed,
         processingTimeMs,
@@ -106,6 +138,13 @@ export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKEN
       if (attempt === 0) await new Promise(r => setTimeout(r, 500))
     }
   }
+
+  try {
+    span?.log({
+      output: null,
+      metadata: { error: lastError?.message || 'unknown', failed: true },
+    })
+  } catch { /* observability never blocks */ }
 
   throw lastError
 }

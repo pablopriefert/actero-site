@@ -11,6 +11,7 @@
  * without any modification.
  */
 import { callClaude } from './lib/claude-client.js'
+import { trace } from './lib/braintrust-init.js'
 import { loadClientConfig } from './lib/config-loader.js'
 import { buildSystemPrompt } from './lib/prompt-builder.js'
 import { retrieveMemories, buildMemoryContext } from './lib/memory.js'
@@ -88,7 +89,50 @@ async function maybeFetchProductRecommendations(supabase, { clientConfig, client
  * Run the Brain on a normalized event.
  * Returns: { classification, confidence, actionPlan, aiResponse, needsReview, reviewReason, productRecommendations, agentUsed }
  */
-export async function runBrain(supabase, { event, playbook, clientId, normalized, conversationHistory }) {
+export async function runBrain(supabase, args) {
+  return trace(
+    'brain.run',
+    {
+      input: { message: args?.normalized?.message, source: args?.event?.source },
+      metadata: {
+        client_id: args?.clientId,
+        playbook_id: args?.playbook?.id,
+        is_test: !!args?.normalized?._is_test,
+        has_images: Array.isArray(args?.normalized?.images) && args.normalized.images.length > 0,
+        history_length: Array.isArray(args?.conversationHistory) ? args.conversationHistory.length : 0,
+      },
+    },
+    async (span) => {
+      let result
+      try {
+        result = await _runBrainInner(supabase, args, span)
+      } catch (e) {
+        try { span?.log({ output: null, metadata: { error: e?.message, failed: true } }) } catch { /* */ }
+        throw e
+      }
+      try {
+        span?.log({
+          output: result?.aiResponse,
+          metadata: {
+            classification: result?.classification,
+            confidence: result?.confidence,
+            needs_review: result?.needsReview,
+            review_reason: result?.reviewReason,
+            agent_used: result?.agentUsed,
+            tokens_in: result?.usage?.tokensIn,
+            tokens_out: result?.usage?.tokensOut,
+            cost_usd: result?.usage?.costUsd,
+            model_id: result?.usage?.modelId,
+            product_recos_count: Array.isArray(result?.productRecommendations) ? result.productRecommendations.length : 0,
+          },
+        })
+      } catch { /* observability never blocks */ }
+      return result
+    },
+  )
+}
+
+async function _runBrainInner(supabase, { event, playbook, clientId, normalized, conversationHistory }, _span) {
   // --- Increment ticket usage counter (single source of truth for ALL callers) ---
   // Skip for test mode
   if (!normalized?._is_test) {
