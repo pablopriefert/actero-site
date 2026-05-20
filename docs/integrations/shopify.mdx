@@ -61,7 +61,11 @@ Tout est stocké chiffré côté Actero (Supabase, RLS activée, isolation par `
 
 ## Webhooks configurés automatiquement
 
-À l'installation, Actero enregistre quatre webhooks signés HMAC SHA-256 (vérification en temps constant via `crypto.timingSafeEqual`) :
+À l'installation, Actero enregistre des webhooks signés HMAC SHA-256 (vérification en temps constant via `crypto.timingSafeEqual`). Tu n'as rien à configurer — Shopify et Actero s'en occupent.
+
+### Webhooks métier
+
+Ces webhooks alimentent ton agent en données fraîches.
 
 | Webhook | Effet dans Actero |
 |---|---|
@@ -71,6 +75,33 @@ Tout est stocké chiffré côté Actero (Supabase, RLS activée, isolation par `
 | `customers/create` | Enrichit la base client (langue, géo, segment) |
 
 Tu peux désactiver un playbook depuis **Automatisation** sans toucher à l'intégration Shopify.
+
+### Webhooks RGPD et cycle de vie (App Store)
+
+Actero est listée sur le Shopify App Store. Shopify exige et vérifie quatre webhooks obligatoires pour gérer la conformité RGPD et le cycle de vie de l'app. Tu ne peux pas les désactiver — c'est une condition de présence sur l'App Store — et tu n'as rien à faire : tout est géré automatiquement.
+
+| Webhook Shopify | Quand il se déclenche | Ce qu'Actero fait |
+|---|---|---|
+| `customers/data_request` | Un client final demande à voir ses données (DSAR, art. 15 RGPD) | Accusé de réception. Si une vraie demande arrive, l'équipe Actero te recontacte pour répondre manuellement sous 30 jours |
+| `customers/redact` | ~10 jours après qu'un client a été supprimé de ta boutique | Suppression définitive des messages, événements, appels vocaux et logs d'automation liés à cet email, dans le périmètre de ta boutique |
+| `shop/redact` | 48 h après la désinstallation de l'app (si tu ne l'as pas réinstallée) | Purge complète : conversations, événements moteur, appels vocaux, connexion OAuth Shopify. Ta ligne de facturation reste pour ton historique Stripe et tes factures, mais sans donnée client |
+| `app/uninstalled` | Tu désinstalles Actero depuis Shopify Admin | Statut passé à `uninstalled`, widget de chat désactivé sur ta boutique, alerte envoyée à l'équipe Actero. Les données restent intactes jusqu'au `shop/redact` |
+
+<Note>
+Chaque appel est consigné dans un journal d'audit en ajout seul (`shopify_gdpr_log`). Actero stocke un hash SHA-256 du payload reçu — jamais le payload brut — plus le nombre de lignes supprimées par table. Sur demande, tu peux récupérer ce journal pour prouver à un auditeur que les demandes Shopify ont bien été traitées.
+</Note>
+
+### Que se passe-t-il à la désinstallation
+
+Si tu désinstalles Actero depuis Shopify Admin → **Apps** :
+
+1. **Immédiatement** : ton statut passe à `uninstalled`, le widget de chat est désactivé sur ta boutique. Tes conversations restent disponibles dans ton dashboard Actero.
+2. **Sous 48 h** : si tu ne réinstalles pas l'app, Shopify déclenche `shop/redact`. Actero supprime définitivement toutes les données opérationnelles liées à ta boutique (messages clients, événements moteur, appels vocaux, lien OAuth).
+3. **Ce qui reste** : la ligne `clients` (sans donnée client) pour préserver l'historique Stripe et tes factures émises. Tu peux demander sa suppression depuis [Export RGPD](/essentials/export-rgpd).
+
+<Tip>
+Tu veux récupérer tes données avant de désinstaller ? Lance un [export RGPD](/essentials/export-rgpd) depuis ton dashboard — c'est gratuit et instantané.
+</Tip>
 
 ## Multi-boutique
 
