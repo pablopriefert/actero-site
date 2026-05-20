@@ -1,11 +1,14 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 #
-# This file is the SOURCE OF TRUTH for the Actero Shopify App configuration on
-# the App Store. Any change to scopes, webhooks, or URLs MUST be made here and
-# pushed with `shopify app deploy`. Do not edit the same fields in the Shopify
-# dev dashboard UI — they will be overwritten on the next deploy.
+# SOURCE OF TRUTH for the Actero Shopify App Store configuration. Any change
+# to scopes, webhooks, or URLs MUST be made here and pushed with:
+#
+#   npx @shopify/cli@latest app deploy
+#
+# Do not edit the same fields in the Shopify dev dashboard UI — they will be
+# overwritten on the next deploy.
 
-client_id = "fcb9a2aafa1c3d00a213ba7dd16a584c"
+client_id = "56c7c48d70f6dafa37edfc36833a171a"
 
 # Smart router endpoint: handles both "Open app" from Shopify Admin (when
 # already installed, redirects to /dashboard) and first-time install (kicks
@@ -38,7 +41,7 @@ use_legacy_install_flow = false
 redirect_urls = [ "https://actero.fr/api/shopify/callback" ]
 
 [webhooks]
-api_version = "2026-01"
+api_version = "2026-04"
 
   # ----- GDPR / mandatory compliance webhooks ----------------------------------
   # Shopify sends these regardless of merchant install state — they are
