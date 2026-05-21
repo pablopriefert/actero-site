@@ -1,0 +1,18 @@
+# Actero Widget — Theme App Extension
+#
+# Replaces the legacy direct-theme injection (api/engine/shopify-widget.js,
+# which wrote into layout/theme.liquid via the Asset API). Shopify App Store
+# policy 5.1.1 requires storefront UI to ship as a theme app extension, not
+# as scripted theme edits.
+#
+# Once the extension is deployed, merchants enable the Actero widget in
+# their Theme Editor → Add app block → Actero AI Support → save. The block
+# embeds a single <script> tag that loads /api/engine/shopify-widget for
+# the connected client.
+
+api_version = "2026-04"
+
+[[extensions]]
+type = "theme"
+name = "Actero AI Support Widget"
+handle = "actero-widget"

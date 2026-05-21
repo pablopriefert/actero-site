@@ -1,6 +1,20 @@
 /**
- * Actero Engine — Shopify Widget Auto-Install
- * Automatically installs/uninstalls the Actero chat widget on a Shopify store.
+ * Actero Engine — Shopify Widget Auto-Install (LEGACY)
+ *
+ * Automatically installs/uninstalls the Actero chat widget on a Shopify
+ * store by editing the active theme's layout/theme.liquid via the Asset
+ * API. Kept for legacy merchants installed before the theme app extension
+ * shipped (May 2026).
+ *
+ * NEW INSTALLS use the theme app extension at extensions/actero-widget/
+ * — the merchant enables the "Actero AI Support" block from their Theme
+ * Editor and the script tag is injected via Shopify's native extension
+ * surface (not the Asset API). Shopify App Store policy 5.1.1 mandates
+ * theme app extensions for new public apps.
+ *
+ * This endpoint stays available so old merchants can still trigger
+ * install/uninstall from their dashboard if they don't want to migrate.
+ * Do NOT call it from the post-OAuth onboarding flow for new installs.
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'

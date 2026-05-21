@@ -1,0 +1,69 @@
+{% comment %}
+  Actero AI Support Widget — Theme App Extension block.
+
+  Replaces the legacy direct-theme injection (api/engine/shopify-widget.js).
+  Shipped as a theme app extension so merchants enable / disable / reorder
+  the widget from their Theme Editor instead of us editing layout/theme.liquid
+  via the Asset API (App Store policy 5.1.1).
+
+  Setup for the merchant:
+    1. Theme editor → App embeds → enable "Actero AI Support Widget".
+    2. Paste the API key from https://actero.fr/dashboard/widget into
+       the block settings, then save.
+
+  If the merchant leaves api_key blank, we fall back to embedding the
+  shop's permanent domain — actero.fr/widget.js resolves shop → client
+  server-side and refuses to load if no match is found.
+{% endcomment %}
+
+{%- if block.settings.api_key != blank or shop.permanent_domain != blank -%}
+  <script
+    src="https://actero.fr/widget.js?v={{ 'now' | date: '%s' }}"
+    {%- if block.settings.api_key != blank %}
+      data-actero-key="{{ block.settings.api_key | escape }}"
+    {%- endif %}
+    data-actero-shop="{{ shop.permanent_domain | escape }}"
+    {%- if block.settings.position != blank %}
+      data-actero-position="{{ block.settings.position | escape }}"
+    {%- endif %}
+    {%- if block.settings.accent_color != blank %}
+      data-actero-accent="{{ block.settings.accent_color | escape }}"
+    {%- endif %}
+    defer
+  ></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Actero AI Support",
+  "target": "body",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Get your API key from your Actero dashboard at actero.fr/dashboard/widget. Leaving this blank uses your shop domain to auto-detect the account."
+    },
+    {
+      "type": "text",
+      "id": "api_key",
+      "label": "Actero API key",
+      "info": "Optional. If blank, the widget auto-detects via your shop domain."
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "Widget position",
+      "default": "bottom-right",
+      "options": [
+        { "value": "bottom-right", "label": "Bottom right" },
+        { "value": "bottom-left",  "label": "Bottom left"  }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "Optional override. Defaults to the color configured in your Actero dashboard."
+    }
+  ]
+}
+{% endschema %}

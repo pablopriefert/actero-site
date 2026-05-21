@@ -163,35 +163,102 @@ async function detectFailedPayment(supabase, clientId, config) {
   }, thresholdHours)
 }
 
+// Shopify GraphQL Admin API — required by App Store policy 2.2.4 for all
+// non-Theme/Asset endpoints in new public apps.
+const GRAPHQL_API_VERSION = '2025-01'
+
+const UNPAID_ORDERS_QUERY = `
+  query UnpaidOrders($query: String!, $first: Int!) {
+    orders(first: $first, query: $query, sortKey: CREATED_AT, reverse: true) {
+      edges {
+        node {
+          id
+          name
+          createdAt
+          displayFinancialStatus
+          currentTotalPriceSet { shopMoney { amount currencyCode } }
+          customer { email firstName lastName }
+          statusPageUrl
+        }
+      }
+    }
+  }
+`
+
+function gidToNumericId(gid) {
+  if (!gid) return null
+  const parts = String(gid).split('/')
+  return parts[parts.length - 1] || null
+}
+
+async function shopifyGraphql(conn, query, variables) {
+  const resp = await fetch(
+    `https://${conn.shop_domain}/admin/api/${GRAPHQL_API_VERSION}/graphql.json`,
+    {
+      method: 'POST',
+      headers: {
+        'X-Shopify-Access-Token': conn.access_token,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ query, variables }),
+    },
+  )
+  if (!resp.ok) {
+    console.warn('[proactive] shopifyGraphql HTTP', resp.status)
+    return null
+  }
+  const json = await resp.json()
+  if (json?.errors?.length) {
+    console.warn('[proactive] shopifyGraphql errors:', JSON.stringify(json.errors))
+    return null
+  }
+  return json?.data || null
+}
+
 async function fetchUnpaidOrders(conn, thresholdHours) {
   if (!conn.shop_domain || !conn.access_token) return []
   const sinceIso = new Date(Date.now() - thresholdHours * 3600000 - 7 * 86400000).toISOString() // last 7d window
   const upperIso = new Date(Date.now() - thresholdHours * 3600000).toISOString()
 
   try {
-    const url = `https://${conn.shop_domain}/admin/api/2025-01/orders.json?status=open&financial_status=pending&created_at_min=${sinceIso}&created_at_max=${upperIso}&limit=50`
-    const resp = await fetch(url, {
-      headers: { 'X-Shopify-Access-Token': conn.access_token, Accept: 'application/json' },
+    // Shopify search DSL: status:open AND financial_status:pending AND a date window.
+    const searchQuery = [
+      'status:open',
+      'financial_status:pending',
+      `created_at:>=${sinceIso}`,
+      `created_at:<=${upperIso}`,
+    ].join(' ')
+
+    const data = await shopifyGraphql(conn, UNPAID_ORDERS_QUERY, {
+      query: searchQuery,
+      first: 50,
     })
-    if (!resp.ok) return []
-    const json = await resp.json()
-    const orders = json.orders || []
-    return orders
-      .filter(o => o.customer?.email)
-      .map(o => ({
-        detection_key: `payment_${o.id}`,
-        customer_email: o.customer.email,
-        customer_name: `${o.customer.first_name || ''} ${o.customer.last_name || ''}`.trim() || null,
-        trigger_data: {
-          order_number: o.order_number,
-          order_id: o.id,
-          total: o.total_price,
-          currency: o.currency,
-          financial_status: o.financial_status,
-          created_at: o.created_at,
-          checkout_url: o.order_status_url || null,
-        },
-      }))
+    if (!data) return []
+    const edges = data?.orders?.edges || []
+    return edges
+      .map((e) => e.node)
+      .filter((o) => o.customer?.email)
+      .map((o) => {
+        const numericId = gidToNumericId(o.id)
+        return {
+          detection_key: `payment_${numericId}`,
+          customer_email: o.customer.email,
+          customer_name:
+            `${o.customer.firstName || ''} ${o.customer.lastName || ''}`.trim() || null,
+          trigger_data: {
+            // `name` is the customer-facing order number (e.g. "#1042"),
+            // which is what the merchant uses in their admin too.
+            order_number: o.name,
+            order_id: numericId,
+            total: o.currentTotalPriceSet?.shopMoney?.amount,
+            currency: o.currentTotalPriceSet?.shopMoney?.currencyCode,
+            financial_status: o.displayFinancialStatus?.toLowerCase() || null,
+            created_at: o.createdAt,
+            checkout_url: o.statusPageUrl || null,
+          },
+        }
+      })
   } catch (err) {
     console.error('[proactive/failed_payment]', err.message)
     return []
@@ -225,35 +292,60 @@ async function detectSilentVip(supabase, clientId, config) {
   if (!conn?.shop_domain || !conn?.access_token) return []
 
   try {
-    // Fetch top spenders (sorted by total_spent desc)
-    const url = `https://${conn.shop_domain}/admin/api/2025-01/customers.json?limit=50`
-    const resp = await fetch(url, {
-      headers: { 'X-Shopify-Access-Token': conn.access_token, Accept: 'application/json' },
-    })
-    if (!resp.ok) return []
-    const json = await resp.json()
+    // GraphQL customers query, sorted by total amount spent (desc) so we get
+    // top spenders first. We fetch a page of 50 and filter client-side by the
+    // configured CLV threshold + silence window.
+    const SILENT_VIP_QUERY = `
+      query SilentVip($first: Int!) {
+        customers(first: $first, sortKey: AMOUNT_SPENT, reverse: true) {
+          edges {
+            node {
+              id
+              email
+              firstName
+              lastName
+              numberOfOrders
+              amountSpent { amount currencyCode }
+              lastOrder { id processedAt }
+              updatedAt
+            }
+          }
+        }
+      }
+    `
+
+    const data = await shopifyGraphql(conn, SILENT_VIP_QUERY, { first: 50 })
+    if (!data) return []
     const cutoff = Date.now() - silentDays * 86400000
 
-    return (json.customers || [])
-      .filter(c => c.email && Number(c.total_spent || 0) >= minClvEuros)
-      .filter(c => {
-        const lastOrderAt = c.last_order_date || c.updated_at
+    return (data?.customers?.edges || [])
+      .map((e) => e.node)
+      .filter((c) => c.email && Number(c.amountSpent?.amount || 0) >= minClvEuros)
+      .filter((c) => {
+        const lastOrderAt = c.lastOrder?.processedAt || c.updatedAt
         return lastOrderAt && new Date(lastOrderAt).getTime() < cutoff
       })
-      .map(c => ({
-        detection_key: `silent_${c.id}_${Math.floor(Date.now() / (30 * 86400000))}`, // refresh monthly
-        customer_email: c.email,
-        customer_name: `${c.first_name || ''} ${c.last_name || ''}`.trim() || null,
-        trigger_data: {
-          customer_id: c.id,
-          total_spent: c.total_spent,
-          orders_count: c.orders_count,
-          last_order_date: c.last_order_date,
-          days_silent: c.last_order_date
-            ? Math.floor((Date.now() - new Date(c.last_order_date).getTime()) / 86400000)
-            : null,
-        },
-      }))
+      .map((c) => {
+        const customerNumericId = gidToNumericId(c.id)
+        return {
+          detection_key: `silent_${customerNumericId}_${Math.floor(
+            Date.now() / (30 * 86400000),
+          )}`,
+          customer_email: c.email,
+          customer_name: `${c.firstName || ''} ${c.lastName || ''}`.trim() || null,
+          trigger_data: {
+            customer_id: customerNumericId,
+            total_spent: c.amountSpent?.amount,
+            orders_count: c.numberOfOrders,
+            last_order_date: c.lastOrder?.processedAt || null,
+            days_silent: c.lastOrder?.processedAt
+              ? Math.floor(
+                  (Date.now() - new Date(c.lastOrder.processedAt).getTime()) / 86400000,
+                )
+              : null,
+          },
+        }
+      })
   } catch (err) {
     console.error('[proactive/silent_vip]', err.message)
     return []

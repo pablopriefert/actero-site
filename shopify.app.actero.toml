@@ -29,9 +29,12 @@ name = "Actero"
 scopes = "read_orders,read_customers,read_products,read_fulfillments,read_checkouts,read_inventory,read_returns,read_themes,write_themes"
 
 # OPTIONAL — the merchant can decline these without breaking install. Power
-# features (refunds, upsells, live shipping rates) light up automatically
-# when the merchant accepts them.
-optional_scopes = [ "write_orders", "read_draft_orders", "read_shipping" ]
+# features (upsells, live shipping rates) light up automatically when the
+# merchant accepts them. We deliberately do NOT request write_orders here:
+# the agent never modifies orders directly. Refunds, if surfaced through
+# the agent, are drafted in our dashboard for the merchant to approve, and
+# the actual mutation runs server-to-server under read_orders.
+optional_scopes = [ "read_draft_orders", "read_shipping" ]
 
 # Managed installation flow — Shopify handles the OAuth grant and we receive
 # the access token via the callback. Legacy flow is not used.
@@ -80,3 +83,14 @@ api_version = "2026-04"
   [[webhooks.subscriptions]]
   topics = [ "checkouts/create" ]
   uri = "https://actero.fr/api/engine/webhooks/shopify-cart"
+
+  # ----- Billing webhook -------------------------------------------------------
+  # Fires whenever an AppSubscription on the merchant's shop changes state:
+  # acceptance after trial, decline, expiry, cancellation, frozen for failed
+  # payment. Required by App Store policy 1.2.2 — apps must reconcile their
+  # plan state with what Shopify says is true. See
+  # api/shopify/webhooks/app/subscriptions-update.js.
+
+  [[webhooks.subscriptions]]
+  topics = [ "app_subscriptions/update" ]
+  uri = "https://actero.fr/api/shopify/webhooks/app/subscriptions-update"

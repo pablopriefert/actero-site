@@ -164,68 +164,85 @@ async function handler(req, res) {
     console.error('Supabase upsert error:', errText);
   }
 
-  // 6c. Register abandoned cart webhook (checkouts/create)
-  if (access_token) {
-    try {
-      const webhookRes = await fetch(`https://${shop}/admin/api/2025-01/webhooks.json`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Access-Token': access_token,
-        },
-        body: JSON.stringify({
-          webhook: {
-            topic: 'checkouts/create',
-            address: 'https://actero.fr/api/engine/webhooks/shopify-cart',
-            format: 'json',
-          },
-        }),
-      });
-      if (!webhookRes.ok) {
-        const whErr = await webhookRes.text();
-        console.error('Webhook registration failed:', whErr);
-      }
-    } catch (err) {
-      console.error('Failed to register abandoned cart webhook:', err.message);
-    }
-  }
-
-  // 6c-bis. Register app/uninstalled webhook (App Store requirement).
+  // 6c. Register checkouts/create + app/uninstalled webhooks via the GraphQL
+  // Admin API (App Store policy 2.2.4 — REST is not permitted for general
+  // admin functionality in new public apps).
   //
-  // We also declare this URL in the Partner Dashboard's mandatory compliance
-  // webhooks section, but Shopify recommends registering it again via the
-  // Admin API at install time so it survives any Partner Dashboard misconfig.
-  // The handler lives at api/shopify/webhooks/app/uninstalled.js and verifies
-  // HMAC on the raw body (same pattern as the GDPR webhooks shipped earlier).
+  // These topics are also declared in shopify.app.actero.toml so that fresh
+  // installs going through the managed install flow get them automatically.
+  // We re-register here at OAuth callback time to cover re-installs and
+  // pre-toml legacy merchants — belt and braces.
+  //
+  // The handlers verify HMAC-SHA256 on the raw body (same pattern as the
+  // GDPR webhooks shipped under api/shopify/webhooks/).
   if (access_token) {
-    try {
-      const uninstallRes = await fetch(`https://${shop}/admin/api/2025-01/webhooks.json`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Access-Token': access_token,
-        },
-        body: JSON.stringify({
-          webhook: {
-            topic: 'app/uninstalled',
-            address: 'https://actero.fr/api/shopify/webhooks/app/uninstalled',
-            format: 'json',
-          },
-        }),
-      });
-      if (!uninstallRes.ok) {
-        // Shopify returns 422 if the webhook already exists — that's expected
-        // on re-install, so log warn instead of error to avoid noise.
-        const txt = await uninstallRes.text();
-        const isDuplicate = uninstallRes.status === 422 && txt.includes('already been taken');
-        if (isDuplicate) {
-          console.log('[shopify-callback] app/uninstalled webhook already registered (re-install)');
-        } else {
-          console.error('app/uninstalled webhook registration failed:', txt);
+    const subscriptionsToRegister = [
+      {
+        topic: 'CHECKOUTS_CREATE',
+        callbackUrl: 'https://actero.fr/api/engine/webhooks/shopify-cart',
+      },
+      {
+        topic: 'APP_UNINSTALLED',
+        callbackUrl: 'https://actero.fr/api/shopify/webhooks/app/uninstalled',
+      },
+    ];
+
+    const WEBHOOK_SUBSCRIPTION_CREATE = `
+      mutation WebhookSubscriptionCreate(
+        $topic: WebhookSubscriptionTopic!
+        $webhookSubscription: WebhookSubscriptionInput!
+      ) {
+        webhookSubscriptionCreate(topic: $topic, webhookSubscription: $webhookSubscription) {
+          userErrors { field message }
+          webhookSubscription { id }
         }
       }
-    } catch (err) {
-      console.error('Failed to register app/uninstalled webhook:', err.message);
+    `;
+
+    for (const sub of subscriptionsToRegister) {
+      try {
+        const resp = await fetch(`https://${shop}/admin/api/2025-01/graphql.json`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': access_token,
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            query: WEBHOOK_SUBSCRIPTION_CREATE,
+            variables: {
+              topic: sub.topic,
+              webhookSubscription: { callbackUrl: sub.callbackUrl, format: 'JSON' },
+            },
+          }),
+        });
+        const json = await resp.json().catch(() => ({}));
+        const userErrors = json?.data?.webhookSubscriptionCreate?.userErrors || [];
+        if (userErrors.length) {
+          // "Address has already been taken" means the subscription already exists
+          // for this shop — typical on re-install, not an error.
+          const isDuplicate = userErrors.some((e) =>
+            String(e.message || '').toLowerCase().includes('already been taken'),
+          );
+          if (isDuplicate) {
+            console.log(
+              `[shopify-callback] ${sub.topic} webhook already registered (re-install)`,
+            );
+          } else {
+            console.error(
+              `[shopify-callback] ${sub.topic} webhook userErrors:`,
+              JSON.stringify(userErrors),
+            );
+          }
+        } else if (json?.errors?.length) {
+          console.error(
+            `[shopify-callback] ${sub.topic} webhook GraphQL errors:`,
+            JSON.stringify(json.errors),
+          );
+        }
+      } catch (err) {
+        console.error(`Failed to register ${sub.topic} webhook:`, err.message);
+      }
     }
   }
 

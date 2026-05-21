@@ -35,13 +35,13 @@ function handler(req, res) {
   ].join(',');
 
   // Optional scopes — the merchant can decline these without breaking the
-  // core agent. We request them so power features light up automatically:
+  // core agent. We deliberately do NOT request write_orders: the agent never
+  // mutates orders directly. Refund drafts are surfaced in the dashboard
+  // and the merchant approves them via Shopify's native admin flow.
   //
-  // - write_orders       → agent-driven refunds / cancellations
   // - read_draft_orders  → upsell context in conversations
   // - read_shipping      → live shipping-rate answers
   const optionalScopes = [
-    'write_orders',
     'read_draft_orders',
     'read_shipping',
   ].join(',');
