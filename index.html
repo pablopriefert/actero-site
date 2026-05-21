@@ -95,6 +95,23 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
+
+  <!--
+    Actero dogfood widget — the same engine we ship to merchants is the one
+    answering visitor questions on this landing page. Tied to the internal
+    client_id f1804024-454c-4fbc-bd12-bd392f7895bc; its knowledge base is
+    seeded with pricing, integrations, GDPR and feature FAQs.
+
+    The widget itself decides where to hide (currently nowhere); if it ever
+    needs to skip authenticated dashboard routes, gate it from widget.js
+    based on location.pathname.startsWith('/dashboard').
+  -->
+  <script
+    src="https://actero.fr/widget.js"
+    data-actero-key="wk_actero_internal_30f4e9df312c46f8a62c5f9963bb9b7a"
+    data-actero-position="bottom-right"
+    defer
+  ></script>
 </body>
 
 </html>
