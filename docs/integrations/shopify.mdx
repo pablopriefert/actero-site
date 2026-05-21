@@ -25,8 +25,11 @@ Actero est listée sur le Shopify App Store. L'installation est gratuite et pass
   <Step title="Approuve l'installation">
     Tu reviens automatiquement sur `actero.fr`. Aucune carte bancaire requise côté Shopify — Actero est facturée séparément depuis ton compte Actero.
   </Step>
-  <Step title="Le widget s'injecte tout seul">
-    Avec les scopes `read_themes` / `write_themes` accordés, Actero injecte le widget de chat dans le thème actif de ta boutique. Les 30 dernières commandes sont indexées en moins de 20 secondes.
+  <Step title="Active le widget depuis l'éditeur de thème">
+    Le widget de chat est livré comme **theme app extension** (App Store policy 5.1.1) : tu l'actives en un clic dans **Boutique en ligne → Thèmes → Personnaliser → App embeds → Actero AI Support Widget**. Aucun copier-coller dans `theme.liquid` requis. Voir [Activer le widget](#activer-le-widget-de-chat).
+  </Step>
+  <Step title="L'indexation démarre">
+    Les 30 dernières commandes sont indexées en moins de 20 secondes. L'indexation complète (catalogue + clients + historique 12 mois) prend de 2 à 30 minutes selon la taille de ta boutique.
   </Step>
 </Steps>
 
@@ -42,6 +45,36 @@ Une fois installée, Actero apparaît dans **Apps** dans ton Shopify Admin. Cliq
 - **Première fois** → relance du flow OAuth pour finaliser l'install
 
 Tu n'as donc jamais à coller manuellement une URL : Shopify Admin reste ton point d'entrée.
+
+## Activer le widget de chat
+
+Le widget storefront est livré comme **theme app extension** Shopify. Tu gardes la main : tu peux l'activer, le désactiver, le réordonner ou le supprimer depuis l'éditeur de thème sans toucher au code et sans repasser par Actero.
+
+<Steps>
+  <Step title="Ouvre l'éditeur de thème">
+    Dans Shopify Admin, va dans **Boutique en ligne → Thèmes** et clique **Personnaliser** sur ton thème actif.
+  </Step>
+  <Step title="Active le bloc Actero">
+    Dans la barre latérale gauche, ouvre l'onglet **App embeds** (icône puzzle). Active le toggle en face de **Actero AI Support Widget**, puis clique **Enregistrer** en haut à droite.
+  </Step>
+  <Step title="Personnalise (optionnel)">
+    Le bloc expose quatre réglages :
+
+    | Réglage | Effet |
+    |---|---|
+    | **Actero API key** | Optionnel. Laisse vide pour l'autodétection via ton domaine `.myshopify.com`. Récupère ta clé sur `actero.fr/dashboard/widget` si tu gères plusieurs boutiques. |
+    | **Widget position** | `Bottom right` (défaut) ou `Bottom left`. |
+    | **Accent color** | Surcharge ponctuelle de la couleur configurée dans le dashboard Actero. |
+  </Step>
+</Steps>
+
+<Tip>
+La couleur, le ton et l'avatar du widget se configurent côté Actero (**Configurer l'agent → Identité**). Le bloc Shopify ne sert qu'à l'embarquer dans le thème — l'apparence reste pilotée depuis ton dashboard.
+</Tip>
+
+<Note>
+**Migration depuis l'ancien widget.** Les marchands installés avant mai 2026 ont un widget injecté directement dans `theme.liquid` via l'API Asset. Il continue de fonctionner, mais on recommande de basculer sur le bloc d'extension pour profiter des réglages et reprendre la main depuis l'éditeur de thème. Active le bloc puis retire l'ancien snippet `<script src="https://actero.fr/widget.js">` de ton `theme.liquid` pour éviter de charger le widget deux fois.
+</Note>
 
 ## Scopes demandés
 
@@ -66,16 +99,13 @@ Actero sépare scopes **requis** et **optionnels**. Tu peux décliner les option
     Répondre aux questions sur la politique et le statut des retours.
   </Accordion>
   <Accordion title="read_themes, write_themes">
-    Injecter automatiquement le widget de chat Actero dans le thème actif de ta boutique. Sans ces scopes, tu devrais coller le snippet à la main dans `theme.liquid`.
+    Conservés pour les marchands installés avant la theme app extension (mai 2026), dont le widget est injecté dans `theme.liquid` via l'API Asset. Les nouvelles installations passent par le bloc d'extension de thème — voir [Activer le widget](#activer-le-widget-de-chat).
   </Accordion>
 </AccordionGroup>
 
 ### Scopes optionnels
 
 <AccordionGroup>
-  <Accordion title="write_orders (recommandé)">
-    Permet à l'agent de déclencher remboursements et annulations quand ta politique le permet. Sans ce scope, l'agent escalade systématiquement à un humain pour ces actions.
-  </Accordion>
   <Accordion title="read_draft_orders">
     Donne du contexte d'upsell dans les conversations (devis en cours, panier construit par un staff). Sans ce scope, l'agent ignore les drafts.
   </Accordion>
@@ -85,8 +115,12 @@ Actero sépare scopes **requis** et **optionnels**. Tu peux décliner les option
 </AccordionGroup>
 
 <Warning>
-Aucun scope de paiement ni de modification de stock n'est demandé. Même avec `write_orders` accordé, l'agent ne peut ni encaisser, ni modifier un produit, ni toucher à ton inventaire.
+Actero ne demande **aucun scope d'écriture sur les commandes, les produits ou le stock**. L'agent ne peut ni encaisser, ni modifier un produit, ni toucher à ton inventaire. Si un remboursement doit être émis suite à une conversation, il est préparé en brouillon dans ton dashboard Actero, et c'est toi qui valides le déclenchement final depuis ton Shopify Admin.
 </Warning>
+
+<Note>
+**Changement de mai 2026.** Le scope optionnel `write_orders` a été retiré : il n'était plus utilisé par l'agent. Les marchands qui l'avaient accordé n'ont rien à faire — le retrait est automatique à la prochaine reconnexion OAuth, sans changement de comportement.
+</Note>
 
 ## Webhooks configurés automatiquement
 
@@ -108,6 +142,7 @@ Chaque appel à un webhook de conformité est tracé (hash SHA-256 du payload, j
 | Webhook | Effet dans Actero |
 |---|---|
 | `checkouts/create` | Déclenche le playbook **panier abandonné** (relance email selon le délai que tu choisis) |
+| `app_subscriptions/update` | Réconcilie ton plan Actero avec l'état de l'abonnement côté Shopify Billing (essai accepté, déclin, expiration, annulation, paiement en échec). Concerne uniquement les marchands facturés via Shopify — voir [Facturation Shopify](/essentials/facturation#facturation-via-shopify-app-store). |
 
 Tu peux désactiver un playbook depuis **Automatisation** sans toucher à l'intégration Shopify.
 
@@ -152,7 +187,10 @@ Les conversations passées restent dans ton historique pour des raisons RGPD (ex
     Trois choses à vérifier : (1) le playbook `panier abandonné` est **activé** dans Automatisation, (2) un service d'envoi est configuré ([Resend](/integrations/resend), [Gmail](/integrations/gmail) ou [SMTP/IMAP](/integrations/smtp-imap)), (3) le client a bien laissé son email à l'étape checkout (sans email, pas de relance possible).
   </Accordion>
   <Accordion title="Le widget ne s'affiche pas sur ma boutique">
-    Vérifie que tu as accordé `read_themes` et `write_themes` à l'install. Sinon, reconnecte Actero : Shopify te redemande ces scopes et l'injection se fait automatiquement. Tu peux aussi désactiver puis réactiver le thème pour forcer un rechargement.
+    Ouvre **Boutique en ligne → Thèmes → Personnaliser → App embeds** et vérifie que le toggle **Actero AI Support Widget** est activé, puis enregistre. Si tu utilises encore l'ancienne injection via `theme.liquid` (installs avant mai 2026), vérifie que `read_themes` et `write_themes` ont bien été accordés à l'install — sinon reconnecte Actero pour les redemander.
+  </Accordion>
+  <Accordion title="Le widget apparaît deux fois (doublon)">
+    Tu as activé la theme app extension alors que l'ancien snippet `<script src="https://actero.fr/widget.js">` est encore dans ton `theme.liquid`. Retire le snippet manuellement depuis **Boutique en ligne → Thèmes → Modifier le code → `layout/theme.liquid`** et enregistre.
   </Accordion>
   <Accordion title="J'ai changé de domaine Shopify (migration .myshopify.com)">
     Reconnecte l'intégration avec le nouveau domaine. Les commandes historiques restent indexées, le nouveau token prend le relais sans coupure de service.

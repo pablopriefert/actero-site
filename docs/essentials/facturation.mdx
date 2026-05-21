@@ -1,9 +1,20 @@
 ---
 title: "Facturation"
-description: "Comprends ton plan, suis ta consommation, change de palier, gère tes factures Stripe."
+description: "Gère ton plan Actero, suis ta consommation et tes factures, via Stripe ou via le Shopify App Store selon ton mode d'installation."
 ---
 
 Tout ce qui concerne ton abonnement Actero se passe dans **Système → Facturation**. Cette page est la seule visible aussi par les membres avec le rôle **Finance**.
+
+## Deux modes de facturation
+
+Actero détecte automatiquement le bon mode au moment où tu cliques sur **Passer au plan supérieur** :
+
+| Tu as installé Actero via… | Mode de facturation |
+|---|---|
+| Shopify App Store | **Shopify Billing** (la charge apparaît sur ta facture Shopify mensuelle) |
+| `actero.fr/signup` directement, ou autre plateforme e-commerce | **Stripe** (carte bancaire ou virement Entreprise) |
+
+Tu n'as rien à choisir manuellement : Actero envoie chaque marchand vers le bon flow selon son intégration. Voir [Facturation via Shopify App Store](#facturation-via-shopify-app-store) pour les spécificités du flow Shopify.
 
 ## Vue d'ensemble
 
@@ -16,7 +27,10 @@ En haut de la page, un bandeau résume :
 
 ## Section 1 — Plan actuel
 
-Affiche ton plan, son prix, et la date de premier paiement. Bouton **Gérer mon abonnement** : ouvre le portail Stripe (changement de carte, facture d'adresse, annulation).
+Affiche ton plan, son prix, et la date de premier paiement. Le bouton **Gérer mon abonnement** ouvre :
+
+- Le **portail Stripe** (changement de carte, adresse de facturation, annulation) si tu es facturé via Stripe.
+- La page **Apps facturées** de Shopify Admin si tu es facturé via Shopify Billing — voir [Facturation via Shopify App Store](#facturation-via-shopify-app-store).
 
 ### Si tu es en essai
 
@@ -104,11 +118,56 @@ Si tu es arrivé via un lien de parrainage, ton premier mois Starter ou Pro est 
 
 Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
 
+## Facturation via Shopify App Store
+
+Si tu as installé Actero depuis le [Shopify App Store](/integrations/shopify), la politique 1.2.1 du marketplace impose que la facturation passe par **Shopify Billing**. Concrètement : Shopify encaisse, ajoute la charge à ta facture mensuelle Shopify, et nous reverse — tu n'as pas de second moyen de paiement à gérer.
+
+### Flow d'upgrade depuis Shopify
+
+<Steps>
+  <Step title="Choisis ton plan dans Actero">
+    Sur **Système → Facturation**, sélectionne Starter ou Pro et le rythme (mensuel ou annuel). Actero détecte que tu es connecté via Shopify et bascule sur le flow Shopify Billing.
+  </Step>
+  <Step title="Valide dans Shopify Admin">
+    Tu es redirigé vers une page de confirmation hébergée par Shopify. Elle récapitule le nom de l'app, le prix, l'essai (7 jours par défaut) et le rythme de prélèvement. Clique **Approve subscription**.
+  </Step>
+  <Step title="Retour automatique au dashboard">
+    Shopify renvoie un signal `app_subscriptions/update` avec le statut `ACTIVE`. Actero met à jour ton plan en quelques secondes et débloque les features payantes.
+  </Step>
+</Steps>
+
+### Réconciliation des changements d'état
+
+Tout changement de statut côté Shopify est répliqué dans Actero via le webhook `app_subscriptions/update` :
+
+| Statut Shopify | Effet dans Actero |
+|---|---|
+| `ACTIVE` | Plan activé ou maintenu |
+| `PENDING` | En attente de validation merchant (rien ne change) |
+| `DECLINED` | Marchand a refusé — retour au plan Free |
+| `EXPIRED` | Essai terminé sans validation — retour au plan Free |
+| `FROZEN` | Échec de paiement côté Shopify — accès suspendu jusqu'à régularisation |
+| `CANCELLED` | Annulation — accès maintenu jusqu'à la fin du cycle, puis Free |
+
+### Gérer ton abonnement Shopify
+
+- **Voir / annuler** : Shopify Admin → **Réglages → Plans et autorisations → Apps facturées**. Tu trouves Actero, le prochain prélèvement, le détail des charges et le bouton d'annulation.
+- **Changer de palier** : reviens sur **Système → Facturation** dans Actero et sélectionne le nouveau plan. Un nouvel `appSubscriptionCreate` remplace l'ancien (Shopify gère le prorata).
+- **Facture PDF** : disponible dans ta facture Shopify mensuelle. Actero n'émet pas de facture séparée pour les abonnements App Store.
+
+<Warning>
+La période d'essai Shopify ne se cumule pas avec un essai Stripe. Si tu avais déjà testé Actero via Stripe puis désinstallé, l'essai côté Shopify est tout de même offert au premier abonnement Shopify Billing.
+</Warning>
+
+<Note>
+**Tu utilises Actero sur plusieurs plateformes ?** Si tu connectes WooCommerce ou Webflow après avoir été facturé via Shopify Billing, ton abonnement reste piloté côté Shopify tant que la connexion Shopify est active. Pour basculer vers Stripe, déconnecte Shopify dans **Intégrations** puis relance l'upgrade depuis Actero.
+</Note>
+
 ## FAQ
 
 <AccordionGroup>
   <Accordion title="Comment annuler mon abonnement ?">
-    Va dans **Gérer mon abonnement** → portail Stripe → Annuler. L'annulation prend effet à la fin du cycle en cours, tu gardes l'accès jusque-là. Aucun remboursement automatique.
+    **Stripe** : **Gérer mon abonnement** → portail Stripe → Annuler. **Shopify Billing** : Shopify Admin → **Réglages → Plans et autorisations → Apps facturées → Actero → Cancel subscription**. Dans les deux cas, l'annulation prend effet à la fin du cycle en cours et tu gardes l'accès jusque-là. Aucun remboursement automatique.
   </Accordion>
   <Accordion title="Je suis facturé deux fois ce mois — pourquoi ?">
     En général : un changement de plan a déclenché une nouvelle facture pro-rata. Vérifie l'historique sur le portail Stripe — chaque ligne est détaillée. Si rien n'explique, écris à [contact@actero.fr](mailto:contact@actero.fr).
