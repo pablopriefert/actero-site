@@ -33,7 +33,7 @@ Les deux chemins doivent capter les UTM pour ne pas avoir de trou d'attribution.
 
 `api/lib/welcome-email.js` :
 - ✅ Resend intégré
-- ✅ From "Pablo de Actero <contact@actero.fr>"
+- ✅ From "Pablo de Actero `<contact@actero.fr>`"
 - ✅ Non-blocking (try/catch)
 - ✅ Has_referral flag → message bonus parrainage
 - 🟡 Branding : utilise `#0F5F35` (proche de notre `--primary-deep`) mais **pas la palette complète Actero** du skill (pas de Playfair Display, pas de cream canvas, pas de gold accent, pas de 4px accent bar)
