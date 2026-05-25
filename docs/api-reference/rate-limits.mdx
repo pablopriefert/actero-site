@@ -1,6 +1,6 @@
 ---
 title: "Rate Limits"
-description: "Limites par client, par customer et par IP. Réponses 429, stratégie de retry, comment les contourner légitimement."
+description: "Rate limits de l'API Actero par client, par customer et par IP : codes 429, headers X-RateLimit, stratégie de retry exponentiel et bonnes pratiques."
 ---
 
 L'API Actero applique plusieurs couches de rate limit pour protéger ton tenant des abus, contenir les coûts LLM, et garantir une latence stable. Chaque couche a sa propre fenêtre et sa propre clé de comptage.
