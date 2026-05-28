@@ -11,9 +11,9 @@ const beforeItems = [
 
 const afterItems = [
   { icon: Zap, label: "Réponse IA en < 30 secondes", sub: "Contexte commande inclus automatiquement" },
-  { icon: Check, label: "12% des paniers récupérés", sub: "Séquences de relance IA personnalisées" },
-  { icon: Check, label: "82% de résolutions auto-pilotées par l'IA", sub: "Escalade intelligente si nécessaire" },
-  { icon: Euro, label: "+3 000€/mois en moyenne", sub: "ROI visible dès le premier mois" },
+  { icon: Check, label: "Jusqu'à 12% des paniers récupérés", sub: "Séquences de relance IA personnalisées" },
+  { icon: Check, label: "50 à 70% de résolutions auto-pilotées par l'IA", sub: "Escalade intelligente si nécessaire" },
+  { icon: Euro, label: "Jusqu'à 3 000€/mois récupérés", sub: "ROI visible dans votre dashboard" },
 ]
 
 export const BeforeAfterSlider = () => {

@@ -52,14 +52,14 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
       applicationSubCategory: 'Customer Service Software',
       operatingSystem: 'Web',
       description:
-        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. 82% des tickets résolus seul, hébergement UE, agent vocal natif.",
+        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. 50 à 70% des tickets résolus seul, hébergement UE, agent vocal natif.",
       offers: [
         { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR' },
         { '@type': 'Offer', name: 'Starter', price: '99', priceCurrency: 'EUR' },
         { '@type': 'Offer', name: 'Pro', price: '399', priceCurrency: 'EUR' },
       ],
       url: `https://actero.fr/${data.competitorKey}-vs-actero`,
-      provider: { '@type': 'Organization', name: 'Actero SAS', url: 'https://actero.fr' },
+      provider: { '@type': 'Organization', name: 'Actero', url: 'https://actero.fr' },
     },
     {
       '@context': 'https://schema.org',

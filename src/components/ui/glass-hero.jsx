@@ -17,7 +17,7 @@ import { trackEvent } from '../../lib/analytics'
  * — Subtitle 3-piliers (SAV + relance paniers + automatisations)
  * — CTA primary unique + ghost "Voir la démo"
  * — Link "Parler à un humain" demoted en text-link avec arrow
- * — 3 KPIs mappés sur les 3 piliers (82%, +15%, 5min setup)
+ * — 3 KPIs mappés sur les 3 piliers (50-70%, +15%, 5min setup)
  * — Dashboard mockup avec aspect-ratio déclaré pour réduire CLS
  * — Task 1 : count-up animated KPI numbers on enter
  * — Task 2 : ambient aurora glow blobs behind hero (z-0)
@@ -440,7 +440,7 @@ function DashboardPreview() {
  * HeroKpiRow — 3 KPIs mappés 1:1 sur les 3 piliers du produit.
  * TASK 1: animated count-up on viewport enter.
  *
- *   Pilier 1 · Agent SAV          → 82% de tickets auto-résolus
+ *   Pilier 1 · Agent SAV          → 50-70% de tickets auto-résolus
  *   Pilier 2 · Relance paniers    → +15% de CA récupéré
  *   Pilier 3 · Automatisations    → 5 min pour activer un playbook
  */
@@ -450,12 +450,12 @@ function HeroKpiRow() {
 
   const kpis = [
     {
-      numericTarget: 82,
+      numericTarget: 70,
       prefix: '',
       suffix: '',
       unit: '%',
       label: 'de tickets auto-résolus',
-      sub: 'Agent SAV — email, chat, Gorgias, Zendesk',
+      sub: 'Agent SAV — généralement 50 à 70% selon votre volume',
     },
     {
       numericTarget: 15,

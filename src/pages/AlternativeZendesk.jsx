@@ -20,14 +20,14 @@ export const AlternativeZendesk = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Zendesk pour Shopify — Actero | IA SAV E-commerce FR',
       description:
-        "Zendesk est surdimensionné et facturé par agent. Actero automatise 82 % des tickets Shopify dès 99 €/mois, sans licence par utilisateur, installé en 15 min. Français, hébergé UE, RGPD. Migration accompagnée.",
+        "Zendesk est surdimensionné et facturé par agent. Actero automatise 50 à 70 % des tickets Shopify dès 99 €/mois, sans licence par utilisateur, installé en 15 min. Français, hébergé UE, RGPD. Migration accompagnée.",
       keywords:
         'alternative zendesk, zendesk vs actero, alternative zendesk shopify, remplacer zendesk, helpdesk ia français, zendesk alternative rgpd, sav automatisé e-commerce, zendesk vs helpdesk français',
     },
 
     hero: {
       subtitle:
-        "Zendesk est un tank enterprise inadapté aux PME e-commerce : 55 à 155 $/agent/mois, AI en add-on payant à 50 $/agent supplémentaire, setup en semaines voire en mois avec un consultant facturé. Pour un marchand Shopify, c'est 5 à 10 fois trop cher pour un produit qui n'est pas pensé e-commerce. Actero résout 82 % des tickets dès 99 €/mois flat, installé en 15 minutes.",
+        "Zendesk est un tank enterprise inadapté aux PME e-commerce : 55 à 155 $/agent/mois, AI en add-on payant à 50 $/agent supplémentaire, setup en semaines voire en mois avec un consultant facturé. Pour un marchand Shopify, c'est 5 à 10 fois trop cher pour un produit qui n'est pas pensé e-commerce. Actero résout 50 à 70 % des tickets dès 99 €/mois flat, installé en 15 minutes.",
     },
 
     comparison: [
@@ -58,7 +58,7 @@ export const AlternativeZendesk = ({ onNavigate }) => {
       },
       {
         label: '% de résolutions automatiques',
-        actero: { main: '82 %', sub: 'Sans add-on' },
+        actero: { main: '50-70 %', sub: 'Sans add-on' },
         competitor: { main: 'Variable', sub: 'AI Agent à 50 $/agent' },
       },
       {

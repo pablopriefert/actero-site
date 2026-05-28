@@ -778,7 +778,7 @@ export const PricingPage = ({ onNavigate }) => {
                   Prêt à automatiser votre support ?
                 </h2>
                 <p className="text-white/70 text-lg mb-8 max-w-xl mx-auto">
-                  Rejoignez les marques qui économisent des dizaines d'heures par semaine grâce à Actero.
+                  Automatisez votre SAV Shopify et libérez des dizaines d'heures par semaine grâce à Actero.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   {/* TASK 4: bottom CTA micro-interactions */}

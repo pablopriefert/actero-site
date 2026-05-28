@@ -20,7 +20,7 @@ export const AlternativeTidio = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Tidio pour Shopify — Actero | IA SAV E-commerce FR',
       description:
-        "Tidio est un chatbot générique. Actero est un agent IA spécialisé Shopify qui résout 82 % des tickets, relance les paniers abandonnés et affiche un ROI temps réel. Dès 99 €/mois, en français, hébergé UE. Migration en 1 jour.",
+        "Tidio est un chatbot générique. Actero est un agent IA spécialisé Shopify qui résout 50 à 70 % des tickets, relance les paniers abandonnés et affiche un ROI temps réel. Dès 99 €/mois, en français, hébergé UE. Migration en 1 jour.",
       keywords:
         'alternative tidio, tidio vs actero, alternative tidio français, chatbot ia shopify français, remplacer tidio, lyro ai alternative, sav automatisé shopify, alternative chatbot rgpd',
     },
@@ -48,7 +48,7 @@ export const AlternativeTidio = ({ onNavigate }) => {
       },
       {
         label: '% de résolutions automatiques',
-        actero: { main: '82 %', sub: 'Sans add-on' },
+        actero: { main: '50-70 %', sub: 'Sans add-on' },
         competitor: { main: '~25 %', sub: 'Lyro AI séparé' },
       },
       {

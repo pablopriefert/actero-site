@@ -949,7 +949,7 @@ const GUIDES = [
       },
       {
         title: 'Trial gratuit',
-        content: "Les nouveaux inscrits beneficient d'une periode d'essai de 14 jours sur le plan Starter, sans carte requise. A la fin, vous basculez vers le plan Free (pas de coupure de service) sauf si vous souscrivez. Les parraines beneficient en plus de 30 jours offerts (cumulable avec le trial).",
+        content: "Les nouveaux inscrits beneficient d'une periode d'essai de 7 jours sur les plans payants (Starter et Pro). A la fin, vous basculez vers le plan Free (pas de coupure de service) sauf si vous souscrivez. Les parraines beneficient en plus de 30 jours offerts (cumulable avec le trial).",
       },
       {
         title: 'Downgrade',
@@ -971,7 +971,7 @@ const GUIDES = [
     sections: [
       {
         title: 'Les recompenses',
-        content: "- Le parraine (nouveau client) : 30 jours gratuits a l'inscription sur n'importe quel plan payant. Cumulable avec les 14 jours de trial standard.\n- Le parrain (vous) : 1 mois d'abonnement offert sous forme de credit Stripe, applique automatiquement sur la prochaine facture.\n\nPas de limite : plus vous parrainez, plus vous cumulez de mois gratuits.",
+        content: "- Le parraine (nouveau client) : 30 jours gratuits a l'inscription sur n'importe quel plan payant. Cumulable avec les 7 jours de trial standard.\n- Le parrain (vous) : 1 mois d'abonnement offert sous forme de credit Stripe, applique automatiquement sur la prochaine facture.\n\nPas de limite : plus vous parrainez, plus vous cumulez de mois gratuits.",
       },
       {
         title: 'Trouver votre lien de parrainage',

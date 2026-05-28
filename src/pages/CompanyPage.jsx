@@ -179,7 +179,7 @@ export const CompanyPage = ({ onNavigate }) => {
                   <Heart className="w-5 h-5 text-cta mb-4" strokeWidth={2} />
                   <h3 className="text-[18px] font-bold text-[#1A1A1A] mb-3">Ce qu'on construit</h3>
                   <p className="text-[14.5px] text-[#5A5A5A] leading-[1.6]">
-                    Un agent IA qui lit votre Shopify, apprend votre ton, et répond à 60% des
+                    Un agent IA qui lit votre Shopify, apprend votre ton, et répond à 50 à 70% des
                     tickets sans intervention humaine. Installé en 15 minutes. Hébergé en France.
                     Disponible à partir de 0€.
                   </p>

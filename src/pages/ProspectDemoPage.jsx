@@ -52,7 +52,7 @@ const PROSPECT_PROFILES = {
     ],
     benchmarks: [
       { label: 'Temps de réponse SAV', yours: '< 2 min', sector: '4h', improvement: '120x' },
-      { label: 'Taux résolution auto', yours: '82%', sector: '15%', improvement: '+67pts' },
+      { label: 'Taux résolution auto', yours: '68%', sector: '15%', improvement: '+53pts' },
       { label: 'Récupération paniers', yours: '12%', sector: '3%', improvement: '4x' },
       { label: 'Satisfaction client', yours: '94%', sector: '72%', improvement: '+22pts' },
     ],

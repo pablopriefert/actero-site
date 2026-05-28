@@ -9,7 +9,6 @@ import {
   Handshake,
   Rocket,
   Sparkles,
-  Star,
   UserCheck,
   CheckCircle2,
 } from 'lucide-react'
@@ -55,21 +54,21 @@ export const PartnersLandingPage = ({ onNavigate }) => {
     { num: '04', title: 'Certification', desc: 'Vous recevez votre badge, votre profil public et votre lien de referral unique.' },
   ]
 
-  const testimonials = [
+  const partnerBenefits = [
     {
-      name: 'Marie Lefèvre',
-      role: 'Freelance e-commerce, Paris',
-      text: 'En 3 mois, j ai apporté 7 clients. La commission récurrente change totalement l économie de mon activité de consulting.',
+      title: 'Commission récurrente',
+      role: 'Pour freelances & consultants e-commerce',
+      text: 'Touchez une commission chaque mois sur chaque client que vous apportez, tant qu il reste abonné. Un revenu récurrent qui change l économie de votre activité de conseil.',
     },
     {
-      name: 'Growth Studio',
-      role: 'Agence marketing, Lyon',
-      text: 'Le programme Partners nous permet de revendre Actero à nos clients e-commerce sans avoir à gérer la tech. Un vrai game-changer.',
+      title: 'Revendez sans gérer la tech',
+      role: 'Pour les agences marketing',
+      text: 'Proposez Actero à vos clients e-commerce sans avoir à gérer l infrastructure : on s occupe du produit, vous gardez la relation client.',
     },
     {
-      name: 'Julien Marceau',
-      role: 'Consultant Shopify',
-      text: 'Le profil public m a déjà apporté 2 leads entrants. Le ROI de la certification est atteint dès le premier client signé.',
+      title: 'Profil public & leads entrants',
+      role: 'Pour les consultants Shopify',
+      text: 'Votre profil certifié vous rend visible dans notre annuaire partenaires et peut vous apporter des leads entrants qualifiés.',
     },
   ]
 
@@ -201,26 +200,21 @@ export const PartnersLandingPage = ({ onNavigate }) => {
               </div>
             </section>
 
-            {/* TÉMOIGNAGES */}
+            {/* CE QUE LE PROGRAMME APPORTE */}
             <section className="py-24 px-6">
               <div className="max-w-6xl mx-auto">
                 <FadeInUp className="text-center mb-16">
                   <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-                    Ils sont déjà Actero Certified
+                    Ce que le programme Partners vous apporte
                   </h2>
                 </FadeInUp>
                 <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {testimonials.map((t, i) => (
+                  {partnerBenefits.map((t, i) => (
                     <StaggerItem key={i}>
                       <div className="p-8 rounded-2xl bg-gray-50 border border-gray-200 h-full">
-                        <div className="flex gap-1 mb-4">
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <Star key={s} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                          ))}
-                        </div>
-                        <p className="text-[#262626] leading-relaxed mb-6 italic">« {t.text} »</p>
+                        <p className="text-[#262626] leading-relaxed mb-6">{t.text}</p>
                         <div>
-                          <div className="font-bold text-sm">{t.name}</div>
+                          <div className="font-bold text-sm">{t.title}</div>
                           <div className="text-xs text-[#716D5C]">{t.role}</div>
                         </div>
                       </div>

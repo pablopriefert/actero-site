@@ -54,7 +54,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
       applicationSubCategory: 'Customer Service Software',
       operatingSystem: 'Web',
       description:
-        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. Agent IA qui résout 82% des tickets automatiquement, installation OAuth en 15 minutes, hébergement UE RGPD.",
+        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. Agent IA qui résout 50 à 70% des tickets automatiquement, installation OAuth en 15 minutes, hébergement UE RGPD.",
       offers: [
         {
           '@type': 'Offer',
@@ -81,7 +81,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
       url: `https://actero.fr/alternative-${data.competitorKey}`,
       provider: {
         '@type': 'Organization',
-        name: 'Actero SAS',
+        name: 'Actero',
         url: 'https://actero.fr',
       },
     },
@@ -171,7 +171,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                 <div className="inline-flex flex-wrap items-center justify-center gap-4 text-xs text-[#9ca3af]">
                   <span className="inline-flex items-center gap-1.5">
                     <Check className="w-3 h-3 text-cta" strokeWidth={2.5} />
-                    82% de résolutions automatiques
+                    50 à 70% de résolutions automatiques
                   </span>
                   <span className="text-[#E8DFC9]">·</span>
                   <span className="inline-flex items-center gap-1.5">

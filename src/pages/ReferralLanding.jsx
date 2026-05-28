@@ -174,8 +174,8 @@ export const ReferralLanding = ({ code, onNavigate }) => {
               },
               {
                 icon: Clock,
-                title: '+40h économisées/mois',
-                desc: 'Nos clients économisent en moyenne 40 heures de travail manuel par mois.',
+                title: "Jusqu'à 40h économisées/mois",
+                desc: 'Automatisez le SAV répétitif et libérez jusqu\'à 40 heures de travail manuel par mois.',
                 color: 'emerald',
               },
               {

@@ -21,14 +21,14 @@ export const AlternativeGorgias = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Gorgias pour Shopify — Actero | IA SAV E-commerce FR',
       description:
-        "Cherchez une alternative à Gorgias moins chère, en français et RGPD ? Actero automatise 82 % des tickets Shopify dès 99 €/mois. Installation OAuth en 15 min, hébergé UE, opt-out TDM. Migration en 1 jour.",
+        "Cherchez une alternative à Gorgias moins chère, en français et RGPD ? Actero automatise 50 à 70 % des tickets Shopify dès 99 €/mois. Installation OAuth en 15 min, hébergé UE, opt-out TDM. Migration en 1 jour.",
       keywords:
         'alternative gorgias, gorgias vs actero, gorgias français, remplacer gorgias, alternative gorgias shopify, helpdesk ia français, sav automatisé shopify, gorgias alternative rgpd',
     },
 
     hero: {
       subtitle:
-        "Gorgias facture chaque résolution IA, empile les add-ons (voice, SMS, automation) et impose 2 à 5 jours de configuration manuelle avec un consultant. L'interface reste anglo-centrée, le support anglophone, l'hébergement US. Actero automatise 82 % des tickets dès le premier jour, en français, hébergé UE, à partir de 99 €/mois forfait tout inclus.",
+        "Gorgias facture chaque résolution IA, empile les add-ons (voice, SMS, automation) et impose 2 à 5 jours de configuration manuelle avec un consultant. L'interface reste anglo-centrée, le support anglophone, l'hébergement US. Actero automatise 50 à 70 % des tickets dès le premier jour, en français, hébergé UE, à partir de 99 €/mois forfait tout inclus.",
     },
 
     comparison: [
@@ -54,7 +54,7 @@ export const AlternativeGorgias = ({ onNavigate }) => {
       },
       {
         label: '% de résolutions automatiques',
-        actero: { main: '82 %', sub: 'Sans add-on' },
+        actero: { main: '50-70 %', sub: 'Sans add-on' },
         competitor: { main: 'Variable', sub: 'Auto-reply payant' },
       },
       {

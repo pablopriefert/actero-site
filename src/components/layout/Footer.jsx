@@ -126,7 +126,7 @@ export const Footer = ({ onNavigate }) => {
 
         {/* ── Bottom row : copyright + lang + status ── */}
         <div className="flex flex-col md:flex-row justify-between gap-4 pt-6 text-[12px] text-[#716D5C]">
-          <div>© {new Date().getFullYear()} Actero SAS · Paris, France · Made with care</div>
+          <div>© {new Date().getFullYear()} Actero · Marseille, France · Made with care</div>
           <div className="flex flex-wrap items-center gap-5">
             <span className="inline-flex items-center gap-1.5">
               <Globe className="w-4 h-4" strokeWidth={1.8} />

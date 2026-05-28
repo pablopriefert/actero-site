@@ -111,7 +111,7 @@ const MockupDashboard = ({ isImmo }) => {
           { label: 'RDV confirmés', value: '+30%' },
           { label: 'Temps admin', value: '-50%' },
         ] : [
-          { label: 'Tickets auto', value: '82%' },
+          { label: 'Tickets auto', value: '50-70%' },
           { label: 'Revenus récup.', value: '+15%' },
         ]).map((kpi) => (
           <div key={kpi.label} className="bg-white rounded-lg px-3 py-2 border border-gray-100">
