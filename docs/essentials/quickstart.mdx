@@ -1,9 +1,13 @@
 ---
 title: "Quickstart"
-description: "Installer Actero et mettre votre premier agent en production en 15 minutes."
+description: "Connectez Shopify, ajustez le ton, testez — votre agent SAV répond à vos clients en 5 minutes."
 ---
 
-Ce guide vous amène d'une inscription vide à un agent SAV qui répond à vos vrais clients, en 15 minutes. Aucun code, OAuth Shopify en 1 clic.
+Ce guide vous amène d'une inscription vide à un agent SAV live sur le widget chat de votre boutique en 5 minutes. Aucun code, OAuth Shopify en 1 clic.
+
+<Tip>
+  Depuis juin 2026, le parcours d'activation tient en 3 étapes essentielles : **Boutique → Ton → Test**. La connexion Shopify construit automatiquement votre base de connaissances et active le playbook **SAV e-commerce** — l'agent répond dès la fin de l'onboarding.
+</Tip>
 
 ## 1. Créez votre compte
 
@@ -15,80 +19,75 @@ Rendez-vous sur [actero.fr/signup](https://actero.fr/signup) et créez votre com
 
 ## 2. Connectez votre boutique Shopify
 
-Depuis le dashboard, cliquez **Intégrations → Shopify → Connecter**.
+Depuis le dashboard, le **Setup Wizard** s'ouvre sur la première étape **Boutique**. Cliquez **Connecter Shopify**.
 
 <Steps>
   <Step title="Autorisez Actero">
-    Shopify vous redirige pour valider les scopes (lire commandes, clients, produits). Ces scopes sont en **lecture seule** — Actero ne peut ni modifier une commande, ni rembourser, ni facturer à votre place.
+    Shopify vous redirige pour valider les scopes (lire commandes, clients, produits). Ces scopes sont en **lecture seule** — Actero ne peut ni modifier une commande, ni rembourser, ni facturer à votre place. Voir [Scopes demandés](/integrations/shopify#scopes-demand%C3%A9s).
   </Step>
   <Step title="Retour automatique au dashboard">
-    Vous revenez sur Actero avec un badge **Connecté**. Les 30 dernières commandes sont indexées en ~20 secondes.
+    Vous revenez sur Actero avec un badge **Connecté**. En coulisses, trois choses se passent automatiquement :
+
+    - Les 30 dernières commandes sont indexées en ~20 secondes.
+    - Une base de connaissances initiale est construite à partir du crawl de votre storefront (pages produits, politiques, FAQ visibles).
+    - Le playbook **SAV e-commerce** (`sav_ecommerce`) est activé pour votre compte — vous n'avez pas besoin de basculer un toggle « Activer le playbook ».
   </Step>
-  <Step title="Vérification">
+  <Step title="Vérification rapide">
     Dans l'onglet **Tester**, tapez `où est ma commande #1001 ?`. L'agent doit retrouver la commande en base Shopify et répondre avec le statut de tracking.
   </Step>
 </Steps>
 
-## 3. Configurez le ton de votre marque
+## 3. Personnalisez le ton de votre marque
 
-Allez dans **Automatisation → Configurer l'agent**. Deux champs à remplir :
+Étape **Ton de marque** du wizard. Deux champs à remplir :
 
 - **Identité** : nom de la marque, secteur, mission (1 paragraphe)
 - **Ton** : formel / amical / décontracté. Soyez précis. Exemple : _"On tutoie nos clientes, on utilise des emojis avec parcimonie, on ne s'excuse jamais à outrance"_
 
-L'agent copie ce ton dans chaque réponse. Vous pouvez ajuster à tout moment.
+L'agent applique ce ton à chaque réponse. Vous pouvez ajuster à tout moment dans **Mon Agent → Configurer l'agent**.
 
-## 4. Construisez votre base de connaissances
+<Tip>
+  Un ton par défaut est appliqué si vous sautez cette étape — vous restez go-live, mais les réponses sonneront plus génériques.
+</Tip>
 
-Dans **Base de connaissances**, ajoutez les réponses aux questions que vos clients posent le plus :
+## 4. Testez en profondeur
 
-- Politique de retour (délais, conditions, frais)
-- Délais de livraison par pays
-- Frais de port
-- Composition produit / matière / entretien
-- Garanties
-
-<Warning>
-  Plus votre base est riche, plus l'agent est autonome. Une base de 5 entrées résout déjà 30-40% des tickets. Une base de 30\+ entrées atteint 80%\+.
-</Warning>
-
-## 5. Testez en profondeur
-
-Dans **Tester mon agent** (plan Starter\+), jouez les scénarios clés :
+Étape **Premier test** du wizard. Jouez les scénarios clés dans **Tester mon agent** :
 
 - _"Je veux retourner ma commande"_
 - _"Ma commande arrive quand ?"_
 - _"Changement d'adresse pour la #1002"_
 - _"Le produit est abîmé"_
 
-Si la réponse ne vous convient pas, modifiez le ton ou enrichissez la base de connaissances.
+Si la réponse ne vous convient pas, modifiez le ton ou enrichissez la base de connaissances (**Base de connaissances → Ajouter une entrée**).
 
-## 6. Connectez votre helpdesk ou boîte mail
-
-Deux options :
-
-<Tabs>
-  <Tab title="Helpdesk existant (Gorgias / Zendesk / Intercom)">
-    Allez dans **Intégrations**, cliquez sur votre helpdesk. L'OAuth s'occupe de tout. Chaque nouveau ticket passe par Actero avant d'arriver à votre équipe.
-  </Tab>
-  <Tab title="Boîte mail directe (Gmail / SMTP)">
-    Configurez l'Agent Email (plan Pro\+) en renseignant votre IMAP \+ SMTP. Actero poll votre inbox toutes les 2 minutes et répond aux messages qui passent ses critères.
-  </Tab>
-</Tabs>
-
-## 7. Activez les automatisations
-
-Dans **Automatisation**, cochez :
-
-- **SAV e-commerce** : répond aux questions clients (email, chat, helpdesk)
-- **Panier abandonné** : relance 15 min / 24 h / 72 h après abandon
-
-Chaque automatisation a un toggle. Vous pouvez mettre en pause à tout moment.
+<Warning>
+  La base auto-construite couvre les politiques publiées sur votre site. Pour les cas non publiés (codes promo internes, exceptions retour, délais fournisseur), ajoutez les entrées à la main — chaque entrée ajoutée fait monter le taux de résolution autonome.
+</Warning>
 
 ## C'est parti
 
-Votre agent est maintenant live. Il traite les premières conversations, vous recevez un résumé quotidien sur Slack ou par email, et vous voyez les métriques dans **Vue d'ensemble**.
+À la fin de l'étape 4, votre agent est **live sur le widget chat** de votre boutique Shopify. Il traite les premières conversations, vous recevez un résumé quotidien sur Slack ou par email, et vous voyez les métriques dans **Vue d'ensemble**.
 
 <Card title="Les 7 premiers jours" icon="chart-line">
   Attendez 48 h avant d'évaluer. Le système apprend vos habitudes de réponse via les escalades que vous validez manuellement.
 </Card>
+
+## Power-ups optionnels
+
+Une fois l'agent live, ces options ouvrent de nouveaux canaux ou affinent les métriques. Elles ne sont **pas nécessaires** pour go-live.
+
+<CardGroup cols={2}>
+  <Card title="Agent Email (Pro+)" icon="envelope" href="/integrations/smtp-imap">
+    Brancher Gmail, Resend ou un SMTP/IMAP pour qu'Actero lise et réponde aux tickets envoyés à `support@votre-marque.com`. Le widget chat fonctionne sans.
+  </Card>
+  <Card title="Helpdesk existant" icon="headset" href="/integrations/gorgias">
+    Gorgias, Zendesk ou Intercom — l'OAuth s'occupe de tout. Chaque nouveau ticket passe par Actero avant d'arriver à votre équipe.
+  </Card>
+  <Card title="Relance panier" icon="cart-shopping" href="/agent/playbooks">
+    Activez le playbook `abandoned_cart` pour relancer en 15 min / 24 h / 72 h après abandon (Starter+).
+  </Card>
+  <Card title="Paramètres ROI" icon="chart-line" href="/essentials/dashboard-tour">
+    Affinez panier moyen, marge et coût par ticket pour des métriques de ROI plus précises dans **Vue d'ensemble**.
+  </Card>
+</CardGroup>
