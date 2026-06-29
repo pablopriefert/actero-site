@@ -106,6 +106,19 @@ import { TabErrorBoundary } from '../components/ErrorBoundary'
 import { SkipToMain } from '../components/ui/SkipToMain'
 import { trackEvent, identifyUser } from '../lib/analytics'
 
+/**
+ * Lean launch mode — keep the merchant nav focused on the core wedge for the
+ * pre-launch / first-merchants phase: agent config + knowledge base + tickets
+ * + integrations + settings. Premature or advanced surfaces (voice agent,
+ * voice calls, email agent, SAV portal, multi-channel hub, deep analytics) are
+ * hidden from the sidebar to keep first-run onboarding clear.
+ *
+ * Nothing is deleted: every hidden tab is still routable directly (deep link
+ * or programmatic setActiveTab), only the nav entry is gated. Flip this to
+ * `false` to expose the full surface again — single source of truth.
+ */
+const LEAN_NAV = true
+
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [theme] = useState(() => localStorage.getItem("actero-theme") || "light");
   const [selectedPeriod, setSelectedPeriod] = useState("this_month");
@@ -768,7 +781,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       defaultOpen: true,
       children: [
         { id: 'automation', label: 'Automatisation', icon: Rocket, dataTour: 'automation-tab', star: true },
-        { id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) },
+        // Agent Email — déféré en mode lean (feature Pro, pas le wedge V1).
+        ...(LEAN_NAV ? [] : [{ id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) }]),
         { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
         { id: 'guardrails', label: 'Restrictions', icon: Shield },
         { id: 'simulator', label: 'Tester mon agent', icon: FlaskConical, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
@@ -793,24 +807,26 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       ],
     },
 
-    // CANAUX — intégrations + portail SAV + (futur) voice...
+    // CANAUX — en mode lean : Intégrations uniquement (le wedge V1 = Shopify
+    // chat + email). Voix, portail SAV et hub multi-canaux sont déférés.
     {
       type: 'expandable',
       label: 'Canaux',
       icon: Plug,
       children: [
-        { id: 'channels', label: 'Tous les canaux', icon: MessageSquare },
+        ...(LEAN_NAV ? [] : [{ id: 'channels', label: 'Tous les canaux', icon: MessageSquare }]),
         { id: 'integrations', label: 'Intégrations', icon: Plug },
-        { id: 'voice-agent', label: 'Agent vocal', icon: Phone },
-        { id: 'voice-calls', label: 'Appels vocaux', icon: Phone },
-        { id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
+        ...(LEAN_NAV ? [] : [{ id: 'voice-agent', label: 'Agent vocal', icon: Phone }]),
+        ...(LEAN_NAV ? [] : [{ id: 'voice-calls', label: 'Appels vocaux', icon: Phone }]),
+        ...(LEAN_NAV ? [] : [{ id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) }]),
         // Migration tickets — visible only while no completed migration exists.
         ...(hasCompletedMigration ? [] : [{ id: 'migrations', label: 'Migration tickets', icon: Upload }]),
       ],
     },
 
-    // ANALYTICS — performance & insights
-    {
+    // ANALYTICS — déféré en mode lean (la Vue d'ensemble couvre déjà les KPIs
+    // clés ; insights détaillés + heures de pic reviendront plus tard).
+    ...(LEAN_NAV ? [] : [{
       type: 'expandable',
       label: 'Analytics',
       icon: BarChart3,
@@ -818,7 +834,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'insights', label: 'Insights', icon: BarChart3 },
         { id: 'peak-hours', label: 'Heures de pic', icon: Clock },
       ],
-    },
+    }]),
 
     // SYSTÈME — paramètres compte / facturation (lien standalone, plus d'expandable à un seul enfant)
     { id: 'settings', label: 'Paramètres', icon: Settings },
