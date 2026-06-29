@@ -55,7 +55,6 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
 
   const steps = useMemo(() => [
     { id: 'shopify', label: 'Boutique', icon: ShoppingBag, done: progress?.shopify },
-    { id: 'email', label: 'Email', icon: Mail, done: progress?.email },
     { id: 'tone', label: 'Ton de marque', icon: Wand2, done: progress?.tone },
     { id: 'tested', label: 'Premier test', icon: PlayCircle, done: progress?.tested },
   ], [progress])
@@ -170,9 +169,8 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
                   transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 >
                   {currentStep === 0 && <StepShopify progress={progress} />}
-                  {currentStep === 1 && <StepEmail progress={progress} />}
-                  {currentStep === 2 && <StepTone clientId={clientId} progress={progress} queryClient={queryClient} toast={toast} />}
-                  {currentStep === 3 && <StepTest clientId={clientId} progress={progress} queryClient={queryClient} toast={toast} />}
+                  {currentStep === 1 && <StepTone clientId={clientId} progress={progress} queryClient={queryClient} toast={toast} />}
+                  {currentStep === 2 && <StepTest clientId={clientId} progress={progress} queryClient={queryClient} toast={toast} />}
                 </motion.div>
               </AnimatePresence>
 
@@ -257,54 +255,7 @@ function StepShopify({ progress }) {
   )
 }
 
-// ───────── Step 2 : Email ─────────
-function StepEmail({ progress }) {
-  if (progress?.email) {
-    return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-8 h-8 text-emerald-600" />
-        </div>
-        <h2 className="text-2xl font-bold text-[#1a1a1a] mb-2">Email connecté ✅</h2>
-        <p className="text-[#71717a]">L'agent peut maintenant répondre à vos tickets email.</p>
-      </div>
-    )
-  }
-  return (
-    <div>
-      <h2 className="text-3xl font-bold text-[#1a1a1a] mb-3 text-center tracking-tight">
-        Connectez votre email SAV
-      </h2>
-      <p className="text-[#71717a] text-center mb-10 max-w-lg mx-auto">
-        Actero va lire les tickets entrants sur <span className="font-mono text-[#1a1a1a]">support@votre-marque.com</span> et répondre automatiquement. Vous gardez le contrôle.
-      </p>
-      <div className="space-y-3 max-w-md mx-auto">
-        <a
-          href="/client/integrations?highlight=gmail"
-          onClick={() => trackEvent('Setup Wizard Email Clicked', { method: 'gmail' })}
-          className="flex items-center justify-between w-full px-5 py-4 rounded-2xl border-2 border-cta bg-cta text-white font-semibold hover:bg-[#003725] transition-colors"
-        >
-          <span className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-              <Mail className="w-5 h-5" />
-            </div>
-            <span>Connecter Gmail (OAuth)</span>
-          </span>
-          <ArrowRight className="w-5 h-5" />
-        </a>
-        <a
-          href="/client/integrations?highlight=smtp_imap"
-          onClick={() => trackEvent('Setup Wizard Email Clicked', { method: 'smtp' })}
-          className="flex items-center justify-center w-full px-5 py-3 rounded-2xl border border-[#f0f0f0] text-[#71717a] hover:text-[#1a1a1a] hover:bg-white transition-colors text-[13px]"
-        >
-          Utiliser SMTP personnalisé ou Resend →
-        </a>
-      </div>
-    </div>
-  )
-}
-
-// ───────── Step 3 : Tone ─────────
+// ───────── Step : Tone ─────────
 function StepTone({ clientId, progress, queryClient, toast }) {
   const [formality, setFormality] = useState('vous')
   const [emojiUse, setEmojiUse] = useState('parfois')

@@ -282,6 +282,56 @@ async function handler(req, res) {
     }
   }
 
+  // 6e. Auto-activate the core SAV playbook so the agent is LIVE the moment
+  // onboarding finishes — the merchant no longer has to hunt for a "Activer le
+  // playbook" toggle. The KB is auto-built by the onboard job + storefront
+  // crawl, the tone has a sane default, so activating sav_ecommerce here means
+  // the only required setup step is the Shopify connection itself.
+  //
+  // Idempotent (checks for an existing row first) and fail-soft (never blocks
+  // the OAuth response). Re-installs simply find the row already present.
+  if (onboardedClientId) {
+    try {
+      // Resolve the globally-active sav_ecommerce playbook id.
+      const pbRes = await fetch(
+        `${supabaseUrl}/rest/v1/engine_playbooks?name=eq.sav_ecommerce&is_active=eq.true&select=id&limit=1`,
+        { headers: { apikey: supabaseServiceKey, Authorization: `Bearer ${supabaseServiceKey}` } }
+      );
+      const pbRows = pbRes.ok ? await pbRes.json() : [];
+      const playbookId = pbRows?.[0]?.id || null;
+
+      if (playbookId) {
+        // Only insert if the client hasn't already got this playbook linked.
+        const existingRes = await fetch(
+          `${supabaseUrl}/rest/v1/engine_client_playbooks?client_id=eq.${onboardedClientId}&playbook_id=eq.${playbookId}&select=id&limit=1`,
+          { headers: { apikey: supabaseServiceKey, Authorization: `Bearer ${supabaseServiceKey}` } }
+        );
+        const existing = existingRes.ok ? await existingRes.json() : [];
+
+        if (!existing?.[0]) {
+          await fetch(`${supabaseUrl}/rest/v1/engine_client_playbooks`, {
+            method: 'POST',
+            headers: {
+              apikey: supabaseServiceKey,
+              Authorization: `Bearer ${supabaseServiceKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              client_id: onboardedClientId,
+              playbook_id: playbookId,
+              is_active: true,
+              custom_config: { confidence_threshold: 0.4 },
+              activated_at: new Date().toISOString(),
+            }),
+          });
+        }
+      }
+    } catch (err) {
+      // Non-blocking — the merchant can still activate it manually if this fails.
+      console.error('Failed to auto-activate SAV playbook:', err.message);
+    }
+  }
+
   // 7. Clear cookies
   res.setHeader('Set-Cookie', [
     'shopify_nonce=; Path=/; HttpOnly; Secure; Max-Age=0',
