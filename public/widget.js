@@ -6,9 +6,43 @@
  */
 (function() {
   const ACTERO_URL = 'https://actero.fr'
+  // `document.currentScript` is only valid synchronously at load — capture now.
   const script = document.currentScript
   const apiKey = script?.getAttribute('data-actero-key')
   if (!apiKey) return console.warn('[Actero] Missing data-actero-key attribute')
+
+  // Runtime config — merchant-customizable from the Actero dashboard, served by
+  // /api/engine/widget-config. We start with the factory defaults (same values
+  // the widget has always shipped) so the UI renders instantly, then fetch the
+  // merchant's config and apply it. If the fetch fails, the defaults stand —
+  // the widget can never be broken by a config problem.
+  const CFG = {
+    brandColor: '#0F5F35',
+    accentColor: '#14A85C',
+    position: 'bottom-right',
+    greeting: 'Bonjour ! Comment puis-je vous aider ?',
+    logoUrl: null,
+    showPoweredBy: true,
+    agentEnabled: true,
+  }
+  // Data-attribute overrides let the Shopify theme app extension pass a couple
+  // of hints synchronously before the server config resolves (nice for FOUC).
+  const attrAccent = script?.getAttribute('data-actero-accent')
+  const attrPos = script?.getAttribute('data-actero-position')
+  if (attrAccent) CFG.brandColor = attrAccent
+  if (attrPos === 'bottom-left' || attrPos === 'bottom-right') CFG.position = attrPos
+
+  // Expose the theme colors as CSS variables so the stylesheet can reference
+  // them; updating the variable later (once server config loads) restyles live.
+  function applyThemeVars() {
+    const root = document.documentElement
+    root.style.setProperty('--actero-primary', CFG.brandColor)
+    root.style.setProperty('--actero-accent', CFG.accentColor)
+    // Hover shade — reuse the brand color so a custom color never hovers to the
+    // legacy Actero green. (No vanilla darken; same-color hover is acceptable.)
+    root.style.setProperty('--actero-primary-dark', CFG.brandColor)
+  }
+  applyThemeVars()
 
   // Stable session id across reloads (sessionStorage), so the thread restores
   const SESSION_KEY = 'actero_session_' + apiKey
@@ -46,7 +80,7 @@
     #actero-widget-btn {
       position: fixed; bottom: 20px; right: 20px; z-index: 99999;
       width: 56px; height: 56px; border-radius: 50%;
-      background: #0F5F35; border: none; cursor: pointer;
+      background: var(--actero-primary, #0F5F35); border: none; cursor: pointer;
       box-shadow: 0 4px 20px rgba(15,95,53,0.3);
       display: flex; align-items: center; justify-content: center;
       transition: transform 0.2s, box-shadow 0.2s;
@@ -69,7 +103,7 @@
     }
     #actero-widget-panel.open { display: flex; }
     .actero-header {
-      padding: 16px; background: #0F5F35; color: white;
+      padding: 16px; background: var(--actero-primary, #0F5F35); color: white;
       display: flex; align-items: center; gap: 10px;
     }
     .actero-header-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
@@ -95,7 +129,7 @@
       font-size: 13px; line-height: 1.5; word-break: break-word;
     }
     .actero-msg.user {
-      align-self: flex-end; background: #0F5F35; color: white;
+      align-self: flex-end; background: var(--actero-primary, #0F5F35); color: white;
       border-bottom-right-radius: 4px;
     }
     .actero-msg.bot {
@@ -140,20 +174,20 @@
       padding: 10px 14px; font-size: 16px; outline: none;
       background: #fafafa;
     }
-    .actero-input-area input[type="text"]:focus { border-color: #0F5F35; background: white; }
+    .actero-input-area input[type="text"]:focus { border-color: var(--actero-primary, #0F5F35); background: white; }
     .actero-input-area button {
       width: 38px; height: 38px; border-radius: 10px;
-      background: #0F5F35; border: none; cursor: pointer;
+      background: var(--actero-primary, #0F5F35); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.2s;
     }
-    .actero-input-area button:hover { background: #003725; }
+    .actero-input-area button:hover { background: var(--actero-primary-dark, #003725); }
     .actero-input-area button:disabled { opacity: 0.4; cursor: not-allowed; }
     .actero-input-area button svg { width: 16px; height: 16px; fill: white; }
     .actero-powered {
       text-align: center; padding: 6px; font-size: 10px; color: #999;
     }
-    .actero-powered a { color: #0F5F35; text-decoration: none; font-weight: 600; }
+    .actero-powered a { color: var(--actero-primary, #0F5F35); text-decoration: none; font-weight: 600; }
     .actero-products {
       display: flex; flex-direction: column; gap: 6px;
       align-self: flex-start; max-width: 80%;
@@ -163,7 +197,7 @@
       background: white; border: 1px solid #e5e5e5; border-radius: 10px;
       text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .actero-product-card:hover { border-color: #0F5F35; box-shadow: 0 2px 8px rgba(15,95,53,0.08); }
+    .actero-product-card:hover { border-color: var(--actero-primary, #0F5F35); box-shadow: 0 2px 8px rgba(15,95,53,0.08); }
     .actero-product-card img {
       width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
     }
@@ -173,7 +207,7 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .actero-product-price {
-      margin: 2px 0 0; font-size: 12px; color: #0F5F35; font-weight: 700;
+      margin: 2px 0 0; font-size: 12px; color: var(--actero-primary, #0F5F35); font-weight: 700;
     }
     .actero-attach-btn {
       width: 38px; height: 38px; border-radius: 10px;
@@ -260,7 +294,7 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
     </div>
-    <div class="actero-powered">Propulsé par <a href="https://actero.fr" target="_blank" rel="noopener noreferrer">Actero</a></div>
+    <div class="actero-powered" id="actero-powered">Propulsé par <a href="https://actero.fr" target="_blank" rel="noopener noreferrer">Actero</a></div>
   `
   document.body.appendChild(panel)
 
@@ -293,7 +327,7 @@
     if (messages.length === 0) {
       const restored = restoreThread()
       if (!restored) {
-        addBotMessage('Bonjour ! Comment puis-je vous aider ?')
+        addBotMessage(CFG.greeting || 'Bonjour ! Comment puis-je vous aider ?')
       }
     }
     // focus input
@@ -662,4 +696,60 @@
       if (isOpen && document.activeElement === inputEl) scrollToLatest()
     })
   }
+
+  // ── Server-driven config ──────────────────────────────────────────────────
+  // Apply the merchant's dashboard customization once it arrives. The UI is
+  // already on screen with defaults, so this only restyles / repositions —
+  // never blocks first paint. Fully fail-soft: any error leaves the defaults.
+  function applyServerConfig(cfg) {
+    if (!cfg || typeof cfg !== 'object') return
+
+    // Agent switched off from the dashboard → remove the widget entirely.
+    if (cfg.agentEnabled === false) {
+      try { btn.remove(); panel.remove() } catch {}
+      return
+    }
+
+    if (cfg.brandColor) CFG.brandColor = cfg.brandColor
+    if (cfg.accentColor) CFG.accentColor = cfg.accentColor
+    if (typeof cfg.greeting === 'string' && cfg.greeting.trim()) CFG.greeting = cfg.greeting
+    if (cfg.position === 'bottom-left' || cfg.position === 'bottom-right') CFG.position = cfg.position
+    CFG.logoUrl = cfg.logoUrl || null
+    CFG.showPoweredBy = cfg.showPoweredBy !== false
+
+    // Restyle live via CSS variables.
+    applyThemeVars()
+
+    // Position — flip to the left corner if requested (default stays right).
+    if (CFG.position === 'bottom-left') {
+      btn.style.left = '20px'; btn.style.right = 'auto'
+      panel.style.left = '20px'; panel.style.right = 'auto'
+    } else {
+      btn.style.right = '20px'; btn.style.left = 'auto'
+      panel.style.right = '20px'; panel.style.left = 'auto'
+    }
+
+    // "Powered by Actero" — hidden only on plans that allow it (server already
+    // forces it true below Pro, so we just honour what it returns).
+    const poweredEl = document.getElementById('actero-powered')
+    if (poweredEl) poweredEl.style.display = CFG.showPoweredBy ? '' : 'none'
+
+    // Optional merchant logo in the header (replaces the status dot).
+    if (CFG.logoUrl) {
+      const dot = panel.querySelector('.actero-header-dot')
+      if (dot && !panel.querySelector('.actero-header-logo')) {
+        const img = document.createElement('img')
+        img.className = 'actero-header-logo'
+        img.src = CFG.logoUrl
+        img.alt = ''
+        img.style.cssText = 'width:22px;height:22px;border-radius:6px;object-fit:cover;flex-shrink:0'
+        dot.replaceWith(img)
+      }
+    }
+  }
+
+  fetch(ACTERO_URL + '/api/engine/widget-config?api_key=' + encodeURIComponent(apiKey))
+    .then(function(r) { return r.ok ? r.json() : null })
+    .then(function(cfg) { if (cfg) applyServerConfig(cfg) })
+    .catch(function() { /* defaults stand — widget never breaks on config */ })
 })()

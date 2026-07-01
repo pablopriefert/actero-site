@@ -89,6 +89,7 @@ const NotificationCenterView = lazy(() => import('../components/client/Notificat
 const PlaybooksView = lazy(() => import('../components/client/PlaybooksView').then(m => ({ default: m.PlaybooksView })))
 const AgentControlCenterView = lazy(() => import('../components/client/AgentControlCenterView').then(m => ({ default: m.AgentControlCenterView })))
 const ChannelsHubView = lazy(() => import('../components/client/ChannelsHubView').then(m => ({ default: m.ChannelsHubView })))
+const WidgetSetupView = lazy(() => import('../components/client/WidgetSetupView').then(m => ({ default: m.WidgetSetupView })))
 const EmailAgentView = lazy(() => import('../components/client/EmailAgentView').then(m => ({ default: m.EmailAgentView })))
 const OpportunitiesView = lazy(() => import('../components/client/OpportunitiesView').then(m => ({ default: m.OpportunitiesView })))
 const InsightsHubView = lazy(() => import('../components/client/InsightsHubView').then(m => ({ default: m.InsightsHubView })))
@@ -784,6 +785,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         // Agent Email — déféré en mode lean (feature Pro, pas le wedge V1).
         ...(LEAN_NAV ? [] : [{ id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) }]),
         { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
+        { id: 'widget', label: 'Ma bulle SAV', icon: MessageSquare },
         { id: 'guardrails', label: 'Restrictions', icon: Shield },
         { id: 'simulator', label: 'Tester mon agent', icon: FlaskConical, ...(can('simulator') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) },
         { id: 'agent-control', label: 'Paramètres', icon: SlidersHorizontal },
@@ -1402,6 +1404,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
           {activeTab === "channels" && (
             <ChannelsHubView clientId={currentClient?.id} onNavigate={setActiveTab} />
+          )}
+
+          {activeTab === "widget" && (
+            <WidgetSetupView clientId={currentClient?.id} />
           )}
 
           {activeTab === "email-agent" && (
