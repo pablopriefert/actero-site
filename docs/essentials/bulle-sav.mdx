@@ -1,0 +1,93 @@
+---
+title: "Ma bulle SAV"
+description: "Personnalise la bulle de chat Actero et installe-la sur ta boutique avec une seule ligne de code qui ne bouge jamais."
+---
+
+**Ma bulle SAV** est l'écran qui te permet de personnaliser l'apparence de la bulle de chat Actero (couleur, position, message d'accueil, logo) et de récupérer le snippet d'installation à coller sur ta boutique.
+
+Toute la configuration est stockée côté Actero : tu colles le snippet **une fois** et chaque changement (couleur, message, logo…) part en production au chargement suivant du widget, sans jamais retoucher au code.
+
+## Où le trouver
+
+Sidebar : **Mon Agent → Ma bulle SAV**. Visible dès le plan Free — c'est un passage obligé pour aller en production.
+
+## Personnaliser la bulle
+
+L'écran est divisé en deux : les contrôles à gauche, un aperçu en direct à droite. Chaque modification met à jour l'aperçu instantanément ; clique **Enregistrer** pour publier.
+
+<Steps>
+  <Step title="Couleur principale">
+    Sélecteur de couleur \+ champ hex. C'est la couleur de la bulle, du bandeau d'entête et des accents dans la fenêtre de chat. Utilise la couleur exacte de ta charte (par exemple `#0F5F35`).
+  </Step>
+  <Step title="Position">
+    **Bas droite** ou **Bas gauche**. Choisis le côté qui n'entre pas en conflit avec les autres widgets déjà installés (avis, cookies, panier).
+  </Step>
+  <Step title="Message d'accueil">
+    La première phrase que voit le client quand il ouvre la bulle. Reste court (\< 120 caractères), utilise le même tutoiement/vouvoiement que le [ton de ta marque](/essentials/ton-marque).
+  </Step>
+  <Step title="Logo (optionnel)">
+    URL HTTPS d'un PNG ou SVG carré. Il s'affiche dans l'entête de la fenêtre de chat. Laisse vide pour garder l'icône par défaut.
+  </Step>
+  <Step title='Masquer "Powered by Actero" (PRO)'>
+    Toggle disponible à partir du plan Pro. Sur les plans Free et Starter, l'attribution reste visible en pied de bulle.
+  </Step>
+</Steps>
+
+<Tip>
+Le widget lit sa configuration au chargement de chaque page. Un client déjà en conversation ne verra tes changements qu'à sa prochaine visite — c'est normal, ça évite qu'une bulle change de couleur en pleine discussion.
+</Tip>
+
+## Installer le snippet
+
+Sous les contrôles, tu vois **une seule ligne** à copier. C'est ton snippet unique — il contient ta clé API et ne bouge jamais, même si tu changes toutes les couleurs demain.
+
+```html
+<script src="https://actero.fr/widget.js" data-actero-key="TA_CLE_API" defer></script>
+```
+
+<AccordionGroup>
+  <Accordion title="Shopify (thème)">
+    Si tu as installé Actero via le [Shopify App Store](/integrations/shopify), le widget s'injecte automatiquement via l'extension de thème — tu **n'as rien à coller**. Cet écran te sert uniquement à personnaliser l'apparence.
+
+    Si tu es sur un thème custom sans extension d'app, ouvre **Boutique en ligne → Thèmes → Modifier le code → `theme.liquid`** et colle le snippet juste avant `</body>`.
+  </Accordion>
+  <Accordion title="WooCommerce, Webflow, site custom">
+    Colle le snippet juste avant `</body>` dans le template principal de ton site (footer global, layout WordPress, custom code Webflow → **Before body tag**). Le widget s'affichera sur toutes les pages où ce template est chargé.
+  </Accordion>
+  <Accordion title="Google Tag Manager">
+    Crée une balise **HTML personnalisée**, colle le snippet, déclencheur **Toutes les pages**. Le widget se chargera à la fin du DOM (attribut `defer`).
+  </Accordion>
+</AccordionGroup>
+
+## Vérifier l'installation
+
+1. Recharge une page publique de ta boutique.
+2. Attends 1 à 2 secondes (le script est différé).
+3. La bulle apparaît dans le coin choisi, aux couleurs enregistrées.
+
+Si tu ne la vois pas :
+
+- Ouvre la console navigateur — un blocage réseau ou un CSP trop strict peut empêcher le chargement de `actero.fr/widget.js`. Autorise le domaine.
+- Vérifie que ton agent est **actif** dans **Mon Agent → Automatisation**. Si l'agent est en pause, la bulle se retire toute seule à sa prochaine initialisation.
+- Confirme que la clé `data-actero-key` correspond bien à celle affichée sur cet écran (une ancienne clé révoquée ne charge rien).
+
+## Modifier après coup
+
+Reviens sur cet écran quand tu veux, change une couleur ou le message, clique **Enregistrer**. Aucune manipulation à faire sur ta boutique : les visiteurs suivants verront la nouvelle bulle.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Je peux avoir plusieurs bulles pour plusieurs boutiques ?">
+    Une seule bulle par compte Actero. Pour gérer plusieurs boutiques avec des couleurs différentes, il te faut plusieurs comptes Actero (ou le plan **Entreprise** avec multi-store).
+  </Accordion>
+  <Accordion title="Est-ce que le widget ralentit mon site ?">
+    Le script est chargé en `defer` et pèse moins de 40 Ko gzippé. Il n'exécute rien avant que le DOM soit prêt et n'affecte pas le score Core Web Vitals.
+  </Accordion>
+  <Accordion title="Puis-je masquer la bulle sur certaines pages ?">
+    Oui, ne colle simplement pas le snippet sur les templates concernés (checkout Shopify natif, pages légales, etc.). Sur Shopify avec l'extension de thème, tu peux désactiver le block dans l'éditeur de thème page par page.
+  </Accordion>
+  <Accordion title="La bulle affiche encore l'ancienne couleur après enregistrement">
+    Ton navigateur peut avoir mis en cache la configuration précédente. Force un rechargement (Cmd/Ctrl \+ Shift \+ R) sur la page test. Les vrais visiteurs récupéreront la nouvelle version au prochain chargement de page.
+  </Accordion>
+</AccordionGroup>
