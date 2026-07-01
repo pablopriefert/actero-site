@@ -19,6 +19,7 @@ export const WidgetSetupView = ({ clientId }) => {
   const [copied, setCopied] = useState(false)
   const [canWhiteLabel, setCanWhiteLabel] = useState(false)
   const [apiKey, setApiKey] = useState('')
+  const [shopDomain, setShopDomain] = useState(null)
 
   const [cfg, setCfg] = useState({
     widget_brand_color: '#0F5F35',
@@ -63,8 +64,22 @@ export const WidgetSetupView = ({ clientId }) => {
         const inTrial = c?.trial_ends_at && new Date(c.trial_ends_at) > new Date()
         const wl = ['pro', 'enterprise'].includes(plan) || (inTrial && ['pro', 'enterprise'].includes(plan))
 
+        // Shopify shop domain — used to deep-link the theme editor's App
+        // embeds panel. Best-effort: if RLS blocks it or there's no connection,
+        // we simply don't show the deep-link button (paste path still works).
+        let shop = null
+        try {
+          const { data: conn } = await supabase
+            .from('client_shopify_connections')
+            .select('shop_domain')
+            .eq('client_id', clientId)
+            .maybeSingle()
+          shop = conn?.shop_domain || null
+        } catch { /* ignore — button just won't render */ }
+
         if (cancelled) return
         setApiKey(key)
+        setShopDomain(shop)
         setCanWhiteLabel(wl)
         if (s) {
           setCfg({
@@ -85,6 +100,11 @@ export const WidgetSetupView = ({ clientId }) => {
   }, [clientId])
 
   const snippet = `<script src="https://actero.fr/widget.js" data-actero-key="${apiKey}" defer></script>`
+  // Deep-link straight to the theme editor's "App embeds" panel, where the
+  // merchant flips the Actero toggle on. Only when we know their shop domain.
+  const themeEditorUrl = shopDomain
+    ? `https://${shopDomain}/admin/themes/current/editor?context=apps`
+    : null
 
   const update = (patch) => { setCfg((c) => ({ ...c, ...patch })); setSaved(false) }
 
@@ -282,9 +302,26 @@ export const WidgetSetupView = ({ clientId }) => {
                   <ShoppingBag className="w-4 h-4 text-[#0F5F35]" />
                   <span className="text-sm font-semibold text-[#1a1a1a]">Sur Shopify</span>
                 </div>
-                <p className="text-[12px] text-[#71717a] leading-relaxed">
-                  Thème → <b>Modifier le code</b> → ouvrez <span className="font-mono">theme.liquid</span> → collez juste avant <span className="font-mono">{'</body>'}</span> → Enregistrer. (Ou activez le bloc app « Actero » depuis l'éditeur de thème.)
-                </p>
+                {themeEditorUrl ? (
+                  <>
+                    <p className="text-[12px] text-[#71717a] leading-relaxed mb-2.5">
+                      Ouvrez l'éditeur de thème, puis activez le bloc « Actero » dans <b>Modules d'application</b>. Aucun code à coller.
+                    </p>
+                    <a
+                      href={themeEditorUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-[#003725] transition-colors"
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      Ouvrir l'éditeur de thème
+                    </a>
+                  </>
+                ) : (
+                  <p className="text-[12px] text-[#71717a] leading-relaxed">
+                    Thème → <b>Modifier le code</b> → ouvrez <span className="font-mono">theme.liquid</span> → collez la ligne juste avant <span className="font-mono">{'</body>'}</span> → Enregistrer.
+                  </p>
+                )}
               </div>
               <div className="rounded-xl border border-gray-100 bg-[#FAF7F2] p-4">
                 <div className="flex items-center gap-2 mb-1.5">
