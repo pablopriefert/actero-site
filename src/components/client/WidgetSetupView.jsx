@@ -100,10 +100,13 @@ export const WidgetSetupView = ({ clientId }) => {
   }, [clientId])
 
   const snippet = `<script src="https://actero.fr/widget.js" data-actero-key="${apiKey}" defer></script>`
-  // Deep-link straight to the theme editor's "App embeds" panel, where the
-  // merchant flips the Actero toggle on. Only when we know their shop domain.
-  const themeEditorUrl = shopDomain
-    ? `https://${shopDomain}/admin/themes/current/editor?context=apps`
+  // No Shopify app required: the merchant pastes the snippet into their theme
+  // code. This link opens the Themes admin — from there: ⋯ → Modifier le code
+  // → layout/theme.liquid → paste before </body>. (We can't deep-link the exact
+  // file without the theme id, but this lands them one step away and always
+  // works, whether or not the Actero app is installed.)
+  const themesUrl = shopDomain
+    ? `https://${shopDomain}/admin/themes`
     : null
 
   const update = (patch) => { setCfg((c) => ({ ...c, ...patch })); setSaved(false) }
@@ -302,26 +305,24 @@ export const WidgetSetupView = ({ clientId }) => {
                   <ShoppingBag className="w-4 h-4 text-[#0F5F35]" />
                   <span className="text-sm font-semibold text-[#1a1a1a]">Sur Shopify</span>
                 </div>
-                {themeEditorUrl ? (
-                  <>
-                    <p className="text-[12px] text-[#71717a] leading-relaxed mb-2.5">
-                      Ouvrez l'éditeur de thème, puis activez le bloc « Actero » dans <b>Modules d'application</b>. Aucun code à coller.
-                    </p>
-                    <a
-                      href={themeEditorUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-[#003725] transition-colors"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      Ouvrir l'éditeur de thème
-                    </a>
-                  </>
-                ) : (
-                  <p className="text-[12px] text-[#71717a] leading-relaxed">
-                    Thème → <b>Modifier le code</b> → ouvrez <span className="font-mono">theme.liquid</span> → collez la ligne juste avant <span className="font-mono">{'</body>'}</span> → Enregistrer.
-                  </p>
+                <ol className="text-[12px] text-[#71717a] leading-relaxed list-decimal pl-4 space-y-0.5 mb-2.5">
+                  <li>Copiez la ligne de code ci-dessus.</li>
+                  <li>Boutique en ligne → Thèmes → <b>⋯</b> → <b>Modifier le code</b>.</li>
+                  <li>Ouvrez <span className="font-mono">layout/theme.liquid</span>.</li>
+                  <li>Collez juste avant <span className="font-mono">{'</body>'}</span> → Enregistrer.</li>
+                </ol>
+                {themesUrl && (
+                  <a
+                    href={themesUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-[#003725] transition-colors"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    Ouvrir mes thèmes Shopify
+                  </a>
                 )}
+                <p className="text-[11px] text-[#9ca3af] mt-2">Aucune application à installer.</p>
               </div>
               <div className="rounded-xl border border-gray-100 bg-[#FAF7F2] p-4">
                 <div className="flex items-center gap-2 mb-1.5">
