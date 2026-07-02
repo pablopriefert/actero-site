@@ -47,11 +47,15 @@ Sous les contrôles, tu vois **une seule ligne** à copier. C'est ton snippet un
 
 <AccordionGroup>
   <Accordion title="Shopify (thème)">
-    Si tu as installé Actero via le [Shopify App Store](/integrations/shopify), le widget s'injecte automatiquement via l'extension de thème — tu **n'as rien à coller**. Cet écran te sert uniquement à personnaliser l'apparence.
+    Aucune application à installer. Sur Shopify, tu colles le snippet directement dans le code du thème.
 
-    Quand ta boutique Shopify est connectée, la carte **Sur Shopify** affiche un bouton **Ouvrir l'éditeur de thème** qui t'emmène directement dans **Boutique en ligne → Thèmes → Personnaliser → App embeds** de ton admin Shopify. Active simplement le toggle **Actero** dans la liste : la bulle apparaît sur toutes tes pages, aucun code à coller. Tu peux désactiver le toggle à tout moment pour retirer la bulle.
+    1. Sur cet écran, copie la ligne `<script>` avec le bouton **Copier**.
+    2. Clique **Ouvrir mes thèmes Shopify** (ou va dans **Boutique en ligne → Thèmes**).
+    3. Sur ton thème actif, ouvre **⋯ → Modifier le code**.
+    4. Ouvre `layout/theme.liquid` et colle le snippet juste avant la balise `</body>`.
+    5. Enregistre. La bulle apparaît sur toutes les pages de la boutique.
 
-    Si tu es sur un thème custom sans extension d'app (ou si le bouton d'ouverture n'apparaît pas parce que ta boutique n'est pas connectée), ouvre **Boutique en ligne → Thèmes → Modifier le code → `theme.liquid`** et colle le snippet juste avant `</body>`.
+    Ça marche sur n'importe quel thème Shopify (Dawn, Impulse, thème custom). Comme la clé API est incluse dans le snippet, tu n'as plus jamais à toucher au code — les changements de couleur ou de message se font depuis cet écran.
   </Accordion>
   <Accordion title="WooCommerce, Webflow, site custom">
     Colle le snippet juste avant `</body>` dans le template principal de ton site (footer global, layout WordPress, custom code Webflow → **Before body tag**). Le widget s'affichera sur toutes les pages où ce template est chargé.
