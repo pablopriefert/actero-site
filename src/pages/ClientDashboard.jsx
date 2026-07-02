@@ -166,6 +166,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     // Existing routes
     if (route === "/client/activity") return "activity";
     if (route === "/client/knowledge") return "knowledge";
+    if (route === "/client/widget") return "widget";
     if (route === "/client/support") return "support";
     if (route === "/client/referral") return "referral";
     if (route === "/client/partner") return "partner";
