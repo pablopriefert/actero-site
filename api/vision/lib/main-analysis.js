@@ -11,7 +11,7 @@
 import { buildPromptFor, defaultActionFor } from './use-cases.js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
-const MODEL = 'claude-sonnet-4-6'
+const MODEL = 'claude-sonnet-5'
 const TIMEOUT_MS = 15000   // 15s — vision calls are slower than text
 const MAX_TOKENS = 600
 

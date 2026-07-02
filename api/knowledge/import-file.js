@@ -50,7 +50,7 @@ async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5',
         max_tokens: 3000,
         system: `Tu es un extracteur de contenu pour un agent de support client IA. A partir du contenu d'un fichier (PDF, TXT, document), genere des entrees pour une base de connaissances.
 

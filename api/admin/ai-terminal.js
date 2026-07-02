@@ -182,7 +182,7 @@ async function handler(req, res) {
   try {
     // First call to Claude
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages,
@@ -202,7 +202,7 @@ async function handler(req, res) {
 
         // Second call to Claude with the query results
         const followUp = await anthropic.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-5',
           max_tokens: 4096,
           system: SYSTEM_PROMPT,
           messages: [

@@ -68,7 +68,7 @@ async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5',
         max_tokens: 500,
         system: 'Tu es un assistant qui redige des rapports vocaux hebdomadaires pour une plateforme de support client IA. Ecris un script naturel et oral de 90 secondes maximum (environ 200 mots). Pas de markdown, pas de bullet points. Utilise un ton professionnel mais chaleureux. Commence par "Bonjour, voici votre rapport hebdomadaire Actero."',
         messages: [{ role: 'user', content: `Voici les donnees de la semaine:\n${sections.join('\n')}\n\n${types.includes('recommendations') ? 'Inclus aussi 1-2 recommandations basees sur ces donnees.' : ''}` }],

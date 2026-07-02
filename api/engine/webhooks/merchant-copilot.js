@@ -116,7 +116,7 @@ ${metrics.slice(0, 7).map(m => `${m.date}: ${m.conversations_handled || 0} conve
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5',
         max_tokens: 500,
         system: `Tu es l'assistant Actero du client "${client?.brand_name}". Tu as acces a toutes ses donnees de performance IA. Reponds de maniere concise et utile. Pas de markdown, pas d'emoji excessif. Reponds en francais. Si tu ne sais pas, dis-le.
 

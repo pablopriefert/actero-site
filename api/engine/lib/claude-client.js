@@ -9,7 +9,9 @@
 import { trace } from './braintrust-init.js'
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
-const MODEL = 'claude-sonnet-4-20250514'
+// Env-overridable so a future model deprecation is a Vercel env change, not a
+// redeploy. Default = Sonnet 5 (successor to the retired claude-sonnet-4-*).
+const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-5'
 const MAX_TOKENS = 512
 const TIMEOUT_MS = 8000 // 8s to stay within Vercel's 10s limit
 

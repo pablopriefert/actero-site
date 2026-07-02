@@ -29,7 +29,7 @@ async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-5',
         max_tokens: 200,
         system: `Tu es un analyseur de sentiment pour un service client. Analyse le message et reponds UNIQUEMENT en JSON valide:
 {

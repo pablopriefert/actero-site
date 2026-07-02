@@ -168,7 +168,7 @@ Pas de markdown, pas de commentaires, juste le JSON.`
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-5',
       max_tokens: 2000,
       system,
       messages: [{ role: 'user', content: `Contenu de la page ${sourceLabel}:\n\n${String(content).substring(0, 9000)}` }],
