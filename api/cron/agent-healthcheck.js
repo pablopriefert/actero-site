@@ -28,8 +28,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
 
-// Mirror the engine's model resolution so we test what production actually uses.
-const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-5'
+// Mirror the engine's provider + model resolution so we test what production
+// actually uses (see llm-client.js / claude-client.js / openai-client.js).
+const LLM_PROVIDER = (process.env.LLM_PROVIDER || 'anthropic').toLowerCase()
+const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-5'
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.5'
+const ACTIVE_MODEL = LLM_PROVIDER === 'openai' ? OPENAI_MODEL : CLAUDE_MODEL
 
 async function checkClaude() {
   const key = process.env.ANTHROPIC_API_KEY
@@ -45,20 +49,55 @@ async function checkClaude() {
         'x-api-key': key,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify({ model: MODEL, max_tokens: 4, messages: [{ role: 'user', content: 'ping' }] }),
+      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 4, messages: [{ role: 'user', content: 'ping' }] }),
       signal: controller.signal,
     })
     if (!res.ok) {
       const body = await res.text().catch(() => '')
-      return { ok: false, detail: `Claude API ${res.status} (model ${MODEL}): ${body.slice(0, 200)}` }
+      return { ok: false, detail: `Claude API ${res.status} (model ${CLAUDE_MODEL}): ${body.slice(0, 200)}` }
     }
     return { ok: true }
   } catch (err) {
-    return { ok: false, detail: `Claude fetch failed (model ${MODEL}): ${err.message}` }
+    return { ok: false, detail: `Claude fetch failed (model ${CLAUDE_MODEL}): ${err.message}` }
   } finally {
     clearTimeout(timeout)
   }
 }
+
+// OpenAI: hit the free /v1/models endpoint and confirm the configured model is
+// present. Catches the key-invalid / model-retired / wrong-id failure class
+// (exactly the outage this job exists for) without paying for a chat call
+// every 5 minutes — GPT-5.5 completions are not cheap.
+async function checkOpenAI() {
+  const key = process.env.OPENAI_API_KEY
+  if (!key) return { ok: false, detail: 'OPENAI_API_KEY unset' }
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000)
+  try {
+    const res = await fetch('https://api.openai.com/v1/models', {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${key}` },
+      signal: controller.signal,
+    })
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      return { ok: false, detail: `OpenAI API ${res.status}: ${body.slice(0, 200)}` }
+    }
+    const data = await res.json().catch(() => null)
+    const ids = (data?.data || []).map((m) => m.id)
+    if (!ids.includes(OPENAI_MODEL)) {
+      return { ok: false, detail: `OpenAI model "${OPENAI_MODEL}" not available on this account` }
+    }
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, detail: `OpenAI fetch failed (model ${OPENAI_MODEL}): ${err.message}` }
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+const checkLLM = () => (LLM_PROVIDER === 'openai' ? checkOpenAI() : checkClaude())
 
 async function checkDb() {
   const { error } = await supabase.from('clients').select('id', { count: 'exact', head: true }).limit(1)
@@ -90,18 +129,18 @@ async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
-  const [claude, db] = await Promise.all([checkClaude(), checkDb()])
-  const failures = [claude, db].filter((c) => !c.ok).map((c) => c.detail)
+  const [llm, db] = await Promise.all([checkLLM(), checkDb()])
+  const failures = [llm, db].filter((c) => !c.ok).map((c) => c.detail)
 
   if (failures.length > 0) {
     const message = `Agent healthcheck FAILED — ${failures.join(' | ')}`
-    captureError(new Error(message), { stage: 'agent_healthcheck', model: MODEL })
+    captureError(new Error(message), { stage: 'agent_healthcheck', provider: LLM_PROVIDER, model: ACTIVE_MODEL })
     await sendOpsAlert(message)
     // Throw so withCronMonitor emits an error check-in → Sentry cron alert.
     throw new Error(message)
   }
 
-  return res.status(200).json({ ok: true, model: MODEL, checks: { claude: true, db: true } })
+  return res.status(200).json({ ok: true, provider: LLM_PROVIDER, model: ACTIVE_MODEL, checks: { llm: true, db: true } })
 }
 
 export default withCronMonitor('cron-agent-healthcheck', '*/5 * * * *', handler)

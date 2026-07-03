@@ -5,7 +5,7 @@
  * legacy brain.js behavior so nothing regresses for "autre", "general",
  * "greeting" or unknown classifications.
  */
-import { callClaude } from '../lib/claude-client.js'
+import { callLLM as callClaude } from '../lib/llm-client.js'
 import { buildSystemPrompt } from '../lib/prompt-builder.js'
 import {
   buildClaudeMessages,

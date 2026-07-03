@@ -10,7 +10,7 @@
  * gateway.js, webhooks/*.js and any downstream consumers keep working
  * without any modification.
  */
-import { callClaude } from './lib/claude-client.js'
+import { callLLM as callClaude } from './lib/llm-client.js'
 import { trace } from './lib/braintrust-init.js'
 import { loadClientConfig } from './lib/config-loader.js'
 import { buildSystemPrompt } from './lib/prompt-builder.js'
