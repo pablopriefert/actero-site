@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, lazy, Suspense } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { FEATURES } from '../config/features.js'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -118,7 +119,7 @@ import { trackEvent, identifyUser } from '../lib/analytics'
  * or programmatic setActiveTab), only the nav entry is gated. Flip this to
  * `false` to expose the full surface again — single source of truth.
  */
-const LEAN_NAV = true
+// Nav gating now lives in the FEATURES registry (src/config/features.js).
 
 export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const [theme] = useState(() => localStorage.getItem("actero-theme") || "light");
@@ -784,7 +785,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       children: [
         { id: 'automation', label: 'Automatisation', icon: Rocket, dataTour: 'automation-tab', star: true },
         // Agent Email — déféré en mode lean (feature Pro, pas le wedge V1).
-        ...(LEAN_NAV ? [] : [{ id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) }]),
+        ...(FEATURES.emailAgent ? [{ id: 'email-agent', label: 'Agent Email', icon: Mail, ...(can('email_agent') ? {} : { badge: 'PRO', badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200' }) }] : []),
         { id: 'knowledge', label: 'Base de connaissances', icon: BookOpen },
         { id: 'widget', label: 'Ma bulle SAV', icon: MessageSquare },
         { id: 'guardrails', label: 'Restrictions', icon: Shield },
@@ -817,11 +818,11 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       label: 'Canaux',
       icon: Plug,
       children: [
-        ...(LEAN_NAV ? [] : [{ id: 'channels', label: 'Tous les canaux', icon: MessageSquare }]),
+        ...(FEATURES.multiChannelHub ? [{ id: 'channels', label: 'Tous les canaux', icon: MessageSquare }] : []),
         { id: 'integrations', label: 'Intégrations', icon: Plug },
-        ...(LEAN_NAV ? [] : [{ id: 'voice-agent', label: 'Agent vocal', icon: Phone }]),
-        ...(LEAN_NAV ? [] : [{ id: 'voice-calls', label: 'Appels vocaux', icon: Phone }]),
-        ...(LEAN_NAV ? [] : [{ id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) }]),
+        ...(FEATURES.voiceAgent ? [{ id: 'voice-agent', label: 'Agent vocal', icon: Phone }] : []),
+        ...(FEATURES.voiceAgent ? [{ id: 'voice-calls', label: 'Appels vocaux', icon: Phone }] : []),
+        ...(FEATURES.portalSav ? [{ id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) }] : []),
         // Migration tickets — visible only while no completed migration exists.
         ...(hasCompletedMigration ? [] : [{ id: 'migrations', label: 'Migration tickets', icon: Upload }]),
       ],
@@ -829,7 +830,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
     // ANALYTICS — déféré en mode lean (la Vue d'ensemble couvre déjà les KPIs
     // clés ; insights détaillés + heures de pic reviendront plus tard).
-    ...(LEAN_NAV ? [] : [{
+    ...(FEATURES.analyticsHub ? [{
       type: 'expandable',
       label: 'Analytics',
       icon: BarChart3,
@@ -837,7 +838,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         { id: 'insights', label: 'Insights', icon: BarChart3 },
         { id: 'peak-hours', label: 'Heures de pic', icon: Clock },
       ],
-    }]),
+    }] : []),
 
     // SYSTÈME — paramètres compte / facturation (lien standalone, plus d'expandable à un seul enfant)
     { id: 'settings', label: 'Paramètres', icon: Settings },

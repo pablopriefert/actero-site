@@ -4,6 +4,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Analytics } from "@vercel/analytics/react";
 import { AlertCircle } from "lucide-react";
 import { supabase, INITIAL_URL } from "./lib/supabase";
+import { FEATURES } from "./config/features.js";
 // Eager: high-traffic landing pages where TTFB matters and the user is on the
 // first hop in. Everything else is lazy to slim the initial bundle.
 import { LandingPage } from "./pages/LandingPage";
@@ -189,7 +190,7 @@ function MainRouter() {
   else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
   else if (currentRoute.startsWith("/demo-prospect")) page = <ProspectDemoPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
-  else if (currentRoute === "/marketplace" || currentRoute.startsWith("/marketplace/")) {
+  else if (FEATURES.marketplace && (currentRoute === "/marketplace" || currentRoute.startsWith("/marketplace/"))) {
     page = (
       <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
         <div className="text-center max-w-md px-6">
@@ -203,7 +204,7 @@ function MainRouter() {
       </div>
     );
   }
-  else if (currentRoute === "/academy" || currentRoute.startsWith("/academy/")) {
+  else if (FEATURES.academy && (currentRoute === "/academy" || currentRoute.startsWith("/academy/"))) {
     page = (
       <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
         <div className="text-center max-w-md px-6">
