@@ -1,7 +1,6 @@
 import { withSentry } from '../lib/sentry.js'
+import { chatComplete } from '../lib/llm.js'
 import { createClient } from '@supabase/supabase-js';
-
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -10,7 +9,6 @@ const supabase = createClient(
 
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY missing' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Non autorise' });
@@ -21,34 +19,22 @@ async function handler(req, res) {
   if (!message) return res.status(400).json({ error: 'Missing message' });
 
   try {
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-5',
-        max_tokens: 200,
-        system: `Tu es un analyseur de sentiment pour un service client. Analyse le message et reponds UNIQUEMENT en JSON valide:
+    const { text } = await chatComplete({
+      system: `Tu es un analyseur de sentiment pour un service client. Analyse le message et reponds UNIQUEMENT en JSON valide:
 {
   "score": 1-10 (1=tres negatif, 10=tres positif),
   "category": "tres_positif" | "positif" | "neutre" | "negatif" | "tres_negatif",
   "trigger": "raison courte en francais",
   "excerpt": "extrait pertinent du message (max 100 chars)"
 }`,
-        messages: [{ role: 'user', content: message }],
-      }),
+      messages: [{ role: 'user', content: message }],
+      maxTokens: 200,
+      json: true,
     });
-
-    if (!anthropicRes.ok) throw new Error(`Claude ${anthropicRes.status}`);
-    const data = await anthropicRes.json();
-    const text = data?.content?.[0]?.text || '{}';
 
     let result;
     try {
-      result = JSON.parse(text);
+      result = JSON.parse(text || '{}');
     } catch {
       result = { score: 5, category: 'neutre', trigger: 'Analyse impossible', excerpt: '' };
     }

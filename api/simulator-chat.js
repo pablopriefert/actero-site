@@ -1,10 +1,9 @@
 import { withSentry } from './lib/sentry.js'
+import { chatComplete } from './lib/llm.js'
 import { createClient } from '@supabase/supabase-js';
 
 // Cap lambda runtime: LLM calls can hang and burn money otherwise.
 export const maxDuration = 60
-
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -14,10 +13,6 @@ const supabase = createClient(
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  if (!ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
   }
 
   // Auth check — any authenticated user (not admin-only)
@@ -44,29 +39,11 @@ async function handler(req, res) {
     }
     messages.push({ role: 'user', content: prompt });
 
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-5',
-        max_tokens: 1024,
-        system: systemPrompt || 'Tu es un agent de support client IA professionnel et chaleureux.',
-        messages,
-      }),
+    const { text } = await chatComplete({
+      system: systemPrompt || 'Tu es un agent de support client IA professionnel et chaleureux.',
+      messages,
+      maxTokens: 1024,
     });
-
-    if (!anthropicRes.ok) {
-      const err = await anthropicRes.text();
-      console.error('Anthropic API error:', err);
-      throw new Error(`Anthropic ${anthropicRes.status}`);
-    }
-
-    const data = await anthropicRes.json();
-    const text = data?.content?.[0]?.text || '';
 
     return res.status(200).json({ text });
   } catch (error) {
