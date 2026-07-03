@@ -103,7 +103,7 @@ Tu peux **valider en 1 clic**, **éditer la proposition IA**, ou **rédiger ta p
 
 Par défaut, ton agent utilise **Claude Sonnet** d'Anthropic pour la classification et la génération. Le coût moyen par ticket est de **0,003 € à 0,008 €** selon la taille de ta base de connaissances.
 
-Actero prend aussi en charge **GPT-5.5** d'OpenAI comme moteur alternatif. Le provider est choisi côté plateforme — tu n'as rien à configurer, et le comportement de l'agent (prompts, garde-fous, format de sortie) reste identique quel que soit le modèle utilisé.
+Actero prend aussi en charge la **famille GPT-5** d'OpenAI comme moteur alternatif (par défaut `gpt-5.4-mini` : rapide, qualité comparable pour les réponses SAV courtes). Le provider et le modèle sont choisis côté plateforme — tu n'as rien à configurer, et le comportement de l'agent (prompts, garde-fous, format de sortie) reste identique quel que soit le modèle utilisé.
 
 <Note>
 Tu peux suivre la consommation token par token dans **Activité → Historique des runs**. Chaque ligne affiche le modèle utilisé et le coût exact en USD.
@@ -139,6 +139,6 @@ Tu peux suivre la consommation token par token dans **Activité → Historique d
     Oui, via Actero Memory. Quand un client revient, l'agent récupère ses interactions passées et les injecte dans le contexte. Tu peux désactiver cette mémoire dans **Paramètres**.
   </Accordion>
   <Accordion title="Que se passe-t-il si Claude est down ?">
-    Actero bascule automatiquement sur le provider de secours (OpenAI GPT-5.5 si Claude est le provider actif, et inversement). Si les deux providers échouent, le run est marqué `error` et le ticket est automatiquement escaladé vers **À traiter** avec la raison `error`. Aucun client ne reçoit de réponse cassée.
+    Actero bascule automatiquement sur le provider de secours (OpenAI si Claude est le provider actif, et inversement). Si les deux providers échouent, le run est marqué `error` et le ticket est automatiquement escaladé vers **À traiter** avec la raison `error`. Aucun client ne reçoit de réponse cassée.
   </Accordion>
 </AccordionGroup>
