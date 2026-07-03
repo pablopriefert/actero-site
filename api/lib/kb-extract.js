@@ -8,11 +8,12 @@
  * JS-rendered + WAF-protected pages). Claude then turns that clean content
  * into structured KB entries.
  *
- * Env: TAVILY_API_KEY, ANTHROPIC_API_KEY
+ * Env: TAVILY_API_KEY (+ LLM provider keys resolved by lib/llm.js)
  */
 
+import { chatComplete } from './llm.js'
+
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
 /**
  * Tavily Extract — turn one or more URLs into clean markdown text.
@@ -137,10 +138,6 @@ export async function tavilyMap(domainUrl, { limit = 60, timeoutMs = 20000, maxD
  * @returns {Promise<Array<{category:string,title:string,content:string}>>}
  */
 export async function extractKbEntriesWithClaude({ content, sourceLabel, existingTitles = [] }) {
-  if (!ANTHROPIC_API_KEY) {
-    throw new Error('ANTHROPIC_API_KEY not configured')
-  }
-
   let system = `Tu es un extracteur de contenu pour un agent de support client IA. A partir du contenu d'une page web, genere des entrees pour une base de connaissances.
 
 Genere entre 5 et 15 entrees, melange de:
@@ -160,24 +157,12 @@ Pas de markdown, pas de commentaires, juste le JSON.`
     system += `\n\nVoici les titres déjà présents dans la base :\n${list}\nN'ajoute QUE des informations nouvelles. Ne duplique pas, ne reformule pas un doublon, ne contredis pas une entrée existante.`
   }
 
-  const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-5',
-      max_tokens: 2000,
-      system,
-      messages: [{ role: 'user', content: `Contenu de la page ${sourceLabel}:\n\n${String(content).substring(0, 9000)}` }],
-    }),
+  const { text } = await chatComplete({
+    system,
+    messages: [{ role: 'user', content: `Contenu de la page ${sourceLabel}:\n\n${String(content).substring(0, 9000)}` }],
+    maxTokens: 2000,
   })
-
-  if (!claudeRes.ok) throw new Error(`Claude ${claudeRes.status}`)
-  const claudeData = await claudeRes.json()
-  let rawText = claudeData?.content?.[0]?.text || '[]'
+  let rawText = text || '[]'
 
   // Clean Claude response — sometimes wraps JSON in ```json blocks
   rawText = rawText

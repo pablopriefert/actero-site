@@ -1,8 +1,8 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
+import { chatComplete } from '../lib/llm.js';
 
 const ELEVENLABS_KEY = process.env.ELEVENLABS_API_KEY;
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -12,7 +12,6 @@ const supabase = createClient(
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!ELEVENLABS_KEY) return res.status(500).json({ error: 'ELEVENLABS_API_KEY missing' });
-  if (!ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY missing' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Non autorise' });
@@ -60,24 +59,11 @@ async function handler(req, res) {
     }
 
     // 2. Ask Claude to write a natural spoken report script
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-5',
-        max_tokens: 500,
-        system: 'Tu es un assistant qui redige des rapports vocaux hebdomadaires pour une plateforme de support client IA. Ecris un script naturel et oral de 90 secondes maximum (environ 200 mots). Pas de markdown, pas de bullet points. Utilise un ton professionnel mais chaleureux. Commence par "Bonjour, voici votre rapport hebdomadaire Actero."',
-        messages: [{ role: 'user', content: `Voici les donnees de la semaine:\n${sections.join('\n')}\n\n${types.includes('recommendations') ? 'Inclus aussi 1-2 recommandations basees sur ces donnees.' : ''}` }],
-      }),
+    const { text: reportText } = await chatComplete({
+      system: 'Tu es un assistant qui redige des rapports vocaux hebdomadaires pour une plateforme de support client IA. Ecris un script naturel et oral de 90 secondes maximum (environ 200 mots). Pas de markdown, pas de bullet points. Utilise un ton professionnel mais chaleureux. Commence par "Bonjour, voici votre rapport hebdomadaire Actero."',
+      messages: [{ role: 'user', content: `Voici les donnees de la semaine:\n${sections.join('\n')}\n\n${types.includes('recommendations') ? 'Inclus aussi 1-2 recommandations basees sur ces donnees.' : ''}` }],
+      maxTokens: 500,
     });
-
-    if (!anthropicRes.ok) throw new Error(`Claude ${anthropicRes.status}`);
-    const claudeData = await anthropicRes.json();
-    const reportText = claudeData?.content?.[0]?.text || '';
 
     // 3. Generate audio via ElevenLabs
     const selectedVoiceId = voice_id || '21m00Tcm4TlvDq8ikWAM';

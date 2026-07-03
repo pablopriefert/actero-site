@@ -9,8 +9,7 @@
  */
 import { withSentry } from '../../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
-
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
+import { chatComplete } from '../../lib/llm.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -107,27 +106,14 @@ Metriques quotidiennes recentes:
 ${metrics.slice(0, 7).map(m => `${m.date}: ${m.conversations_handled || 0} conversations, ${m.resolution_rate || 0}% resolution, ${m.time_saved_minutes || 0}min economisees`).join('\n')}
 `
 
-    // Call Claude
-    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-5',
-        max_tokens: 500,
-        system: `Tu es l'assistant Actero du client "${client?.brand_name}". Tu as acces a toutes ses donnees de performance IA. Reponds de maniere concise et utile. Pas de markdown, pas d'emoji excessif. Reponds en francais. Si tu ne sais pas, dis-le.
+    const { text } = await chatComplete({
+      system: `Tu es l'assistant Actero du client "${client?.brand_name}". Tu as acces a toutes ses donnees de performance IA. Reponds de maniere concise et utile. Pas de markdown, pas d'emoji excessif. Reponds en francais. Si tu ne sais pas, dis-le.
 
 ${dataContext}`,
-        messages: [{ role: 'user', content: message }],
-      }),
+      messages: [{ role: 'user', content: message }],
+      maxTokens: 500,
     })
-
-    if (!claudeRes.ok) throw new Error(`Claude ${claudeRes.status}`)
-    const data = await claudeRes.json()
-    const response = data?.content?.[0]?.text || 'Desole, je n\'ai pas pu generer une reponse.'
+    const response = text || 'Desole, je n\'ai pas pu generer une reponse.'
 
     return res.status(200).json({ response })
   } catch (err) {

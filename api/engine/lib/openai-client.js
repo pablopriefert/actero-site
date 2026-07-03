@@ -19,7 +19,7 @@ import { trace } from './braintrust-init.js'
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 // Exact API model id — env-overridable so a model deprecation is a Vercel env
 // change, not a redeploy (same lesson as the claude-sonnet-4 outage).
-const MODEL = process.env.OPENAI_MODEL || 'gpt-5.5'
+const MODEL = process.env.OPENAI_MODEL || 'gpt-5.4-mini'
 const REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || 'none'
 const MAX_TOKENS = 512
 const TIMEOUT_MS = 8000
