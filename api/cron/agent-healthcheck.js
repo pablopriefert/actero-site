@@ -32,7 +32,7 @@ const supabase = createClient(
 // actually uses (see llm-client.js / claude-client.js / openai-client.js).
 const LLM_PROVIDER = (process.env.LLM_PROVIDER || 'anthropic').toLowerCase()
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-5'
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.5'
+const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.4-mini'
 const ACTIVE_MODEL = LLM_PROVIDER === 'openai' ? OPENAI_MODEL : CLAUDE_MODEL
 
 async function checkClaude() {
