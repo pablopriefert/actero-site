@@ -58,7 +58,7 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
       if (!clientId) return null
       const [clientRow, teamRes, settingsRes] = await Promise.all([
         supabase.from('clients').select('plan, company_name').eq('id', clientId).maybeSingle(),
-        supabase.from('team_members').select('id', { count: 'exact', head: true }).eq('client_id', clientId),
+        supabase.from('client_users').select('id', { count: 'exact', head: true }).eq('client_id', clientId),
         supabase.from('client_settings').select('notifications_enabled, email_notifications_enabled').eq('client_id', clientId).maybeSingle(),
       ])
       const plan = clientRow.data?.plan || 'free'

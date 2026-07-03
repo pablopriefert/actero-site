@@ -66,6 +66,12 @@ async function handler(req, res) {
 
   const orderName = req.query?.orderName;
   if (!orderName) return res.status(400).json({ error: 'order_required' });
+  // Order names are "#1042" / "1042". Reject anything else so the value can't
+  // inject Shopify search operators into the `name:${orderName}` filter below
+  // (e.g. "1 OR email:someone@else.com" to reach another customer's order).
+  if (!/^#?\d{1,15}$/.test(String(orderName))) {
+    return res.status(400).json({ error: 'invalid_order' });
+  }
 
   const shopDomain = integ.extra_config?.shop_domain;
 

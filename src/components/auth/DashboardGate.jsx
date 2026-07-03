@@ -191,7 +191,7 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [onNavigate, currentRoute]);
 

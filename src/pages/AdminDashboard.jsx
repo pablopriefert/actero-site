@@ -355,12 +355,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const [errors, reports, ratings, churn, connectors] = await Promise.all([
         supabase
-          .from('automation_runs')
+          .from('engine_runs_v2')
           .select('id', { count: 'exact', head: true })
           .eq('status', 'failed')
           .gte('created_at', since24h),
         supabase
-          .from('client_error_reports')
+          .from('error_reports')
           .select('id', { count: 'exact', head: true })
           .gte('created_at', since24h),
         supabase

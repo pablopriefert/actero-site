@@ -32,43 +32,20 @@ export async function fetchOpsStats(supabase, clientId) {
   const now = new Date()
   const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
 
-  const [
-    openTickets,
-    resolved24h,
-    escalated24h,
-    handled24h,
-    topics,
-    alerts,
-  ] = await Promise.all([
+  // There is no `tickets` table. Open items awaiting a human live in
+  // escalation_tickets; resolved/escalated volume, latency and topic all come
+  // from automation_events (the engine's per-run log).
+  const [openTickets, events24h, alerts] = await Promise.all([
     supabase
-      .from('tickets')
+      .from('escalation_tickets')
       .select('id', { count: 'exact', head: true })
       .eq('client_id', clientId)
-      .in('status', ['open', 'pending']),
+      .in('status', ['pending', 'open']),
     supabase
-      .from('tickets')
-      .select('id', { count: 'exact', head: true })
+      .from('automation_events')
+      .select('event_category, ticket_type, metadata, created_at')
       .eq('client_id', clientId)
-      .eq('status', 'resolved')
-      .gte('updated_at', dayAgo),
-    supabase
-      .from('tickets')
-      .select('id', { count: 'exact', head: true })
-      .eq('client_id', clientId)
-      .eq('escalated', true)
-      .gte('updated_at', dayAgo),
-    supabase
-      .from('tickets')
-      .select('id, resolved_by_ai, first_response_seconds')
-      .eq('client_id', clientId)
-      .gte('updated_at', dayAgo),
-    supabase
-      .from('tickets')
-      .select('topic')
-      .eq('client_id', clientId)
-      .gte('created_at', dayAgo)
-      .not('topic', 'is', null)
-      .limit(500),
+      .gte('created_at', dayAgo),
     supabase
       .from('agent_action_logs')
       .select('action_type, success')
@@ -78,26 +55,30 @@ export async function fetchOpsStats(supabase, clientId) {
       .limit(20),
   ])
 
+  const events = events24h.data || []
+  const resolved = events.filter((e) => e.event_category === 'ticket_resolved')
+  const escalated = events.filter((e) => e.event_category === 'ticket_escalated')
+  const handledCount = resolved.length + escalated.length
+
   // Auto-resolution rate over the day
-  const handled = handled24h.data || []
-  const autoResolvedCount = handled.filter((t) => t.resolved_by_ai).length
-  const autoRatePct = handled.length > 0
-    ? Math.round((autoResolvedCount / handled.length) * 100)
+  const autoRatePct = handledCount > 0
+    ? Math.round((resolved.length / handledCount) * 100)
     : null
 
-  // Avg first-response time (only on tickets that have one)
-  const responseTimes = handled
-    .map((t) => t.first_response_seconds)
-    .filter((s) => Number.isFinite(s) && s > 0)
-  const avgFirstResponseMin = responseTimes.length > 0
-    ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 60)
+  // Avg AI response time (metadata.duration_ms → min; only surface if it rounds to ≥1 min)
+  const durationsMs = resolved
+    .map((e) => Number(e.metadata?.duration_ms))
+    .filter((ms) => Number.isFinite(ms) && ms > 0)
+  const avgSec = durationsMs.length > 0
+    ? durationsMs.reduce((a, b) => a + b, 0) / durationsMs.length / 1000
     : null
+  const avgFirstResponseMin = avgSec && avgSec >= 60 ? Math.round(avgSec / 60) : null
 
-  // Top 3 topics
+  // Top 3 topics by ticket type over the day
   const counts = new Map()
-  for (const row of topics.data || []) {
-    if (!row.topic) continue
-    counts.set(row.topic, (counts.get(row.topic) || 0) + 1)
+  for (const e of events) {
+    if (!e.ticket_type) continue
+    counts.set(e.ticket_type, (counts.get(e.ticket_type) || 0) + 1)
   }
   const topTopics = [...counts.entries()]
     .sort((a, b) => b[1] - a[1])
@@ -112,8 +93,8 @@ export async function fetchOpsStats(supabase, clientId) {
 
   return {
     open_tickets: openTickets.count || 0,
-    resolved_24h: resolved24h.count || 0,
-    escalated_24h: escalated24h.count || 0,
+    resolved_24h: resolved.length,
+    escalated_24h: escalated.length,
     auto_rate_pct: autoRatePct,
     avg_first_response_min: avgFirstResponseMin,
     top_topics: topTopics,
