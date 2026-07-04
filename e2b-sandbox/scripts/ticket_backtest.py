@@ -42,15 +42,21 @@ def _patch_backtest(backtest_id: str, fields: dict) -> None:
         print(f"[ticket_backtest] patch failed: {exc}")
 
 
-def _classify(message: str) -> dict:
-    """Call the dry-run firewall endpoint for one ticket."""
+def _classify(message: str, provider=None, model=None) -> dict:
+    """Call the dry-run firewall endpoint for one ticket, optionally forcing a
+    specific LLM provider/model (for the Claude-vs-GPT comparison)."""
+    body = {"client_id": CLIENT_ID, "message": message}
+    if provider:
+        body["provider"] = provider
+    if model:
+        body["model"] = model
     resp = requests.post(
         f"{PUBLIC_API_URL}/api/engine/backtest-classify",
         headers={
             "Authorization": f"Bearer {CRON_SECRET}",
             "Content-Type": "application/json",
         },
-        json={"client_id": CLIENT_ID, "message": message},
+        json=body,
         timeout=60,
     )
     resp.raise_for_status()
@@ -61,6 +67,10 @@ def run() -> None:
     payload = load_payload()
     backtest_id = payload.get("backtest_id")
     limit = int(payload.get("limit") or 500)
+    # Optional provider/model override — set by the compare mode to measure a
+    # specific config (e.g. openai / gpt-5.4-mini). Absent = ambient provider.
+    provider = payload.get("provider")
+    model = payload.get("model")
 
     if not backtest_id:
         raise RuntimeError("payload.backtest_id is required")
@@ -125,7 +135,7 @@ def run() -> None:
             continue
 
         try:
-            result = _classify(message)
+            result = _classify(message, provider, model)
             resolved = bool(result.get("would_resolve"))
             if resolved:
                 would_resolve += 1
