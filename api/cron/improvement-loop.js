@@ -80,12 +80,15 @@ async function processClient(client, sinceIso) {
       .maybeSingle()
     if (existing) continue
 
+    const impactScore = Math.min(100, s.occurrences * 10)
+    const priorityLevel = impactScore >= 70 ? 'high' : impactScore >= 40 ? 'medium' : 'low'
     const { error } = await supabase.from('ai_recommendations').insert({
       client_id: client.id,
       category: 'kb_gap',
       title: s.kb_title,
       description: `${s.occurrences} demandes similaires que l'agent n'a pas su traiter — voici l'entrée à ajouter à ta base.`,
-      impact_score: Math.min(100, s.occurrences * 10),
+      priority_level: priorityLevel,
+      impact_score: impactScore,
       estimated_time_gain_minutes: s.estimated_time_gain_minutes,
       evidence: {
         kb_title: s.kb_title,
