@@ -47,10 +47,13 @@ async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorised' })
   }
 
-  const { client_id: clientId, message } = req.body || {}
+  const { client_id: clientId, message, provider, model } = req.body || {}
   if (!clientId || !message || typeof message !== 'string') {
     return res.status(400).json({ error: 'client_id and message are required' })
   }
+  // Optional per-request LLM override so a backtest can compare providers
+  // (e.g. Claude vs GPT-5.4-mini) on the exact same brain path.
+  const llmOverride = (provider || model) ? { provider, model } : undefined
 
   try {
     // Same loader the live widget uses for inbound widget messages.
@@ -85,6 +88,7 @@ async function handler(req, res) {
       clientId,
       normalized,
       conversationHistory: [],
+      llmOverride,
     })
 
     // Mirror widget.js: the widget runs the executor (auto-resolves) only in

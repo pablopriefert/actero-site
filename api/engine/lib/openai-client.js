@@ -24,20 +24,21 @@ const REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || 'none'
 const MAX_TOKENS = 512
 const TIMEOUT_MS = 8000
 
-export async function callOpenAI({ systemPrompt, messages, maxTokens = MAX_TOKENS }) {
+export async function callOpenAI({ systemPrompt, messages, maxTokens = MAX_TOKENS, model }) {
   if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured')
+  const useModel = model || MODEL
 
   return trace(
     'openai.call',
     {
       input: { system: systemPrompt, messages },
-      metadata: { model: MODEL, max_tokens: maxTokens, reasoning_effort: REASONING_EFFORT },
+      metadata: { model: useModel, max_tokens: maxTokens, reasoning_effort: REASONING_EFFORT },
     },
-    async (span) => _callOpenAIInner({ systemPrompt, messages, maxTokens }, span),
+    async (span) => _callOpenAIInner({ systemPrompt, messages, maxTokens, model: useModel }, span),
   )
 }
 
-async function _callOpenAIInner({ systemPrompt, messages, maxTokens }, span) {
+async function _callOpenAIInner({ systemPrompt, messages, maxTokens, model }, span) {
   const startTime = Date.now()
   let lastError = null
 
@@ -57,7 +58,7 @@ async function _callOpenAIInner({ systemPrompt, messages, maxTokens }, span) {
           Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
         body: JSON.stringify({
-          model: MODEL,
+          model,
           messages: fullMessages,
           max_completion_tokens: maxTokens,
           reasoning_effort: REASONING_EFFORT,
@@ -81,7 +82,7 @@ async function _callOpenAIInner({ systemPrompt, messages, maxTokens }, span) {
         tokensIn: data?.usage?.prompt_tokens || 0,
         tokensOut: data?.usage?.completion_tokens || 0,
       }
-      const modelId = data?.model || MODEL
+      const modelId = data?.model || model
 
       // Parse JSON — response_format should give clean JSON, but stay robust.
       let parsed

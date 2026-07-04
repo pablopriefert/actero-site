@@ -15,20 +15,21 @@ const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-5'
 const MAX_TOKENS = 512
 const TIMEOUT_MS = 8000 // 8s to stay within Vercel's 10s limit
 
-export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKENS }) {
+export async function callClaude({ systemPrompt, messages, maxTokens = MAX_TOKENS, model }) {
   if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured')
+  const useModel = model || MODEL
 
   return trace(
     'claude.call',
     {
       input: { system: systemPrompt, messages },
-      metadata: { model: MODEL, max_tokens: maxTokens },
+      metadata: { model: useModel, max_tokens: maxTokens },
     },
-    async (span) => _callClaudeInner({ systemPrompt, messages, maxTokens }, span),
+    async (span) => _callClaudeInner({ systemPrompt, messages, maxTokens, model: useModel }, span),
   )
 }
 
-async function _callClaudeInner({ systemPrompt, messages, maxTokens }, span) {
+async function _callClaudeInner({ systemPrompt, messages, maxTokens, model }, span) {
   const startTime = Date.now()
   let lastError = null
 
@@ -46,7 +47,7 @@ async function _callClaudeInner({ systemPrompt, messages, maxTokens }, span) {
           'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-          model: MODEL,
+          model,
           max_tokens: maxTokens,
           system: systemPrompt,
           messages,
@@ -70,7 +71,7 @@ async function _callClaudeInner({ systemPrompt, messages, maxTokens }, span) {
         tokensIn: data?.usage?.input_tokens || 0,
         tokensOut: data?.usage?.output_tokens || 0,
       }
-      const modelId = data?.model || MODEL
+      const modelId = data?.model || model
 
       // Parse JSON response — handle markdown code blocks and other wrapping
       let parsed
