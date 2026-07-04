@@ -76,15 +76,18 @@ async function processClient(client, sinceIso) {
       .select('id, status')
       .eq('client_id', client.id)
       .eq('fingerprint', fingerprint)
-      .in('status', ['pending', 'implemented'])
+      .in('status', ['active', 'implemented'])
       .maybeSingle()
     if (existing) continue
 
     const impactScore = Math.min(100, s.occurrences * 10)
     const priorityLevel = impactScore >= 70 ? 'high' : impactScore >= 40 ? 'medium' : 'low'
+    // category/status are CHECK-constrained: category ∈ growth|efficiency|risk|
+    // automation, status ∈ active|dismissed|implemented. KB-gap suggestions are
+    // 'efficiency'; the loop discriminates its own rows via source_version.
     const { error } = await supabase.from('ai_recommendations').insert({
       client_id: client.id,
-      category: 'kb_gap',
+      category: 'efficiency',
       title: s.kb_title,
       description: `${s.occurrences} demandes similaires que l'agent n'a pas su traiter — voici l'entrée à ajouter à ta base.`,
       priority_level: priorityLevel,
@@ -96,7 +99,7 @@ async function processClient(client, sinceIso) {
         occurrences: s.occurrences,
         conversation_ids: s.evidence_conversation_ids,
       },
-      status: 'pending',
+      status: 'active',
       fingerprint,
       expires_at: expiresAt,
       source_version: 'improvement-loop-v1',

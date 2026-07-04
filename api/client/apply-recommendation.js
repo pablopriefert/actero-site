@@ -37,7 +37,7 @@ async function handler(req, res) {
     return res.status(200).json({ ok: true, status: 'dismissed' })
   }
 
-  if (reco.status !== 'pending') return res.status(409).json({ error: 'Déjà traitée' })
+  if (reco.status !== 'active') return res.status(409).json({ error: 'Déjà traitée' })
   const draft = reco.evidence || {}
   // The merchant may have edited the draft in the widget; use their values if present.
   const kbTitle = (typeof title === 'string' && title.trim()) ? title.trim() : draft.kb_title

@@ -15,8 +15,8 @@ export const AgentImprovementWidget = ({ clientId, theme: _theme }) => {
         .from('ai_recommendations')
         .select('id, title, description, evidence, estimated_time_gain_minutes, created_at')
         .eq('client_id', clientId)
-        .eq('category', 'kb_gap')
-        .eq('status', 'pending')
+        .eq('source_version', 'improvement-loop-v1')
+        .eq('status', 'active')
         .order('impact_score', { ascending: false })
         .limit(5)
       return data || []

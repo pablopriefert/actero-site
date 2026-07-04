@@ -33,7 +33,7 @@ function mockRes() {
 }
 
 beforeEach(() => {
-  state.reco = { id: 'reco-1', client_id: 'client-1', status: 'pending', evidence: { kb_title: 'Assurance', kb_content: 'Assurés.' } }
+  state.reco = { id: 'reco-1', client_id: 'client-1', status: 'active', evidence: { kb_title: 'Assurance', kb_content: 'Assurés.' } }
   state.membership = { client_id: 'client-1' }
   state.kbInsert = null
   state.rpc = null
