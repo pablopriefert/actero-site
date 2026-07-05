@@ -196,7 +196,7 @@ export const GlassHero = ({ onNavigate }) => {
                 whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               >
-                Lancer mon audit gratuit
+                Créer un compte gratuitement
                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
               </motion.button>
               <WatchDemoButton source="landing_hero" variant="light" />
