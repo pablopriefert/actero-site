@@ -19,15 +19,15 @@ export const GlassHero = ({ onNavigate }) => {
   return (
     <section className="relative bg-white pt-40 md:pt-48 pb-16 px-6 overflow-hidden">
       <div className="max-w-6xl mx-auto relative">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           {/* Backed by Station F */}
           <FadeInUp delay={0.03} className="mb-6">
             <div className="inline-flex items-center justify-center gap-2 text-[15px] font-semibold text-[#1A1A1A]">
               <span>Backed by</span>
               <img
-                src="https://ejgdwjjcpjtwaqcxptke.supabase.co/storage/v1/object/public/logo/stationn%20f%20logo.png"
+                src="/stationf-logo.png"
                 alt="Station F"
-                className="h-6 w-auto object-contain"
+                className="h-[22px] w-auto object-contain"
                 loading="eager"
                 decoding="async"
               />
@@ -37,10 +37,10 @@ export const GlassHero = ({ onNavigate }) => {
           {/* Headline */}
           <FadeInUp delay={0.05} className="mb-10">
             <h1
-              className="leading-[1.03] text-[#1A1A1A] font-normal"
+              className="leading-[1.02] text-[#1A1A1A] font-normal"
               style={{
                 ...fontDisplay,
-                fontSize: 'clamp(42px, 6vw, 76px)',
+                fontSize: 'clamp(48px, 7vw, 96px)',
                 letterSpacing: '-0.02em',
               }}
             >
