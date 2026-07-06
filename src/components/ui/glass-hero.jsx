@@ -70,6 +70,21 @@ export const GlassHero = ({ onNavigate }) => {
             <HeroKpiRow />
           </FadeInUp>
         </div>
+
+        {/* ══════════════════ DASHBOARD PREVIEW (desktop only) ══════════════════ */}
+        <FadeInUp delay={0.2} className="mt-16 hidden md:block">
+          <div
+            className="relative rounded-3xl p-4 bg-white border border-black/[0.08]"
+            style={{
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 40px 80px -20px rgba(0,0,0,0.12)',
+              /* CLS guard — réserve la hauteur du dashboard preview
+                 (window chrome 36px + grid 480px + padding 32px ≈ 552px) */
+              minHeight: '552px',
+            }}
+          >
+            <DashboardPreview />
+          </div>
+        </FadeInUp>
       </div>
     </section>
   )
@@ -179,6 +194,147 @@ function HeroKpiRow() {
       <p className="mt-3 text-[11px] italic text-[#716D5C] text-center leading-[1.4]">
         * Objectifs produit, benchmark pilote
       </p>
+    </div>
+  )
+}
+
+/**
+ * DashboardPreview — mock visuel du dashboard client (browser chrome +
+ * sidebar + KPIs + histogramme SVG). Tous les chiffres sont statiques —
+ * c'est un visuel de preview, pas une connexion live.
+ */
+function DashboardPreview() {
+  const sidebarItems = [
+    { label: "Vue d'ensemble", active: true },
+    { label: 'Tickets SAV' },
+    { label: 'Paniers relancés' },
+    { label: 'Agent vocal' },
+    { label: 'Base connaissance' },
+    { label: 'Intégrations' },
+    { label: 'Ton de marque' },
+  ]
+
+  const kpis = [
+    { label: 'Résolutions', value: '1 847', delta: '+12%', hint: 'sans humain' },
+    { label: 'Heures libérées', value: '126h', delta: '+8h', hint: 'équipe SAV' },
+    { label: 'CA récupéré', value: '18 420€', delta: '+15%', hint: 'paniers + upsell' },
+    { label: 'CSAT moyen', value: '4.7', delta: '+0.3', hint: 'sur 5 étoiles' },
+  ]
+
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden border border-black/[0.06] w-full">
+      {/* Window chrome */}
+      <div className="h-9 bg-[#F9F7F1] border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
+        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
+        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
+        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
+        <div className="ml-5 text-[11px] text-[#9ca3af] font-mono">app.actero.fr / dashboard</div>
+      </div>
+
+      {/* Content grid — sidebar + main */}
+      <div className="grid grid-cols-[220px_1fr] min-h-[480px]">
+        {/* Sidebar */}
+        <div className="bg-[#FAFAFA] border-r border-black/[0.05] px-3 py-5">
+          <div className="px-2 pb-4 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.08em]">
+            Boutique
+          </div>
+          {sidebarItems.map((item) => (
+            <div
+              key={item.label}
+              className={`px-2.5 py-[7px] rounded-lg text-[13px] mb-0.5 cursor-pointer ${
+                item.active
+                  ? 'bg-[#E8F5EC] text-cta font-semibold'
+                  : 'text-[#5A5A5A] font-medium'
+              }`}
+            >
+              {item.label}
+            </div>
+          ))}
+        </div>
+
+        {/* Main */}
+        <div className="px-7 py-6">
+          {/* Topbar */}
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <div className="text-xl font-bold text-[#1A1A1A]">Vue d'ensemble</div>
+              <div className="text-xs text-[#716D5C] mt-0.5">
+                BoutiqueMode.fr · 30 derniers jours
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="px-2.5 py-1.5 border border-black/[0.08] rounded-lg text-xs text-[#5A5A5A]">
+                30 jours ▾
+              </div>
+              <div className="px-2.5 py-1.5 bg-cta text-white rounded-lg text-xs font-semibold">
+                Exporter PDF
+              </div>
+            </div>
+          </div>
+
+          {/* KPI cards */}
+          <div className="grid grid-cols-4 gap-2.5 mb-5">
+            {kpis.map((k) => (
+              <div
+                key={k.label}
+                className="p-3.5 border border-black/[0.06] rounded-[10px] bg-white"
+              >
+                <div className="text-[11px] text-[#716D5C] font-medium">{k.label}</div>
+                <div
+                  className="text-[22px] font-bold text-[#1A1A1A] mt-1 tabular-nums"
+                  style={{ letterSpacing: '-0.02em' }}
+                >
+                  {k.value}
+                </div>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-[11px] font-semibold text-cta bg-[#E8F5EC] px-1.5 rounded tabular-nums">
+                    {k.delta}
+                  </span>
+                  <span className="text-[11px] text-[#9ca3af]">{k.hint}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Chart */}
+          <div className="p-4 border border-black/[0.06] rounded-[10px]">
+            <div className="flex justify-between mb-3.5">
+              <div className="text-[13px] font-semibold text-[#1A1A1A]">
+                Résolutions par jour
+              </div>
+              <div className="flex gap-2.5 text-[11px] text-[#716D5C]">
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-cta" />
+                  Auto
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-[#E8DFC9]" />
+                  Escalade humain
+                </span>
+              </div>
+            </div>
+            <svg width="100%" height="80" viewBox="0 0 600 80" preserveAspectRatio="none">
+              {Array.from({ length: 30 }).map((_, i) => {
+                const auto = 30 + Math.sin(i * 0.5) * 18 + (i % 3) * 4
+                const human = 8 + Math.cos(i * 0.7) * 5
+                return (
+                  <g key={i} transform={`translate(${i * 20 + 4}, 0)`}>
+                    <rect x="0" y={80 - auto} width="12" height={auto} fill="#0E653A" rx="2" />
+                    <rect
+                      x="0"
+                      y={80 - auto - human}
+                      width="12"
+                      height={human}
+                      fill="#E8DFC9"
+                      rx="1"
+                    />
+                  </g>
+                )
+              })}
+            </svg>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
