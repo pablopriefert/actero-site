@@ -5,7 +5,7 @@
  * Grounded in the client's real return policy (clientConfig.settings.return_policy)
  * and knowledge base — refuses to invent delays, conditions or RMA processes.
  */
-import { callClaude } from '../lib/claude-client.js'
+import { callLLM as callClaude } from '../lib/llm-client.js'
 import { buildSystemPrompt } from '../lib/prompt-builder.js'
 import { lookupOrder } from '../lib/shopify-client.js'
 import {

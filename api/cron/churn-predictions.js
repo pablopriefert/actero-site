@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { decryptToken } from '../lib/crypto.js'
 import { withCronMonitor } from '../lib/cron-monitor.js'
+import { chatComplete } from '../lib/llm.js'
 
 export const maxDuration = 60;
 
@@ -9,7 +10,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -39,9 +39,6 @@ async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
-  if (!ANTHROPIC_API_KEY) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY missing' })
-  }
 
   // Optional single-client mode for manual refresh
   const onlyClientId = req.query?.client_id || req.body?.client_id || null
@@ -334,26 +331,12 @@ Regles de calcul:
   }, null, 2)
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        system,
-        messages: [{ role: 'user', content: userContent }],
-      }),
+    const { text } = await chatComplete({
+      system,
+      messages: [{ role: 'user', content: userContent }],
+      maxTokens: 800,
+      json: true,
     })
-    if (!r.ok) {
-      console.error('[cron/churn] Claude API error', r.status)
-      return null
-    }
-    const data = await r.json()
-    const text = data?.content?.[0]?.text || '{}'
     const jsonStart = text.indexOf('{')
     const jsonEnd = text.lastIndexOf('}')
     if (jsonStart === -1 || jsonEnd === -1) return null

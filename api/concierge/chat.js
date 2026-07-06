@@ -4,6 +4,7 @@ import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { isActeroAdmin } from '../lib/admin-auth.js'
 import { checkRateLimit } from '../lib/rate-limit.js'
+import { chatComplete } from '../lib/llm.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -13,8 +14,6 @@ const supabase = createClient(
 // Cap lambda runtime so a runaway Claude call can't hold the function open and
 // burn money. 60s is plenty for a single chat completion.
 export const maxDuration = 60
-
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
 const CONCIERGE_SYSTEM_PROMPT = `Tu es l'assistant IA d'Actero, une plateforme d'agents IA pour le support client e-commerce.
 
@@ -69,7 +68,6 @@ Tu DOIS repondre en JSON valide, sans texte autour, sans markdown code fence :
 
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-  if (!ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY missing' })
 
   const token = req.headers.authorization?.replace('Bearer ', '')
   if (!token) return res.status(401).json({ error: 'Unauthorized' })
@@ -139,27 +137,11 @@ async function handler(req, res) {
     }
     messages.push({ role: 'user', content: String(message) })
 
-    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        system: CONCIERGE_SYSTEM_PROMPT + setupContext,
-        messages,
-      }),
+    const { text: rawText } = await chatComplete({
+      system: CONCIERGE_SYSTEM_PROMPT + setupContext,
+      messages,
+      maxTokens: 500,
     })
-
-    if (!claudeRes.ok) {
-      const errText = await claudeRes.text().catch(() => '')
-      throw new Error(`Claude API ${claudeRes.status}: ${errText.slice(0, 200)}`)
-    }
-    const data = await claudeRes.json()
-    const rawText = data?.content?.[0]?.text || ''
 
     let parsed
     try {

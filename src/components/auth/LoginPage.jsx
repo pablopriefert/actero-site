@@ -36,10 +36,7 @@ export const LoginPage = ({ onNavigate }) => {
         const userId = signInData?.user?.id;
         if (userId) {
           const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
-          if (profile?.role === 'ambassador') {
-            onNavigate("/ambassador/overview");
-            return;
-          } else if (profile?.role === 'admin') {
+          if (profile?.role === 'admin') {
             onNavigate("/admin");
             return;
           }

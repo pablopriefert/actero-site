@@ -144,48 +144,44 @@ export const GlassHero = ({ onNavigate }) => {
 
         {/* ══════════════════ HERO TEXT — centered ══════════════════ */}
         <div className="max-w-3xl mx-auto text-center">
-          {/* Eyebrow — partner chip cream */}
+          {/* Eyebrow — clean category chip */}
           <FadeInUp className="mb-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#F9F7F1] border border-[#E8DFC9]">
               <span className="w-1.5 h-1.5 rounded-full bg-cta" />
-              <span>Powered by</span>
-              <strong className="text-[#262626] font-semibold">ElevenLabs Grants</strong>
-              <span className="text-[#E8DFC9]">·</span>
-              <span>Shopify Partner 2026</span>
+              <span>Agent IA de support client · Shopify · Hébergé en Europe</span>
             </div>
           </FadeInUp>
 
-          {/* Headline — Instrument Serif + italic muted suffix + gradient accent */}
+          {/* Headline — Instrument Serif, big + gold italic accent (editorial) */}
           <FadeInUp delay={0.05} className="mb-6">
             <h1
-              className="leading-[1.05] text-[#1A1A1A] font-normal"
+              className="leading-[1.03] text-[#1A1A1A] font-normal"
               style={{
                 ...fontDisplay,
-                fontSize: 'clamp(38px, 5.2vw, 64px)',
+                fontSize: 'clamp(42px, 6vw, 76px)',
                 letterSpacing: '-0.02em',
               }}
             >
-              Ne répondez{' '}
-              <span className="italic text-[#716D5C]">plus jamais</span>{' '}
-              à{' '}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#003725] to-[#14A85C]">
-                «&nbsp;où est ma commande&nbsp;?&nbsp;»
-              </span>
+              Votre support client,
+              <br />
+              <span className="italic text-[#8B7A50]">résolu tout seul.</span>
             </h1>
           </FadeInUp>
 
-          {/* Subtitle — what it actually does */}
-          <FadeInUp delay={0.1} className="mb-2">
-            <p className="text-[15px] md:text-base text-[#5A5A5A] leading-[1.55] max-w-xl mx-auto">
-              L'agent IA qui gère tout votre SAV Shopify à votre place — suivi commande,
-              retours, réclamations. 24/7, en français, dans le ton de votre marque.
+          {/* Subtitle — leads with the proof wedge */}
+          <FadeInUp delay={0.1} className="mb-3">
+            <p className="text-[15px] md:text-[17px] text-[#5A5A5A] leading-[1.6] max-w-xl mx-auto font-light">
+              L'agent IA autonome pour les boutiques Shopify. Il résout la majorité de vos
+              tickets en français — et vous{' '}
+              <span className="text-[#262626] font-semibold">prouve son ROI sur vos vrais tickets</span>{' '}
+              avant que vous payiez.
             </p>
           </FadeInUp>
 
-          {/* Sub-line bold */}
+          {/* Reassurance line — the wedge in one line */}
           <FadeInUp delay={0.12} className="mb-8">
-            <p className="text-[13px] text-[#262626] font-medium">
-              Installé en 15 minutes · Essai 7 jours · Sans carte bancaire
+            <p className="text-[14px] text-[#1A1A1A] font-semibold">
+              Ne nous croyez pas sur parole. On vous le montre.
             </p>
           </FadeInUp>
 
@@ -200,7 +196,7 @@ export const GlassHero = ({ onNavigate }) => {
                 whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               >
-                Essai gratuit 7 jours
+                Créer un compte gratuitement
                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
               </motion.button>
               <WatchDemoButton source="landing_hero" variant="light" />

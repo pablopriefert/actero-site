@@ -195,12 +195,16 @@ async function getIntegrationsStatus(supabase, clientId) {
 }
 
 async function searchKnowledgeBase(supabase, clientId, { query, limit = 3 } = {}) {
-  if (!query) return { results: [] }
+  // Strip PostgREST filter metacharacters so a crafted query can't break out
+  // of the .or() clause (commas/parens/wildcards are meaningful there). The
+  // client_id .eq() is ANDed at the query root, so this is defence-in-depth.
+  const safeQuery = String(query || '').replace(/[,()%*\\]/g, ' ').trim()
+  if (!safeQuery) return { results: [] }
   const { data } = await supabase.from('client_knowledge_base')
     .select('id, title, content, category, source')
     .eq('client_id', clientId)
     .eq('is_active', true)
-    .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+    .or(`title.ilike.%${safeQuery}%,content.ilike.%${safeQuery}%`)
     .limit(Math.min(limit, 10))
   return {
     results: (data || []).map(r => ({

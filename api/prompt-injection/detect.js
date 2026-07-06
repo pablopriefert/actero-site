@@ -1,7 +1,6 @@
 import { withSentry } from '../lib/sentry.js'
+import { chatComplete } from '../lib/llm.js'
 import { createClient } from '@supabase/supabase-js';
-
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -10,7 +9,6 @@ const supabase = createClient(
 
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY missing' });
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Non autorise' });
@@ -42,28 +40,16 @@ Reponds UNIQUEMENT en JSON valide avec cette structure:
 }`;
 
   try {
-    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 300,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: message }],
-      }),
+    const { text } = await chatComplete({
+      system: systemPrompt,
+      messages: [{ role: 'user', content: message }],
+      maxTokens: 300,
+      json: true,
     });
-
-    if (!anthropicRes.ok) throw new Error(`Claude ${anthropicRes.status}`);
-    const data = await anthropicRes.json();
-    const text = data?.content?.[0]?.text || '{}';
 
     let result;
     try {
-      result = JSON.parse(text);
+      result = JSON.parse(text || '{}');
     } catch {
       result = { is_injection: false, confidence: 0, severity: 'aucune', type: 'none', explanation: 'Erreur analyse' };
     }

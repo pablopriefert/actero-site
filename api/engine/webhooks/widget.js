@@ -16,6 +16,7 @@ import { runBrain } from '../brain.js'
 import { runExecutor } from '../executor.js'
 import { logRun } from '../logger.js'
 import { uploadToStorage } from '../../vision/lib/ingress.js'
+import { checkRateLimit, getClientIp } from '../../lib/rate-limit.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -33,6 +34,21 @@ async function handler(req, res) {
 
   const apiKey = req.query?.api_key
   if (!apiKey) return res.status(401).json({ error: 'api_key required' })
+
+  // Rate limit — this endpoint is public and hits Claude, so an abuser could
+  // burn the merchant's ticket quota and our LLM spend. The plan quota caps
+  // total damage; this blunts rapid bursts. 20 msgs/min per IP+key.
+  const ip = getClientIp(req)
+  const rl = checkRateLimit(`widget:${apiKey}:${ip}`, 20, 60_000)
+  res.setHeader('X-RateLimit-Limit', '20')
+  res.setHeader('X-RateLimit-Remaining', String(rl.remaining))
+  if (!rl.allowed) {
+    res.setHeader('Retry-After', String(Math.ceil((rl.resetAt - Date.now()) / 1000)))
+    return res.status(429).json({
+      error: 'rate_limited',
+      response: 'Vous envoyez des messages trop vite — patientez quelques secondes 🙏',
+    })
+  }
 
   // Resolve api_key → client_id. Three accepted sources, in precedence order
   // (mirrors api/mcp/index.js — keep aligned):

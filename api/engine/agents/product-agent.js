@@ -5,7 +5,7 @@
  * Uses searchShopifyProducts to ground its answer in the real catalog
  * instead of hallucinating SKUs, prices or variants.
  */
-import { callClaude } from '../lib/claude-client.js'
+import { callLLM as callClaude } from '../lib/llm-client.js'
 import { buildSystemPrompt } from '../lib/prompt-builder.js'
 import { searchShopifyProducts } from '../lib/shopify-products.js'
 import {

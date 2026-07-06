@@ -91,8 +91,11 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
   if (dismissible && dismissed) return null
   if (!completion) return null
 
-  // Essentials = minimum to activate the agent on real tickets.
-  // Once all 4 are done, the agent is LIVE — we show a success state.
+  // Essentials = the ONLY things required to put the agent live on real chat
+  // tickets. Connecting Shopify auto-builds the KB and auto-activates the SAV
+  // playbook (see api/shopify/callback.js), the tone has a sane default — so
+  // the critical path is just: connect store → (optionally tweak tone) → test.
+  // Everything else (email agent, ROI tuning) is an optional power-up below.
   const essentials = [
     {
       id: 'shopify',
@@ -100,13 +103,6 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
       icon: ShoppingBag,
       tab: 'integrations',
       done: completion.shopify,
-    },
-    {
-      id: 'email',
-      label: 'Connecter votre email (SMTP personnalisé ou Resend)',
-      icon: Mail,
-      tab: 'integrations',
-      done: completion.email,
     },
     {
       id: 'tone',
@@ -124,21 +120,24 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
     },
   ]
 
-  // Extras = optimization tasks. Shown collapsed below, not blocking progress bar.
+  // Extras = optional power-ups. Shown collapsed below, never blocking go-live.
+  // Email is here (not essential) because the chat widget needs no email, and
+  // the email agent is a Pro/later feature. The SAV playbook is intentionally
+  // absent — it's auto-activated on Shopify connect, so there's nothing to do.
   const extras = [
+    {
+      id: 'email',
+      label: 'Connecter votre email (agent email — optionnel)',
+      icon: Mail,
+      tab: 'integrations',
+      done: completion.email,
+    },
     {
       id: 'roi',
       label: 'Configurer les paramètres ROI',
       icon: Calculator,
       tab: 'roi',
       done: completion.roi,
-    },
-    {
-      id: 'playbook',
-      label: 'Activer le playbook SAV',
-      icon: Sparkles,
-      tab: 'playbooks',
-      done: completion.playbook,
     },
     {
       id: 'conversation',

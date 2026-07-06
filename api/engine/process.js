@@ -6,7 +6,7 @@
  */
 import { loadClientConfig } from './lib/config-loader.js'
 import { buildSystemPrompt, buildMessages } from './lib/prompt-builder.js'
-import { callClaude } from './lib/claude-client.js'
+import { callLLM as callClaude } from './lib/llm-client.js'
 import { findOrCreateThread, appendMessage, getConversationHistory } from './lib/conversation-manager.js'
 import { routeResponse } from './respond.js'
 import { lookupOrder } from './lib/shopify-client.js'
