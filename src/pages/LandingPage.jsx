@@ -10,7 +10,7 @@ import { initAmplitude, trackEvent } from '../lib/analytics'
 import { StickyCTABar } from '../components/ui/StickyCTABar'
 import { ReadingProgress } from '../components/ui/ReadingProgress'
 import { PartnersMarquee } from '../components/ui/PartnersMarquee'
-import { CapabilitiesA } from '../components/landing/CapabilitiesA'
+import { SavSpotlight, CartSpotlight } from '../components/landing/FeatureSpotlights'
 import { ROISimulatorA } from '../components/landing/ROISimulatorA'
 import { PricingA } from '../components/landing/PricingA'
 import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
@@ -146,7 +146,7 @@ export const LandingPage = ({ onNavigate }) => {
      RENDER — Funnel order :
        1. Hero (3 piliers + announcement + gradient)
        2. PartnersMarquee (social proof visuelle)
-       3. CapabilitiesA (3 piliers : SAV / Cart / Automations)
+       3. Feature spotlights (SAV + relance paniers, sections dédiées)
        4. ROISimulatorA
        5. PricingA + "Voir tous les plans →" link
        6. FAQ
@@ -177,9 +177,12 @@ export const LandingPage = ({ onNavigate }) => {
           {/* 2. PARTNERS MARQUEE (social proof — 4 badges PNG) */}
           <PartnersMarquee />
 
-          {/* 3. CAPABILITIES — TASK 5: section scroll reveal wrapper */}
+          {/* 3. FEATURE SPOTLIGHTS — SAV + relance paniers (sections dédiées) */}
           <RevealSection>
-            <CapabilitiesA />
+            <SavSpotlight />
+          </RevealSection>
+          <RevealSection>
+            <CartSpotlight />
           </RevealSection>
 
           {/* 4. ROI SIMULATOR — TASK 5: section scroll reveal */}
