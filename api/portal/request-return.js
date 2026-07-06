@@ -36,11 +36,17 @@ async function handler(req, res) {
 
   const engineUrl = process.env.PORTAL_ENGINE_TRIGGER_URL;
   if (engineUrl) {
-    fetch(engineUrl, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-internal-token': process.env.INTERNAL_TRIGGER_TOKEN || '' },
-      body: JSON.stringify({ conversationId: conv.id }),
-    }).catch(() => {});
+    // Await it: in a serverless function an un-awaited fetch can be killed when
+    // the handler returns, so the engine trigger may never fire. Best-effort —
+    // a failure here doesn't fail the user's request (the action log is the
+    // source of truth and a cron reconciles pending triggers).
+    try {
+      await fetch(engineUrl, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-internal-token': process.env.INTERNAL_TRIGGER_TOKEN || '' },
+        body: JSON.stringify({ conversationId: conv.id }),
+      });
+    } catch { /* best-effort trigger */ }
   }
 
   return res.status(200).json({ ok: true, conversationId: conv.id });

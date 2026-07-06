@@ -7,8 +7,8 @@
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
+import { chatComplete } from '../lib/llm.js'
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -37,22 +37,9 @@ async function handler(req, res) {
   }
 
   try {
-    if (!ANTHROPIC_API_KEY) {
-      return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
-    }
-
-    // Use Claude to extract knowledge base entries from the file content
-    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 3000,
-        system: `Tu es un extracteur de contenu pour un agent de support client IA. A partir du contenu d'un fichier (PDF, TXT, document), genere des entrees pour une base de connaissances.
+    // Use the LLM to extract knowledge base entries from the file content
+    const { text } = await chatComplete({
+      system: `Tu es un extracteur de contenu pour un agent de support client IA. A partir du contenu d'un fichier (PDF, TXT, document), genere des entrees pour une base de connaissances.
 
 Genere entre 5 et 20 entrees selon la longueur du document, melange de:
 - FAQ (question/reponse) — categorie "faq"
@@ -66,13 +53,10 @@ Reponds UNIQUEMENT en JSON valide:
 [
   {"category": "faq|policy|product|temporary", "title": "titre ou question", "content": "contenu detaille"}
 ]`,
-        messages: [{ role: 'user', content: `Fichier: ${filename || 'document.txt'}\n\nContenu:\n${content.substring(0, 8000)}` }],
-      }),
+      messages: [{ role: 'user', content: `Fichier: ${filename || 'document.txt'}\n\nContenu:\n${content.substring(0, 8000)}` }],
+      maxTokens: 3000,
     })
-
-    if (!claudeRes.ok) throw new Error(`Claude ${claudeRes.status}`)
-    const claudeData = await claudeRes.json()
-    let rawText = claudeData?.content?.[0]?.text || '[]'
+    let rawText = text || '[]'
 
     rawText = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
     const jsonMatch = rawText.match(/\[[\s\S]*\]/)

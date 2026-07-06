@@ -34,6 +34,21 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Missing client_id' });
   }
 
+  // Ownership check for JWT callers — service-role key bypasses RLS, so a
+  // logged-in user must be verified as a member/owner of `client_id`.
+  // Internal callers (INTERNAL_API_SECRET) are trusted and skip this.
+  if (!isInternal) {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    const { data: { user } } = await supabase.auth.getUser(token);
+    const [{ data: membership }, { data: ownedClient }] = await Promise.all([
+      supabase.from('client_users').select('client_id').eq('user_id', user?.id).eq('client_id', client_id).maybeSingle(),
+      supabase.from('clients').select('id').eq('id', client_id).eq('owner_user_id', user?.id).maybeSingle(),
+    ]);
+    if (!membership && !ownedClient) {
+      return res.status(403).json({ error: 'Accès refusé.' });
+    }
+  }
+
   try {
     // 1. Fetch all active, non-expired KB entries
     const { data: entries, error: fetchError } = await supabase

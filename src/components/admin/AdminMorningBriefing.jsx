@@ -49,7 +49,7 @@ export const AdminMorningBriefing = ({ onTabChange }) => {
     staleTime: 60_000,
     queryFn: async () => {
       const { count } = await supabase
-        .from('automation_runs')
+        .from('engine_runs_v2')
         .select('id', { count: 'exact', head: true })
         .eq('status', 'failed')
         .gte('created_at', since24h())
@@ -90,7 +90,7 @@ export const AdminMorningBriefing = ({ onTabChange }) => {
     staleTime: 60_000,
     queryFn: async () => {
       const { count } = await supabase
-        .from('client_error_reports')
+        .from('error_reports')
         .select('id', { count: 'exact', head: true })
         .gte('created_at', since24h())
       return count || 0
@@ -103,7 +103,7 @@ export const AdminMorningBriefing = ({ onTabChange }) => {
     staleTime: 60_000,
     queryFn: async () => {
       const { count } = await supabase
-        .from('automation_runs')
+        .from('engine_runs_v2')
         .select('id', { count: 'exact', head: true })
         .gte('created_at', since24h())
       return count || 0

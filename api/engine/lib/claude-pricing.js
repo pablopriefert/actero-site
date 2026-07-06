@@ -19,6 +19,15 @@ export const CLAUDE_PRICING = {
   'claude-sonnet-4-20250514': { input: 3.00, output: 15.00 },
   'claude-sonnet-4-5': { input: 3.00, output: 15.00 },
   'claude-sonnet-4-5-20250929': { input: 3.00, output: 15.00 },
+  'claude-sonnet-5': { input: 3.00, output: 15.00 },
+  'claude-haiku-4-5-20251001': { input: 1.00, output: 5.00 },
+  'claude-opus-4-8': { input: 15.00, output: 75.00 },
+  // OpenAI (per 1M tokens). Reasoning tokens are billed as output tokens.
+  'gpt-5.5': { input: 5.00, output: 30.00 },
+  'gpt-5.4-mini': { input: 0.75, output: 4.50 },
+  'gpt-5.4-nano': { input: 0.20, output: 1.25 },
+  'gpt-4o': { input: 2.50, output: 10.00 },
+  'gpt-4o-mini': { input: 0.15, output: 0.60 },
 }
 
 /**
@@ -26,7 +35,14 @@ export const CLAUDE_PRICING = {
  * Returns a number rounded to 6 decimals.
  */
 export function calculateCost(modelId, tokensIn, tokensOut) {
-  const prices = CLAUDE_PRICING[modelId] || CLAUDE_PRICING['claude-3-5-sonnet-latest']
+  // Exact match first; then prefix match (OpenAI returns dated snapshots like
+  // "gpt-5.5-2026-04-24" — we still want the gpt-5.5 rate, not the fallback).
+  let prices = CLAUDE_PRICING[modelId]
+  if (!prices && modelId) {
+    const key = Object.keys(CLAUDE_PRICING).find((k) => modelId.startsWith(k))
+    if (key) prices = CLAUDE_PRICING[key]
+  }
+  if (!prices) prices = CLAUDE_PRICING['claude-3-5-sonnet-latest']
   const safeIn = Number(tokensIn) || 0
   const safeOut = Number(tokensOut) || 0
   const cost = (safeIn / 1_000_000) * prices.input + (safeOut / 1_000_000) * prices.output

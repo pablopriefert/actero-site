@@ -81,6 +81,14 @@
     ],
     "crons": [
         {
+            "path": "/api/cron/agent-healthcheck",
+            "schedule": "*/5 * * * *"
+        },
+        {
+            "path": "/api/cron/improvement-loop",
+            "schedule": "0 6 * * 1"
+        },
+        {
             "path": "/api/cron/process-abandoned-carts",
             "schedule": "*/5 * * * *"
         },

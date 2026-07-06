@@ -126,6 +126,17 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'message invalide' });
   }
 
+  // Ownership check — this endpoint uses the service-role key, which bypasses
+  // RLS, so we must verify the caller actually belongs to `client_id`.
+  // Otherwise any authenticated user could read another tenant's metrics.
+  const [{ data: membership }, { data: ownedClient }] = await Promise.all([
+    supabase.from('client_users').select('client_id').eq('user_id', user.id).eq('client_id', client_id).maybeSingle(),
+    supabase.from('clients').select('id').eq('id', client_id).eq('owner_user_id', user.id).maybeSingle(),
+  ]);
+  if (!membership && !ownedClient) {
+    return res.status(403).json({ error: 'Accès refusé' });
+  }
+
   try {
     // 1. Fetch client
     const { data: client, error: clientErr } = await supabase

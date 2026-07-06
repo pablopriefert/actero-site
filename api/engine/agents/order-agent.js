@@ -6,7 +6,7 @@
  * order data and strictly forbids Claude from inventing order numbers,
  * tracking codes, carriers, or dates.
  */
-import { callClaude } from '../lib/claude-client.js'
+import { callLLM as callClaude } from '../lib/llm-client.js'
 import { buildSystemPrompt } from '../lib/prompt-builder.js'
 import { lookupOrder } from '../lib/shopify-client.js'
 import {
