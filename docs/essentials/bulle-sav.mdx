@@ -17,16 +17,16 @@ L'écran est divisé en deux : les contrôles à gauche, un aperçu en direct à
 
 <Steps>
   <Step title="Couleur principale">
-    Sélecteur de couleur \+ champ hex. C'est la couleur de la bulle, du bandeau d'entête et des accents dans la fenêtre de chat. Utilise la couleur exacte de ta charte (par exemple `#0F5F35`).
+    Sélecteur de couleur \+ champ hex. C'est la couleur de la bulle, du dégradé d'entête (Actero assombrit automatiquement ta couleur pour créer le dégradé) et des messages client dans la fenêtre de chat. Utilise la couleur exacte de ta charte (par exemple `#0F5F35`).
   </Step>
   <Step title="Position">
     **Bas droite** ou **Bas gauche**. Choisis le côté qui n'entre pas en conflit avec les autres widgets déjà installés (avis, cookies, panier).
   </Step>
   <Step title="Message d'accueil">
-    La première phrase que voit le client quand il ouvre la bulle. Reste court (\< 120 caractères), utilise le même tutoiement/vouvoiement que le [ton de ta marque](/essentials/ton-marque).
+    Le message qui s'affiche en gros sous l'entête quand le client ouvre la bulle, juste au-dessus des suggestions rapides. Reste court (\< 120 caractères), utilise le même tutoiement/vouvoiement que le [ton de ta marque](/essentials/ton-marque).
   </Step>
   <Step title="Logo (optionnel)">
-    URL HTTPS d'un PNG ou SVG carré. Il s'affiche dans l'entête de la fenêtre de chat. Laisse vide pour garder l'icône par défaut.
+    URL HTTPS d'un PNG ou SVG carré. Il s'affiche dans l'entête de la fenêtre de chat et comme avatar de l'agent à côté de chaque réponse. Laisse vide pour garder l'icône par défaut (marque « A » Actero).
   </Step>
   <Step title='Masquer "Powered by Actero" (PRO)'>
     Toggle disponible à partir du plan Pro. Sur les plans Free et Starter, l'attribution reste visible en pied de bulle.
@@ -36,6 +36,17 @@ L'écran est divisé en deux : les contrôles à gauche, un aperçu en direct à
 <Tip>
 Le widget lit sa configuration au chargement de chaque page. Un client déjà en conversation ne verra tes changements qu'à sa prochaine visite — c'est normal, ça évite qu'une bulle change de couleur en pleine discussion.
 </Tip>
+
+## Ce que voit ton client
+
+À l'ouverture de la bulle, le client atterrit sur un écran d'accueil dérivé de ta charte :
+
+- **Entête en dégradé** aux couleurs de ta marque, avec ton logo (ou la marque « A » d'Actero), le nom de ton entreprise et un indicateur d'agent en ligne.
+- **Message d'accueil** mis en avant en gros au-dessus de la conversation.
+- **Suggestions rapides** cliquables (**Suivre ma commande**, **Retour**, **Question produit**) — un tap envoie la question à l'agent, pas besoin de taper.
+- **Bulles de conversation** avec ton logo en avatar côté agent et ta couleur de marque côté client.
+
+Ces suggestions ne se configurent pas — elles couvrent les trois intentions SAV e-commerce les plus fréquentes et sont traitées comme n'importe quel message par les playbooks (voir [Playbooks](/agent/playbooks)).
 
 ## Installer le snippet
 
