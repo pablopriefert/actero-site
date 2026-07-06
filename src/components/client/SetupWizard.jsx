@@ -363,10 +363,21 @@ function StepTest({ clientId, progress, queryClient, toast }) {
     setRunning(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const res = await fetch('/api/engine/simulate', {
+      // Route via the real Engine Gateway (même contrat que le Simulateur).
+      // Un run gateway écrit dans engine_runs_v2 → l'étape « Premier test »
+      // se valide automatiquement. (/api/engine/simulate n'existe pas.)
+      const res = await fetch('/api/engine/gateway', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ client_id: clientId, message: question.q, channel: 'chat' }),
+        body: JSON.stringify({
+          client_id: clientId,
+          event_type: 'widget_message',
+          source: 'widget_message',
+          customer_email: 'test@actero-test.com',
+          customer_name: 'Client Test',
+          message: question.q,
+          subject: 'Test agent (setup wizard)',
+        }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Simulation failed')
