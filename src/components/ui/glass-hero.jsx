@@ -27,7 +27,7 @@ export const GlassHero = ({ onNavigate }) => {
               <img
                 src="/stationf-logo.png"
                 alt="Station F"
-                className="h-[22px] w-auto object-contain"
+                className="h-[15px] w-auto object-contain"
                 loading="eager"
                 decoding="async"
               />
