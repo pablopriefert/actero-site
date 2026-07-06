@@ -17,11 +17,25 @@ export const GlassHero = ({ onNavigate }) => {
   const prefersReducedMotion = useReducedMotion()
 
   return (
-    <section className="relative bg-white pt-28 md:pt-24 pb-16 px-6 overflow-hidden">
+    <section className="relative bg-white pt-40 md:pt-48 pb-16 px-6 overflow-hidden">
       <div className="max-w-6xl mx-auto relative">
         <div className="max-w-3xl mx-auto text-center">
+          {/* Backed by Station F */}
+          <FadeInUp delay={0.03} className="mb-6">
+            <div className="inline-flex items-center justify-center gap-2 text-[15px] font-semibold text-[#1A1A1A]">
+              <span>Backed by</span>
+              <img
+                src="https://ejgdwjjcpjtwaqcxptke.supabase.co/storage/v1/object/public/logo/stationn%20f%20logo.png"
+                alt="Station F"
+                className="h-6 w-auto object-contain"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+          </FadeInUp>
+
           {/* Headline */}
-          <FadeInUp delay={0.05} className="mb-8">
+          <FadeInUp delay={0.05} className="mb-10">
             <h1
               className="leading-[1.03] text-[#1A1A1A] font-normal"
               style={{
@@ -38,7 +52,7 @@ export const GlassHero = ({ onNavigate }) => {
 
           {/* CTAs — primary (black) + ghost demo + text-link humain */}
           <FadeInUp delay={0.1}>
-            <div className="flex flex-wrap items-center justify-center gap-3.5 mb-3">
+            <div className="flex flex-wrap items-center justify-center gap-3.5 mb-4">
               <motion.button
                 onClick={() => onNavigate && onNavigate('/signup')}
                 className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-[#1A1A1A] hover:bg-black text-white text-[15px] font-semibold transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.12)] group"
@@ -51,7 +65,7 @@ export const GlassHero = ({ onNavigate }) => {
               </motion.button>
               <WatchDemoButton source="landing_hero" variant="light" />
             </div>
-            <div className="mb-5">
+            <div className="mb-8">
               <button
                 onClick={() => {
                   trackEvent('Talk_To_Human_Clicked', { source: 'landing_hero_link' })
