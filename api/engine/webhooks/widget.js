@@ -23,6 +23,11 @@ import { lookupOrder } from '../lib/shopify-client.js'
 const ORDER_CARD_CLASSES = ['suivi_commande', 'livraison', 'tracking', 'order_tracking']
 // Return/exchange classifications that warrant a 1-tap action card.
 const RETURN_CARD_CLASSES = ['retour', 'remboursement', 'echange', 'return', 'refund']
+// The brain often lumps these intents into the coarse "autre" class, so we also
+// detect intent from the message text — cards must key off what the customer
+// actually asked, not only the classifier label.
+const ORDER_INTENT_RE = /\b(commande|colis|livrais|suivi|tracking|exp[ée]di|o[uù]\s+est\b|track)/i
+const RETURN_INTENT_RE = /\b(retour|rembours|[ée]change|renvoyer|rendre|d[ée]fectueux|cass[ée])/i
 
 /**
  * Build the additive `cards[]` array from the brain result. Backward-compatible:
@@ -36,8 +41,12 @@ async function buildCards({ brainResult, clientId, message, email, isTest }) {
   // (`product_recommendations`) which the widget already renders — we don't
   // duplicate them here. `cards[]` carries the NEW card types only.
 
-  // 1. Order-status card for WISMO/tracking questions.
-  if (!isTest && ORDER_CARD_CLASSES.includes(brainResult.classification)) {
+  const msg = String(message || '')
+
+  // 1. Order-status card for WISMO/tracking questions. Self-gating: only added
+  //    if a real order is actually found.
+  const orderIntent = ORDER_CARD_CLASSES.includes(brainResult.classification) || ORDER_INTENT_RE.test(msg)
+  if (!isTest && orderIntent) {
     try {
       const orderId = (String(message).match(/#?\s*(\d{3,8})/) || [])[1] || null
       const orders = await lookupOrder(supabase, { clientId, orderId, customerEmail: email || null })
@@ -57,8 +66,9 @@ async function buildCards({ brainResult, clientId, message, email, isTest }) {
     }
   }
 
-  // 3. Action card for return/exchange intents.
-  if (RETURN_CARD_CLASSES.includes(brainResult.classification)) {
+  // 2. Action card for return/exchange intents.
+  const returnIntent = RETURN_CARD_CLASSES.includes(brainResult.classification) || RETURN_INTENT_RE.test(msg)
+  if (returnIntent) {
     cards.push({
       type: 'actions',
       items: [
