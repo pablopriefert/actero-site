@@ -17,6 +17,59 @@ import { runExecutor } from '../executor.js'
 import { logRun } from '../logger.js'
 import { uploadToStorage } from '../../vision/lib/ingress.js'
 import { checkRateLimit, getClientIp } from '../../lib/rate-limit.js'
+import { lookupOrder } from '../lib/shopify-client.js'
+
+// Order/tracking classifications that warrant a rich order-status card.
+const ORDER_CARD_CLASSES = ['suivi_commande', 'livraison', 'tracking', 'order_tracking']
+// Return/exchange classifications that warrant a 1-tap action card.
+const RETURN_CARD_CLASSES = ['retour', 'remboursement', 'echange', 'return', 'refund']
+
+/**
+ * Build the additive `cards[]` array from the brain result. Backward-compatible:
+ * the widget ignores card types it doesn't know. Order-status uses an isolated
+ * Shopify lookup (order path only) so the core LLM flow is never touched.
+ */
+async function buildCards({ brainResult, clientId, message, email, isTest }) {
+  const cards = []
+
+  // NOTE: product recommendations keep their existing channel
+  // (`product_recommendations`) which the widget already renders — we don't
+  // duplicate them here. `cards[]` carries the NEW card types only.
+
+  // 1. Order-status card for WISMO/tracking questions.
+  if (!isTest && ORDER_CARD_CLASSES.includes(brainResult.classification)) {
+    try {
+      const orderId = (String(message).match(/#?\s*(\d{3,8})/) || [])[1] || null
+      const orders = await lookupOrder(supabase, { clientId, orderId, customerEmail: email || null })
+      const o = Array.isArray(orders) ? orders[0] : null
+      if (o) {
+        cards.push({
+          type: 'order_status',
+          orderName: o.orderName || null,
+          status: o.fulfillmentStatus || null,
+          items: (o.items || []).slice(0, 4).map((i) => ({ title: i.name, qty: i.quantity })),
+          trackingUrl: o.trackingInfo?.[0]?.trackingUrl || null,
+          carrier: o.trackingInfo?.[0]?.carrier || null,
+        })
+      }
+    } catch (err) {
+      console.error('[widget] order card lookup failed:', err.message)
+    }
+  }
+
+  // 3. Action card for return/exchange intents.
+  if (RETURN_CARD_CLASSES.includes(brainResult.classification)) {
+    cards.push({
+      type: 'actions',
+      items: [
+        { label: '↩️ Demander un retour', kind: 'return' },
+        { label: '🔁 Faire un échange', kind: 'exchange' },
+      ],
+    })
+  }
+
+  return cards
+}
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -392,11 +445,20 @@ async function handler(req, res) {
         .eq('id', engineMessage.id)
     } catch { /* non-blocking */ }
 
+    const cards = await buildCards({
+      brainResult,
+      clientId,
+      message,
+      email,
+      isTest: normalized?._is_test === true,
+    })
+
     return res.status(200).json({
       response: cleanResponse,
       escalated: brainResult.needsReview,
       confidence: brainResult.confidence,
       product_recommendations: brainResult.productRecommendations || [],
+      cards,
     })
   } catch (err) {
     console.error('[engine/webhooks/widget] Error:', err)
