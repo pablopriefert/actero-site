@@ -159,6 +159,32 @@
     .actero-close-btn:hover { background: rgba(255,255,255,0.22); }
     .actero-close-btn:focus-visible { outline: 2px solid #4ade80; outline-offset: 1px; }
     .actero-close-btn svg { width: 15px; height: 15px; fill: white; }
+    .actero-human-btn {
+      position: absolute; top: 20px; right: 58px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.12); border: none; cursor: pointer;
+      color: white; display: flex; align-items: center; justify-content: center;
+      padding: 0; transition: background 0.15s; touch-action: manipulation;
+    }
+    .actero-human-btn:hover { background: rgba(255,255,255,0.22); }
+    .actero-human-btn:focus-visible { outline: 2px solid #4ade80; outline-offset: 1px; }
+    .actero-human-btn svg { width: 16px; height: 16px; fill: white; }
+    .actero-fb {
+      display: flex; align-items: center; gap: 6px; align-self: flex-start;
+      margin-top: -2px; padding-left: 2px; font-size: 12px; color: #9ca3af; flex-wrap: wrap;
+    }
+    .actero-fb-btn {
+      background: none; border: none; cursor: pointer; font-size: 15px; line-height: 1;
+      padding: 2px 4px; border-radius: 6px;
+    }
+    .actero-fb-btn:hover { background: #f0f0ec; }
+    .actero-fb-input {
+      border: 1px solid #e5e5e5; border-radius: 9999px; padding: 6px 12px; font-size: 12.5px; min-width: 160px;
+    }
+    .actero-fb-send {
+      background: var(--actero-primary, #0F5F35); color: #fff; border: none;
+      border-radius: 9999px; padding: 6px 12px; font-size: 12px; cursor: pointer;
+    }
     .actero-messages {
       flex: 1; overflow-y: auto; padding: 20px 18px; display: flex;
       flex-direction: column; gap: 14px; background: #FBFAF7;
@@ -380,6 +406,9 @@
           <div class="actero-brand-status"><span class="actero-header-dot" aria-hidden="true"></span>En ligne · répond en quelques secondes</div>
         </div>
       </div>
+      <button id="actero-human" class="actero-human-btn" type="button" aria-label="Parler à un humain" title="Parler à un humain">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg>
+      </button>
       <button id="actero-close" class="actero-close-btn" type="button" aria-label="Fermer le support chat">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
@@ -413,7 +442,9 @@
   const pendingEl = document.getElementById('actero-pending')
   const attachErrEl = document.getElementById('actero-attach-err')
   const closeBtn = document.getElementById('actero-close')
+  const humanBtn = document.getElementById('actero-human')
   let sending = false
+  let awaitingHandoffEmail = false
 
   const MAX_IMAGES = 5
   const MAX_IMAGE_BYTES = 5 * 1024 * 1024
@@ -439,6 +470,13 @@
       b.textContent = label
       b.onclick = function() {
         wrap.remove()
+        // "Suivre ma commande" → guided flow: ask for the order # / email so the
+        // order-status card can populate, instead of a generic message.
+        if (label.indexOf('Suivre') !== -1) {
+          addBotMessage("Bien sûr ! Donnez-moi votre numéro de commande (ex. #1234) ou l'email utilisé, et je vérifie tout de suite. 📦")
+          inputEl.focus()
+          return
+        }
         inputEl.value = label.replace(/^\S+\s+/, '') // drop the leading emoji
         send()
       }
@@ -521,6 +559,16 @@
 
   btn.onclick = togglePanel
   closeBtn.onclick = closePanel
+  humanBtn.onclick = function() {
+    if (!isOpen) openPanel()
+    if (customerEmail) {
+      requestHandoff(customerEmail)
+    } else {
+      addBotMessage("Bien sûr — laissez-moi votre email et un membre de l'équipe vous recontacte au plus vite. 🙌")
+      awaitingHandoffEmail = true
+      inputEl.focus()
+    }
+  }
 
   // Keyboard handling: Escape to close, Tab looping for minimal focus trap
   document.addEventListener('keydown', function(e) {
@@ -798,6 +846,59 @@
     })
   }
 
+  // ── CSAT (👍/👎) under agent answers ──
+  function sendFeedback(rating, comment) {
+    try {
+      fetch(ACTERO_URL + '/api/engine/webhooks/widget?api_key=' + encodeURIComponent(apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback: true, session_id: sessionId, rating: rating, comment: comment || null }),
+      }).catch(function() {})
+    } catch {}
+  }
+  function addFeedbackRow() {
+    const row = document.createElement('div')
+    row.className = 'actero-fb'
+    const thanks = function() { row.innerHTML = '<span>Merci pour votre retour 🙏</span>' }
+    const up = document.createElement('button')
+    up.type = 'button'; up.className = 'actero-fb-btn'; up.textContent = '👍'; up.setAttribute('aria-label', 'Réponse utile')
+    const down = document.createElement('button')
+    down.type = 'button'; down.className = 'actero-fb-btn'; down.textContent = '👎'; down.setAttribute('aria-label', 'Réponse pas utile')
+    const q = document.createElement('span'); q.textContent = 'Utile ?'
+    up.addEventListener('click', function() { sendFeedback('up'); thanks() })
+    down.addEventListener('click', function() {
+      row.innerHTML = ''
+      const inp = document.createElement('input')
+      inp.type = 'text'; inp.className = 'actero-fb-input'; inp.placeholder = "Qu'est-ce qui n'allait pas ? (optionnel)"
+      const snd = document.createElement('button')
+      snd.type = 'button'; snd.className = 'actero-fb-send'; snd.textContent = 'Envoyer'
+      const submit = function() { sendFeedback('down', inp.value.trim()); thanks() }
+      snd.addEventListener('click', submit)
+      inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') submit() })
+      row.appendChild(inp); row.appendChild(snd); inp.focus()
+    })
+    row.appendChild(q); row.appendChild(up); row.appendChild(down)
+    msgsEl.appendChild(row)
+    scrollToLatest()
+  }
+
+  // ── Human handoff — escalate + notify the merchant ──
+  async function requestHandoff(withEmail) {
+    const em = withEmail || customerEmail || null
+    try {
+      const res = await fetch(ACTERO_URL + '/api/engine/webhooks/widget?api_key=' + encodeURIComponent(apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ handoff: true, session_id: sessionId, email: em, name: customerName || null }),
+      })
+      const data = await res.json().catch(function() { return {} })
+      addBotMessage(data.response || "C'est noté 🙌 Un membre de notre équipe va prendre le relais.")
+      awaitingHandoffEmail = !!data.needEmail
+    } catch {
+      addBotMessage("C'est noté 🙌 Un membre de notre équipe va prendre le relais.")
+    }
+  }
+
   function addUserMessage(text, imageDataUrls) {
     const ts = Date.now()
     messages.push({ role: 'user', text, ts })
@@ -857,6 +958,14 @@
       } catch {}
     }
 
+    // If we're waiting on an email for a human handoff and the customer just
+    // gave one, complete the handoff instead of sending to the LLM.
+    if (awaitingHandoffEmail && foundEmail) {
+      awaitingHandoffEmail = false
+      requestHandoff(foundEmail)
+      return
+    }
+
     sending = true
     sendBtn.disabled = true
     attachBtn.disabled = true
@@ -895,6 +1004,7 @@
         if (Array.isArray(data.cards) && data.cards.length > 0) {
           renderCards(data.cards)
         }
+        addFeedbackRow() // CSAT under each real answer
         messageCount++
 
         // After 2nd AI response, politely ask for email (non-blocking)

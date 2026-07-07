@@ -18,11 +18,17 @@ import { logRun } from '../logger.js'
 import { uploadToStorage } from '../../vision/lib/ingress.js'
 import { checkRateLimit, getClientIp } from '../../lib/rate-limit.js'
 import { lookupOrder } from '../lib/shopify-client.js'
+import { notifyClient } from '../../lib/notify.js'
 
 // Order/tracking classifications that warrant a rich order-status card.
 const ORDER_CARD_CLASSES = ['suivi_commande', 'livraison', 'tracking', 'order_tracking']
 // Return/exchange classifications that warrant a 1-tap action card.
 const RETURN_CARD_CLASSES = ['retour', 'remboursement', 'echange', 'return', 'refund']
+// The brain often lumps these intents into the coarse "autre" class, so we also
+// detect intent from the message text — cards must key off what the customer
+// actually asked, not only the classifier label.
+const ORDER_INTENT_RE = /\b(commande|colis|livrais|suivi|tracking|exp[ée]di|o[uù]\s+est\b|track)/i
+const RETURN_INTENT_RE = /\b(retour|rembours|[ée]change|renvoyer|rendre|d[ée]fectueux|cass[ée])/i
 
 /**
  * Build the additive `cards[]` array from the brain result. Backward-compatible:
@@ -36,8 +42,15 @@ async function buildCards({ brainResult, clientId, message, email, isTest }) {
   // (`product_recommendations`) which the widget already renders — we don't
   // duplicate them here. `cards[]` carries the NEW card types only.
 
-  // 1. Order-status card for WISMO/tracking questions.
-  if (!isTest && ORDER_CARD_CLASSES.includes(brainResult.classification)) {
+  const msg = String(message || '')
+
+  // 1. Order-status card for WISMO/tracking questions. Self-gating: only added
+  //    if a real order is actually found.
+  // Also fire on a bare order-number (e.g. after the guided "track my order"
+  // prompt the customer just types "#1234"). Self-gating: no order found → no card.
+  const orderNumberLike = /#\s*\d{3,8}|\b\d{4,8}\b/.test(msg)
+  const orderIntent = ORDER_CARD_CLASSES.includes(brainResult.classification) || ORDER_INTENT_RE.test(msg) || orderNumberLike
+  if (!isTest && orderIntent) {
     try {
       const orderId = (String(message).match(/#?\s*(\d{3,8})/) || [])[1] || null
       const orders = await lookupOrder(supabase, { clientId, orderId, customerEmail: email || null })
@@ -57,8 +70,9 @@ async function buildCards({ brainResult, clientId, message, email, isTest }) {
     }
   }
 
-  // 3. Action card for return/exchange intents.
-  if (RETURN_CARD_CLASSES.includes(brainResult.classification)) {
+  // 2. Action card for return/exchange intents.
+  const returnIntent = RETURN_CARD_CLASSES.includes(brainResult.classification) || RETURN_INTENT_RE.test(msg)
+  if (returnIntent) {
     cards.push({
       type: 'actions',
       items: [
@@ -170,7 +184,59 @@ async function handler(req, res) {
     })
   }
 
-  const { message, email, name, session_id, history, images: widgetImages } = req.body || {}
+  const { message, email, name, session_id, history, images: widgetImages, handoff, feedback, rating, comment } = req.body || {}
+
+  // ── CSAT feedback (no LLM, no message needed) ──
+  if (feedback === true) {
+    if (rating !== 'up' && rating !== 'down') return res.status(400).json({ error: 'invalid rating' })
+    try {
+      await supabase.from('conversation_feedback').insert({
+        client_id: clientId,
+        session_id: session_id || null,
+        rating,
+        comment: (typeof comment === 'string' && comment.trim()) ? comment.trim().slice(0, 500) : null,
+      })
+    } catch (e) { console.warn('[widget] feedback insert failed:', e?.message) }
+    return res.status(200).json({ ok: true })
+  }
+
+  // ── Human handoff (no LLM) — escalate + notify the merchant ──
+  if (handoff === true) {
+    const contactEmail = (typeof email === 'string' && email.trim()) ? email.trim().slice(0, 200) : null
+    try {
+      await supabase.from('engine_reviews_v2').insert({
+        client_id: clientId,
+        reason: 'human_requested',
+        status: 'pending',
+        proposed_action: {
+          source: 'web_widget',
+          session_id: session_id || null,
+          customer_email: contactEmail,
+          customer_name: name || null,
+        },
+      })
+    } catch (e) { console.warn('[widget] handoff review insert failed:', e?.message) }
+    try {
+      await notifyClient(supabase, {
+        clientId,
+        eventKey: 'human_handoff',
+        title: 'Un client demande un humain',
+        message: contactEmail
+          ? `Mise en relation demandée depuis la bulle SAV (email : ${contactEmail})`
+          : 'Mise en relation demandée depuis la bulle SAV',
+        context: { session_id: session_id || null, email: contactEmail },
+      })
+    } catch (e) { console.warn('[widget] handoff notify failed:', e?.message) }
+    return res.status(200).json({
+      ok: true,
+      handoff: true,
+      needEmail: !contactEmail,
+      response: contactEmail
+        ? `C'est noté 🙌 Un membre de notre équipe vous répondra à ${contactEmail} dans les meilleurs délais.`
+        : `C'est noté 🙌 Un membre de notre équipe va prendre le relais. Laissez-moi votre email pour qu'on puisse vous recontacter.`,
+    })
+  }
+
   if (!message) return res.status(400).json({ error: 'message required' })
 
   // Conversation history: prefer from widget, but fallback to DB (in case widget.js is cached)

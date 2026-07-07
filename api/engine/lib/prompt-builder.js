@@ -66,6 +66,14 @@ export function buildSystemPrompt(config) {
     prompt += `- N'ajoute jamais "(traduit automatiquement)" ou autre mention de traduction.\n`
     prompt += `- Conserve les references produit, numeros de commande et liens dans leur forme originale.\n`
   }
+  // Default (fr / unset): still auto-mirror the customer's language so an
+  // international shopper gets served in their own tongue, French otherwise.
+  if (!settings.brand_language || settings.brand_language === 'fr') {
+    prompt += `\n\nLANGUE (auto):\n`
+    prompt += `- Reponds en francais par defaut.\n`
+    prompt += `- Si le dernier message du client est clairement dans une autre langue (>= 3 mots utiles), reponds dans CETTE langue, en conservant le meme registre et la meme chaleur.\n`
+    prompt += `- N'ajoute jamais de mention de traduction ; garde les references produit, numeros de commande et liens intacts.\n`
+  }
 
   // Greeting template removed — handled by widget UI, not by AI responses
 
