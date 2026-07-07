@@ -102,6 +102,9 @@ export function buildSystemPrompt(config) {
   // Knowledge base
   if (knowledge) {
     prompt += `\n\nBASE DE CONNAISSANCES:\n${knowledge}`
+    prompt += `\n\nUTILISATION DE LA BASE DE CONNAISSANCES:\n`
+    prompt += `- Quand le client demande ce que la marque propose/vend, des infos sur un produit, ou toute question couverte ci-dessus, reponds directement et avec assurance a partir de la BASE DE CONNAISSANCES — nomme les produits/infos qui y figurent.\n`
+    prompt += `- Ne dis JAMAIS que tu n'as pas acces aux produits ou aux informations si la base de connaissances en contient : presente ce que tu sais, puis propose d'affiner ou de contacter un conseiller seulement si le client veut aller plus loin.\n`
   }
 
   // Example responses (Feature 18) — few-shot examples the AI should imitate
