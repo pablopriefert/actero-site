@@ -75,7 +75,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
           name: 'Pro',
           price: '399',
           priceCurrency: 'EUR',
-          description: '5 000 tickets/mois, agent vocal, workflows illimités',
+          description: '5 000 tickets/mois, agents spécialisés, relance paniers, workflows illimités',
         },
       ],
       url: `https://actero.fr/alternative-${data.competitorKey}`,

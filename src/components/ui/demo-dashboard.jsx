@@ -45,8 +45,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export const DemoDashboardPage = ({ onNavigate }) => {
     const [recentLogs, setRecentLogs] = useState([
-        { id: 1, text: "L'Agent Support a remboursé la commande #4928 (Motif: Retard Colissimo).", time: "à l'instant", type: "support" },
-        { id: 2, text: "Panier VIP abandonné détecté. Call vocal IA effectué vers +33612...", time: "il y a 4 min", type: "sales" },
+        { id: 1, text: "Brouillon de remboursement préparé pour la commande #4928 (Motif: Retard Colissimo) — en attente de validation.", time: "à l'instant", type: "support" },
+        { id: 2, text: "Panier abandonné détecté (129€). Relance personnalisée envoyée par email + SMS.", time: "il y a 4 min", type: "sales" },
         { id: 3, text: "Avis 1-étoile détecté sur Trustpilot. Brouillon de réponse généré dans Zendesk.", time: "il y a 12 min", type: "alert" }
     ]);
 

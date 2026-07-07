@@ -10,7 +10,7 @@ import { initAmplitude, trackEvent } from '../lib/analytics'
 import { StickyCTABar } from '../components/ui/StickyCTABar'
 import { ReadingProgress } from '../components/ui/ReadingProgress'
 import { PartnersMarquee } from '../components/ui/PartnersMarquee'
-import { CapabilitiesA } from '../components/landing/CapabilitiesA'
+import { SavSpotlight, CartSpotlight } from '../components/landing/FeatureSpotlights'
 import { ROISimulatorA } from '../components/landing/ROISimulatorA'
 import { PricingA } from '../components/landing/PricingA'
 import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
@@ -90,16 +90,16 @@ export const LandingPage = ({ onNavigate }) => {
       a: "OAuth officiel Shopify, chiffrement AES-256, hébergement UE, RGPD, DPA signable. Nous sommes opt-out du TDM (Art. 4, Directive EU 2019/790) — vos données n'entraînent jamais nos modèles.",
     },
     {
-      q: "Qu'est-ce que l'agent vocal ElevenLabs ?",
-      a: 'Un agent téléphonique avec numéro FR et voix naturelle. 200 min incluses sur Pro, illimité + voix custom sur Enterprise.',
+      q: "L'agent comprend-il les photos envoyées par les clients ?",
+      a: "Oui — grâce à Claude Vision, il analyse les images jointes (article abîmé, mauvais produit reçu, capture d'écran) pour comprendre la demande et répondre juste. Chaque plan inclut un quota d'analyses photo mensuel.",
     },
     {
       q: 'Quelle différence avec Make ou Zapier ?',
       a: 'Make/Zapier sont génériques : vous construisez tout. Actero est spécialisé e-commerce avec agents préconfigurés, guardrails et dashboard ROI natif.',
     },
     {
-      q: 'Je peux personnaliser la marque du portail SAV ?',
-      a: 'Oui dès Pro : custom domain, logo, couleurs, suppression du branding Actero. Enterprise débloque le white-label complet.',
+      q: 'Actero relance-t-il les paniers abandonnés ?',
+      a: "Oui : un agent proactif compose un message personnalisé (produit précis, remise conditionnelle, lien checkout) et relance sur le bon canal — pas une séquence email générique.",
     },
     {
       q: 'Y a-t-il un engagement de durée ?',
@@ -146,7 +146,7 @@ export const LandingPage = ({ onNavigate }) => {
      RENDER — Funnel order :
        1. Hero (3 piliers + announcement + gradient)
        2. PartnersMarquee (social proof visuelle)
-       3. CapabilitiesA (3 piliers : SAV / Cart / Automations)
+       3. Feature spotlights (SAV + relance paniers, sections dédiées)
        4. ROISimulatorA
        5. PricingA + "Voir tous les plans →" link
        6. FAQ
@@ -177,9 +177,12 @@ export const LandingPage = ({ onNavigate }) => {
           {/* 2. PARTNERS MARQUEE (social proof — 4 badges PNG) */}
           <PartnersMarquee />
 
-          {/* 3. CAPABILITIES — TASK 5: section scroll reveal wrapper */}
+          {/* 3. FEATURE SPOTLIGHTS — SAV + relance paniers (sections dédiées) */}
           <RevealSection>
-            <CapabilitiesA />
+            <SavSpotlight />
+          </RevealSection>
+          <RevealSection>
+            <CartSpotlight />
           </RevealSection>
 
           {/* 4. ROI SIMULATOR — TASK 5: section scroll reveal */}

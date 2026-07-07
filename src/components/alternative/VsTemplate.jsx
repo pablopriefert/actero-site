@@ -52,7 +52,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
       applicationSubCategory: 'Customer Service Software',
       operatingSystem: 'Web',
       description:
-        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. 50 à 70% des tickets résolus seul, hébergement UE, agent vocal natif.",
+        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. 50 à 70% des tickets résolus seul, relance paniers abandonnés, analyse photo (Claude Vision), hébergement UE.",
       offers: [
         { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR' },
         { '@type': 'Offer', name: 'Starter', price: '99', priceCurrency: 'EUR' },

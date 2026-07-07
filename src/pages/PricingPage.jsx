@@ -112,10 +112,7 @@ function buildFeatures(plan) {
       "Base de connaissances illimitée",
       "Multi-boutiques (plusieurs Shopify)",
       "White-label complet (suppression branding Actero)",
-      "Agent vocal — minutes illimitées",
-      "Voix custom agent vocal (clonage marque)",
       "Agents IA spécialisés",
-      "Portail SAV avec custom domain + branding",
       "Agent Email natif Actero",
       "Rapport ROI sur mesure",
       "API avancée + intégrations custom",
@@ -140,7 +137,7 @@ function buildFeatures(plan) {
       "Règles métier & guardrails",
       "Simulateur de conversation",
       "API REST + Webhooks",
-      "Portail SAV self-service",
+      "Relance paniers abandonnés",
       "Dashboard ROI complet",
       "Historique 90 jours",
       "Support email 48h",
@@ -157,15 +154,12 @@ function buildFeatures(plan) {
       "Toutes les intégrations",
       "Base de connaissances illimitée",
       `${limits.team_members} membres d'équipe`,
-      `Agent vocal ElevenLabs (${limits.voice_minutes} min/mois)`,
-      "Numéro FR dédié pour l'agent vocal",
       "Agents IA spécialisés (WISMO, retour, produit, proactif)",
+      "Relance paniers abandonnés (agent proactif)",
       "Agent Email natif Actero",
       "Éditeur ton de marque",
       "Simulateur de conversation",
       "API REST + Webhooks",
-      "Portail SAV avec custom domain",
-      "Branding portail personnalisé",
       "Rapport PDF mensuel auto-envoyé",
       "Dashboard ROI complet",
       "Historique illimité",
@@ -280,13 +274,12 @@ const comparisonCategories = [
         values: compVal(PLAN_ORDER, (p) => p.features.specialized_agents),
       },
       {
-        label: "Agent vocal",
-        values: compVal(PLAN_ORDER, (p) => {
-          if (!p.features.voice_agent) return false;
-          if (p.limits.voice_minutes === Infinity) return "Custom";
-          if (p.limits.voice_minutes > 0) return `${p.limits.voice_minutes} min`;
-          return false;
-        }),
+        label: "Analyse photo (Claude Vision)",
+        values: compVal(PLAN_ORDER, (p) =>
+          p.limits.vision_analyses_per_month === Infinity
+            ? "Illimité"
+            : `${fmt(p.limits.vision_analyses_per_month)}/mois`
+        ),
       },
       {
         label: "Simulateur conversation",
@@ -380,12 +373,12 @@ const faqs = [
     a: "Oui, l'essai de 7 jours est 100% gratuit et sans engagement. Aucune carte bancaire requise pour le plan Free. Pour Starter et Pro, vous pouvez annuler à tout moment pendant l'essai sans être débité.",
   },
   {
-    q: "Comment fonctionne l'agent vocal ?",
-    a: `L'agent vocal utilise ElevenLabs pour une voix naturelle en français. Vous obtenez un numéro FR dédié. Le plan Pro inclut ${PLANS.pro.limits.voice_minutes} minutes/mois. Au-delà, les minutes supplémentaires sont facturées à l'usage. Le plan Enterprise permet une voix custom à votre marque.`,
+    q: "L'agent comprend-il les photos envoyées par les clients ?",
+    a: "Oui. Grâce à Claude Vision, l'agent analyse les images jointes (article endommagé, mauvais produit reçu, capture d'écran) pour comprendre la demande et répondre juste. Chaque plan inclut un quota d'analyses photo mensuel.",
   },
   {
     q: "Quelles intégrations sont disponibles ?",
-    a: "Actero se connecte nativement à Shopify, WooCommerce, Webflow, Gorgias, Zendesk, Stripe, Slack, Resend, Axonaut, Pennylane, iPaidThat et bien d'autres. Le plan Pro ajoute l'accès API et webhooks. Le plan Enterprise permet des intégrations custom sur mesure.",
+    a: "Actero se connecte nativement à Shopify (OAuth 1-clic) et répond sur le live-chat et l'email. Les helpdesks Gorgias et Zendesk sont pris en charge, et le plan Starter débloque l'API REST + webhooks pour brancher vos propres outils. Le plan Enterprise permet des intégrations custom sur mesure.",
   },
   {
     q: "Proposez-vous un discount annuel ?",
@@ -440,7 +433,7 @@ export const PricingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Tarifs Actero — Agent IA pour Shopify à partir de 99€/mois"
-        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + agent vocal). Essai 7 jours sans carte bancaire."
+        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Essai 7 jours sans carte bancaire."
         canonical="/tarifs"
         schemaData={{
           "@context": "https://schema.org",
@@ -486,7 +479,7 @@ export const PricingPage = ({ onNavigate }) => {
                 "name": "Pro",
                 "price": "399",
                 "priceCurrency": "EUR",
-                "description": "5 000 tickets/mois, workflows illimités, toutes intégrations, agent vocal, API & webhooks",
+                "description": "5 000 tickets/mois, workflows illimités, agents spécialisés, relance paniers, analyse photo Vision, API & webhooks",
                 "url": "https://actero.fr/tarifs",
                 "availability": "https://schema.org/InStock",
                 "priceSpecification": {
