@@ -78,12 +78,16 @@ export const CompanyPage = ({ onNavigate }) => {
 
   const programs = [
     {
-      name: 'ElevenLabs Grants',
-      desc: 'Accès aux crédits ElevenLabs pour l\'agent vocal (voix naturelles FR, cloning sur Enterprise).',
+      name: 'E2B for Startups',
+      desc: '20 000 $ de crédits E2B — nos traitements sensibles (backtests sur vos vrais tickets, ingestion catalogue) tournent dans des sandboxes isolés et éphémères.',
     },
     {
-      name: 'E2B for Startups',
-      desc: '20 000 $ de crédits E2B — chaque action agentic (refund, échange, modification commande) tourne dans un sandbox sécurisé isolé. Différenciant majeur vs Gorgias, Tidio et Zendesk.',
+      name: 'Vercel for Startups',
+      desc: 'Crédits d\'hébergement + frais de plateforme offerts 12 mois — infrastructure edge scalable.',
+    },
+    {
+      name: 'OpenAI & OpenRouter',
+      desc: 'Crédits d\'inférence pour les agents IA — flexibilité multi-modèles et coûts maîtrisés.',
     },
     {
       name: 'Google for Startups',
@@ -96,6 +100,10 @@ export const CompanyPage = ({ onNavigate }) => {
     {
       name: 'Auth0 for Startups',
       desc: 'Auth0 pour la gestion identité clients — crédits startups.',
+    },
+    {
+      name: 'ElevenLabs Grants',
+      desc: 'Crédits ElevenLabs pour la synthèse vocale — brique voix pour de futures capacités de l\'agent.',
     },
   ]
 
@@ -286,7 +294,7 @@ export const CompanyPage = ({ onNavigate }) => {
                 <span className="italic text-[#716D5C]">programmes startups.</span>
               </h2>
               <p className="text-[17px] text-[#5A5A5A] max-w-xl mx-auto leading-[1.5]">
-                4 programmes partenaires officiels qui nous aident à construire une
+                Les programmes partenaires qui nous aident à construire une
                 infrastructure robuste et scalable.
               </p>
             </FadeInUp>
@@ -336,7 +344,7 @@ export const CompanyPage = ({ onNavigate }) => {
                   <Check className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Paris, France
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Check className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Support FR 24h
+                  <Check className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Support en français
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Shield className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Hébergé en UE

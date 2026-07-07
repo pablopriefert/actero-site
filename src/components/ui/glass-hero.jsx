@@ -222,7 +222,7 @@ function DashboardPreview() {
     { label: "Vue d'ensemble", active: true },
     { label: 'Tickets SAV' },
     { label: 'Paniers relancés' },
-    { label: 'Agent vocal' },
+    { label: 'Simulateur' },
     { label: 'Base connaissance' },
     { label: 'Intégrations' },
     { label: 'Ton de marque' },
