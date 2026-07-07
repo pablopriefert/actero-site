@@ -1,11 +1,15 @@
 ---
 title: "Tour du dashboard"
-description: "Comprends la sidebar, l'overview et les onglets clés en 5 minutes — pour te repérer vite quand tu ouvres Actero."
+description: "Découvre la sidebar Actero, la Vue d'ensemble, Mon Agent, Mes tickets et Intégrations en 5 minutes pour te repérer dès la première connexion."
 ---
 
-Le dashboard Actero est organisé en sections : **Vue d'ensemble** d'abord (le tableau de bord du jour), **Mon Agent** ensuite (tout ce qui pilote ton agent IA), puis **Mes tickets** (ton quotidien opérationnel), et enfin **Système** pour les paramètres de compte.
+Le dashboard Actero est organisé en sections : **Vue d'ensemble** d'abord (le tableau de bord du jour), **Mon Agent** ensuite (tout ce qui pilote ton agent IA), puis **Mes tickets** (ton quotidien opérationnel), **Intégrations**, et enfin **Système** pour les paramètres de compte.
 
 Ce tour rapide te montre où trouver chaque chose. Si tu cherches un point précis, va directement à la section concernée.
+
+<Note>
+Pendant la phase de pré-lancement, la sidebar est volontairement allégée pour cadrer l'onboarding sur le cœur du produit (agent + base de connaissances + tickets + intégrations). Les surfaces avancées — **Agent Email**, **Agent vocal**, **Appels vocaux**, **Portail SAV**, **Tous les canaux** et le groupe **Analytics** (Insights, Heures de pic) — restent entièrement fonctionnelles et accessibles par URL directe, mais ne sont pas affichées dans la sidebar par défaut. Les KPI clés remontent dans **Vue d'ensemble**.
+</Note>
 
 ## Vue d'ensemble
 
@@ -16,7 +20,7 @@ Tu y trouves :
 - **Alertes système** : escalades urgentes, dépassement de quota, fin d'essai. Une alerte visible à la fois, le reste reste replié pour ne pas saturer l'écran.
 - **Today Hero** : statut de ton agent en temps réel, compteur du jour, raccourci vers la prochaine action urgente.
 - **KPI** : 4 cartes avec sparkline (tickets traités, taux de résolution auto, temps économisé, ROI). Tu peux switcher entre 7 / 30 / 90 jours.
-- **Activité live** : flux des dernières conversations + onglets Insights, Heures de pic et Tendances.
+- **Activité live** : flux des dernières conversations avec les KPI clés (tickets, résolution, tendances).
 
 <Tip>
 Si tu viens de connecter Shopify et que tu ne vois pas encore de chiffres, c'est normal — l'agent doit d'abord traiter quelques tickets. Compte 24-48 h pour des données significatives.
@@ -24,14 +28,11 @@ Si tu viens de connecter Shopify et que tu ne vois pas encore de chiffres, c'est
 
 ## Mon Agent
 
-C'est le cœur du produit. Cinq onglets sous l'icône Bot dans la sidebar.
+C'est le cœur du produit. Les onglets sous l'icône Bot dans la sidebar.
 
 <Steps>
   <Step title="Automatisation">
     Active ou met en pause les playbooks (SAV e-commerce, Panier abandonné, etc.). Chaque playbook a un toggle. C'est ici que tu décides ce que ton agent fait — ou ne fait plus.
-  </Step>
-  <Step title="Agent Email (PRO)">
-    Configure l'IMAP/SMTP pour que ton agent réponde directement depuis ta boîte mail. Disponible à partir du plan Pro.
   </Step>
   <Step title="Base de connaissances">
     Ajoute tes politiques (retours, livraison, remboursements), tes FAQ, tes infos produits. C'est ce que ton agent consulte avant de répondre. Voir [Base de connaissances](/essentials/base-connaissance).
@@ -42,7 +43,14 @@ C'est le cœur du produit. Cinq onglets sous l'icône Bot dans la sidebar.
   <Step title="Tester mon agent (STARTER+)">
     Simule une conversation avant la mise en production. Voir [Simulateur](/essentials/simulator).
   </Step>
+  <Step title="Paramètres">
+    Personnalise le ton, la voix et les préférences de ton agent. Voir [Ton de marque](/essentials/ton-marque).
+  </Step>
 </Steps>
+
+<Tip>
+**Agent Email (PRO)** reste disponible mais n'est pas listé dans la sidebar pendant la phase de pré-lancement. Si tu es sur un plan Pro et souhaites l'activer, contacte [contact@actero.fr](mailto:contact@actero.fr).
+</Tip>
 
 ## Mes tickets
 
@@ -66,17 +74,26 @@ Voir [Escalades](/essentials/escalades) pour le détail.
 
 Le flux complet de ce qui se passe : tickets résolus auto, escalades, paniers relancés, événements webhook. Filtrable par type, par playbook, par période.
 
-## Sections périphériques
+## Intégrations
+
+Connecte ou déconnecte Shopify, Gorgias, Zendesk, Intercom, WhatsApp, Slack, Notion, ElevenLabs. Chaque intégration affiche son statut (Connecté / Erreur / Non configuré).
+
+## Surfaces accessibles par URL directe
+
+Ces surfaces existent et fonctionnent, mais ne sont pas dans la sidebar pendant la phase de pré-lancement. Tu peux y accéder par lien direct ou demander leur activation via [contact@actero.fr](mailto:contact@actero.fr).
 
 <AccordionGroup>
   <Accordion title="Portail SAV">
     Page publique brandée (`tamarque.portal.actero.fr`) où tes clients peuvent suivre leur commande, demander un retour ou ouvrir un ticket en self-service. Disponible dès Starter.
   </Accordion>
-  <Accordion title="Intégrations">
-    Connecte ou déconnecte Shopify, Gorgias, Zendesk, Intercom, WhatsApp, Slack, Notion, ElevenLabs. Chaque intégration affiche son statut (Connecté / Erreur / Non configuré).
+  <Accordion title="Insights & Heures de pic">
+    Rapports agrégés sur la qualité de ton agent : top 10 questions, taux de résolution par catégorie, sentiment client, opportunités de churn, et distribution horaire des tickets. Les KPI principaux remontent déjà dans **Vue d'ensemble**.
   </Accordion>
-  <Accordion title="Insights">
-    Rapports agrégés sur la qualité de ton agent : top 10 questions, taux de résolution par catégorie, sentiment client, opportunités de churn.
+  <Accordion title="Agent vocal & Appels vocaux">
+    Réponse vocale ElevenLabs sur tes appels SAV. Voir [Agent vocal](/agent/agent-vocal).
+  </Accordion>
+  <Accordion title="Tous les canaux">
+    Hub multi-canal pour piloter chat, email, voix et portail depuis une seule vue.
   </Accordion>
 </AccordionGroup>
 
