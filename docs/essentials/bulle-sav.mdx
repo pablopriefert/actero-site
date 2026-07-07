@@ -1,0 +1,170 @@
+---
+title: "Personnaliser et installer la bulle de chat Actero"
+description: "Configure la couleur, la position et le message d'accueil de la bulle SAV Actero, puis installe-la sur Shopify ou tout site avec une ligne de code."
+---
+
+**Ma bulle SAV** est l'écran qui te permet de personnaliser l'apparence de la bulle de chat Actero (couleur, position, message d'accueil, logo) et de récupérer le snippet d'installation à coller sur ta boutique.
+
+Toute la configuration est stockée côté Actero : tu colles le snippet **une fois** et chaque changement (couleur, message, logo…) part en production au chargement suivant du widget, sans jamais retoucher au code.
+
+## Où le trouver
+
+Sidebar : **Mon Agent → Ma bulle SAV**. Visible dès le plan Free — c'est un passage obligé pour aller en production.
+
+## Personnaliser la bulle
+
+L'écran est divisé en deux : les contrôles à gauche, un aperçu en direct à droite. Chaque modification met à jour l'aperçu instantanément ; clique **Enregistrer** pour publier.
+
+<Steps>
+  <Step title="Couleur principale">
+    Sélecteur de couleur \+ champ hex. C'est la couleur de la bulle, du dégradé d'entête (Actero assombrit automatiquement ta couleur pour créer le dégradé) et des messages client dans la fenêtre de chat. Utilise la couleur exacte de ta charte (par exemple `#0F5F35`).
+  </Step>
+  <Step title="Position">
+    **Bas droite** ou **Bas gauche**. Choisis le côté qui n'entre pas en conflit avec les autres widgets déjà installés (avis, cookies, panier).
+  </Step>
+  <Step title="Message d'accueil">
+    Le message qui s'affiche en gros sous l'entête quand le client ouvre la bulle, juste au-dessus des suggestions rapides. Reste court (\< 120 caractères), utilise le même tutoiement/vouvoiement que le [ton de ta marque](/essentials/ton-marque).
+  </Step>
+  <Step title="Logo (optionnel)">
+    URL HTTPS d'un PNG ou SVG carré. Il s'affiche dans l'entête de la fenêtre de chat et comme avatar de l'agent à côté de chaque réponse. Laisse vide pour garder l'icône par défaut (marque « A » Actero).
+  </Step>
+  <Step title='Masquer "Powered by Actero" (PRO)'>
+    Toggle disponible à partir du plan Pro. Sur les plans Free et Starter, l'attribution reste visible en pied de bulle.
+  </Step>
+</Steps>
+
+<Tip>
+Le widget lit sa configuration au chargement de chaque page. Un client déjà en conversation ne verra tes changements qu'à sa prochaine visite — c'est normal, ça évite qu'une bulle change de couleur en pleine discussion.
+</Tip>
+
+## Ce que voit ton client
+
+À l'ouverture de la bulle, le client atterrit sur un écran d'accueil dérivé de ta charte :
+
+- **Entête en dégradé** aux couleurs de ta marque, avec ton logo (ou la marque « A » d'Actero), le nom de ton entreprise et un indicateur d'agent en ligne.
+- **Message d'accueil** mis en avant en gros au-dessus de la conversation.
+- **Suggestions rapides** cliquables (**Suivre ma commande**, **Retour**, **Question produit**) — un tap envoie la question à l'agent, pas besoin de taper.
+- **Bulles de conversation** avec ton logo en avatar côté agent et ta couleur de marque côté client.
+- **Bouton d'escalade** dans l'entête (icône humain) — le client peut demander à parler à un humain à tout moment. Voir [Escalade humaine](#escalade-humaine-en-1-clic).
+- **Réactions 👍 / 👎** sous chaque réponse de l'agent pour collecter la satisfaction en temps réel. Voir [Satisfaction (CSAT)](#satisfaction-csat).
+
+Ces suggestions ne se configurent pas — elles couvrent les trois intentions SAV e-commerce les plus fréquentes et sont traitées comme n'importe quel message par les playbooks (voir [Playbooks](/agent/playbooks)).
+
+<Tip>
+Quand le client tape **Suivre ma commande** (ou clique le chip), l'agent lui demande son numéro de commande et son email, puis remplit automatiquement la [carte statut de commande](#cartes-riches-dans-les-r%C3%A9ponses) — pas besoin d'aller chercher la commande à la main.
+</Tip>
+
+## Langue automatique
+
+Par défaut, l'agent détecte la langue du message client et répond dans la même langue. Un client anglophone reçoit une réponse en anglais, un client hispanophone en espagnol, même si ton [ton de marque](/essentials/ton-marque) est en français.
+
+Tu peux forcer une langue fixe (ou le mode `multi`) depuis **Mon Agent → Automatisation → Configurer l'agent → Langue** si tu veux verrouiller ce comportement.
+
+## Cartes riches dans les réponses
+
+Quand l'agent détecte une question de suivi de commande ou une demande de retour/échange, il ne répond pas juste avec du texte : il affiche une **carte** interactive dans la conversation, aux couleurs de ta marque.
+
+<AccordionGroup>
+  <Accordion title='Carte "statut de commande"'>
+    Se déclenche quand le client pose une question WISMO (« où est ma commande ? », « livraison ? »). Actero cherche la commande dans Shopify et affiche une carte avec :
+
+    - Le numéro de commande et le statut actuel (payée, préparée, expédiée, livrée).
+    - Les articles commandés avec leur miniature.
+    - Un bouton **Suivre mon colis** qui ouvre la page de tracking du transporteur dans un nouvel onglet.
+
+    Aucune configuration à faire — la carte apparaît automatiquement dès que ton [intégration Shopify](/integrations/shopify) est connectée et qu'une commande est retrouvée. Si aucune commande n'est retrouvée, l'agent bascule sur une réponse texte classique.
+  </Accordion>
+  <Accordion title="Cartes d'action (retour, échange)">
+    Quand l'agent classe l'intention comme retour ou échange, il ajoute sous sa réponse un ou deux **boutons d'action** en 1 tap (par exemple **Démarrer un retour**, **Demander un échange**). Un tap relance la conversation avec le bon contexte, sans que le client ait à retaper sa demande.
+
+    Les actions proposées suivent tes [playbooks](/agent/playbooks) et tes [restrictions](/essentials/guardrails). Si un playbook est désactivé, l'action correspondante ne s'affiche pas.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+Les cartes se déclenchent à la fois sur la classification d'intention de l'agent et sur la détection dans le texte du message (mots-clés retour, échange, commande, colis, suivi). Ça garantit qu'une question WISMO ou une demande de retour affiche la bonne carte même quand le classifieur hésite.
+</Note>
+
+## Escalade humaine en 1 clic
+
+Le client peut demander à parler à un humain à tout moment via l'icône **humain** dans l'entête de la bulle.
+
+Ce qui se passe :
+
+1. Actero crée une escalade dans **Mes tickets → À traiter** avec le contexte complet de la conversation (voir [Escalades](/essentials/escalades)).
+2. Si l'email du client n'est pas encore connu, la bulle le lui demande pour pouvoir te transmettre le fil.
+3. Ton équipe reçoit une notification (email + badge rouge dans le dashboard) et peut reprendre la main.
+
+L'escalade humaine reste toujours disponible, quel que soit ton plan — c'est un filet de sécurité pour les cas que l'agent ne doit pas gérer seul.
+
+## Satisfaction (CSAT)
+
+Sous chaque réponse de l'agent, deux boutons **👍** et **👎** apparaissent. Le client peut noter la réponse en 1 tap ; s'il clique **👎**, une petite zone de commentaire optionnelle s'ouvre pour préciser ce qui n'a pas fonctionné.
+
+Les votes remontent dans :
+
+- **Insights** — score CSAT global, taux 👍 vs 👎 sur 7 / 30 / 90 jours.
+- **Activité** — chaque vote est attaché à la conversation concernée, avec le commentaire éventuel.
+
+Utilise les 👎 pour identifier les questions où l'agent flotte et enrichir ta [base de connaissances](/essentials/base-connaissance) ou tes [playbooks](/agent/playbooks).
+
+## Installer le snippet
+
+Sous les contrôles, tu vois **une seule ligne** à copier. C'est ton snippet unique — il contient ta clé API et ne bouge jamais, même si tu changes toutes les couleurs demain.
+
+```html
+<script src="https://actero.fr/widget.js" data-actero-key="TA_CLE_API" defer></script>
+```
+
+<AccordionGroup>
+  <Accordion title="Shopify (thème)">
+    Aucune application à installer. Sur Shopify, tu colles le snippet directement dans le code du thème.
+
+    1. Sur cet écran, copie la ligne `<script>` avec le bouton **Copier**.
+    2. Clique **Ouvrir mes thèmes Shopify** (ou va dans **Boutique en ligne → Thèmes**).
+    3. Sur ton thème actif, ouvre **⋯ → Modifier le code**.
+    4. Ouvre `layout/theme.liquid` et colle le snippet juste avant la balise `</body>`.
+    5. Enregistre. La bulle apparaît sur toutes les pages de la boutique.
+
+    Ça marche sur n'importe quel thème Shopify (Dawn, Impulse, thème custom). Comme la clé API est incluse dans le snippet, tu n'as plus jamais à toucher au code — les changements de couleur ou de message se font depuis cet écran.
+  </Accordion>
+  <Accordion title="WooCommerce, Webflow, site custom">
+    Colle le snippet juste avant `</body>` dans le template principal de ton site (footer global, layout WordPress, custom code Webflow → **Before body tag**). Le widget s'affichera sur toutes les pages où ce template est chargé.
+  </Accordion>
+  <Accordion title="Google Tag Manager">
+    Crée une balise **HTML personnalisée**, colle le snippet, déclencheur **Toutes les pages**. Le widget se chargera à la fin du DOM (attribut `defer`).
+  </Accordion>
+</AccordionGroup>
+
+## Vérifier l'installation
+
+1. Recharge une page publique de ta boutique.
+2. Attends 1 à 2 secondes (le script est différé).
+3. La bulle apparaît dans le coin choisi, aux couleurs enregistrées.
+
+Si tu ne la vois pas :
+
+- Ouvre la console navigateur — un blocage réseau ou un CSP trop strict peut empêcher le chargement de `actero.fr/widget.js`. Autorise le domaine.
+- Vérifie que ton agent est **actif** dans **Mon Agent → Automatisation**. Si l'agent est en pause, la bulle se retire toute seule à sa prochaine initialisation.
+- Confirme que la clé `data-actero-key` correspond bien à celle affichée sur cet écran (une ancienne clé révoquée ne charge rien).
+
+## Modifier après coup
+
+Reviens sur cet écran quand tu veux, change une couleur ou le message, clique **Enregistrer**. Aucune manipulation à faire sur ta boutique : les visiteurs suivants verront la nouvelle bulle.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Je peux avoir plusieurs bulles pour plusieurs boutiques ?">
+    Une seule bulle par compte Actero. Pour gérer plusieurs boutiques avec des couleurs différentes, il te faut plusieurs comptes Actero (ou le plan **Entreprise** avec multi-store).
+  </Accordion>
+  <Accordion title="Est-ce que le widget ralentit mon site ?">
+    Le script est chargé en `defer` et pèse moins de 40 Ko gzippé. Il n'exécute rien avant que le DOM soit prêt et n'affecte pas le score Core Web Vitals.
+  </Accordion>
+  <Accordion title="Puis-je masquer la bulle sur certaines pages ?">
+    Oui, ne colle simplement pas le snippet sur les templates concernés (checkout Shopify natif, pages légales, etc.). Sur Shopify avec l'extension de thème, tu peux désactiver le block dans l'éditeur de thème page par page.
+  </Accordion>
+  <Accordion title="La bulle affiche encore l'ancienne couleur après enregistrement">
+    Ton navigateur peut avoir mis en cache la configuration précédente. Force un rechargement (Cmd/Ctrl \+ Shift \+ R) sur la page test. Les vrais visiteurs récupéreront la nouvelle version au prochain chargement de page.
+  </Accordion>
+</AccordionGroup>
