@@ -48,6 +48,27 @@ Le widget lit sa configuration au chargement de chaque page. Un client déjà en
 
 Ces suggestions ne se configurent pas — elles couvrent les trois intentions SAV e-commerce les plus fréquentes et sont traitées comme n'importe quel message par les playbooks (voir [Playbooks](/agent/playbooks)).
 
+## Cartes riches dans les réponses
+
+Quand l'agent détecte une question de suivi de commande ou une demande de retour/échange, il ne répond pas juste avec du texte : il affiche une **carte** interactive dans la conversation, aux couleurs de ta marque.
+
+<AccordionGroup>
+  <Accordion title='Carte "statut de commande"'>
+    Se déclenche quand le client pose une question WISMO (« où est ma commande ? », « livraison ? »). Actero cherche la commande dans Shopify et affiche une carte avec :
+
+    - Le numéro de commande et le statut actuel (payée, préparée, expédiée, livrée).
+    - Les articles commandés avec leur miniature.
+    - Un bouton **Suivre mon colis** qui ouvre la page de tracking du transporteur dans un nouvel onglet.
+
+    Aucune configuration à faire — la carte apparaît automatiquement dès que ton [intégration Shopify](/integrations/shopify) est connectée et qu'une commande est retrouvée. Si aucune commande n'est retrouvée, l'agent bascule sur une réponse texte classique.
+  </Accordion>
+  <Accordion title="Cartes d'action (retour, échange)">
+    Quand l'agent classe l'intention comme retour ou échange, il ajoute sous sa réponse un ou deux **boutons d'action** en 1 tap (par exemple **Démarrer un retour**, **Demander un échange**). Un tap relance la conversation avec le bon contexte, sans que le client ait à retaper sa demande.
+
+    Les actions proposées suivent tes [playbooks](/agent/playbooks) et tes [restrictions](/essentials/guardrails). Si un playbook est désactivé, l'action correspondante ne s'affiche pas.
+  </Accordion>
+</AccordionGroup>
+
 ## Installer le snippet
 
 Sous les contrôles, tu vois **une seule ligne** à copier. C'est ton snippet unique — il contient ta clé API et ne bouge jamais, même si tu changes toutes les couleurs demain.
