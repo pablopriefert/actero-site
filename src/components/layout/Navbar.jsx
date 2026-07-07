@@ -19,7 +19,9 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
-      <nav className="w-full bg-white transition-all duration-300">
+      {/* Top accent gradient bar — Actero greens → gold */}
+      <div className="h-[3px] w-full bg-gradient-to-r from-[#0B4B2C] via-[#14A85C] to-[#8B7A50]" />
+      <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-black/[0.06] transition-all duration-300">
         <div className={`max-w-6xl mx-auto px-6 md:px-8 flex justify-between items-center transition-all duration-500 ${
           scrolled ? 'h-14 md:h-[56px]' : 'h-16 md:h-[64px]'
         }`}>
@@ -35,31 +37,33 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
             </span>
           </div>
 
-          <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
-            <button
-              onClick={() => onNavigate("/produit")}
-              className="text-[14px] font-semibold text-[#262626] hover:text-[#003725] transition-colors"
-            >
-              Produit
-            </button>
-            <button
-              onClick={() => onNavigate("/tarifs")}
-              className="text-[14px] font-semibold text-[#262626] hover:text-[#003725] transition-colors"
-            >
-              Tarifs
-            </button>
-            <button
-              onClick={() => onNavigate("/entreprise")}
-              className="text-[14px] font-semibold text-[#262626] hover:text-[#003725] transition-colors"
-            >
-              Entreprise
-            </button>
+          <div className="hidden lg:flex items-center absolute left-1/2 -translate-x-1/2">
+            <div className="flex items-center gap-1 rounded-full bg-[#F9F7F1] border border-[#EFE7D6] p-1">
+              <button
+                onClick={() => onNavigate("/produit")}
+                className="px-4 py-1.5 rounded-full text-[14px] font-semibold text-[#3A3A3A] hover:bg-white hover:text-[#003725] hover:shadow-sm transition-all"
+              >
+                Produit
+              </button>
+              <button
+                onClick={() => onNavigate("/tarifs")}
+                className="px-4 py-1.5 rounded-full text-[14px] font-semibold text-[#3A3A3A] hover:bg-white hover:text-[#003725] hover:shadow-sm transition-all"
+              >
+                Tarifs
+              </button>
+              <button
+                onClick={() => onNavigate("/entreprise")}
+                className="px-4 py-1.5 rounded-full text-[14px] font-semibold text-[#3A3A3A] hover:bg-white hover:text-[#003725] hover:shadow-sm transition-all"
+              >
+                Entreprise
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => onNavigate("/login")}
-              className="hidden lg:block text-[13px] font-semibold text-[#262626] hover:text-[#262626] transition-colors px-1"
+              className="hidden lg:inline-flex items-center h-12 px-6 rounded-full bg-white border border-[#E7E1D2] text-[14px] font-semibold text-[#1A1A1A] hover:border-[#003725]/40 hover:text-[#003725] transition-colors"
             >
               Connexion
             </button>

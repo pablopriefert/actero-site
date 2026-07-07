@@ -10,21 +10,46 @@
  * callers just swap `callClaude` → `callLLM` (or import it aliased).
  */
 import { callClaude } from './claude-client.js'
-import { callOpenAI } from './openai-client.js'
+import { callOpenAI, callOpenRouter } from './openai-client.js'
 
 const PROVIDER = (process.env.LLM_PROVIDER || 'anthropic').toLowerCase()
 
-export async function callLLM(args) {
-  const primary = PROVIDER === 'openai' ? callOpenAI : callClaude
-  const fallback = PROVIDER === 'openai' ? callClaude : callOpenAI
+// provider id → client. All three share the same signature/return shape.
+const CLIENTS = {
+  anthropic: callClaude,
+  openai: callOpenAI,
+  openrouter: callOpenRouter,
+}
+// Stable failover target per active provider. anthropic (direct Claude) is the
+// safe default fallback; anthropic itself falls back to openai.
+const FALLBACK = {
+  anthropic: 'openai',
+  openai: 'anthropic',
+  openrouter: 'anthropic',
+}
 
+export async function callLLM(args, opts = {}) {
+  // Optional per-call override (used by the provider-comparison backtest):
+  //   opts.provider — 'anthropic' | 'openai' | 'openrouter'
+  //   opts.model    — exact model id for that provider
+  const overrideProvider = opts.provider ? String(opts.provider).toLowerCase() : null
+  const activeProvider = overrideProvider || PROVIDER
+  const callArgs = opts.model ? { ...args, model: opts.model } : args
+
+  const primary = CLIENTS[activeProvider] || callClaude
+
+  // With an explicit provider override we measure exactly that provider — no
+  // failover (a silent fallback would corrupt an A/B comparison).
+  if (overrideProvider) return primary(callArgs)
+
+  const fallback = CLIENTS[FALLBACK[activeProvider] || 'anthropic'] || callClaude
   try {
-    return await primary(args)
+    return await primary(callArgs)
   } catch (primaryErr) {
     // Best-effort failover. If the other provider isn't configured (no key) it
     // just throws too, and we surface the original error.
     try {
-      return await fallback(args)
+      return await fallback(callArgs)
     } catch {
       throw primaryErr
     }

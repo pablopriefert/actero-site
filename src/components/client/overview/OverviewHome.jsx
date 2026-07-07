@@ -10,6 +10,7 @@ import { supabase } from '../../../lib/supabase'
 import { trackEvent } from '../../../lib/analytics'
 import VisionUsageWidget from './VisionUsageWidget.jsx'
 import { EmptyState } from '../../ui/EmptyState.jsx'
+import { AgentImprovementWidget } from '../AgentImprovementWidget.jsx'
 
 /**
  * OverviewHome — narrative home.
@@ -73,6 +74,18 @@ export function OverviewHome({
           setActiveTab={setActiveTab}
         />
       </motion.div>
+
+      {/* 2b. La Boucle — suggestions d'amélioration (se cache si rien) */}
+      {clientId && (
+        <motion.div
+          custom={1}
+          variants={sectionVariants}
+          initial="initial"
+          animate="animate"
+        >
+          <AgentImprovementWidget clientId={clientId} />
+        </motion.div>
+      )}
 
       {/* 3. Timeline "Depuis ta dernière visite" */}
       <motion.div

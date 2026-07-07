@@ -59,6 +59,18 @@ const partners = [
     href: 'https://auth0.com/startups',
     mH: 34, dH: 42,
   },
+  {
+    name: 'Vercel',
+    src: '/partners/v2/vercel.png',
+    href: 'https://vercel.com/',
+    mH: 25, dH: 30,
+  },
+  {
+    name: 'OpenAI',
+    src: '/partners/v2/openai.png',
+    href: 'https://openai.com/',
+    mH: 28, dH: 34,
+  },
 ]
 
 export function PartnersMarquee() {

@@ -209,6 +209,23 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
 
 // ───────── Step 1 : Shopify (OAuth direct) ─────────
 function StepShopify({ progress }) {
+  const [shopDomain, setShopDomain] = useState('')
+  const [connecting, setConnecting] = useState(false)
+
+  // /api/shopify/install exige ?shop= (400 sinon) et lit ?token= pour
+  // retrouver le client_id au callback. On demande donc le domaine puis on
+  // redirige avec le domaine normalisé + le token de session Supabase.
+  const connectShopify = async () => {
+    let shop = shopDomain.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+    if (!shop) return
+    if (!shop.includes('.')) shop += '.myshopify.com'
+    setConnecting(true)
+    trackEvent('Setup Wizard Shopify Clicked')
+    const { data: { session } } = await supabase.auth.getSession()
+    window.location.href =
+      `/api/shopify/install?shop=${encodeURIComponent(shop)}&token=${encodeURIComponent(session?.access_token || '')}`
+  }
+
   if (progress?.shopify) {
     return (
       <div className="text-center py-12">
@@ -231,19 +248,33 @@ function StepShopify({ progress }) {
         L'agent IA va lire votre catalogue, vos politiques de retour et vos commandes pour répondre à vos clients — en lecture seule, 100% RGPD.
       </p>
       <div className="space-y-3 max-w-md mx-auto">
-        <a
-          href="/api/shopify/install"
-          onClick={() => trackEvent('Setup Wizard Shopify Clicked')}
-          className="flex items-center justify-between w-full px-5 py-4 rounded-2xl border-2 border-cta bg-cta text-white font-semibold hover:bg-[#003725] transition-colors"
+        <input
+          type="text"
+          value={shopDomain}
+          onChange={(e) => setShopDomain(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') connectShopify() }}
+          placeholder="ma-boutique.myshopify.com"
+          autoComplete="off"
+          spellCheck={false}
+          className="w-full px-4 py-3.5 rounded-2xl border border-[#e5e5e5] text-[15px] text-[#1a1a1a] placeholder:text-[#a1a1aa] focus:outline-none focus:border-cta focus:ring-2 focus:ring-cta/20 transition-all"
+        />
+        <p className="text-[12px] text-[#a1a1aa] px-1 -mt-1">
+          Trouvez-le dans Shopify Admin → Paramètres → Domaines
+        </p>
+        <button
+          type="button"
+          onClick={connectShopify}
+          disabled={!shopDomain.trim() || connecting}
+          className="flex items-center justify-between w-full px-5 py-4 rounded-2xl border-2 border-cta bg-cta text-white font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
               <ShoppingBag className="w-5 h-5" />
             </div>
-            <span>Connecter Shopify (OAuth)</span>
+            <span>{connecting ? 'Redirection…' : 'Connecter Shopify (OAuth)'}</span>
           </span>
           <ArrowRight className="w-5 h-5" />
-        </a>
+        </button>
         <a
           href="/client/integrations"
           className="flex items-center justify-center w-full px-5 py-3 rounded-2xl border border-[#f0f0f0] text-[#71717a] hover:text-[#1a1a1a] hover:bg-white transition-colors text-[13px]"
@@ -363,10 +394,21 @@ function StepTest({ clientId, progress, queryClient, toast }) {
     setRunning(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const res = await fetch('/api/engine/simulate', {
+      // Route via the real Engine Gateway (même contrat que le Simulateur).
+      // Un run gateway écrit dans engine_runs_v2 → l'étape « Premier test »
+      // se valide automatiquement. (/api/engine/simulate n'existe pas.)
+      const res = await fetch('/api/engine/gateway', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ client_id: clientId, message: question.q, channel: 'chat' }),
+        body: JSON.stringify({
+          client_id: clientId,
+          event_type: 'widget_message',
+          source: 'widget_message',
+          customer_email: 'test@actero-test.com',
+          customer_name: 'Client Test',
+          message: question.q,
+          subject: 'Test agent (setup wizard)',
+        }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Simulation failed')
