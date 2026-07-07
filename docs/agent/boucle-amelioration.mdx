@@ -1,0 +1,97 @@
+---
+title: "Boucle d'amélioration hebdomadaire de l'agent"
+description: "Chaque semaine, Actero détecte les sujets récurrents que ton agent n'a pas su traiter et te propose des entrées de base prêtes à approuver en un clic."
+---
+
+Ton agent apprend au fil du temps — mais seulement si tu lui donnes les bonnes infos. La **Boucle d'amélioration** automatise ce travail : chaque semaine, Actero regarde les tickets escaladés, les réponses à faible confiance et les retours négatifs des 30 derniers jours, regroupe les sujets qui reviennent, et te propose une **entrée de base de connaissances prête à publier** pour chaque thème.
+
+Tu approuves d'un clic, tu ajustes le texte si besoin, ou tu ignores. Chaque approbation enrichit immédiatement la [base de connaissances](/essentials/base-connaissance) — et la prochaine fois qu'un client pose la même question, l'agent répond tout seul.
+
+## Où trouver les suggestions
+
+Sur ta **Vue d'ensemble** (page d'accueil du dashboard), un encart violet **L'agent s'améliore** apparaît dès qu'au moins une suggestion est en attente. S'il n'y a rien à approuver, l'encart reste masqué — pas de bruit.
+
+<Tip>
+L'encart affiche jusqu'à 5 suggestions à la fois, triées par impact estimé (le sujet qui te fait perdre le plus de temps d'abord).
+</Tip>
+
+## Comment Actero détecte un manque
+
+Une fois par semaine, le miner d'amélioration :
+
+1. Rassemble les cas des 30 derniers jours où l'agent a **escaladé**, **répondu avec une confiance faible** ou reçu un **feedback négatif**.
+2. Les regroupe par thème récurrent (ex. « assurance colis perdu », « délais Belgique »).
+3. Rédige, pour chaque thème, un **brouillon de titre + contenu** aligné avec les entrées KB que tu as déjà.
+4. Estime le **temps gagné par mois** si l'entrée est publiée.
+
+Les thèmes déjà proposés ne reviennent pas (déduplication par empreinte), et les suggestions périment automatiquement au bout de quelques semaines si tu ne les traites pas.
+
+## Approuver, éditer ou ignorer
+
+Chaque carte de suggestion contient :
+
+- Le **titre du thème** détecté et son contexte (nombre de cas, exemples).
+- Une **entrée proposée pour ta base** — titre et contenu éditables directement dans la carte.
+- L'**estimation du gain de temps** mensuel (`~X min économisées / mois`).
+- Deux actions : **Ajouter à ma base** et **Ignorer**.
+
+<Steps>
+  <Step title="Relis le brouillon">
+    Le titre et le contenu sont pré-remplis dans un encart vert. Ajuste-les directement dans les champs si tu veux préciser une formulation, ajouter un délai, ou coller la signature de ta marque.
+  </Step>
+  <Step title="Clique sur Ajouter à ma base">
+    L'entrée part immédiatement dans ta [base de connaissances](/essentials/base-connaissance) (source `improvement_loop`, marquée `needs_review` pour que tu puisses la retrouver et l'affiner dans l'onglet KB si besoin).
+  </Step>
+  <Step title="Ou clique sur Ignorer">
+    La suggestion disparaît de l'encart et ne te sera pas reproposée sur le même thème.
+  </Step>
+</Steps>
+
+<Note>
+Tu peux publier une entrée même si tu changes complètement son contenu dans les champs — c'est ce que tu tapes qui est envoyé à la KB, pas le brouillon d'origine.
+</Note>
+
+## Ce qui change côté agent
+
+Dès qu'une entrée est ajoutée à ta base :
+
+- Elle est indexée et disponible pour toutes les prochaines conversations, sur tous les canaux (widget, email, Gorgias, Zendesk, WhatsApp…).
+- La prochaine fois qu'un client pose la question détectée, l'agent répond **avec ta réponse** au lieu d'escalader.
+- Le taux d'auto-résolution monte mécaniquement, ticket après ticket.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="À quelle fréquence de nouvelles suggestions apparaissent ?">
+    Le miner tourne une fois par semaine. Si tu viens de démarrer avec moins de 30 jours d'historique, les premières suggestions arrivent quand tu as accumulé assez d'escalades et de feedbacks pour détecter un pattern (généralement ~2 semaines d'usage réel).
+  </Accordion>
+  <Accordion title="Pourquoi l'encart n'apparaît-il pas chez moi ?">
+    L'encart se cache tant qu'il n'y a aucune suggestion en attente. C'est normal si ton agent traite peu de tickets, si tu as déjà tout approuvé, ou si tes escalades sont trop dispersées pour former un thème récurrent.
+  </Accordion>
+  <Accordion title="Les entrées ajoutées sont-elles éditables plus tard ?">
+    Oui. Elles apparaissent dans **Mon Agent → Base de connaissances** avec la source `improvement_loop`. Tu peux les modifier, les enrichir ou les supprimer comme n'importe quelle entrée manuelle.
+  </Accordion>
+  <Accordion title="Ignorer une suggestion la supprime-t-elle définitivement ?">
+    Oui, pour ce thème précis. Si le sujet redevient un problème récurrent plus tard (nouveaux cas, nouvelle formulation), le miner peut le re-proposer avec une empreinte différente.
+  </Accordion>
+  <Accordion title="Puis-je désactiver la Boucle ?">
+    Il n'y a pas de bouton off explicite : si tu n'approuves rien, rien n'est ajouté à ta base. L'encart se cache seul quand aucune suggestion n'est en attente.
+  </Accordion>
+</AccordionGroup>
+
+## Pour aller plus loin
+
+<CardGroup cols={2}>
+  <Card title="Base de connaissances" icon="book" href="/essentials/base-connaissance">
+    Comprends comment tes entrées KB nourrissent les réponses de l'agent.
+  </Card>
+  <Card title="Validation manuelle" icon="user-check" href="/agent/manual-review">
+    L'autre levier d'amélioration : cocher « Ajouter à la KB » quand tu valides un ticket.
+  </Card>
+  <Card title="Escalades" icon="route" href="/essentials/escalades">
+    Comprends quand et pourquoi l'agent escalade — les cas qui nourrissent la Boucle.
+  </Card>
+  <Card title="Tour du dashboard" icon="compass" href="/essentials/dashboard-tour">
+    Repère l'encart « L'agent s'améliore » sur ta Vue d'ensemble.
+  </Card>
+</CardGroup>

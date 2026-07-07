@@ -96,7 +96,8 @@
               "agent/templates-variables",
               "agent/agent-vocal",
               "agent/proactive-watchdog",
-              "agent/manual-review"
+              "agent/manual-review",
+              "agent/boucle-amelioration"
             ]
           }
         ]
