@@ -1,6 +1,6 @@
 ---
 title: "Vue d'ensemble de ton agent"
-description: "Comment l'agent Actero traite un ticket de bout en bout : intention, contexte, génération, garde-fous, escalade."
+description: "Comment l'agent IA SAV Actero traite un ticket Shopify de bout en bout : classification d'intention, contexte, génération, garde-fous et escalade."
 ---
 
 Ton agent Actero est un moteur de support client IA spécialisé Shopify. Il lit chaque message entrant, comprend ce que ton client veut, va chercher le bon contexte (commande, suivi, FAQ), rédige une réponse dans **ton** ton de marque, vérifie qu'elle ne casse aucune de tes règles, puis l'envoie ou escalade vers ton équipe humaine.
@@ -103,8 +103,10 @@ Tu peux **valider en 1 clic**, **éditer la proposition IA**, ou **rédiger ta p
 
 Par défaut, ton agent utilise **Claude Sonnet** d'Anthropic pour la classification et la génération. Le coût moyen par ticket est de **0,003 € à 0,008 €** selon la taille de ta base de connaissances.
 
+Actero prend aussi en charge la **famille GPT-5** d'OpenAI comme moteur alternatif (par défaut `gpt-5.4-mini` : rapide, qualité comparable pour les réponses SAV courtes), ainsi qu'**OpenRouter** pour router vers d'autres modèles compatibles Chat Completions. Le provider et le modèle sont choisis côté plateforme — tu n'as rien à configurer, et le comportement de l'agent (prompts, garde-fous, format de sortie) reste identique quel que soit le modèle utilisé.
+
 <Note>
-Tu peux suivre la consommation token par token dans **Activité → Historique des runs**. Chaque ligne affiche le coût exact en USD.
+Tu peux suivre la consommation token par token dans **Activité → Historique des runs**. Chaque ligne affiche le modèle utilisé et le coût exact en USD.
 </Note>
 
 ## Pour aller plus loin
@@ -137,6 +139,6 @@ Tu peux suivre la consommation token par token dans **Activité → Historique d
     Oui, via Actero Memory. Quand un client revient, l'agent récupère ses interactions passées et les injecte dans le contexte. Tu peux désactiver cette mémoire dans **Paramètres**.
   </Accordion>
   <Accordion title="Que se passe-t-il si Claude est down ?">
-    Le run est marqué `error`, le ticket est automatiquement escaladé vers **À traiter** avec la raison `error`. Aucun client ne reçoit de réponse cassée.
+    Actero bascule automatiquement sur un provider de secours (Anthropic ↔ OpenAI, ou OpenRouter → Anthropic selon la configuration active). Si le failover échoue aussi, le run est marqué `error` et le ticket est automatiquement escaladé vers **À traiter** avec la raison `error`. Aucun client ne reçoit de réponse cassée.
   </Accordion>
 </AccordionGroup>
