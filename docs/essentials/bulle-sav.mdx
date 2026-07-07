@@ -45,8 +45,20 @@ Le widget lit sa configuration au chargement de chaque page. Un client déjà en
 - **Message d'accueil** mis en avant en gros au-dessus de la conversation.
 - **Suggestions rapides** cliquables (**Suivre ma commande**, **Retour**, **Question produit**) — un tap envoie la question à l'agent, pas besoin de taper.
 - **Bulles de conversation** avec ton logo en avatar côté agent et ta couleur de marque côté client.
+- **Bouton d'escalade** dans l'entête (icône humain) — le client peut demander à parler à un humain à tout moment. Voir [Escalade humaine](#escalade-humaine-en-1-clic).
+- **Réactions 👍 / 👎** sous chaque réponse de l'agent pour collecter la satisfaction en temps réel. Voir [Satisfaction (CSAT)](#satisfaction-csat).
 
 Ces suggestions ne se configurent pas — elles couvrent les trois intentions SAV e-commerce les plus fréquentes et sont traitées comme n'importe quel message par les playbooks (voir [Playbooks](/agent/playbooks)).
+
+<Tip>
+Quand le client tape **Suivre ma commande** (ou clique le chip), l'agent lui demande son numéro de commande et son email, puis remplit automatiquement la [carte statut de commande](#cartes-riches-dans-les-r%C3%A9ponses) — pas besoin d'aller chercher la commande à la main.
+</Tip>
+
+## Langue automatique
+
+Par défaut, l'agent détecte la langue du message client et répond dans la même langue. Un client anglophone reçoit une réponse en anglais, un client hispanophone en espagnol, même si ton [ton de marque](/essentials/ton-marque) est en français.
+
+Tu peux forcer une langue fixe (ou le mode `multi`) depuis **Mon Agent → Automatisation → Configurer l'agent → Langue** si tu veux verrouiller ce comportement.
 
 ## Cartes riches dans les réponses
 
@@ -68,6 +80,33 @@ Quand l'agent détecte une question de suivi de commande ou une demande de retou
     Les actions proposées suivent tes [playbooks](/agent/playbooks) et tes [restrictions](/essentials/guardrails). Si un playbook est désactivé, l'action correspondante ne s'affiche pas.
   </Accordion>
 </AccordionGroup>
+
+<Note>
+Les cartes se déclenchent à la fois sur la classification d'intention de l'agent et sur la détection dans le texte du message (mots-clés retour, échange, commande, colis, suivi). Ça garantit qu'une question WISMO ou une demande de retour affiche la bonne carte même quand le classifieur hésite.
+</Note>
+
+## Escalade humaine en 1 clic
+
+Le client peut demander à parler à un humain à tout moment via l'icône **humain** dans l'entête de la bulle.
+
+Ce qui se passe :
+
+1. Actero crée une escalade dans **Mes tickets → À traiter** avec le contexte complet de la conversation (voir [Escalades](/essentials/escalades)).
+2. Si l'email du client n'est pas encore connu, la bulle le lui demande pour pouvoir te transmettre le fil.
+3. Ton équipe reçoit une notification (email + badge rouge dans le dashboard) et peut reprendre la main.
+
+L'escalade humaine reste toujours disponible, quel que soit ton plan — c'est un filet de sécurité pour les cas que l'agent ne doit pas gérer seul.
+
+## Satisfaction (CSAT)
+
+Sous chaque réponse de l'agent, deux boutons **👍** et **👎** apparaissent. Le client peut noter la réponse en 1 tap ; s'il clique **👎**, une petite zone de commentaire optionnelle s'ouvre pour préciser ce qui n'a pas fonctionné.
+
+Les votes remontent dans :
+
+- **Insights** — score CSAT global, taux 👍 vs 👎 sur 7 / 30 / 90 jours.
+- **Activité** — chaque vote est attaché à la conversation concernée, avec le commentaire éventuel.
+
+Utilise les 👎 pour identifier les questions où l'agent flotte et enrichir ta [base de connaissances](/essentials/base-connaissance) ou tes [playbooks](/agent/playbooks).
 
 ## Installer le snippet
 
