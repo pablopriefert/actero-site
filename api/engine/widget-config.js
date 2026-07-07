@@ -49,9 +49,11 @@ function applyCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  // 5-minute browser cache — config changes propagate fast enough for
-  // merchants iterating from the dashboard and we save a lot of round trips.
-  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300')
+  // Short cache: a merchant iterating on colours/greeting from the dashboard
+  // must see the change on their live bubble almost immediately (a 5-min cache
+  // read as "saving does nothing"). 30s keeps round-trips low while propagating
+  // changes fast; stale-while-revalidate serves instantly then refreshes.
+  res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=30, stale-while-revalidate=120')
 }
 
 async function handler(req, res) {
