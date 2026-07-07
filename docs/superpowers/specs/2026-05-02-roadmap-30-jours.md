@@ -271,10 +271,10 @@ Décidé hors scope V1 pour rester focus :
 |---|---|---|---|
 | **Signups/jour** | Amplitude | 5+ | Sprint 1 doit tirer la demande |
 | **Activation D7** | Amplitude funnel | >40% | Sprint 2 doit fixer l'onboarding |
-| **Time-to-value moyen** | Amplitude | <10 min | Setup Wizard refondu |
+| **Time-to-value moyen** | Amplitude | &lt;10 min | Setup Wizard refondu |
 | **Conversion Free→Pro M1** | Stripe + Supabase | >5% | Pricing calculator + démos |
 | **MRR new** | Stripe | +1500€ | 5 clients Pro à 399€ - churn |
-| **Churn M1** | Stripe + Amplitude | <10% | Onboarding solide = rétention |
+| **Churn M1** | Stripe + Amplitude | &lt;10% | Onboarding solide = rétention |
 | **Sentry errors prod** | Sentry | 0 nouveau cron alert phantom | Sprint 2/3 |
 | **Pages marketing comparison** | Google Search Console | 12 → 14 (eesel + Crisp) + ranks T10 sur "alternative gorgias", "intercom alternative france" | Sprint 1 |
 
