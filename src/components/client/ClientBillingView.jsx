@@ -12,6 +12,7 @@ import { PLANS, PLAN_ORDER, getPlanConfig, getPlanHighlights } from '../../lib/p
 import { resolveUpgrade } from '../../lib/billing-router'
 import { PaymentModal } from '../billing/PaymentModal'
 import { hasStripeElements } from '../../lib/stripe-client'
+import { resolveOrCreateClientId } from '../../lib/resolve-client'
 import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
@@ -168,18 +169,33 @@ export const ClientBillingView = ({ theme: _theme }) => {
       return
     }
 
-    if (!client?.id) {
-      toast.error('Chargement en cours, réessayez dans un instant.')
-      return
-    }
-
     setUpgradingPlan(targetPlan)
     try {
       const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toast.error('Session expirée. Reconnectez-vous.')
+        setUpgradingPlan(null)
+        return
+      }
+
+      // Resolve the client_id — create it on the fly for a fresh direct signup
+      // that reached billing without a clients row yet (otherwise the upgrade
+      // would dead-end). Falls back to the already-loaded client when present.
+      let clientId = client?.id
+      if (!clientId) {
+        try {
+          clientId = await resolveOrCreateClientId(supabase, session)
+        } catch {
+          toast.error('Impossible de préparer votre compte. Contactez le support.')
+          setUpgradingPlan(null)
+          return
+        }
+      }
+
       // Shopify-installed merchants must be billed via Shopify Billing (App
       // Store policy 1.2); direct signups fall through to Stripe below.
       const routed = await resolveUpgrade({
-        token: session?.access_token, clientId: client?.id, targetPlan, billingPeriod,
+        token: session?.access_token, clientId, targetPlan, billingPeriod,
       })
       if (routed.channel === 'shopify') { window.location.assign(routed.url); return }
       if (routed.channel === 'error') { toast.error(routed.message); setUpgradingPlan(null); return }
@@ -187,7 +203,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
       // On-site payment (Stripe Payment Element) when the publishable key is
       // set — otherwise fall through to the hosted Checkout redirect below.
       if (hasStripeElements()) {
-        setPayModal({ planId: targetPlan, clientId: client.id, token: session?.access_token })
+        setPayModal({ planId: targetPlan, clientId, token: session?.access_token })
         setUpgradingPlan(null)
         return
       }
@@ -199,7 +215,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
           'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
-          client_id: client?.id,
+          client_id: clientId,
           target_plan: targetPlan,
           billing_period: billingPeriod,
         }),

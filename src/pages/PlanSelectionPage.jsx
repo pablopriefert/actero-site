@@ -6,6 +6,7 @@ import { PLANS, PLAN_ORDER, getPlanHighlights } from "../lib/plans";
 import { resolveUpgrade } from "../lib/billing-router";
 import { PaymentModal } from "../components/billing/PaymentModal";
 import { hasStripeElements } from "../lib/stripe-client";
+import { resolveOrCreateClientId } from "../lib/resolve-client";
 import { SEO } from "../components/SEO";
 import { supabase } from "../lib/supabase";
 
@@ -63,67 +64,21 @@ export const PlanSelectionPage = ({ onNavigate }) => {
         return;
       }
 
-      // Get client id for this user — or auto-create if first visit (startup flow)
-      let { data: link } = await supabase
-        .from("client_users")
-        .select("client_id")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-
-      if (!link?.client_id) {
-        // Also check legacy owner_user_id
-        const { data: ownedClient } = await supabase
-          .from("clients")
-          .select("id")
-          .eq("owner_user_id", session.user.id)
-          .maybeSingle();
-
-        if (ownedClient?.id) {
-          link = { client_id: ownedClient.id };
-        } else {
-          // Auto-create client + link for new users (startup onboarding)
-          const userName = session.user.user_metadata?.full_name
-            || session.user.user_metadata?.name
-            || session.user.email?.split("@")[0]
-            || "Ma boutique";
-          const { data: newClient, error: createErr } = await supabase
-            .from("clients")
-            .insert({
-              brand_name: userName,
-              contact_email: session.user.email,
-              owner_user_id: session.user.id,
-              plan: "free",
-            })
-            .select("id")
-            .single();
-
-          if (createErr || !newClient) {
-            setError("Impossible de créer votre compte. Contactez le support.");
-            setLoading(null);
-            return;
-          }
-
-          // Create client_users link
-          await supabase.from("client_users").insert({
-            client_id: newClient.id,
-            user_id: session.user.id,
-            role: "owner",
-            email: session.user.email,
-          });
-
-          // Create default client_settings row
-          await supabase.from("client_settings").insert({
-            client_id: newClient.id,
-          });
-
-          link = { client_id: newClient.id };
-        }
+      // Resolve the client_id — auto-creates the client on first visit
+      // (startup onboarding / fresh direct signup).
+      let clientId;
+      try {
+        clientId = await resolveOrCreateClientId(supabase, session);
+      } catch {
+        setError("Impossible de créer votre compte. Contactez le support.");
+        setLoading(null);
+        return;
       }
 
       // Shopify-installed merchants must be billed via Shopify Billing (App
       // Store policy 1.2); direct signups fall through to Stripe below.
       const routed = await resolveUpgrade({
-        token: session.access_token, clientId: link.client_id, targetPlan: planId, billingPeriod: "monthly",
+        token: session.access_token, clientId, targetPlan: planId, billingPeriod: "monthly",
       });
       if (routed.channel === "shopify") { window.location.assign(routed.url); return; }
       if (routed.channel === "error") { setError(routed.message); setLoading(null); return; }
@@ -131,7 +86,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
       // On-site payment (Stripe Payment Element) when the publishable key is
       // set — otherwise fall through to the hosted Checkout redirect below.
       if (hasStripeElements()) {
-        setPayModal({ planId, clientId: link.client_id, token: session.access_token });
+        setPayModal({ planId, clientId, token: session.access_token });
         setLoading(null);
         return;
       }
@@ -143,7 +98,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          client_id: link.client_id,
+          client_id: clientId,
           target_plan: planId,
           billing_period: "monthly",
           promo_code: promoCode || undefined,
