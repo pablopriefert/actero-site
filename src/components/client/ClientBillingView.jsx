@@ -475,7 +475,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             } else if (isEnterprise) {
               ctaText = 'Contacter l\'equipe'
             } else if (isDowngrade) {
-              ctaText = 'Inclus dans votre plan'
+              ctaText = 'Rétrograder'
             } else {
               const isReferred = client?.referral_first_month_free
               ctaText = isReferred
@@ -532,19 +532,26 @@ export const ClientBillingView = ({ theme: _theme }) => {
                   </div>
 
                   <button
-                    onClick={() => !isCurrent && !isDowngrade && handleUpgrade(planKey)}
-                    disabled={isCurrent || isDowngrade || upgradingPlan === planKey}
+                    onClick={() => {
+                      if (isCurrent) return
+                      // Downgrade / cancel is handled in Stripe's Customer Portal
+                      // (native proration + period-end change). Upgrades + the
+                      // Enterprise "contact" case go through handleUpgrade.
+                      if (isDowngrade) { openStripePortal(); return }
+                      handleUpgrade(planKey)
+                    }}
+                    disabled={isCurrent || upgradingPlan === planKey || (isDowngrade && loadingPortal)}
                     className={`w-full py-2.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       isCurrent
                         ? 'bg-[#f0f0f0] text-[#9ca3af] cursor-default'
                         : isDowngrade
-                        ? 'bg-[#fafafa] text-[#9ca3af] cursor-default'
+                        ? 'bg-white border border-[#E5E2D7] text-[#71717a] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
                         : isEnterprise
                         ? 'bg-[#1a1a1a] text-white hover:bg-[#333]'
                         : 'bg-cta text-white hover:bg-[#0a4528]'
                     }`}
                   >
-                    {upgradingPlan === planKey ? (
+                    {(upgradingPlan === planKey || (isDowngrade && loadingPortal)) ? (
                       <Loader2 className="w-4 h-4 animate-spin mx-auto" />
                     ) : (
                       ctaText
