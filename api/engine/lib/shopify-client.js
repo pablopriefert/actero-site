@@ -21,41 +21,89 @@ export async function lookupOrder(supabase, { clientId, orderId, customerEmail }
     return null // No Shopify connection
   }
 
-  const baseUrl = `https://${shopify.shop_domain}/admin/api/2025-01`
+  // GraphQL Admin API — the REST Admin API is legacy and not allowed for new
+  // public apps (App Store requirement 2.2.4). We keep formatOrder's output
+  // shape identical by mapping the GraphQL node back to the REST-like object.
+  const endpoint = `https://${shopify.shop_domain}/admin/api/2025-01/graphql.json`
   const headers = {
     'X-Shopify-Access-Token': shopifyToken,
     'Content-Type': 'application/json',
   }
 
+  // Order name search first (e.g. "#4521" → name:4521), else customer email.
+  const searchQuery = orderId
+    ? `name:${String(orderId).replace(/^#/, '')}`
+    : (customerEmail ? `email:${customerEmail}` : null)
+  if (!searchQuery) return null
+
+  const gql = `query LookupOrders($q: String!, $n: Int!) {
+    orders(first: $n, query: $q, sortKey: CREATED_AT, reverse: true) {
+      edges { node {
+        name email createdAt
+        displayFinancialStatus displayFulfillmentStatus
+        totalPriceSet { shopMoney { amount currencyCode } }
+        lineItems(first: 20) { edges { node { title quantity variantTitle originalUnitPriceSet { shopMoney { amount } } } } }
+        fulfillments(first: 5) { status trackingInfo { number url company } }
+        shippingAddress { city country }
+      } }
+    }
+  }`
+
   try {
-    let orders = []
-
-    // Search by order name (e.g., #4521)
-    if (orderId) {
-      const cleanId = orderId.replace(/^#/, '')
-      const res = await fetch(`${baseUrl}/orders.json?name=${cleanId}&status=any&limit=1`, { headers })
-      if (res.ok) {
-        const data = await res.json()
-        orders = data.orders || []
-      }
-    }
-
-    // Fallback: search by customer email
-    if (orders.length === 0 && customerEmail) {
-      const res = await fetch(`${baseUrl}/orders.json?email=${encodeURIComponent(customerEmail)}&status=any&limit=3`, { headers })
-      if (res.ok) {
-        const data = await res.json()
-        orders = data.orders || []
-      }
-    }
-
-    if (orders.length === 0) return null
-
-    // Format order data for AI context
-    return orders.map(order => formatOrder(order))
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query: gql, variables: { q: searchQuery, n: orderId ? 1 : 3 } }),
+    })
+    if (!res.ok) return null
+    const json = await res.json()
+    const edges = json?.data?.orders?.edges || []
+    if (edges.length === 0) return null
+    return edges.map((e) => formatOrder(mapGraphQLOrder(e.node)))
   } catch (err) {
     console.error('[shopify-client] Lookup error:', err.message)
     return null
+  }
+}
+
+// Map a GraphQL order node into the REST-shaped object formatOrder consumes,
+// so formatOrder / buildOrderContextText / translate* stay unchanged.
+function mapGraphQLOrder(node) {
+  const fulfillmentMap = {
+    FULFILLED: 'fulfilled',
+    PARTIALLY_FULFILLED: 'partial',
+    IN_PROGRESS: 'partial',
+    UNFULFILLED: 'unfulfilled',
+    ON_HOLD: 'unfulfilled',
+    SCHEDULED: 'unfulfilled',
+    PENDING_FULFILLMENT: 'unfulfilled',
+    OPEN: 'unfulfilled',
+    RESTOCKED: 'restocked',
+  }
+  const money = node?.totalPriceSet?.shopMoney || {}
+  return {
+    name: node?.name,
+    created_at: node?.createdAt,
+    total_price: money.amount,
+    currency: money.currencyCode,
+    financial_status: (node?.displayFinancialStatus || '').toLowerCase() || 'inconnu',
+    fulfillment_status:
+      fulfillmentMap[node?.displayFulfillmentStatus] || (node?.displayFulfillmentStatus || '').toLowerCase() || null,
+    email: node?.email,
+    line_items: (node?.lineItems?.edges || []).map(({ node: li }) => ({
+      title: li.title,
+      variant_title: li.variantTitle,
+      quantity: li.quantity,
+      price: li?.originalUnitPriceSet?.shopMoney?.amount,
+    })),
+    fulfillments: (node?.fulfillments || []).map((f) => {
+      const ti = (f.trackingInfo || [])[0] || {}
+      return { status: f.status, tracking_number: ti.number, tracking_url: ti.url, tracking_company: ti.company }
+    }),
+    shipping_address: node?.shippingAddress
+      ? { city: node.shippingAddress.city, country: node.shippingAddress.country }
+      : null,
+    refunds: [],
   }
 }
 
