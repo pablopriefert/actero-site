@@ -20,9 +20,18 @@ Affiche ton plan, son prix, et la date de premier paiement. Bouton **Gérer mon 
 
 ### Si tu es en essai
 
-Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan, sans carte bancaire.
+Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan.
 
-À la fin de l'essai (7 jours par défaut), tu repasses automatiquement en plan Free si tu n'as pas saisi de moyen de paiement.
+<Note>
+Ta carte est demandée **au démarrage de l'essai** (dans la modale de paiement) mais tu n'es débité qu'à la fin des 7 jours. Sans carte enregistrée, l'essai ne peut pas commencer — c'est ce qui garantit qu'on ne t'oublie pas au passage payant.
+</Note>
+
+À la fin de l'essai (7 jours par défaut) :
+
+- **Tu as une carte valide** → premier paiement automatique, tu passes en plan payant.
+- **Ta carte est invalide ou expirée** → l'abonnement est annulé automatiquement, tu repasses en plan Free sans surprise (Stripe ne retente pas indéfiniment).
+
+Tu peux annuler à tout moment pendant l'essai via **Gérer mon abonnement** — aucun débit ne sera effectué.
 
 ## Section 2 — Consommation du mois
 
