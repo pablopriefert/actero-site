@@ -5,6 +5,7 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/install.js';
 import { trackServerEvent } from './lib/amplitude.js';
+import { planUpdateFromSubscription } from './lib/subscription-plan.js';
 
 export const maxDuration = 60;
 
@@ -704,28 +705,15 @@ async function handler(req, res) {
       try {
         const clientId = subscription.metadata?.client_id;
         if (clientId) {
-          const updateData = {};
-          // Detect plan change via price lookup
-          const priceId = subscription.items?.data?.[0]?.price?.id;
-          if (priceId) {
-            const priceToplan = {};
-            if (process.env.STRIPE_PRICE_STARTER_MONTHLY) priceToplan[process.env.STRIPE_PRICE_STARTER_MONTHLY] = 'starter';
-            if (process.env.STRIPE_PRICE_STARTER_ANNUAL) priceToplan[process.env.STRIPE_PRICE_STARTER_ANNUAL] = 'starter';
-            if (process.env.STRIPE_PRICE_PRO_MONTHLY) priceToplan[process.env.STRIPE_PRICE_PRO_MONTHLY] = 'pro';
-            if (process.env.STRIPE_PRICE_PRO_ANNUAL) priceToplan[process.env.STRIPE_PRICE_PRO_ANNUAL] = 'pro';
-            const newPlan = priceToplan[priceId];
-            if (newPlan) updateData.plan = newPlan;
-          }
-          // Update trial_ends_at if trial changed
-          if (subscription.trial_end) {
-            updateData.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString();
-          }
-          // Detect cancellation
-          if (subscription.status === 'canceled' || subscription.status === 'unpaid') {
-            updateData.status = 'inactive';
-          } else if (subscription.status === 'active') {
-            updateData.status = 'active';
-          }
+          const priceToplan = {};
+          if (process.env.STRIPE_PRICE_STARTER_MONTHLY) priceToplan[process.env.STRIPE_PRICE_STARTER_MONTHLY] = 'starter';
+          if (process.env.STRIPE_PRICE_STARTER_ANNUAL) priceToplan[process.env.STRIPE_PRICE_STARTER_ANNUAL] = 'starter';
+          if (process.env.STRIPE_PRICE_PRO_MONTHLY) priceToplan[process.env.STRIPE_PRICE_PRO_MONTHLY] = 'pro';
+          if (process.env.STRIPE_PRICE_PRO_ANNUAL) priceToplan[process.env.STRIPE_PRICE_PRO_ANNUAL] = 'pro';
+          // Grant a paid plan ONLY when a real payment method is on file — a
+          // card-less trial must not unlock the plan (0 MRR bug). See
+          // api/lib/subscription-plan.js.
+          const updateData = planUpdateFromSubscription(subscription, priceToplan);
 
           if (Object.keys(updateData).length > 0) {
             await supabase.from('clients').update(updateData).eq('id', clientId);

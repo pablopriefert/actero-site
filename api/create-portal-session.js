@@ -37,22 +37,34 @@ async function handler(req, res) {
   }
 
   try {
-    // Find Stripe customer ID from funnel_clients
-    const { data: funnel } = await supabaseAdmin
-      .from('funnel_clients')
+    // The Stripe customer id lives on clients.stripe_customer_id (set by the
+    // billing flow). Fall back to funnel_clients for legacy funnel signups.
+    let stripeCustomerId = null;
+    const { data: clientRow } = await supabaseAdmin
+      .from('clients')
       .select('stripe_customer_id')
-      .eq('onboarded_client_id', client_id)
-      .not('stripe_customer_id', 'is', null)
-      .limit(1)
-      .single();
+      .eq('id', client_id)
+      .maybeSingle();
+    stripeCustomerId = clientRow?.stripe_customer_id || null;
 
-    if (!funnel?.stripe_customer_id) {
+    if (!stripeCustomerId) {
+      const { data: funnel } = await supabaseAdmin
+        .from('funnel_clients')
+        .select('stripe_customer_id')
+        .eq('onboarded_client_id', client_id)
+        .not('stripe_customer_id', 'is', null)
+        .limit(1)
+        .maybeSingle();
+      stripeCustomerId = funnel?.stripe_customer_id || null;
+    }
+
+    if (!stripeCustomerId) {
       return res.status(404).json({ error: 'No Stripe customer found for this client' });
     }
 
     // Create a Stripe Customer Portal session
     const session = await stripe.billingPortal.sessions.create({
-      customer: funnel.stripe_customer_id,
+      customer: stripeCustomerId,
       return_url: `${process.env.SITE_URL || 'https://actero.fr'}/client/profile`,
     });
 

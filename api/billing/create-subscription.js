@@ -198,7 +198,13 @@ async function handler(req, res) {
         ...(promo_code ? { promo_code } : {}),
       },
     };
-    if (trialDays) subscriptionParams.trial_period_days = trialDays;
+    if (trialDays) {
+      subscriptionParams.trial_period_days = trialDays;
+      // If the merchant never confirms the setup-intent (no card on file), let
+      // the trial cancel itself at the end instead of leaving a dangling,
+      // unpayable subscription around forever.
+      subscriptionParams.trial_settings = { end_behavior: { missing_payment_method: 'cancel' } };
+    }
     if (discounts) subscriptionParams.discounts = discounts;
 
     const subscription = await stripe.subscriptions.create(subscriptionParams);
