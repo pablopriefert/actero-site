@@ -9,6 +9,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 import { PLANS, PLAN_ORDER, getPlanConfig } from '../../lib/plans'
+import { resolveUpgrade } from '../../lib/billing-router'
 import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
@@ -172,6 +173,13 @@ export const ClientBillingView = ({ theme: _theme }) => {
     setUpgradingPlan(targetPlan)
     try {
       const { data: { session } } = await supabase.auth.getSession()
+      // Shopify-installed merchants must be billed via Shopify Billing (App
+      // Store policy 1.2); direct signups fall through to Stripe below.
+      const routed = await resolveUpgrade({
+        token: session?.access_token, clientId: client?.id, targetPlan, billingPeriod,
+      })
+      if (routed.channel === 'shopify') { window.location.assign(routed.url); return }
+      if (routed.channel === 'error') { toast.error(routed.message); setUpgradingPlan(null); return }
       const res = await fetch('/api/billing/upgrade', {
         method: 'POST',
         headers: {

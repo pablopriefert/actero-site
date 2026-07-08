@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Check, Gift, Loader2, Rocket, Sparkles } from "lucide-react";
 import { Logo } from "../components/layout/Logo";
 import { PLANS, PLAN_ORDER } from "../lib/plans";
+import { resolveUpgrade } from "../lib/billing-router";
 import { SEO } from "../components/SEO";
 import { supabase } from "../lib/supabase";
 
@@ -115,6 +116,14 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           link = { client_id: newClient.id };
         }
       }
+
+      // Shopify-installed merchants must be billed via Shopify Billing (App
+      // Store policy 1.2); direct signups fall through to Stripe below.
+      const routed = await resolveUpgrade({
+        token: session.access_token, clientId: link.client_id, targetPlan: planId, billingPeriod: "monthly",
+      });
+      if (routed.channel === "shopify") { window.location.assign(routed.url); return; }
+      if (routed.channel === "error") { setError(routed.message); setLoading(null); return; }
 
       const res = await fetch("/api/billing/upgrade", {
         method: "POST",
