@@ -19,9 +19,9 @@ function handler(req, res) {
   // - read_products / read_inventory   → product Q&A, stock answers
   // - read_checkouts                   → abandoned-cart playbook
   // - read_returns                     → return-policy answers
-  // - read_themes / write_themes       → automatic widget injection into
-  //                                       the active theme via assets.json
-  //                                       (see api/engine/shopify-widget.js)
+  //
+  // No theme scopes: the chat widget installs via the theme app extension
+  // (extensions/actero-widget), not the Asset/Theme API (App Store 5.1.1).
   const requiredScopes = [
     'read_orders',
     'read_customers',
@@ -30,8 +30,6 @@ function handler(req, res) {
     'read_checkouts',
     'read_inventory',
     'read_returns',
-    'read_themes',
-    'write_themes',
   ].join(',');
 
   // Optional scopes — the merchant can decline these without breaking the

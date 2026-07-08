@@ -23,10 +23,11 @@ embedded = false
 name = "Actero"
 
 [access_scopes]
-# REQUIRED — every feature of the agent depends on these. read_themes /
-# write_themes are mandatory because api/engine/shopify-widget.js injects
-# the chat widget into the merchant's theme via the Themes API.
-scopes = "read_orders,read_customers,read_products,read_fulfillments,read_checkouts,read_inventory,read_returns,read_themes,write_themes"
+# REQUIRED — every feature of the agent depends on these. The chat widget now
+# installs via the theme app extension (extensions/actero-widget), NOT the
+# Asset/Theme API, so read_themes/write_themes are no longer requested
+# (App Store 5.1.1 + scope minimization).
+scopes = "read_orders,read_customers,read_products,read_fulfillments,read_checkouts,read_inventory,read_returns"
 
 # OPTIONAL — the merchant can decline these without breaking install. Power
 # features (upsells, live shipping rates) light up automatically when the

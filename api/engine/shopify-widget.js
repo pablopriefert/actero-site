@@ -1,31 +1,22 @@
 /**
- * Actero Engine — Shopify Widget Auto-Install (LEGACY)
+ * Actero Engine — Shopify Widget Install (theme app extension only)
  *
- * Automatically installs/uninstalls the Actero chat widget on a Shopify
- * store by editing the active theme's layout/theme.liquid via the Asset
- * API. Kept for legacy merchants installed before the theme app extension
- * shipped (May 2026).
+ * The Actero chat widget installs exclusively via the theme app extension at
+ * extensions/actero-widget/ — the merchant enables the "Actero AI Support"
+ * app-embed block from their Theme Editor. Shopify App Store policy 5.1.1
+ * forbids editing theme files through the Asset/Theme API.
  *
- * NEW INSTALLS use the theme app extension at extensions/actero-widget/
- * — the merchant enables the "Actero AI Support" block from their Theme
- * Editor and the script tag is injected via Shopify's native extension
- * surface (not the Asset API). Shopify App Store policy 5.1.1 mandates
- * theme app extensions for new public apps.
- *
- * This endpoint stays available so old merchants can still trigger
- * install/uninstall from their dashboard if they don't want to migrate.
- * Do NOT call it from the post-OAuth onboarding flow for new installs.
+ * This endpoint used to inject the widget into layout/theme.liquid via the
+ * Asset API; that path has been removed. It now only returns the theme-editor
+ * deep link so the dashboard can guide the merchant to the app-embed block.
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
-import { decryptToken } from '../lib/crypto.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
-
-const WIDGET_TAG = '<!-- ACTERO-WIDGET -->'
 
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -36,122 +27,30 @@ async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) return res.status(401).json({ error: 'Non autorise' })
 
-  const { action, client_id } = req.body
+  const { client_id } = req.body || {}
   if (!client_id) return res.status(400).json({ error: 'client_id requis' })
-  if (!['install', 'uninstall'].includes(action)) return res.status(400).json({ error: 'action: install ou uninstall' })
 
-  // Get Shopify credentials
-  const { data: shopify } = await supabase
-    .from('client_shopify_connections')
-    .select('shop_domain, access_token')
-    .eq('client_id', client_id)
-    .maybeSingle()
-
-  const shopifyToken = decryptToken(shopify?.access_token)
-  if (!shopifyToken) {
-    return res.status(400).json({ error: 'Shopify non connecte. Connectez votre boutique d\'abord.' })
-  }
-
-  const baseUrl = `https://${shopify.shop_domain}/admin/api/2025-01`
-  const headers = {
-    'X-Shopify-Access-Token': shopifyToken,
-    'Content-Type': 'application/json',
-  }
-
+  // App Store policy 5.1.1: apps must install via a theme app extension, NOT by
+  // editing theme files through the Asset/Theme API. This endpoint no longer
+  // touches the Themes API — it returns the theme-editor deep link so the
+  // merchant enables the "Actero AI Support" app-embed block themselves.
   try {
-    // 1. Get the active theme
-    const themesRes = await fetch(`${baseUrl}/themes.json`, { headers })
-    if (!themesRes.ok) throw new Error('Impossible de recuperer les themes Shopify')
-    const { themes } = await themesRes.json()
-    const activeTheme = themes.find(t => t.role === 'main')
-    if (!activeTheme) throw new Error('Aucun theme actif trouve')
-
-    // 2. Get theme.liquid content
-    const assetKey = 'layout/theme.liquid'
-    const assetRes = await fetch(`${baseUrl}/themes/${activeTheme.id}/assets.json?asset[key]=${assetKey}`, { headers })
-    if (!assetRes.ok) throw new Error('Impossible de lire theme.liquid')
-    const { asset } = await assetRes.json()
-    let content = asset.value
-
-    // Resolve a real widget API key (same precedence as the widget endpoint).
-    // Embedding clients.id directly is the legacy lower-trust path — only
-    // fall back to it if the client has no key at all (logged for migration
-    // tracking). New/re-injected themes now ship a proper rotating key.
-    let widgetKey = null
-    const { data: apiKeyRow } = await supabase
-      .from('client_api_keys')
-      .select('key_value')
+    const { data: shopify } = await supabase
+      .from('client_shopify_connections')
+      .select('shop_domain')
       .eq('client_id', client_id)
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
       .maybeSingle()
-    if (apiKeyRow?.key_value) {
-      widgetKey = apiKeyRow.key_value
-    } else {
-      const { data: settingsRow } = await supabase
-        .from('client_settings')
-        .select('widget_api_key')
-        .eq('client_id', client_id)
-        .maybeSingle()
-      widgetKey = settingsRow?.widget_api_key || null
-    }
-    if (!widgetKey) {
-      console.warn(`[shopify-widget] No api_key for client ${client_id} — embedding clients.id (legacy fallback). Backfill a widget_api_key to remove this.`)
-      widgetKey = client_id
-    }
 
-    const cacheBuster = Date.now()
-    const widgetScript = `\n${WIDGET_TAG}\n<script src="https://actero.fr/widget.js?v=${cacheBuster}" data-actero-key="${widgetKey}"></script>\n${WIDGET_TAG}`
-
-    if (action === 'install') {
-      // Check if already installed — update the widget script to latest version
-      if (content.includes(WIDGET_TAG)) {
-        // Replace existing widget with fresh cache-busted version
-        const existingRegex = new RegExp(`\\n${WIDGET_TAG}\\n[\\s\\S]*?\\n${WIDGET_TAG}`)
-        content = content.replace(existingRegex, widgetScript)
-        await fetch(`${baseUrl}/themes/${activeTheme.id}/assets.json`, {
-          method: 'PUT',
-          headers,
-          body: JSON.stringify({ asset: { key: 'layout/theme.liquid', value: content } }),
-        })
-        return res.status(200).json({ success: true, message: 'Widget mis a jour' })
-      }
-
-      // Inject before </body>
-      if (content.includes('</body>')) {
-        content = content.replace('</body>', `${widgetScript}\n</body>`)
-      } else {
-        // Fallback: append at end
-        content += widgetScript
-      }
-    } else {
-      // Uninstall: remove widget block
-      const regex = new RegExp(`\\n?${WIDGET_TAG.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]*?${WIDGET_TAG.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n?`, 'g')
-      content = content.replace(regex, '')
-    }
-
-    // 3. Save the modified theme.liquid
-    const saveRes = await fetch(`${baseUrl}/themes/${activeTheme.id}/assets.json`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        asset: { key: assetKey, value: content },
-      }),
-    })
-
-    if (!saveRes.ok) {
-      const err = await saveRes.text()
-      throw new Error(`Erreur Shopify: ${err}`)
-    }
+    const deepLink = shopify?.shop_domain
+      ? `https://${shopify.shop_domain}/admin/themes/current/editor?context=apps`
+      : null
 
     return res.status(200).json({
-      success: true,
-      action,
-      message: action === 'install'
-        ? 'Widget installe sur votre boutique Shopify'
-        : 'Widget retire de votre boutique Shopify',
-      theme: activeTheme.name,
+      success: false,
+      method: 'theme_app_extension',
+      message:
+        "L'installation se fait via l'extension de thème Actero : dans l'éditeur de thème, activez le bloc « Actero AI Support ».",
+      deepLink,
     })
   } catch (err) {
     console.error('[shopify-widget] Error:', err)
