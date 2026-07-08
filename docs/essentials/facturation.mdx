@@ -1,6 +1,6 @@
 ---
-title: "Facturation"
-description: "Comprends ton plan, suis ta consommation, change de palier, gère tes factures Stripe."
+title: "Facturation Actero : plans, quotas, upgrade Stripe"
+description: "Gère ton abonnement Actero : plans Starter/Pro/Entreprise, quotas tickets, upgrade dans la modale Stripe intégrée, factures et crédits ponctuels."
 ---
 
 Tout ce qui concerne ton abonnement Actero se passe dans **Système → Facturation**. Cette page est la seule visible aussi par les membres avec le rôle **Finance**.
@@ -20,9 +20,18 @@ Affiche ton plan, son prix, et la date de premier paiement. Bouton **Gérer mon 
 
 ### Si tu es en essai
 
-Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan, sans carte bancaire.
+Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan.
 
-À la fin de l'essai (7 jours par défaut), tu repasses automatiquement en plan Free si tu n'as pas saisi de moyen de paiement.
+<Note>
+Ta carte est demandée **au démarrage de l'essai** (dans la modale de paiement) mais tu n'es débité qu'à la fin des 7 jours. Sans carte enregistrée, l'essai ne peut pas commencer — c'est ce qui garantit qu'on ne t'oublie pas au passage payant.
+</Note>
+
+À la fin de l'essai (7 jours par défaut) :
+
+- **Tu as une carte valide** → premier paiement automatique, tu passes en plan payant.
+- **Ta carte est invalide ou expirée** → l'abonnement est annulé automatiquement, tu repasses en plan Free sans surprise (Stripe ne retente pas indéfiniment).
+
+Tu peux annuler à tout moment pendant l'essai via **Gérer mon abonnement** — aucun débit ne sera effectué.
 
 ## Section 2 — Consommation du mois
 
@@ -61,21 +70,34 @@ L'annuel donne **-20 %** sur le prix affiché. Tu paies une fois pour l'année, 
   <Step title="Choisis ton nouveau plan">
     Clique sur le bouton de la carte (ex : "Passer au Pro — Essai 7j gratuit").
   </Step>
-  <Step title="Tu es redirigé vers Stripe Checkout">
-    Saisis ta carte. Si c'est ton premier paiement Actero, l'essai de 7 jours démarre.
+  <Step title="Paie dans la modale intégrée">
+    Une modale on-brand s'ouvre : à gauche, le récap de ton plan (prix, essai, ce qui est inclus) ; à droite, le champ email et le formulaire de carte sécurisé par Stripe. Saisis ta carte (3D Secure géré automatiquement si ta banque le demande). Si c'est ton premier paiement Actero, l'essai de 7 jours démarre — tu es débité à la fin de l'essai seulement.
   </Step>
   <Step title="Retour automatique au dashboard">
     Ton plan est mis à jour, tu débloques immédiatement les nouvelles features.
   </Step>
 </Steps>
 
+<Note>
+Tu restes sur actero.fr pendant tout le paiement — pas de redirection vers une page Stripe externe. Tes données de carte ne transitent jamais par nos serveurs : le formulaire est un iframe Stripe.
+</Note>
+
 ### Cas particulier : upgrade instantané
 
-Si tu as déjà une carte enregistrée et que tu changes de plan sans changer ton mode de paiement, l'upgrade est instantané (pas de redirect Stripe). Le prorata est calculé automatiquement par Stripe.
+Si tu as déjà une carte enregistrée et que tu changes de plan sans changer ton mode de paiement, l'upgrade est instantané (pas de modale de paiement). Le prorata est calculé automatiquement par Stripe et ton nouveau plan est actif immédiatement.
+
+### Marchands Shopify
+
+Si tu as installé Actero depuis le Shopify App Store, le bouton d'upgrade te redirige vers **Shopify Billing** (facturation via ton compte Shopify) et non vers la modale Stripe. C'est requis par les règles de l'App Store — ta facture Actero apparaît sur ta facture Shopify mensuelle.
 
 ### Downgrade
 
-Pour passer à un plan inférieur, ouvre le portail Stripe via **Gérer mon abonnement**. Le downgrade prend effet **à la fin de ton cycle de facturation actuel** — tu ne perds pas les features payées d'avance.
+Deux façons de passer à un plan inférieur :
+
+- **Depuis la carte du plan** : chaque plan sous ton plan actuel affiche un bouton **Rétrograder**. Un clic ouvre directement le portail Stripe sur la bonne étape de rétrogradation.
+- **Depuis Gérer mon abonnement** : ouvre le portail Stripe et choisis le plan cible dans la liste.
+
+Le downgrade prend effet **à la fin de ton cycle de facturation actuel** — tu ne perds pas les features payées d'avance. Stripe calcule automatiquement le prorata (avoir ou report de crédit selon ton cycle).
 
 ### Plan Entreprise
 
@@ -117,7 +139,10 @@ Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
     Stripe retente automatiquement 3 fois sur 7 jours. Pendant ce temps, tu reçois un email à chaque échec. Mets à jour ta carte via **Gérer mon abonnement**. Si tous les retries échouent, ton compte passe en `past_due` puis en `unpaid` (suspension de l'agent).
   </Accordion>
   <Accordion title="Puis-je payer par virement (SEPA) ?">
-    Oui sur le plan Entreprise. Sur Starter et Pro, c'est carte uniquement (Stripe Checkout).
+    Oui sur le plan Entreprise. Sur Starter et Pro, c'est carte uniquement (paiement Stripe intégré sur actero.fr).
+  </Accordion>
+  <Accordion title="Le formulaire de paiement ne s'affiche pas — que faire ?">
+    Si la modale de paiement ne se charge pas (extension bloquante, navigateur ancien), le système bascule automatiquement sur Stripe Checkout hébergé — tu es redirigé sur une page Stripe pour finir le paiement. Le résultat est identique côté abonnement.
   </Accordion>
   <Accordion title="Mon quota tickets — c'est quoi exactement ?">
     Un "ticket" = une conversation traitée par l'agent (peu importe le canal : email, chat, helpdesk). Une conversation à plusieurs allers-retours = 1 ticket. Un panier abandonné relancé = 1 ticket. Un appel vocal = 1 ticket + minutes vocales facturées à part.
