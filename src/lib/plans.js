@@ -167,6 +167,28 @@ export function getPlanConfig(planId) {
   return PLANS[planId] || PLANS.free
 }
 
+/**
+ * Three honest, one-line selling points for a plan — derived from real limits,
+ * so the payment recap never claims a feature that isn't live. Used by the
+ * on-site payment modal.
+ */
+export function getPlanHighlights(planId) {
+  const plan = getPlanConfig(planId)
+  const tickets = plan.limits.tickets_per_month
+  const workflows = plan.limits.workflows_active
+  const supportLabel = {
+    account_manager: 'Account manager dédié',
+    priority_24h: 'Support prioritaire 24h',
+    email_48h: 'Support email',
+    docs: 'Documentation',
+  }[plan.support] || 'Support'
+  return [
+    `${Number(tickets).toLocaleString('fr-FR')} tickets/mois`,
+    workflows === Infinity || workflows < 0 ? 'Workflows illimités' : `${workflows} workflows`,
+    supportLabel,
+  ]
+}
+
 export function canAccess(planId, feature) {
   const plan = getPlanConfig(planId)
   return plan.features[feature] === true || plan.features[feature] === 'full' || plan.features[feature] === 'custom'

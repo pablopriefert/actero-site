@@ -8,8 +8,10 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
-import { PLANS, PLAN_ORDER, getPlanConfig } from '../../lib/plans'
+import { PLANS, PLAN_ORDER, getPlanConfig, getPlanHighlights } from '../../lib/plans'
 import { resolveUpgrade } from '../../lib/billing-router'
+import { PaymentModal } from '../billing/PaymentModal'
+import { hasStripeElements } from '../../lib/stripe-client'
 import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
@@ -104,6 +106,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
   const [loadingPortal, setLoadingPortal] = useState(false)
   const [upgradingPlan, setUpgradingPlan] = useState(null)
   const [billingPeriod, setBillingPeriod] = useState('monthly')
+  const [payModal, setPayModal] = useState(null)
 
   // ── Fetch client record ───────────────────────────────────────
   const { data: client, isLoading } = useQuery({
@@ -180,6 +183,15 @@ export const ClientBillingView = ({ theme: _theme }) => {
       })
       if (routed.channel === 'shopify') { window.location.assign(routed.url); return }
       if (routed.channel === 'error') { toast.error(routed.message); setUpgradingPlan(null); return }
+
+      // On-site payment (Stripe Payment Element) when the publishable key is
+      // set — otherwise fall through to the hosted Checkout redirect below.
+      if (hasStripeElements()) {
+        setPayModal({ planId: targetPlan, clientId: client.id, token: session?.access_token })
+        setUpgradingPlan(null)
+        return
+      }
+
       const res = await fetch('/api/billing/upgrade', {
         method: 'POST',
         headers: {
@@ -561,6 +573,17 @@ export const ClientBillingView = ({ theme: _theme }) => {
           </div>
         )}
       </SectionCard>
+
+      <PaymentModal
+        open={!!payModal}
+        onClose={() => setPayModal(null)}
+        plan={payModal ? PLANS[payModal.planId] : null}
+        billingPeriod={billingPeriod}
+        highlights={payModal ? getPlanHighlights(payModal.planId) : []}
+        clientId={payModal?.clientId}
+        token={payModal?.token}
+        onSuccess={() => window.location.assign('/client/overview?upgrade=success')}
+      />
     </div>
   )
 }

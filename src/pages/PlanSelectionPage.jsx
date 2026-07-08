@@ -2,8 +2,10 @@ import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Gift, Loader2, Rocket, Sparkles } from "lucide-react";
 import { Logo } from "../components/layout/Logo";
-import { PLANS, PLAN_ORDER } from "../lib/plans";
+import { PLANS, PLAN_ORDER, getPlanHighlights } from "../lib/plans";
 import { resolveUpgrade } from "../lib/billing-router";
+import { PaymentModal } from "../components/billing/PaymentModal";
+import { hasStripeElements } from "../lib/stripe-client";
 import { SEO } from "../components/SEO";
 import { supabase } from "../lib/supabase";
 
@@ -28,6 +30,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
 
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
+  const [payModal, setPayModal] = useState(null);
 
   // Apply Startup discount (-50% first 6 months) for display
   const applyStartupDiscount = (monthlyPrice) => {
@@ -124,6 +127,14 @@ export const PlanSelectionPage = ({ onNavigate }) => {
       });
       if (routed.channel === "shopify") { window.location.assign(routed.url); return; }
       if (routed.channel === "error") { setError(routed.message); setLoading(null); return; }
+
+      // On-site payment (Stripe Payment Element) when the publishable key is
+      // set — otherwise fall through to the hosted Checkout redirect below.
+      if (hasStripeElements()) {
+        setPayModal({ planId, clientId: link.client_id, token: session.access_token });
+        setLoading(null);
+        return;
+      }
 
       const res = await fetch("/api/billing/upgrade", {
         method: "POST",
@@ -320,6 +331,18 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           )}
         </div>
       </div>
+
+      <PaymentModal
+        open={!!payModal}
+        onClose={() => setPayModal(null)}
+        plan={payModal ? PLANS[payModal.planId] : null}
+        billingPeriod="monthly"
+        highlights={payModal ? getPlanHighlights(payModal.planId) : []}
+        clientId={payModal?.clientId}
+        token={payModal?.token}
+        promoCode={promoCode}
+        onSuccess={() => onNavigate("/client/overview?upgrade=success")}
+      />
     </>
   );
 };
