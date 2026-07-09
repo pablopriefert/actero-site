@@ -104,7 +104,12 @@ async function _callInner(cfg, { systemPrompt, messages, maxTokens, model }, spa
           model,
           messages: fullMessages,
           max_completion_tokens: maxTokens,
-          reasoning_effort: REASONING_EFFORT,
+          // Only send reasoning_effort when it's a value the API accepts. Our
+          // default 'none' is NOT valid (OpenAI accepts minimal|low|medium|high)
+          // and 400s on some models — which would silently defeat failover.
+          ...(['minimal', 'low', 'medium', 'high'].includes(REASONING_EFFORT)
+            ? { reasoning_effort: REASONING_EFFORT }
+            : {}),
           response_format: { type: 'json_object' },
         }),
         signal: controller.signal,

@@ -13,32 +13,48 @@
  *  - enforcing "no two consecutive messages with the same role"
  */
 export function buildClaudeMessages({ conversationHistory, currentMessage }) {
-  let claudeMessages = []
-  const hasHistory = conversationHistory && conversationHistory.length > 1
+  const history = Array.isArray(conversationHistory) ? conversationHistory : []
 
-  if (hasHistory) {
-    const prevMessages = conversationHistory.slice(0, -1)
-    for (const msg of prevMessages) {
-      if (msg.role === 'user') {
-        claudeMessages.push({ role: 'user', content: msg.content })
-      } else if (msg.role === 'assistant') {
-        claudeMessages.push({
-          role: 'assistant',
-          content: `{"response": ${JSON.stringify(msg.content)}, "confidence": 0.9, "should_escalate": false, "detected_intent": "general", "sentiment_score": 7, "injection_detected": false}`,
-        })
-      }
-    }
+  // Callers differ: the widget includes the current message as the LAST history
+  // entry, but the webhook's DB-rebuild path does NOT. Only drop a trailing
+  // entry when it actually IS the current user message — otherwise we'd delete
+  // a real prior turn and end up with two adjacent user turns (Anthropic 400).
+  const last = history[history.length - 1]
+  const prev =
+    last && last.role === 'user' && last.content === currentMessage
+      ? history.slice(0, -1)
+      : history
+  const hasHistory = prev.length > 0
 
-    while (claudeMessages.length > 0 && claudeMessages[0].role !== 'user') {
-      claudeMessages.shift()
+  // Map prior turns (assistant wrapped in the JSON contract), then always
+  // append the current user message.
+  const seq = []
+  for (const msg of prev) {
+    if (msg.role === 'user') {
+      seq.push({ role: 'user', content: msg.content })
+    } else if (msg.role === 'assistant') {
+      seq.push({
+        role: 'assistant',
+        content: `{"response": ${JSON.stringify(msg.content)}, "confidence": 0.9, "should_escalate": false, "detected_intent": "general", "sentiment_score": 7, "injection_detected": false}`,
+      })
     }
-    claudeMessages = claudeMessages.filter((msg, i) => {
-      if (i === 0) return true
-      return msg.role !== claudeMessages[i - 1].role
-    })
+  }
+  seq.push({ role: 'user', content: currentMessage })
+
+  // Fold into a strictly-alternating sequence; on a same-role run keep the
+  // NEWER message so the current turn is never dropped.
+  const claudeMessages = []
+  for (const m of seq) {
+    if (claudeMessages.length && claudeMessages[claudeMessages.length - 1].role === m.role) {
+      claudeMessages[claudeMessages.length - 1] = m
+    } else {
+      claudeMessages.push(m)
+    }
+  }
+  while (claudeMessages.length && claudeMessages[0].role !== 'user') {
+    claudeMessages.shift()
   }
 
-  claudeMessages.push({ role: 'user', content: currentMessage })
   return { claudeMessages, hasHistory }
 }
 

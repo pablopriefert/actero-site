@@ -276,25 +276,33 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
     let proposedResponse = null
     try {
       const responsePrompt = buildSystemPrompt(clientConfig) + memoryContext
-      let lowConfMessages = []
-      if (conversationHistory && conversationHistory.length > 0) {
-        const prevMessages = conversationHistory.slice(0, -1)
-        for (const msg of prevMessages) {
-          if (msg.role === 'user') {
-            lowConfMessages.push({ role: 'user', content: msg.content })
-          } else if (msg.role === 'assistant') {
-            lowConfMessages.push({ role: 'assistant', content: msg.content })
+      const lowConfMessages = []
+      {
+        const hist = Array.isArray(conversationHistory) ? conversationHistory : []
+        const last = hist[hist.length - 1]
+        // Only drop the trailing entry when it IS the current message (widget
+        // path); the DB-rebuild path doesn't include it — otherwise we'd lose a
+        // real turn and create two adjacent user turns (Anthropic 400).
+        const prev = last && last.role === 'user' && last.content === normalized.message
+          ? hist.slice(0, -1)
+          : hist
+        const seq = []
+        for (const msg of prev) {
+          if (msg.role === 'user') seq.push({ role: 'user', content: msg.content })
+          else if (msg.role === 'assistant') seq.push({ role: 'assistant', content: msg.content })
+        }
+        seq.push({ role: 'user', content: normalized.message })
+        for (const m of seq) {
+          if (lowConfMessages.length && lowConfMessages[lowConfMessages.length - 1].role === m.role) {
+            lowConfMessages[lowConfMessages.length - 1] = m
+          } else {
+            lowConfMessages.push(m)
           }
         }
-        while (lowConfMessages.length > 0 && lowConfMessages[0].role !== 'user') {
+        while (lowConfMessages.length && lowConfMessages[0].role !== 'user') {
           lowConfMessages.shift()
         }
-        lowConfMessages = lowConfMessages.filter((msg, i) => {
-          if (i === 0) return true
-          return msg.role !== lowConfMessages[i - 1].role
-        })
       }
-      lowConfMessages.push({ role: 'user', content: normalized.message })
       const respResult = await callClaude({
         systemPrompt: responsePrompt,
         messages: lowConfMessages,

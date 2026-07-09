@@ -48,14 +48,22 @@ async function buildCards({ brainResult, clientId, message, email, isTest }) {
   //    if a real order is actually found.
   // Also fire on a bare order-number (e.g. after the guided "track my order"
   // prompt the customer just types "#1234"). Self-gating: no order found → no card.
-  const orderNumberLike = /#\s*\d{3,8}|\b\d{4,8}\b/.test(msg)
-  const orderIntent = ORDER_CARD_CLASSES.includes(brainResult.classification) || ORDER_INTENT_RE.test(msg) || orderNumberLike
+  // Only treat as an order number when it's an EXPLICIT reference (#1234 or
+  // "commande 1234") — never a bare 4-8 digit number, which misfires on prices,
+  // years or quantities and would surface a *different* customer's order.
+  const explicitOrderRef =
+    /#\s*\d{3,8}\b/.test(msg) ||
+    /\b(?:commande|order|n[°o]|num[ée]ro)\s*#?\s*\d{3,8}\b/i.test(msg)
+  const orderIntent = ORDER_CARD_CLASSES.includes(brainResult.classification) || ORDER_INTENT_RE.test(msg) || explicitOrderRef
   if (!isTest && orderIntent) {
     try {
-      const orderId = (String(message).match(/#?\s*(\d{3,8})/) || [])[1] || null
+      const orderId = explicitOrderRef ? ((String(message).match(/#?\s*(\d{3,8})/) || [])[1] || null) : null
       const orders = await lookupOrder(supabase, { clientId, orderId, customerEmail: email || null })
       const o = Array.isArray(orders) ? orders[0] : null
-      if (o) {
+      // Ownership guard: if we know the shopper's email and the resolved order
+      // belongs to a different email, do NOT reveal it (PII / tracking leak).
+      const ownsOrder = o && (!email || !o.email || String(o.email).toLowerCase() === String(email).toLowerCase())
+      if (o && ownsOrder) {
         cards.push({
           type: 'order_status',
           orderName: o.orderName || null,
