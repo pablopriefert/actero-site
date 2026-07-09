@@ -32,11 +32,14 @@ async function handler(req, res) {
       const supabase = createClient(supabaseUrl, supabaseKey, {
         auth: { persistSession: false },
       })
+      // Cheap liveness probe: HEAD select (no COUNT(*) scan) with a 5s budget
+      // (maxDuration is 10s). The old 2s + exact-count tripped false 503s on
+      // cold starts as the clients table grew.
       const controller = new AbortController()
-      const timer = setTimeout(() => controller.abort(), 2000)
+      const timer = setTimeout(() => controller.abort(), 5000)
       const { error } = await supabase
         .from('clients')
-        .select('id', { count: 'exact', head: true })
+        .select('id', { head: true })
         .limit(1)
         .abortSignal(controller.signal)
       clearTimeout(timer)
