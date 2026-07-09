@@ -225,10 +225,15 @@ async function handler(req, res) {
 
             console.log(`[CREDITS] +${credits} credits added to client ${clientId} (balance: ${newBalance})`);
           }
+          return res.status(200).json({ received: true });
         } catch (err) {
           console.error('[CREDITS] Failed to add credits:', err);
+          // Release the idempotency claim so Stripe's retry can reprocess —
+          // otherwise the customer is charged but the credits are lost forever.
+          await supabase.from('webhook_events_processed').delete()
+            .eq('provider', 'stripe').eq('event_id', event.id);
+          return res.status(500).json({ error: 'credit_processing_failed' });
         }
-        return res.status(200).json({ received: true });
       }
 
       // --- SaaS self-service signup ---

@@ -101,7 +101,7 @@ async function handler(req, res) {
     return res.status(200).json({ checkout_url: session.url, session_id: session.id })
   } catch (err) {
     console.error('[credits/checkout]', err.message)
-    return res.status(500).json({ error: err.message })
+    return res.status(500).json({ error: 'Paiement indisponible pour le moment. Réessayez.' })
   }
 }
 

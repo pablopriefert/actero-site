@@ -147,6 +147,7 @@ async function handler(req, res) {
               }],
               proration_behavior: 'create_prorations',
               metadata: {
+                client_id: client_id, // customer.subscription.updated keys on this
                 actero_client_id: client_id,
                 upgrade_from: currentPlan,
                 upgrade_to: target_plan,

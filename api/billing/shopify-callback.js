@@ -113,8 +113,9 @@ async function handler(req, res) {
     )
   }
 
-  // Query Shopify for the actual status.
+  // Query Shopify for the actual status AND name.
   let status = null
+  let subscriptionNode = null
   try {
     const resp = await fetch(
       `https://${connection.shop_domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`,
@@ -132,7 +133,8 @@ async function handler(req, res) {
       },
     )
     const json = await resp.json()
-    status = json?.data?.node?.status || null
+    subscriptionNode = json?.data?.node || null
+    status = subscriptionNode?.status || null
   } catch (err) {
     console.error('[shopify-callback] verify failed:', err.message)
     return res.redirect(
@@ -141,8 +143,24 @@ async function handler(req, res) {
     )
   }
 
-  if (!status || (status !== 'ACTIVE' && status !== 'PENDING')) {
-    // Merchant declined, or charge expired before acceptance.
+  // SECURITY: derive the plan from the VERIFIED subscription name
+  // ("Actero Pro (monthly)") — never trust the `plan` query param, which the
+  // merchant controls and could set to a higher tier than they pay for.
+  const KNOWN_PLANS = ['starter', 'pro']
+  const nameMatch = /^Actero\s+([A-Za-z]+)\s*\((monthly|annual)\)/i.exec(
+    subscriptionNode?.name || '',
+  )
+  const verifiedPlan = nameMatch ? nameMatch[1].toLowerCase() : null
+  const verifiedPeriod = nameMatch ? nameMatch[2].toLowerCase() : period || 'monthly'
+
+  if (status === 'PENDING') {
+    // Charge created but not yet accepted/paid — do NOT grant. The
+    // app_subscriptions/update webhook flips the plan once it turns ACTIVE.
+    return res.redirect(302, buildRedirect(next, { billing_status: 'pending' }))
+  }
+
+  if (status !== 'ACTIVE' || !verifiedPlan || !KNOWN_PLANS.includes(verifiedPlan)) {
+    // Declined, expired, or an unrecognised subscription — clear pending, no grant.
     await supabase
       .from('clients')
       .update({ pending_shopify_subscription_id: null })
@@ -153,14 +171,12 @@ async function handler(req, res) {
     )
   }
 
-  // Charge is live — flip the plan and clear the pending id. We mirror the
-  // structure used by the Stripe path so the rest of the app doesn't care
-  // which billing rail funded the upgrade.
+  // Charge is ACTIVE and the plan is derived from the verified subscription.
   await supabase
     .from('clients')
     .update({
-      plan,
-      billing_period: period || 'monthly',
+      plan: verifiedPlan,
+      billing_period: verifiedPeriod,
       billing_provider: 'shopify',
       shopify_subscription_id: subscriptionGid,
       pending_shopify_subscription_id: null,
@@ -171,7 +187,7 @@ async function handler(req, res) {
     302,
     buildRedirect(next, {
       billing_status: 'active',
-      plan,
+      plan: verifiedPlan,
       provider: 'shopify',
     }),
   )

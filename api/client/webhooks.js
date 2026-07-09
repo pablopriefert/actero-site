@@ -28,10 +28,20 @@ async function requireClient(req, res) {
     .select('client_id')
     .eq('user_id', user.id)
     .maybeSingle()
-  if (!link?.client_id) { res.status(403).json({ error: 'Aucun client associé' }); return null }
+  // Fall back to clients.owner_user_id — some owners have no client_users row.
+  let clientId = link?.client_id || null
+  if (!clientId) {
+    const { data: owned } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('owner_user_id', user.id)
+      .maybeSingle()
+    clientId = owned?.id || null
+  }
+  if (!clientId) { res.status(403).json({ error: 'Aucun client associé' }); return null }
 
   // Plan gate: webhooks are Pro+
-  const { data: client } = await supabase.from('clients').select('plan, trial_ends_at').eq('id', link.client_id).maybeSingle()
+  const { data: client } = await supabase.from('clients').select('plan, trial_ends_at').eq('id', clientId).maybeSingle()
   const plan = client?.plan || 'free'
   const inTrial = client?.trial_ends_at && new Date(client.trial_ends_at) > new Date()
   if (!inTrial && !canAccessFeature(plan, 'api_webhooks')) {
@@ -39,7 +49,7 @@ async function requireClient(req, res) {
     return null
   }
 
-  return { user, clientId: link.client_id, plan }
+  return { user, clientId, plan }
 }
 
 async function handler(req, res) {
