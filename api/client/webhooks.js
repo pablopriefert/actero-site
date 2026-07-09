@@ -66,7 +66,7 @@ async function handler(req, res) {
       .eq('client_id', clientId)
       .order('created_at', { ascending: false })
       .limit(50)
-    if (error) return res.status(500).json({ error: error.message })
+    if (error) return res.status(500).json({ error: 'Erreur serveur, réessayez.' })
     return res.status(200).json({ deliveries: data || [] })
   }
 
@@ -77,7 +77,7 @@ async function handler(req, res) {
       .select('id, label, url, events, is_active, last_delivery_at, last_delivery_status, failure_count, created_at')
       .eq('client_id', clientId)
       .order('created_at', { ascending: false })
-    if (error) return res.status(500).json({ error: error.message })
+    if (error) return res.status(500).json({ error: 'Erreur serveur, réessayez.' })
     return res.status(200).json({ webhooks: data || [] })
   }
 
@@ -102,7 +102,7 @@ async function handler(req, res) {
       })
       .select()
       .single()
-    if (error) return res.status(500).json({ error: error.message })
+    if (error) return res.status(500).json({ error: 'Erreur serveur, réessayez.' })
     return res.status(201).json({ webhook: data })
   }
 
@@ -130,7 +130,7 @@ async function handler(req, res) {
       .eq('client_id', clientId)
       .select()
       .single()
-    if (error) return res.status(500).json({ error: error.message })
+    if (error) return res.status(500).json({ error: 'Erreur serveur, réessayez.' })
     return res.status(200).json({ webhook: data })
   }
 
@@ -143,7 +143,7 @@ async function handler(req, res) {
       .delete()
       .eq('id', id)
       .eq('client_id', clientId)
-    if (error) return res.status(500).json({ error: error.message })
+    if (error) return res.status(500).json({ error: 'Erreur serveur, réessayez.' })
     return res.status(200).json({ ok: true })
   }
 

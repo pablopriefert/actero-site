@@ -30,7 +30,7 @@ export const CreditsPurchase = ({ clientId }) => {
     queryKey: ['credits-balance', clientId],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      const res = await fetch('/api/credits/balance', {
+      const res = await fetch(`/api/credits/balance?client_id=${encodeURIComponent(clientId)}`, {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       })
       if (!res.ok) throw new Error('Erreur')
@@ -52,7 +52,7 @@ export const CreditsPurchase = ({ clientId }) => {
       const res = await fetch('/api/credits/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ amount }),
+        body: JSON.stringify({ amount, client_id: clientId }),
       })
       const result = await res.json()
       if (!res.ok) throw new Error(result.error)

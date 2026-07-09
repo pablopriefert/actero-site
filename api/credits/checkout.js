@@ -44,12 +44,40 @@ async function handler(req, res) {
   const { data: { user } } = await supabase.auth.getUser(token)
   if (!user) return res.status(401).json({ error: 'Non autorisé' })
 
-  const { data: link } = await supabase
-    .from('client_users')
-    .select('client_id, clients:client_id(id, brand_name, contact_email, stripe_customer_id)')
-    .eq('user_id', user.id)
+  // Resolve + verify the target client. Prefer an explicit client_id (verified
+  // against the caller) so multi-client users and owners without a client_users
+  // row both work; fall back to the caller's first membership otherwise.
+  const requested = req.body?.client_id || null
+  let clientId = null
+  if (requested) {
+    const { data: lk } = await supabase
+      .from('client_users').select('client_id')
+      .eq('user_id', user.id).eq('client_id', requested).maybeSingle()
+    if (lk) clientId = requested
+    else {
+      const { data: owned } = await supabase
+        .from('clients').select('id')
+        .eq('id', requested).eq('owner_user_id', user.id).maybeSingle()
+      if (owned) clientId = requested
+    }
+  } else {
+    const { data: lk } = await supabase
+      .from('client_users').select('client_id').eq('user_id', user.id).limit(1).maybeSingle()
+    clientId = lk?.client_id || null
+    if (!clientId) {
+      const { data: owned } = await supabase
+        .from('clients').select('id').eq('owner_user_id', user.id).limit(1).maybeSingle()
+      clientId = owned?.id || null
+    }
+  }
+  if (!clientId) return res.status(403).json({ error: 'Aucun client associé' })
+
+  const { data: client } = await supabase
+    .from('clients')
+    .select('id, brand_name, contact_email, stripe_customer_id')
+    .eq('id', clientId)
     .maybeSingle()
-  if (!link?.clients) return res.status(403).json({ error: 'Aucun client associé' })
+  if (!client) return res.status(403).json({ error: 'Aucun client associé' })
 
   const amount = Math.floor(Number(req.body?.amount) || 0)
   if (amount < 100 || amount > 50000) {
@@ -62,10 +90,10 @@ async function handler(req, res) {
   try {
     // Resolve a usable customer — heals an orphaned id (test↔live key change).
     const customerId = await getOrCreateStripeCustomer(stripe, supabase, {
-      clientId: link.clients.id,
-      currentId: link.clients.stripe_customer_id,
-      email: link.clients.contact_email,
-      name: link.clients.brand_name,
+      clientId: client.id,
+      currentId: client.stripe_customer_id,
+      email: client.contact_email,
+      name: client.brand_name,
     })
 
     const session = await stripe.checkout.sessions.create({
@@ -84,13 +112,13 @@ async function handler(req, res) {
       }],
       metadata: {
         type: 'credit_purchase',
-        client_id: link.clients.id,
+        client_id: client.id,
         credits: String(amount),
       },
       payment_intent_data: {
         metadata: {
           type: 'credit_purchase',
-          client_id: link.clients.id,
+          client_id: client.id,
           credits: String(amount),
         },
       },

@@ -39,7 +39,7 @@ export async function lookupOrder(supabase, { clientId, orderId, customerEmail }
   const gql = `query LookupOrders($q: String!, $n: Int!) {
     orders(first: $n, query: $q, sortKey: CREATED_AT, reverse: true) {
       edges { node {
-        name email createdAt
+        id name email createdAt
         displayFinancialStatus displayFulfillmentStatus
         totalPriceSet { shopMoney { amount currencyCode } }
         lineItems(first: 20) { edges { node { title quantity variantTitle originalUnitPriceSet { shopMoney { amount } } } } }
@@ -82,6 +82,7 @@ function mapGraphQLOrder(node) {
   }
   const money = node?.totalPriceSet?.shopMoney || {}
   return {
+    id: node?.id ? String(node.id).split('/').pop() : null,
     name: node?.name,
     created_at: node?.createdAt,
     total_price: money.amount,
@@ -138,6 +139,7 @@ function formatOrder(order) {
     : 'Non renseignee'
 
   return {
+    id: order.id || null,
     orderName: order.name || `#${order.order_number}`,
     orderDate: new Date(order.created_at).toLocaleDateString('fr-FR'),
     totalPrice: `${order.total_price} ${order.currency}`,

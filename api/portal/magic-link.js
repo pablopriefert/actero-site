@@ -114,8 +114,9 @@ async function handler(req, res) {
     .maybeSingle();
 
   const merchantName = client?.brand_name || 'votre boutique';
-  const inTrial = client?.trial_ends_at && new Date(client.trial_ends_at) > new Date();
-  const canCustomize = ['pro', 'enterprise'].includes(client?.plan) || inTrial;
+  // Branding is a paid feature — a trialing merchant already carries plan
+  // 'pro'/'enterprise' (set once a card is on file), matching the write path.
+  const canCustomize = ['pro', 'enterprise'].includes(client?.plan);
   const branding = canCustomize
     ? {
         source: 'merchant',
