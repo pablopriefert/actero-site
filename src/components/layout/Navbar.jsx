@@ -19,8 +19,6 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
-      {/* Top accent gradient bar — Actero greens → gold */}
-      <div className="h-[3px] w-full bg-gradient-to-r from-[#0B4B2C] via-[#14A85C] to-[#8B7A50]" />
       <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-black/[0.06] transition-all duration-300">
         <div className={`max-w-6xl mx-auto px-6 md:px-8 flex justify-between items-center transition-all duration-500 ${
           scrolled ? 'h-14 md:h-[56px]' : 'h-16 md:h-[64px]'
@@ -37,27 +35,21 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
             </span>
           </div>
 
-          <div className="hidden lg:flex items-center absolute left-1/2 -translate-x-1/2">
-            <div className="flex items-center gap-1 rounded-full bg-[#F9F7F1] border border-[#EFE7D6] p-1">
+          <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+            {[
+              { label: 'Produit', to: '/produit' },
+              { label: 'Tarifs', to: '/tarifs' },
+              { label: 'Entreprise', to: '/entreprise' },
+              { label: 'Ressources', to: '/ressources' },
+            ].map((item) => (
               <button
-                onClick={() => onNavigate("/produit")}
-                className="px-4 py-1.5 rounded-full text-[14px] font-semibold text-[#3A3A3A] hover:bg-white hover:text-[#003725] hover:shadow-sm transition-all"
+                key={item.to}
+                onClick={() => onNavigate(item.to)}
+                className="text-[15px] font-medium text-[#3A3A3A] hover:text-[#1A1A1A] transition-colors"
               >
-                Produit
+                {item.label}
               </button>
-              <button
-                onClick={() => onNavigate("/tarifs")}
-                className="px-4 py-1.5 rounded-full text-[14px] font-semibold text-[#3A3A3A] hover:bg-white hover:text-[#003725] hover:shadow-sm transition-all"
-              >
-                Tarifs
-              </button>
-              <button
-                onClick={() => onNavigate("/entreprise")}
-                className="px-4 py-1.5 rounded-full text-[14px] font-semibold text-[#3A3A3A] hover:bg-white hover:text-[#003725] hover:shadow-sm transition-all"
-              >
-                Entreprise
-              </button>
-            </div>
+            ))}
           </div>
 
           <div className="flex items-center gap-3">

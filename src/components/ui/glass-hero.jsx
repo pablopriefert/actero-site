@@ -1,98 +1,89 @@
-import React, { useEffect, useRef } from 'react'
-import { ArrowRight } from 'lucide-react'
-import { motion, useSpring, useTransform, animate, useInView, useReducedMotion } from 'framer-motion'
+import React, { useState } from 'react'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { FadeInUp } from './scroll-animations'
-import { WatchDemoButton } from './WatchDemoButton'
-import { CONTACT } from '../../config/contact'
+import { Logo } from '../layout/Logo'
 import { trackEvent } from '../../lib/analytics'
 
 /**
- * GlassHero — minimal editorial hero on a clean white background.
- * Renders only the headline, the CTAs, and the 3 KPI cards. The nav lives in
- * the site header; the announcement bar / eyebrow / subtitle / dashboard
- * preview were intentionally removed for a stripped-back, high-end look.
+ * GlassHero — end-to-end "AI ecosystem" style hero (Timbal-inspired), in Actero
+ * colours + French: announcement pill → bold headline with a serif-italic gold
+ * accent → subtitle → an interactive AI prompt box → dashboard preview.
  */
 export const GlassHero = ({ onNavigate }) => {
   const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
-  const prefersReducedMotion = useReducedMotion()
 
   return (
-    <section className="relative bg-white pt-40 md:pt-48 pb-16 px-6 overflow-hidden">
+    <section className="relative bg-white pt-36 md:pt-44 pb-16 px-6 overflow-hidden">
+      {/* soft brand glow behind the headline */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-24 mx-auto h-[420px] max-w-3xl"
+        style={{ background: 'radial-gradient(60% 60% at 50% 40%, rgba(168,196,144,0.16), rgba(255,255,255,0) 70%)' }}
+      />
+
       <div className="max-w-6xl mx-auto relative">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Backed by Station F */}
-          <FadeInUp delay={0.03} className="mb-6">
-            <div className="inline-flex items-center justify-center gap-2 text-[15px] font-semibold text-[#1A1A1A]">
-              <span>Backed by</span>
+          {/* Announcement / social-proof pill */}
+          <FadeInUp delay={0.02} className="mb-8">
+            <button
+              onClick={() => onNavigate && onNavigate('/entreprise')}
+              className="inline-flex items-center gap-2 rounded-full bg-[#F9F7F1] border border-[#EFE7D6] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
+            >
+              <span className="rounded-full bg-white border border-[#EFE7D6] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[#8B7A50]">
+                Soutenu par
+              </span>
               <img
                 src="/stationf-logo.png"
                 alt="Station F"
-                className="h-[15px] w-auto object-contain"
+                className="h-[13px] w-auto object-contain"
                 loading="eager"
                 decoding="async"
               />
-            </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#716D5C]" />
+            </button>
           </FadeInUp>
 
-          {/* Headline */}
-          <FadeInUp delay={0.05} className="mb-10">
+          {/* Headline — bold sans, serif-italic gold accent (mirrors "for creators") */}
+          <FadeInUp delay={0.05} className="mb-6">
             <h1
-              className="leading-[1.02] text-[#1A1A1A] font-normal"
+              className="font-bold text-[#1A1A1A] leading-[1.02]"
               style={{
-                ...fontDisplay,
-                fontSize: 'clamp(48px, 7vw, 96px)',
-                letterSpacing: '-0.02em',
+                fontFamily: 'var(--font-sans, "DM Sans", system-ui, sans-serif)',
+                fontSize: 'clamp(44px, 7vw, 88px)',
+                letterSpacing: '-0.03em',
               }}
             >
-              Votre support client,
+              L&apos;agent IA du support
               <br />
-              <span className="italic text-[#8B7A50]">résolu tout seul.</span>
+              client pour{' '}
+              <span className="font-normal italic text-[#8B7A50]" style={fontDisplay}>
+                le e-commerce
+              </span>
             </h1>
           </FadeInUp>
 
-          {/* CTAs — primary (black) + ghost demo + text-link humain */}
-          <FadeInUp delay={0.1}>
-            <div className="flex flex-wrap items-center justify-center gap-3.5 mb-4">
-              <motion.button
-                onClick={() => onNavigate && onNavigate('/signup')}
-                className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-[#1A1A1A] hover:bg-black text-white text-[15px] font-semibold transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.15),0_8px_20px_rgba(0,0,0,0.12)] group"
-                whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
-                whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              >
-                Créer un compte gratuitement
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-              </motion.button>
-              <WatchDemoButton source="landing_hero" variant="light" />
-            </div>
-            <div className="mb-8">
-              <button
-                onClick={() => {
-                  trackEvent('Talk_To_Human_Clicked', { source: 'landing_hero_link' })
-                  window.open(CONTACT.demo.url, '_blank', 'noopener,noreferrer')
-                }}
-                className="inline-flex items-center gap-1 text-[13px] text-[#716D5C] hover:text-[#1A1A1A] font-medium transition-colors"
-              >
-                ou parler à un humain
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
+          {/* Subtitle */}
+          <FadeInUp delay={0.08} className="mb-10">
+            <p className="text-[#716D5C] text-[17px] md:text-[19px] leading-relaxed max-w-2xl mx-auto">
+              Actero est l&apos;agent SAV autonome pour Shopify. Il répond à vos clients,
+              suit les commandes et relance les paniers abandonnés — dans votre ton de
+              marque, 24/7.
+            </p>
           </FadeInUp>
 
-          {/* Hero KPIs — 3 chiffres mappés sur les 3 piliers */}
-          <FadeInUp delay={0.15}>
-            <HeroKpiRow />
+          {/* AI prompt box */}
+          <FadeInUp delay={0.12}>
+            <HeroPrompt onNavigate={onNavigate} />
           </FadeInUp>
         </div>
 
-        {/* ══════════════════ DASHBOARD PREVIEW (desktop only) ══════════════════ */}
+        {/* ══════════ DASHBOARD PREVIEW (desktop only) ══════════ */}
         <FadeInUp delay={0.2} className="mt-16 hidden md:block">
           <div
             className="relative rounded-3xl p-4 bg-white border border-black/[0.08]"
             style={{
               boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 40px 80px -20px rgba(0,0,0,0.12)',
-              /* CLS guard — réserve la hauteur du dashboard preview
-                 (window chrome 36px + grid 480px + padding 32px ≈ 552px) */
               minHeight: '552px',
             }}
           >
@@ -105,108 +96,63 @@ export const GlassHero = ({ onNavigate }) => {
 }
 
 /**
- * AnimatedKpiNumber — count-up on enter into viewport.
- * Respects prefers-reduced-motion (shows final value immediately).
+ * HeroPrompt — the "chat AI" box under the subtitle. A real input styled like a
+ * product surface; submitting (Enter or the send button) opens the live
+ * simulator with the question pre-filled. Funnels to a hands-on trial, no card.
  */
-function AnimatedKpiNumber({ target, prefix = '', suffix = '', fontStyle: _fontStyle }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, amount: 0.5 })
+const EXAMPLES = [
+  'Où est ma commande #1082 ?',
+  'Je veux échanger ma taille M contre une L',
+  'Quel est le délai de livraison vers Lyon ?',
+]
+
+function HeroPrompt({ onNavigate }) {
+  const [value, setValue] = useState('')
   const prefersReducedMotion = useReducedMotion()
 
-  const spring = useSpring(prefersReducedMotion ? target : 0, {
-    damping: 30,
-    stiffness: 100,
-  })
-  const display = useTransform(spring, (v) => Math.round(v).toString())
-
-  useEffect(() => {
-    if (inView && !prefersReducedMotion) {
-      animate(spring, target, { duration: 1.8, ease: 'easeOut' })
-    }
-  }, [inView, prefersReducedMotion, spring, target])
+  const submit = () => {
+    const q = value.trim()
+    trackEvent('Hero_Prompt_Submitted', { has_text: !!q })
+    onNavigate && onNavigate(q ? `/demo?q=${encodeURIComponent(q)}` : '/demo')
+  }
 
   return (
-    <span ref={ref}>
-      {prefix}
-      <motion.span>{display}</motion.span>
-      {suffix}
-    </span>
-  )
-}
+    <div className="mx-auto w-full max-w-2xl">
+      <motion.div
+        className="rounded-[22px] bg-white border border-black/[0.08] px-4 pt-4 pb-3 text-left"
+        style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 24px 48px -24px rgba(0,0,0,0.18)' }}
+        whileHover={prefersReducedMotion ? {} : { y: -2 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+      >
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+          placeholder={`Essayez : « ${EXAMPLES[0]} »`}
+          aria-label="Posez une question à l'agent SAV Actero"
+          className="w-full bg-transparent text-[16px] md:text-[17px] text-[#1A1A1A] placeholder:text-[#9ca3af] outline-none py-1.5"
+        />
 
-/**
- * HeroKpiRow — 3 KPIs mappés 1:1 sur les 3 piliers du produit.
- *   Pilier 1 · Agent SAV          → 50-70% de tickets auto-résolus
- *   Pilier 2 · Relance paniers    → +15% de CA récupéré
- *   Pilier 3 · Automatisations    → 5 min pour activer un playbook
- */
-function HeroKpiRow() {
-  const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
-  const prefersReducedMotion = useReducedMotion()
+        <div className="flex items-center justify-between mt-3">
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#E8F5EC] px-2.5 py-1.5 text-[12px] font-semibold text-cta">
+            <Logo className="w-3.5 h-3.5 text-cta" />
+            Agent SAV
+          </span>
 
-  const kpis = [
-    {
-      numericTarget: 70,
-      prefix: '',
-      suffix: '',
-      unit: '%',
-      label: 'de tickets auto-résolus',
-      sub: 'Agent SAV — généralement 50 à 70% selon votre volume',
-    },
-    {
-      numericTarget: 15,
-      prefix: '+',
-      suffix: '',
-      unit: '%',
-      label: 'de CA paniers récupérés',
-      sub: 'Agent de relance proactif, personnalisé',
-    },
-    {
-      numericTarget: 5,
-      prefix: '',
-      suffix: '',
-      unit: 'min',
-      label: "pour activer un playbook",
-      sub: '10+ workflows e-commerce prêts à brancher',
-    },
-  ]
-
-  return (
-    <div className="mt-10 max-w-3xl mx-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {kpis.map((k, i) => (
-          <motion.div
-            key={i}
-            className="px-5 py-5 rounded-[18px] bg-white border border-black/[0.08] text-left"
-            whileHover={prefersReducedMotion ? {} : { y: -4, borderColor: 'rgba(0,0,0,0.16)' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 20, duration: 0.25 }}
+          <motion.button
+            onClick={submit}
+            aria-label="Tester l'agent"
+            className="w-9 h-9 rounded-full bg-cta text-white flex items-center justify-center hover:bg-[#0a4f2c] transition-colors"
+            whileHover={prefersReducedMotion ? {} : { scale: 1.06 }}
+            whileTap={prefersReducedMotion ? {} : { scale: 0.94 }}
           >
-            <div
-              className="leading-none text-[#1A1A1A] font-normal tabular-nums"
-              style={{ ...fontDisplay, fontSize: 'clamp(38px, 4.6vw, 52px)', letterSpacing: '-0.02em' }}
-            >
-              <AnimatedKpiNumber
-                target={k.numericTarget}
-                prefix={k.prefix}
-                suffix={k.suffix}
-                fontStyle={fontDisplay}
-              />
-              <span className="text-[#716D5C] text-[0.45em] font-medium ml-0.5 align-baseline">
-                {k.unit}
-              </span>
-              <span className="text-[#716D5C] text-[0.35em] font-medium ml-0.5 align-super">*</span>
-            </div>
-            <div className="text-[12.5px] font-bold text-[#1A1A1A] mt-2 leading-[1.3]">
-              {k.label}
-            </div>
-            <div className="text-[11px] text-[#716D5C] mt-1 leading-[1.4]">
-              {k.sub}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-      <p className="mt-3 text-[11px] italic text-[#716D5C] text-center leading-[1.4]">
-        * Objectifs produit, benchmark pilote
+            <ArrowUpRight className="w-4 h-4" />
+          </motion.button>
+        </div>
+      </motion.div>
+
+      <p className="mt-3 text-[12.5px] text-[#716D5C]">
+        Testez l&apos;agent en direct · sans carte bancaire
       </p>
     </div>
   )
