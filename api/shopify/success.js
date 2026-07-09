@@ -2,6 +2,12 @@ import { withSentry } from '../lib/sentry.js'
 function handler(req, res) {
   const { shop } = req.query;
 
+  // Reflected-XSS guard: only echo `shop` when it's a valid Shopify domain
+  // (which can't contain HTML metacharacters); otherwise use a safe fallback.
+  const safeShop = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/.test(String(shop || ''))
+    ? String(shop)
+    : 'votre boutique';
+
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.status(200).send(`
     <!DOCTYPE html>
@@ -52,7 +58,7 @@ function handler(req, res) {
         <h1>Installation réussie !</h1>
         <p>
           L'app Actero a été installée sur<br>
-          <span class="shop">${shop || 'votre boutique'}</span>
+          <span class="shop">${safeShop}</span>
         </p>
         <p style="margin-top: 16px;">
           Vos workflows d'automatisation SAV seront opérationnels sous 24h.
