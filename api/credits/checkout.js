@@ -11,6 +11,7 @@
 import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -59,17 +60,13 @@ async function handler(req, res) {
   if (price_cents < 50) return res.status(400).json({ error: 'Montant trop faible' })
 
   try {
-    // Use existing customer or create one
-    let customerId = link.clients.stripe_customer_id
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: link.clients.contact_email,
-        name: link.clients.brand_name,
-        metadata: { client_id: link.clients.id },
-      })
-      customerId = customer.id
-      await supabase.from('clients').update({ stripe_customer_id: customerId }).eq('id', link.clients.id)
-    }
+    // Resolve a usable customer — heals an orphaned id (test↔live key change).
+    const customerId = await getOrCreateStripeCustomer(stripe, supabase, {
+      clientId: link.clients.id,
+      currentId: link.clients.stripe_customer_id,
+      email: link.clients.contact_email,
+      name: link.clients.brand_name,
+    })
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',

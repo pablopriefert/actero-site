@@ -54,7 +54,10 @@ function makeRes() {
 
 function baseStripe() {
   return {
-    customers: { create: vi.fn(async () => ({ id: 'cus_1' })) },
+    customers: {
+      create: vi.fn(async () => ({ id: 'cus_1' })),
+      retrieve: vi.fn(async () => ({ id: 'cus_1', deleted: false })),
+    },
     subscriptions: {
       retrieve: vi.fn(async () => h.existingSub),
       update: vi.fn(async () => ({})),

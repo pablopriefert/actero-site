@@ -2,6 +2,7 @@ import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
+import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
 
 /**
  * POST /api/billing/create-subscription
@@ -111,9 +112,9 @@ async function handler(req, res) {
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    // --- Get or create Stripe customer ---
-    let stripeCustomerId = client.stripe_customer_id;
-    if (!stripeCustomerId) {
+    // --- Get or create Stripe customer (heals orphaned ids on key/mode change) ---
+    let candidateId = client.stripe_customer_id;
+    if (!candidateId) {
       const { data: funnel } = await supabaseAdmin
         .from('funnel_clients')
         .select('stripe_customer_id')
@@ -121,17 +122,14 @@ async function handler(req, res) {
         .not('stripe_customer_id', 'is', null)
         .limit(1)
         .maybeSingle();
-      stripeCustomerId = funnel?.stripe_customer_id;
+      candidateId = funnel?.stripe_customer_id || null;
     }
-    if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({
-        email: client.contact_email || user.email,
-        name: client.brand_name || undefined,
-        metadata: { actero_client_id: client_id },
-      });
-      stripeCustomerId = customer.id;
-      await supabaseAdmin.from('clients').update({ stripe_customer_id: stripeCustomerId }).eq('id', client_id);
-    }
+    const stripeCustomerId = await getOrCreateStripeCustomer(stripe, supabaseAdmin, {
+      clientId: client_id,
+      currentId: candidateId,
+      email: client.contact_email || user.email,
+      name: client.brand_name,
+    });
 
     // --- Existing active subscription → instant price swap (no card needed) ---
     const existingSubId = client.stripe_subscription_id;

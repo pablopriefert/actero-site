@@ -2,6 +2,7 @@ import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
+import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -103,10 +104,9 @@ async function handler(req, res) {
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    // --- Get or create Stripe customer ---
-    let stripeCustomerId = client.stripe_customer_id;
-
-    if (!stripeCustomerId) {
+    // --- Get or create Stripe customer (heals orphaned ids on key/mode change) ---
+    let candidateId = client.stripe_customer_id;
+    if (!candidateId) {
       // Also check funnel_clients
       const { data: funnel } = await supabaseAdmin
         .from('funnel_clients')
@@ -115,24 +115,14 @@ async function handler(req, res) {
         .not('stripe_customer_id', 'is', null)
         .limit(1)
         .maybeSingle();
-
-      stripeCustomerId = funnel?.stripe_customer_id;
+      candidateId = funnel?.stripe_customer_id || null;
     }
-
-    if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({
-        email: client.contact_email || user.email,
-        name: client.brand_name || undefined,
-        metadata: { actero_client_id: client_id },
-      });
-      stripeCustomerId = customer.id;
-
-      // Persist for future use
-      await supabaseAdmin
-        .from('clients')
-        .update({ stripe_customer_id: stripeCustomerId })
-        .eq('id', client_id);
-    }
+    const stripeCustomerId = await getOrCreateStripeCustomer(stripe, supabaseAdmin, {
+      clientId: client_id,
+      currentId: candidateId,
+      email: client.contact_email || user.email,
+      name: client.brand_name,
+    });
 
     // --- Determine trial eligibility ---
     // Referral first month free takes priority (30 days), otherwise 7-day trial if never had one
