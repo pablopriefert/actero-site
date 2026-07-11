@@ -10,8 +10,8 @@ import { trackEvent } from '../../lib/analytics'
  * colours + French: announcement pill → bold headline with a serif-italic gold
  * accent → subtitle → an interactive AI prompt box → dashboard preview.
  */
-// Hero UI font — the site's sans (DM Sans).
-const heroFont = { fontFamily: 'var(--font-sans, "DM Sans", system-ui, sans-serif)' }
+// Hero UI font — Geist (clean geometric grotesque, Exa/Vercel-style).
+const heroFont = { fontFamily: '"Geist", var(--font-sans, "DM Sans"), system-ui, sans-serif' }
 
 export const GlassHero = ({ onNavigate }) => {
   const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
