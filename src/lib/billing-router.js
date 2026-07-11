@@ -1,14 +1,16 @@
 /**
  * Upgrade routing (front-end).
  *
- * Shopify App Store policy 1.2 forbids off-platform (Stripe) billing for
- * merchants who installed via Shopify. So on every upgrade we try the Shopify
- * Billing API first; we only fall back to Stripe when the client has NO Shopify
- * connection (the endpoint replies 409). A real Shopify billing error must NOT
- * silently fall back to Stripe — that would re-introduce the violation.
+ * Shopify App Store policy 1.2.1 forbids off-platform (Stripe) billing for
+ * merchants who installed via Shopify. So on every upgrade we ask the server
+ * whether this client has a Shopify connection: if so it returns the Shopify
+ * Managed Pricing plan-selection URL and we redirect there; we only fall back
+ * to Stripe when the client has NO Shopify connection (the endpoint replies
+ * 409 — a direct, non-Shopify signup). A real Shopify error must NOT silently
+ * fall back to Stripe — that would re-introduce the violation.
  *
  * Returns one of:
- *   { channel: 'shopify', url }   → redirect the merchant to Shopify to accept
+ *   { channel: 'shopify', url }   → redirect the merchant to Shopify (Managed Pricing)
  *   { channel: 'stripe' }         → caller runs its existing Stripe flow
  *   { channel: 'error', message } → surface the message, do NOT bill via Stripe
  */
