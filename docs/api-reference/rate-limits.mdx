@@ -1,6 +1,6 @@
 ---
-title: "Rate Limits"
-description: "Limites par client, par customer et par IP. Réponses 429, stratégie de retry, comment les contourner légitimement."
+title: "Rate limits et quotas mensuels de l'API Actero"
+description: "Limites de l'API Actero par client, customer et IP, quotas mensuels de tickets avec hard cap, réponses 429 et stratégie de retry recommandée."
 ---
 
 L'API Actero applique plusieurs couches de rate limit pour protéger ton tenant des abus, contenir les coûts LLM, et garantir une latence stable. Chaque couche a sa propre fenêtre et sa propre clé de comptage.
@@ -28,17 +28,14 @@ Un dépassement renvoie `429 Too Many Requests` :
 
 Indépendamment du rate limit court-terme, chaque plan a un quota mensuel de tickets traités :
 
-| Plan       | Tickets / mois | Voice / mois | Overage         |
-| ---------- | -------------- | ------------ | --------------- |
-| Free       | 50             | 0            | Aucun (hard cap) |
-| Starter    | 1 000          | 0            | 0,10 €/ticket    |
-| Pro        | 5 000          | 200 min      | 0,10 €/ticket    |
-| Enterprise | Illimité       | Illimité     | —                |
+| Plan       | Tickets / mois | Voice / mois | Au-delà du quota                       |
+| ---------- | -------------- | ------------ | -------------------------------------- |
+| Free       | 50             | 0            | Hard cap — crédits ou upgrade requis   |
+| Starter    | 1 000          | 0            | Hard cap — crédits ou upgrade requis   |
+| Pro        | 5 000          | 200 min      | Hard cap — crédits ou upgrade requis   |
+| Enterprise | Illimité       | Illimité     | —                                      |
 
-Au-delà du quota :
-
-- **Free** : bloqué (`429`) jusqu'à achat d'un pack de crédits ou upgrade.
-- **Starter / Pro** : la requête passe, mais le compteur `overage_tickets` est incrémenté et facturé en fin de mois.
+Tous les plans sont en **hard cap** : au-delà du quota, la requête est refusée avec `429` (le widget de chat renvoie un message neutre au client final). Les crédits ponctuels sont la seule façon de continuer à servir sans upgrader — chaque ticket au-delà du quota décrémente 1 crédit.
 
 ```json
 {
@@ -148,13 +145,13 @@ def post_with_retry(url, body, max_retries=3):
 
 ## Headers de rate limit
 
-Les routes engine n'exposent pas de headers `X-RateLimit-Remaining` ni `X-RateLimit-Reset` aujourd'hui. Pour estimer ta consommation en temps réel, utilise [`GET /api/billing/usage`](/api-reference/endpoints/billing-usage) qui retourne `tickets_used` / `tickets_limit` / `overage_tickets` du mois en cours.
+Les routes engine n'exposent pas de headers `X-RateLimit-Remaining` ni `X-RateLimit-Reset` aujourd'hui. Pour estimer ta consommation en temps réel, utilise [`GET /api/billing/usage`](/api-reference/endpoints/billing-usage) qui retourne `tickets_used` / `tickets_limit` / `credits_balance` du mois en cours.
 
 ## Augmenter tes limites
 
 | Besoin                                  | Action                                                    |
 | --------------------------------------- | --------------------------------------------------------- |
-| Quota mensuel saturé                    | Upgrade plan ou achète un pack de crédits (Free → Starter) |
+| Quota mensuel saturé                    | Achète un pack de crédits ou upgrade vers un plan supérieur |
 | Pic ponctuel > 200 msg/h sur 1 client   | Contacte `contact@actero.fr`, on lift temporairement       |
 | Anti-spam customer (10 msg/10 min)      | Pas de override : c'est une protection métier, pas commerciale |
 | Webhooks entrants Stripe/Shopify        | Pas de limite (signature HMAC vérifiée à la place)        |
