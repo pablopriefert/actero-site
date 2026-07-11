@@ -16,7 +16,7 @@ import { runBrain } from './brain.js'
 import { runExecutor } from './executor.js'
 import { logRun } from './logger.js'
 import { checkRateLimit } from './lib/rate-limiter.js'
-import { getLimits } from '../lib/plan-limits.js'
+import { checkTicketQuota } from '../lib/plan-limits.js'
 
 const ENGINE_SECRET = process.env.ENGINE_WEBHOOK_SECRET
 const INTERNAL_SECRET = process.env.INTERNAL_API_SECRET
@@ -61,49 +61,25 @@ async function handler(req, res) {
   const { data: client } = await supabase.from('clients').select('id, brand_name, client_type, plan, trial_ends_at').eq('id', client_id).single()
   if (!client) return res.status(404).json({ error: 'Client non trouve' })
 
-  // --- Plan limits enforcement ---
+  // --- Plan limits enforcement (hard cap — no overage on any plan; a purchased
+  //     credit is the only way to keep serving past the monthly limit). ---
   const plan = client.plan || 'free'
-  const limits = getLimits(plan)
   const inTrial = client.trial_ends_at && new Date(client.trial_ends_at) > new Date()
 
-  // Check current usage (brain.js will increment the counter itself)
-  const period = new Date().toISOString().slice(0, 7)
-  const { data: usageRow } = await supabase
-    .from('usage_counters')
-    .select('tickets_used')
-    .eq('client_id', client_id)
-    .eq('period', period)
-    .maybeSingle()
-  const ticketsUsed = usageRow?.tickets_used || 0
-
-  // Check if over limit (before processing)
-  let useCreditPack = false
-  if (ticketsUsed >= limits.tickets && !inTrial && limits.tickets !== Infinity) {
-    if (limits.overage !== null) {
-      // Overage allowed (Starter/Pro) — log but continue
-      console.log(`[gateway] Client ${client_id} over limit (${ticketsUsed}/${limits.tickets}), overage applied`)
-    } else {
-      // Hard cap (free plan) — try to use credits before rejecting
-      const { data: creditRow } = await supabase
-        .from('client_credits')
-        .select('balance')
-        .eq('client_id', client_id)
-        .maybeSingle()
-
-      if ((creditRow?.balance || 0) >= 1) {
-        useCreditPack = true
-        console.log(`[gateway] Client ${client_id} using credit pack (balance: ${creditRow.balance})`)
-      } else {
-        return res.status(429).json({
-          error: 'Quota de tickets épuisé. Achetez des crédits ou passez à un plan supérieur.',
-          tickets_used: ticketsUsed,
-          tickets_limit: limits.tickets,
-          credits_balance: 0,
-          upgrade_url: `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/pricing`,
-          credits_url: `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/client/billing`,
-        })
-      }
-    }
+  const quota = await checkTicketQuota(supabase, { clientId: client_id, plan, inTrial })
+  const useCreditPack = quota.useCredits
+  if (!quota.allowed) {
+    return res.status(429).json({
+      error: 'Quota de tickets épuisé. Achetez des crédits ou passez à un plan supérieur.',
+      tickets_used: quota.ticketsUsed,
+      tickets_limit: quota.limit,
+      credits_balance: quota.creditsBalance,
+      upgrade_url: `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/pricing`,
+      credits_url: `${process.env.PUBLIC_API_URL || 'https://actero.fr'}/client/billing`,
+    })
+  }
+  if (useCreditPack) {
+    console.log(`[gateway] Client ${client_id} over limit — serving via credit pack`)
   }
 
   const startTime = Date.now()

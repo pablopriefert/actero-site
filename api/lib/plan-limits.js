@@ -124,6 +124,49 @@ export function getLimit(plan, limitKey) {
   return limits[limitKey] ?? 0
 }
 
+/**
+ * Hard-cap ticket quota check — shared by the widget bubble and the gateway.
+ *
+ * No overage on any plan: once the monthly `tickets` limit is hit the client is
+ * blocked until they upgrade. Purchased credits are the only escape hatch
+ * (decrement 1 credit per ticket via consume_credits). Trials and unlimited
+ * (Infinity) plans always pass.
+ *
+ * @returns {Promise<{ allowed: boolean, useCredits: boolean, ticketsUsed: number, limit: number, creditsBalance: number }>}
+ */
+export async function checkTicketQuota(supabase, { clientId, plan, inTrial }) {
+  const limits = getLimits(plan)
+  if (inTrial || limits.tickets === Infinity) {
+    return { allowed: true, useCredits: false, ticketsUsed: 0, limit: limits.tickets, creditsBalance: 0 }
+  }
+
+  const period = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
+  const { data: usageRow } = await supabase
+    .from('usage_counters')
+    .select('tickets_used')
+    .eq('client_id', clientId)
+    .eq('period', period)
+    .maybeSingle()
+  const ticketsUsed = usageRow?.tickets_used || 0
+
+  if (ticketsUsed < limits.tickets) {
+    return { allowed: true, useCredits: false, ticketsUsed, limit: limits.tickets, creditsBalance: 0 }
+  }
+
+  // Over the limit → credits are the only way to keep serving (no overage).
+  const { data: creditRow } = await supabase
+    .from('client_credits')
+    .select('balance')
+    .eq('client_id', clientId)
+    .maybeSingle()
+  const creditsBalance = creditRow?.balance || 0
+
+  if (creditsBalance >= 1) {
+    return { allowed: true, useCredits: true, ticketsUsed, limit: limits.tickets, creditsBalance }
+  }
+  return { allowed: false, useCredits: false, ticketsUsed, limit: limits.tickets, creditsBalance: 0 }
+}
+
 export async function getCurrentUsage(supabase, clientId) {
   const period = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
   const { data } = await supabase

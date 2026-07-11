@@ -19,6 +19,7 @@ import { uploadToStorage } from '../../vision/lib/ingress.js'
 import { checkRateLimit, getClientIp } from '../../lib/rate-limit.js'
 import { lookupOrder } from '../lib/shopify-client.js'
 import { notifyClient } from '../../lib/notify.js'
+import { checkTicketQuota } from '../../lib/plan-limits.js'
 
 // Order/tracking classifications that warrant a rich order-status card.
 const ORDER_CARD_CLASSES = ['suivi_commande', 'livraison', 'tracking', 'order_tracking']
@@ -180,7 +181,7 @@ async function handler(req, res) {
   // This limits the blast radius of a leaked client UUID (see fallback above).
   const { data: client } = await supabase
     .from('clients')
-    .select('id, brand_name, client_type, status')
+    .select('id, brand_name, client_type, status, plan, trial_ends_at')
     .eq('id', clientId)
     .maybeSingle()
   if (!client) return res.status(401).json({ error: 'Invalid API key' })
@@ -246,6 +247,19 @@ async function handler(req, res) {
   }
 
   if (!message) return res.status(400).json({ error: 'message required' })
+
+  // ── Plan quota (hard cap — no overage). The bubble is the main ticket source
+  // and previously bypassed all quota checks. Once the monthly limit is hit the
+  // client is blocked until they upgrade; purchased credits are the only escape
+  // (consumed after a successful reply, mirroring gateway.js). ──
+  const inTrial = !!(client.trial_ends_at && new Date(client.trial_ends_at) > new Date())
+  const quota = await checkTicketQuota(supabase, { clientId: client.id, plan: client.plan, inTrial })
+  if (!quota.allowed) {
+    return res.status(429).json({
+      limit_reached: true,
+      response: "Le chat n'est pas disponible pour le moment. Merci de réessayer plus tard.",
+    })
+  }
 
   // Conversation history: prefer from widget, but fallback to DB (in case widget.js is cached)
   let conversationHistory = Array.isArray(history) ? history.slice(-20) : []
@@ -411,6 +425,20 @@ async function handler(req, res) {
       normalized,
       conversationHistory,
     })
+
+    // Over-quota ticket served via a purchased credit → decrement it.
+    if (quota.useCredits) {
+      try {
+        await supabase.rpc('consume_credits', {
+          p_client_id: client.id,
+          p_amount: 1,
+          p_description: `Ticket bulle SAV (quota dépassé) — ${brainResult?.classification || 'N/A'}`,
+          p_event_id: event?.id || null,
+        })
+      } catch (err) {
+        console.error('[widget] consume_credits error:', err.message)
+      }
+    }
 
     // Execute
     if (!brainResult.needsReview) {
