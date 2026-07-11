@@ -18,34 +18,27 @@ export const GlassHero = ({ onNavigate }) => {
 
   return (
     <section className="relative bg-white pt-36 md:pt-44 pb-16 px-6 overflow-hidden">
-      {/* Even pale-sage tint (reference-style) — a near-uniform coloured field,
-          NOT a directional gradient; only a whisper of centre-lightening. */}
+      {/* Vertical wash: white at the top ramping into a saturated Actero green
+          at the bottom (Context.dev-style, bottom → top). */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
-          background: '#E7EEE0',
-          backgroundImage:
-            'radial-gradient(120% 95% at 50% 22%, rgba(255,255,255,0.72), rgba(255,255,255,0) 80%)',
+          background:
+            'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 30%, #F4F8F1 52%, #E6F0E1 72%, #D3E6D6 100%)',
         }}
       />
-      {/* Film grain — the "random" texture, clearly visible over the tint. */}
+      {/* Dither/grain — the "random" texture, strongest over the coloured band. */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
-          opacity: 0.14,
+          opacity: 0.16,
           mixBlendMode: 'multiply',
-          backgroundSize: '170px 170px',
+          backgroundSize: '140px 140px',
           backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
         }}
-      />
-      {/* Soft fade into the white page at the bottom (blend the seam only). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-40"
-        style={{ background: 'linear-gradient(rgba(255,255,255,0), #ffffff)' }}
       />
 
       <div className="max-w-6xl mx-auto relative">
@@ -139,7 +132,7 @@ function HeroPrompt({ onNavigate }) {
   const submit = () => {
     const q = value.trim()
     trackEvent('Hero_Prompt_Submitted', { has_text: !!q })
-    onNavigate && onNavigate(q ? `/demo?q=${encodeURIComponent(q)}` : '/demo')
+    onNavigate && onNavigate('/signup')
   }
 
   return (
