@@ -1,9 +1,9 @@
 ---
 title: "GET /billing/usage"
-description: "Récupère la consommation tickets + minutes vocales du mois en cours, le plan actif, et l'overage facturable."
+description: "Récupère la consommation tickets + minutes vocales du mois en cours, le plan actif, et le solde de crédits."
 ---
 
-L'endpoint `billing/usage` te retourne la consommation du mois calendaire courant pour un tenant donné. C'est ce que le dashboard utilise pour afficher la jauge "X / Y tickets utilisés" et estimer la prochaine facture.
+L'endpoint `billing/usage` te retourne la consommation du mois calendaire courant pour un tenant donné. C'est ce que le dashboard utilise pour afficher la jauge "X / Y tickets utilisés" et suivre le solde de crédits disponibles.
 
 ```http
 GET https://actero.fr/api/billing/usage?client_id=<id>
@@ -61,9 +61,9 @@ Sinon → `403 Acces refuse.`
 
 <ResponseField name="voice_minutes_limit" type="number">Quota minutes vocales du plan. **`-1`** si illimité.</ResponseField>
 
-<ResponseField name="overage_tickets" type="integer">Nombre de tickets traités au-delà du quota (uniquement Starter / Pro). Facturés au taux du plan.</ResponseField>
+<ResponseField name="overage_tickets" type="integer">Nombre de tickets servis au-delà du quota via des crédits ponctuels ce mois. Aucun overage n'est facturé (hard cap sur tous les plans) — ce compteur reflète uniquement la consommation de crédits.</ResponseField>
 
-<ResponseField name="overage_cost" type="number">Montant en euros qui s'ajoutera à la prochaine facture, arrondi au centime. `overage_tickets * overage_rate`.</ResponseField>
+<ResponseField name="overage_cost" type="number">Toujours `0`. Conservé pour compatibilité — plus aucun plan ne facture d'overage. Utilise le solde de crédits (`credits_balance` renvoyé par le widget/gateway 429) pour anticiper les rechargements.</ResponseField>
 
 <ResponseField name="trial_ends_at" type="string|null">ISO timestamp de fin de période d'essai. `null` si le tenant n'est pas en trial.</ResponseField>
 
@@ -105,17 +105,19 @@ Cet endpoint accepte uniquement `GET`. Tout autre verbe renvoie `405`.
 { "error": "Erreur interne." }
 ```
 
-## Tarifs d'overage
+## Quotas et hard cap
 
-| Plan       | Tickets inclus | Overage rate         |
-| ---------- | -------------- | -------------------- |
-| Free       | 50             | 0 € (hard cap, pas d'overage) |
-| Starter    | 1 000          | 0,10 € / ticket      |
-| Pro        | 5 000          | 0,10 € / ticket      |
-| Enterprise | Illimité       | —                    |
+| Plan       | Tickets inclus | Au-delà du quota                          |
+| ---------- | -------------- | ----------------------------------------- |
+| Free       | 50             | Hard cap — crédits ou upgrade requis      |
+| Starter    | 1 000          | Hard cap — crédits ou upgrade requis      |
+| Pro        | 5 000          | Hard cap — crédits ou upgrade requis      |
+| Enterprise | Illimité       | —                                         |
+
+Tous les plans sont en hard cap : aucun overage n'est facturé. Une fois le quota atteint, l'agent arrête de traiter les tickets sauf si le tenant a un solde de crédits (1 crédit = 1 ticket servi).
 
 <Note>
-Les `price_ids` Stripe ne sont **pas** exposés via l'API publique — ils restent server-side (commit `1e1bd96`). Si tu construis un dashboard custom, lis `overage_cost` directement depuis cet endpoint plutôt que recalculer côté client.
+Les `price_ids` Stripe ne sont **pas** exposés via l'API publique — ils restent server-side. Si tu construis un dashboard custom, affiche `tickets_used / tickets_limit` et un CTA « acheter des crédits » lorsque le ratio approche 100 %.
 </Note>
 
 ## Exemples
@@ -139,8 +141,8 @@ const usage = await res.json()
 const pct = (usage.tickets_used / usage.tickets_limit) * 100
 console.log(`${usage.tickets_used}/${usage.tickets_limit} tickets (${pct.toFixed(1)}%)`)
 
-if (usage.overage_cost > 0) {
-  console.warn(`Overage : ${usage.overage_cost} € facturés en plus le ${usage.next_billing_date}`)
+if (usage.tickets_limit !== -1 && usage.tickets_used >= usage.tickets_limit * 0.9) {
+  console.warn(`Quota bientôt saturé — pense à acheter un pack de crédits avant le hard cap.`)
 }
 ```
 
@@ -165,7 +167,7 @@ if usage["tickets_limit"] != -1:
 
 Pour suivre la consommation en temps réel **sans** poller cet endpoint en continu, abonne-toi à l'événement `usage.threshold_reached` via un [webhook sortant](/api-reference/webhooks). Tu reçois un POST quand le tenant franchit 80 % puis 100 % de son quota mensuel — utile pour :
 
-- Notifier l'équipe finance avant le hard cap (Free).
+- Notifier l'équipe finance avant le hard cap (tous les plans).
 - Déclencher un upgrade automatique côté ton CRM.
 - Pause-r ton crawl/import si tu sais que chaque event = 1 ticket.
 
