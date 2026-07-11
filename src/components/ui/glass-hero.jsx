@@ -10,16 +10,42 @@ import { trackEvent } from '../../lib/analytics'
  * colours + French: announcement pill → bold headline with a serif-italic gold
  * accent → subtitle → an interactive AI prompt box → dashboard preview.
  */
+// Hero UI font — the site's sans (DM Sans).
+const heroFont = { fontFamily: 'var(--font-sans, "DM Sans", system-ui, sans-serif)' }
+
 export const GlassHero = ({ onNavigate }) => {
   const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
 
   return (
     <section className="relative bg-white pt-36 md:pt-44 pb-16 px-6 overflow-hidden">
-      {/* soft brand glow behind the headline */}
+      {/* Even pale-sage tint (reference-style) — a near-uniform coloured field,
+          NOT a directional gradient; only a whisper of centre-lightening. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-24 mx-auto h-[420px] max-w-3xl"
-        style={{ background: 'radial-gradient(60% 60% at 50% 40%, rgba(168,196,144,0.16), rgba(255,255,255,0) 70%)' }}
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: '#E7EEE0',
+          backgroundImage:
+            'radial-gradient(120% 95% at 50% 22%, rgba(255,255,255,0.72), rgba(255,255,255,0) 80%)',
+        }}
+      />
+      {/* Film grain — the "random" texture, clearly visible over the tint. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          opacity: 0.14,
+          mixBlendMode: 'multiply',
+          backgroundSize: '170px 170px',
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        }}
+      />
+      {/* Soft fade into the white page at the bottom (blend the seam only). */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-40"
+        style={{ background: 'linear-gradient(rgba(255,255,255,0), #ffffff)' }}
       />
 
       <div className="max-w-6xl mx-auto relative">
@@ -49,7 +75,7 @@ export const GlassHero = ({ onNavigate }) => {
             <h1
               className="font-bold text-[#1A1A1A] leading-[1.02]"
               style={{
-                fontFamily: 'var(--font-sans, "DM Sans", system-ui, sans-serif)',
+                ...heroFont,
                 fontSize: 'clamp(44px, 7vw, 88px)',
                 letterSpacing: '-0.03em',
               }}
@@ -65,7 +91,7 @@ export const GlassHero = ({ onNavigate }) => {
 
           {/* Subtitle */}
           <FadeInUp delay={0.08} className="mb-10">
-            <p className="text-[#716D5C] text-[17px] md:text-[19px] leading-relaxed max-w-2xl mx-auto">
+            <p className="text-[#716D5C] text-[17px] md:text-[19px] leading-relaxed max-w-2xl mx-auto" style={heroFont}>
               Actero est l&apos;agent SAV autonome pour Shopify. Il répond à vos clients,
               suit les commandes et relance les paniers abandonnés — dans votre ton de
               marque, 24/7.
@@ -130,6 +156,7 @@ function HeroPrompt({ onNavigate }) {
           onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
           placeholder={`Essayez : « ${EXAMPLES[0]} »`}
           aria-label="Posez une question à l'agent SAV Actero"
+          style={heroFont}
           className="w-full bg-transparent text-[16px] md:text-[17px] text-[#1A1A1A] placeholder:text-[#9ca3af] outline-none py-1.5"
         />
 

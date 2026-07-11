@@ -5,7 +5,6 @@ import {
   X,
 } from 'lucide-react'
 import { Logo } from './Logo'
-import { ButtonColorful } from '../ui/button-colorful'
 
 export const Navbar = ({ onNavigate, trackEvent }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,9 +18,9 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
-      <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-black/[0.06] transition-all duration-300">
-        <div className={`max-w-6xl mx-auto px-6 md:px-8 flex justify-between items-center transition-all duration-500 ${
-          scrolled ? 'h-14 md:h-[56px]' : 'h-16 md:h-[64px]'
+      <nav className="w-full bg-white/90 backdrop-blur-sm border-b border-black/[0.05] transition-all duration-300">
+        <div className={`max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center transition-all duration-500 ${
+          scrolled ? 'h-14' : 'h-[60px]'
         }`}>
           <div
             className="flex items-center gap-2 cursor-pointer group"
@@ -35,7 +34,7 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
             </span>
           </div>
 
-          <div className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+          <div className="hidden lg:flex items-center gap-11 absolute left-1/2 -translate-x-1/2">
             {[
               { label: 'Produit', to: '/produit' },
               { label: 'Tarifs', to: '/tarifs' },
@@ -45,30 +44,29 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
               <button
                 key={item.to}
                 onClick={() => onNavigate(item.to)}
-                className="text-[15px] font-medium text-[#3A3A3A] hover:text-[#1A1A1A] transition-colors"
+                className="text-[14px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] tracking-[-0.01em] transition-colors"
               >
                 {item.label}
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
             <button
               onClick={() => onNavigate("/login")}
-              className="hidden lg:inline-flex items-center h-12 px-6 rounded-full bg-white border border-[#E7E1D2] text-[14px] font-semibold text-[#1A1A1A] hover:border-[#003725]/40 hover:text-[#003725] transition-colors"
+              className="hidden lg:inline-flex items-center text-[14px] font-medium text-[#4A4A4A] hover:text-[#1A1A1A] tracking-[-0.01em] transition-colors"
             >
               Connexion
             </button>
-            <div className="hidden sm:block">
-              <ButtonColorful
-                onClick={() => {
-                  trackEvent?.("Header_CTA_Clicked", { location: "navbar" });
-                  onNavigate('/signup');
-                }}
-              >
-                Demarrer gratuitement
-              </ButtonColorful>
-            </div>
+            <button
+              onClick={() => {
+                trackEvent?.("Header_CTA_Clicked", { location: "navbar" });
+                onNavigate('/signup');
+              }}
+              className="hidden sm:inline-flex items-center px-[18px] py-2 rounded-full bg-[#1A1A1A] hover:bg-black text-white text-[14px] font-medium tracking-[-0.01em] transition-colors"
+            >
+              Demarrer gratuitement
+            </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
