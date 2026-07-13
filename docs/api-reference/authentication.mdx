@@ -1,6 +1,6 @@
 ---
 title: "Authentication"
-description: "Bearer JWT (session dashboard), clé API (intégrations serveur) ou secret partagé (engine interne) — tu choisis selon le contexte."
+description: "Authentification de l'API Actero : Bearer JWT pour la session dashboard, clé API pour les intégrations serveur, secret partagé pour l'engine interne."
 ---
 
 L'API Actero accepte trois schémas d'authentification. Tous passent par le header `Authorization: Bearer <token>`, sauf l'engine interne qui utilise un header dédié. Aucune route publique n'accepte d'auth basique ni de token en query string (sauf le widget chat embarqué, qui passe sa clé en `?api_key=` pour des raisons de CORS).
