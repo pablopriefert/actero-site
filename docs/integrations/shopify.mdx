@@ -23,7 +23,7 @@ Actero est listée sur le Shopify App Store. L'installation est gratuite et pass
     Shopify affiche deux blocs distincts : les permissions **requises** (sans elles, l'agent ne peut pas fonctionner) et les permissions **optionnelles** (tu peux les décliner — l'agent dégradera gracieusement les fonctionnalités concernées). Voir [Scopes demandés](#scopes-demand%C3%A9s).
   </Step>
   <Step title="Approuve l'installation">
-    Tu reviens automatiquement sur `actero.fr`. Aucune carte bancaire requise côté Shopify — Actero est facturée séparément depuis ton compte Actero.
+    Tu reviens automatiquement sur `actero.fr`. Aucune carte bancaire à cette étape — le choix de plan se fait ensuite via [Shopify Managed Pricing](#facturation-shopify-managed-pricing), directement sur ta facture Shopify.
   </Step>
   <Step title="Active le widget de chat">
     Le widget est livré comme une **extension de thème** (theme app extension) — Actero ne modifie jamais ton `theme.liquid`. Active-le en un clic depuis **Boutique en ligne → Thèmes → Personnaliser → Widgets d'application (App embeds) → Actero**. Les 30 dernières commandes sont indexées en moins de 20 secondes.
@@ -42,6 +42,44 @@ Une fois installée, Actero apparaît dans **Apps** dans ton Shopify Admin. Cliq
 - **Première fois** → relance du flow OAuth pour finaliser l'install
 
 Tu n'as donc jamais à coller manuellement une URL : Shopify Admin reste ton point d'entrée.
+
+## Facturation Shopify Managed Pricing
+
+Si tu as installé Actero **depuis le Shopify App Store**, ta facturation est gérée par **Shopify Managed Pricing** : Shopify affiche les plans, encaisse le paiement et l'ajoute à ta facture Shopify mensuelle. Actero n'a jamais accès à ta carte bancaire — c'est la seule voie de paiement conforme aux règles App Store (policy 1.2.1).
+
+<Note>
+Cette section ne s'applique **qu'aux marchands installés via le Shopify App Store**. Si tu as créé ton compte directement sur `actero.fr` (signup email + carte), tu es sur **Stripe** — voir [Facturation](/essentials/facturation).
+</Note>
+
+### Choisir ou changer de plan
+
+<Steps>
+  <Step title="Ouvre Choisir un plan">
+    Depuis Actero : **Système → Facturation → Choisir un plan**. Tu es redirigé vers la page de plans hébergée par Shopify (`admin.shopify.com/store/<ta-boutique>/charges/actero/pricing_plans`).
+  </Step>
+  <Step title="Sélectionne un plan chez Shopify">
+    Free, Starter (99 €/mois ou 79 €/mois en annuel), Pro (399 €/mois ou 319 €/mois en annuel), ou Entreprise (contact). Les plans annuels donnent **-20 %**.
+  </Step>
+  <Step title="Approuve la charge dans Shopify Admin">
+    Shopify affiche l'écran de confirmation officiel (montant, période d'essai éventuelle, cycle). Après validation, tu reviens automatiquement sur Actero avec ton nouveau plan actif.
+  </Step>
+</Steps>
+
+Le webhook `app_subscriptions/update` synchronise le plan sur ton compte Actero dans les secondes qui suivent l'approbation.
+
+### Ce qui change par rapport à Stripe
+
+| Point | Shopify Managed Pricing | Stripe (signup direct) |
+|---|---|---|
+| Où tu choisis ton plan | Page hébergée par Shopify | Actero → Système → Facturation |
+| Où apparaît le paiement | Ta facture Shopify mensuelle | Facture Stripe (portail dédié) |
+| Moyen de paiement | Celui déjà enregistré chez Shopify | Carte via Stripe Checkout, SEPA sur Entreprise |
+| Portail de facturation | Shopify Admin → **Réglages → Facturation** | **Gérer mon abonnement** (portail Stripe) |
+| Downgrade / annulation | Depuis Shopify Admin ou depuis Actero (même page de plans) | Portail Stripe, effet à la fin du cycle |
+
+### Désinstallation et remboursement
+
+Désinstaller Actero depuis Shopify Admin annule automatiquement la subscription active — Shopify arrête la facturation le jour même et calcule un éventuel prorata selon ses propres règles. Aucune action n'est requise côté Actero.
 
 ## Scopes demandés
 
