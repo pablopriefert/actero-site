@@ -75,7 +75,7 @@ Une seule intégration "envoi d'emails" active à la fois. Si tu connectes [SMTP
 ## Problèmes fréquents
 
 <AccordionGroup>
-  <Accordion title="Erreur 403 "Domain not verified"">
+  <Accordion title={`Erreur 403 "Domain not verified"`}>
     Le domaine de l'adresse `From` que tu utilises n'est pas vérifié dans Resend. Va dans Resend → **Domains → Verify** et ajoute les enregistrements DNS demandés (DKIM × 3, SPF, DMARC).
   </Accordion>
   <Accordion title="Mes emails partent en spam">
@@ -84,7 +84,7 @@ Une seule intégration "envoi d'emails" active à la fois. Si tu connectes [SMTP
   <Accordion title="`Daily limit reached` sur le free tier">
     Tu as dépassé 100 emails/jour. Passe au plan Pro Resend ($20/mois) ou bascule temporairement sur [SMTP/IMAP](/integrations/smtp-imap).
   </Accordion>
-  <Accordion title="Test "Tester" échoue avec "Invalid API key"">
+  <Accordion title={`Test "Tester" échoue avec "Invalid API key"`}>
     Vérifie que tu as bien copié la clé en entier (commence par `re_`, longue de ~30 caractères). Si la clé a été révoquée côté Resend, génère-en une nouvelle.
   </Accordion>
 </AccordionGroup>
