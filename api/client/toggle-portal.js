@@ -8,6 +8,7 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { clientHasEntitlement } from '../lib/entitlements.js'
+import { assurerSlugPortail } from '../lib/portal-slug.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -72,7 +73,26 @@ async function handler(req, res) {
     return res.status(500).json({ error: 'Erreur serveur' })
   }
 
-  return res.status(200).json({ ok: true, portal_enabled: enabled })
+  // Le portail vit à https://<slug>.portal.actero.fr. Rien n'écrivait jamais
+  // ce slug : un marchand qui activait son portail lisait « Aucun slug
+  // configuré. Contactez le support. » — une fonctionnalité sans adresse.
+  // On le fabrique ici, au seul moment où il devient nécessaire.
+  let slug = null
+  if (enabled) {
+    const { data: c } = await supabase
+      .from('clients').select('brand_name').eq('id', clientId).maybeSingle()
+    const resultat = await assurerSlugPortail(supabase, clientId, c?.brand_name)
+    if (resultat.erreur) {
+      // Le portail est activé mais injoignable : il faut que ça se voie.
+      console.error('[toggle-portal] slug indisponible:', resultat.erreur)
+      return res.status(200).json({
+        ok: true, portal_enabled: enabled, slug: null, avertissement: resultat.erreur,
+      })
+    }
+    slug = resultat.slug
+  }
+
+  return res.status(200).json({ ok: true, portal_enabled: enabled, slug })
 }
 
 export default withSentry(handler)
