@@ -42,7 +42,31 @@ union all select 'client_integrations', count(*) from client_integrations where 
 union all select 'customer_memories', count(*) from customer_memories where client_id = '<ID>';
 ```
 
-### 3. Supprimer
+### 3. Supprimer — la révocation part automatiquement d'abord
+
+L'action admin **révoque les accès chez les fournisseurs avant** d'effacer.
+C'est l'ordre qui compte : une fois la ligne supprimée, on n'a plus les jetons
+pour le faire.
+
+Supprimer notre copie d'un secret nous empêche de nous en servir, mais
+n'annule pas l'autorisation côté fournisseur — le marchand continuerait de
+voir Actero dans ses applications connectées.
+
+| Fournisseur | Ce qui se passe |
+| --- | --- |
+| **Shopify** | Mutation `appUninstall` : l'app se désinstalle elle-même et le jeton est invalidé |
+| **Slack** | `auth.revoke` |
+| **Zendesk** | Suppression du jeton OAuth courant |
+| **Notion** | Aucune API — le marchand doit retirer Actero dans Paramètres → Mes connexions |
+| **Resend** | La clé est dans SON compte — il doit la supprimer dans Resend → API Keys |
+| **SMTP / IMAP** | Nous détenions son mot de passe : il doit le **changer**, pas seulement le retirer |
+
+La réponse contient `a_finir_a_la_main` : tout ce qui n'a pas pu être révoqué,
+avec la marche à suivre. **Un échec de révocation ne bloque pas l'effacement** —
+le RGPD impose de supprimer, un fournisseur injoignable n'est pas une excuse.
+C'est justement pour ça qu'il faut lire cette liste.
+
+
 
 Depuis l'interface admin (action « delete_client », confirmation requise), ou
 directement :

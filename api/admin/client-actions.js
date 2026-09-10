@@ -1,4 +1,5 @@
 import { withSentry } from '../lib/sentry.js'
+import { revokeClientAccess } from '../lib/revoke-integrations.js'
 import crypto from 'crypto'
 import { authenticateAdmin, logAdminAction, readJsonBody, supabaseAdmin } from './_helpers.js'
 
@@ -150,6 +151,12 @@ async function handler(req, res) {
         // (ACT-25). La procédure traite ces huit cas explicitement : elle
         // détache ce qui fait foi (audit, comptabilité) et supprime ce qui est
         // une donnée personnelle, avant de laisser les 57 cascades opérer.
+        // Révoquer AVANT d'effacer : une fois la ligne supprimée, on n'a plus
+        // les jetons pour le faire. Un échec de révocation ne bloque pas
+        // l'effacement — le RGPD impose de supprimer, et un fournisseur
+        // injoignable n'est pas une excuse. Le rapport part dans le journal.
+        const revocations = await revokeClientAccess(supabaseAdmin, client_id)
+
         const { data: etapes, error } = await supabaseAdmin
           .rpc('delete_client_data', { p_client_id: client_id })
         if (error) throw error
@@ -157,7 +164,12 @@ async function handler(req, res) {
         // qu'on a répondu à la demande d'effacement, et elle doit survivre à
         // la suppression du client lui-même.
         metadata.etapes = etapes
-        result = { success: true, deleted: true, etapes }
+        metadata.revocations = revocations
+        // Ce qui n'a pas pu être révoqué doit remonter à l'appelant, sinon
+        // personne ne saura qu'il reste une autorisation active chez un
+        // fournisseur.
+        const aFinirALaMain = revocations.filter((r) => r.resultat !== 'revoque')
+        result = { success: true, deleted: true, etapes, revocations, a_finir_a_la_main: aFinirALaMain }
         break
       }
 
