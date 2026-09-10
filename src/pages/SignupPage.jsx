@@ -210,7 +210,7 @@ export const SignupPage = ({ onNavigate }) => {
     setLoading(true);
     setError("");
     try {
-      await fetch("/api/auth/send-verification-code", {
+      await fetch("/api/auth/send-vérification-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -357,7 +357,7 @@ export const SignupPage = ({ onNavigate }) => {
             {referralFromUrl && (
               <div className="flex items-center gap-2 p-3 mb-4 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-xl border border-emerald-100 text-center justify-center">
                 <Gift className="w-4 h-4 flex-shrink-0" />
-                <span>Votre premier mois est offert grace a votre parrain !</span>
+                <span>Votre premier mois est offert grâce a votre parrain !</span>
               </div>
             )}
 

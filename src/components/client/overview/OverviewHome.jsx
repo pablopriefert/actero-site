@@ -421,7 +421,7 @@ const EVENT_META = {
     color: 'text-cta',
     bg: 'bg-cta/10',
     label: 'Intégration connectée',
-    ctaTab: 'integrations',
+    ctaTab: 'intégrations',
     ctaLabel: 'Gérer →',
   },
   knowledge_added: {
@@ -512,7 +512,7 @@ function TimelineSection({ clientId, setActiveTab, hasIntegration }) {
             }
             action={{
               label: hasIntegration ? 'Tester l\'agent' : 'Connecter une intégration',
-              onClick: () => setActiveTab(hasIntegration ? 'simulator' : 'integrations'),
+              onClick: () => setActiveTab(hasIntegration ? 'simulator' : 'intégrations'),
             }}
           />
         </div>
@@ -649,7 +649,7 @@ function TodoSection({
         icon: Plug,
         title: '1 intégration à connecter',
         subtitle: 'Connecte Shopify pour que ton agent accède aux commandes.',
-        action: { label: 'Connecter', onClick: () => setActiveTab('integrations') },
+        action: { label: 'Connecter', onClick: () => setActiveTab('intégrations') },
       })
     }
 

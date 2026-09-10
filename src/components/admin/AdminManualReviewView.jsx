@@ -56,7 +56,7 @@ export const AdminManualReviewView = () => {
       <div>
         <h2 className="text-[24px] font-bold text-[#1a1a1a]">Manual Review</h2>
         <p className="text-[13px] text-[#71717a]">
-          {pendingCount > 0 ? `${pendingCount} evenement${pendingCount > 1 ? 's' : ''} en attente de validation` : 'Aucun evenement en attente'}
+          {pendingCount > 0 ? `${pendingCount} événement${pendingCount > 1 ? 's' : ''} en attente de validation` : 'Aucun événement en attente'}
         </p>
       </div>
 
@@ -88,7 +88,7 @@ export const AdminManualReviewView = () => {
                     <p className="text-[12px] text-amber-600">
                       {review.reason === 'low_confidence' && 'Confiance insuffisante'}
                       {review.reason === 'error' && 'Erreur IA'}
-                      {review.reason === 'rule' && 'Regle declenchee'}
+                      {review.reason === 'rule' && 'Règle declenchee'}
                       {review.reason === 'sentiment' && 'Sentiment tres negatif'}
                       {review.reason === 'injection' && 'Injection detectee'}
                       {' — '}{new Date(review.created_at).toLocaleString('fr-FR')}

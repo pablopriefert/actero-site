@@ -64,7 +64,7 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
         ? 'Votre outil de comptabilité est bien connecté.'
         : 'Connectez Axonaut, Pennylane ou iPaidThat pour activer les relances automatiques.',
       met: accountingConnected,
-      fixTab: 'integrations',
+      fixTab: 'intégrations',
       fixLabel: 'Connecter',
     })
   } else {
@@ -75,7 +75,7 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
         ? 'Shopify, WooCommerce ou Webflow est connecté.'
         : 'Connectez votre boutique (Shopify, WooCommerce ou Webflow) pour que l\'IA accède aux commandes.',
       met: ecommerceConnected,
-      fixTab: 'integrations',
+      fixTab: 'intégrations',
       fixLabel: 'Connecter',
     })
   }
@@ -88,7 +88,7 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
       ? 'Votre service d\'envoi d\'emails est prêt.'
       : 'Connectez Resend ou votre SMTP personnalisé pour que l\'IA puisse répondre.',
     met: emailConnected,
-    fixTab: 'integrations',
+    fixTab: 'intégrations',
     fixLabel: 'Configurer',
   })
 

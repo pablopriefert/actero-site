@@ -80,7 +80,7 @@ export function EmailGateModal({ open, onClose, onSubmit, courseTitle }) {
             <p className="text-sm text-[#716D5C] mb-6">
               {courseTitle
                 ? `Entrez votre email pour debloquer "${courseTitle}" et tous les cours de l'Academy.`
-                : "Entrez votre email pour acceder aux cours de l'Actero Academy."}
+                : "Entrez votre email pour accéder aux cours de l'Actero Academy."}
             </p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -112,7 +112,7 @@ export function EmailGateModal({ open, onClose, onSubmit, courseTitle }) {
                 disabled={submitting}
                 className="w-full bg-cta hover:bg-[#00291c] text-white font-bold px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
               >
-                {submitting ? "Inscription..." : "Acceder au cours"}
+                {submitting ? "Inscription..." : "Accéder au cours"}
                 {!submitting && <ArrowRight className="w-4 h-4" />}
               </button>
             </form>

@@ -16,7 +16,7 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
   const hasData = (metrics && metrics.estimated_roi > 0) || dailyMetrics.length > 0;
 
   // Analytics — fire "ROI Viewed" once per mount when data is available.
-  // Gated on hasData + mount-once ref so we don't pollute Amplitude with zero-ROI views.
+  // Gated on hasData + mount-once ref so we don't pollute Amplitude with zéro-ROI views.
   const firedRef = useRef(false)
   useEffect(() => {
     if (!hasData || firedRef.current) return

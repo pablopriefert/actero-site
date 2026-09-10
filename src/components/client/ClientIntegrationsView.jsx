@@ -651,7 +651,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
       const connectedCount = integrations?.filter(i => i.status === 'active')?.length || 0
       if (integLimit !== Infinity && connectedCount >= integLimit) {
         const planName = getPlanConfig(plan).name
-        toastError(`Limite atteinte : ${integLimit} integration${integLimit > 1 ? 's' : ''} sur le plan ${planName}. Passez au plan superieur.`)
+        toastError(`Limite atteinte : ${integLimit} intégration${integLimit > 1 ? 's' : ''} sur le plan ${planName}. Passez au plan superieur.`)
         return
       }
     } catch { /* skip if plans.js not available */ }
@@ -800,7 +800,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
     setDisconnecting(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      await fetch('/api/integrations/disconnect', {
+      await fetch('/api/intégrations/disconnect', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -393,7 +393,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
       {/* ━━━ Section 2 — Consommation du mois ━━━ */}
       <SectionCard
         title="Consommation du mois"
-        subtitle={`Periode : ${currentMonthLabel()}`}
+        subtitle={`Période : ${currentMonthLabel()}`}
         icon={TrendingUp}
       >
         <div className="space-y-4">
@@ -464,7 +464,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             if (isCurrent) {
               ctaText = 'Plan actuel'
             } else if (isEnterprise) {
-              ctaText = 'Contacter l\'equipe'
+              ctaText = 'Contacter l\'équipe'
             } else if (isDowngrade) {
               ctaText = 'Rétrograder'
             } else {

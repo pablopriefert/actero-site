@@ -117,7 +117,7 @@ export const AlternativeEesel = ({ onNavigate }) => {
         statLabel: 'spécialiste',
         title: 'Pensé pour Shopify DTC, pas multi-plateformes',
         desc:
-          "eesel essaie de couvrir Shopify + WooCommerce + Magento + BigCommerce — au prix d'une spécialisation diluée. Actero est Shopify-first : OAuth en 15 min, agents spécialisés (order / return / product / general / escalation), lookup live des commandes Colissimo, refund automatique selon votre politique.",
+          "eesel essaie de couvrir Shopify + WooCommerce + Magento + BigCommerce — au prix d'une spécialisation diluée. Actero est Shopify-first : OAuth en 15 min, agents spécialisés (order / return / product / général / escalation), lookup live des commandes Colissimo, refund automatique selon votre politique.",
       },
       {
         icon: BarChart3,

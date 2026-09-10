@@ -16,12 +16,12 @@ export { ROLE_PERMISSIONS, canAccessTab } from '../../lib/role-permissions'
 const ROLES = [
   { id: 'manager', label: 'Manager', desc: 'Tout voir et modifier', icon: Shield, color: 'text-[#003725] bg-emerald-50' },
   { id: 'operational', label: 'Operationnel', desc: 'Metriques et tickets escalades', icon: Eye, color: 'text-blue-600 bg-blue-50' },
-  { id: 'support', label: 'Support', desc: 'Voir et repondre aux escalades uniquement', icon: Headphones, color: 'text-amber-600 bg-amber-50' },
+  { id: 'support', label: 'Support', desc: 'Voir et répondre aux escalades uniquement', icon: Headphones, color: 'text-amber-600 bg-amber-50' },
   { id: 'finance', label: 'Finance', desc: 'Factures uniquement', icon: Receipt, color: 'text-violet-600 bg-violet-50' },
 ]
 
 const ROLE_LABELS = {
-  owner: { label: 'Proprietaire', icon: Crown, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
+  owner: { label: 'Propriétaire', icon: Crown, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
   manager: { label: 'Manager', icon: Shield, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
   operational: { label: 'Operationnel', icon: Eye, color: 'text-blue-600 bg-blue-50 border-blue-200' },
   support: { label: 'Support', icon: Headphones, color: 'text-amber-600 bg-amber-50 border-amber-200' },
@@ -105,7 +105,7 @@ export const TeamManager = ({ clientId }) => {
 
   const handleChangeRole = async (member, newRole) => {
     if (member.role === 'owner') {
-      toast.error('Impossible de modifier le role du proprietaire')
+      toast.error('Impossible de modifier le role du propriétaire')
       return
     }
     try {
@@ -123,7 +123,7 @@ export const TeamManager = ({ clientId }) => {
 
   const handleRemove = async (member) => {
     if (member.role === 'owner') {
-      toast.error('Impossible de supprimer le proprietaire')
+      toast.error('Impossible de supprimer le propriétaire')
       return
     }
     if (!window.confirm(`Retirer ${member.email || 'ce membre'} de l'équipe ?`)) return

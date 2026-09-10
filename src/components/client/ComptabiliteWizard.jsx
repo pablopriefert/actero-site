@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 
 const STEPS = [
-  { id: 'explain', title: 'Comment ca marche' },
+  { id: 'explain', title: 'Comment ça marche' },
   { id: 'tools', title: 'Vos outils' },
   { id: 'config', title: 'Configuration' },
   { id: 'channels', title: 'Canaux' },
@@ -18,7 +18,7 @@ const STEPS = [
 
 const COMPTA_TOOLS = [
   { id: 'axonaut', name: 'Axonaut', desc: 'CRM et facturation pour PME' },
-  { id: 'pennylane', name: 'Pennylane', desc: 'Comptabilite automatisee' },
+  { id: 'pennylane', name: 'Pennylane', desc: 'Comptabilité automatisee' },
   { id: 'ipaidthat', name: 'iPaidThat', desc: 'Collecte de factures' },
   { id: 'none', name: 'Aucun pour le moment', desc: 'Je veux juste les alertes et relances par email' },
 ]
@@ -50,7 +50,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
       }, { onConflict: 'client_id' })
 
       setActivated(true)
-      toast.success('Comptabilite automatisee activee !')
+      toast.success('Comptabilité automatisee activee !')
     } catch (err) {
       toast.error(err.message)
     }
@@ -103,8 +103,8 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                   <div className="space-y-3">
                     {[
                       { icon: FileText, title: 'Relance de factures', desc: 'L\'IA detecte les factures impayees et envoie des relances automatiques a vos clients.' },
-                      { icon: AlertTriangle, title: 'Alertes de tresorerie', desc: 'Recevez une alerte quand votre tresorerie passe sous un seuil que vous definissez.' },
-                      { icon: Calendar, title: 'Rapports comptables', desc: 'Recevez un recapitulatif automatique de vos donnees comptables par email.' },
+                      { icon: AlertTriangle, title: 'Alertes de trésorerie', desc: 'Recevez une alerte quand votre trésorerie passe sous un seuil que vous définissez.' },
+                      { icon: Calendar, title: 'Rapports comptables', desc: 'Recevez un recapitulatif automatique de vos données comptables par email.' },
                       { icon: Bell, title: 'Notifications', desc: 'Soyez prevenu par email ou Slack de chaque action comptable.' },
                     ].map(item => {
                       const Icon = item.icon

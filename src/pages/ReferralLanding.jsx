@@ -127,7 +127,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
             <div className="inline-block bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-amber-500/20 rounded-2xl px-8 py-5">
               <p className="text-lg md:text-xl font-medium">
                 <span className="text-emerald-400 font-bold">Votre premier mois offert</span>
-                {referrerName ? ` grace a ${referrerName}` : ' grace a votre parrain'}
+                {referrerName ? ` grâce a ${referrerName}` : ' grâce a votre parrain'}
               </p>
               <p className="text-sm text-[#716D5C] mt-1">
                 Inscrivez-vous et profitez d'un mois gratuit sur n'importe quel plan
@@ -339,7 +339,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
             <p className="text-[#716D5C] mb-6">
               {referrerName
                 ? `Offert par ${referrerName}. Creez votre compte et profitez d'un mois gratuit.`
-                : `Creez votre compte et profitez d'un mois gratuit grace a votre parrain.`}
+                : `Creez votre compte et profitez d'un mois gratuit grâce a votre parrain.`}
             </p>
             <button
               onClick={handleCTA}

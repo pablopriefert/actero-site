@@ -23,9 +23,9 @@ const STEP_ICONS = {
 const STATUS_STYLES = {
   pending: { color: 'text-[#71717a]', bg: 'bg-surface/10', border: 'border-gray-500/20', label: 'En attente' },
   running: { color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', label: 'En cours' },
-  success: { color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Succes' },
+  success: { color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Succès' },
   warning: { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'Warning' },
-  failed: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Echec' },
+  failed: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Échec' },
 };
 
 export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
@@ -130,7 +130,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
               Deploiement — {clientName}
             </h2>
             <p className="text-[12px] text-[#71717a] mt-0.5">
-              {isRunning ? 'En cours...' : isCompleted ? 'Termine' : isFailed ? 'Echec' : 'Initialisation...'}
+              {isRunning ? 'En cours...' : isCompleted ? 'Termine' : isFailed ? 'Échec' : 'Initialisation...'}
             </p>
           </div>
           <div className="flex items-center gap-4">

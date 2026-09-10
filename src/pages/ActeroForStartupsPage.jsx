@@ -131,7 +131,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                     num: '02',
                     icon: <Clock className="w-5 h-5 text-cta" />,
                     title: 'Review sous 48h',
-                    desc: 'Notre equipe examine votre candidature et vous repond sous 48 heures.'
+                    desc: 'Notre équipe examine votre candidature et vous répond sous 48 heures.'
                   },
                   {
                     num: '03',
@@ -219,12 +219,12 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                   {
                     icon: <Users className="w-6 h-6" />,
                     title: 'Support prioritaire',
-                    desc: 'Acces au support prioritaire pendant toute la duree du programme.'
+                    desc: 'Accès au support prioritaire pendant toute la duree du programme.'
                   },
                   {
                     icon: <Zap className="w-6 h-6" />,
-                    title: 'Acces aux features beta',
-                    desc: 'Testez les nouvelles fonctionnalites en avant-premiere et influencez la roadmap.'
+                    title: 'Accès aux features beta',
+                    desc: 'Testez les nouvelles fonctionnalites en avant-première et influencez la roadmap.'
                   },
                   {
                     icon: <BadgeCheck className="w-6 h-6" />,
@@ -329,7 +329,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                           required
                           className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-surface text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                         >
-                          <option value="">Selectionnez</option>
+                          <option value="">Sélectionnez</option>
                           <option value="<50k">&lt; 50k&euro;</option>
                           <option value="50-200k">50 - 200k&euro;</option>
                           <option value="200-500k">200 - 500k&euro;</option>
@@ -347,7 +347,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                           required
                           className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-surface text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                         >
-                          <option value="">Selectionnez</option>
+                          <option value="">Sélectionnez</option>
                           <option value="shopify">Shopify</option>
                           <option value="woocommerce">WooCommerce</option>
                           <option value="webflow">Webflow</option>

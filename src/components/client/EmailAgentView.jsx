@@ -116,11 +116,11 @@ export const EmailAgentView = ({ clientId }) => {
             description="Ton agent lit automatiquement tes emails entrants et répond aux questions clients courantes (livraison, retours, produits) 24h/24, avec ton ton de marque."
             action={{
               label: 'Connecter Gmail (recommandé)',
-              onClick: () => { window.location.href = '/client/integrations' },
+              onClick: () => { window.location.href = '/client/intégrations' },
             }}
             secondaryAction={{
               label: 'Configurer SMTP/IMAP',
-              onClick: () => { window.location.href = '/client/integrations' },
+              onClick: () => { window.location.href = '/client/intégrations' },
             }}
           />
         </div>

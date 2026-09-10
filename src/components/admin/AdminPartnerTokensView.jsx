@@ -397,7 +397,7 @@ export const AdminPartnerTokensView = () => {
                   type="text"
                   value={emailForm.contact_name}
                   onChange={(e) => setEmailForm({ ...emailForm, contact_name: e.target.value })}
-                  placeholder="Jean (personnalise le Bonjour Jean)"
+                  placeholder="Jean (personnalisé le Bonjour Jean)"
                   className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
               </div>

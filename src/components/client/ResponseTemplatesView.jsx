@@ -114,7 +114,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
       setForm(emptyForm)
       queryClient.invalidateQueries({ queryKey: ['response-templates', clientId] })
     } catch (e) {
-      showToast('error', 'Erreur : ' + (e.message || 'echec'))
+      showToast('error', 'Erreur : ' + (e.message || 'échec'))
     }
     setSaving(false)
   }

@@ -169,7 +169,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
           feature="portal_customization"
           onUpgrade={onBack}
           compact={false}
-          fallbackDescription="Personnalise ton portail SAV à ton image — logo, couleurs, nom de marque. Disponible dès le plan Pro."
+          fallbackDescription="Personnalisé ton portail SAV à ton image — logo, couleurs, nom de marque. Disponible dès le plan Pro."
         />
       </div>
     )

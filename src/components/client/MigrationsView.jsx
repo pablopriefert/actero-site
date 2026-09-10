@@ -38,7 +38,7 @@ const PROVIDERS = [
     fields: [
       { key: 'zendesk_subdomain', label: 'Sous-domaine Zendesk', placeholder: 'monshop', help: 'monshop.zendesk.com' },
       { key: 'zendesk_email', label: 'Email du compte', placeholder: 'admin@monshop.com', type: 'email' },
-      { key: 'zendesk_api_token', label: 'API token', placeholder: 'xxxxxxxx', type: 'password', help: 'Admin Center → Apps and integrations → Zendesk API → Add API token' },
+      { key: 'zendesk_api_token', label: 'API token', placeholder: 'xxxxxxxx', type: 'password', help: 'Admin Center → Apps and intégrations → Zendesk API → Add API token' },
     ],
   },
   {

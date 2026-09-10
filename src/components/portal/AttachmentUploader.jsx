@@ -47,7 +47,7 @@ export default function AttachmentUploader({ onChange }) {
       const { path } = await resp.json()
       return { ...item, path, uploading: false, error: null }
     } catch (_e) {
-      return { ...item, uploading: false, error: 'Upload echoue' }
+      return { ...item, uploading: false, error: 'Upload échoué' }
     }
   }, [])
 

@@ -276,7 +276,7 @@ function StepShopify({ progress }) {
           <ArrowRight className="w-5 h-5" />
         </button>
         <a
-          href="/client/integrations"
+          href="/client/intégrations"
           className="flex items-center justify-center w-full px-5 py-3 rounded-2xl border border-[#f0f0f0] text-[#71717a] hover:text-[#1a1a1a] hover:bg-white transition-colors text-[13px]"
         >
           Utiliser WooCommerce, Webflow ou autre →

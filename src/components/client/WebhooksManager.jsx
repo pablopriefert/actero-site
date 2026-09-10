@@ -16,8 +16,8 @@ const EVENT_CATALOG = [
   { id: 'conversation.created', label: 'Nouvelle conversation', group: 'Conversations' },
   { id: 'conversation.sentiment_negative', label: 'Sentiment négatif', group: 'Conversations' },
   { id: 'usage.threshold_reached', label: 'Seuil de consommation atteint', group: 'Usage' },
-  { id: 'integration.connected', label: 'Intégration connectée', group: 'Intégrations' },
-  { id: 'integration.disconnected', label: 'Intégration déconnectée', group: 'Intégrations' },
+  { id: 'intégration.connected', label: 'Intégration connectée', group: 'Intégrations' },
+  { id: 'intégration.disconnected', label: 'Intégration déconnectée', group: 'Intégrations' },
   { id: 'playbook.activated', label: 'Playbook activé', group: 'Playbooks' },
 ]
 

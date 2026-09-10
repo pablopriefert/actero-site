@@ -125,7 +125,7 @@ const ToneEditor = ({ entry, onSave, saving }) => {
           type="text"
           value={form.signature}
           onChange={(e) => setForm(f => ({ ...f, signature: e.target.value }))}
-          placeholder="L'equipe Bonne Gueule"
+          placeholder="L'équipe Bonne Gueule"
           className="w-full bg-gray-50 border border-[#E6E8EC] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none"
         />
       </div>
@@ -149,7 +149,7 @@ const ToneEditor = ({ entry, onSave, saving }) => {
           value={form.instructions}
           onChange={(e) => setForm(f => ({ ...f, instructions: e.target.value }))}
           rows={4}
-          placeholder="Instructions supplementaires pour l'IA..."
+          placeholder="Instructions supplémentaires pour l'IA..."
           className="w-full bg-gray-50 border border-[#E6E8EC] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] outline-none resize-none"
         />
       </div>
@@ -201,7 +201,7 @@ const EntryEditor = ({ entry, category, onSave, onDelete, onCancel, saving }) =>
 
       <div>
         <label htmlFor={ids.content} className="block text-xs font-bold text-[#71717a] uppercase tracking-wider mb-2">
-          {isFaq ? 'Reponse' : 'Contenu'}
+          {isFaq ? 'Réponse' : 'Contenu'}
         </label>
         <textarea
           id={ids.content}
@@ -448,7 +448,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
       queryClient.invalidateQueries({ queryKey: ['knowledge-base', clientId] })
       setEditingEntry(null)
       setIsCreating(false)
-      showToast('Base de connaissances mise a jour. L\'IA utilise deja les nouvelles informations.')
+      showToast('Base de connaissances mise a jour. L\'IA utilise déjà les nouvelles informations.')
     },
     onError: () => showToast('Erreur lors de la sauvegarde', 'error'),
   })
@@ -669,7 +669,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                     type="text"
                     value={qaQuestion}
                     onChange={(e) => setQaQuestion(e.target.value)}
-                    placeholder="Ex: Quels sont vos delais de livraison ?"
+                    placeholder="Ex: Quels sont vos délais de livraison ?"
                     className="mt-1 w-full px-4 py-2.5 bg-surface border border-[#E6E8EC] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300"
                   />
                 </div>

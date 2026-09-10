@@ -172,7 +172,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/support") return "support";
     if (route === "/client/referral") return "referral";
     if (route === "/client/partner") return "partner";
-    if (route === "/client/integrations") return "integrations";
+    if (route === "/client/intégrations") return "intégrations";
     if (route === "/client/migrations") return "migrations";
     if (route === "/client/portal-sav") return "portal-sav";
     if (route === "/client/portal-branding") return "portal-branding";
@@ -849,7 +849,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       icon: Plug,
       children: [
         ...(FEATURES.multiChannelHub ? [{ id: 'channels', label: 'Tous les canaux', icon: MessageSquare }] : []),
-        { id: 'integrations', label: 'Intégrations', icon: Plug },
+        { id: 'intégrations', label: 'Intégrations', icon: Plug },
         ...(FEATURES.portalSav ? [{ id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'PRO', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) }] : []),
         // Migration tickets — visible only while no completed migration exists.
         ...(hasCompletedMigration ? [] : [{ id: 'migrations', label: 'Migration tickets', icon: Upload }]),
@@ -991,7 +991,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "support" && "Centre d'aide"}
             {activeTab === "referral" && "Parrainage"}
             {activeTab === "partner" && "Actero Partners"}
-            {activeTab === "integrations" && "Intégrations"}
+            {activeTab === "intégrations" && "Intégrations"}
             {activeTab === "migrations" && "Migration de tickets"}
             {activeTab === "portal-sav" && "Portail SAV"}
             {activeTab === "portal-branding" && "Personnaliser mon portail"}
@@ -1172,7 +1172,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   {/* ── Primary CTA: Connect Shopify ── */}
                   {currentClient?.client_type === 'ecommerce' && !setupCompletion?.shopify && (
                     <button
-                      onClick={() => setActiveTab('integrations')}
+                      onClick={() => setActiveTab('intégrations')}
                       className="w-full mb-6 rounded-2xl bg-cta hover:bg-[#0d5430] transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-6 py-5 flex items-center justify-between group active:scale-[0.98]"
                     >
                       <div className="flex items-center gap-4 min-w-0">
@@ -1339,7 +1339,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             />
           )}
 
-          {activeTab === "integrations" && (
+          {activeTab === "intégrations" && (
             <ClientIntegrationsView
               clientId={currentClient?.id}
               clientType={currentClient?.client_type}

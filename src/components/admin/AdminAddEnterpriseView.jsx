@@ -232,7 +232,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
             <textarea
               value={form.notes}
               onChange={(e) => update('notes', e.target.value)}
-              placeholder="Details sur le client, besoins specifiques..."
+              placeholder="Details sur le client, besoins spécifiques..."
               rows={3}
               className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors resize-none"
             />
