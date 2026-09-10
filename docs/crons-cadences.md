@@ -39,6 +39,7 @@ jamais rien noient dans le bruit la seule qui échouerait vraiment.
 | `slack-canvas-update` | `0 * * * *` | Zéro client avec `slack_ops_enabled`. Un canvas rafraîchi à l'heure reste un canvas à jour. 2 880 → 720. | Repasser à `*/15` si un marchand suit ses opérations en direct dans Slack. |
 | `process-comptabilite` | `0 8 * * *` | Zéro client, mais 30 invocations par mois : ralentir ne rapporterait rien. | — |
 | `purge-vision-images` | `0 3 * * *` | Purge RGPD, quotidienne par nature. | — |
+| `purge-deleted-clients` | `0 4 * * *` | Second temps de la suppression de compte (ACT-25) : efface les clients dont le délai de grâce est écoulé. Quotidien, parce qu'un jour de retard sur un effacement RGPD se défend, une semaine non. | — |
 | `slack-daily-digest` | `30 7 * * 1-5` | Avant l'arrivée au bureau. | — |
 | `improvement-loop` | `0 6 * * 1` | Hebdomadaire par conception. | — |
 | `churn-predictions` | `0 6 * * 0` | Hebdomadaire par conception. | — |

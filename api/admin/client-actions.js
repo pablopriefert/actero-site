@@ -11,12 +11,17 @@ const ALLOWED_ACTIONS = new Set([
   'resend_welcome',
   'rotate_keys',
   'delete_client',
+  'cancel_delete_client',
 ])
 
 /**
  * POST /api/admin/client-actions
  *
- * Body: { client_id, action, confirm?: boolean }
+ * Body: { client_id, action, confirm?: boolean, immediate?: boolean }
+ *
+ * `delete_client` programme un effacement avec délai de grâce et coupe
+ * l'agent. `immediate: true` détruit tout de suite — à réserver aux demandes
+ * RGPD urgentes, c'est irréversible et sans sauvegarde derrière.
  *
  * Supported actions:
  *  - pause_agent    -> client_settings.agent_enabled = false
@@ -40,7 +45,7 @@ async function handler(req, res) {
   const { user: admin } = auth
 
   const body = await readJsonBody(req)
-  const { client_id, action, confirm } = body || {}
+  const { client_id, action, confirm, immediate } = body || {}
 
   if (!client_id || typeof client_id !== 'string') {
     return res.status(400).json({ error: 'client_id is required' })
@@ -140,9 +145,40 @@ async function handler(req, res) {
         break
       }
 
+      case 'cancel_delete_client': {
+        const { data: msg, error } = await supabaseAdmin
+          .rpc('cancel_client_deletion', { p_client_id: client_id })
+        if (error) throw error
+        result = { success: true, message: msg }
+        break
+      }
+
       case 'delete_client': {
         if (confirm !== true) {
           return res.status(400).json({ error: 'Confirmation required for delete_client' })
+        }
+
+        // Par défaut : demande d'effacement, pas destruction. L'agent est coupé
+        // tout de suite — le marchand doit constater l'effet — mais la
+        // destruction attend le délai de grâce, parce qu'elle est irréversible
+        // et qu'aucune sauvegarde restaurable n'existe encore (ACT-14).
+        //
+        // Les accès fournisseurs ne sont PAS révoqués maintenant : il faudrait
+        // tout reconnecter en cas d'annulation, et un délai de grâce annulable
+        // seulement sur le papier n'en est pas un. La révocation part avec la
+        // purge (cron/purge-deleted-clients.js).
+        if (immediate !== true) {
+          const { data: etapes, error } = await supabaseAdmin
+            .rpc('request_client_deletion', { p_client_id: client_id })
+          if (error) throw error
+          metadata.etapes = etapes
+          result = {
+            success: true,
+            mode: 'delai_de_grace',
+            etapes,
+            message: "Effacement programmé. L'agent est coupé. Annulable avec l'action cancel_delete_client jusqu'à la purge.",
+          }
+          break
         }
         // `delete from clients` ne peut pas fonctionner : huit clés étrangères
         // pointent vers clients.id en NO ACTION et bloquent la suppression.

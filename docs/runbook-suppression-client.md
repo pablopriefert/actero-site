@@ -42,7 +42,30 @@ union all select 'client_integrations', count(*) from client_integrations where 
 union all select 'customer_memories', count(*) from customer_memories where client_id = '<ID>';
 ```
 
-### 3. Supprimer — la révocation part automatiquement d'abord
+### 3. Demander l'effacement — en deux temps
+
+L'action admin **ne détruit pas tout de suite**. Elle marque le client, coupe
+son agent, et laisse un **délai de grâce de 14 jours** avant la purge.
+
+Pourquoi : la destruction est irréversible et aucune sauvegarde restaurable
+n'existe encore (ACT-14). Une demande envoyée par erreur, ou un clic de trop
+dans l'admin, doit pouvoir être rattrapée.
+
+L'agent est coupé **immédiatement** — le marchand a demandé à partir, il ne
+doit pas découvrir que ses clients reçoivent encore des réponses. Mais les
+accès fournisseurs ne sont **pas** révoqués à ce moment-là : il faudrait tout
+reconnecter en cas d'annulation, et un délai de grâce annulable seulement sur
+le papier n'en est pas un.
+
+| | |
+| -- | -- |
+| Annuler pendant le délai | action `cancel_delete_client` — remet l'agent en marche |
+| Forcer la destruction immédiate | `immediate: true` — à réserver aux demandes urgentes |
+| La purge automatique | cron `purge-deleted-clients`, tous les jours à 4 h |
+
+Le délai se règle avec `DELAI_GRACE_SUPPRESSION_JOURS`.
+
+### 4. La purge — la révocation part automatiquement d'abord
 
 L'action admin **révoque les accès chez les fournisseurs avant** d'effacer.
 C'est l'ordre qui compte : une fois la ligne supprimée, on n'a plus les jetons
@@ -79,7 +102,7 @@ La fonction renvoie le décompte par étape. Elle s'exécute dans une seule
 transaction : si quelque chose échoue, **rien** n'est supprimé — pas de
 suppression à moitié faite.
 
-### 4. Vérifier
+### 5. Vérifier
 
 ```sql
 -- Doit renvoyer 0 partout.
@@ -95,7 +118,7 @@ begin
 end $$;
 ```
 
-### 5. Répondre au demandeur
+### 6. Répondre au demandeur
 
 Confirmer par écrit que l'effacement est fait, en indiquant la date. La preuve
 vit dans `admin_action_logs` : la procédure **détache** ces lignes au lieu de
