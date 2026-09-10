@@ -13,16 +13,33 @@
  * @returns {Promise<string>} a customer id that exists under the current key
  */
 export async function getOrCreateStripeCustomer(stripe, supabase, { clientId, currentId, email, name }) {
+  // Pourquoi on recrée, quand on recrée. Renseigné juste avant la création.
+  //
+  // ACT-39 : le 10 septembre, un client Stripe a été remplacé sur une ligne
+  // `clients` vivante, entre deux clics du même marchand. Aucune des trois
+  // conditions ci-dessous n'aurait dû s'appliquer, et il a été impossible de
+  // savoir laquelle avait fermé — parce que cette fonction ne dit rien.
+  //
+  // Un remplacement silencieux, c'est deux clients Stripe pour un compte
+  // Actero : deux historiques de facturation, et des abonnements orphelins
+  // que le produit ne voit plus. Ça ne se découvre qu'au premier litige.
+  let raison = 'aucun identifiant stocké'
+
   if (currentId) {
     try {
       const existing = await stripe.customers.retrieve(currentId)
       if (existing && !existing.deleted) return currentId
+      raison = 'le client Stripe est marqué supprimé'
       // deleted:true → fall through and recreate
     } catch (err) {
       // Only "resource_missing" (unknown id / wrong mode) is recoverable by
       // recreating; anything else (auth, network) must bubble up.
       if (err?.code !== 'resource_missing' && err?.statusCode !== 404) throw err
+      raison = `introuvable (${err?.code || err?.statusCode || 'inconnu'}) — mauvaise clé, ou client effacé`
     }
+    console.warn(
+      `[stripe-customer] ${clientId} : remplacement de ${currentId} — ${raison}`,
+    )
   }
 
   const customer = await stripe.customers.create({
@@ -31,6 +48,9 @@ export async function getOrCreateStripeCustomer(stripe, supabase, { clientId, cu
     metadata: { client_id: clientId, actero_client_id: clientId },
   })
   await supabase.from('clients').update({ stripe_customer_id: customer.id }).eq('id', clientId)
+  if (currentId) {
+    console.warn(`[stripe-customer] ${clientId} : ${currentId} → ${customer.id}`)
+  }
   return customer.id
 }
 
