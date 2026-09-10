@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 import { SEO } from "../components/SEO";
 import { useMotion } from "../lib/motion";
 import { trackEvent } from "../lib/analytics";
+import { codeCampagneCourant } from '../lib/campagne'
 
 export const SignupPage = ({ onNavigate }) => {
   const m = useMotion();
@@ -63,17 +64,10 @@ export const SignupPage = ({ onNavigate }) => {
     return match ? decodeURIComponent(match[1]) : null;
   }, [referralFromUrl]);
 
-  // Code de campagne publicitaire (ACT-33) : ?campagne=XXX dans l'URL de la
-  // pub, ou le cookie posé au premier clic si le marchand revient plus tard.
-  // Le serveur le confronte à CAMPAIGN_TRIAL_CODES — ici on ne fait que le
-  // transporter, il n'ouvre aucun droit par lui-même.
-  const campaignCode = useMemo(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get("campagne")
-      || new URLSearchParams(window.location.search).get("campaign_code");
-    if (fromUrl) return fromUrl;
-    const match = document.cookie.match(/(?:^|;\s*)campaign_code=([^;]*)/);
-    return match ? decodeURIComponent(match[1]) : null;
-  }, []);
+  // Le code vient du module partagé : URL d'abord, cookie ensuite. Le cookie
+  // est posé au chargement de l'application (voir main.jsx), ce qui le fait
+  // survivre à l'aller-retour vers Google.
+  const campaignCode = useMemo(() => codeCampagneCourant(), []);
 
   // UTM attribution — capture query string params + referrer at mount time.
   // Sent along with signup requests for server-side storage in clients.acquisition_source.
