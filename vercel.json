@@ -1,4 +1,5 @@
 {
+    "ignoreCommand": "sh scripts/vercel-ignore-build.sh",
     "redirects": [
         { "source": "/pricing", "destination": "/tarifs", "permanent": true },
         { "source": "/company", "destination": "/entreprise", "permanent": true },
