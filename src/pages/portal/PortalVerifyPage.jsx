@@ -18,7 +18,19 @@ export default function PortalVerifyPage({ navigate }) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ token: verifyToken, clientId: client.clientId }),
     }).then((r) => {
-      if (r.ok) { setState('ok'); navigate('/portal/tickets'); }
+      if (r.ok) {
+        setState('ok');
+        // Navigation COMPLÈTE, pas la navigation interne : PortalLayout est
+        // monté depuis cette page-ci, donc AVANT que le cookie de session
+        // existe. Son usePortalAuth a déjà répondu « non connecté » et ne
+        // refait jamais la requête — PortalApp ne remplace que la page
+        // intérieure, jamais la coquille. Avec navigate(), le client arrivait
+        // donc sur ses conversations sans barre de navigation et sans bouton
+        // de déconnexion : aucun moyen d'atteindre ses commandes, qui sont la
+        // seule raison d'ouvrir un espace SAV. Rien ne signalait l'anomalie,
+        // et un rechargement manuel la faisait disparaître.
+        window.location.assign('/portal/tickets');
+      }
       else setState('expired');
     }).catch(() => setState('error'));
   }, [client, navigate, verifyToken]);
