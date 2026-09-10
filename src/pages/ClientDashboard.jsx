@@ -85,6 +85,7 @@ const GuardrailsEditor = lazy(() => import('../components/client/GuardrailsEdito
 const PromptEditor = lazy(() => import('../components/client/PromptEditor').then(m => ({ default: m.PromptEditor })))
 const ConversationSimulator = lazy(() => import('../components/client/ConversationSimulator').then(m => ({ default: m.ConversationSimulator })))
 const TeamManager = lazy(() => import('../components/client/TeamManager').then(m => ({ default: m.TeamManager })))
+import { RetentionBanner } from '../components/client/RetentionBanner'
 const ClientEscalationsView = lazy(() => import('../components/client/ClientEscalationsView').then(m => ({ default: m.ClientEscalationsView })))
 const ResponseTemplatesView = lazy(() => import('../components/client/ResponseTemplatesView').then(m => ({ default: m.ResponseTemplatesView })))
 const ApiDocsView = lazy(() => import('../components/client/ApiDocsView').then(m => ({ default: m.ApiDocsView })))
@@ -1302,7 +1303,20 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             </div>
           )}
 
-          {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} clientId={currentClient?.id} />}
+          {activeTab === "activity" && (
+            <>
+              {/* La limite de rétention est appliquée en base : sans ce
+                  bandeau, les lignes trop anciennes disparaîtraient en
+                  silence et le marchand n'aurait aucune raison de payer
+                  pour les retrouver (ACT-36). */}
+              <RetentionBanner
+                clientId={currentClient?.id}
+                planId={planId}
+                onUpgrade={() => setActiveTab('billing')}
+              />
+              <ActivityView supabase={supabase} theme={theme} clientId={currentClient?.id} />
+            </>
+          )}
 
           {activeTab === "profile" && <ClientProfileView theme={theme} />}
 
