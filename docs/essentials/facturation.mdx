@@ -102,9 +102,14 @@ Si tu as un `stripe_customer_id`, le bouton **Voir mes factures** t'envoie sur l
 
 Si tu es encore en plan Free, la section affiche "Aucune facture" — c'est normal.
 
-## Référencement et 30 jours gratuits
+## Parrainage, campagnes et 30 jours gratuits
 
-Si tu es arrivé via un lien de parrainage, ton premier mois Starter ou Pro est offert pour 30 jours au lieu de 7. Le badge change : "Passer au Pro — 30 jours gratuits".
+Deux cas te donnent 30 jours d'essai au lieu de 7 :
+
+- **Parrainage** : tu es arrivé via un lien de parrainage. Le badge change : "Passer au Pro — 30 jours gratuits".
+- **Campagne publicitaire** : tu t'es inscrit via un lien de pub contenant un code campagne (`?campagne=` dans l'URL). Le code est validé côté serveur à l'inscription. Si tu reviens plus tard sans le lien, le code est conservé par un cookie.
+
+Dans les deux cas, l'offre s'applique à ton premier abonnement Starter ou Pro, et compte comme ton unique essai.
 
 Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
 
@@ -112,7 +117,7 @@ Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
 
 <AccordionGroup>
   <Accordion title="Puis-je avoir un second essai gratuit ?">
-    Non. L'essai (7 jours, ou 30 jours via parrainage) est accordé une seule fois par compte. Si tu résilies puis te réabonnes, l'abonnement est facturé dès la souscription, sans nouvelle période d'essai.
+    Non. L'essai (7 jours, ou 30 jours via parrainage ou code campagne) est accordé une seule fois par compte. Si tu résilies puis te réabonnes, l'abonnement est facturé dès la souscription, sans nouvelle période d'essai.
   </Accordion>
   <Accordion title="Comment annuler mon abonnement ?">
     Va dans **Gérer mon abonnement** → portail Stripe → Annuler. L'annulation prend effet à la fin du cycle en cours, tu gardes l'accès jusque-là. Aucun remboursement automatique.
