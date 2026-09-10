@@ -31,7 +31,10 @@ function makeSupabaseStub(byTable) {
 const ACTIVE_INTEGRATION_ROW = {
   data: {
     api_key: 'ck_test_123',
-    extra_config: { store_url: 'https://boutique-demo.com', consumer_secret: 'cs_test_456' },
+    // Le secret vit dans sa colonne dédiée depuis ACT-34, plus dans le jsonb
+    // que le navigateur du marchand peut lire.
+    consumer_secret_encrypted: 'cs_test_456',
+    extra_config: { store_url: 'https://boutique-demo.com' },
     status: 'active',
   },
 }

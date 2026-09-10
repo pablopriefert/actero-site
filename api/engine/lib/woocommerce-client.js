@@ -108,7 +108,11 @@ async function loadCredentials(supabase, clientId) {
 
   const { data: integration } = await supabase
     .from('client_integrations')
-    .select('api_key, extra_config, status')
+    // `consumer_secret_encrypted` DOIT figurer ici. Le piège rencontré sur
+    // gorgias.js : le code lisait `integ.webhook_secret_encrypted` alors que
+    // le .select() ne le ramenait pas — la valeur valait donc toujours
+    // undefined, et le repli s'activait sans bruit. Rien n'échouait.
+    .select('api_key, consumer_secret_encrypted, extra_config, status')
     .eq('client_id', clientId)
     .eq('provider', 'woocommerce')
     .maybeSingle()
@@ -116,12 +120,12 @@ async function loadCredentials(supabase, clientId) {
   if (!integration || integration.status !== 'active') return null
 
   const consumerKey = decryptToken(integration.api_key)
-  // Le secret vit chiffré dans extra_config.consumer_secret (voir
-  // api/integrations/woocommerce/callback.js, qui l'écrit là — ACT-7 impose
-  // le chiffrement, suivi ici via le même decryptToken/enc:v1: que partout
-  // ailleurs). `extra_config.site_url` est accepté en repli au cas où une
-  // future écriture utilise ce nom de clé plutôt que `store_url`.
-  const consumerSecret = decryptToken(integration.extra_config?.consumer_secret)
+  // Le secret vit dans sa colonne dédiée, fermée au navigateur (ACT-34).
+  // Aucun repli sur extra_config : vérifié le 10 septembre, il n'existait
+  // zéro intégration WooCommerce en base — donc rien à rattraper. Un repli
+  // écrit « au cas où » est précisément ce qui a masqué le défaut de Gorgias
+  // pendant des semaines.
+  const consumerSecret = decryptToken(integration.consumer_secret_encrypted)
   const siteUrl = normalizeSiteUrl(integration.extra_config?.store_url || integration.extra_config?.site_url)
 
   if (!consumerKey || !consumerSecret || !siteUrl) return null

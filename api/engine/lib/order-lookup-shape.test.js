@@ -79,7 +79,8 @@ describe('forme de retour commune Shopify / WooCommerce', () => {
       }),
     }))
     const wooSupabase = chainableSupabase({
-      api_key: 'ck_1', extra_config: { store_url: 'https://boutique.com', consumer_secret: 'cs_1' }, status: 'active',
+      api_key: 'ck_1', consumer_secret_encrypted: 'cs_1',
+      extra_config: { store_url: 'https://boutique.com' }, status: 'active',
     })
     const [wooOrder] = await lookupWooCommerceOrder(wooSupabase, { clientId: 'c2', orderId: '#1001' })
 
