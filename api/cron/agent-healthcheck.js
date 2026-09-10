@@ -231,7 +231,13 @@ async function checkSilence() {
     const jours = Math.floor(s.heuresDeSilence / 24)
     const duree = jours >= 1 ? `${jours} jour${jours > 1 ? 's' : ''}` : `${s.heuresDeSilence} h`
     const message = `Le moteur n'a rien traité pour « ${s.brandName} » depuis ${duree}.`
-    await sendOpsAlert(message)
+    // Email (Resend), pas le webhook ops : ce dernier pointe vers un
+    // credential Slack révoqué (voir docs/runbook-incident.md, ligne
+    // « Webhook ops — non vérifiée »). Un canal qu'on sait mort ne doit pas
+    // porter la seule alerte de ce moniteur — Resend est le canal dont on est
+    // sûr qu'il est vivant : c'est celui que les clients reçoivent tous les
+    // jours (welcome email, rapports mensuels, etc.).
+    await sendSilenceAlertEmail(s, message)
     captureError(new Error(`engine_silence: ${message}`), {
       stage: 'engine_silence',
       client_id: s.clientId,
@@ -250,6 +256,62 @@ async function checkSilence() {
   }
 
   return { evalue: true, silencieux, alertes: aAlerter.length }
+}
+
+// Alerte « moteur silencieux » par email, via Resend.
+//
+// Pourquoi Resend et pas sendOpsAlert() (Slack/Telegram) : le credential
+// Slack de l'espace a été révoqué et les workflows d'alerte qui en
+// dépendaient sont morts sans que personne ne s'en aperçoive — c'est
+// exactement le trou qu'ACT-21 cherche à combler. Reconstruire la même
+// alerte sur la même dépendance morte n'aurait rien réglé. Resend est déjà le
+// canal email de production (welcome email, rapports mensuels, factures) :
+// s'il casse, on le voit ailleurs avant de le voir ici.
+//
+// OPS_ALERT_EMAIL est volontairement une variable dédiée (pas
+// RESEND_FROM_EMAIL, qui est l'expéditeur côté client) : le destinataire ici
+// est l'équipe Actero, pas un marchand. Best-effort : ne lève jamais, pour ne
+// pas casser le check-in du cron (Sentry, via captureError juste après,
+// reste le chemin garanti).
+// Le nom de marque vient de la base, donc du marchand : l'interpoler dans du
+// HTML sans échapper laisserait passer du balisage dans nos propres alertes.
+const echappe = (v) => String(v ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+async function sendSilenceAlertEmail(client, message) {
+  const key = process.env.RESEND_API_KEY
+  const to = process.env.OPS_ALERT_EMAIL
+  if (!key || !to) {
+    console.warn('[healthcheck] silence alert email skipped — RESEND_API_KEY ou OPS_ALERT_EMAIL manquant')
+    return
+  }
+  try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 6000)
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM_EMAIL || 'alerts@actero.fr',
+        to: to.split(',').map((s) => s.trim()).filter(Boolean),
+        subject: `Actero — moteur silencieux : ${client.brandName}`,
+        html: `<p>${echappe(message)}</p><p>Client : ${echappe(client.brandName)} (<code>${echappe(client.clientId)}</code>)</p>`,
+      }),
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeout))
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      console.error('[healthcheck] silence alert email failed:', res.status, body.slice(0, 200))
+    }
+  } catch (err) {
+    // Ne jamais laisser une panne Resend casser le healthcheck lui-même —
+    // captureError() (appelé juste après pour chaque client) reste le filet
+    // garanti même si cet envoi échoue.
+    console.error('[healthcheck] silence alert email error:', err.message)
+  }
 }
 
 // Best-effort instant ping to a Slack/Telegram-compatible incoming webhook
