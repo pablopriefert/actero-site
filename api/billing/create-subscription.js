@@ -60,6 +60,19 @@ async function resolveCustomerCard(stripe, subscription, customerId) {
   }
 }
 
+/**
+ * Combien de jours d'essai il reste sur un abonnement Stripe existant.
+ *
+ * Renvoie `null` quand il n'y a pas d'essai en cours — l'écran doit alors se
+ * taire, pas afficher zéro ni deviner une valeur.
+ */
+function joursRestantsDEssai(subscription) {
+  const fin = subscription?.trial_end
+  if (!fin) return null
+  const restant = Math.ceil((fin * 1000 - Date.now()) / 86400000)
+  return restant > 0 ? restant : null
+}
+
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -186,11 +199,18 @@ async function handler(req, res) {
                 usage: 'off_session',
                 metadata: { client_id, target_plan, billing_period },
               })).client_secret;
+            // La durée vient de l'abonnement DÉJÀ créé, pas d'un nouveau calcul :
+            // c'est lui qui porte l'essai, et c'est ce qu'il en reste que le
+            // marchand va réellement obtenir. Sans ce champ, l'écran n'annonce
+            // aucune durée — ce qui, sur un parcours venu d'une publicité
+            // promettant un mois, est presque aussi mauvais que d'en annoncer
+            // sept.
             return res.status(200).json({
               subscription_id: subscription.id,
               mode: 'setup',
               client_secret: clientSecret,
               requires_card_first: true,
+              trial_days: joursRestantsDEssai(subscription),
             });
           }
 
