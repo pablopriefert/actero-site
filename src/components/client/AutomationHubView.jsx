@@ -415,7 +415,7 @@ export const AutomationHubView = ({ clientId, theme: _theme, setActiveTab }) => 
     queryFn: async () => {
       const { data } = await supabase
         .from('client_settings')
-        .select('email_agent_enabled, hourly_cost, avg_ticket_time_min')
+        .select('email_agent_enabled, hourly_cost, avg_ticket_time_min, roi_conservative_mode')
         .eq('client_id', clientId)
         .maybeSingle()
       return data
@@ -555,9 +555,16 @@ export const AutomationHubView = ({ clientId, theme: _theme, setActiveTab }) => 
   const hourlyCost = parseFloat(clientSettings?.hourly_cost) || 25
   const monthROI = Math.round(monthHours * hourlyCost)
   // La base est affichée telle quelle : un chiffre en euros sans son hypothèse
-  // est une affirmation, pas une mesure.
-  const minutesParTicket = parseInt(clientSettings?.avg_ticket_time_min, 10) || 5
-  const baseRoi = `${minutesParTicket} min × ${hourlyCost} €/h`
+  // est une affirmation, pas une mesure. En mode conservateur (ACT-12), le
+  // plafond appliqué au moment du calcul réel (resolveAvgTicketTimeSec côté
+  // moteur) doit se retrouver ici, sinon l'hypothèse affichée ment sur ce qui
+  // a effectivement été compté.
+  const CONSERVATIVE_CEILING_MIN = 3
+  const configuredMinutesParTicket = parseInt(clientSettings?.avg_ticket_time_min, 10) || 5
+  const minutesParTicket = clientSettings?.roi_conservative_mode
+    ? Math.min(configuredMinutesParTicket, CONSERVATIVE_CEILING_MIN)
+    : configuredMinutesParTicket
+  const baseRoi = `${minutesParTicket} min × ${hourlyCost} €/h${clientSettings?.roi_conservative_mode ? ' · conservateur' : ''}`
 
   /* ---- Actions ---- */
 
