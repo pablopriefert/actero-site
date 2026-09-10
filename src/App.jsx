@@ -261,7 +261,7 @@ function MainRouter() {
     page = <SuccessPage onNavigate={navigate} />;
   } else {
     page = (
-      <div className="min-h-screen flex items-center justify-center bg-[#F7F8FA] text-[#262626]">
+      <div className="min-h-screen flex items-center justify-center bg-surface text-[#262626]">
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-[#716D5C] mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Page introuvable</h2>

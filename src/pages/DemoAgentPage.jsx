@@ -46,7 +46,7 @@ function Jauge({ valeur }) {
   const teinte = pct >= 75 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-neutral-400'
   return (
     <span className="inline-flex items-center gap-1.5" title={`Confiance du modèle : ${pct} %`}>
-      <span className="relative block h-1 w-10 overflow-hidden rounded-full bg-[#E6E8EC]">
+      <span className="relative block h-1 w-10 overflow-hidden rounded-full bg-surface">
         <span className={`absolute inset-y-0 left-0 ${teinte}`} style={{ width: `${pct}%` }} />
       </span>
       <span className="tabular-nums text-[11px] text-[#8A8578]">{pct} %</span>
@@ -204,14 +204,14 @@ export const DemoAgentPage = ({ onNavigate }) => {
                     className={
                       m.role === 'client'
                         ? 'max-w-[85%] rounded-2xl rounded-br-sm bg-cta px-3.5 py-2.5 text-[14px] leading-relaxed text-white'
-                        : 'max-w-[85%] rounded-2xl rounded-bl-sm bg-[#F7F5EF] px-3.5 py-2.5 text-[14px] leading-relaxed text-[#1A1A1A]'
+                        : 'max-w-[85%] rounded-2xl rounded-bl-sm bg-surface px-3.5 py-2.5 text-[14px] leading-relaxed text-[#1A1A1A]'
                     }
                   >
                     <p className="whitespace-pre-wrap">{m.texte}</p>
                     {m.role === 'agent' && <Signaux meta={m.meta} />}
                   </div>
                   {m.role === 'client' && (
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E6E8EC]">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface">
                       <User className="h-3 w-3 text-[#716D5C]" />
                     </span>
                   )}

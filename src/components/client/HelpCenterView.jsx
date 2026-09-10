@@ -164,7 +164,7 @@ export const HelpCenterView = ({ theme: _theme }) => {
         <button
           onClick={() => setSelectedCategory(null)}
           className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
-            !selectedCategory ? 'bg-cta text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+            !selectedCategory ? 'bg-cta text-white' : 'bg-surface text-[#71717a] hover:bg-[#ebebeb]'
           }`}
         >
           Tout
@@ -176,7 +176,7 @@ export const HelpCenterView = ({ theme: _theme }) => {
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
-                selectedCategory === cat.id ? 'bg-cta text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+                selectedCategory === cat.id ? 'bg-cta text-white' : 'bg-surface text-[#71717a] hover:bg-[#ebebeb]'
               }`}
             >
               <Icon className="w-3 h-3" />
@@ -196,7 +196,7 @@ export const HelpCenterView = ({ theme: _theme }) => {
               onClick={() => setSelectedGuide(guide)}
               className="w-full flex items-center gap-3 px-4 py-3 bg-white rounded-xl border border-[#f0f0f0] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:border-[#e0e0e0] transition-all text-left"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#f5f5f5] flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center flex-shrink-0">
                 <Icon className="w-4 h-4 text-[#9ca3af]" />
               </div>
               <div className="flex-1 min-w-0">

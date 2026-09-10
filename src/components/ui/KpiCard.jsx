@@ -111,10 +111,10 @@ export function KpiCard({
   if (loading) {
     return (
       <div className={baseClasses}>
-        <div className="w-8 h-8 rounded-lg bg-[#f5f5f5] animate-pulse" />
-        <div className="mt-4 h-3 w-24 rounded bg-[#f5f5f5] animate-pulse" />
-        <div className="mt-2 h-7 w-32 rounded bg-[#f5f5f5] animate-pulse" />
-        <div className="mt-2 h-3 w-20 rounded bg-[#f5f5f5] animate-pulse" />
+        <div className="w-8 h-8 rounded-lg bg-surface animate-pulse" />
+        <div className="mt-4 h-3 w-24 rounded bg-surface animate-pulse" />
+        <div className="mt-2 h-7 w-32 rounded bg-surface animate-pulse" />
+        <div className="mt-2 h-3 w-20 rounded bg-surface animate-pulse" />
       </div>
     );
   }

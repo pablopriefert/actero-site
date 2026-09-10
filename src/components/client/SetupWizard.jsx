@@ -146,7 +146,7 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
                       </span>
                     </button>
                     {i < steps.length - 1 && (
-                      <div className={`flex-1 h-0.5 mx-1 rounded-full transition-colors ${steps[i].done ? 'bg-cta' : 'bg-[#e5e5e5]'}`} />
+                      <div className={`flex-1 h-0.5 mx-1 rounded-full transition-colors ${steps[i].done ? 'bg-cta' : 'bg-surface'}`} />
                     )}
                   </React.Fragment>
                 ))}
@@ -456,7 +456,7 @@ function StepTest({ clientId, progress, queryClient, toast }) {
             } disabled:opacity-50`}
           >
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#f0f0f0] flex items-center justify-center">
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface flex items-center justify-center">
                 <Send className="w-4 h-4 text-[#71717a]" />
               </div>
               <p className="text-[14px] text-[#1a1a1a] font-medium flex-1">{q.q}</p>

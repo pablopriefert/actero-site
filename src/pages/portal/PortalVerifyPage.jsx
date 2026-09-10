@@ -50,7 +50,7 @@ export default function PortalVerifyPage({ navigate }) {
     expired: {
       Icon: Clock,
       iconClass: 'text-[#B45309]',
-      tint: 'bg-[#FEF3C7] ring-[#F59E0B]/30',
+      tint: 'bg-warn-bg ring-[#F59E0B]/30',
       title: 'Lien expiré',
       description: applyTone(
         'Ce lien de connexion n\'est plus valide. On te redirige vers la page de connexion…',

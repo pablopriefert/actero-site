@@ -132,7 +132,7 @@ function BacktestCard({ clientId }) {
           </div>
 
           {latest.status === 'completed' && (
-            <div className="rounded-lg bg-[#fdfcf7] border border-[#f0ead8] p-3">
+            <div className="rounded-lg bg-surface border border-[#f0ead8] p-3">
               <p className="text-[22px] font-bold text-[#003725] tabular-nums">
                 {Number(latest.resolution_rate ?? 0).toFixed(1)}%
               </p>

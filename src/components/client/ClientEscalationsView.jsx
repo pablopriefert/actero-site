@@ -463,7 +463,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                     className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-[12px] font-semibold transition-all ${
                       actionMode === 'ai-edit'
                         ? 'bg-[#1a1a1a] text-white border border-[#1a1a1a]'
-                        : 'bg-[#f5f5f5] text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#ececec]'
+                        : 'bg-surface text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#ececec]'
                     }`}
                   >
                     <Edit3 className="w-4 h-4" />
@@ -492,7 +492,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 <button
                   type="button"
                   onClick={() => setShowTemplatePicker((v) => !v)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#f5f5f5] text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#ececec] transition-all"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-surface text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#ececec] transition-all"
                 >
                   <Sparkles className="w-3 h-3" />
                   Insérer un template
@@ -531,7 +531,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                             <div className="flex items-center gap-2 min-w-0">
                               <span className="text-[12px] font-semibold text-[#1a1a1a] truncate">{tpl.name}</span>
                               {tpl.category && (
-                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#f0f0f0] text-[#71717a] border border-[#ebebeb]">
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-surface text-[#71717a] border border-[#ebebeb]">
                                   {tpl.category}
                                 </span>
                               )}

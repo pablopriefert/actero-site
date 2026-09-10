@@ -220,7 +220,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                         <th className="text-left p-5 text-sm font-bold text-[#262626] w-[36%] sticky left-0 bg-white">
                           Critère
                         </th>
-                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-[#F0F7F2]">
+                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-surface">
                           Actero
                         </th>
                         <th className="p-5 text-center text-sm font-bold text-[#716D5C]">
@@ -237,7 +237,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                           <td className="p-5 text-sm font-semibold text-[#262626] sticky left-0 bg-inherit">
                             {row.label}
                           </td>
-                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-[#F0F7F2]/40">
+                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-surface/40">
                             <CellContent value={row.actero} winner />
                           </td>
                           <td className="p-5 text-center text-sm text-[#5A5A5A]">

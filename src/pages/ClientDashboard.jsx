@@ -920,10 +920,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   ) : null
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#F7F8FA] text-[#1a1a1a]">
+    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-surface text-[#1a1a1a]">
       <SkipToMain />
       {/* Mobile Header */}
-      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 bg-[#F7F8FA] border-b border-[#E6E8EC]`}>
+      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 bg-surface border-b border-[#E6E8EC]`}>
         <div className="flex items-center gap-2">
           <Logo className={`w-6 h-6 ${isLight ? "text-[#003725]" : "text-[#1a1a1a]"}`} />
           <span className={`font-bold text-lg ${isLight ? "text-[#1a1a1a]" : "text-[#1a1a1a]"}`}>Actero OS</span>
@@ -985,7 +985,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header — clean, minimal like Instantly */}
-        <header className="sticky top-0 z-40 bg-[#F7F8FA] px-5 md:px-8 h-[48px] flex items-center justify-between border-b border-[#E6E8EC]">
+        <header className="sticky top-0 z-40 bg-surface px-5 md:px-8 h-[48px] flex items-center justify-between border-b border-[#E6E8EC]">
           <h1 className="text-[14px] font-semibold text-[#1a1a1a]">
             {activeTab === "overview" && "Vue d'ensemble"}
             {activeTab === "automation" && "Automatisation"}
@@ -1118,7 +1118,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
         <main
           id="main-content"
-          className={`flex-1 overflow-y-auto bg-[#F7F8FA] ${pleinePage ? '' : 'p-4 md:px-10 md:py-8'}`}
+          className={`flex-1 overflow-y-auto bg-surface ${pleinePage ? '' : 'p-4 md:px-10 md:py-8'}`}
         >
           <TabErrorBoundary tabId={activeTab} resetKey={activeTab} tabLabel={activeTab}>
           <Suspense fallback={

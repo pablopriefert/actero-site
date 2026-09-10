@@ -351,11 +351,11 @@ export const VoiceAgentSetupView = ({ clientId }) => {
 
                 {/* Divider — SIP trunk is the secondary / alternative option */}
                 <div className="flex items-center gap-3 py-1">
-                  <div className="flex-1 h-px bg-[#f0f0f0]" />
+                  <div className="flex-1 h-px bg-surface" />
                   <span className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider">
                     ou connecter un trunk SIP existant
                   </span>
-                  <div className="flex-1 h-px bg-[#f0f0f0]" />
+                  <div className="flex-1 h-px bg-surface" />
                 </div>
 
                 <div>

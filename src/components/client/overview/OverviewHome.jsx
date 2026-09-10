@@ -435,7 +435,7 @@ const EVENT_META = {
   default: {
     icon: Activity,
     color: 'text-[#71717a]',
-    bg: 'bg-[#f5f5f5]',
+    bg: 'bg-surface',
     label: 'Événement',
     ctaTab: null,
     ctaLabel: null,
@@ -494,8 +494,8 @@ function TimelineSection({ clientId, setActiveTab, hasIntegration }) {
         <div className="rounded-2xl border border-[#E6E8EC] bg-white divide-y divide-[#f0f0f0]">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex items-center gap-3 px-5 py-3 animate-pulse">
-              <div className="w-8 h-8 rounded-lg bg-[#f5f5f5]" />
-              <div className="flex-1 h-3 rounded bg-[#f5f5f5]" />
+              <div className="w-8 h-8 rounded-lg bg-surface" />
+              <div className="flex-1 h-3 rounded bg-surface" />
             </div>
           ))}
         </div>
@@ -675,7 +675,7 @@ function TodoSection({
     danger:  { bg: 'bg-red-50/70',   border: 'border-red-200',   iconBg: 'bg-red-100',   iconColor: 'text-red-600',   btn: 'bg-red-600 hover:bg-red-700' },
     warning: { bg: 'bg-amber-50/70', border: 'border-amber-200', iconBg: 'bg-amber-100', iconColor: 'text-amber-700', btn: 'bg-amber-600 hover:bg-amber-700' },
     info:    { bg: 'bg-cta/5',       border: 'border-cta/20',    iconBg: 'bg-cta/10',    iconColor: 'text-cta',       btn: 'bg-cta hover:bg-cta' },
-    neutral: { bg: 'bg-white',       border: 'border-[#E6E8EC]', iconBg: 'bg-[#f5f5f5]', iconColor: 'text-[#71717a]', btn: 'bg-[#1a1a1a] hover:bg-black' },
+    neutral: { bg: 'bg-white',       border: 'border-[#E6E8EC]', iconBg: 'bg-surface', iconColor: 'text-[#71717a]', btn: 'bg-[#1a1a1a] hover:bg-black' },
   }
 
   return (

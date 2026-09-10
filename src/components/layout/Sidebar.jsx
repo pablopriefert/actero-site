@@ -62,7 +62,7 @@ export const Sidebar = ({
   ]
 
   return (
-    <div data-tour="sidebar" className="w-full md:w-[230px] flex flex-col h-full bg-[#F7F8FA] border-r border-[#E6E8EC]">
+    <div data-tour="sidebar" className="w-full md:w-[230px] flex flex-col h-full bg-surface border-r border-[#E6E8EC]">
       {/* Header */}
       <div className="h-[52px] flex items-center px-4 justify-between md:justify-start">
         <div className="flex items-center gap-2.5">
@@ -254,7 +254,7 @@ export const Sidebar = ({
                                   ? "bg-[#ef4444] text-white"
                                   : isActive
                                     ? "bg-cta/10 text-cta"
-                                    : (child.badgeColor || "bg-[#f0f0f0] text-[#71717a]")
+                                    : (child.badgeColor || "bg-surface text-[#71717a]")
                               }`}
                             >
                               {child.badge}
@@ -296,7 +296,7 @@ export const Sidebar = ({
                       ? "bg-[#ef4444] text-white"
                       : isActive
                         ? "bg-cta/10 text-cta"
-                        : (item.badgeColor || "bg-[#f0f0f0] text-[#71717a]")
+                        : (item.badgeColor || "bg-surface text-[#71717a]")
                   }`}
                 >
                   {item.badge}

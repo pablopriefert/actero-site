@@ -91,7 +91,7 @@ function UsageBar({ used, limit, label, unit = '' }) {
           {used.toLocaleString('fr-FR')}{unit} / {isUnlimited ? '\u221E' : limit.toLocaleString('fr-FR')}{unit}
         </span>
       </div>
-      <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden">
+      <div className="h-2 rounded-full bg-surface overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500 ${color}`}
           style={{ width: `${isUnlimited ? 0 : percent}%` }}
@@ -432,7 +432,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <p className="text-[12px] text-[#9ca3af] mt-0.5">Comparez les options et passez au niveau superieur</p>
           </div>
           {/* Billing period toggle */}
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#f0f0f0]">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-surface">
             <button
               onClick={() => setBillingPeriod('monthly')}
               className={`px-3 py-1.5 text-[11px] font-semibold rounded-md transition-colors ${
@@ -543,7 +543,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                     disabled={isCurrent || upgradingPlan === planKey || (isDowngrade && loadingPortal)}
                     className={`w-full py-2.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       isCurrent
-                        ? 'bg-[#f0f0f0] text-[#9ca3af] cursor-default'
+                        ? 'bg-surface text-[#9ca3af] cursor-default'
                         : isDowngrade
                         ? 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-surface hover:text-[#1a1a1a]'
                         : isEnterprise

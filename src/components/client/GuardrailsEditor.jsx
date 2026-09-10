@@ -879,7 +879,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               key={t.id}
               type="button"
               onClick={() => loadTemplate(t)}
-              className="text-left p-3 rounded-xl border border-[#E6E8EC] bg-[#fafaf7] hover:border-cta/40 hover:bg-cta/5 transition"
+              className="text-left p-3 rounded-xl border border-[#E6E8EC] bg-surface hover:border-cta/40 hover:bg-cta/5 transition"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[13px] font-bold text-[#1a1a1a]">{t.name}</span>
@@ -893,7 +893,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
       </div>
 
       {/* Plafond */}
-      <div className="mb-5 p-3 rounded-xl bg-[#fafaf7] border border-[#E6E8EC]">
+      <div className="mb-5 p-3 rounded-xl bg-surface border border-[#E6E8EC]">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
             <p className="text-[12px] font-semibold text-[#1a1a1a]">Plafond max de remise</p>
@@ -1009,14 +1009,14 @@ const DiscountPolicyPanel = ({ clientId }) => {
         {policyShowCode && (
           <div className="mt-3">
             <p className="text-[11px] text-[#71717a] mb-2">
-              La règle est une fonction <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[10px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque appel. Tu peux y mettre n'importe quelle logique conditionnelle Python. Le plafond ci-dessus s'applique <em>après</em> ton retour, donc une coquille ne peut jamais dépasser ta marge.
+              La règle est une fonction <code className="px-1 py-0.5 rounded bg-surface font-mono text-[10px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque appel. Tu peux y mettre n'importe quelle logique conditionnelle Python. Le plafond ci-dessus s'applique <em>après</em> ton retour, donc une coquille ne peut jamais dépasser ta marge.
             </p>
             <textarea
               value={policyCode}
               onChange={(e) => { setPolicyCode(e.target.value); setPolicyDirty(true) }}
               spellCheck={false}
               rows={14}
-              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E6E8EC] bg-[#fafaf7] p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
+              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E6E8EC] bg-surface p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
             />
             {policyDirty && (
               <div className="mt-1 text-[11px] text-amber-700">

@@ -59,7 +59,7 @@ const Toggle = ({ isOn, onToggle, small }) => (
   <button
     onClick={onToggle}
     className={`relative rounded-full transition-colors flex-shrink-0 ${
-      isOn ? 'bg-cta' : 'bg-[#e5e5e5]'
+      isOn ? 'bg-cta' : 'bg-surface'
     } ${small ? 'w-8 h-[18px]' : 'w-11 h-6'}`}
   >
     <div className={`absolute top-0.5 rounded-full bg-white shadow transition-transform ${

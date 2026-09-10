@@ -298,7 +298,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
           </p>
         </div>
 
-        <div className="flex p-0.5 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5]">
+        <div className="flex p-0.5 rounded-lg bg-surface border border-[#e5e5e5]">
           {[
             { id: 'all', label: 'Tous' },
             { id: 'tickets', label: 'Tickets' },
@@ -325,10 +325,10 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
           <div className="p-8 space-y-5">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex gap-4 items-center animate-pulse">
-                <div className="w-10 h-10 bg-[#f5f5f5] rounded-xl" />
+                <div className="w-10 h-10 bg-surface rounded-xl" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3.5 bg-[#f5f5f5] rounded w-2/5" />
-                  <div className="h-3 bg-[#f5f5f5] rounded w-1/4" />
+                  <div className="h-3.5 bg-surface rounded w-2/5" />
+                  <div className="h-3 bg-surface rounded w-1/4" />
                 </div>
               </div>
             ))}
@@ -386,7 +386,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
                               </span>
                             )}
                             {details.source && (
-                              <span className="text-[11px] font-medium text-[#888] bg-[#f5f5f5] px-1.5 py-0.5 rounded capitalize">
+                              <span className="text-[11px] font-medium text-[#888] bg-surface px-1.5 py-0.5 rounded capitalize">
                                 {details.source}
                               </span>
                             )}

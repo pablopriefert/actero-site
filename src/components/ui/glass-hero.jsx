@@ -185,7 +185,7 @@ function HeroPrompt({ onNavigate }) {
                 <div
                   className={
                     t.role === 'user'
-                      ? 'max-w-[85%] rounded-2xl rounded-br-md bg-[#F4F4F2] px-3 py-2 text-[14px] text-[#1A1A1A]'
+                      ? 'max-w-[85%] rounded-2xl rounded-br-md bg-surface px-3 py-2 text-[14px] text-[#1A1A1A]'
                       : 'max-w-[90%] rounded-2xl rounded-bl-md bg-primary-tint px-3 py-2 text-[14px] leading-relaxed text-[#14361F] whitespace-pre-line'
                   }
                 >
@@ -309,9 +309,9 @@ function DashboardPreview() {
     <div className="bg-white rounded-2xl overflow-hidden border border-black/[0.06] w-full">
       {/* Window chrome */}
       <div className="h-9 bg-surface border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
         <div className="ml-5 text-[11px] text-[#9ca3af] font-mono">app.actero.fr / dashboard</div>
       </div>
 
@@ -392,7 +392,7 @@ function DashboardPreview() {
                   Auto
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#E3E6EA]" />
+                  <span className="w-2 h-2 rounded-full bg-surface" />
                   Escalade humain
                 </span>
               </div>

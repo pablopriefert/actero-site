@@ -26,6 +26,20 @@ import { join } from 'node:path'
  * commentaire qui survit à la décision qu'il décrit est un piège de plus, pas
  * une trace.
  *
+ * 10 septembre — « je veux que tout soit en blanc ». 118 fonds neutres et
+ * très clairs (`#F5F5F5`, `#F0F0F0`, `#F7F8FA`, et les blancs cassés chauds
+ * `#FAF9F4`, `#FDFCF7`, `#F7F5EF`…) sont passés à `bg-surface`, c'est-à-dire
+ * au blanc pur, sur 48 fichiers. Trois garde-fous à cette bascule :
+ *
+ *  1. Les **variantes** (`hover:`, `dark:`, `group-hover:`) n'ont PAS été
+ *     converties. Un survol blanc sur un fond blanc ne donne plus aucun
+ *     retour visuel, et un `dark:` doit rester sombre. 30 occurrences.
+ *  2. Les **teintes sémantiques** sont épargnées : jaune d'avertissement,
+ *     vert de succès, rouge d'erreur portent une information, pas un style.
+ *     `#FEF3C7` a été rapatrié vers `bg-warn-bg` plutôt que blanchi.
+ *  3. Seuls les **fonds** ont bougé. Les bordures restent, donc les cartes
+ *     gardent leur séparation visuelle sur fond blanc.
+ *
  * 10 septembre, `#F4F5F7` et `#E8F5EC` rapatriés à leur tour (22 et 19
  * occurrences) : ils valent exactement `--color-cream` et
  * `--color-primary-tint`. Uniquement en contexte `bg-` — `text-[#F4F5F7]`
@@ -35,10 +49,11 @@ import { join } from 'node:path'
  * dire un rôle identique.
  *
  * Ce que ce fichier NE couvre TOUJOURS PAS, et pourquoi :
- * `src/` contient encore 365 `bg-[#XXXXXX]` écrits en dur sur 114
- * fichiers (couleurs valides, pas du beige — `#FAFAFA` inclus — juste jamais
+ * `src/` contient encore 234 `bg-[#XXXXXX]` écrits en dur sur 92
+ * fichiers — dont 203 ne sont pas clairs du tout (fonds volontairement
+ * sombres, couleurs de marque) (couleurs valides, pas du beige — `#FAFAFA` inclus — juste jamais
  * rapatriées vers un token). Un test qui interdirait tout `bg-[#...]`
- * échouerait sur ces 365 lignes dès aujourd'hui et ne garderait rien de plus
+ * échouerait sur ces 234 lignes dès aujourd'hui et ne garderait rien de plus
  * que ce que les tests ci-dessous gardent déjà : il serait juste rouge en
  * permanence, donc ignoré. Avant de pouvoir poser cette garde-là, il faut
  * d'abord rapatrier ces fonds vers `--color-app`, `--color-surface` ou
@@ -52,6 +67,25 @@ const RACINE = 'src'
 const BEIGE_ABANDONNE = [
   '#F9F7F1', '#F4F0E6', '#FAF8F3', '#E5E2D7', '#E8DFC9',
   '#E5E1D6', '#ECEAE2', '#F5F5F0', '#F7F5F0', '#EFE7D6',
+  // 10 septembre : trois beiges avaient survécu au nettoyage du 9, dans le
+  // téléchargeur de pièces jointes du portail. Ils échappaient à la liste
+  // ci-dessus, tout simplement parce qu'ils n'y étaient pas — une liste de
+  // couleurs interdites ne garde que ce qu'on a pensé à y écrire.
+  '#EAE3D1', '#EEE7D4', '#C9BFA6',
+  // Et un quatrième, planqué dans une variable CSS d'un module de vue.
+  '#EFEBE1',
+]
+// 10 septembre — « je veux que tout soit en blanc ». La famille des blancs
+// cassés, chauds comme froids, tous remplacés par du blanc pur. Aucun n'était
+// dans la liste ci-dessus : pas assez beiges pour y figurer, assez beiges pour
+// se voir. Quatre d'entre eux vivaient dans public/widget.js.
+//
+// #F5F5F5 n'est volontairement PAS banni : c'est le gris de survol, et un
+// survol doit rester perceptible. Le blanc pur concerne les surfaces, pas les
+// retours d'interaction.
+const BLANCS_CASSES_ABANDONNES = [
+  '#FBFAF7', '#F4F3EF', '#F0F0EC', '#E8E8E0', '#F7F8FA',
+  '#FAF9F4', '#FDFCF7', '#F7F5EF', '#FAF7F2', '#FAFAF7', '#FAFAF8', '#F4F4F2',
 ]
 // Anciens verts de CTA. #0A4F2C est abandonné partout. #0E653A est devenu
 // --color-cta-hover : on ne le bannit que hors d'un contexte de survol.
@@ -91,7 +125,12 @@ function lignesDeCode(src) {
   return lignes
 }
 
-const FICHIERS = fichiersSources(RACINE)
+// public/widget.js n'est pas dans src/, et c'est précisément le problème :
+// c'est la bulle que voient les clients FINAUX des marchands — la surface la
+// plus exposée du produit — et elle a traversé sans une égratignure le
+// nettoyage du 9 septembre, qui ne balayait que src/. Elle portait encore
+// quatre beiges le 10 septembre. Une garde ne protège que ce qu'elle regarde.
+const FICHIERS = [...fichiersSources(RACINE), 'public/widget.js']
 const CSS = readFileSync('src/index.css', 'utf8')
 const TOKENS = readFileSync('src/lib/tokens.ts', 'utf8')
 
@@ -103,8 +142,8 @@ describe('couleurs — pas de retour du beige ni des anciens verts', () => {
       for (const { ligne, nu } of lignesDeCode(src)) {
         const ligneMaj = ligne.toUpperCase()
 
-        for (const beige of BEIGE_ABANDONNE) {
-          if (ligneMaj.includes(beige)) fautifs.push(`${f} → ${nu.slice(0, 90)}`)
+        for (const abandonnee of [...BEIGE_ABANDONNE, ...BLANCS_CASSES_ABANDONNES]) {
+          if (ligneMaj.includes(abandonnee)) fautifs.push(`${f} → ${nu.slice(0, 90)}`)
         }
         if (ligneMaj.includes(VERT_ABANDONNE_PARTOUT)) {
           fautifs.push(`${f} → ${nu.slice(0, 90)}`)

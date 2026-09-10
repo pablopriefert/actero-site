@@ -260,7 +260,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                       </span>
                     )}
                     {tpl.category && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#f0f0f0] text-[#71717a] border border-[#ebebeb]">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-surface text-[#71717a] border border-[#ebebeb]">
                         {tpl.category}
                       </span>
                     )}
@@ -275,7 +275,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => openEdit(tpl)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-semibold bg-[#f5f5f5] text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#ececec] transition-all"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-semibold bg-surface text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#ececec] transition-all"
                 >
                   <Edit3 className="w-3 h-3" /> Modifier
                 </button>

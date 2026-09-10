@@ -42,7 +42,7 @@ export default function PortalOrdersListPage({ navigate }) {
       );
     }
     return (
-      <span className="text-xs px-2.5 py-0.5 rounded-full border bg-[#FEF3C7] text-[#8B7A50] border-[#F59E0B]/30">
+      <span className="text-xs px-2.5 py-0.5 rounded-full border bg-warn-bg text-[#8B7A50] border-[#F59E0B]/30">
         {s}
       </span>
     );

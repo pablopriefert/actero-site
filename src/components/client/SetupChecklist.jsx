@@ -233,7 +233,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
       {/* Progress bar — tracks essentials only (binary agent-active signal) */}
       <div className="px-5 pb-3">
         <div
-          className="w-full h-1.5 bg-[#f0f0f0] rounded-full overflow-hidden"
+          className="w-full h-1.5 bg-surface rounded-full overflow-hidden"
           role="progressbar"
           aria-valuenow={progress}
           aria-valuemin={0}

@@ -113,7 +113,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
     >
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
-        <div className="w-10 h-10 rounded-[12px] bg-[#F0F7F2] border border-[#A8C490]/40 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-[12px] bg-surface border border-[#A8C490]/40 flex items-center justify-center flex-shrink-0">
           <Calculator className="w-5 h-5 text-cta" strokeWidth={2} />
         </div>
         <div>
@@ -176,7 +176,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
 
       {/* Result split */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-        <div className="rounded-[16px] border border-black/[0.08] bg-[#FAFAF8] p-5">
+        <div className="rounded-[16px] border border-black/[0.08] bg-surface p-5">
           <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#716D5C] mb-2">
             Gorgias — plan {calc.gorgiasPlan.name}
           </div>

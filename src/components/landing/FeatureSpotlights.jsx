@@ -121,7 +121,7 @@ function SavMedia() {
       </div>
 
       {/* Conversation */}
-      <div className="bg-[#FBFAF7] px-5 py-6 space-y-4">
+      <div className="bg-surface px-5 py-6 space-y-4">
         <div className="flex justify-end">
           <div className="max-w-[80%] bg-white border border-black/[0.05] text-[#1A1A1A] text-[13.5px] leading-[1.5] rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
             Bonjour, je voudrais changer l'adresse de livraison de ma commande #10842 📦
@@ -164,7 +164,7 @@ function CartMedia() {
       {/* Header — trigger */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.05]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#FEF3C7] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-warn-bg flex items-center justify-center">
             <ShoppingCart className="w-4 h-4 text-[#B45309]" strokeWidth={2} />
           </div>
           <span className="text-[13.5px] font-semibold text-[#1A1A1A]">Panier abandonné détecté</span>
@@ -186,7 +186,7 @@ function CartMedia() {
       </div>
 
       {/* Agent-composed message */}
-      <div className="bg-[#FBFAF7] px-5 py-5">
+      <div className="bg-surface px-5 py-5">
         <div className="flex items-center gap-2 mb-2.5">
           <div className="w-6 h-6 rounded-lg bg-primary-tint flex items-center justify-center">
             <Logo className="w-3 h-3 text-[#003725]" />

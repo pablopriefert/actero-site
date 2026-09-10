@@ -29,14 +29,15 @@
   color-scheme: light;
 
   /* ── Surfaces ──
-     Le papier est celui des autres onglets (#F7F8FA, cf. <main> du dashboard) :
-     aucune couture entre la vue et la coquille. La feuille est blanche comme
-     les cartes du produit, ce qui lui suffit pour ressortir du crème. Seule
-     la feuille grave reste un accent sombre assumé. */
-  --papier:#F7F8FA;
+     Le papier est celui des autres onglets (cf. <main> du dashboard), passé
+     au blanc le 10 septembre en même temps que lui : cette valeur sert aussi
+     de couleur de découpe (masques, encoches), donc elle DOIT rester égale au
+     fond réel de la coquille, sinon les découpes se voient. La feuille reste
+     blanche, et la feuille grave un accent sombre assumé. */
+  --papier:#FFFFFF;
   --feuille:#FFFFFF;
   --grave:#0B3D25;
-  --lavis:#EFEBE1;
+  --lavis:#F5F5F5;
 
   /* ── Encres ── */
   --encre:#14231C;

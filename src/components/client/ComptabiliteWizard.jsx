@@ -153,7 +153,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                                 <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">Connecte</span>
                               )}
                               {tool.id !== 'none' && !isConnected && (
-                                <span className="text-[9px] font-bold text-[#9ca3af] bg-[#f5f5f5] px-1.5 py-0.5 rounded-full">Non connecte</span>
+                                <span className="text-[9px] font-bold text-[#9ca3af] bg-surface px-1.5 py-0.5 rounded-full">Non connecte</span>
                               )}
                             </div>
                             <p className="text-[11px] text-[#9ca3af]">{tool.desc}</p>
@@ -215,7 +215,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                           key={freq}
                           onClick={() => setExportFrequency(freq)}
                           className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition-all ${
-                            exportFrequency === freq ? 'bg-indigo-600 text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+                            exportFrequency === freq ? 'bg-indigo-600 text-white' : 'bg-surface text-[#71717a] hover:bg-[#ebebeb]'
                           }`}
                         >
                           {freq.charAt(0).toUpperCase() + freq.slice(1)}

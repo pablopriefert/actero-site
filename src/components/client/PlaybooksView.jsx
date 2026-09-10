@@ -446,13 +446,13 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
                     </div>
 
                     {meta.comingSoon ? (
-                      <span className="px-3 py-1.5 text-[11px] font-semibold text-[#9ca3af] bg-[#f5f5f5] rounded-full flex-shrink-0">
+                      <span className="px-3 py-1.5 text-[11px] font-semibold text-[#9ca3af] bg-surface rounded-full flex-shrink-0">
                         Bientot disponible
                       </span>
                     ) : reqs.met ? (
                       <button
                         onClick={() => handleToggle(pb.name)}
-                        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${active ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
+                        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${active ? 'bg-cta' : 'bg-surface'}`}
                       >
                         <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${active ? 'translate-x-5' : 'translate-x-0.5'}`} />
                       </button>
@@ -506,7 +506,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
                                       setSelectedChannels(prev => ({ ...prev, [`${pb.name}_${ch.id}`]: newVal }))
                                       saveChannels(pb.name, ch.id, newVal)
                                     }}
-                                    className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isSelected ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
+                                    className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${isSelected ? 'bg-cta' : 'bg-surface'}`}
                                   >
                                     <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${isSelected ? 'translate-x-4' : 'translate-x-0.5'}`} />
                                   </button>

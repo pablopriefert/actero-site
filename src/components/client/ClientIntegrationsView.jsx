@@ -40,7 +40,7 @@ const STATUS_BADGES = {
   active: { label: 'Connecté', className: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
   expired: { label: 'Expiré', className: 'bg-amber-50 text-amber-700 border-amber-200' },
   error: { label: 'Erreur', className: 'bg-red-50 text-red-600 border-red-200' },
-  revoked: { label: 'Révoqué', className: 'bg-[#f5f5f5] text-[#9ca3af] border-[#ebebeb]' },
+  revoked: { label: 'Révoqué', className: 'bg-surface text-[#9ca3af] border-[#ebebeb]' },
   pending: { label: 'En attente', className: 'bg-blue-50 text-blue-600 border-blue-200' },
 };
 
@@ -110,7 +110,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                       if (result?.ok) setTimeout(() => setTestResult(null), 3000);
                     }}
                     disabled={testing}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-cta bg-[#f5f5f5] hover:bg-[#ebebeb] border border-[#ebebeb] transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-cta bg-surface hover:bg-[#ebebeb] border border-[#ebebeb] transition-colors disabled:opacity-50"
                   >
                     {testing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     {testing ? 'Test...' : 'Tester'}
@@ -137,7 +137,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                 )}
               </>
             ) : provider.authType === 'coming_soon' ? (
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#9ca3af] bg-[#f5f5f5] cursor-not-allowed">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#9ca3af] bg-surface cursor-not-allowed">
                 <Plug className="w-3 h-3" /> Bientot
               </span>
             ) : provider.authType === 'smtp' ? (
@@ -313,7 +313,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight: _isLight }) => {
           <button
             onClick={handleTest}
             disabled={!allFieldsFilled || testing}
-            className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] rounded-lg`}
+            className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 bg-surface text-[#71717a] hover:bg-[#ebebeb] rounded-lg`}
           >
             {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             Tester
@@ -347,7 +347,7 @@ const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight:
       <div className="flex gap-3">
         <button
           onClick={onClose}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]`}
+          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors bg-surface text-[#71717a] hover:bg-[#ebebeb]`}
         >
           Annuler
         </button>
@@ -1001,7 +1001,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
                 <button
                   onClick={() => setOauthPromptProvider(null)}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-                    'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+                    'bg-surface text-[#71717a] hover:bg-[#ebebeb]'
                   }`}
                 >
                   Annuler
@@ -1055,7 +1055,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
             <div className="flex gap-3">
               <button
                 onClick={() => setApiKeyProvider(null)}
-                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] transition-colors"
+                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-surface text-[#71717a] hover:bg-[#ebebeb] transition-colors"
               >
                 Annuler
               </button>
@@ -1103,7 +1103,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
                       <span className="text-[12px] text-[#1a1a1a]">{field.label}</span>
                       <button
                         onClick={() => setSmtpValues(v => ({ ...v, [field.key]: !(v[field.key] ?? field.defaultValue) }))}
-                        className={`relative w-10 h-5 rounded-full transition-colors ${(smtpValues[field.key] ?? field.defaultValue) ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
+                        className={`relative w-10 h-5 rounded-full transition-colors ${(smtpValues[field.key] ?? field.defaultValue) ? 'bg-cta' : 'bg-surface'}`}
                       >
                         <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${(smtpValues[field.key] ?? field.defaultValue) ? 'translate-x-5' : 'translate-x-0.5'}`} />
                       </button>
@@ -1124,7 +1124,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
             <div className="flex gap-3 mt-5">
               <button
                 onClick={() => setSmtpProvider(null)}
-                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] transition-colors"
+                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-surface text-[#71717a] hover:bg-[#ebebeb] transition-colors"
               >
                 Annuler
               </button>

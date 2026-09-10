@@ -20,7 +20,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
  */
 const TONE_STYLES = {
   neutral: {
-    bg: 'bg-[#f5f5f5]',
+    bg: 'bg-surface',
     ring: 'ring-1 ring-[#e5e5e5]',
     icon: 'text-[#9ca3af]',
   },

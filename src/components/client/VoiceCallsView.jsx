@@ -32,7 +32,7 @@ const formatDate = (dateStr) => {
 }
 
 const sentimentMeta = (sentiment) => {
-  if (!sentiment) return { label: 'Neutre', color: 'text-[#9ca3af] bg-[#f5f5f5]', Icon: Meh }
+  if (!sentiment) return { label: 'Neutre', color: 'text-[#9ca3af] bg-surface', Icon: Meh }
   const s = String(sentiment).toLowerCase()
   if (s.includes('positive') || s.includes('good') || s === '5' || s === '4') {
     return { label: 'Positif', color: 'text-emerald-700 bg-emerald-50', Icon: Smile }
@@ -40,7 +40,7 @@ const sentimentMeta = (sentiment) => {
   if (s.includes('negative') || s.includes('bad') || s === '1' || s === '2') {
     return { label: 'Negatif', color: 'text-red-600 bg-red-50', Icon: Frown }
   }
-  return { label: 'Neutre', color: 'text-[#9ca3af] bg-[#f5f5f5]', Icon: Meh }
+  return { label: 'Neutre', color: 'text-[#9ca3af] bg-surface', Icon: Meh }
 }
 
 const statusMeta = (status) => {
@@ -48,7 +48,7 @@ const statusMeta = (status) => {
   if (s === 'escalated') return { label: 'Escalade', color: 'text-amber-700 bg-amber-50 border-amber-200' }
   if (s === 'failed' || s === 'error') return { label: 'Echec', color: 'text-red-600 bg-red-50 border-red-200' }
   if (s === 'completed' || s === 'resolved') return { label: 'Resolu', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' }
-  return { label: status || 'Inconnu', color: 'text-[#9ca3af] bg-[#f5f5f5] border-[#ebebeb]' }
+  return { label: status || 'Inconnu', color: 'text-[#9ca3af] bg-surface border-[#ebebeb]' }
 }
 
 export const VoiceCallsView = ({ clientId }) => {

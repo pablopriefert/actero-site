@@ -195,7 +195,7 @@ export const TeamManager = ({ clientId }) => {
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="collegue@entreprise.com"
-                    className="w-full px-4 py-2.5 bg-[#F7F8FA] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
+                    className="w-full px-4 py-2.5 bg-surface border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
                   />
                 </div>
                 <div className="w-48">
@@ -203,7 +203,7 @@ export const TeamManager = ({ clientId }) => {
                   <select
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-[#F7F8FA] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 appearance-none cursor-pointer"
+                    className="w-full px-4 py-2.5 bg-surface border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 appearance-none cursor-pointer"
                   >
                     {ROLES.map(r => (
                       <option key={r.id} value={r.id}>{r.label} — {r.desc}</option>
@@ -246,7 +246,7 @@ export const TeamManager = ({ clientId }) => {
             return (
               <div key={member.user_id} className="flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-full bg-[#F7F8FA] flex items-center justify-center text-sm font-bold text-[#71717a]">
+                <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-sm font-bold text-[#71717a]">
                   {(member.email || '?')[0].toUpperCase()}
                 </div>
 

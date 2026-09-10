@@ -178,7 +178,7 @@
       background: none; border: none; cursor: pointer; font-size: 15px; line-height: 1;
       padding: 2px 4px; border-radius: 6px;
     }
-    .actero-fb-btn:hover { background: #f0f0ec; }
+    .actero-fb-btn:hover { background: #F5F5F5; }
     .actero-fb-input {
       border: 1px solid #e5e5e5; border-radius: 9999px; padding: 6px 12px; font-size: 12.5px; min-width: 160px;
     }
@@ -188,7 +188,7 @@
     }
     .actero-messages {
       flex: 1; overflow-y: auto; padding: 20px 18px; display: flex;
-      flex-direction: column; gap: 14px; background: #FBFAF7;
+      flex-direction: column; gap: 14px; background: #fff;
     }
     .actero-msg-row { display: flex; gap: 9px; align-items: flex-end; max-width: 88%; }
     .actero-msg-row.user { align-self: flex-end; flex-direction: row-reverse; max-width: 82%; }
@@ -251,9 +251,9 @@
       display: flex; gap: 8px; align-items: center; background: #fff;
     }
     .actero-input-area input[type="text"] {
-      flex: 1; border: 1px solid transparent; border-radius: 9999px;
+      flex: 1; border: 1px solid #e5e5e5; border-radius: 9999px;
       padding: 12px 16px; font-size: 16px; outline: none;
-      background: #F4F3EF; color: #1A1A1A;
+      background: #fff; color: #1A1A1A;
     }
     .actero-input-area input[type="text"]:focus { border-color: var(--actero-primary, #0F5F35); background: #fff; }
     .actero-input-area button#actero-send {
@@ -339,11 +339,11 @@
     }
     .actero-attach-btn {
       width: 38px; height: 38px; border-radius: 10px;
-      background: #F7F8FA; border: none; cursor: pointer;
+      background: #fff; border: 1px solid #e5e5e5; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.2s; flex-shrink: 0;
     }
-    .actero-attach-btn:hover { background: #e8e8e0; }
+    .actero-attach-btn:hover { background: #F5F5F5; }
     .actero-attach-btn svg { width: 18px; height: 18px; fill: #5A5A5A; }
     .actero-attach-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .actero-pending-images {

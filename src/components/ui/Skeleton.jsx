@@ -23,7 +23,7 @@ import React from 'react'
 export function Skeleton({ className = '', ...rest }) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-[#f0f0f0] ${className}`}
+      className={`animate-pulse rounded-md bg-surface ${className}`}
       aria-hidden="true"
       {...rest}
     />

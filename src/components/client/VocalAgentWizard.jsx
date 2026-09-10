@@ -188,7 +188,7 @@ export const VocalAgentWizard = ({ clientId, onComplete, onCancel }) => {
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); handlePreviewVoice(voice.id) }}
-                        className="p-2 rounded-lg bg-[#f5f5f5] hover:bg-[#ebebeb] transition-colors"
+                        className="p-2 rounded-lg bg-surface hover:bg-[#ebebeb] transition-colors"
                       >
                         {previewPlaying === voice.id ? <Pause className="w-4 h-4 text-violet-600" /> : <Play className="w-4 h-4 text-[#9ca3af]" />}
                       </button>

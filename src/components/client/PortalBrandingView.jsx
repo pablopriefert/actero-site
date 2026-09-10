@@ -17,7 +17,7 @@ function PortalPreview({ displayName, logoUrl, primaryColor }) {
       {/* Mockup browser shell */}
       <div className="rounded-2xl border border-[#e0e0e0] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
         {/* Browser top bar */}
-        <div className="bg-[#f5f5f5] border-b border-[#e0e0e0] px-4 py-2.5 flex items-center gap-2">
+        <div className="bg-surface border-b border-[#e0e0e0] px-4 py-2.5 flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
           <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
           <span className="w-3 h-3 rounded-full bg-[#27c93f]" />
@@ -27,7 +27,7 @@ function PortalPreview({ displayName, logoUrl, primaryColor }) {
         </div>
 
         {/* Scaled-down portal page at ~60% */}
-        <div className="bg-[#f8f8f8] overflow-hidden" style={{ height: '360px' }}>
+        <div className="bg-surface overflow-hidden" style={{ height: '360px' }}>
           <div
             style={{
               transform: 'scale(0.6)',

@@ -407,7 +407,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
 
       {/* Progress bar */}
       <div className="mb-6">
-        <div className="h-1 bg-[#f0f0f0] rounded-full overflow-hidden">
+        <div className="h-1 bg-surface rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-cta"
             initial={false}
@@ -587,7 +587,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_formality || 30}
                       onChange={(e) => setForm(f => ({ ...f, tone_formality: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
+                      className="w-full h-1.5 bg-surface rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
 
@@ -604,7 +604,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_warmth || 70}
                       onChange={(e) => setForm(f => ({ ...f, tone_warmth: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
+                      className="w-full h-1.5 bg-surface rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
 
@@ -621,7 +621,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_detail || 50}
                       onChange={(e) => setForm(f => ({ ...f, tone_detail: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
+                      className="w-full h-1.5 bg-surface rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
                 </div>

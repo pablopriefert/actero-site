@@ -32,7 +32,7 @@ function CopyButton({ text, className = '' }) {
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
         copied
           ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-          : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] border border-[#ebebeb]'
+          : 'bg-surface text-[#71717a] hover:bg-[#ebebeb] border border-[#ebebeb]'
       } ${className}`}
     >
       {copied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -216,7 +216,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
         {/* URL pill */}
         {url ? (
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-[#f8f8f8] border border-[#e8e8e8] rounded-full text-[13px] font-mono text-[#1a1a1a] flex-1 min-w-0 truncate">
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-surface border border-[#e8e8e8] rounded-full text-[13px] font-mono text-[#1a1a1a] flex-1 min-w-0 truncate">
               <MonitorSmartphone className="w-4 h-4 text-[#1F3A12] flex-shrink-0" />
               <span className="truncate">{url}</span>
             </div>
@@ -394,8 +394,8 @@ function DomainStatusBadge({ status, message }) {
     verified: { cls: 'bg-emerald-50 text-emerald-700 border-emerald-200', label: 'Actif', dot: 'bg-emerald-500' },
     pending: { cls: 'bg-amber-50 text-amber-700 border-amber-200', label: 'En attente DNS', dot: 'bg-amber-500' },
     misconfigured: { cls: 'bg-red-50 text-red-700 border-red-200', label: 'DNS incorrect', dot: 'bg-red-500' },
-    error: { cls: 'bg-[#f5f5f5] text-[#71717a] border-[#e8e8e8]', label: 'Erreur temporaire', dot: 'bg-[#9ca3af]' },
-    not_configured: { cls: 'bg-[#f5f5f5] text-[#71717a] border-[#e8e8e8]', label: 'Configuration Actero en attente', dot: 'bg-[#9ca3af]' },
+    error: { cls: 'bg-surface text-[#71717a] border-[#e8e8e8]', label: 'Erreur temporaire', dot: 'bg-[#9ca3af]' },
+    not_configured: { cls: 'bg-surface text-[#71717a] border-[#e8e8e8]', label: 'Configuration Actero en attente', dot: 'bg-[#9ca3af]' },
   }
   const info = MAP[status] || MAP.error
   return (

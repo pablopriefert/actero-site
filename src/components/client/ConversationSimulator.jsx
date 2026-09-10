@@ -387,7 +387,7 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
               <div className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                 msg.role === 'user' ? 'bg-cta text-white rounded-tr-md' :
                 msg.error ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-md' :
-                'bg-[#F7F8FA] text-[#1a1a1a] rounded-tl-md'
+                'bg-surface text-[#1a1a1a] rounded-tl-md'
               }`}>
                 {msg.content}
               </div>
@@ -403,7 +403,7 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
               <div className="w-8 h-8 rounded-lg bg-cta/10 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-[#003725]" />
               </div>
-              <div className="px-4 py-3 bg-[#F7F8FA] rounded-2xl rounded-tl-md">
+              <div className="px-4 py-3 bg-surface rounded-2xl rounded-tl-md">
                 <Loader2 className="w-4 h-4 animate-spin text-[#71717a]" />
               </div>
             </div>
@@ -423,7 +423,7 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
             onKeyDown={(e) => e.key === 'Enter' && sendChat(chatInput)}
             placeholder="Tapez un message client..."
             disabled={chatLoading}
-            className="flex-1 px-4 py-3 bg-[#F7F8FA] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50"
+            className="flex-1 px-4 py-3 bg-surface border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50"
           />
           <button onClick={() => sendChat(chatInput)} disabled={!chatInput.trim() || chatLoading}
             className="px-4 py-3 bg-cta text-white rounded-xl hover:bg-cta disabled:opacity-50">
