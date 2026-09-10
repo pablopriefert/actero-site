@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Actero SaaS Plans — Backend mirror of src/lib/plans.js
  *

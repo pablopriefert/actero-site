@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Le code de campagne publicitaire — une seule définition, deux chemins d'entrée.
  *

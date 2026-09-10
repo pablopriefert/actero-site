@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Actero SaaS Plans — Single source of truth
  *
@@ -215,6 +216,6 @@ export function isInTrial(client) {
 
 export function getTrialDaysLeft(client) {
   if (!client?.trial_ends_at) return 0
-  const diff = new Date(client.trial_ends_at) - new Date()
+  const diff = new Date(client.trial_ends_at).getTime() - Date.now()
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }

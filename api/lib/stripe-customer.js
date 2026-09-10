@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Resolve a *usable* Stripe customer id for a client, healing orphaned ids.
  *

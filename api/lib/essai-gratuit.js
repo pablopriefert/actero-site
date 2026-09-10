@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * La durée de l'essai gratuit — ACT-33.
  *
