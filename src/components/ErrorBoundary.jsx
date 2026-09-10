@@ -97,7 +97,7 @@ export function ErrorBoundary({ children }) {
       fallback={({ error, reset }) => (
         <div
           role="alert"
-          className="min-h-screen flex items-center justify-center bg-[#F9F7F1] p-6"
+          className="min-h-screen flex items-center justify-center bg-[#FFFFFF] p-6"
         >
           <div className="max-w-md text-center">
             <div className="w-14 h-14 rounded-2xl bg-white border border-[#f0f0f0] shadow-sm flex items-center justify-center mx-auto mb-5">

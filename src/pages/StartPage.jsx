@@ -80,7 +80,7 @@ export function StartPage({ clientSlug }) {
         </div>
 
         {/* Card */}
-        <div className="bg-[#F9F7F1] border border-gray-200 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-[#FFFFFF] border border-gray-200 rounded-2xl p-8 shadow-2xl">
           {/* Pricing */}
           <div className="flex items-baseline gap-3 mb-2">
             <span className="text-5xl font-bold text-[#262626]">{monthlyPrice}€</span>

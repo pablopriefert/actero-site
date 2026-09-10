@@ -135,7 +135,7 @@ export const AcademyPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F7F1] text-[#262626]">
+    <div className="min-h-screen bg-[#FFFFFF] text-[#262626]">
       <SEO
         title="Actero Academy - Formations gratuites service client et automatisation e-commerce"
         description="Apprenez gratuitement a automatiser votre SAV, votre e-commerce et a deployer des agents IA performants. 15 cours experts, 100h de contenu, acces libre."
@@ -204,7 +204,7 @@ export const AcademyPage = ({ onNavigate }) => {
                 onClick={() => setCategory(c.id)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
                   category === c.id
-                    ? "bg-[#003725] text-white border-[#003725]"
+                    ? "bg-cta text-white border-[#003725]"
                     : "bg-white text-[#262626] border-gray-200 hover:border-[#003725]"
                 }`}
               >
@@ -261,7 +261,7 @@ export const AcademyPage = ({ onNavigate }) => {
                 >
                   <CourseCover cover={c.cover_image} title={c.title} />
                   <div className="mt-4 flex items-center gap-2 mb-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wide text-[#003725] bg-[#003725]/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-bold uppercase tracking-wide text-[#003725] bg-cta/10 px-2 py-0.5 rounded-full">
                       {CATEGORIES.find((x) => x.id === c.category)?.label || c.category}
                     </span>
                     <LevelBadge level={c.level} />

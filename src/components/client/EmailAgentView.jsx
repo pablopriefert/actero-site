@@ -256,7 +256,7 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-semibold transition-all disabled:opacity-50 ${
               enabled
                 ? 'bg-white border border-[#f0f0f0] text-[#71717a] hover:bg-zinc-50'
-                : 'bg-cta text-white hover:bg-[#003725]'
+                : 'bg-cta text-white hover:bg-cta'
             }`}
           >
             <Power className="w-3.5 h-3.5" />
@@ -567,7 +567,7 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
                   onUpdate({ email_exclusions: next })
                   setNewExcl('')
                 }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725]"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-cta"
               >
                 <Plus className="w-3 h-3" /> Ajouter
               </button>

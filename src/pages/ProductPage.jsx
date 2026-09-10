@@ -28,7 +28,7 @@ import { WatchDemoButton } from '../components/ui/WatchDemoButton'
 /**
  * ProductPage — page dédiée /produit.
  *
- * Design : variation A (même style que la landing — Spectral
+ * Design : variation A (même style que la landing — Inter Tight
  * italic suffix sur les h2, cream bg alternatif, cards blanc rounded-[20px]).
  *
  * Copy : 100% aligné sur le produit RÉEL (plans.js + features actuelles).
@@ -45,7 +45,7 @@ export const ProductPage = ({ onNavigate }) => {
     trackEvent('Product_Page_Viewed')
   }, [])
 
-  const serif = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+  const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
   /* Canaux gérés actuellement */
   const channels = [
@@ -69,7 +69,7 @@ export const ProductPage = ({ onNavigate }) => {
       phase: 'Déployer',
       icon: Settings2,
       title: 'Configurer ton & workflows',
-      desc: "Tutoiement/vouvoiement, signature, KB indexée en continu. L'agent comprend même les photos envoyées par vos clients (Claude Vision). SAV email/chat et relance paniers activables en 1 clic.",
+      desc: "Tutoiement/vouvoiement, signature, KB indexée en continu. L'agent comprend même les photos envoyées par vos clients (Claude Sonnet 5). SAV email/chat et relance paniers activables en 1 clic.",
     },
     {
       step: '03',
@@ -118,10 +118,10 @@ export const ProductPage = ({ onNavigate }) => {
         <section className="pt-28 md:pt-32 pb-12 px-6">
           <div className="max-w-[920px] mx-auto text-center">
             <FadeInUp className="mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#F9F7F1] border border-[#E8DFC9]">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#FFFFFF] border border-[#E3E6EA]">
                 <span className="w-1.5 h-1.5 rounded-full bg-cta" />
                 <span>Produit</span>
-                <span className="text-[#E8DFC9]">·</span>
+                <span className="text-[#E3E6EA]">·</span>
                 <span>Natif Shopify · RGPD · Hébergé UE</span>
               </div>
             </FadeInUp>
@@ -153,7 +153,7 @@ export const ProductPage = ({ onNavigate }) => {
               <div className="flex flex-wrap items-center justify-center gap-3.5">
                 <button
                   onClick={() => onNavigate('/signup')}
-                  className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px transition-all"
+                  className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0E653A] text-white text-[15px] font-semibold shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px transition-all"
                 >
                   Démarrer gratuitement
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -194,7 +194,7 @@ export const ProductPage = ({ onNavigate }) => {
               {channels.map((ch, i) => (
                 <FadeInUp key={i}>
                   <div className="bg-white rounded-[18px] p-6 border border-black/[0.06] hover:border-cta/25 hover:shadow-[0_10px_30px_-15px_rgba(0,55,37,0.1)] transition-all h-full">
-                    <div className="w-11 h-11 rounded-[12px] bg-[#F4F0E6] border border-[#E8DFC9] flex items-center justify-center mb-4">
+                    <div className="w-11 h-11 rounded-[12px] bg-[#F4F5F7] border border-[#E3E6EA] flex items-center justify-center mb-4">
                       <ch.icon className="w-5 h-5 text-cta" strokeWidth={2} />
                     </div>
                     <h3 className="text-[17px] font-bold text-[#1A1A1A] mb-1.5">{ch.label}</h3>
@@ -207,7 +207,7 @@ export const ProductPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ CYCLE D'AMÉLIORATION CONTINUE ═══════════ */}
-        <section id="comment-ca-marche" className="py-24 md:py-32 bg-[#F9F7F1] px-6">
+        <section id="comment-ca-marche" className="py-24 md:py-32 bg-[#FFFFFF] px-6">
           <div className="max-w-6xl mx-auto">
             <FadeInUp className="text-center mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -233,7 +233,7 @@ export const ProductPage = ({ onNavigate }) => {
                   <FadeInUp key={i} delay={i * 0.05}>
                     <div className="relative h-full bg-white rounded-[20px] p-6 md:p-7 border border-black/[0.06] hover:border-cta/25 hover:shadow-[0_10px_30px_-15px_rgba(0,55,37,0.1)] transition-all">
                       <div className="flex items-start gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-[14px] bg-[#F4F0E6] border border-[#E8DFC9] flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 rounded-[14px] bg-[#F4F5F7] border border-[#E3E6EA] flex items-center justify-center flex-shrink-0">
                           <Icon className="w-5 h-5 text-cta" strokeWidth={2} />
                         </div>
                         <div className="min-w-0">
@@ -260,7 +260,7 @@ export const ProductPage = ({ onNavigate }) => {
             {/* Loop indicator — "04 → 01" */}
             <FadeInUp delay={0.25} className="mt-10">
               <div className="flex items-center justify-center gap-3">
-                <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white border border-[#E8DFC9]">
+                <div className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white border border-[#E3E6EA]">
                   <RefreshCw className="w-3.5 h-3.5 text-cta" strokeWidth={2.5} />
                   <span className="text-[13px] font-semibold text-[#1A1A1A]">
                     Chaque cycle enrichit le suivant
@@ -295,7 +295,7 @@ export const ProductPage = ({ onNavigate }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {Object.entries(integrations).map(([category, items]) => (
                 <FadeInUp key={category}>
-                  <div className="bg-[#F9F7F1] rounded-[18px] p-6 border border-[#E8DFC9] h-full">
+                  <div className="bg-[#FFFFFF] rounded-[18px] p-6 border border-[#E3E6EA] h-full">
                     <div className="flex items-center gap-2 mb-4">
                       <Plug className="w-4 h-4 text-cta" strokeWidth={2.5} />
                       <h3 className="text-[14px] font-bold text-[#1A1A1A]">{category}</h3>
@@ -318,7 +318,7 @@ export const ProductPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ SÉCURITÉ & CONFORMITÉ ═══════════ */}
-        <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
+        <section className="py-24 md:py-32 bg-[#FFFFFF] px-6">
           <div className="max-w-6xl mx-auto">
             <FadeInUp className="text-center mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -357,7 +357,7 @@ export const ProductPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ CTA FINAL (dark) ═══════════ */}
-        <section className="py-24 md:py-32 bg-[#003725] px-6">
+        <section className="py-24 md:py-32 bg-cta px-6">
           <div className="max-w-[820px] mx-auto text-center text-white">
             <FadeInUp>
               <h2
@@ -367,20 +367,20 @@ export const ProductPage = ({ onNavigate }) => {
                 Prêt à tester l'agent<br className="hidden md:block" />
                 <span className="italic text-[#A8C490]">sur votre Shopify ?</span>
               </h2>
-              <p className="text-[17px] text-[#F4F0E6]/70 max-w-xl mx-auto mb-8 leading-[1.55]">
+              <p className="text-[17px] text-[#F4F5F7]/70 max-w-xl mx-auto mb-8 leading-[1.55]">
                 Plan Free à vie · Installation OAuth Shopify en 15 minutes · Premiers tickets
                 résolus dans l'heure.
               </p>
               <div className="flex flex-wrap gap-3.5 justify-center mb-6">
                 <button
                   onClick={() => onNavigate('/signup')}
-                  className="inline-flex items-center gap-2 bg-[#F4F0E6] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
+                  className="inline-flex items-center gap-2 bg-[#F4F5F7] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                 >
                   Démarrer gratuitement <ArrowRight className="w-3.5 h-3.5" />
                 </button>
                 <TalkToHumanButton source="product_final_cta" variant="dark" />
               </div>
-              <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F0E6]/55">
+              <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F5F7]/55">
                 <span className="inline-flex items-center gap-1.5">
                   <Check className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Sans engagement
                 </span>

@@ -1,4 +1,5 @@
 import { withSentry } from '../lib/sentry.js'
+import { revokeClientAccess } from '../lib/revoke-integrations.js'
 import crypto from 'crypto'
 import { authenticateAdmin, logAdminAction, readJsonBody, supabaseAdmin } from './_helpers.js'
 
@@ -10,12 +11,17 @@ const ALLOWED_ACTIONS = new Set([
   'resend_welcome',
   'rotate_keys',
   'delete_client',
+  'cancel_delete_client',
 ])
 
 /**
  * POST /api/admin/client-actions
  *
- * Body: { client_id, action, confirm?: boolean }
+ * Body: { client_id, action, confirm?: boolean, immediate?: boolean }
+ *
+ * `delete_client` programme un effacement avec délai de grâce et coupe
+ * l'agent. `immediate: true` détruit tout de suite — à réserver aux demandes
+ * RGPD urgentes, c'est irréversible et sans sauvegarde derrière.
  *
  * Supported actions:
  *  - pause_agent    -> client_settings.agent_enabled = false
@@ -39,7 +45,7 @@ async function handler(req, res) {
   const { user: admin } = auth
 
   const body = await readJsonBody(req)
-  const { client_id, action, confirm } = body || {}
+  const { client_id, action, confirm, immediate } = body || {}
 
   if (!client_id || typeof client_id !== 'string') {
     return res.status(400).json({ error: 'client_id is required' })
@@ -139,16 +145,67 @@ async function handler(req, res) {
         break
       }
 
+      case 'cancel_delete_client': {
+        const { data: msg, error } = await supabaseAdmin
+          .rpc('cancel_client_deletion', { p_client_id: client_id })
+        if (error) throw error
+        result = { success: true, message: msg }
+        break
+      }
+
       case 'delete_client': {
         if (confirm !== true) {
           return res.status(400).json({ error: 'Confirmation required for delete_client' })
         }
-        const { error } = await supabaseAdmin
-          .from('clients')
-          .delete()
-          .eq('id', client_id)
+
+        // Par défaut : demande d'effacement, pas destruction. L'agent est coupé
+        // tout de suite — le marchand doit constater l'effet — mais la
+        // destruction attend le délai de grâce, parce qu'elle est irréversible
+        // et qu'aucune sauvegarde restaurable n'existe encore (ACT-14).
+        //
+        // Les accès fournisseurs ne sont PAS révoqués maintenant : il faudrait
+        // tout reconnecter en cas d'annulation, et un délai de grâce annulable
+        // seulement sur le papier n'en est pas un. La révocation part avec la
+        // purge (cron/purge-deleted-clients.js).
+        if (immediate !== true) {
+          const { data: etapes, error } = await supabaseAdmin
+            .rpc('request_client_deletion', { p_client_id: client_id })
+          if (error) throw error
+          metadata.etapes = etapes
+          result = {
+            success: true,
+            mode: 'delai_de_grace',
+            etapes,
+            message: "Effacement programmé. L'agent est coupé. Annulable avec l'action cancel_delete_client jusqu'à la purge.",
+          }
+          break
+        }
+        // `delete from clients` ne peut pas fonctionner : huit clés étrangères
+        // pointent vers clients.id en NO ACTION et bloquent la suppression.
+        // Vérifié en base — les seuls clients qui passaient étaient ceux SANS
+        // boutique Shopify connectée, c'est-à-dire pas de vrais marchands
+        // (ACT-25). La procédure traite ces huit cas explicitement : elle
+        // détache ce qui fait foi (audit, comptabilité) et supprime ce qui est
+        // une donnée personnelle, avant de laisser les 57 cascades opérer.
+        // Révoquer AVANT d'effacer : une fois la ligne supprimée, on n'a plus
+        // les jetons pour le faire. Un échec de révocation ne bloque pas
+        // l'effacement — le RGPD impose de supprimer, et un fournisseur
+        // injoignable n'est pas une excuse. Le rapport part dans le journal.
+        const revocations = await revokeClientAccess(supabaseAdmin, client_id)
+
+        const { data: etapes, error } = await supabaseAdmin
+          .rpc('delete_client_data', { p_client_id: client_id })
         if (error) throw error
-        result = { success: true, deleted: true }
+        // Le décompte par étape part dans le journal admin : c'est la preuve
+        // qu'on a répondu à la demande d'effacement, et elle doit survivre à
+        // la suppression du client lui-même.
+        metadata.etapes = etapes
+        metadata.revocations = revocations
+        // Ce qui n'a pas pu être révoqué doit remonter à l'appelant, sinon
+        // personne ne saura qu'il reste une autorisation active chez un
+        // fournisseur.
+        const aFinirALaMain = revocations.filter((r) => r.resultat !== 'revoque')
+        result = { success: true, deleted: true, etapes, revocations, a_finir_a_la_main: aFinirALaMain }
         break
       }
 

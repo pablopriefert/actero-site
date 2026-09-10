@@ -38,7 +38,7 @@ async function handler(req, res) {
 
   // Rate limit: 5 verification requests per IP per hour
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`verify-code:${ip}`, 5, 60 * 60 * 1000)
+  const rl = await checkRateLimit(`verify-code:${ip}`, 5, 60 * 60 * 1000)
   if (!rl.allowed) {
     return res.status(429).json({ error: 'Trop de demandes. Réessayez plus tard.' })
   }

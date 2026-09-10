@@ -36,6 +36,8 @@ async function handler(req, res) {
 }`,
       messages: [{ role: 'user', content: message }],
       maxTokens: 200,
+      // Classification courte : le tier rapide suffit.
+      tier: 'fast',
       json: true,
     });
 

@@ -165,7 +165,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
       <button
         onClick={handleOpen}
         disabled={!clientId}
-        className="inline-flex items-center gap-2 px-4 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-cta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2.5 bg-cta hover:bg-cta text-white text-[13px] font-semibold rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-cta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <Play className="w-4 h-4 fill-white" />
         Tester mon agent
@@ -345,7 +345,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
                             setOpen(false)
                             setActiveTab('agent-config')
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-2 bg-cta hover:bg-[#003725] text-white text-[12px] font-semibold rounded-lg transition-colors flex-shrink-0"
+                          className="inline-flex items-center gap-1.5 px-3 py-2 bg-cta hover:bg-cta text-white text-[12px] font-semibold rounded-lg transition-colors flex-shrink-0"
                         >
                           Mon Agent <ArrowRight className="w-3.5 h-3.5" />
                         </button>

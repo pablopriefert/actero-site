@@ -48,13 +48,17 @@ async function handler(req, res) {
   // auront re-OAuth'd.
   const { data: integ } = await supabase
     .from('client_integrations')
-    .select('extra_config, access_token')
+    .select('extra_config, access_token, webhook_secret_encrypted')
     .eq('client_id', clientId)
     .eq('provider', 'zendesk')
     .eq('status', 'active')
     .maybeSingle()
 
-  const expectedSecret = integ?.extra_config?.webhook_secret
+  // Le secret vit dans sa propre colonne, chiffrée et fermée au navigateur.
+  // Le repli sur extra_config couvre les lignes écrites avant ACT-25 ;
+  // decryptToken laisse passer une valeur encore en clair.
+  const expectedSecret = decryptToken(integ?.webhook_secret_encrypted)
+    || integ?.extra_config?.webhook_secret
     || process.env.ZENDESK_WEBHOOK_SECRET
   if (!expectedSecret || !timingSafeEqStr(providedSecret, expectedSecret)) {
     return res.status(401).json({ error: 'Unauthorized' })

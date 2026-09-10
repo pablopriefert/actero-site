@@ -6,7 +6,7 @@ import { FadeInUp } from '../ui/scroll-animations'
 /* ── Mini UI Mockups ── */
 
 const MockupAudit = ({ isImmo }) => (
-  <div className="bg-[#F9F7F1] rounded-xl border border-gray-200 p-4 text-[11px] font-mono">
+  <div className="bg-[#FFFFFF] rounded-xl border border-gray-200 p-4 text-[11px] font-mono">
     <p className="text-[#716D5C] mb-3 uppercase tracking-widest text-[9px]">Connexion outils</p>
     <div className="space-y-2">
       {(isImmo ? [
@@ -61,7 +61,7 @@ const MockupDeploy = ({ isImmo }) => {
       ]
 
   return (
-    <div className="bg-[#F9F7F1] rounded-xl border border-gray-200 p-4">
+    <div className="bg-[#FFFFFF] rounded-xl border border-gray-200 p-4">
       <p className="text-[#716D5C] mb-3 uppercase tracking-widest text-[9px] font-mono">Déploiement agents</p>
       <div className="grid grid-cols-2 gap-2">
         {agents.map((agent) => (
@@ -98,7 +98,7 @@ const MockupDashboard = ({ isImmo }) => {
   const bars = [60, 45, 75, 55, 85, 70, 90]
 
   return (
-    <div className="bg-[#F9F7F1] rounded-xl border border-gray-200 p-4">
+    <div className="bg-[#FFFFFF] rounded-xl border border-gray-200 p-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[#716D5C] uppercase tracking-widest text-[9px] font-mono">Dashboard ROI</p>
         <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cta/5 text-[#003725]">
@@ -210,7 +210,7 @@ export const ProcessSteps = ({ vertical, onNavigate: _onNavigate }) => {
                   {block.icon}
                   <span className="text-xs font-bold uppercase tracking-widest text-[#716D5C]">Étape {block.step}</span>
                 </div>
-                <span className="text-xs font-bold text-gray-400 bg-[#F9F7F1] px-3 py-1 rounded-full">{block.detail}</span>
+                <span className="text-xs font-bold text-gray-400 bg-[#FFFFFF] px-3 py-1 rounded-full">{block.detail}</span>
               </div>
 
               {/* Mockup */}

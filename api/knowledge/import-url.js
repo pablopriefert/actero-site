@@ -18,7 +18,10 @@ import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { tavilyExtract, extractKbEntriesWithClaude } from '../lib/kb-extract.js'
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
+// L'extraction passe par kb-extract.js → chatComplete → OpenRouter. Cette
+// garde portait sur la clé Anthropic, que le pipeline n'utilise plus : la
+// route refusait de servir sur une dépendance périmée.
+const LLM_API_KEY = process.env.OPENROUTER_API_KEY
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -81,8 +84,8 @@ async function handler(req, res) {
     }
 
     // 2. Use Claude to extract FAQ pairs (shared lib).
-    if (!ANTHROPIC_API_KEY) {
-      return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' })
+    if (!LLM_API_KEY) {
+      return res.status(500).json({ error: 'OPENROUTER_API_KEY not configured' })
     }
 
     let entries

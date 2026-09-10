@@ -155,7 +155,7 @@ async function _runBrainInner(supabase, { event, playbook, clientId, normalized,
 
   // --- Vision pre-analysis (before classification) ---
   // If the incoming event carries image paths AND the client has vision enabled,
-  // delegate to /api/vision/analyze which runs Claude Vision on the uploads and
+  // delegate to /api/vision/analyze which runs Claude Sonnet 5 on the uploads and
   // returns structured extractions. A sensitive-document detection short-circuits
   // the whole flow into a human escalation so we don't spend more tokens.
   let visionContext = null

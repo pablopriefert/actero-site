@@ -3,17 +3,17 @@ import { Elements, PaymentElement, LinkAuthenticationElement, useStripe, useElem
 import { Check, Loader2, Lock, ShieldCheck, X } from 'lucide-react'
 import { getStripe } from '../../lib/stripe-client'
 
-const SERIF = { fontFamily: 'Spectral, Georgia, serif' }
+const SERIF = { fontFamily: 'Inter Tight, ui-sans-serif, system-ui, sans-serif' }
 
 const APPEARANCE = {
   theme: 'stripe',
   variables: {
-    colorPrimary: '#0E653A',
+    colorPrimary: '#13804A',
     colorText: '#1A1A1A',
     colorTextSecondary: '#716D5C',
     colorDanger: '#EF4444',
     borderRadius: '10px',
-    fontFamily: 'DM Sans, system-ui, sans-serif',
+    fontFamily: 'Inter Tight, system-ui, sans-serif',
     spacingUnit: '4px',
   },
 }
@@ -86,7 +86,7 @@ function CheckoutForm({ mode, plan, billingPeriod, requiresCardFirst, onApplyPla
       <button
         type="submit"
         disabled={!stripe || submitting}
-        className="w-full py-3 rounded-full text-sm font-semibold bg-cta text-white hover:bg-[#003725] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full py-3 rounded-full text-sm font-semibold bg-cta text-white hover:bg-cta transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {submitting ? (<><Loader2 className="w-4 h-4 animate-spin" /> Traitement…</>) : (<><Lock className="w-4 h-4" /> {ctaLabel}</>)}
       </button>
@@ -181,7 +181,7 @@ export function PaymentModal({ open, onClose, plan, billingPeriod = 'monthly', h
         </button>
 
         {/* Left — recap */}
-        <div className="bg-[#F9F7F1] p-8 flex flex-col">
+        <div className="bg-[#FFFFFF] p-8 flex flex-col">
           <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#8B7A50]">Passer à</span>
           <h2 className="mt-1 text-[#1A1A1A] text-3xl" style={SERIF}>{plan?.name}</h2>
           {price && <div className="mt-3 text-[#1A1A1A] text-2xl font-bold">{price}</div>}

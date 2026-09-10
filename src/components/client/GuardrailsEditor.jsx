@@ -84,7 +84,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
           <div>
             <h2
               className="text-2xl italic tracking-tight text-[#1a1a1a]"
-              style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+              style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
             >
               Règles d'exclusion
             </h2>
@@ -119,7 +119,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
           <button
             onClick={addRule}
             disabled={!newRule.trim() || adding}
-            className="flex items-center gap-2 px-5 py-3 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-3 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-cta transition-colors disabled:opacity-50"
           >
             {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Ajouter
@@ -460,7 +460,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
             <button
               onClick={handleSave}
               disabled={!rulePreview || saving}
-              className="w-full py-3 bg-cta text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 bg-cta text-white text-sm font-bold rounded-xl hover:bg-cta disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               Créer la règle
@@ -649,7 +649,7 @@ const EscalationThresholds = ({ clientId }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-cta transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Enregistrer les seuils
@@ -879,7 +879,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               key={t.id}
               type="button"
               onClick={() => loadTemplate(t)}
-              className="text-left p-3 rounded-xl border border-[#E5E2D7] bg-[#fafaf7] hover:border-cta/40 hover:bg-cta/5 transition"
+              className="text-left p-3 rounded-xl border border-[#E6E8EC] bg-[#fafaf7] hover:border-cta/40 hover:bg-cta/5 transition"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[13px] font-bold text-[#1a1a1a]">{t.name}</span>
@@ -893,7 +893,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
       </div>
 
       {/* Plafond */}
-      <div className="mb-5 p-3 rounded-xl bg-[#fafaf7] border border-[#E5E2D7]">
+      <div className="mb-5 p-3 rounded-xl bg-[#fafaf7] border border-[#E6E8EC]">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
             <p className="text-[12px] font-semibold text-[#1a1a1a]">Plafond max de remise</p>
@@ -904,7 +904,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               type="number" min="0" max="100" step="0.5"
               value={policyMaxPct}
               onChange={(e) => { setPolicyMaxPct(e.target.value); setPolicyDirty(true) }}
-              className="w-20 text-[13px] rounded-lg border border-[#E5E2D7] bg-white px-3 py-1.5 text-[#1a1a1a] text-right focus:outline-none focus:ring-2 focus:ring-cta/30"
+              className="w-20 text-[13px] rounded-lg border border-[#E6E8EC] bg-white px-3 py-1.5 text-[#1a1a1a] text-right focus:outline-none focus:ring-2 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#71717a]">%</span>
           </div>
@@ -921,7 +921,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               type="button"
               onClick={() => applyScenario(s)}
               className={`text-left p-2 rounded-lg border transition ${
-                policyScenarioId === s.id ? 'border-cta/40 bg-cta/5' : 'border-[#E5E2D7] bg-white hover:border-cta/30'
+                policyScenarioId === s.id ? 'border-cta/40 bg-cta/5' : 'border-[#E6E8EC] bg-white hover:border-cta/30'
               }`}
             >
               <p className="text-[12px] font-semibold text-[#1a1a1a]">{s.name}</p>
@@ -936,7 +936,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
           type="button"
           onClick={() => runDiscountTest({ persist: false })}
           disabled={policyTestState === 'running' || !clientId}
-          className="inline-flex items-center gap-2 rounded-xl bg-white border border-[#E5E2D7] px-4 py-2 text-[13px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-xl bg-white border border-[#E6E8EC] px-4 py-2 text-[13px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50"
         >
           {policyTestState === 'running'
             ? <><Loader2 className="w-4 h-4 animate-spin" /> Test en cours…</>
@@ -1016,7 +1016,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               onChange={(e) => { setPolicyCode(e.target.value); setPolicyDirty(true) }}
               spellCheck={false}
               rows={14}
-              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E5E2D7] bg-[#fafaf7] p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
+              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E6E8EC] bg-[#fafaf7] p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
             />
             {policyDirty && (
               <div className="mt-1 text-[11px] text-amber-700">

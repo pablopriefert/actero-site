@@ -6,7 +6,7 @@ import { UpgradeBanner } from '../ui/UpgradeBanner'
 
 // ─── Live portal preview ────────────────────────────────────────────
 function PortalPreview({ displayName, logoUrl, primaryColor }) {
-  const color = primaryColor || '#0E653A'
+  const color = primaryColor || '#13804A'
   const name = displayName || 'Votre boutique'
 
   return (
@@ -110,7 +110,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
 
   const [displayName, setDisplayName] = useState(client?.portal_display_name || '')
   const [logoUrl, setLogoUrl] = useState(client?.portal_logo_url || '')
-  const [primaryColor, setPrimaryColor] = useState(client?.portal_primary_color || '#0E653A')
+  const [primaryColor, setPrimaryColor] = useState(client?.portal_primary_color || '#13804A')
   const [saveStatus, setSaveStatus] = useState(null) // null | 'success' | 'error'
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -191,7 +191,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
       <div>
         <h2
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           Personnaliser mon portail
         </h2>
@@ -255,20 +255,20 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
                     const val = e.target.value
                     setPrimaryColor(val)
                   }}
-                  placeholder="#0E653A"
+                  placeholder="#13804A"
                   maxLength={7}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] text-[#1a1a1a] font-mono placeholder:text-[#c0c0c0] focus:outline-none focus:ring-2 focus:ring-[#1F3A12]/20 focus:border-[#1F3A12] transition-colors"
                 />
                 <input
                   type="color"
-                  value={/^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#0E653A'}
+                  value={/^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#13804A'}
                   onChange={(e) => setPrimaryColor(e.target.value)}
                   className="w-10 h-10 rounded-xl border border-[#e0e0e0] cursor-pointer overflow-hidden p-0.5 flex-shrink-0"
                   title="Choisir une couleur"
                 />
               </div>
               <p className="text-[11px] text-[#9ca3af] mt-1.5">
-                Utilisée pour le bouton de connexion et les accents. Format hex — ex: #0E653A.
+                Utilisée pour le bouton de connexion et les accents. Format hex — ex: #13804A.
               </p>
             </div>
           </div>
@@ -304,7 +304,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
           <PortalPreview
             displayName={displayName}
             logoUrl={logoUrl}
-            primaryColor={/^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#0E653A'}
+            primaryColor={/^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#13804A'}
           />
         </div>
       </div>

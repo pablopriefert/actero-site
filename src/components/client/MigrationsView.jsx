@@ -173,7 +173,7 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
       )}
 
       {/* Form card */}
-      <form onSubmit={submit} className="rounded-2xl border border-[#E5E2D7] bg-white p-6 space-y-6">
+      <form onSubmit={submit} className="rounded-2xl border border-[#E6E8EC] bg-white p-6 space-y-6">
         <div>
           <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#6b6b6b] mb-2">
             Source à importer
@@ -187,7 +187,7 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
                 className={`px-4 py-3 rounded-xl border text-left transition-colors ${
                   provider === p.key
                     ? 'border-cta bg-cta/5 text-[#1a1a1a]'
-                    : 'border-[#E5E2D7] hover:border-[#1a1a1a]/30 text-[#1a1a1a]'
+                    : 'border-[#E6E8EC] hover:border-[#1a1a1a]/30 text-[#1a1a1a]'
                 }`}
               >
                 <div className="text-[13px] font-semibold">{p.label}</div>
@@ -212,7 +212,7 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
                 onChange={handleField(f.key)}
                 required
                 autoComplete={f.type === 'password' ? 'new-password' : 'off'}
-                className="w-full px-3 py-2.5 rounded-lg border border-[#E5E2D7] bg-[#FAF9F4] text-[14px] text-[#1a1a1a] placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta"
+                className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-[#FAF9F4] text-[14px] text-[#1a1a1a] placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta"
               />
               {f.help && (
                 <p className="mt-1 text-[11px] text-[#6b6b6b]">{f.help}</p>
@@ -230,7 +230,7 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
               type="date"
               value={since}
               onChange={(e) => setSince(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-[#E5E2D7] bg-[#FAF9F4] text-[14px]"
+              className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-[#FAF9F4] text-[14px]"
             />
             <p className="mt-1 text-[11px] text-[#6b6b6b]">Laissez vide pour tout importer</p>
           </div>
@@ -245,13 +245,13 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
               placeholder="Ex: 5000"
               value={limit}
               onChange={(e) => setLimit(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-[#E5E2D7] bg-[#FAF9F4] text-[14px]"
+              className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-[#FAF9F4] text-[14px]"
             />
             <p className="mt-1 text-[11px] text-[#6b6b6b]">Nombre max de tickets à importer</p>
           </div>
         </div>
 
-        <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-[#FAF9F4] border border-[#E5E2D7]">
+        <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-[#FAF9F4] border border-[#E6E8EC]">
           <Info className="w-4 h-4 text-[#6b6b6b] flex-shrink-0 mt-0.5" />
           <p className="text-[12px] text-[#6b6b6b] leading-relaxed">
             Vos identifiants ne sont jamais stockés en base. Ils transitent uniquement
@@ -367,7 +367,7 @@ function HistoryItem({ job }) {
     : job.error || job.progress_message
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#E5E2D7] bg-white">
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#E6E8EC] bg-white">
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color.bg}`}>
         {icon}
       </div>

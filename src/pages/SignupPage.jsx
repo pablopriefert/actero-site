@@ -249,7 +249,7 @@ export const SignupPage = ({ onNavigate }) => {
         title="Inscription — Actero"
         description="Créez votre compte Actero et automatisez votre e-commerce avec l'IA."
       />
-      <div className="min-h-screen bg-[#F9F7F1] flex items-center justify-center font-sans relative overflow-hidden">
+      <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center font-sans relative overflow-hidden">
         <motion.div
           {...m.fadeUp}
           className="relative z-10 w-full max-w-[420px] mx-4"
@@ -257,7 +257,7 @@ export const SignupPage = ({ onNavigate }) => {
           <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
             {/* Logo */}
             <div className="flex flex-col items-center mb-8">
-              <div className="w-14 h-14 rounded-2xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center mb-5">
+              <div className="w-14 h-14 rounded-2xl bg-[#FFFFFF] border border-gray-200 flex items-center justify-center mb-5">
                 <Logo className="w-7 h-7 text-[#262626]" />
               </div>
               <h1 className="text-[#262626] text-2xl font-bold tracking-tight">
@@ -305,7 +305,7 @@ export const SignupPage = ({ onNavigate }) => {
                       }}
                       disabled={loading}
                       aria-label={`Chiffre ${i + 1} du code de vérification`}
-                      className="w-12 h-14 text-center text-2xl font-bold bg-[#F9F7F1] border-2 border-gray-200 rounded-xl focus:outline-none focus:border-cta transition-all disabled:opacity-50"
+                      className="w-12 h-14 text-center text-2xl font-bold bg-[#FFFFFF] border-2 border-gray-200 rounded-xl focus:outline-none focus:border-cta transition-all disabled:opacity-50"
                     />
                   ))}
                 </div>
@@ -313,7 +313,7 @@ export const SignupPage = ({ onNavigate }) => {
                 <button
                   onClick={handleVerifyCode}
                   disabled={loading || code.join("").length !== 6}
-                  className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50"
+                  className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-cta transition-colors disabled:opacity-50"
                 >
                   {loading ? (
                     <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
@@ -384,7 +384,7 @@ export const SignupPage = ({ onNavigate }) => {
                 onClick={handleGoogleSignup}
                 disabled={loading}
                 aria-label="S'inscrire avec Google"
-                className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-[#FFFFFF] border border-gray-200 hover:bg-gray-100 transition-all disabled:opacity-50"
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -414,7 +414,7 @@ export const SignupPage = ({ onNavigate }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   aria-label="Adresse email"
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#FFFFFF] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="adresse email"
                 />
               </div>
@@ -430,7 +430,7 @@ export const SignupPage = ({ onNavigate }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   aria-label="Mot de passe (minimum 8 caractères)"
-                  className="w-full pl-11 pr-11 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
+                  className="w-full pl-11 pr-11 py-3.5 bg-[#FFFFFF] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="Mot de passe (min. 8 caractères)"
                 />
                 <button
@@ -453,7 +453,7 @@ export const SignupPage = ({ onNavigate }) => {
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
                   aria-label="Nom de votre boutique"
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#FFFFFF] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="Nom de la boutique"
                 />
               </div>
@@ -462,7 +462,7 @@ export const SignupPage = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-cta transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">

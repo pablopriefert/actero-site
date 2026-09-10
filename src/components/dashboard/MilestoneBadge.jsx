@@ -12,7 +12,7 @@ export const MilestoneBadge = ({ hoursSaved, theme = "dark" }) => {
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       className={`rounded-2xl p-6 mb-8 flex items-center justify-between border transition-colors duration-300 ${isLight
-        ? "bg-[#F9F7F1] text-[#262626] border-gray-200 shadow-lg"
+        ? "bg-[#FFFFFF] text-[#262626] border-gray-200 shadow-lg"
         : "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30"
         }`}
     >

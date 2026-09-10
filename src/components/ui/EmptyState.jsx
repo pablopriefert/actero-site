@@ -32,7 +32,7 @@ const TONE_STYLES = {
   },
   info: {
     bg: 'bg-cream',
-    ring: 'ring-1 ring-[#E8DFC9]',
+    ring: 'ring-1 ring-[#E3E6EA]',
     icon: 'text-primary',
   },
   cta: {

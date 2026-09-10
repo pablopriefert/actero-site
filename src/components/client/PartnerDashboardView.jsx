@@ -266,7 +266,7 @@ export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
                   rows={4}
                   value={form.bio}
                   onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40 resize-none"
+                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40 resize-none"
                 />
               }
             />
@@ -278,7 +278,7 @@ export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
                     type="url"
                     value={form.avatar_url}
                     onChange={(e) => setForm({ ...form, avatar_url: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
+                    className="w-full px-3 py-2 bg-[#FFFFFF] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
                   />
                 }
               />
@@ -289,7 +289,7 @@ export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
                     type="text"
                     value={form.company_name}
                     onChange={(e) => setForm({ ...form, company_name: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
+                    className="w-full px-3 py-2 bg-[#FFFFFF] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
                   />
                 }
               />
@@ -300,7 +300,7 @@ export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
                     type="url"
                     value={form.website}
                     onChange={(e) => setForm({ ...form, website: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
+                    className="w-full px-3 py-2 bg-[#FFFFFF] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
                   />
                 }
               />
@@ -311,7 +311,7 @@ export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
                     type="url"
                     value={form.linkedin}
                     onChange={(e) => setForm({ ...form, linkedin: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
+                    className="w-full px-3 py-2 bg-[#FFFFFF] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
                   />
                 }
               />
@@ -324,7 +324,7 @@ export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
                   value={form.specialties}
                   onChange={(e) => setForm({ ...form, specialties: e.target.value })}
                   placeholder="Shopify, SAV IA, Agent vocal"
-                  className="w-full px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
+                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
                 />
               }
             />
@@ -336,7 +336,7 @@ export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
                   value={form.industries}
                   onChange={(e) => setForm({ ...form, industries: e.target.value })}
                   placeholder="E-commerce, Mode, Beauté"
-                  className="w-full px-3 py-2 bg-[#F9F7F1] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
+                  className="w-full px-3 py-2 bg-[#FFFFFF] border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
                 />
               }
             />

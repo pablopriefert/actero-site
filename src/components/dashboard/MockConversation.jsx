@@ -37,7 +37,7 @@ export function MockConversation() {
   return (
     <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] p-4 min-h-[220px]">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-7 h-7 rounded-lg bg-[#003725]/10 flex items-center justify-center">
+        <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center">
           <Sparkles className="w-3.5 h-3.5 text-[#003725]" />
         </div>
         <div>
@@ -68,13 +68,13 @@ export function MockConversation() {
                   className={`max-w-[78%] px-3 py-2 rounded-2xl text-[13px] leading-snug ${
                     isCustomer
                       ? 'bg-white border border-[#f0f0f0] text-[#1a1a1a] rounded-tl-sm'
-                      : 'bg-[#003725]/5 text-[#1a1a1a] rounded-tr-sm'
+                      : 'bg-cta/5 text-[#1a1a1a] rounded-tr-sm'
                   }`}
                 >
                   {msg.text}
                 </div>
                 {!isCustomer && (
-                  <div className="w-6 h-6 rounded-full bg-[#003725] flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-cta flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-3 h-3 text-white" />
                   </div>
                 )}

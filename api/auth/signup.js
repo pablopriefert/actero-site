@@ -13,7 +13,7 @@ async function handler(req, res) {
 
   // Rate limit: 5 signups per IP per hour
   const ip = getClientIp(req);
-  const rl = checkRateLimit(`signup:${ip}`, 5, 60 * 60 * 1000);
+  const rl = await checkRateLimit(`signup:${ip}`, 5, 60 * 60 * 1000);
   if (!rl.allowed) {
     return res.status(429).json({ error: 'Trop de tentatives. Réessayez plus tard.' });
   }

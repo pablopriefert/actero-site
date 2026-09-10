@@ -98,7 +98,7 @@ export function AuthCallbackPage({ onNavigate }) {
   if (errorMsg) {
     return (
       <div className="min-h-screen bg-white flex flex-col justify-center items-center py-12 px-6 font-sans text-center">
-        <div className="w-20 h-20 bg-[#F9F7F1] rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center mb-6">
+        <div className="w-20 h-20 bg-[#FFFFFF] rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center mb-6">
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-[#262626] mb-2">
@@ -116,7 +116,7 @@ export function AuthCallbackPage({ onNavigate }) {
           </button>
           <button
             onClick={() => window.location.replace("/")}
-            className="bg-[#F9F7F1] border border-gray-200 text-[#716D5C] px-8 py-3.5 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition-colors"
+            className="bg-[#FFFFFF] border border-gray-200 text-[#716D5C] px-8 py-3.5 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition-colors"
           >
             Retour accueil
           </button>

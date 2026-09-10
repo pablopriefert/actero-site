@@ -137,7 +137,7 @@ export const PeakHoursChart = ({ clientId }) => {
               {hourly.map((entry) => (
                 <Cell
                   key={entry.hour}
-                  fill={peakSet.has(entry.hour) ? '#0E653A' : '#e5e7eb'}
+                  fill={peakSet.has(entry.hour) ? '#13804A' : '#e5e7eb'}
                 />
               ))}
             </Bar>

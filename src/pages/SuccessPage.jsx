@@ -21,7 +21,7 @@ export function SuccessPage({ onNavigate }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F9F7F1] flex items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center px-4 py-16">
       <SEO
         title="Paiement confirmé | Actero"
         description="Bienvenue ! Votre compte Actero est activé."
@@ -84,7 +84,7 @@ export function SuccessPage({ onNavigate }) {
 
           <button
             onClick={() => onNavigate("/client")}
-            className="w-full mt-8 inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-cta text-white font-semibold text-[15px] hover:bg-[#003725] transition-colors"
+            className="w-full mt-8 inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full bg-cta text-white font-semibold text-[15px] hover:bg-cta transition-colors"
           >
             Accéder à mon dashboard <ArrowRight className="w-4 h-4" />
           </button>

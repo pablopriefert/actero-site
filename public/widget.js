@@ -17,7 +17,7 @@
   // merchant's config and apply it. If the fetch fails, the defaults stand —
   // the widget can never be broken by a config problem.
   const CFG = {
-    brandColor: '#0F5F35',
+    brandColor: '#13804A',
     accentColor: '#14A85C',
     position: 'bottom-right',
     greeting: 'Bonjour ! Comment puis-je vous aider ?',
@@ -88,7 +88,8 @@
     }
   } catch {}
 
-  // Brand fonts (Instrument Serif for the greeting, DM Sans for the UI).
+  // Une seule famille — Inter Tight — comme le reste du produit. Le widget
+  // chargeait deux polices : un serif pour le titre, un sans pour l'interface.
   // display=swap → never blocks; falls back to system fonts if a merchant CSP
   // blocks Google Fonts. Scoped to the widget via font-family.
   try {
@@ -96,7 +97,7 @@
       const f = document.createElement('link')
       f.id = 'actero-fonts'
       f.rel = 'stylesheet'
-      f.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap'
+      f.href = 'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap'
       document.head.appendChild(f)
     }
   } catch {}
@@ -122,7 +123,7 @@
       background: #fff; border-radius: 24px;
       box-shadow: 0 2px 8px rgba(11,75,44,0.08), 0 24px 60px rgba(11,75,44,0.22);
       display: none; flex-direction: column; overflow: hidden;
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     @media (max-width: 480px) {
       #actero-widget-panel {
@@ -147,7 +148,7 @@
     .actero-brand-status { font-size: 12px; color: var(--actero-soft, #A8C490); display: flex; align-items: center; gap: 5px; margin-top: 1px; }
     .actero-header-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.25); flex-shrink: 0; }
     .actero-greet { margin-top: 20px; }
-    .actero-greet h3 { margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.01em; }
+    .actero-greet h3 { margin: 0; font-family: 'Inter Tight', -apple-system, 'Segoe UI', sans-serif; font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.01em; }
     .actero-greet p { margin: 4px 0 0; font-size: 13.5px; color: rgba(255,255,255,0.78); }
     .actero-close-btn {
       position: absolute; top: 20px; right: 20px;
@@ -338,7 +339,7 @@
     }
     .actero-attach-btn {
       width: 38px; height: 38px; border-radius: 10px;
-      background: #f5f5f0; border: none; cursor: pointer;
+      background: #F7F8FA; border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.2s; flex-shrink: 0;
     }

@@ -23,6 +23,7 @@ const ProductPage = lazy(() => import("./pages/ProductPage").then(m => ({ defaul
 const FaqPage = lazy(() => import("./pages/FaqPage").then(m => ({ default: m.FaqPage })));
 const DemoDashboardPage = lazy(() => import("./components/ui/demo-dashboard").then(m => ({ default: m.DemoDashboardPage })));
 const ProspectDemoPage = lazy(() => import("./pages/ProspectDemoPage").then(m => ({ default: m.ProspectDemoPage })));
+const DemoAgentPage = lazy(() => import("./pages/DemoAgentPage").then(m => ({ default: m.DemoAgentPage })));
 const PromptLibraryPage = lazy(() => import("./components/ui/prompt-library-page").then(m => ({ default: m.PromptLibraryPage })));
 const SignupPage = lazy(() => import("./pages/SignupPage").then(m => ({ default: m.SignupPage })));
 const PlanSelectionPage = lazy(() => import("./pages/PlanSelectionPage").then(m => ({ default: m.PlanSelectionPage })));
@@ -187,7 +188,8 @@ function MainRouter() {
   else if (currentRoute === "/support") page = <SupportGuidePage onNavigate={navigate} />;
   else if (currentRoute === "/mentions-legales") page = <LegalPage onNavigate={navigate} />;
   else if (currentRoute === "/utilisation") page = <TermsPage onNavigate={navigate} />;
-  else if (currentRoute === "/demo") page = <DemoDashboardPage onNavigate={navigate} />;
+  else if (currentRoute === "/demo") page = <DemoAgentPage onNavigate={navigate} />;
+  else if (currentRoute === "/demo/tableau-de-bord") page = <DemoDashboardPage onNavigate={navigate} />;
   else if (currentRoute.startsWith("/demo-prospect")) page = <ProspectDemoPage onNavigate={navigate} />;
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
   else if (FEATURES.marketplace && (currentRoute === "/marketplace" || currentRoute.startsWith("/marketplace/"))) {
@@ -259,7 +261,7 @@ function MainRouter() {
     page = <SuccessPage onNavigate={navigate} />;
   } else {
     page = (
-      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F0] text-[#262626]">
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F8FA] text-[#262626]">
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-[#716D5C] mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Page introuvable</h2>

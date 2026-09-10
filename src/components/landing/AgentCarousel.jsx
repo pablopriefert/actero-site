@@ -53,7 +53,7 @@ export const AgentCarousel = ({ agents, vertical: _vertical }) => {
         >
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
-              <span className="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 rounded-lg border text-[#716D5C] bg-[#F9F7F1] border-gray-200">
+              <span className="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1.5 rounded-lg border text-[#716D5C] bg-[#FFFFFF] border-gray-200">
                 Agent {active.agentName}
               </span>
               <span className="w-2 h-2 rounded-full animate-pulse bg-cta" />
@@ -66,7 +66,7 @@ export const AgentCarousel = ({ agents, vertical: _vertical }) => {
               <h3 className="text-xl md:text-2xl font-bold text-[#262626] leading-snug">{active.title}</h3>
             </div>
 
-            <div className="bg-[#F9F7F1] border border-gray-200 rounded-xl px-4 py-3 mb-6">
+            <div className="bg-[#FFFFFF] border border-gray-200 rounded-xl px-4 py-3 mb-6">
               <p className="text-sm font-bold flex items-center gap-2 text-[#003725]">
                 <Target className="w-4 h-4 flex-shrink-0" />
                 {active.result}

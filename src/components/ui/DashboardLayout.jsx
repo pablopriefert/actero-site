@@ -13,7 +13,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
  * - tokens.colors.bg.surface (#ffffff)
  * - tokens.colors.bg.border (#f0f0f0)
  * - tokens.colors.text.primary (#1a1a1a)
- * - tokens.colors.brand.primary (#0E653A)
+ * - tokens.colors.brand.primary (#13804A)
  *
  * Desktop : sidebar fixe (240px md / 256px lg) + main flex-1.
  * Mobile : header + sidebar off-canvas drawer.

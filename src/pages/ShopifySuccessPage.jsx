@@ -133,14 +133,14 @@ export function ShopifySuccessPage({ onNavigate }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F7F1] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center px-4">
       <SEO
         title="Connexion Shopify réussie | Actero"
         description="Votre boutique Shopify est connectée à Actero. L'onboarding démarre."
         noindex={true}
       />
       <div className="text-center max-w-lg w-full">
-        <div className="w-20 h-20 rounded-full bg-[#003725]/10 flex items-center justify-center mx-auto mb-8">
+        <div className="w-20 h-20 rounded-full bg-cta/10 flex items-center justify-center mx-auto mb-8">
           <CheckCircle className="w-10 h-10 text-[#003725]" />
         </div>
 
@@ -183,7 +183,7 @@ export function ShopifySuccessPage({ onNavigate }) {
             <button
               onClick={handleRetryOnboarding}
               disabled={retrying}
-              className="w-full px-6 py-3 bg-[#003725] hover:bg-[#0d5430] text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full px-6 py-3 bg-cta hover:bg-[#0d5430] text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {retrying ? (
                 <>
@@ -225,7 +225,7 @@ export function ShopifySuccessPage({ onNavigate }) {
             </p>
             <button
               onClick={() => onNavigate("/signup")}
-              className="w-full px-6 py-4 bg-[#003725] hover:bg-[#0d5430] text-white rounded-full text-sm font-bold transition-colors flex items-center justify-center gap-2"
+              className="w-full px-6 py-4 bg-cta hover:bg-[#0d5430] text-white rounded-full text-sm font-bold transition-colors flex items-center justify-center gap-2"
             >
               Créer mon compte
               <ArrowRight className="w-4 h-4" />
@@ -256,7 +256,7 @@ export function ShopifySuccessPage({ onNavigate }) {
             <button
               onClick={handleActivate}
               disabled={activating}
-              className="w-full px-6 py-4 bg-[#003725] hover:bg-[#0d5430] text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full px-6 py-4 bg-cta hover:bg-[#0d5430] text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {activating ? (
                 <>
@@ -273,7 +273,7 @@ export function ShopifySuccessPage({ onNavigate }) {
           </div>
         ) : (
           <div className="bg-white border border-[#A8C490]/40 rounded-2xl p-6 mb-6">
-            <div className="w-14 h-14 rounded-full bg-[#003725]/10 flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 rounded-full bg-cta/10 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-7 h-7 text-[#003725]" />
             </div>
             <h3 className="text-lg font-bold text-[#1a1a1a] mb-2">
@@ -284,7 +284,7 @@ export function ShopifySuccessPage({ onNavigate }) {
             </p>
             <button
               onClick={() => onNavigate("/client")}
-              className="px-6 py-3 bg-[#003725] hover:bg-[#0d5430] text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 mx-auto"
+              className="px-6 py-3 bg-cta hover:bg-[#0d5430] text-white rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2 mx-auto"
             >
               Accéder à mon dashboard
               <ArrowRight className="w-4 h-4" />

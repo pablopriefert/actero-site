@@ -22,7 +22,7 @@ import { AgentImprovementWidget } from '../AgentImprovementWidget.jsx'
  *   4. À faire aujourd'hui — checklist actionnable (escalades, KB, intégration).
  *   5. Widgets row       — VisionUsageWidget + upsell free-only.
  *
- * Tonalité : tutoiement. Typography : Spectral pour les titres.
+ * Tonalité : tutoiement. Typography : Inter Tight pour les titres.
  */
 export function OverviewHome({
   clientId,
@@ -155,7 +155,7 @@ export function OverviewHome({
               trackEvent('Upgrade Clicked', { from_plan: 'free', to_plan: 'starter', trigger: 'overview_upsell', location: 'overview' })
               setActiveTab('billing')
             }}
-            className="px-4 py-2 bg-cta text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] transition flex-shrink-0"
+            className="px-4 py-2 bg-cta text-white text-[13px] font-semibold rounded-full hover:bg-cta transition flex-shrink-0"
           >
             Passer au Starter
           </button>
@@ -183,7 +183,7 @@ function GreetingBlock({ firstName }) {
         <div className="flex items-center gap-3">
           <h1
             className="text-[34px] md:text-[40px] italic tracking-tight text-[#1a1a1a] leading-none"
-            style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+            style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
           >
             {salutation}
           </h1>
@@ -289,7 +289,7 @@ function KpiTrio({ clientId, eventCounts, periodStats, dailyMetrics, onOpenSetup
       sub: today?.total > 0 ? `dont ${today.resolved} résolus automatiquement` : 'en attente des premiers tickets',
       variation: periodStats?.tasks_executed_var,
       sparkline: sparklines.total,
-      color: '#0E653A',
+      color: '#13804A',
     },
     {
       label: 'Taux d\'automatisation',
@@ -298,7 +298,7 @@ function KpiTrio({ clientId, eventCounts, periodStats, dailyMetrics, onOpenSetup
       sub: 'des demandes résolues sans humain',
       variation: periodStats?.auto_rate_var,
       sparkline: sparklines.autoRate,
-      color: '#0E653A',
+      color: '#13804A',
     },
     {
       label: 'Tickets en attente',
@@ -316,7 +316,7 @@ function KpiTrio({ clientId, eventCounts, periodStats, dailyMetrics, onOpenSetup
       {kpis.map((kpi, i) => (
         <div
           key={i}
-          className="bg-white rounded-2xl border border-[#E5E2D7] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+          className="bg-white rounded-2xl border border-[#E6E8EC] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
         >
           <p className="text-[12px] font-medium text-[#71717a] leading-tight mb-3">{kpi.label}</p>
           <div className="flex items-baseline gap-1 mb-1">
@@ -347,7 +347,7 @@ function KpiTrio({ clientId, eventCounts, periodStats, dailyMetrics, onOpenSetup
   )
 }
 
-function Sparkline({ data, color = '#0E653A' }) {
+function Sparkline({ data, color = '#13804A' }) {
   if (!data || data.length < 2) return null
   const max = Math.max(...data, 1)
   const min = Math.min(...data)
@@ -368,7 +368,7 @@ function Sparkline({ data, color = '#0E653A' }) {
 
 function EmptyKpiHint({ onOpenSetupWizard, setActiveTab }) {
   return (
-    <div className="rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-[#E5E2D7] bg-white overflow-hidden">
+    <div className="rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-[#E6E8EC] bg-white overflow-hidden">
       <div className="relative bg-gradient-to-br from-cta/[0.04] via-white to-cta/[0.02] px-6 py-10 text-center">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-cta/10 mb-4">
           <Sparkles className="w-5 h-5 text-cta" />
@@ -380,7 +380,7 @@ function EmptyKpiHint({ onOpenSetupWizard, setActiveTab }) {
         <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
           <button
             onClick={() => typeof onOpenSetupWizard === 'function' ? onOpenSetupWizard() : setActiveTab('agent-config')}
-            className="px-4 py-2 rounded-full bg-cta text-white text-[13px] font-semibold hover:bg-[#0A4F2C] transition-colors"
+            className="px-4 py-2 rounded-full bg-cta text-white text-[13px] font-semibold hover:bg-[#0E653A] transition-colors"
           >
             Configurer mon agent
           </button>
@@ -476,7 +476,7 @@ function TimelineSection({ clientId, setActiveTab, hasIntegration }) {
         <h2
           id="timeline-heading"
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           Depuis ta dernière visite
         </h2>
@@ -491,7 +491,7 @@ function TimelineSection({ clientId, setActiveTab, hasIntegration }) {
       </div>
 
       {isLoading ? (
-        <div className="rounded-2xl border border-[#E5E2D7] bg-white divide-y divide-[#f0f0f0]">
+        <div className="rounded-2xl border border-[#E6E8EC] bg-white divide-y divide-[#f0f0f0]">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex items-center gap-3 px-5 py-3 animate-pulse">
               <div className="w-8 h-8 rounded-lg bg-[#f5f5f5]" />
@@ -500,7 +500,7 @@ function TimelineSection({ clientId, setActiveTab, hasIntegration }) {
           ))}
         </div>
       ) : events.length === 0 ? (
-        <div className="rounded-2xl border border-[#E5E2D7] bg-white">
+        <div className="rounded-2xl border border-[#E6E8EC] bg-white">
           <EmptyState
             icon={Sparkles}
             tone="cta"
@@ -517,7 +517,7 @@ function TimelineSection({ clientId, setActiveTab, hasIntegration }) {
           />
         </div>
       ) : (
-        <ul className="rounded-2xl border border-[#E5E2D7] bg-white divide-y divide-[#f0f0f0]">
+        <ul className="rounded-2xl border border-[#E6E8EC] bg-white divide-y divide-[#f0f0f0]">
           {events.map(ev => {
             const meta = EVENT_META[ev.event_category] || EVENT_META.default
             const Icon = meta.icon
@@ -674,8 +674,8 @@ function TodoSection({
   const TONES = {
     danger:  { bg: 'bg-red-50/70',   border: 'border-red-200',   iconBg: 'bg-red-100',   iconColor: 'text-red-600',   btn: 'bg-red-600 hover:bg-red-700' },
     warning: { bg: 'bg-amber-50/70', border: 'border-amber-200', iconBg: 'bg-amber-100', iconColor: 'text-amber-700', btn: 'bg-amber-600 hover:bg-amber-700' },
-    info:    { bg: 'bg-cta/5',       border: 'border-cta/20',    iconBg: 'bg-cta/10',    iconColor: 'text-cta',       btn: 'bg-cta hover:bg-[#003725]' },
-    neutral: { bg: 'bg-white',       border: 'border-[#E5E2D7]', iconBg: 'bg-[#f5f5f5]', iconColor: 'text-[#71717a]', btn: 'bg-[#1a1a1a] hover:bg-black' },
+    info:    { bg: 'bg-cta/5',       border: 'border-cta/20',    iconBg: 'bg-cta/10',    iconColor: 'text-cta',       btn: 'bg-cta hover:bg-cta' },
+    neutral: { bg: 'bg-white',       border: 'border-[#E6E8EC]', iconBg: 'bg-[#f5f5f5]', iconColor: 'text-[#71717a]', btn: 'bg-[#1a1a1a] hover:bg-black' },
   }
 
   return (
@@ -684,7 +684,7 @@ function TodoSection({
         <h2
           id="todo-heading"
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           À faire aujourd'hui
         </h2>
@@ -696,7 +696,7 @@ function TodoSection({
       </div>
 
       {todos.length === 0 ? (
-        <div className="rounded-2xl border border-[#E5E2D7] bg-white">
+        <div className="rounded-2xl border border-[#E6E8EC] bg-white">
           <EmptyState
             icon={CheckCircle2}
             tone="success"

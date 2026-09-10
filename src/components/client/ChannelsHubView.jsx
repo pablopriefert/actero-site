@@ -133,7 +133,7 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6 mb-6">
+      <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 md:p-6 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -179,8 +179,8 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
                 isConnected
                   ? 'border-cta/30 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] cursor-pointer'
                   : isAvailable
-                    ? 'border-[#E5E2D7] hover:border-gray-300 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] cursor-pointer'
-                    : 'border-[#E5E2D7] opacity-50 cursor-not-allowed'
+                    ? 'border-[#E6E8EC] hover:border-gray-300 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] cursor-pointer'
+                    : 'border-[#E6E8EC] opacity-50 cursor-not-allowed'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
@@ -210,7 +210,7 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
 
               {/* Connected state : detail + metric 7d */}
               {isConnected && (
-                <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#E5E2D7]">
+                <div className="flex items-center justify-between gap-2 pt-3 border-t border-[#E6E8EC]">
                   {ch.detail && (
                     <span className="text-[11px] font-mono text-[#71717a] truncate" title={ch.detail}>
                       {ch.detail}

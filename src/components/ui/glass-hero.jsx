@@ -12,35 +12,18 @@ import { trackEvent } from '../../lib/analytics'
  */
 // Hero UI font — la sans de l'app, pour que le hero ne soit pas la seule
 // surface à parler une autre langue typographique.
-const heroFont = { fontFamily: 'var(--font-sans, "DM Sans"), system-ui, sans-serif' }
+const heroFont = { fontFamily: 'var(--font-sans, "Inter Tight"), system-ui, sans-serif' }
 
 export const GlassHero = ({ onNavigate }) => {
-  const fontDisplay = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+  const fontDisplay = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
   return (
     <section className="relative bg-white pt-36 md:pt-44 pb-16 px-6 overflow-hidden">
-      {/* Vertical wash: white at the top ramping into a saturated Actero green
-          at the bottom (Context.dev-style, bottom → top). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 30%, #F4F8F1 52%, #E6F0E1 72%, #D3E6D6 100%)',
-        }}
-      />
-      {/* Dither/grain — the "random" texture, strongest over the coloured band. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          opacity: 0.16,
-          mixBlendMode: 'multiply',
-          backgroundSize: '140px 140px',
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-        }}
-      />
+      {/* Fond blanc, sans habillage. Le hero portait un dégradé vertical vers
+          un vert saturé, plus un grain à 16 % en fusion multiply dont la seule
+          raison d'être était de texturer cette bande colorée. Sans le dégradé,
+          le grain ne texture plus rien : il salit du blanc. Les deux partent
+          ensemble. */}
 
       <div className="max-w-6xl mx-auto relative">
         <div className="max-w-4xl mx-auto text-center">
@@ -48,9 +31,9 @@ export const GlassHero = ({ onNavigate }) => {
           <FadeInUp delay={0.02} className="mb-8">
             <button
               onClick={() => onNavigate && onNavigate('/entreprise')}
-              className="inline-flex items-center gap-2 rounded-full bg-[#F9F7F1] border border-[#EFE7D6] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full bg-[#FFFFFF] border border-[#E6E8EC] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
             >
-              <span className="rounded-full bg-white border border-[#EFE7D6] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[#8B7A50]">
+              <span className="rounded-full bg-white border border-[#E6E8EC] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[#8B7A50]">
                 Soutenu par
               </span>
               <img
@@ -245,7 +228,7 @@ function HeroPrompt({ onNavigate }) {
             disabled={loading}
             aria-label="Envoyer la question à l'agent"
             aria-busy={loading}
-            className="w-9 h-9 rounded-full bg-cta text-white flex items-center justify-center hover:bg-[#0a4f2c] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-9 h-9 rounded-full bg-cta text-white flex items-center justify-center hover:bg-[#0E653A] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             whileHover={prefersReducedMotion || loading ? {} : { scale: 1.06 }}
             whileTap={prefersReducedMotion || loading ? {} : { scale: 0.94 }}
           >
@@ -266,7 +249,7 @@ function HeroPrompt({ onNavigate }) {
               trackEvent('Hero_Demo_CTA_Clicked', { turns: turns.length })
               onNavigate && onNavigate('/signup')
             }}
-            className="inline-flex items-center gap-2 rounded-full bg-cta px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-[#0a4f2c] transition-colors"
+            className="inline-flex items-center gap-2 rounded-full bg-cta px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-[#0E653A] transition-colors"
             style={heroFont}
           >
             Créer mon agent gratuitement
@@ -325,10 +308,10 @@ function DashboardPreview() {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-black/[0.06] w-full">
       {/* Window chrome */}
-      <div className="h-9 bg-[#F9F7F1] border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
+      <div className="h-9 bg-[#FFFFFF] border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
+        <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
+        <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
+        <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
         <div className="ml-5 text-[11px] text-[#9ca3af] font-mono">app.actero.fr / dashboard</div>
       </div>
 
@@ -409,7 +392,7 @@ function DashboardPreview() {
                   Auto
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#E8DFC9]" />
+                  <span className="w-2 h-2 rounded-full bg-[#E3E6EA]" />
                   Escalade humain
                 </span>
               </div>
@@ -420,13 +403,13 @@ function DashboardPreview() {
                 const human = 8 + Math.cos(i * 0.7) * 5
                 return (
                   <g key={i} transform={`translate(${i * 20 + 4}, 0)`}>
-                    <rect x="0" y={80 - auto} width="12" height={auto} fill="#0E653A" rx="2" />
+                    <rect x="0" y={80 - auto} width="12" height={auto} fill="#13804A" rx="2" />
                     <rect
                       x="0"
                       y={80 - auto - human}
                       width="12"
                       height={human}
-                      fill="#E8DFC9"
+                      fill="#E3E6EA"
                       rx="1"
                     />
                   </g>

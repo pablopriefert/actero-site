@@ -197,7 +197,7 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
 
   if (tenantError) {
     return (
-      <div className="min-h-screen bg-[#F9F7F1] flex flex-col justify-center items-center py-12 px-6 font-sans text-center">
+      <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-center items-center py-12 px-6 font-sans text-center">
         <AlertCircle className="w-16 h-16 text-red-500 mb-6" />
         <h2 className="text-2xl font-bold tracking-tight text-[#262626] mb-2">
           Erreur de connexion
@@ -215,7 +215,7 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
 
   if (loadingTenant || !role) {
     return (
-      <div className="min-h-screen bg-[#F9F7F1] flex flex-col items-center justify-center font-sans">
+      <div className="min-h-screen bg-[#FFFFFF] flex flex-col items-center justify-center font-sans">
         <svg
           className="animate-spin h-10 w-10 text-cta mb-4"
           fill="none"

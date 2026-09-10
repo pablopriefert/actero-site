@@ -65,8 +65,8 @@ async function handler(req, res) {
       html: `<!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background-color:#F9F7F1;font-family:-apple-system,BlinkMacSystemFont,'DM Sans','Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#F9F7F1;padding:40px 20px;">
+<body style="margin:0;padding:0;background-color:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,'Inter Tight','Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFFFFF;padding:40px 20px;">
     <tr><td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background-color:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #E5E7EB;">
         <tr><td style="padding:32px 32px 0 32px;">
@@ -87,7 +87,7 @@ async function handler(req, res) {
             Ce lien est valable 24 heures. Paiement securise par Stripe.
           </p>
         </td></tr>
-        <tr><td style="padding:20px 32px;background-color:#F9F7F1;border-top:1px solid #E5E7EB;">
+        <tr><td style="padding:20px 32px;background-color:#FFFFFF;border-top:1px solid #E5E7EB;">
           <p style="font-size:11px;color:#716D5C;margin:0;text-align:center;">Actero — actero.fr</p>
         </td></tr>
       </table>

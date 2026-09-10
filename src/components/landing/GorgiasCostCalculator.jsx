@@ -140,7 +140,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             step="100"
             value={tickets}
             onChange={(e) => setTickets(parseInt(e.target.value, 10))}
-            className="w-full h-2 rounded-full bg-[#F4F0E6] appearance-none cursor-pointer accent-[#003725]"
+            className="w-full h-2 rounded-full bg-[#F4F5F7] appearance-none cursor-pointer accent-[#003725]"
           />
           <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-1.5">
             <span>100</span>
@@ -163,7 +163,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             step="5"
             value={aiPercent}
             onChange={(e) => setAiPercent(parseInt(e.target.value, 10))}
-            className="w-full h-2 rounded-full bg-[#F4F0E6] appearance-none cursor-pointer accent-[#003725]"
+            className="w-full h-2 rounded-full bg-[#F4F5F7] appearance-none cursor-pointer accent-[#003725]"
           />
           <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-1.5">
             <span>0%</span>
@@ -210,7 +210,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
           animate={{ opacity: 1, y: 0 }}
           key={Math.round(calc.savings)}
           transition={{ duration: 0.25 }}
-          className="rounded-[16px] bg-[#003725] text-white p-5 mb-6 flex items-center gap-4"
+          className="rounded-[16px] bg-cta text-white p-5 mb-6 flex items-center gap-4"
         >
           <div className="w-10 h-10 rounded-full bg-[#A8C490]/20 flex items-center justify-center flex-shrink-0">
             <TrendingDown className="w-5 h-5 text-[#A8C490]" strokeWidth={2.5} />
@@ -234,7 +234,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             trackEvent('CostCalculator_Primary_CTA_Clicked', { source, tickets, aiPercent })
             onNavigate?.('/signup')
           }}
-          className="inline-flex items-center justify-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[14.5px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
+          className="inline-flex items-center justify-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0E653A] text-white text-[14.5px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
         >
           Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
         </button>
@@ -269,12 +269,12 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="vous@boutique.fr"
-                className="flex-1 min-w-0 px-4 py-2.5 rounded-full bg-[#F9F7F1] border border-[#E8DFC9] text-[13.5px] text-[#1A1A1A] placeholder:text-[#9CA3AF] focus:outline-none focus:border-cta focus:bg-white transition-colors"
+                className="flex-1 min-w-0 px-4 py-2.5 rounded-full bg-[#FFFFFF] border border-[#E3E6EA] text-[13.5px] text-[#1A1A1A] placeholder:text-[#9CA3AF] focus:outline-none focus:border-cta focus:bg-white transition-colors"
               />
               <button
                 type="submit"
                 disabled={!email || submitting}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-[#003725] text-white text-[13.5px] font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#1A1A1A] hover:bg-cta text-white text-[13.5px] font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 <Download className="w-3.5 h-3.5" />
                 {submitting ? 'Envoi…' : 'Recevoir le rapport PDF'}

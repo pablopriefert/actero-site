@@ -30,9 +30,9 @@ export function WatchDemoButton({ source, variant = 'light', label, className = 
 
   const variantClasses = {
     light:
-      'bg-transparent text-[#262626] border border-black/10 hover:border-black/25 hover:bg-[#F9F7F1] focus-visible:ring-2 focus-visible:ring-cta/30',
+      'bg-transparent text-[#262626] border border-black/10 hover:border-black/25 hover:bg-[#FFFFFF] focus-visible:ring-2 focus-visible:ring-cta/30',
     dark:
-      'bg-transparent text-white border border-[#F4F0E6]/25 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40',
+      'bg-transparent text-white border border-[#F4F5F7]/25 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/40',
   }
 
   return (

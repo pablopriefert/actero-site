@@ -6,6 +6,7 @@
  */
 
 import { raiseEscalation } from './lib/raise-escalation.js'
+import { doitEtreReservee, reserverAction, cloturerAction } from './lib/action-claim.js'
 import { lookupOrder } from './lib/shopify-client.js'
 import { fetchOverdueInvoices, fetchTreasuryBalance } from './connectors/accounting.js'
 import { decryptToken } from '../lib/crypto.js'
@@ -31,7 +32,7 @@ function escapeHtml(str) {
  * Execute an action plan step by step.
  * Returns: { success, steps: [{action, status, duration_ms, error}], error }
  */
-export async function runExecutor(supabase, { event: _event, playbook: _playbook, clientId, normalized, brainResult }) {
+export async function runExecutor(supabase, { event, playbook: _playbook, clientId, normalized, brainResult }) {
   const { actionPlan, aiResponse, classification } = brainResult
   const steps = []
   let overallSuccess = true
@@ -54,6 +55,23 @@ export async function runExecutor(supabase, { event: _event, playbook: _playbook
   for (const action of actionPlan) {
     const stepStart = Date.now()
     let stepResult = { action, status: 'completed', result: null, error: null }
+
+    // Réserver AVANT d'exécuter, pour les seules actions irréversibles qui
+    // sortent du système. L'unicité est portée par la base : deux exécutions
+    // simultanées du même événement ne peuvent pas gagner toutes les deux.
+    // Sans ça, un retry de cron ou un webhook redélivré envoie deux fois la
+    // même réponse au client du marchand (voir lib/action-claim.js).
+    let reservation = null
+    if (doitEtreReservee(action)) {
+      reservation = await reserverAction(supabase, { clientId, eventId: event?.id, action })
+      if (!reservation.autorise) {
+        stepResult.status = 'skipped_duplicate'
+        stepResult.result = { raison: reservation.raison }
+        stepResult.duration_ms = Date.now() - stepStart
+        steps.push(stepResult)
+        continue
+      }
+    }
 
     try {
       switch (action) {
@@ -385,6 +403,18 @@ export async function runExecutor(supabase, { event: _event, playbook: _playbook
       overallSuccess = false
       overallError = `Step "${action}" failed: ${err.message}`
       // Don't break — continue with remaining steps
+    }
+
+    // Clôturer avec le résultat RÉEL. Un échec repasse la réservation en
+    // `failed`, donc un retry ultérieur pourra reprendre — une erreur réseau
+    // ne doit pas faire perdre définitivement la réponse au client.
+    if (reservation?.id) {
+      await cloturerAction(supabase, {
+        id: reservation.id,
+        reussi: stepResult.status === 'completed',
+        resultat: stepResult.result,
+        erreur: stepResult.error,
+      })
     }
 
     stepResult.duration_ms = Date.now() - stepStart

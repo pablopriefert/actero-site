@@ -372,7 +372,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               <button
                 type="button"
                 onClick={() => setReasoningOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F9F7F1] border border-[#E8DFC9] text-[11px] font-semibold text-[#1A1A1A] hover:border-cta hover:text-cta transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E3E6EA] text-[11px] font-semibold text-[#1A1A1A] hover:border-cta hover:text-cta transition-colors"
                 aria-label="Voir le raisonnement de l'agent"
               >
                 <BrainCircuit className="w-3 h-3" strokeWidth={2.2} />
@@ -639,7 +639,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                           controls
                           src={audioPreviewUrl}
                           className="h-8 rounded-full flex-1 min-w-[200px] max-w-[400px]"
-                          style={{ accentColor: '#0E653A' }}
+                          style={{ accentColor: '#13804A' }}
                         />
                       )}
                       {audioError && (
@@ -655,7 +655,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               <button
                 onClick={() => respondMutation.mutate()}
                 disabled={!response.trim() || respondMutation.isPending || audioGenerating}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-cta transition-all disabled:opacity-50"
               >
                 {(respondMutation.isPending || audioGenerating) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 {audioGenerating
@@ -761,7 +761,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                     type="button"
                     onClick={saveCurrentAsTemplate}
                     disabled={!newTplName.trim() || savingTpl}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-cta transition-all disabled:opacity-50"
                   >
                     {savingTpl ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Enregistrer
@@ -900,7 +900,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
       <div>
         <h2
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           Escalades
         </h2>

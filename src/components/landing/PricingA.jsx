@@ -16,7 +16,7 @@ import { FadeInUp } from '../ui/scroll-animations'
  * F4F0E6/90.
  */
 export const PricingA = ({ onNavigate }) => {
-  const serif = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+  const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
   const plans = [
     {
@@ -63,7 +63,7 @@ export const PricingA = ({ onNavigate }) => {
         'Workflows illimités',
         'Agents spécialisés (WISMO, retours, produit)',
         'Relance paniers abandonnés',
-        'Analyse photo — Claude Vision',
+        'Analyse photo — Claude Sonnet 5',
         'Rapport PDF mensuel',
         'Support prioritaire 24h',
       ],
@@ -78,8 +78,7 @@ export const PricingA = ({ onNavigate }) => {
       sub: 'Devis sous 24h',
       features: [
         'Tickets illimités',
-        'Multi-boutiques',
-        'White-label complet',
+        'White-label widget et portail',
         'Account manager dédié',
         'SLA 99,9%',
         'Onboarding white-glove',
@@ -94,10 +93,10 @@ export const PricingA = ({ onNavigate }) => {
 
   const ctaClasses = (style, popular) => {
     if (style === 'primary') return 'bg-[#A8C490] text-[#003725] hover:bg-white'
-    if (style === 'dark') return 'bg-[#003725] text-white hover:bg-[#1a1a1a]'
+    if (style === 'dark') return 'bg-cta text-white hover:bg-[#1a1a1a]'
     // ghost
-    if (popular) return 'bg-[#F4F0E6]/10 text-white hover:bg-[#F4F0E6]/15'
-    return 'bg-[#F9F7F1] text-[#1A1A1A] hover:bg-gray-100 border border-black/[0.08]'
+    if (popular) return 'bg-[#F4F5F7]/10 text-white hover:bg-[#F4F5F7]/15'
+    return 'bg-[#FFFFFF] text-[#1A1A1A] hover:bg-gray-100 border border-black/[0.08]'
   }
 
   return (
@@ -126,7 +125,7 @@ export const PricingA = ({ onNavigate }) => {
               <div
                 className={`relative flex flex-col rounded-[20px] p-7 h-full ${
                   p.popular
-                    ? 'bg-[#003725] text-white border border-cta shadow-[0_20px_50px_-15px_rgba(0,55,37,0.35)] scale-[1.02]'
+                    ? 'bg-cta text-white border border-cta shadow-[0_20px_50px_-15px_rgba(0,55,37,0.35)] scale-[1.02]'
                     : 'bg-white text-[#1A1A1A] border border-black/[0.08]'
                 }`}
               >
@@ -144,7 +143,7 @@ export const PricingA = ({ onNavigate }) => {
                   <div className="text-[17px] font-bold mb-1">{p.name}</div>
                   <div
                     className={`text-[12.5px] ${
-                      p.popular ? 'text-[#F4F0E6]/60' : 'text-[#716D5C]'
+                      p.popular ? 'text-[#F4F5F7]/60' : 'text-[#716D5C]'
                     }`}
                   >
                     {p.tagline}
@@ -154,7 +153,7 @@ export const PricingA = ({ onNavigate }) => {
                 {/* Price */}
                 <div
                   className={`mb-5 pb-5 border-b ${
-                    p.popular ? 'border-[#F4F0E6]/15' : 'border-black/[0.08]'
+                    p.popular ? 'border-[#F4F5F7]/15' : 'border-black/[0.08]'
                   }`}
                 >
                   <div
@@ -165,7 +164,7 @@ export const PricingA = ({ onNavigate }) => {
                   </div>
                   <div
                     className={`text-[11px] mt-1.5 ${
-                      p.popular ? 'text-[#F4F0E6]/60' : 'text-[#9ca3af]'
+                      p.popular ? 'text-[#F4F5F7]/60' : 'text-[#9ca3af]'
                     }`}
                   >
                     {p.sub}
@@ -190,7 +189,7 @@ export const PricingA = ({ onNavigate }) => {
                     <li
                       key={idx}
                       className={`flex gap-2 text-[13px] leading-[1.4] ${
-                        p.popular ? 'text-[#F4F0E6]/90' : 'text-[#3A3A3A]'
+                        p.popular ? 'text-[#F4F5F7]/90' : 'text-[#3A3A3A]'
                       }`}
                     >
                       <span className="flex-shrink-0 mt-0.5">

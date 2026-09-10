@@ -128,7 +128,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
       title: 'Performance',
       description: 'Volume, taux auto, temps moyen',
       icon: BarChart3,
-      color: '#0E653A',
+      color: '#13804A',
       metric: total > 0 ? `${total} demande${total > 1 ? 's' : ''}` : 'Aucune donnée',
       metricSub: trendPct !== null && trendPct !== undefined
         ? (trendPct >= 0
@@ -189,7 +189,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6 mb-5">
+      <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 md:p-6 mb-5">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -241,7 +241,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
             className={`px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors ${
               period === p.id
                 ? 'bg-[#1a1a1a] text-white'
-                : 'bg-white border border-[#E5E2D7] text-[#71717a] hover:bg-[#fafafa]'
+                : 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-[#fafafa]'
             }`}
           >
             {p.label}
@@ -251,7 +251,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
 
       {/* ═══════ EMPTY STATE — pas encore de données ═══════ */}
       {total === 0 && insights !== null && (
-        <div className="rounded-2xl border border-[#E5E2D7] bg-white mb-4">
+        <div className="rounded-2xl border border-[#E6E8EC] bg-white mb-4">
           <EmptyState
             icon={BarChart3}
             tone="neutral"
@@ -282,8 +282,8 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
               disabled={card.locked}
               className={`group text-left bg-white rounded-2xl border p-5 transition-all duration-200 ${
                 card.locked
-                  ? 'border-[#E5E2D7] opacity-60 cursor-not-allowed'
-                  : 'border-[#E5E2D7] hover:border-cta/30 hover:-translate-y-0.5 hover:shadow-elev-3 cursor-pointer'
+                  ? 'border-[#E6E8EC] opacity-60 cursor-not-allowed'
+                  : 'border-[#E6E8EC] hover:border-cta/30 hover:-translate-y-0.5 hover:shadow-elev-3 cursor-pointer'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
@@ -305,7 +305,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
               <p className="text-[11px] text-[#71717a] leading-relaxed mb-3">{card.description}</p>
 
               {/* Lead metric */}
-              <div className="pt-3 border-t border-[#E5E2D7]">
+              <div className="pt-3 border-t border-[#E6E8EC]">
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl font-bold text-[#1a1a1a] tabular-nums leading-none">
                     {card.metric}

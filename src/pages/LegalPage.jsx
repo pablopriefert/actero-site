@@ -22,7 +22,7 @@ export const LegalPage = ({ onNavigate }) => {
 
             {/* Header */}
             <div className="mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F9F7F1] border border-gray-200 text-[#716D5C] text-xs font-bold uppercase tracking-widest mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFFFFF] border border-gray-200 text-[#716D5C] text-xs font-bold uppercase tracking-widest mb-6">
                 <Scale className="w-3.5 h-3.5" />
                 Informations legales
               </div>
@@ -44,7 +44,7 @@ export const LegalPage = ({ onNavigate }) => {
                 <h2 className="text-xl md:text-2xl font-bold text-[#262626] mb-4">1. Éditeur du site</h2>
                 <div className="text-[#716D5C] leading-relaxed text-[15px] space-y-2">
                   <p>Le site <strong className="text-[#262626]">actero.fr</strong> est édité par :</p>
-                  <div className="bg-[#F9F7F1] rounded-xl p-5 mt-3 space-y-1.5">
+                  <div className="bg-[#FFFFFF] rounded-xl p-5 mt-3 space-y-1.5">
                     <p><strong className="text-[#262626]">Anne AIN EI — Actero</strong></p>
                     <p>Entrepreneur individuel — Micro-entrepreneur</p>
                     <p>SIREN : 103 250 775</p>
@@ -70,13 +70,13 @@ export const LegalPage = ({ onNavigate }) => {
                 <h2 className="text-xl md:text-2xl font-bold text-[#262626] mb-4">3. Hebergement</h2>
                 <div className="text-[#716D5C] leading-relaxed text-[15px] space-y-2">
                   <p>Le site est heberge par :</p>
-                  <div className="bg-[#F9F7F1] rounded-xl p-5 mt-3 space-y-1.5">
+                  <div className="bg-[#FFFFFF] rounded-xl p-5 mt-3 space-y-1.5">
                     <p><strong className="text-[#262626]">Vercel Inc.</strong></p>
                     <p>340 S Lemon Ave #4133, Walnut, CA 91789, Etats-Unis</p>
                     <p>Site web : vercel.com</p>
                   </div>
                   <p className="mt-3">La base de donnees est hebergee par :</p>
-                  <div className="bg-[#F9F7F1] rounded-xl p-5 mt-3 space-y-1.5">
+                  <div className="bg-[#FFFFFF] rounded-xl p-5 mt-3 space-y-1.5">
                     <p><strong className="text-[#262626]">Supabase Inc.</strong></p>
                     <p>Region : EU West (Irlande)</p>
                     <p>Site web : supabase.com</p>
@@ -171,7 +171,7 @@ export const LegalPage = ({ onNavigate }) => {
                 <h2 className="text-xl md:text-2xl font-bold text-[#262626] mb-4">11. Contact</h2>
                 <div className="text-[#716D5C] leading-relaxed text-[15px]">
                   <p>Pour toute question relative aux presentes mentions legales :</p>
-                  <div className="bg-[#F9F7F1] rounded-xl p-5 mt-3 space-y-1.5">
+                  <div className="bg-[#FFFFFF] rounded-xl p-5 mt-3 space-y-1.5">
                     <p>Email : contact@actero.fr</p>
                     <p>Site : actero.fr</p>
                     <p>Adresse : 54 Boulevard Notre-Dame, 13006 Marseille, France</p>

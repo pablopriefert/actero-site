@@ -8,7 +8,7 @@
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
-import Anthropic from '@anthropic-ai/sdk'
+import { chatComplete } from '../lib/llm.js'
 
 // Cap lambda runtime: LLM calls can hang and burn money otherwise.
 export const maxDuration = 60
@@ -18,7 +18,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const SYSTEM_PROMPT = `Tu es l'assistant IA interne d'Actero, accessible uniquement par les admins.
 Tu connais parfaitement l'architecture et les données d'Actero.
@@ -180,15 +179,15 @@ async function handler(req, res) {
   ]
 
   try {
-    // First call to Claude
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-5',
-      max_tokens: 4096,
+    // Passe par l'abstraction partagée : OpenRouter + Sonnet 5, comme le
+    // reste de la plateforme. Cette route parlait au SDK Anthropic en direct.
+    const { text: firstText } = await chatComplete({
       system: SYSTEM_PROMPT,
       messages,
+      maxTokens: 4096,
     })
 
-    let assistantText = response.content[0]?.text || ''
+    let assistantText = firstText || ''
 
     // Check if Claude wants to execute a query
     const queryMatch = assistantText.match(/```sql-query\s*\n([\s\S]*?)\n```/)
@@ -201,10 +200,9 @@ async function handler(req, res) {
         const beforeQuery = assistantText.split('```sql-query')[0]
 
         // Second call to Claude with the query results
-        const followUp = await anthropic.messages.create({
-          model: 'claude-sonnet-5',
-          max_tokens: 4096,
+        const followUp = await chatComplete({
           system: SYSTEM_PROMPT,
+          maxTokens: 4096,
           messages: [
             ...messages,
             { role: 'assistant', content: beforeQuery + `\n\n[Résultat de la requête sur "${queryDef.table}"]\n\`\`\`json\n${JSON.stringify(result, null, 2)}\n\`\`\`` },
@@ -212,7 +210,7 @@ async function handler(req, res) {
           ],
         })
 
-        assistantText = followUp.content[0]?.text || assistantText
+        assistantText = followUp.text || assistantText
         return res.status(200).json({
           response: assistantText,
           query_executed: { table: queryDef.table, result_count: result.count || 0 },

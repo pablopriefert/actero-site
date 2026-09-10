@@ -75,7 +75,7 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className={`h-full rounded-2xl border p-6 animate-pulse ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}
+        className={`h-full rounded-2xl border p-6 animate-pulse ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"}`}
       >
         <div className="h-6 w-1/3 bg-gray-50 mb-4 rounded" />
         <div className="h-[200px] bg-gray-50 rounded-xl" />
@@ -90,7 +90,7 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         role="alert"
-        className={`rounded-2xl border p-6 shadow-sm ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}
+        className={`rounded-2xl border p-6 shadow-sm ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"}`}
       >
         <div className="h-[200px] flex flex-col items-center justify-center text-center">
           <AlertTriangle className="w-8 h-8 text-amber-500 mb-2" />
@@ -150,7 +150,7 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
   }
 
   return (
-    <div className={`rounded-2xl border p-6 shadow-sm flex flex-col transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}>
+    <div className={`rounded-2xl border p-6 shadow-sm flex flex-col transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-[#1a1a1a] flex items-center gap-2">
           Graphique d'activité <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>

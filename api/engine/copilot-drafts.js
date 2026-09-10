@@ -12,15 +12,16 @@
  *   - une liste d'actions suggérées (rembourser, créer bon d'achat, etc.)
  *
  * Implémentation :
- *   - Claude Opus 4.7 via SDK officiel @anthropic-ai/sdk (installé v0.88+)
- *   - `thinking: { type: "adaptive" }` — Claude choisit sa profondeur
- *   - Structured outputs (output_config) pour garantir du JSON parseable
- *   - Prompt caching : system prompt + brand context mis en cache
+ *   - OpenRouter + Sonnet 5 via api/lib/llm.js, comme tout le reste de la
+ *     plateforme (cet endpoint parlait au SDK Anthropic avec Opus 4.7)
+ *   - `reasoning: { enabled: true }` — équivalent OpenRouter du thinking
+ *   - Sortie structurée par json_schema, avec repli de parsing défensif
+ *   - Cache de prompt : prompt système + contexte marque posés en blocs
  *
  * Auth : JWT Supabase ; scope strict au client_id du caller.
  */
 import { withSentry } from '../lib/sentry.js'
-import Anthropic from '@anthropic-ai/sdk'
+import { chatComplete } from '../lib/llm.js'
 import { createClient } from '@supabase/supabase-js'
 
 // Cap lambda runtime: LLM calls can hang and burn money otherwise.
@@ -31,7 +32,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const COPILOT_SYSTEM_PROMPT = `Tu es un copilote IA qui assiste les agents SAV humains d'e-commerçants Shopify français.
 
@@ -158,66 +158,47 @@ async function handler(req, res) {
     // Build the per-request payload
     const ticketContext = buildTicketContext(convo)
 
-    const message = await anthropic.messages.create({
-      model: 'claude-opus-4-7',
-      max_tokens: 3000,
-      thinking: { type: 'adaptive' },
+    const { text, usage, modelId } = await chatComplete({
+      maxTokens: 3000,
+      reasoning: { enabled: true },
       system: [
-        {
-          type: 'text',
-          text: COPILOT_SYSTEM_PROMPT,
-          cache_control: { type: 'ephemeral' },
-        },
-        {
-          type: 'text',
-          text: brandContext,
-          cache_control: { type: 'ephemeral' },
-        },
+        { type: 'text', text: COPILOT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: brandContext, cache_control: { type: 'ephemeral' } },
       ],
-      output_config: {
-        format: {
-          type: 'json_schema',
-          schema: DRAFTS_SCHEMA,
-        },
-      },
-      messages: [
-        {
-          role: 'user',
-          content: ticketContext,
-        },
-      ],
+      jsonSchema: { name: 'copilot_drafts', schema: DRAFTS_SCHEMA },
+      messages: [{ role: 'user', content: ticketContext }],
     })
 
-    // output_config guarantees first text block is valid JSON
-    const textBlock = message.content.find((b) => b.type === 'text')
-    if (!textBlock) {
-      return res.status(500).json({ error: 'Réponse Claude vide' })
+    if (!text) {
+      return res.status(500).json({ error: 'Réponse du modèle vide' })
     }
 
-    const parsed = JSON.parse(textBlock.text)
+    // Le schéma garantit du JSON, mais il est honoré par le fournisseur, pas
+    // par nous. Un repli sur le premier objet trouvé évite qu'un préambule en
+    // texte fasse échouer tout le ticket.
+    let parsed
+    try {
+      parsed = JSON.parse(text)
+    } catch {
+      const objet = text.match(/\{[\s\S]*\}/)
+      if (!objet) return res.status(500).json({ error: 'Réponse du modèle non parseable' })
+      parsed = JSON.parse(objet[0])
+    }
 
     return res.status(200).json({
       ...parsed,
       _meta: {
-        model: message.model,
+        model: modelId,
         usage: {
-          input_tokens: message.usage?.input_tokens,
-          output_tokens: message.usage?.output_tokens,
-          cache_read_input_tokens: message.usage?.cache_read_input_tokens,
-          cache_creation_input_tokens: message.usage?.cache_creation_input_tokens,
+          input_tokens: usage?.tokensIn,
+          output_tokens: usage?.tokensOut,
+          // Non nul = le cache de prompt mord bien via OpenRouter.
+          cached_input_tokens: usage?.tokensCache,
         },
-        stop_reason: message.stop_reason,
       },
     })
   } catch (err) {
     console.error('[copilot-drafts] exception:', err)
-    // Surface Anthropic-typed errors gracefully
-    if (err instanceof Anthropic.APIError) {
-      return res.status(err.status || 500).json({
-        error: err.message,
-        type: err.name,
-      })
-    }
     return res.status(500).json({ error: err.message })
   }
 }

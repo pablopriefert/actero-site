@@ -117,7 +117,7 @@ export function ReasoningDrawer({ open, onClose, conversationId }) {
               </div>
               <button
                 onClick={onClose}
-                className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F9F7F1] hover:bg-[#F4F0E6] flex items-center justify-center text-[#716D5C] transition-colors"
+                className="flex-shrink-0 w-8 h-8 rounded-full bg-[#FFFFFF] hover:bg-[#F4F5F7] flex items-center justify-center text-[#716D5C] transition-colors"
                 aria-label="Fermer"
               >
                 <X className="w-4 h-4" />
@@ -150,8 +150,8 @@ function Loading() {
     <div className="p-6 space-y-4">
       {[...Array(4)].map((_, i) => (
         <div key={i} className="space-y-2">
-          <div className="h-3 bg-[#F9F7F1] rounded w-1/3 animate-pulse" />
-          <div className="h-16 bg-[#F9F7F1] rounded-xl animate-pulse" />
+          <div className="h-3 bg-[#FFFFFF] rounded w-1/3 animate-pulse" />
+          <div className="h-16 bg-[#FFFFFF] rounded-xl animate-pulse" />
         </div>
       ))}
     </div>
@@ -194,13 +194,13 @@ function ReasoningContent({ data, expandedSection, onToggle }) {
       {/* ── Verdict row : classification + confidence ── */}
       <div className="flex flex-wrap items-center gap-2">
         {run?.classification && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F9F7F1] border border-[#E8DFC9] text-[12px] font-semibold text-[#1A1A1A]">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#FFFFFF] border border-[#E3E6EA] text-[12px] font-semibold text-[#1A1A1A]">
             <Sparkles className="w-3 h-3 text-cta" strokeWidth={2.5} />
             {prettyClassification(run.classification)}
           </span>
         )}
         {run?.agent_used && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E8DFC9] text-[12px] font-semibold text-[#716D5C]">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#E3E6EA] text-[12px] font-semibold text-[#716D5C]">
             Agent {run.agent_used}
           </span>
         )}
@@ -254,7 +254,7 @@ function ReasoningContent({ data, expandedSection, onToggle }) {
         ) : (
           <div className="space-y-2">
             {sources.map((s) => (
-              <div key={s.id} className="p-3 rounded-xl border border-[#E8DFC9] bg-[#F9F7F1]">
+              <div key={s.id} className="p-3 rounded-xl border border-[#E3E6EA] bg-[#FFFFFF]">
                 <div className="flex items-center gap-2 mb-1.5">
                   <FileText className="w-3.5 h-3.5 text-cta flex-shrink-0" />
                   <p className="text-[13px] font-bold text-[#1A1A1A] truncate">{s.title}</p>
@@ -365,13 +365,13 @@ function ReasoningSteps({ run }) {
   return (
     <div className="space-y-2">
       {plan.length > 0 && (
-        <div className="p-3 rounded-xl bg-[#F9F7F1] border border-[#E8DFC9]">
+        <div className="p-3 rounded-xl bg-[#FFFFFF] border border-[#E3E6EA]">
           <p className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-[#716D5C] mb-1.5">
             Plan d'action décidé
           </p>
           <div className="flex flex-wrap gap-1.5">
             {plan.map((p, i) => (
-              <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-[#E8DFC9] text-[11.5px] font-semibold text-[#1A1A1A]">
+              <span key={i} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-[#E3E6EA] text-[11.5px] font-semibold text-[#1A1A1A]">
                 {p}
               </span>
             ))}
@@ -385,7 +385,7 @@ function ReasoningSteps({ run }) {
         const success = step.status === 'success' || step.ok === true
         return (
           <div key={i} className="flex items-start gap-3 p-3 rounded-xl border border-[#f0f0f0] bg-white">
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#F9F7F1] flex items-center justify-center font-mono text-[11px] font-bold text-[#716D5C]">
+            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#FFFFFF] flex items-center justify-center font-mono text-[11px] font-bold text-[#716D5C]">
               {i + 1}
             </div>
             <div className="min-w-0 flex-1">

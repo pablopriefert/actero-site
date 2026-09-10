@@ -32,7 +32,7 @@ function Avatar({ avatar }) {
  * Couleurs issues des tokens :
  * - tokens.colors.bg.border (#f0f0f0) pour le séparateur
  * - tokens.colors.bg.page (#fafafa) pour le hover
- * - tokens.colors.brand.primary (#0E653A) pour l'état sélectionné
+ * - tokens.colors.brand.primary (#13804A) pour l'état sélectionné
  * - tokens.colors.text.primary/muted pour la typographie
  *
  * @param {Object} props

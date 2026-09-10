@@ -139,7 +139,7 @@ const TemplateCard = ({ template, onOpen }) => {
           <span>Actero Pick</span>
         </span>
       )}
-      <div className="aspect-[16/9] bg-gradient-to-br from-[#F9F7F1] to-[#eceae2] relative overflow-hidden">
+      <div className="aspect-[16/9] bg-gradient-to-br from-[#FFFFFF] to-[#EDEFF2] relative overflow-hidden">
         {template.preview_image ? (
           <img
             src={template.preview_image}
@@ -162,7 +162,7 @@ const TemplateCard = ({ template, onOpen }) => {
           <div className="absolute top-3 right-3">
             <span
               className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                isFree ? 'bg-emerald-500 text-white' : 'bg-[#003725] text-white'
+                isFree ? 'bg-emerald-500 text-white' : 'bg-cta text-white'
               }`}
             >
               {isFree ? 'Gratuit' : `${price.toFixed(0)}€`}
@@ -299,7 +299,7 @@ export const MarketplacePage = ({ onNavigate }) => {
             {isLoggedIn && (
               <button
                 onClick={() => onNavigate('/client')}
-                className="hidden md:inline-flex px-3 py-1.5 rounded-lg border border-[#f0f0f0] text-[12px] font-semibold hover:bg-[#F9F7F1]"
+                className="hidden md:inline-flex px-3 py-1.5 rounded-lg border border-[#f0f0f0] text-[12px] font-semibold hover:bg-[#FFFFFF]"
               >
                 Mon dashboard
               </button>
@@ -313,7 +313,7 @@ export const MarketplacePage = ({ onNavigate }) => {
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-10 md:py-14">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="flex-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#003725]/5 text-[#003725] text-[11px] font-bold uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cta/5 text-[#003725] text-[11px] font-bold uppercase tracking-wider mb-4">
                 <Store className="w-3 h-3" />
                 Marketplace
               </div>
@@ -328,7 +328,7 @@ export const MarketplacePage = ({ onNavigate }) => {
             {isLoggedIn && (
               <button
                 onClick={() => onNavigate('/client/marketplace')}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#003725] text-white text-[13px] font-bold hover:bg-[#002a1c] transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cta text-white text-[13px] font-bold hover:bg-[#002a1c] transition-colors whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
                 Publier mon template
@@ -374,8 +374,8 @@ export const MarketplacePage = ({ onNavigate }) => {
                     onClick={() => setSelectedCategory(c.id)}
                     className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
                       selectedCategory === c.id
-                        ? 'bg-[#003725] text-white'
-                        : 'text-[#555] hover:bg-[#F9F7F1]'
+                        ? 'bg-cta text-white'
+                        : 'text-[#555] hover:bg-[#FFFFFF]'
                     }`}
                   >
                     {c.label}
@@ -393,8 +393,8 @@ export const MarketplacePage = ({ onNavigate }) => {
                     onClick={() => setSelectedIndustry(ind.id)}
                     className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
                       selectedIndustry === ind.id
-                        ? 'bg-[#003725] text-white'
-                        : 'bg-[#F9F7F1] text-[#555] hover:bg-[#eceae2]'
+                        ? 'bg-cta text-white'
+                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {ind.label}
@@ -412,8 +412,8 @@ export const MarketplacePage = ({ onNavigate }) => {
                     onClick={() => setSelectedPrice(p.id)}
                     className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       selectedPrice === p.id
-                        ? 'bg-[#003725] text-white'
-                        : 'bg-[#F9F7F1] text-[#555] hover:bg-[#eceae2]'
+                        ? 'bg-cta text-white'
+                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {p.label}
@@ -431,8 +431,8 @@ export const MarketplacePage = ({ onNavigate }) => {
                     onClick={() => setSelectedRating(r.id)}
                     className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       selectedRating === r.id
-                        ? 'bg-[#003725] text-white'
-                        : 'bg-[#F9F7F1] text-[#555] hover:bg-[#eceae2]'
+                        ? 'bg-cta text-white'
+                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {r.label}

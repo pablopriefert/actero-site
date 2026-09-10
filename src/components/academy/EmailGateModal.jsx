@@ -71,7 +71,7 @@ export function EmailGateModal({ open, onClose, onSubmit, courseTitle }) {
             >
               <X className="w-4 h-4 text-[#262626]" />
             </button>
-            <div className="w-12 h-12 rounded-2xl bg-[#003725]/10 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-cta/10 flex items-center justify-center mb-4">
               <Lock className="w-5 h-5 text-[#003725]" />
             </div>
             <h2 className="text-2xl font-bold text-[#262626] mb-2">
@@ -110,7 +110,7 @@ export function EmailGateModal({ open, onClose, onSubmit, courseTitle }) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-[#003725] hover:bg-[#00291c] text-white font-bold px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full bg-cta hover:bg-[#00291c] text-white font-bold px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {submitting ? "Inscription..." : "Acceder au cours"}
                 {!submitting && <ArrowRight className="w-4 h-4" />}

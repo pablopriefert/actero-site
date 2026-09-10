@@ -297,7 +297,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: 0.04 * idx }}
         onClick={() => onNavigate && onNavigate(card.id)}
-        className="group text-left bg-white rounded-2xl border border-[#E5E2D7] p-5 hover:border-cta/30 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all"
+        className="group text-left bg-white rounded-2xl border border-[#E6E8EC] p-5 hover:border-cta/30 hover:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all"
       >
         <div className="flex items-start justify-between mb-3">
           <div className="w-9 h-9 rounded-lg bg-cta/10 flex items-center justify-center">
@@ -341,7 +341,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
       {/* ═══════ STATUS STRIP + live metrics 24h ═══════ */}
-      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6 mb-6">
+      <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 md:p-6 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -438,7 +438,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
           className={`group w-full flex items-center justify-between gap-3 bg-white rounded-2xl border p-5 text-left transition-all ${
             visionEnabled
               ? 'border-cta/30 hover:border-cta/50'
-              : 'border-[#E5E2D7] hover:border-cta/30'
+              : 'border-[#E6E8EC] hover:border-cta/30'
           } disabled:opacity-60 disabled:cursor-not-allowed`}
         >
           <div className="flex items-start gap-3 min-w-0">
@@ -449,7 +449,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
             </div>
             <div className="min-w-0">
               <h3 className="text-[14px] font-semibold text-[#1a1a1a] mb-1">
-                Analyse des images envoyees par le client (Claude Vision)
+                Analyse des images envoyees par le client (Claude Sonnet 5)
               </h3>
               <p className="text-[12px] text-[#71717a] leading-relaxed">
                 Quand activé, l'agent analyse automatiquement les photos jointes par le client (produit cassé, étiquette, reçu…) pour contextualiser sa réponse. Consommation selon votre quota mensuel.
@@ -487,7 +487,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
           className={`group mt-3 w-full flex items-center justify-between gap-3 bg-white rounded-2xl border p-5 text-left transition-all ${
             linearAutoIssueEnabled
               ? 'border-cta/30 hover:border-cta/50'
-              : 'border-[#E5E2D7] hover:border-cta/30'
+              : 'border-[#E6E8EC] hover:border-cta/30'
           } disabled:opacity-60 disabled:cursor-not-allowed`}
         >
           <div className="flex items-start gap-3 min-w-0">
@@ -526,7 +526,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
         </button>
 
         {/* ═══════ E2B SANDBOX TEST PANEL ═══════ */}
-        <div className="mt-3 bg-white rounded-2xl border border-[#E5E2D7] p-5">
+        <div className="mt-3 bg-white rounded-2xl border border-[#E6E8EC] p-5">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-cta/10 text-cta flex-shrink-0">
               <Zap className="w-4 h-4" />
@@ -552,7 +552,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
                 step="0.5"
                 value={e2bAmount}
                 onChange={(e) => setE2bAmount(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#f9f7f1] border border-[#E5E2D7] text-[13px] tabular-nums focus:outline-none focus:border-cta focus:bg-white transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-[#FFFFFF] border border-[#E6E8EC] text-[13px] tabular-nums focus:outline-none focus:border-cta focus:bg-white transition-colors"
                 disabled={e2bTestState === 'running'}
               />
             </label>
@@ -566,7 +566,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
                 step="10"
                 value={e2bMaxAuto}
                 onChange={(e) => setE2bMaxAuto(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#f9f7f1] border border-[#E5E2D7] text-[13px] tabular-nums focus:outline-none focus:border-cta focus:bg-white transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-[#FFFFFF] border border-[#E6E8EC] text-[13px] tabular-nums focus:outline-none focus:border-cta focus:bg-white transition-colors"
                 disabled={e2bTestState === 'running'}
               />
             </label>
@@ -576,7 +576,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
             type="button"
             onClick={runE2BTest}
             disabled={e2bTestState === 'running' || !clientId}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-cta hover:bg-[#0A4F2C] text-white text-[13px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-cta hover:bg-[#0E653A] text-white text-[13px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {e2bTestState === 'running' ? (
               <>

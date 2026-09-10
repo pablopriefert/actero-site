@@ -166,7 +166,7 @@ export const AcademyCoursePage = ({ slug, onNavigate }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F9F7F1]">
+      <div className="min-h-screen bg-[#FFFFFF]">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
         <div className="pt-40 text-center text-[#716D5C]">Chargement...</div>
       </div>
@@ -175,7 +175,7 @@ export const AcademyCoursePage = ({ slug, onNavigate }) => {
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-[#F9F7F1]">
+      <div className="min-h-screen bg-[#FFFFFF]">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
         <div className="pt-40 text-center">
           <h1 className="text-2xl font-bold mb-2">Cours introuvable</h1>
@@ -191,7 +191,7 @@ export const AcademyCoursePage = ({ slug, onNavigate }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F7F1] text-[#262626]">
+    <div className="min-h-screen bg-[#FFFFFF] text-[#262626]">
       <SEO
         title={`${course.title} - Actero Academy`}
         description={course.subtitle || course.description}
@@ -315,7 +315,7 @@ export const AcademyCoursePage = ({ slug, onNavigate }) => {
                     >
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${
-                          done ? "bg-[#003725] text-white" : "bg-gray-100 text-[#716D5C]"
+                          done ? "bg-cta text-white" : "bg-gray-100 text-[#716D5C]"
                         }`}
                       >
                         {done ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
@@ -385,7 +385,7 @@ export const AcademyCoursePage = ({ slug, onNavigate }) => {
                 </div>
                 <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
                   <div
-                    className="h-full bg-[#003725] transition-all"
+                    className="h-full bg-cta transition-all"
                     style={{ width: `${progressPct}%` }}
                   />
                 </div>
@@ -406,7 +406,7 @@ export const AcademyCoursePage = ({ slug, onNavigate }) => {
                         }
                         onNavigate(`/academy/${slug}/${m.slug}`);
                       }}
-                      className="w-full flex items-center gap-2 text-left px-2 py-2 rounded-lg hover:bg-[#F9F7F1] transition-colors"
+                      className="w-full flex items-center gap-2 text-left px-2 py-2 rounded-lg hover:bg-[#FFFFFF] transition-colors"
                     >
                       {done ? (
                         <CheckCircle2 className="w-4 h-4 text-[#003725] flex-shrink-0" />

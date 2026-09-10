@@ -31,7 +31,7 @@ async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`verify-code-check:${ip}`, 15, 60 * 60 * 1000)
+  const rl = await checkRateLimit(`verify-code-check:${ip}`, 15, 60 * 60 * 1000)
   if (!rl.allowed) return res.status(429).json({ error: 'Trop de tentatives. Réessayez plus tard.' })
 
   const { email, code } = req.body || {}

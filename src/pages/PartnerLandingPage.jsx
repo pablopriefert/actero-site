@@ -235,7 +235,7 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
     <div className="relative min-h-screen bg-white font-sans text-[#262626] selection:bg-indigo-500/20 selection:text-[#262626]">
       {/* BACKGROUND */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F9F7F1] to-white" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF] to-white" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-indigo-500/5 rounded-full blur-[120px]" />
         <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-violet-500/3 rounded-full blur-[100px]" />
       </div>
@@ -500,7 +500,7 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
                           value={formData.first_name}
                           onChange={handleFormChange}
                           required
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
                           placeholder="Votre prénom"
                         />
                       </div>
@@ -512,7 +512,7 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
                           value={formData.last_name}
                           onChange={handleFormChange}
                           required
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
                           placeholder="Votre nom"
                         />
                       </div>
@@ -527,7 +527,7 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
                           value={formData.email}
                           onChange={handleFormChange}
                           required
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
                           placeholder="vous@entreprise.com"
                         />
                       </div>
@@ -538,7 +538,7 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
                           name="phone"
                           value={formData.phone}
                           onChange={handleFormChange}
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
                           placeholder="+33 6 00 00 00 00"
                         />
                       </div>
@@ -552,7 +552,7 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
                         value={formData.company_name}
                         onChange={handleFormChange}
                         required
-                        className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
+                        className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors"
                         placeholder="Nom de votre entreprise"
                       />
                     </div>
@@ -565,11 +565,11 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
                           value={formData.activity_type}
                           onChange={handleFormChange}
                           required
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] outline-none focus:border-indigo-500/40 transition-colors appearance-none cursor-pointer"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] outline-none focus:border-indigo-500/40 transition-colors appearance-none cursor-pointer"
                         >
-                          <option value="" disabled className="bg-[#F9F7F1]">Sélectionnez</option>
+                          <option value="" disabled className="bg-[#FFFFFF]">Sélectionnez</option>
                           {activityOptions.map((opt) => (
-                            <option key={opt} value={opt} className="bg-[#F9F7F1]">{opt}</option>
+                            <option key={opt} value={opt} className="bg-[#FFFFFF]">{opt}</option>
                           ))}
                         </select>
                       </div>
@@ -579,11 +579,11 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
                           name="potential_clients"
                           value={formData.potential_clients}
                           onChange={handleFormChange}
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] outline-none focus:border-indigo-500/40 transition-colors appearance-none cursor-pointer"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] outline-none focus:border-indigo-500/40 transition-colors appearance-none cursor-pointer"
                         >
-                          <option value="" className="bg-[#F9F7F1]">Sélectionnez</option>
+                          <option value="" className="bg-[#FFFFFF]">Sélectionnez</option>
                           {clientsOptions.map((opt) => (
-                            <option key={opt} value={opt} className="bg-[#F9F7F1]">{opt}</option>
+                            <option key={opt} value={opt} className="bg-[#FFFFFF]">{opt}</option>
                           ))}
                         </select>
                       </div>
@@ -596,7 +596,7 @@ const PartnerLandingPageContent = ({ onNavigate, agencyName }) => {
                         value={formData.message}
                         onChange={handleFormChange}
                         rows={4}
-                        className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors resize-none"
+                        className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-600 outline-none focus:border-indigo-500/40 transition-colors resize-none"
                         placeholder="Parlez-nous de votre activité et de vos clients potentiels..."
                       />
                     </div>

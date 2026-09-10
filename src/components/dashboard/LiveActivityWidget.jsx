@@ -69,7 +69,7 @@ export const LiveActivityWidget = ({ supabase, setActiveTab, compact = false, cl
             <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-cta animate-pulse' : 'bg-red-500'}`} />
             <h3 className="font-bold text-[#1a1a1a] text-sm">Activité récente</h3>
           </div>
-          <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-widest px-2 py-0.5 bg-[#F9F7F1] rounded-full">
+          <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-widest px-2 py-0.5 bg-[#FFFFFF] rounded-full">
             LIVE
           </span>
         </div>

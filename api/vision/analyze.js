@@ -40,13 +40,23 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
 
-// Indicative $/€ pricing — update if Anthropic changes their rates
-const PRICE_PER_M_INPUT  = { 'claude-sonnet-4-6': 2.8, 'claude-haiku-4-5': 0.25 }   // EUR per 1M input tokens
-const PRICE_PER_M_OUTPUT = { 'claude-sonnet-4-6': 14,  'claude-haiku-4-5': 1.25 }
+// Tarifs indicatifs en EUR par 1M de tokens, au même taux implicite (~0,93)
+// que la table d'origine. Sonnet 5 coûte $2/$10 sur OpenRouter.
+//
+// Ces clés étaient restées sur `claude-sonnet-4-6`, un modèle que la
+// plateforme n'utilise plus : aucune ne correspondait au modèle réellement
+// appelé, donc chaque calcul tombait sur le repli 3/15 et surfacturait le
+// coût affiché d'environ 60 %.
+const PRICE_PER_M_INPUT  = { 'claude-sonnet-5': 1.85, 'claude-haiku-4-5': 0.25 }
+const PRICE_PER_M_OUTPUT = { 'claude-sonnet-5': 9.30, 'claude-haiku-4-5': 1.25 }
 
 function costEur(model, tin, tout) {
-  const pin = PRICE_PER_M_INPUT[model] || 3
-  const pout = PRICE_PER_M_OUTPUT[model] || 15
+  // OpenRouter renvoie des identifiants préfixés (`anthropic/claude-sonnet-5`)
+  // et parfois suffixés d'une date : on normalise avant de chercher.
+  const id = String(model || '').split('/').pop()
+  const cle = Object.keys(PRICE_PER_M_INPUT).find((k) => id.startsWith(k))
+  const pin = PRICE_PER_M_INPUT[cle] || 3
+  const pout = PRICE_PER_M_OUTPUT[cle] || 15
   return (tin * pin + tout * pout) / 1_000_000
 }
 

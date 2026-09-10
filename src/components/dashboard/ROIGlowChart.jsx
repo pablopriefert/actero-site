@@ -141,7 +141,7 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
 
   return (
     <div
-      className={`rounded-2xl border p-6 shadow-sm flex flex-col h-full relative overflow-hidden group transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"
+      className={`rounded-2xl border p-6 shadow-sm flex flex-col h-full relative overflow-hidden group transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"
         }`}
     >
       {!hasData ? (
@@ -183,7 +183,7 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
             </div>
             <div
               className={`p-3 rounded-xl border ${isLight
-                ? "bg-[#F9F7F1] border-gray-100"
+                ? "bg-[#FFFFFF] border-gray-100"
                 : "bg-gray-50 border-gray-100"
                 }`}
             >

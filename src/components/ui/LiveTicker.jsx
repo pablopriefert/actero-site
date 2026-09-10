@@ -38,7 +38,7 @@ export const LiveTicker = ({ vertical }) => {
   const stat = stats[idx]
 
   return (
-    <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 border bg-[#F9F7F1] border-gray-200">
+    <div className="inline-flex items-center gap-3 rounded-full px-5 py-2.5 border bg-[#FFFFFF] border-gray-200">
       {/* Live dot */}
       <span className="relative flex h-2 w-2 flex-shrink-0">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60 bg-cta" />

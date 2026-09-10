@@ -29,11 +29,11 @@
   color-scheme: light;
 
   /* ── Surfaces ──
-     Le papier est celui des autres onglets (#F7F5F0, cf. <main> du dashboard) :
+     Le papier est celui des autres onglets (#F7F8FA, cf. <main> du dashboard) :
      aucune couture entre la vue et la coquille. La feuille est blanche comme
      les cartes du produit, ce qui lui suffit pour ressortir du crème. Seule
      la feuille grave reste un accent sombre assumé. */
-  --papier:#F7F5F0;
+  --papier:#F7F8FA;
   --feuille:#FFFFFF;
   --grave:#0B3D25;
   --lavis:#EFEBE1;
@@ -46,7 +46,7 @@
   --renverse-2:#CBD8C4;
 
   /* ── Accents, sémantique exclusive ── */
-  --vert:#0E653A;          /* le travail de l'agent, la main du marchand */
+  --vert:#13804A;          /* le travail de l'agent, la main du marchand */
   --vert-appuye:#0B4B2C;   /* même vert, état pressé/survol du bouton */
   --vert-clair:#A8C490;    /* le vert transposé sur --grave */
   --laiton:#7A6320;        /* l'instrument, jamais une alerte */
@@ -58,7 +58,7 @@
   --filet:#E4DFD4;         /* décoratif */
   --filet-axe:#8A8071;     /* porteur de sens ou d'affordance (~3:1) */
 
-  --focus:#0E653A;
+  --focus:#13804A;
 
   /* ombres chaudes, accordées au crème */
   --ombre:0 1px 0 rgba(70,58,40,.04), 0 18px 34px -22px rgba(70,58,40,.18);

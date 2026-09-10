@@ -89,7 +89,7 @@ export function StickyCTABar({ onNavigate }) {
         </button>
         <button
           onClick={handleCTAClick}
-          className="flex-shrink-0 inline-flex items-center gap-1 md:gap-1.5 h-9 md:h-10 px-3 md:px-4 rounded-xl bg-white text-[#1a1a1a] text-[12px] md:text-[13px] font-bold hover:bg-[#F9F7F1] transition-colors"
+          className="flex-shrink-0 inline-flex items-center gap-1 md:gap-1.5 h-9 md:h-10 px-3 md:px-4 rounded-xl bg-white text-[#1a1a1a] text-[12px] md:text-[13px] font-bold hover:bg-[#FFFFFF] transition-colors"
         >
           Commencer
           <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />

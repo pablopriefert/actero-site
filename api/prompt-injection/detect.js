@@ -52,6 +52,8 @@ Reponds UNIQUEMENT en JSON valide avec cette structure:
       messages: [{ role: 'user', content: message }],
       maxTokens: 300,
       json: true,
+      // Réponse binaire structurée : le tier rapide suffit.
+      tier: 'fast',
     });
 
     let result;

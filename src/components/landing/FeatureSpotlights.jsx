@@ -14,7 +14,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { FadeInUp } from '../ui/scroll-animations'
 import { Logo } from '../layout/Logo'
 
-const serif = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
 /**
  * Spotlight — layout partagé pour une section "feature" en split :
@@ -59,7 +59,7 @@ function Spotlight({ eyebrow, badge, Icon, title, titleAccent, desc, features, m
             ))}
           </ul>
 
-          <div className="inline-flex items-center gap-2.5 rounded-full bg-[#003725] text-white pl-3 pr-4 py-2">
+          <div className="inline-flex items-center gap-2.5 rounded-full bg-cta text-white pl-3 pr-4 py-2">
             <BarChart3 className="w-4 h-4 text-[#A8C490]" strokeWidth={2} />
             <span className="text-[14px] font-semibold">
               {metric}
@@ -102,7 +102,7 @@ function SavMedia() {
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.05]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#003725] flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-cta flex items-center justify-center">
             <Logo className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -131,7 +131,7 @@ function SavMedia() {
           <div className="w-6 h-6 rounded-lg bg-[#E8F5EC] flex items-center justify-center flex-shrink-0">
             <Logo className="w-3 h-3 text-[#003725]" />
           </div>
-          <div className="max-w-[82%] bg-[#003725] text-white text-[13.5px] leading-[1.55] rounded-2xl rounded-bl-md px-4 py-2.5">
+          <div className="max-w-[82%] bg-cta text-white text-[13.5px] leading-[1.55] rounded-2xl rounded-bl-md px-4 py-2.5">
             C'est fait ✅ J'ai mis à jour l'adresse de la commande #10842. Votre colis part
             demain — vous recevrez le lien de suivi par email.
           </div>
@@ -144,7 +144,7 @@ function SavMedia() {
         {channels.map((c) => (
           <span
             key={c}
-            className="text-[11.5px] font-semibold text-[#3A3A3A] bg-[#F4F0E6] border border-[#EFE7D6] px-2.5 py-1 rounded-full"
+            className="text-[11.5px] font-semibold text-[#3A3A3A] bg-[#F4F5F7] border border-[#EFE7D6] px-2.5 py-1 rounded-full"
           >
             {c}
           </span>
@@ -200,7 +200,7 @@ function CartMedia() {
           <b className="text-cta">−10 %</b> valable 24h pour finaliser votre commande.
         </div>
         <div className="flex items-center gap-2 mt-3">
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-white bg-[#003725] px-3.5 py-2 rounded-full">
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-white bg-cta px-3.5 py-2 rounded-full">
             Finaliser ma commande
             <ArrowRight className="w-3 h-3" />
           </span>
@@ -223,7 +223,7 @@ function CartMedia() {
 /* ───────────────────────────── Sections ───────────────────────────── */
 export const SavSpotlight = () => (
   <Spotlight
-    bg="bg-[#F9F7F1]"
+    bg="bg-[#FFFFFF]"
     eyebrow="Agent SAV"
     Icon={MessageSquare}
     badge="dès le plan Free"
@@ -233,7 +233,7 @@ export const SavSpotlight = () => (
     features={[
       'Multi-canal natif : email, live chat, Gorgias & Zendesk',
       'Retours, échanges, suivi de commande, questions produit',
-      'Comprend les photos envoyées par vos clients (Claude Vision)',
+      'Comprend les photos envoyées par vos clients (Claude Sonnet 5)',
       'Écrit avec le ton exact de votre marque',
       "Escalade vers un humain quand c'est vraiment nécessaire",
     ]}

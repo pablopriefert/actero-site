@@ -7,6 +7,7 @@
  */
 import { storeMemory } from './lib/memory.js'
 import { trackServerEvent } from '../lib/amplitude.js'
+import { resolveAvgTicketTimeSec } from './lib/config-loader.js'
 
 /**
  * Map a free-text classification to a valid ticket_type enum value.
@@ -264,16 +265,20 @@ export async function logRun(supabase, {
   const ticketType = mapTicketType(classification)
 
   // Get client's settings (avg ticket time + hourly cost for ROI)
-  let avgTicketTimeSec = 300 // default 5 min
+  // Le calcul du temps valorisé (défaut + plafond en mode conservateur) vit
+  // dans config-loader.js pour n'exister qu'à un seul endroit — process.js
+  // (ancien pipeline) et logger.js (V2) lisaient chacun `avg_ticket_time_min`
+  // avec leur propre défaut, donc pouvaient diverger silencieusement.
+  let avgTicketTimeSec = resolveAvgTicketTimeSec()
   let hourlyCost = 25 // default 25€/h
   try {
     const { data: clientSettings } = await supabase
       .from('client_settings')
-      .select('avg_ticket_time_min, hourly_cost')
+      .select('avg_ticket_time_min, hourly_cost, roi_conservative_mode')
       .eq('client_id', clientId)
       .maybeSingle()
-    if (clientSettings?.avg_ticket_time_min) {
-      avgTicketTimeSec = clientSettings.avg_ticket_time_min * 60
+    if (clientSettings) {
+      avgTicketTimeSec = resolveAvgTicketTimeSec(clientSettings)
     }
     if (clientSettings?.hourly_cost) {
       hourlyCost = clientSettings.hourly_cost

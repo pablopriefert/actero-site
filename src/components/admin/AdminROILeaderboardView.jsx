@@ -10,7 +10,7 @@ import { KpiCard, KpiRow } from '../ui/KpiCard'
 import { EmptyState } from '../ui/EmptyState'
 
 const HOURLY_RATE = 25 // € per hour default
-const BRAND = '#0E653A'
+const BRAND = '#13804A'
 
 const formatEuro = (v) =>
   new Intl.NumberFormat('fr-FR', {

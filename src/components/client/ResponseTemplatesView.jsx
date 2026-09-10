@@ -161,7 +161,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
         <div>
           <h2
             className="text-2xl italic tracking-tight text-[#1a1a1a]"
-            style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+            style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
           >
             Templates de réponses
           </h2>
@@ -171,7 +171,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-cta transition-all"
         >
           <Plus className="w-4 h-4" />
           Créer un template
@@ -379,7 +379,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                   type="button"
                   onClick={handleSave}
                   disabled={!form.name.trim() || !form.body.trim() || saving}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] transition-all disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-cta transition-all disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   {editing ? 'Enregistrer' : 'Créer'}

@@ -44,11 +44,11 @@ export function TalkToHumanButton({
 
   const variantClasses = {
     light:
-      'bg-transparent text-[#262626] border border-black/10 hover:border-black/20 hover:bg-[#F9F7F1]',
+      'bg-transparent text-[#262626] border border-black/10 hover:border-black/20 hover:bg-[#FFFFFF]',
     dark:
-      'bg-transparent text-white border border-[#F4F0E6]/25 hover:bg-white/10',
+      'bg-transparent text-white border border-[#F4F5F7]/25 hover:bg-white/10',
     ghost:
-      'bg-transparent text-[#716D5C] border border-transparent hover:text-[#262626] hover:bg-[#F9F7F1]',
+      'bg-transparent text-[#716D5C] border border-transparent hover:text-[#262626] hover:bg-[#FFFFFF]',
   }
 
   return (

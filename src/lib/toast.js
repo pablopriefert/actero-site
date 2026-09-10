@@ -28,7 +28,7 @@ import React from 'react'
 const DEFAULT_DURATION = 5000
 const UNDO_DURATION = 8000
 
-const ACTERO_GREEN = '#0E653A'
+const ACTERO_GREEN = '#13804A'
 const ACTERO_RED = '#DC2626'
 const ACTERO_AMBER = '#F59E0B'
 const ACTERO_BLUE = '#3B82F6'

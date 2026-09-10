@@ -109,7 +109,7 @@ async function handler(req, res) {
   if (authError || !user) return res.status(401).json({ error: 'Non autorise' });
 
   // Per-user rate-limit on a paid LLM endpoint.
-  const rl = checkRateLimit(`copilot:${user.id}`, 30, 60_000);
+  const rl = await checkRateLimit(`copilot:${user.id}`, 30, 60_000);
   res.setHeader('X-RateLimit-Limit', '30');
   res.setHeader('X-RateLimit-Remaining', String(rl.remaining));
   if (!rl.allowed) {

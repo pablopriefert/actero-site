@@ -277,7 +277,7 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
           <button
             onClick={testAllPlaybooks}
             disabled={testingAll}
-            className="flex items-center gap-2 px-4 py-2 bg-cta text-white text-sm font-bold rounded-full hover:bg-[#003725] disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-cta text-white text-sm font-bold rounded-full hover:bg-cta disabled:opacity-50"
           >
             {testingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
             Tester tous les playbooks actifs
@@ -380,14 +380,14 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
           {chatMessages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-lg bg-[#003725]/10 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-cta/10 flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4 text-[#003725]" />
                 </div>
               )}
               <div className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                msg.role === 'user' ? 'bg-[#003725] text-white rounded-tr-md' :
+                msg.role === 'user' ? 'bg-cta text-white rounded-tr-md' :
                 msg.error ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-md' :
-                'bg-[#F5F5F0] text-[#1a1a1a] rounded-tl-md'
+                'bg-[#F7F8FA] text-[#1a1a1a] rounded-tl-md'
               }`}>
                 {msg.content}
               </div>
@@ -400,10 +400,10 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
           ))}
           {chatLoading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#003725]/10 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-cta/10 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-[#003725]" />
               </div>
-              <div className="px-4 py-3 bg-[#F5F5F0] rounded-2xl rounded-tl-md">
+              <div className="px-4 py-3 bg-[#F7F8FA] rounded-2xl rounded-tl-md">
                 <Loader2 className="w-4 h-4 animate-spin text-[#71717a]" />
               </div>
             </div>
@@ -423,10 +423,10 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
             onKeyDown={(e) => e.key === 'Enter' && sendChat(chatInput)}
             placeholder="Tapez un message client..."
             disabled={chatLoading}
-            className="flex-1 px-4 py-3 bg-[#F5F5F0] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50"
+            className="flex-1 px-4 py-3 bg-[#F7F8FA] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50"
           />
           <button onClick={() => sendChat(chatInput)} disabled={!chatInput.trim() || chatLoading}
-            className="px-4 py-3 bg-cta text-white rounded-xl hover:bg-[#003725] disabled:opacity-50">
+            className="px-4 py-3 bg-cta text-white rounded-xl hover:bg-cta disabled:opacity-50">
             <Send className="w-4 h-4" />
           </button>
         </div>

@@ -361,7 +361,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
       <div>
         <h2
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           Automatisations
         </h2>
@@ -373,7 +373,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
       </div>
 
       {playbooks.length === 0 && (
-        <div className="rounded-2xl border border-[#E5E2D7] bg-white">
+        <div className="rounded-2xl border border-[#E6E8EC] bg-white">
           <EmptyState
             icon={Zap}
             tone="cta"

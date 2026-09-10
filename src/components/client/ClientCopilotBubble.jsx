@@ -91,12 +91,12 @@ export const ClientCopilotBubble = ({ clientId, theme = 'dark' }) => {
             className={`fixed bottom-6 right-6 z-50 w-[380px] h-[520px] rounded-2xl shadow-2xl flex flex-col overflow-hidden border ${
               isLight
                 ? 'bg-white border-gray-200 shadow-gray-200/50'
-                : 'bg-[#F9F7F1] border-gray-200 shadow-black/50'
+                : 'bg-[#FFFFFF] border-gray-200 shadow-black/50'
             }`}
           >
             {/* Header */}
             <div className={`flex items-center justify-between px-4 py-3 border-b ${
-              isLight ? 'border-gray-100 bg-[#F9F7F1]' : 'border-gray-100 bg-[#F9F7F1]'
+              isLight ? 'border-gray-100 bg-[#FFFFFF]' : 'border-gray-100 bg-[#FFFFFF]'
             }`}>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
@@ -140,8 +140,8 @@ export const ClientCopilotBubble = ({ clientId, theme = 'dark' }) => {
                         onClick={() => handleSend(q)}
                         className={`block w-full text-left px-3 py-2 rounded-lg text-[11px] transition-all border ${
                           isLight
-                            ? 'bg-white border-gray-200 text-[#71717a] hover:bg-[#F9F7F1] hover:border-slate-300'
-                            : 'bg-gray-50 border-gray-100 text-[#71717a] hover:bg-[#F9F7F1] hover:border-gray-200'
+                            ? 'bg-white border-gray-200 text-[#71717a] hover:bg-[#FFFFFF] hover:border-slate-300'
+                            : 'bg-gray-50 border-gray-100 text-[#71717a] hover:bg-[#FFFFFF] hover:border-gray-200'
                         }`}
                       >
                         {q}
@@ -221,7 +221,7 @@ export const ClientCopilotBubble = ({ clientId, theme = 'dark' }) => {
             <div className={`px-3 py-3 border-t ${isLight ? 'border-gray-100' : 'border-gray-100'}`}>
               <div className={`flex items-end rounded-xl border transition-colors ${
                 isLight
-                  ? 'bg-[#F9F7F1] border-gray-200 focus-within:border-violet-300'
+                  ? 'bg-[#FFFFFF] border-gray-200 focus-within:border-violet-300'
                   : 'bg-gray-50 border-gray-200 focus-within:border-violet-500/40'
               }`}>
                 <textarea

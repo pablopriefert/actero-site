@@ -94,7 +94,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                   <button
                     onClick={() => onOAuthConnect(provider)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-colors"
-                    style={{ backgroundColor: provider.color || '#0E653A' }}
+                    style={{ backgroundColor: provider.color || '#13804A' }}
                   >
                     <RefreshCw className="w-3 h-3" /> Reconnecter
                   </button>
@@ -143,14 +143,14 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
             ) : provider.authType === 'smtp' ? (
               <button
                 onClick={() => onOAuthConnect(provider)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors bg-cta text-white hover:bg-[#003725]"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors bg-cta text-white hover:bg-cta"
               >
                 <Plug className="w-3 h-3" /> Configurer
               </button>
             ) : provider.authType === 'api_key' ? (
               <button
                 onClick={() => onOAuthConnect(provider)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-cta text-white hover:bg-[#003725]"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-cta text-white hover:bg-cta"
               >
                 <Plug className="w-3 h-3" /> Connecter
               </button>
@@ -436,7 +436,7 @@ const LinearAutoIssuePanel = ({ clientId }) => {
   }
 
   return (
-    <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5">
+    <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -823,7 +823,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
       <div>
         <h2
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           Intégrations
         </h2>
@@ -1062,7 +1062,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
               <button
                 onClick={handleApiKeySubmit}
                 disabled={!apiKeyValue.trim() || apiKeySaving}
-                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-cta text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-cta text-white hover:bg-cta disabled:opacity-50 transition-colors"
               >
                 {apiKeySaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plug className="w-4 h-4" />}
                 Connecter
@@ -1131,7 +1131,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
               <button
                 onClick={handleSmtpSubmit}
                 disabled={smtpSaving}
-                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-cta disabled:opacity-50 transition-colors"
               >
                 {smtpSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plug className="w-4 h-4" />}
                 Connecter

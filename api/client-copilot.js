@@ -1,7 +1,7 @@
 // Client Copilot — AI assistant for client dashboard questions
+import { chatComplete } from './lib/llm.js';
 import { withSentry } from './lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
-import Anthropic from '@anthropic-ai/sdk';
 import { isActeroAdmin } from './lib/admin-auth.js'
 
 // Cap lambda runtime: LLM calls can hang and burn money otherwise.
@@ -12,7 +12,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SYSTEM_PROMPT = `Tu es Actero Copilot, l'assistant IA du dashboard client Actero.
 Actero automatise le support client e-commerce (Shopify, WooCommerce, Webflow) avec l'IA.
@@ -70,18 +69,21 @@ async function askClaude(systemPrompt, userPrompt, history) {
     messages.push({ role: 'user', content: userPrompt })
   }
 
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-5',
-    max_tokens: 1024,
+  // Passe par l'abstraction partagée, donc par OpenRouter + Sonnet 5 comme
+  // tout le reste du produit. Appelait auparavant le SDK Anthropic en direct
+  // avec un modèle codé en dur : deux fournisseurs facturés pour le même
+  // travail, et un modèle qui n'aurait pas suivi le prochain changement.
+  const { text } = await chatComplete({
     system: systemPrompt,
     messages,
+    maxTokens: 1024,
   })
-  return response.content[0]?.text || 'Je ne peux pas répondre pour le moment.'
+  return text || 'Je ne peux pas répondre pour le moment.'
 }
 
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY manquante' });
+  if (!process.env.OPENROUTER_API_KEY) return res.status(500).json({ error: 'OPENROUTER_API_KEY manquante' });
 
   // Auth check
   const token = req.headers.authorization?.replace('Bearer ', '');

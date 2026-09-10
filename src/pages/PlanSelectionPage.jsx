@@ -130,7 +130,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
         title="Choisir votre plan — Actero"
         description="Sélectionnez le plan Actero adapté à votre boutique."
       />
-      <div className="min-h-screen bg-[#F9F7F1] font-sans">
+      <div className="min-h-screen bg-[#FFFFFF] font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-10 pb-4">
           <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
@@ -201,18 +201,18 @@ export const PlanSelectionPage = ({ onNavigate }) => {
               let ctaStyle;
               if (planId === "free") {
                 ctaLabel = "Continuer gratuitement";
-                ctaStyle = "bg-[#F9F7F1] text-[#262626] border border-gray-200 hover:bg-gray-100";
+                ctaStyle = "bg-[#FFFFFF] text-[#262626] border border-gray-200 hover:bg-gray-100";
               } else if (planId === "enterprise") {
                 ctaLabel = "Contacter l\u2019\u00E9quipe";
-                ctaStyle = "bg-[#F9F7F1] text-[#262626] border border-gray-200 hover:bg-gray-100";
+                ctaStyle = "bg-[#FFFFFF] text-[#262626] border border-gray-200 hover:bg-gray-100";
               } else if (isStartupPromo) {
                 ctaLabel = "Activer mon plan -50%";
-                ctaStyle = "bg-cta text-white hover:bg-[#003725]";
+                ctaStyle = "bg-cta text-white hover:bg-cta";
               } else {
                 ctaLabel = isReferred ? "30 jours gratuits" : "Essai gratuit 7 jours";
                 ctaStyle = isPopular
-                  ? "bg-cta text-white hover:bg-[#003725]"
-                  : "bg-cta text-white hover:bg-[#003725]";
+                  ? "bg-cta text-white hover:bg-cta"
+                  : "bg-cta text-white hover:bg-cta";
               }
 
               return (

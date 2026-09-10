@@ -96,7 +96,8 @@ export const PLAN_FEATURES = {
     specialized_agents: true,
     api_webhooks: true,
     pdf_report: true,
-    multi_shop: true,
+    // Aucune implémentation — voir src/lib/plans.js.
+    multi_shop: false,
     white_label: true,
     roi_dashboard: 'custom',
     email_agent: true,

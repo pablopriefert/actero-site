@@ -8,6 +8,7 @@
  * URL: https://actero.fr/api/engine/webhooks/gorgias?client_id=UUID
  */
 import { withSentry } from '../../lib/sentry.js'
+import { decryptToken } from '../../lib/crypto.js'
 import crypto from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 import { processMessage } from '../process.js'
@@ -40,17 +41,22 @@ async function handler(req, res) {
   if (!providedSecret) return res.status(401).json({ error: 'Missing webhook secret' })
 
   // Per-client secret — chaque Gorgias OAuth install génère un secret de
-  // 32 bytes stocké dans client_integrations.extra_config.webhook_secret.
-  // Fallback sur GORGIAS_WEBHOOK_SECRET pour les setups legacy.
+  // 32 octets, stockés chiffrés dans client_integrations.webhook_secret_encrypted
+  // (ACT-25 — ils vivaient dans extra_config, que le navigateur peut lire).
+  // Repli sur GORGIAS_WEBHOOK_SECRET pour les installations historiques.
   const { data: integ } = await supabase
     .from('client_integrations')
-    .select('extra_config')
+    .select('extra_config, webhook_secret_encrypted')
     .eq('client_id', clientId)
     .eq('provider', 'gorgias')
     .eq('status', 'active')
     .maybeSingle()
 
-  const expectedSecret = integ?.extra_config?.webhook_secret
+  // Le secret vit dans sa propre colonne, chiffrée et fermée au navigateur.
+  // Le repli sur extra_config couvre les lignes écrites avant ACT-25 ;
+  // decryptToken laisse passer une valeur encore en clair.
+  const expectedSecret = decryptToken(integ?.webhook_secret_encrypted)
+    || integ?.extra_config?.webhook_secret
     || process.env.GORGIAS_WEBHOOK_SECRET
   if (!expectedSecret || !timingSafeEqStr(providedSecret, expectedSecret)) {
     return res.status(401).json({ error: 'Unauthorized' })

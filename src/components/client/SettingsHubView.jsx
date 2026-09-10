@@ -224,7 +224,7 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
   return (
     <div className="max-w-5xl mx-auto px-5 md:px-8 pt-6 pb-16 animate-fade-in-up">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6 mb-6">
+      <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 md:p-6 mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -262,7 +262,7 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
       </div>
 
       {/* ═══════ DATA EXPORT (GDPR) ═══════ */}
-      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 mb-6">
+      <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 mb-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -278,7 +278,7 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
               type="button"
               onClick={() => handleExport('json')}
               disabled={exporting === 'json'}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5E2D7] bg-white text-[12px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E6E8EC] bg-white text-[12px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50 transition"
             >
               {exporting === 'json' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
               JSON
@@ -297,7 +297,7 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
       </div>
 
       {/* ═══════ SLACK OPS CANVAS ═══════ */}
-      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 mb-6">
+      <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 mb-6">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -356,7 +356,7 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
             <h2 className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#9ca3af] mb-2 px-1">
               {grp.title}
             </h2>
-            <div className="bg-white rounded-2xl border border-[#E5E2D7] divide-y divide-gray-100 overflow-hidden">
+            <div className="bg-white rounded-2xl border border-[#E6E8EC] divide-y divide-gray-100 overflow-hidden">
               {grp.items.map((it, idx) => {
                 const Icon = it.icon
                 return (

@@ -216,8 +216,8 @@ export function AdminTokensView() {
                         <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gOut" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0E653A" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#0E653A" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#13804A" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#13804A" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -252,7 +252,7 @@ export function AdminTokensView() {
                       type="monotone"
                       dataKey="tokens_out_cost"
                       stackId="1"
-                      stroke="#0E653A"
+                      stroke="#13804A"
                       fill="url(#gOut)"
                       name="Tokens OUT"
                     />

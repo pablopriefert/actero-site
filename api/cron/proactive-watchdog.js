@@ -62,9 +62,23 @@ async function handler(req, res) {
       }
     }
 
+    // Cadence ramenée à */30 le 9 septembre 2026 parce que `proactive_events`
+    // n'avait jamais reçu une seule ligne (ACT-23). Le jour où ce cron produit
+    // vraiment quelque chose, cette hypothèse est périmée — et un cron trop
+    // lent ne se signale pas tout seul : il tourne, ne renvoie pas d'erreur, et
+    // fait son travail trop tard. D'où ce cri dans les logs.
+    const detections = results.reduce((n, r) => n + (r.detections || 0), 0)
+    if (detections > 0) {
+      console.error(
+        `[proactive-watchdog] ${detections} détection(s) alors que la cadence */30 ` +
+        'a été calibrée sur un système vide — repasser à */15 (voir docs/crons-cadences.md)'
+      )
+    }
+
     return res.status(200).json({
       ok: true,
       clients_checked: clientIds.length,
+      detections,
       results,
     })
   } catch (err) {
@@ -73,4 +87,4 @@ async function handler(req, res) {
   }
 }
 
-export default withCronMonitor('cron-proactive-watchdog', '*/15 * * * *', handler)
+export default withCronMonitor('cron-proactive-watchdog', '*/30 * * * *', handler)

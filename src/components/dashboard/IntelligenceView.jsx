@@ -101,8 +101,8 @@ export const ExecutionPlanDrawer = ({
         className="fixed inset-0 z-50 bg-gray-900/30 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
-      <div className="fixed inset-y-0 right-0 z-50 w-full md:w-[540px] bg-[#F9F7F1] shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-0 overflow-y-auto border-l border-gray-200">
-        <div className="p-6 md:p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-[#F9F7F1]/90 backdrop-blur z-10">
+      <div className="fixed inset-y-0 right-0 z-50 w-full md:w-[540px] bg-[#FFFFFF] shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-0 overflow-y-auto border-l border-gray-200">
+        <div className="p-6 md:p-8 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-[#FFFFFF]/90 backdrop-blur z-10">
           <div className="flex items-center gap-3 text-[#262626] font-bold">
             <Sparkles className="w-5 h-5 text-[#716D5C]" />
             <h2 className="text-xl tracking-tight">Plan d'exécution IA</h2>
@@ -183,10 +183,10 @@ export const ExecutionPlanDrawer = ({
             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-px before:bg-gradient-to-b before:from-white/10 before:to-transparent">
               {planSteps.map((step, idx) => (
                 <div key={idx} className="relative flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-[#F9F7F1] border border-gray-200 flex items-center justify-center flex-shrink-0 z-10 text-[#716D5C] font-bold text-sm shadow-sm mt-1">
+                  <div className="w-10 h-10 rounded-full bg-[#FFFFFF] border border-gray-200 flex items-center justify-center flex-shrink-0 z-10 text-[#716D5C] font-bold text-sm shadow-sm mt-1">
                     {idx + 1}
                   </div>
-                  <div className="bg-[#F9F7F1] border border-gray-100 p-4 rounded-2xl flex-1 shadow-sm mt-1">
+                  <div className="bg-[#FFFFFF] border border-gray-100 p-4 rounded-2xl flex-1 shadow-sm mt-1">
                     <h5 className="font-bold text-[#262626] mb-1 leading-tight">
                       {step.title}
                     </h5>
@@ -270,7 +270,7 @@ export const ExecutionPlanDrawer = ({
             <button
               disabled={loading}
               onClick={onClose}
-              className="flex-1 sm:flex-none bg-[#F9F7F1] text-[#716D5C] font-bold py-3.5 px-6 rounded-xl border border-gray-200 hover:text-[#262626] hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex-1 sm:flex-none bg-[#FFFFFF] text-[#716D5C] font-bold py-3.5 px-6 rounded-xl border border-gray-200 hover:text-[#262626] hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               Annuler
             </button>
@@ -308,7 +308,7 @@ export const RecommendationCard = ({ reco, onAction, onOpenPlan, theme = "dark" 
   const ImpactIcon = cat.icon;
 
   return (
-    <div className={`border rounded-3xl p-6 transition-all duration-300 ${isLight ? "bg-white border-gray-200 shadow-sm hover:shadow-md" : "bg-[#F9F7F1] border-gray-200 hover:border-gray-300"}`}>
+    <div className={`border rounded-3xl p-6 transition-all duration-300 ${isLight ? "bg-white border-gray-200 shadow-sm hover:shadow-md" : "bg-[#FFFFFF] border-gray-200 hover:border-gray-300"}`}>
       <div className="flex flex-col lg:flex-row gap-6 mb-6">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-4">
@@ -380,7 +380,7 @@ export const RecommendationCard = ({ reco, onAction, onOpenPlan, theme = "dark" 
         <button
           disabled={loadingAction}
           onClick={() => onOpenPlan(reco)}
-          className={`flex-1 lg:flex-none text-sm font-bold border px-6 py-2.5 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${isLight ? "bg-white border-gray-200 text-slate-700 hover:bg-[#F9F7F1]" : "bg-gray-50 border-gray-200 text-[#716D5C] hover:bg-gray-50"}`}
+          className={`flex-1 lg:flex-none text-sm font-bold border px-6 py-2.5 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${isLight ? "bg-white border-gray-200 text-slate-700 hover:bg-[#FFFFFF]" : "bg-gray-50 border-gray-200 text-[#716D5C] hover:bg-gray-50"}`}
         >
           Détails techniques <ArrowRight className="w-4 h-4" />
         </button>
@@ -432,7 +432,7 @@ export const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => 
 
   return (
     <div className="flex flex-col gap-6">
-      <div className={`border rounded-3xl shadow-sm overflow-hidden transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}>
+      <div className={`border rounded-3xl shadow-sm overflow-hidden transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"}`}>
         <div className={`p-6 md:p-8 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${isLight ? "bg-white text-[#262626]" : "bg-white text-[#262626]"}`}>
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -454,7 +454,7 @@ export const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => 
           </button>
         </div>
 
-        <div className={`px-6 py-4 flex flex-wrap gap-4 items-center border-b ${isLight ? "bg-[#F9F7F1] border-gray-100" : "bg-[#F9F7F1] border-gray-100"}`}>
+        <div className={`px-6 py-4 flex flex-wrap gap-4 items-center border-b ${isLight ? "bg-[#FFFFFF] border-gray-100" : "bg-[#FFFFFF] border-gray-100"}`}>
           <div className="flex items-center gap-2">
             <Filter className={`w-4 h-4 ${isLight ? "text-[#716D5C]" : "text-[#716D5C]"}`} />
             <span className={`text-sm font-bold ${isLight ? "text-[#716D5C]" : "text-[#716D5C]"}`}>Filtrer par :</span>
@@ -509,7 +509,7 @@ export const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => 
       ) : isLoading && recommendations.length === 0 ? (
         <div className="space-y-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className={`border rounded-3xl p-6 shadow-sm animate-pulse h-48 flex flex-col gap-4 ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}>
+            <div key={i} className={`border rounded-3xl p-6 shadow-sm animate-pulse h-48 flex flex-col gap-4 ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"}`}>
               <div className={`h-6 rounded w-1/4 ${isLight ? "bg-gray-100" : "bg-gray-50"}`}></div>
               <div className={`h-4 rounded w-3/4 mt-2 ${isLight ? "bg-gray-100" : "bg-gray-50"}`}></div>
               <div className="mt-auto flex gap-4">
@@ -519,7 +519,7 @@ export const IntelligenceView = ({ supabase, setActiveTab, theme = "dark" }) => 
           ))}
         </div>
       ) : recommendations.length === 0 ? (
-        <div className={`border rounded-3xl p-16 text-center shadow-sm flex flex-col items-center ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}>
+        <div className={`border rounded-3xl p-16 text-center shadow-sm flex flex-col items-center ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"}`}>
           <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 border ${isLight ? "bg-blue-50 border-blue-100" : "bg-gray-50 border-gray-100"}`}>
             <Lightbulb className={`w-10 h-10 ${isLight ? "text-blue-500" : "text-[#716D5C]"}`} />
           </div>

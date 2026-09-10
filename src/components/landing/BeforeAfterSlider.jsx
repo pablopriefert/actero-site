@@ -90,10 +90,10 @@ export const BeforeAfterSlider = () => {
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="p-8 md:p-10 bg-[#F9F7F1]/30"
+              className="p-8 md:p-10 bg-[#FFFFFF]/30"
             >
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 rounded-2xl bg-[#F9F7F1] border border-[#003725]/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-[#FFFFFF] border border-[#003725]/20 flex items-center justify-center">
                   <Check className="w-5 h-5 text-[#003725]" />
                 </div>
                 <div>
@@ -111,7 +111,7 @@ export const BeforeAfterSlider = () => {
                     transition={{ delay: i * 0.1 }}
                     className="flex gap-3"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-[#F9F7F1] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-xl bg-[#FFFFFF] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <item.icon className="w-4 h-4 text-[#003725]" />
                     </div>
                     <div>
@@ -121,7 +121,7 @@ export const BeforeAfterSlider = () => {
                   </motion.div>
                 ))}
               </div>
-              <div className="mt-8 p-4 rounded-2xl bg-[#F9F7F1] border border-[#003725]/20">
+              <div className="mt-8 p-4 rounded-2xl bg-[#FFFFFF] border border-[#003725]/20">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-[#003725] uppercase tracking-wider">Gain mensuel</span>
                   <span className="text-2xl font-black text-[#003725]">+3 400€</span>

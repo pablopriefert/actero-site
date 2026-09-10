@@ -140,7 +140,7 @@ async function handler(req, res) {
       // with a direct link (works everywhere).
       const audioBlock = audio_url
         ? `
-          <div style="margin:20px 0;padding:16px 18px;background:#f9f7f1;border:1px solid #e5e5e5;border-radius:12px;">
+          <div style="margin:20px 0;padding:16px 18px;background:#FFFFFF;border:1px solid #e5e5e5;border-radius:12px;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
               <span style="display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;background:#0E653A;border-radius:50%;color:#fff;font-size:14px;">🎙</span>
               <strong style="color:#262626;font-size:14px;">Message vocal de ${brandName}</strong>

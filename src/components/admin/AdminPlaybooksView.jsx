@@ -85,7 +85,7 @@ export const AdminPlaybooksView = () => {
         return (
           <div key={playbook.id} className="bg-white border border-[#f0f0f0] rounded-2xl overflow-hidden">
             <div className="p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#003725]/10 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-cta/10 flex items-center justify-center">
                 <Icon className="w-6 h-6 text-[#003725]" />
               </div>
               <div className="flex-1">

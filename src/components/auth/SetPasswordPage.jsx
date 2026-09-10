@@ -116,7 +116,7 @@ export function SetPasswordPage({ onNavigate }) {
 
   if (!sessionReady && !errorMsg) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F9F7F1]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFFFF]">
         <Loader2 className="w-8 h-8 text-cta animate-spin" />
       </div>
     )
@@ -124,7 +124,7 @@ export function SetPasswordPage({ onNavigate }) {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#F9F7F1] flex flex-col justify-center items-center px-6 font-sans">
+      <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-center items-center px-6 font-sans">
         <div className="w-20 h-20 bg-cta/10 rounded-full flex items-center justify-center mb-6">
           <CheckCircle className="w-10 h-10 text-cta" />
         </div>
@@ -135,7 +135,7 @@ export function SetPasswordPage({ onNavigate }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F7F1] flex font-sans">
+    <div className="min-h-screen bg-[#FFFFFF] flex font-sans">
       {/* Left side — Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center px-6 sm:px-12 lg:px-20">
         <div className="w-full max-w-md">
@@ -216,7 +216,7 @@ export function SetPasswordPage({ onNavigate }) {
               <button
                 type="submit"
                 disabled={loading || !isValid}
-                className="w-full h-14 rounded-full font-bold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full h-14 rounded-full font-bold text-white bg-cta hover:bg-cta transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -240,7 +240,7 @@ export function SetPasswordPage({ onNavigate }) {
         <div className="absolute inset-0 bg-white" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center px-12">
-            <div className="w-20 h-20 bg-[#F9F7F1] rounded-3xl border border-gray-200 flex items-center justify-center mx-auto mb-8">
+            <div className="w-20 h-20 bg-[#FFFFFF] rounded-3xl border border-gray-200 flex items-center justify-center mx-auto mb-8">
               <Lock className="w-10 h-10 text-[#716D5C]" />
             </div>
             <h3 className="text-2xl font-bold text-[#262626] mb-3">

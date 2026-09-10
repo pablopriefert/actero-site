@@ -84,7 +84,7 @@ export const ChatMockup = ({ vertical }) => {
     <div className="grid md:grid-cols-2 gap-8 items-center max-w-5xl mx-auto">
       {/* Phone mockup */}
       <div className="flex justify-center">
-        <div className="w-80 bg-[#F9F7F1] rounded-[32px] border border-gray-200 overflow-hidden shadow-lg">
+        <div className="w-80 bg-[#FFFFFF] rounded-[32px] border border-gray-200 overflow-hidden shadow-lg">
           {/* Status bar */}
           <div className="bg-gray-900 px-5 pt-4 pb-2 flex items-center justify-between">
             <span className="text-[11px] text-white/60 font-medium">09:41</span>
@@ -122,7 +122,7 @@ export const ChatMockup = ({ vertical }) => {
                 >
                   <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-[12px] leading-relaxed border ${
                     msg.from === 'agent'
-                      ? 'bg-[#F9F7F1] border-gray-200 text-gray-800 rounded-tl-sm'
+                      ? 'bg-[#FFFFFF] border-gray-200 text-gray-800 rounded-tl-sm'
                       : 'bg-cta/10 border-[#003725]/20 text-[#262626] rounded-tr-sm'
                   }`}>
                     {msg.agent && (
@@ -145,7 +145,7 @@ export const ChatMockup = ({ vertical }) => {
                   exit={{ opacity: 0, y: -4 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-[#F9F7F1] border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
+                  <div className="bg-[#FFFFFF] border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1 items-center">
                     {[0, 1, 2].map(i => (
                       <motion.span
                         key={i}
@@ -161,7 +161,7 @@ export const ChatMockup = ({ vertical }) => {
           </div>
 
           {/* Input bar */}
-          <div className="bg-[#F9F7F1] px-4 py-3 flex items-center gap-3 border-t border-gray-200">
+          <div className="bg-[#FFFFFF] px-4 py-3 flex items-center gap-3 border-t border-gray-200">
             <div className="flex-1 bg-white rounded-full px-4 py-2 border border-gray-200">
               <span className="text-[11px] text-gray-400">Tapez un message...</span>
             </div>

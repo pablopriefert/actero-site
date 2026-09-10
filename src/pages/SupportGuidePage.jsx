@@ -1083,7 +1083,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
               {/* Header */}
               <div className="mb-12">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#003725]/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-cta/10 flex items-center justify-center">
                     <Icon className="w-5 h-5 text-[#003725]" />
                   </div>
                   <span className="text-xs font-semibold text-[#716D5C] uppercase tracking-wider">
@@ -1121,10 +1121,10 @@ export const SupportGuidePage = ({ onNavigate }) => {
               </div>
 
               {/* CTA */}
-              <div className="mt-16 p-8 bg-[#F9F7F1] rounded-2xl border border-gray-200 text-center">
+              <div className="mt-16 p-8 bg-[#FFFFFF] rounded-2xl border border-gray-200 text-center">
                 <p className="text-[#262626] font-bold mb-2">Besoin d'aide supplementaire ?</p>
                 <p className="text-sm text-[#716D5C] mb-4">Notre equipe repond en moins de 24h.</p>
-                <a href="mailto:contact@actero.fr" className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-full text-sm font-semibold hover:bg-[#003725] transition-colors">
+                <a href="mailto:contact@actero.fr" className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-full text-sm font-semibold hover:bg-cta transition-colors">
                   <Mail className="w-4 h-4" /> Contacter le support
                 </a>
               </div>
@@ -1152,7 +1152,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
 
             {/* Hero */}
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F9F7F1] border border-gray-200 text-[#716D5C] text-xs font-bold uppercase tracking-widest mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFFFFF] border border-gray-200 text-[#716D5C] text-xs font-bold uppercase tracking-widest mb-6">
                 <BookOpen className="w-3.5 h-3.5" />
                 Centre d'aide
               </div>
@@ -1171,7 +1171,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
                   value={search}
                   onChange={(e) => { setSearch(e.target.value); setSelectedCategory(null); }}
                   placeholder="Rechercher un guide, une question..."
-                  className="w-full pl-12 pr-4 py-4 bg-[#F9F7F1] border border-gray-200 rounded-2xl text-[15px] text-[#262626] placeholder-gray-400 outline-none focus:ring-2 focus:ring-gray-300"
+                  className="w-full pl-12 pr-4 py-4 bg-[#FFFFFF] border border-gray-200 rounded-2xl text-[15px] text-[#262626] placeholder-gray-400 outline-none focus:ring-2 focus:ring-gray-300"
                 />
               </div>
             </div>
@@ -1189,7 +1189,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
                       onClick={() => setSelectedCategory(isActive ? null : cat.id)}
                       className={`p-4 rounded-2xl border text-left transition-all ${
                         isActive
-                          ? 'bg-[#003725] text-white border-[#003725]'
+                          ? 'bg-cta text-white border-[#003725]'
                           : 'bg-white border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -1221,13 +1221,13 @@ export const SupportGuidePage = ({ onNavigate }) => {
                       onClick={() => openGuide(guide)}
                       className="w-full flex items-center gap-5 p-5 bg-white border border-gray-200 rounded-2xl text-left hover:border-gray-300 hover:shadow-sm transition-all group"
                     >
-                      <div className="w-11 h-11 rounded-xl bg-[#F9F7F1] flex items-center justify-center shrink-0 group-hover:bg-[#003725]/10 transition-colors">
+                      <div className="w-11 h-11 rounded-xl bg-[#FFFFFF] flex items-center justify-center shrink-0 group-hover:bg-cta/10 transition-colors">
                         <Icon className="w-5 h-5 text-[#003725]" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-bold text-[15px] text-[#262626]">{guide.title}</h3>
-                          <span className="text-[10px] text-[#716D5C] bg-[#F9F7F1] px-2 py-0.5 rounded-full shrink-0">{catLabel}</span>
+                          <span className="text-[10px] text-[#716D5C] bg-[#FFFFFF] px-2 py-0.5 rounded-full shrink-0">{catLabel}</span>
                         </div>
                         <p className="text-sm text-[#716D5C] truncate">{guide.summary}</p>
                       </div>
@@ -1242,7 +1242,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
             </div>
 
             {/* Contact CTA */}
-            <div className="mt-20 text-center p-10 bg-[#F9F7F1] rounded-3xl border border-gray-200">
+            <div className="mt-20 text-center p-10 bg-[#FFFFFF] rounded-3xl border border-gray-200">
               <h2 className="text-2xl font-bold text-[#262626] mb-3" style={{ fontFamily: 'var(--font-display)' }}>
                 Vous n'avez pas trouve votre reponse ?
               </h2>
@@ -1250,7 +1250,7 @@ export const SupportGuidePage = ({ onNavigate }) => {
               <div className="flex flex-wrap justify-center gap-4">
                 <a
                   href="mailto:contact@actero.fr"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-cta text-white rounded-full font-semibold hover:bg-[#003725] transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-cta text-white rounded-full font-semibold hover:bg-cta transition-colors"
                 >
                   <Mail className="w-4 h-4" /> contact@actero.fr
                 </a>

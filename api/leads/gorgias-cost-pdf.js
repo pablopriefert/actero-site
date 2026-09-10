@@ -29,7 +29,7 @@ async function handler(req, res) {
   }
 
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`gorgias-pdf:${ip}`, 10, 60 * 60 * 1000)
+  const rl = await checkRateLimit(`gorgias-pdf:${ip}`, 10, 60 * 60 * 1000)
   if (!rl.allowed) return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' })
 
   const { email, tickets, aiPercent, source } = req.body || {}

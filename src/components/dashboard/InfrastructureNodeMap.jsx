@@ -6,7 +6,7 @@ export const InfrastructureNodeMap = ({ theme = "dark" }) => {
   const isLight = theme === "light";
   return (
     <div
-      className={`rounded-3xl border p-8 shadow-sm relative overflow-hidden h-[400px] flex items-center justify-center transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"
+      className={`rounded-3xl border p-8 shadow-sm relative overflow-hidden h-[400px] flex items-center justify-center transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"
         }`}
     >
       {/* Background grid */}
@@ -32,7 +32,7 @@ export const InfrastructureNodeMap = ({ theme = "dark" }) => {
         {/* Source Node */}
         <div className="flex flex-col items-center gap-3">
           <div
-            className={`w-16 h-16 border rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-md relative group ${isLight ? "bg-[#F9F7F1] border-gray-200" : "bg-gray-50 border-gray-200"
+            className={`w-16 h-16 border rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-md relative group ${isLight ? "bg-[#FFFFFF] border-gray-200" : "bg-gray-50 border-gray-200"
               }`}
           >
             <ShoppingCart
@@ -50,7 +50,7 @@ export const InfrastructureNodeMap = ({ theme = "dark" }) => {
         <div className="flex flex-col items-center gap-3">
           <div
             className={`w-20 h-20 border rounded-full flex items-center justify-center relative ${isLight
-              ? "bg-[#F9F7F1] border-gray-200 shadow-xl"
+              ? "bg-[#FFFFFF] border-gray-200 shadow-xl"
               : "bg-white border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.1)]"
               }`}
           >
@@ -74,7 +74,7 @@ export const InfrastructureNodeMap = ({ theme = "dark" }) => {
         <div className="flex flex-col items-center gap-8">
           <div className="flex flex-col items-center gap-3">
             <div
-              className={`w-16 h-16 border rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-md relative group ${isLight ? "bg-[#F9F7F1] border-gray-200" : "bg-gray-50 border-gray-200"
+              className={`w-16 h-16 border rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-md relative group ${isLight ? "bg-[#FFFFFF] border-gray-200" : "bg-gray-50 border-gray-200"
                 }`}
             >
               <Mail
@@ -89,7 +89,7 @@ export const InfrastructureNodeMap = ({ theme = "dark" }) => {
           </div>
           <div className="flex flex-col items-center gap-3">
             <div
-              className={`w-16 h-16 border rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-md relative group ${isLight ? "bg-[#F9F7F1] border-gray-200" : "bg-gray-50 border-gray-200"
+              className={`w-16 h-16 border rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-md relative group ${isLight ? "bg-[#FFFFFF] border-gray-200" : "bg-gray-50 border-gray-200"
                 }`}
             >
               <Database

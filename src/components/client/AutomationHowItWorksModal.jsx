@@ -366,7 +366,7 @@ export const AutomationHowItWorksModal = ({
                 <button
                   onClick={() => { onActivate(); onClose() }}
                   disabled={!reqsMet}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-cta text-white text-[13px] font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Sparkles className="w-4 h-4" /> Activer maintenant
                 </button>
@@ -374,7 +374,7 @@ export const AutomationHowItWorksModal = ({
               {isActive && onViewStats && (
                 <button
                   onClick={() => { onViewStats(); onClose() }}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-cta text-white text-[13px] font-semibold rounded-xl transition-colors"
                 >
                   <ArrowRight className="w-4 h-4" /> Voir les stats detaillees
                 </button>

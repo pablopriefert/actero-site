@@ -15,7 +15,7 @@ async function handler(req, res) {
 
   // Rate limit: 10 requests/min per IP
   const ip = getClientIp(req);
-  const rl = checkRateLimit(`checkout:${ip}`, 10, 60_000);
+  const rl = await checkRateLimit(`checkout:${ip}`, 10, 60_000);
   res.setHeader('X-RateLimit-Limit', '10');
   res.setHeader('X-RateLimit-Remaining', String(rl.remaining));
   if (!rl.allowed) {

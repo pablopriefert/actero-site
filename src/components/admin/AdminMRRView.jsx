@@ -15,7 +15,7 @@ import { ListItem } from '../ui/ListItem'
 import { StatusPill } from '../ui/StatusPill'
 import { EmptyState } from '../ui/EmptyState'
 
-const BRAND = '#0E653A'
+const BRAND = '#13804A'
 const CHART_COLORS = {
   active: '#10b981',
   new: '#3b82f6',

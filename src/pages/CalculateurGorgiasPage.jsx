@@ -20,7 +20,7 @@ export const CalculateurGorgiasPage = ({ onNavigate }) => {
     trackEvent('CostCalculator_Page_Viewed', { source: 'standalone' })
   }, [])
 
-  const serif = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+  const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
   const schema = [
     {
@@ -56,14 +56,14 @@ export const CalculateurGorgiasPage = ({ onNavigate }) => {
         schemaData={schema}
       />
 
-      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
+      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-cta/10">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
         <main>
           <section className="pt-28 md:pt-32 pb-12 px-6">
             <div className="max-w-[920px] mx-auto text-center">
               <FadeInUp className="mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#F9F7F1] border border-[#E8DFC9]">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#FFFFFF] border border-[#E3E6EA]">
                   <Calculator className="w-3.5 h-3.5 text-cta" />
                   <span>Outil gratuit · Tarifs avril 2026</span>
                 </div>
@@ -94,7 +94,7 @@ export const CalculateurGorgiasPage = ({ onNavigate }) => {
             </div>
           </section>
 
-          <section className="py-20 md:py-24 bg-[#F9F7F1] px-6">
+          <section className="py-20 md:py-24 bg-[#FFFFFF] px-6">
             <div className="max-w-[820px] mx-auto">
               <FadeInUp className="text-center mb-10">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3 text-cta">Méthodologie</p>
@@ -129,7 +129,7 @@ export const CalculateurGorgiasPage = ({ onNavigate }) => {
               <FadeInUp className="mt-10 text-center">
                 <button
                   onClick={() => onNavigate('/signup')}
-                  className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
+                  className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0E653A] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
                 >
                   Tester Actero gratuitement
                   <ArrowRight className="w-3.5 h-3.5" />

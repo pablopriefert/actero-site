@@ -12,7 +12,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
  * - tokens.colors.bg.border (#f0f0f0)
  * - tokens.colors.text.primary (#1a1a1a)
  * - tokens.colors.text.muted (#9ca3af) pour placeholder
- * - tokens.colors.brand.primary (#0E653A) pour focus ring
+ * - tokens.colors.brand.primary (#13804A) pour focus ring
  *
  * @param {Object} props
  * @param {string} props.value                 Valeur contrôlée. Requis.

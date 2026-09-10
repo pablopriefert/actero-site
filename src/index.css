@@ -1,8 +1,12 @@
 @import "tailwindcss";
-/* Trois familles, pas cinq : Spectral pour les titres (elle remplace
-   Instrument Serif, jugée trop écrasée), DM Sans pour l'interface, DM Mono
-   pour les données. Geist est retirée — elle ne servait qu'à deux endroits. */
-@import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+/* Une seule famille de texte : Inter Tight, pour les titres comme pour
+   l'interface. Elle remplace le couple Spectral (serif de titrage) + DM Sans,
+   dont l'alternance serif/sans donnait au tableau de bord un air de gabarit.
+   DM Mono reste pour les chiffres et les identifiants.
+
+   Inter Tight est la police de gorgias.com — relevée dans leur DOM, pas
+   devinée — et elle est sous licence libre (SIL OFL) via Google Fonts. */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300..700;1,400&family=DM+Mono:wght@400;500&display=swap');
 
 /* Enable class-based dark mode for Tailwind v4 (html.dark toggles the variant) */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -15,21 +19,21 @@
    ──────────────────────────────────────────────────────────────── */
 @theme {
   /* Fonts */
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Spectral", "Georgia", serif;
+  --font-sans: "Inter Tight", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Inter Tight", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --font-mono: "DM Mono", ui-monospace, monospace;
 
   /* Greens — brand primary */
-  --color-cta: #0E653A;
-  --color-cta-hover: #0A4F2C;
+  --color-cta: #13804A;
+  --color-cta-hover: #0E653A;
   --color-primary: #1F3A12;
   --color-primary-deep: #0B4B2C;
   --color-primary-soft: #A8C490;
   --color-primary-tint: #E8F5EC;
 
   /* Backgrounds */
-  --color-cream: #F4F0E6;
-  --color-app: #FAFAFA;
+  --color-cream: #F4F5F7;
+  --color-app: #FFFFFF;
   --color-surface: #FFFFFF;
 
   /* Gold — editorial accent */
@@ -50,7 +54,7 @@
 
   /* Structural */
   --color-border: rgba(0, 0, 0, 0.06);
-  --color-border-cream: #E8DFC9;
+  --color-border-cream: #E3E6EA;
 
   /* ──────────────────────────────────────────
      Elevation / Surface scale (3-level).
@@ -122,11 +126,14 @@ body,
   font-family: var(--font-sans);
 }
 
-/* ── Display headings use Cormorant Garamond ── */
+/* ── Titres : poids normal, pas de resserrement ──
+   Un grand titre en 400 se lit comme une phrase ; le même en 700 se lit comme
+   une annonce. C'est le réglage de gorgias.com (h1 56 px / 400, h2 32 px / 400,
+   letter-spacing normal), et c'est lui qui fait la sobriété — pas la police. */
 h1, h2 {
   font-family: var(--font-display);
-  letter-spacing: -0.01em;
-  font-weight: 700;
+  letter-spacing: normal;
+  font-weight: 400;
 }
 
 h3, h4 {

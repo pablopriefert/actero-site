@@ -73,7 +73,7 @@ export const LoginPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F7F1] flex items-center justify-center font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center font-sans relative overflow-hidden">
       {/* Login card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -84,7 +84,7 @@ export const LoginPage = ({ onNavigate }) => {
         <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center mb-5">
+            <div className="w-14 h-14 rounded-2xl bg-[#FFFFFF] border border-gray-200 flex items-center justify-center mb-5">
               <Logo className="w-7 h-7 text-[#262626]" />
             </div>
             <h1 className="text-[#262626] text-2xl font-bold tracking-tight">
@@ -126,7 +126,7 @@ export const LoginPage = ({ onNavigate }) => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
+                className="w-full pl-11 pr-4 py-3.5 bg-[#FFFFFF] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                 placeholder="adresse email"
               />
             </div>
@@ -140,7 +140,7 @@ export const LoginPage = ({ onNavigate }) => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#FFFFFF] border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
                   placeholder="Mot de passe"
                 />
               </div>
@@ -151,7 +151,7 @@ export const LoginPage = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full text-sm font-semibold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-semibold text-white bg-cta hover:bg-cta transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
@@ -164,7 +164,7 @@ export const LoginPage = ({ onNavigate }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-[#003725] transition-colors disabled:opacity-50"
+                className="w-full py-3.5 rounded-full text-sm font-bold text-white bg-cta hover:bg-cta transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
@@ -199,7 +199,7 @@ export const LoginPage = ({ onNavigate }) => {
               <div className="grid grid-cols-3 gap-3">
                 <button
                   type="button"
-                  className="flex items-center justify-center py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all"
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#FFFFFF] border border-gray-200 hover:bg-gray-100 transition-all"
                   disabled
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#262626]" fill="currentColor">
@@ -210,7 +210,7 @@ export const LoginPage = ({ onNavigate }) => {
                   type="button"
                   onClick={handleGoogleLogin}
                   disabled={loading}
-                  className="flex items-center justify-center py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all disabled:opacity-50"
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#FFFFFF] border border-gray-200 hover:bg-gray-100 transition-all disabled:opacity-50"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -221,7 +221,7 @@ export const LoginPage = ({ onNavigate }) => {
                 </button>
                 <button
                   type="button"
-                  className="flex items-center justify-center py-3 rounded-xl bg-[#F9F7F1] border border-gray-200 hover:bg-gray-100 transition-all"
+                  className="flex items-center justify-center py-3 rounded-xl bg-[#FFFFFF] border border-gray-200 hover:bg-gray-100 transition-all"
                   disabled
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#262626]" fill="currentColor">

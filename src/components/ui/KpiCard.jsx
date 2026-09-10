@@ -12,7 +12,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
 
 /**
  * Mapping variantes -> classes Tailwind s'appuyant sur les tokens design-tokens.js.
- * - brand    -> tokens.colors.brand.primary (#0E653A)
+ * - brand    -> tokens.colors.brand.primary (#13804A)
  * - success  -> tokens.colors.semantic.success (#10b981)
  * - warning  -> tokens.colors.semantic.warning (#f59e0b)
  * - danger   -> tokens.colors.semantic.danger (#ef4444)

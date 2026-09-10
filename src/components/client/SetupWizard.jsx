@@ -93,7 +93,7 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#F9F7F1]/95 backdrop-blur-sm overflow-y-auto"
+        className="fixed inset-0 z-[100] bg-[#FFFFFF]/95 backdrop-blur-sm overflow-y-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="wizard-title"
@@ -186,14 +186,14 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
                 {currentStep < steps.length - 1 ? (
                   <button
                     onClick={() => setCurrentStep(currentStep + 1)}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-semibold bg-cta text-white hover:bg-[#003725] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-semibold bg-cta text-white hover:bg-cta transition-colors"
                   >
                     {steps[currentStep]?.done ? 'Suivant' : 'Passer pour plus tard'} <ArrowRight className="w-4 h-4" />
                   </button>
                 ) : allDone ? (
                   <button
                     onClick={handleDismiss}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-bold bg-cta text-white hover:bg-[#003725] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-bold bg-cta text-white hover:bg-cta transition-colors"
                   >
                     🎉 Terminé — aller au dashboard <ArrowRight className="w-4 h-4" />
                   </button>
@@ -265,7 +265,7 @@ function StepShopify({ progress }) {
           type="button"
           onClick={connectShopify}
           disabled={!shopDomain.trim() || connecting}
-          className="flex items-center justify-between w-full px-5 py-4 rounded-2xl border-2 border-cta bg-cta text-white font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center justify-between w-full px-5 py-4 rounded-2xl border-2 border-cta bg-cta text-white font-semibold hover:bg-cta transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
@@ -365,7 +365,7 @@ function StepTone({ clientId, progress, queryClient, toast }) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-cta text-white font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-cta text-white font-semibold hover:bg-cta transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
           Enregistrer le ton

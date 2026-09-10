@@ -49,7 +49,7 @@ const EditKbEntry = ({ entry, onSave, onCancel }) => {
         className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-cta/30"
       />
       <div className="flex gap-2">
-        <button onClick={() => onSave(title, content)} className="px-3 py-1.5 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725]">Sauvegarder</button>
+        <button onClick={() => onSave(title, content)} className="px-3 py-1.5 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-cta">Sauvegarder</button>
         <button onClick={onCancel} className="px-3 py-1.5 text-xs font-medium text-[#9ca3af] hover:text-[#1a1a1a]">Annuler</button>
       </div>
     </div>
@@ -388,7 +388,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
           <div>
             <h2
               className="text-2xl italic tracking-tight text-[#1a1a1a]"
-              style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+              style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
             >
               Mon Agent
             </h2>
@@ -510,7 +510,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
 
                   {/* ── Multilingue : whitelist des langues supportées ── */}
                   {form.brand_language === 'multi' && (
-                    <div className="mt-4 p-4 rounded-xl bg-[#F9F7F1] border border-[#E8DFC9] max-w-md">
+                    <div className="mt-4 p-4 rounded-xl bg-[#FFFFFF] border border-[#E3E6EA] max-w-md">
                       <div className="flex items-start gap-2 mb-3">
                         <Globe className="w-4 h-4 text-cta mt-0.5 flex-shrink-0" strokeWidth={2} />
                         <div>
@@ -540,7 +540,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                               className={`px-3 py-1.5 rounded-full text-[12px] font-semibold border transition-colors ${
                                 isOn
                                   ? 'bg-cta text-white border-cta'
-                                  : 'bg-white text-[#5A5A5A] border-[#E8DFC9] hover:border-cta/40'
+                                  : 'bg-white text-[#5A5A5A] border-[#E3E6EA] hover:border-cta/40'
                               } ${disable ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
                               title={disable ? 'Au moins une langue doit rester active' : undefined}
                             >
@@ -682,7 +682,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                   <button
                     onClick={handleAddAbsoluteRule}
                     disabled={!newAbsoluteRule.trim()}
-                    className="px-4 py-3 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-40 flex-shrink-0"
+                    className="px-4 py-3 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-cta disabled:opacity-40 flex-shrink-0"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -741,7 +741,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       <button
                         onClick={handleImportUrl}
                         disabled={!importUrl.trim() || importing}
-                        className="px-4 py-3 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] disabled:opacity-50 transition-colors flex-shrink-0"
+                        className="px-4 py-3 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-cta disabled:opacity-50 transition-colors flex-shrink-0"
                       >
                         {importing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                       </button>
@@ -793,7 +793,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       <button
                         onClick={handleAddManual}
                         disabled={!manualTitle.trim() || !manualContent.trim()}
-                        className="px-4 py-1.5 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50"
+                        className="px-4 py-1.5 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-cta disabled:opacity-50"
                       >
                         Ajouter
                       </button>
@@ -927,7 +927,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
         {currentStep < STEPS.length - 1 ? (
           <button
             onClick={goNext}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] transition-colors"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-full hover:bg-cta transition-colors"
           >
             Suivant <ChevronRight className="w-4 h-4" />
           </button>
@@ -935,7 +935,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-full hover:bg-[#003725] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-full hover:bg-cta disabled:opacity-50 transition-colors"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Enregistrer la configuration

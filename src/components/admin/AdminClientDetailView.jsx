@@ -102,7 +102,7 @@ function BacktestCard({ clientId }) {
           type="button"
           onClick={handleLaunch}
           disabled={launching || isRunning}
-          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-[#003725] text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-cta text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
         >
           {launching || isRunning ? 'En cours…' : 'Lancer le backtest'}
         </button>
@@ -281,7 +281,7 @@ function WidgetQaCard({ clientId }) {
           type="button"
           onClick={handleLaunch}
           disabled={launching || pending}
-          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-[#003725] text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-cta text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
         >
           {launching || pending ? 'Vérification…' : 'Vérifier le widget'}
         </button>

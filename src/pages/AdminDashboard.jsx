@@ -709,7 +709,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <button
               type="button"
               onClick={toggleCmdk}
-              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-[#F9F7F1] border border-[#EFE7D6] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
+              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-[#FFFFFF] border border-[#EFE7D6] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
               title="Recherche globale"
             >
               <Search className="w-3.5 h-3.5" />
@@ -724,7 +724,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <button
               type="button"
               onClick={handleAddClient}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold bg-cta text-white hover:bg-[#0a4f2c] transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold bg-cta text-white hover:bg-[#0E653A] transition-colors"
               title="Ajouter un client (Cmd+N)"
             >
               <Plus className="w-3.5 h-3.5" />

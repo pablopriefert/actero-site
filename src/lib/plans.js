@@ -146,7 +146,12 @@ export const PLANS = {
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,
-      multi_shop: true,
+      // Aucune implémentation : chaque surface marchand lit la connexion
+      // Shopify avec .maybeSingle(), et aucune UI ne permet d'en ajouter une
+      // seconde. Le drapeau était à true et la page tarifs annonçait
+      // « 10 stores ». Le remettre à true suppose de construire la
+      // fonctionnalité d'abord.
+      multi_shop: false,
       white_label: true,
       roi_dashboard: 'custom',
       portal_enabled: false,

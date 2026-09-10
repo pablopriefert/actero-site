@@ -91,7 +91,7 @@ export default function PortalVerifyPage({ navigate }) {
         <Icon className={`w-6 h-6 ${iconClass}`} aria-hidden="true" />
       </div>
       <h1
-        style={{ fontFamily: "'Spectral', Georgia, serif", letterSpacing: '-0.3px' }}
+        style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", letterSpacing: '-0.3px' }}
         className="text-2xl font-bold text-[#1A1A1A] mb-2"
       >
         {title}

@@ -46,7 +46,7 @@ export function HealthScoreIndicator({ metricsData, eventsData, theme = "dark" }
   };
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${isLight ? "bg-[#F9F7F1] border-gray-200" : "bg-gray-50 border-gray-200"}`}>
+    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${isLight ? "bg-[#FFFFFF] border-gray-200" : "bg-gray-50 border-gray-200"}`}>
       <div className={`w-2 h-2 rounded-full animate-pulse ${score >= 70 ? "bg-emerald-500" : "bg-rose-500"}`}></div>
       <span className={`text-xs font-bold ${isLight ? "text-[#262626]" : "text-[#262626]"}`}>
         Système: <span className={getStatusColor(score)}>{score}%</span>
@@ -60,7 +60,7 @@ export function HealthScoreWidget({ metricsData, eventsData, theme = "dark" }) {
   const isLight = theme === "light";
 
   return (
-    <div className={`p-6 rounded-2xl border transition-all ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"}`}>
+    <div className={`p-6 rounded-2xl border transition-all ${isLight ? "bg-white border-gray-200" : "bg-[#FFFFFF] border-gray-200"}`}>
       <h3 className={`text-sm font-bold uppercase tracking-widest mb-6 ${isLight ? "text-[#716D5C]" : "text-[#716D5C]"}`}>
         Santé de l'infrastructure
       </h3>

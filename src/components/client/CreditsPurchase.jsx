@@ -192,7 +192,7 @@ export const CreditsPurchase = ({ clientId }) => {
         <button
           onClick={handlePurchase}
           disabled={loading || amount < MIN_CREDITS}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-cta text-white text-sm font-bold hover:bg-[#003725] disabled:opacity-50 transition-all"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-cta text-white text-sm font-bold hover:bg-cta disabled:opacity-50 transition-all"
         >
           {loading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Redirection…</>

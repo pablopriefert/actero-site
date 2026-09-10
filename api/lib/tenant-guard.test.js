@@ -48,8 +48,18 @@ const DISPENSES = {
   'vision/analyze.js': 'secret partagé, appel interne',
 }
 
-const MOTIF_CLIENT_ID_DU_CORPS =
-  /^\s*(?:const|let|var)\s*\{[^}]*\bclient_id\b[^}]*\}\s*=\s*(?:req\.body|await req\.json\(\))/m
+/* Identifiants qui désignent une ressource appartenant à un tenant. La
+   première version ne couvrait que `client_id` — elle aurait donc manqué
+   `api/integrations/test.js`, qui prend un `integration_id` et déchiffrait les
+   credentials du marchand correspondant. Ajouter un identifiant ici est le
+   moyen d'étendre la garde. */
+const IDENTIFIANTS_DE_TENANT = ['client_id', 'integration_id']
+
+const MOTIF_ID_DU_CORPS = new RegExp(
+  `^\\s*(?:const|let|var)\\s*\\{[^}]*\\b(?:${IDENTIFIANTS_DE_TENANT.join('|')})\\b[^}]*\\}` +
+  `\\s*=\\s*(?:req\\.body|await req\\.json\\(\\))`,
+  'm',
+)
 
 /** Une protection reconnue : appartenance, rôle admin, ou secret partagé requis. */
 const PROTECTIONS = [
@@ -70,12 +80,12 @@ function fichiersJs(dir, acc = []) {
 }
 
 describe('ACT-24 — aucune route ne fait confiance au client_id de l’appelant', () => {
-  it('toute route qui lit client_id du corps vérifie l’appartenance', () => {
+  it('toute route qui lit un identifiant de tenant dans le corps vérifie l’appartenance', () => {
     const coupables = []
 
     for (const fichier of fichiersJs('api')) {
       const source = readFileSync(fichier, 'utf8')
-      if (!MOTIF_CLIENT_ID_DU_CORPS.test(source)) continue
+      if (!MOTIF_ID_DU_CORPS.test(source)) continue
 
       const relatif = fichier.replace(/^api\//, '')
       if (relatif in DISPENSES) continue

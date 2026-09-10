@@ -75,7 +75,7 @@ export const PartnersDirectoryPage = ({ onNavigate }) => {
         canonical="/partners"
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626]">
-        <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#F9F7F1] to-white" />
+        <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#FFFFFF] to-white" />
 
         <div className="relative z-10 w-full">
           <Navbar onNavigate={onNavigate} />
@@ -112,13 +112,13 @@ export const PartnersDirectoryPage = ({ onNavigate }) => {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Rechercher un partenaire..."
-                        className="w-full pl-9 pr-4 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-500/40"
+                        className="w-full pl-9 pr-4 py-2.5 bg-[#FFFFFF] border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-500/40"
                       />
                     </div>
                     <select
                       value={specialty}
                       onChange={(e) => setSpecialty(e.target.value)}
-                      className="px-3 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-500/40 cursor-pointer"
+                      className="px-3 py-2.5 bg-[#FFFFFF] border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-500/40 cursor-pointer"
                     >
                       <option value="">Toutes spécialités</option>
                       {allSpecialties.map((s) => (
@@ -130,7 +130,7 @@ export const PartnersDirectoryPage = ({ onNavigate }) => {
                     <select
                       value={industry}
                       onChange={(e) => setIndustry(e.target.value)}
-                      className="px-3 py-2.5 bg-[#F9F7F1] border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-500/40 cursor-pointer"
+                      className="px-3 py-2.5 bg-[#FFFFFF] border border-gray-200 rounded-xl text-sm outline-none focus:border-indigo-500/40 cursor-pointer"
                     >
                       <option value="">Toutes industries</option>
                       {allIndustries.map((s) => (

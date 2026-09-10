@@ -8,18 +8,18 @@
  *
  * NEW copilots (email, Discord, voice, etc.) should ONLY depend on this module.
  */
-import Anthropic from '@anthropic-ai/sdk'
+import { chatComplete } from './llm.js'
 
-const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-5'
-
-// Lazy init — avoid throwing at module-load if env is missing
-let _anthropic = null
-function getAnthropic() {
-  if (_anthropic) return _anthropic
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY missing')
-  _anthropic = new Anthropic({ apiKey })
-  return _anthropic
+/**
+ * KPI_TOOLS est déclaré au format Anthropic (`input_schema`). Le reste de la
+ * plateforme passe par OpenRouter, qui attend le format OpenAI — on convertit
+ * ici plutôt que de dupliquer les définitions.
+ */
+function outilsFormatOpenAI(outils) {
+  return outils.map((o) => ({
+    type: 'function',
+    function: { name: o.name, description: o.description, parameters: o.input_schema },
+  }))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -402,8 +402,8 @@ export async function askCopilot(supabase, {
   channel = 'default',
   maxLoops = 4,
 }) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return { reply: 'Le Copilot IA n\'est pas configure (ANTHROPIC_API_KEY manquant).', toolCalls: [] }
+  if (!process.env.OPENROUTER_API_KEY) {
+    return { reply: 'Le Copilot IA n\'est pas configure (OPENROUTER_API_KEY manquant).', toolCalls: [] }
   }
 
   const systemFn = SYSTEM_PROMPTS[channel] || SYSTEM_PROMPTS.default
@@ -411,43 +411,48 @@ export async function askCopilot(supabase, {
   const messages = [{ role: 'user', content: message }]
   const toolCalls = []
 
+  const outils = outilsFormatOpenAI(KPI_TOOLS)
+
   let loop = 0
   while (loop++ < maxLoops) {
-    const resp = await getAnthropic().messages.create({
-      model: MODEL,
-      max_tokens: 1024,
+    const { text, toolCalls: appels } = await chatComplete({
       system,
-      tools: KPI_TOOLS,
       messages,
+      maxTokens: 1024,
+      tools: outils,
     })
 
-    const toolUses = (resp.content || []).filter(b => b.type === 'tool_use')
-
-    if (toolUses.length === 0) {
-      const textBlocks = (resp.content || []).filter(b => b.type === 'text')
-      const reply = textBlocks.map(b => b.text).join('\n').trim()
-      return { reply: reply || 'Ok.', toolCalls }
+    if (!appels.length) {
+      return { reply: (text || '').trim() || 'Ok.', toolCalls }
     }
 
-    messages.push({ role: 'assistant', content: resp.content })
+    // Le tour d'assistant doit être renvoyé tel quel : c'est lui qui porte les
+    // identifiants d'appel auxquels les résultats se rattachent.
+    messages.push({ role: 'assistant', content: text || '', tool_calls: appels })
 
-    const toolResults = await Promise.all(
-      toolUses.map(async (tu) => {
-        toolCalls.push(tu.name)
+    const resultats = await Promise.all(
+      appels.map(async (appel) => {
+        const nom = appel.function?.name
+        toolCalls.push(nom)
+        let entrees = {}
         try {
-          const result = await executeTool(supabase, clientId, tu.name, tu.input || {})
-          return { type: 'tool_result', tool_use_id: tu.id, content: JSON.stringify(result) }
+          entrees = JSON.parse(appel.function?.arguments || '{}')
+        } catch {
+          entrees = {}
+        }
+        try {
+          const result = await executeTool(supabase, clientId, nom, entrees)
+          return { role: 'tool', tool_call_id: appel.id, content: JSON.stringify(result) }
         } catch (err) {
           return {
-            type: 'tool_result',
-            tool_use_id: tu.id,
+            role: 'tool',
+            tool_call_id: appel.id,
             content: JSON.stringify({ error: err.message || 'tool failed' }),
-            is_error: true,
           }
         }
       }),
     )
-    messages.push({ role: 'user', content: toolResults })
+    messages.push(...resultats)
   }
 
   return { reply: 'Desole, je n\'ai pas pu aboutir a une reponse (limite d\'outils).', toolCalls }

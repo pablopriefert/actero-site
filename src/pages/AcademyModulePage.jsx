@@ -89,7 +89,7 @@ function QuizBlock({ quiz, onComplete }) {
                         : wrong
                         ? "bg-rose-50 border-rose-400 text-rose-900"
                         : picked
-                        ? "bg-[#003725]/5 border-[#003725]"
+                        ? "bg-cta/5 border-[#003725]"
                         : "bg-white border-gray-200 hover:border-[#003725]/50"
                     }`}
                   >
@@ -107,7 +107,7 @@ function QuizBlock({ quiz, onComplete }) {
             setSubmitted(true);
             onComplete?.(score, quiz.questions.length);
           }}
-          className="mt-6 bg-[#003725] hover:bg-[#00291c] text-white font-bold px-6 py-2.5 rounded-xl text-sm"
+          className="mt-6 bg-cta hover:bg-[#00291c] text-white font-bold px-6 py-2.5 rounded-xl text-sm"
         >
           Valider mes reponses
         </button>
@@ -216,7 +216,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F9F7F1]">
+      <div className="min-h-screen bg-[#FFFFFF]">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
         <div className="pt-40 text-center text-[#716D5C]">Chargement...</div>
       </div>
@@ -225,7 +225,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
 
   if (!course || !mod) {
     return (
-      <div className="min-h-screen bg-[#F9F7F1]">
+      <div className="min-h-screen bg-[#FFFFFF]">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
         <div className="pt-40 text-center">
           <h1 className="text-2xl font-bold mb-2">Module introuvable</h1>
@@ -244,7 +244,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
   const locked = !enrolledEmail;
 
   return (
-    <div className="min-h-screen bg-[#F9F7F1] text-[#262626]">
+    <div className="min-h-screen bg-[#FFFFFF] text-[#262626]">
       <SEO
         title={`${mod.title} - ${course.title} - Actero Academy`}
         description={mod.description || course.subtitle}
@@ -366,7 +366,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
                 className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all ${
                   isCompleted
                     ? "bg-emerald-50 text-emerald-800 border border-emerald-300"
-                    : "bg-[#003725] text-white hover:bg-[#00291c]"
+                    : "bg-cta text-white hover:bg-[#00291c]"
                 } disabled:opacity-60`}
               >
                 {isCompleted ? (
@@ -417,7 +417,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
                       key={m.id}
                       onClick={() => onNavigate(`/academy/${courseSlug}/${m.slug}`)}
                       className={`w-full flex items-center gap-2 text-left px-2 py-2 rounded-lg transition-colors ${
-                        active ? "bg-[#003725]/10" : "hover:bg-[#F9F7F1]"
+                        active ? "bg-cta/10" : "hover:bg-[#FFFFFF]"
                       }`}
                     >
                       {done ? (

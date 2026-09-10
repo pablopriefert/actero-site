@@ -81,7 +81,7 @@ export const PartnerProfilePage = ({ slug, onNavigate }) => {
         canonical={`/partners/${partner.slug}`}
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626]">
-        <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#F9F7F1] to-white" />
+        <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#FFFFFF] to-white" />
 
         <div className="relative z-10 w-full">
           <Navbar onNavigate={onNavigate} />

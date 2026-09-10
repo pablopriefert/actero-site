@@ -276,7 +276,7 @@ export const WidgetSetupView = ({ clientId }) => {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5F35] text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-60"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5F35] text-white text-sm font-semibold hover:bg-cta transition-colors disabled:opacity-60"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
                 {saved ? 'Enregistré' : 'Enregistrer'}
@@ -328,7 +328,7 @@ export const WidgetSetupView = ({ clientId }) => {
                     href={themesUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-[#003725] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-cta transition-colors"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     Activer la bulle sur ma boutique
@@ -369,7 +369,7 @@ export const WidgetSetupView = ({ clientId }) => {
                 </div>
               </div>
               <div className="p-3 space-y-2">
-                <div className="text-[11px] bg-[#f5f5f0] text-[#262626] rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]">
+                <div className="text-[11px] bg-[#F7F8FA] text-[#262626] rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]">
                   {cfg.widget_greeting || 'Bonjour ! Comment puis-je vous aider ?'}
                 </div>
                 <div className="text-[11px] text-white rounded-xl rounded-br-sm px-3 py-2 max-w-[85%] ml-auto" style={{ background: cfg.widget_brand_color }}>

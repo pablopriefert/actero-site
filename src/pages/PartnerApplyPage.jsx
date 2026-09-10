@@ -73,7 +73,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
         canonical="/partners/apply"
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626]">
-        <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#F9F7F1] to-white" />
+        <div className="fixed inset-0 z-0 pointer-events-none bg-gradient-to-b from-[#FFFFFF] to-white" />
 
         <div className="relative z-10 w-full">
           <Navbar onNavigate={onNavigate} />
@@ -144,7 +144,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
                         onChange={handleChange}
                         required
                         minLength={2}
-                        className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
+                        className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
                         placeholder="Votre prénom et nom"
                       />
                     </div>
@@ -159,7 +159,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
+                        className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
                         placeholder="vous@entreprise.com"
                       />
                     </div>
@@ -174,7 +174,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
                           name="company_name"
                           value={formData.company_name}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
                           placeholder="Nom de votre société"
                         />
                       </div>
@@ -187,7 +187,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
                           name="website"
                           value={formData.website}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
                           placeholder="https://..."
                         />
                       </div>
@@ -202,7 +202,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
                         name="linkedin"
                         value={formData.linkedin}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
+                        className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
                         placeholder="https://linkedin.com/in/..."
                       />
                     </div>
@@ -218,7 +218,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
                         required
                         minLength={20}
                         rows={5}
-                        className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors resize-none"
+                        className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors resize-none"
                         placeholder="Parlez-nous de vous, de vos clients actuels, et de pourquoi Actero correspond à votre approche..."
                       />
                     </div>
@@ -235,7 +235,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
                           onChange={handleChange}
                           min="0"
                           max="50"
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
                           placeholder="Ex: 5"
                         />
                       </div>
@@ -249,7 +249,7 @@ export const PartnerApplyPage = ({ onNavigate }) => {
                           value={formData.clients_managed}
                           onChange={handleChange}
                           min="0"
-                          className="w-full px-4 py-3 bg-[#F9F7F1] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
+                          className="w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl text-[#262626] placeholder-gray-500 outline-none focus:border-indigo-500/40 transition-colors"
                           placeholder="Ex: 12"
                         />
                       </div>

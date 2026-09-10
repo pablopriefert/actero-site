@@ -202,7 +202,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
       {/* Header */}
       <div className="px-5 pt-4 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-[#003725]/10 flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-cta/10 flex items-center justify-center flex-shrink-0">
             <Sparkles className="w-4 h-4 text-[#003725]" aria-hidden="true" />
           </div>
           <div className="min-w-0">

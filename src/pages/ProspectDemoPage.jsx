@@ -125,7 +125,7 @@ const KPICard = ({ kpi }) => {
   const colorMap = {
     emerald: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
     amber: 'bg-amber-500/10 border-amber-500/20 text-amber-400',
-    violet: 'bg-[#003725]/10 border-[#003725]/20 text-[#003725]',
+    violet: 'bg-cta/10 border-[#003725]/20 text-[#003725]',
     blue: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700',
   }
   const Icon = kpi.icon
@@ -190,8 +190,8 @@ const BenchmarkRow = ({ b }) => (
 
 const LogItem = ({ log }) => {
   const categoryColors = {
-    ticket: 'bg-emerald-500', cart: 'bg-[#003725]', email: 'bg-emerald-600',
-    escalation: 'bg-amber-500', lead: 'bg-[#003725]', sms: 'bg-emerald-500',
+    ticket: 'bg-emerald-500', cart: 'bg-cta', email: 'bg-emerald-600',
+    escalation: 'bg-amber-500', lead: 'bg-cta', sms: 'bg-emerald-500',
     visit: 'bg-amber-500', scoring: 'bg-emerald-600',
   }
   return (
@@ -240,15 +240,15 @@ export const ProspectDemoPage = ({ onNavigate }) => {
         canonical="/demo"
       />
       {/* Demo Banner */}
-      <div className="bg-[#003725]/10 border-b border-[#003725]/20 py-3 px-6 text-center sticky top-0 z-50 backdrop-blur-md">
+      <div className="bg-cta/10 border-b border-[#003725]/20 py-3 px-6 text-center sticky top-0 z-50 backdrop-blur-md">
         <div className="flex items-center justify-center gap-4">
           <p className="text-[#003725] text-sm font-bold flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#003725] animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-cta animate-pulse" />
             Simulation live — {config.name} ({config.vertical})
           </p>
           <button
             onClick={() => onNavigate('/signup')}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#003725] text-white text-xs font-bold hover:bg-[#0A4F2C] transition-all"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-cta text-white text-xs font-bold hover:bg-[#0E653A] transition-all"
           >
             Obtenir mon vrai dashboard <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -307,7 +307,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
             {/* Header */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span className="px-3 py-1 bg-[#003725]/10 border border-[#003725]/20 rounded-full text-xs font-bold uppercase tracking-widest text-[#003725]">
+                <span className="px-3 py-1 bg-cta/10 border border-[#003725]/20 rounded-full text-xs font-bold uppercase tracking-widest text-[#003725]">
                   {config.badge} {config.vertical}
                 </span>
                 <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-bold text-emerald-400">
@@ -338,7 +338,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
                   <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-600">
                     Objectifs du mois
                   </h3>
-                  <span className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#003725]/10 text-[10px] font-bold text-[#A8C490]">
+                  <span className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-md bg-cta/10 text-[10px] font-bold text-[#A8C490]">
                     <Sparkles className="w-3 h-3" /> Prédiction IA
                   </span>
                 </div>
@@ -409,7 +409,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
                   </div>
                   <button
                     onClick={() => onNavigate('/signup')}
-                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#003725] text-white font-bold hover:bg-[#0A4F2C] transition-all text-sm"
+                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-cta text-white font-bold hover:bg-[#0E653A] transition-all text-sm"
                   >
                     Voir mon vrai potentiel <ArrowRight className="w-4 h-4" />
                   </button>

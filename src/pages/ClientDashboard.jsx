@@ -314,7 +314,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#003725', '#A8C490', '#F9F7F1'],
+        colors: ['#003725', '#A8C490', '#FFFFFF'],
       })
     }, 200)
     const t2 = setTimeout(() => {
@@ -322,7 +322,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         particleCount: 60,
         spread: 90,
         origin: { y: 0.6 },
-        colors: ['#003725', '#A8C490', '#F9F7F1'],
+        colors: ['#003725', '#A8C490', '#FFFFFF'],
       })
     }, 1200)
     return () => { clearTimeout(t1); clearTimeout(t2) }
@@ -912,7 +912,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
         trackEvent('Upgrade Clicked', { from_plan: planId, to_plan: planId === 'free' ? 'starter' : 'pro', trigger: 'sidebar_cta', location: 'sidebar' })
         setActiveTab('billing')
       }}
-      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all bg-cta text-white hover:bg-[#003725] shadow-sm active:scale-[0.98] group"
+      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[12px] font-bold transition-all bg-cta text-white hover:bg-cta shadow-sm active:scale-[0.98] group"
     >
       <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
       {planId === 'free' ? 'Passer au Starter — 99€/mois' : 'Passer au Pro — 399€/mois'}
@@ -920,10 +920,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   ) : null
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#F7F5F0] text-[#1a1a1a]">
+    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#F7F8FA] text-[#1a1a1a]">
       <SkipToMain />
       {/* Mobile Header */}
-      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 bg-[#F7F5F0] border-b border-[#E5E2D7]`}>
+      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 bg-[#F7F8FA] border-b border-[#E6E8EC]`}>
         <div className="flex items-center gap-2">
           <Logo className={`w-6 h-6 ${isLight ? "text-[#003725]" : "text-[#1a1a1a]"}`} />
           <span className={`font-bold text-lg ${isLight ? "text-[#1a1a1a]" : "text-[#1a1a1a]"}`}>Actero OS</span>
@@ -964,7 +964,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             />
             <motion.div
               initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
-              className={`relative w-4/5 max-w-xs h-full shadow-2xl ${isLight ? "bg-white" : "bg-[#F9F7F1]"}`}
+              className={`relative w-4/5 max-w-xs h-full shadow-2xl ${isLight ? "bg-white" : "bg-[#FFFFFF]"}`}
             >
               <Sidebar
                 title="Actero"
@@ -985,7 +985,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header — clean, minimal like Instantly */}
-        <header className="sticky top-0 z-40 bg-[#F7F5F0] px-5 md:px-8 h-[48px] flex items-center justify-between border-b border-[#E5E2D7]">
+        <header className="sticky top-0 z-40 bg-[#F7F8FA] px-5 md:px-8 h-[48px] flex items-center justify-between border-b border-[#E6E8EC]">
           <h1 className="text-[14px] font-semibold text-[#1a1a1a]">
             {activeTab === "overview" && "Vue d'ensemble"}
             {activeTab === "automation" && "Automatisation"}
@@ -1044,7 +1044,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {/* "Tester mon agent" persistent CTA — discoverability of the simulator */}
             <button
               onClick={() => setActiveTab('simulator')}
-              className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-[#003725]/5 text-[#003725] border border-[#003725]/20 px-3 py-1.5 text-sm font-medium hover:bg-[#003725]/10 transition-colors"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-cta/5 text-[#003725] border border-[#003725]/20 px-3 py-1.5 text-sm font-medium hover:bg-cta/10 transition-colors"
               aria-label="Tester mon agent"
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -1062,7 +1062,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               >
                 <Search className="w-3.5 h-3.5" />
                 <span>Rechercher</span>
-                <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-[#F4F0E6] rounded border border-[#E5E5E0]">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+                <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-[#F4F5F7] rounded border border-[#E5E5E0]">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
               </button>
 
               {/* First-visit onboarding hint — localStorage gated, one-shot */}
@@ -1118,7 +1118,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
         <main
           id="main-content"
-          className={`flex-1 overflow-y-auto bg-[#F7F5F0] ${pleinePage ? '' : 'p-4 md:px-10 md:py-8'}`}
+          className={`flex-1 overflow-y-auto bg-[#F7F8FA] ${pleinePage ? '' : 'p-4 md:px-10 md:py-8'}`}
         >
           <TabErrorBoundary tabId={activeTab} resetKey={activeTab} tabLabel={activeTab}>
           <Suspense fallback={

@@ -38,9 +38,15 @@ const template = readFileSync(SOURCE_HTML, 'utf8')
 // under 60 chars, descriptions 150-160 chars (optimal SERP snippet).
 const ROUTES = [
   {
+    path: '/demo',
+    title: 'Démo Actero — parlez à l\'agent SAV maintenant',
+    description: 'Posez une vraie question à l\'agent SAV Actero et voyez sa réponse, sa confiance et sa décision de passer la main à un humain. Sans compte, sans carte bancaire.',
+    h1: 'Parlez à l\'agent',
+  },
+  {
     path: '/tarifs',
     title: 'Tarifs Actero — Agent IA Shopify à partir de 99€/mois',
-    description: 'Plans SaaS transparents : Free (0€), Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + agent vocal). Essai gratuit 7 jours sans carte bancaire.',
+    description: 'Plans SaaS transparents : Free (0€), Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + agents spécialisés). Essai gratuit 7 jours sans carte bancaire.',
     h1: 'Des prix simples, transparents',
   },
   {
@@ -193,7 +199,7 @@ const ROUTES = [
   {
     path: '/produit',
     title: 'Produit Actero — Agent IA SAV Shopify autonome',
-    description: 'Découvrez l\'agent IA Actero : classification tickets, réponses automatiques, escalade, intégration Shopify, helpdesk, WhatsApp, vocal.',
+    description: 'Découvrez l\'agent IA Actero : classification tickets, réponses automatiques, escalade, intégration Shopify, helpdesk, WhatsApp, analyse photo.',
     h1: 'Le produit Actero',
   },
 ]

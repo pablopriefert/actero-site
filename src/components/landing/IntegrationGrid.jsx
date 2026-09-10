@@ -33,7 +33,7 @@ export const IntegrationGrid = ({ vertical }) => {
         >
           <div className="flex items-center gap-3">
             <div
-              className="w-9 h-9 rounded-xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors text-[11px] font-bold"
+              className="w-9 h-9 rounded-xl bg-[#FFFFFF] border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors text-[11px] font-bold"
               style={{ color: `#${integ.color || '262626'}` }}
             >
               <img
