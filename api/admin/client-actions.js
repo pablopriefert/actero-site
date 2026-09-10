@@ -143,12 +143,21 @@ async function handler(req, res) {
         if (confirm !== true) {
           return res.status(400).json({ error: 'Confirmation required for delete_client' })
         }
-        const { error } = await supabaseAdmin
-          .from('clients')
-          .delete()
-          .eq('id', client_id)
+        // `delete from clients` ne peut pas fonctionner : huit clés étrangères
+        // pointent vers clients.id en NO ACTION et bloquent la suppression.
+        // Vérifié en base — les seuls clients qui passaient étaient ceux SANS
+        // boutique Shopify connectée, c'est-à-dire pas de vrais marchands
+        // (ACT-25). La procédure traite ces huit cas explicitement : elle
+        // détache ce qui fait foi (audit, comptabilité) et supprime ce qui est
+        // une donnée personnelle, avant de laisser les 57 cascades opérer.
+        const { data: etapes, error } = await supabaseAdmin
+          .rpc('delete_client_data', { p_client_id: client_id })
         if (error) throw error
-        result = { success: true, deleted: true }
+        // Le décompte par étape part dans le journal admin : c'est la preuve
+        // qu'on a répondu à la demande d'effacement, et elle doit survivre à
+        // la suppression du client lui-même.
+        metadata.etapes = etapes
+        result = { success: true, deleted: true, etapes }
         break
       }
 
