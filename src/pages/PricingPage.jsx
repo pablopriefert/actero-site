@@ -420,7 +420,7 @@ export const PricingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Tarifs Actero — Agent IA pour Shopify à partir de 99€/mois"
-        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Essai 7 jours sans carte bancaire."
+        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Essai gratuit sur Starter et Pro."
         canonical="/tarifs"
         schemaData={{
           "@context": "https://schema.org",

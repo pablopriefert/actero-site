@@ -122,6 +122,41 @@ describe('durée de l\'essai gratuit', () => {
       .toMatch(/presenterCodeCampagne\(/)
   })
 
+  it('la campagne s\'applique là où le compte est VRAIMENT créé', () => {
+    // Trois routes portent le mot « signup » dans ce dépôt, et une seule crée
+    // le compte pour l'inscription email : verify-code.js. J'avais branché la
+    // campagne sur signup.js — elle ne s'appliquait jamais. Un nom de fichier
+    // n'est pas une preuve de chemin.
+    const verify = sansCommentaires(readFileSync('api/auth/verify-code.js', 'utf8'))
+    expect(verify, 'verify-code.js crée le compte mais n\'applique pas la campagne')
+      .toMatch(/appliquerCampagne\(/)
+    expect(verify, 'verify-code.js doit lire le code envoyé par le formulaire')
+      .toMatch(/payload\.campaign_code/)
+  })
+
+  it('un inscrit venu de la pub voit la page de plans, pas le tableau de bord', () => {
+    // Il vient POUR le mois offert : l'envoyer directement au tableau de bord
+    // lui fait rater ce qu'on a payé pour lui vendre. Les deux chemins
+    // d'inscription doivent l'emmener choisir un plan.
+    const verify = sansCommentaires(readFileSync('api/auth/verify-code.js', 'utf8'))
+    expect(verify, 'le chemin email ne redirige pas vers la sélection de plan')
+      .toMatch(/\/signup\/plan\?campagne=/)
+
+    const callback = sansCommentaires(readFileSync('src/pages/AuthCallbackPage.jsx', 'utf8'))
+    expect(callback, 'le chemin Google ne redirige pas vers la sélection de plan')
+      .toMatch(/\/signup\/plan\?campagne=/)
+  })
+
+  it('la page de plans reconnaît une arrivée par la publicité', () => {
+    // Sans ça, elle annoncerait « Essai gratuit 7 jours » à quelqu'un qui en a
+    // trente — et il partirait en se demandant s'il a bien eu son mois.
+    const page = sansCommentaires(readFileSync('src/pages/PlanSelectionPage.jsx', 'utf8'))
+    expect(page, 'la page de plans ignore le paramètre de campagne')
+      .toMatch(/urlParams\.get\("campagne"\)/)
+    expect(page, 'le bouton n\'annonce pas les 30 jours')
+      .toMatch(/isCampagne\) \? "30 jours gratuits"/)
+  })
+
   it('le code survit à l\'aller-retour vers Google', () => {
     // La redirection OAuth perd la chaîne de requête. Sans mémorisation avant
     // le départ, le code n'existe plus au retour — et la route la mieux
