@@ -423,7 +423,7 @@ export const SignupPage = ({ onNavigate }) => {
                   onChange={(e) => setEmail(e.target.value)}
                   aria-label="Adresse email"
                   className="w-full pl-11 pr-4 py-3.5 bg-surface border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
-                  placeholder="adresse email"
+                  placeholder="Adresse email"
                 />
               </div>
 
