@@ -1,0 +1,113 @@
+---
+title: "Portail client self-service"
+description: "Ouvre un espace SAV self-service à tes clients : suivi de commande, factures, retours, remboursements et tickets, sur ton sous-domaine ou ton propre domaine."
+---
+
+Le portail client est une page publique brandée où tes clients gèrent leur SAV eux-mêmes, sans passer par ton formulaire de contact. Chaque marchand a son adresse : `tamarque.portal.actero.fr`.
+
+<Note>
+Le portail est disponible sur les plans **Pro** et **Enterprise**. Sur Free et Starter, la page **Portail SAV** du dashboard affiche un mur d'upgrade.
+</Note>
+
+## Ce que tes clients peuvent faire
+
+- **Consulter leurs commandes** : liste et détail, synchronisés depuis Shopify
+- **Recevoir leur facture** : envoyée par email depuis leur fiche commande
+- **Demander un retour ou un remboursement** : avec raison et articles concernés
+- **Ouvrir et suivre des tickets** : et répondre directement dans le fil
+- **Joindre des photos** : images JPEG, PNG, WebP ou HEIC, 5 Mo maximum par fichier
+
+Chaque demande (retour, remboursement, message) crée une conversation dans ton dashboard, avec la mention `source: portal`. Ton agent ou ton équipe la traite comme n'importe quel ticket.
+
+## Activer le portail
+
+<Steps>
+  <Step title="Ouvre la page Portail SAV">
+    Sidebar : **Canaux → Portail SAV**.
+  </Step>
+  <Step title="Active le toggle">
+    Clique sur **Activer le portail pour mes clients**. L'URL `tamarque.portal.actero.fr` répond immédiatement.
+  </Step>
+  <Step title="Partage l'URL">
+    Ajoute le lien dans tes emails de confirmation de commande, ton footer, ou ta page contact.
+  </Step>
+</Steps>
+
+### Comment l'adresse est choisie
+
+Actero génère le sous-domaine automatiquement à la première activation, à partir de ton nom de marque :
+
+- Les accents sont retirés (« Café Léa » devient `cafe-lea`), les autres caractères sont remplacés par des tirets, 40 caractères maximum
+- Les noms de service (`admin`, `api`, `support`, `www`…) sont réservés : si ta marque en porte un, ou si le nom ne laisse rien d'utilisable, Actero utilise `boutique-` suivi de ton identifiant
+- Si le nom est déjà pris par un autre marchand, un suffixe numérique est ajouté (`cafe-lea-2`)
+
+L'adresse est fixée une fois pour toutes : désactiver puis réactiver le portail ne la change pas. Si aucune adresse ne peut être attribuée, le portail s'active quand même et la réponse contient un champ `avertissement`. Contacte [contact@actero.fr](mailto:contact@actero.fr) dans ce cas.
+
+La vérification de plan se fait côté serveur, pas seulement dans l'interface. Si ton plan n'inclut pas le portail, l'activation renvoie une erreur `403` :
+
+```json
+{ "error": "Le portail client nécessite le plan Pro ou Enterprise." }
+```
+
+<Note>
+La désactivation reste possible sur tous les plans. Si tu rétrogrades depuis Pro, tu peux toujours refermer ton portail.
+</Note>
+
+Tu peux aussi activer ou désactiver le portail par API :
+
+```bash
+curl -X POST https://actero.fr/api/client/toggle-portal \
+  -H "Authorization: Bearer $SUPABASE_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{ "enabled": true }'
+```
+
+La réponse contient le sous-domaine attribué :
+
+```json
+{ "ok": true, "portal_enabled": true, "slug": "tamarque" }
+```
+
+## Connexion par lien magique
+
+Tes clients n'ont pas de mot de passe. Ils saisissent l'email de leur commande et reçoivent un lien de connexion :
+
+- Le lien est valable **15 minutes** et utilisable **une seule fois**
+- Un même email peut demander **3 liens maximum par tranche de 15 minutes**
+- L'email de connexion reprend ton nom, ton logo et ta couleur si tu as personnalisé le portail
+
+## Personnaliser le portail
+
+Sidebar : **Canaux → Portail SAV → Personnaliser mon portail**. Tu peux régler :
+
+| Réglage | Contrainte |
+|---|---|
+| Nom affiché | 60 caractères maximum |
+| Logo | URL HTTPS valide |
+| Couleur principale | Code hex (ex : `#0E653A`) |
+| Masquer le branding Actero | Retire la mention "propulsé par Actero" |
+| Domaine personnalisé | Voir ci-dessous |
+
+## Domaine personnalisé
+
+Sers le portail sur ton propre domaine (ex : `sav.tamarque.fr`) au lieu du sous-domaine Actero.
+
+<Steps>
+  <Step title="Renseigne ton domaine">
+    Dans **Personnaliser mon portail**, saisis un nom de domaine complet, sans `https://` ni chemin. Les sous-domaines en `.actero.fr` sont refusés.
+  </Step>
+  <Step title="Configure le DNS chez ton registrar">
+    Ajoute un enregistrement CNAME :
+
+    ```text
+    CNAME  sav  →  portal.actero.fr
+    ```
+  </Step>
+  <Step title="Attends la propagation">
+    De quelques minutes à 24 h. Le certificat SSL est émis automatiquement, rien à configurer.
+  </Step>
+</Steps>
+
+<Warning>
+Un domaine ne peut être rattaché qu'à un seul portail. Si le domaine est déjà utilisé, l'enregistrement renvoie une erreur `409`.
+</Warning>
