@@ -120,6 +120,10 @@
             "path": "/api/cron/purge-vision-images",
             "schedule": "0 3 * * *"
         },
+    {
+            "path": "/api/cron/purge-deleted-clients",
+            "schedule": "0 4 * * *"
+        },
         {
             "path": "/api/cron/slack-canvas-update",
             "schedule": "0 * * * *"

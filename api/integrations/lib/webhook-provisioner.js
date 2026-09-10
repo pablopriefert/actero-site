@@ -14,8 +14,13 @@
  *     `message_created` fire sur chaque nouveau message.
  *     Source : https://developers.gorgias.com/reference/create-integration
  *
- * Sécurité : chaque webhook a son propre `webhook_secret` (32-byte hex
- * random) stocké dans `client_integrations.extra_config.webhook_secret`.
+ * Sécurité : chaque webhook a son propre secret (32 octets aléatoires), stocké
+ * chiffré dans `client_integrations.webhook_secret_encrypted`.
+ *
+ * Il vivait dans `extra_config.webhook_secret` — un jsonb que le navigateur
+ * peut lire, contrairement à `api_key` et `access_token` fermés par ACT-7. Un
+ * secret qui transite par un navigateur est un secret qu'on ne contrôle plus,
+ * et celui-ci permet de forger des webhooks entrants (ACT-25).
  * Le receiver (webhooks/zendesk.js, webhooks/gorgias.js) compare le secret
  * reçu en query string contre celui en DB pour ce client-là. Pas de
  * secret global partagé entre tous les clients.
@@ -58,7 +63,9 @@ export async function provisionZendeskWebhook(supabase, clientId) {
   }
 
   // Génère le secret per-client (si pas déjà présent)
-  const webhookSecret = integration.extra_config?.webhook_secret || generateWebhookSecret()
+  const webhookSecret = decryptToken(integration.webhook_secret_encrypted)
+    || integration.extra_config?.webhook_secret
+    || generateWebhookSecret()
 
   const endpoint = `${ACTERO_BASE_URL}/api/engine/webhooks/zendesk`
   + `?client_id=${encodeURIComponent(clientId)}`
@@ -98,9 +105,9 @@ export async function provisionZendeskWebhook(supabase, clientId) {
     await supabase
       .from('client_integrations')
       .update({
+        webhook_secret_encrypted: encryptToken(webhookSecret),
         extra_config: {
           ...(integration.extra_config || {}),
-          webhook_secret: webhookSecret,
           webhook_id: webhookId,
           webhook_provisioned_at: new Date().toISOString(),
         },
@@ -139,7 +146,9 @@ export async function provisionGorgiasIntegration(supabase, clientId) {
     return { success: false, error: 'Missing access_token or subdomain' }
   }
 
-  const webhookSecret = integration.extra_config?.webhook_secret || generateWebhookSecret()
+  const webhookSecret = decryptToken(integration.webhook_secret_encrypted)
+    || integration.extra_config?.webhook_secret
+    || generateWebhookSecret()
 
   const endpoint = `${ACTERO_BASE_URL}/api/engine/webhooks/gorgias`
   + `?client_id=${encodeURIComponent(clientId)}`
@@ -180,9 +189,9 @@ export async function provisionGorgiasIntegration(supabase, clientId) {
     await supabase
       .from('client_integrations')
       .update({
+        webhook_secret_encrypted: encryptToken(webhookSecret),
         extra_config: {
           ...(integration.extra_config || {}),
-          webhook_secret: webhookSecret,
           gorgias_integration_id: integrationId,
           webhook_provisioned_at: new Date().toISOString(),
         },
