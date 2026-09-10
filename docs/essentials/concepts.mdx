@@ -68,8 +68,16 @@ Disponible dès Starter. Custom domain (`sav.yourbrand.com`) dès Pro.
 
 Actero calcule automatiquement :
 
-- **Temps économisé** = tickets résolus auto × 4 min (moyenne industry)
+- **Temps économisé** = tickets résolus auto × votre temps moyen par ticket (5 min par défaut)
+- **Temps valorisé** = temps économisé × votre coût horaire support (25 €/h par défaut)
+- **ROI net** = temps valorisé − votre abonnement Actero mensuel
 - **CA récupéré** = paniers abandonnés récupérés × panier moyen
 - **Coût IA** = tokens Claude/Gemini × tarif officiel
 
-Vous voyez ces 3 chiffres en temps réel dans **Vue d'ensemble** et dans le rapport mensuel.
+Le temps moyen par ticket et le coût horaire sont vos réglages. Vous les modifiez dans l'onglet **ROI** du dashboard. La base de calcul est affichée sous le chiffre (ex. `temps valorisé · 5 min × 25 €/h`), pour que chaque euro annoncé soit traçable jusqu'à vos propres valeurs.
+
+### Mode conservateur
+
+Un toggle dans l'onglet **ROI** plafonne le temps moyen par ticket à 3 minutes dans le calcul. Il plafonne sans remplacer : si vous avez saisi une valeur plus basse, elle est conservée. Activez-le si vous voulez annoncer le minimum défendable plutôt qu'une estimation optimiste. Quand il est actif, la base affichée l'indique (ex. `3 min × 25 €/h · conservateur`).
+
+Vous voyez ces chiffres en temps réel dans **Vue d'ensemble** et dans le rapport mensuel.
