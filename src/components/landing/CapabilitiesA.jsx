@@ -41,7 +41,7 @@ export const CapabilitiesA = () => {
       title: 'Relance paniers abandonnés',
       desc:
         "Un agent proactif qui relance chaque client avec un message personnalisé (produit précis, lien de paiement direct) — pas une séquence email générique.",
-      highlight: '+15% de CA récupéré en moyenne',
+      highlight: "jusqu'à 15 % de CA récupéré, selon votre volume",
       highlightMarker: '*',
     },
     {

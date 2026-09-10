@@ -17,7 +17,6 @@ import { canAccessFeature as planCanAccess } from './plan-limits.js'
 
 // Map feature key → Stripe lookup_key (must match lookup_keys created in Stripe Dashboard)
 export const FEATURE_MAP = {
-  brand_editor: 'actero_brand_editor',
   guardrails: 'actero_guardrails',
   simulator: 'actero_simulator',
   specialized_agents: 'actero_specialized_agents',

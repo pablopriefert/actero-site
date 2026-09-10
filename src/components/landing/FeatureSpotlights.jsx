@@ -258,7 +258,7 @@ export const CartSpotlight = () => (
       'Relance par email, rédigée pour chaque client',
       'CA récupéré suivi en temps réel dans votre dashboard',
     ]}
-    metric="+15% de CA panier récupéré en moyenne"
+    metric="Jusqu'à 15 % de CA panier récupéré, selon votre volume"
     media={<CartMedia />}
   />
 )

@@ -132,7 +132,6 @@ function buildFeatures(plan) {
       `Shopify + ${limits.integrations - 1} intégrations`,
       `Base de connaissances ${limits.knowledge_entries} entrées`,
       `${limits.team_members} membres d'équipe`,
-      "Éditeur ton de marque",
       "Règles métier & guardrails",
       "Simulateur de conversation",
       "API REST + Webhooks",
@@ -157,7 +156,6 @@ function buildFeatures(plan) {
       "Relance paniers abandonnés (agent proactif)",
       "Agent Email natif Actero",
       "Portail client en marque blanche (suivi, retours, remboursements)",
-      "Éditeur ton de marque",
       "Simulateur de conversation",
       "API REST + Webhooks",
       "Rapport PDF mensuel auto-envoyé",
@@ -290,10 +288,6 @@ const comparisonCategories = [
   {
     name: "Personnalisation",
     rows: [
-      {
-        label: "Éditeur ton de marque",
-        values: compVal(PLAN_ORDER, (p) => p.features.brand_editor),
-      },
       {
         label: "Règles & limites",
         values: compVal(PLAN_ORDER, (p) => p.features.guardrails),

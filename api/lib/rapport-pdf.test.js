@@ -109,7 +109,11 @@ describe('promesses retirées', () => {
   // retirées le 10 septembre plutôt que construites.
   const INTERDITS = [
     /email \+ SMS/i,
-    /remises? conditionnelle/i,
+    // « remise » ET « réduction » : la première version de cette garde ne
+    // cherchait que « remise conditionnelle », et une page de comparaison a
+    // gardé « réduction conditionnelle » pendant une demi-journée. Une garde
+    // qui ne connaît qu'un seul mot pour la même promesse ne garde rien.
+    /(remises?|réductions?) conditionnelles?/i,
     /SMS automatiquement/i,
   ]
 

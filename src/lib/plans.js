@@ -27,7 +27,6 @@ export const PLANS = {
       vision_analyses_per_month: 10,
     },
     features: {
-      brand_editor: false,
       guardrails: true, // Règles & limites — dès Free
       simulator: false,
       specialized_agents: false, // general-agent only
@@ -62,7 +61,6 @@ export const PLANS = {
       vision_analyses_per_month: 200,
     },
     features: {
-      brand_editor: true,
       guardrails: true, // Règles & limites — dès Free
       simulator: true, // Simulateur — dès Starter
       specialized_agents: false,
@@ -97,7 +95,6 @@ export const PLANS = {
       vision_analyses_per_month: 2000,
     },
     features: {
-      brand_editor: true,
       guardrails: true,
       simulator: true,
       specialized_agents: true,
@@ -140,7 +137,6 @@ export const PLANS = {
       vision_analyses_per_month: Infinity,
     },
     features: {
-      brand_editor: true,
       guardrails: true,
       simulator: true,
       specialized_agents: true,

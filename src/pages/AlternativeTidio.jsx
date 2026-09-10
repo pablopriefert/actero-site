@@ -94,11 +94,11 @@ export const AlternativeTidio = ({ onNavigate }) => {
       },
       {
         icon: TrendingUp,
-        stat: '+15 %',
+        stat: "jusqu'à 15 %",
         statLabel: 'de paniers récupérés',
         title: '3 relances IA incluses, pas un module à part',
         desc:
-          "Actero relance les paniers abandonnés avec 3 emails personnalisés (15 min, 24h, 72h), produit exact, réduction conditionnelle et lien checkout direct — inclus dès le plan Free. Tidio fait du chatbot, pas de la reconquête panier IA.",
+          "Actero relance les paniers abandonnés avec 3 emails personnalisés (15 min, 24h, 72h), produit exact et lien de paiement direct — inclus dès le plan Free. Tidio fait du chatbot, pas de la reconquête panier IA.",
       },
       {
         icon: Euro,

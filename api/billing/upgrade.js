@@ -57,7 +57,7 @@ async function handler(req, res) {
     // --- Load current client ---
     const { data: client, error: clientErr } = await supabaseAdmin
       .from('clients')
-      .select('id, plan, stripe_customer_id, stripe_subscription_id, contact_email, brand_name, trial_ends_at, referral_first_month_free, referred_by_client_id')
+      .select('id, plan, stripe_customer_id, stripe_subscription_id, contact_email, brand_name, trial_ends_at, referral_first_month_free, campaign_first_month_free, referred_by_client_id')
       .eq('id', client_id)
       .single();
 
@@ -270,6 +270,14 @@ async function handler(req, res) {
       await supabaseAdmin
         .from('clients')
         .update({ referral_first_month_free: false })
+        .eq('id', client_id);
+    }
+    // Idem pour le mois offert par la campagne publicitaire (ACT-33) : sans
+    // ça, un marchand qui résilie et se réabonne le réclamerait à chaque fois.
+    if (client.campaign_first_month_free) {
+      await supabaseAdmin
+        .from('clients')
+        .update({ campaign_first_month_free: false })
         .eq('id', client_id);
     }
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { joursEssaiPour, ESSAI_STANDARD_JOURS, ESSAI_PARRAINAGE_JOURS } from './essai-gratuit.js'
+import { joursEssaiPour, ESSAI_STANDARD_JOURS, ESSAI_PARRAINAGE_JOURS, ESSAI_CAMPAGNE_JOURS } from './essai-gratuit.js'
 
 /**
  * ACT-33 — un seul essai gratuit, quel que soit le bouton cliqué.
@@ -26,6 +26,18 @@ describe('durée de l\'essai gratuit', () => {
     expect(joursEssaiPour({ referral_first_month_free: true })).toBe(ESSAI_PARRAINAGE_JOURS)
   })
 
+  it('un marchand venu de la campagne a un mois', () => {
+    // Décision du 10 septembre : la pub annonce « 1 mois gratuit », mais
+    // seulement pour ceux qui arrivent par elle.
+    expect(joursEssaiPour({ campaign_first_month_free: true })).toBe(ESSAI_CAMPAGNE_JOURS)
+    expect(ESSAI_CAMPAGNE_JOURS).toBe(30)
+  })
+
+  it('celui qui trouve Actero autrement garde l\'essai standard', () => {
+    expect(joursEssaiPour({ campaign_first_month_free: false })).toBe(ESSAI_STANDARD_JOURS)
+    expect(ESSAI_STANDARD_JOURS).toBe(7)
+  })
+
   it('un nouveau marchand a l\'essai standard', () => {
     expect(joursEssaiPour({})).toBe(ESSAI_STANDARD_JOURS)
     expect(joursEssaiPour({ trial_ends_at: null })).toBe(ESSAI_STANDARD_JOURS)
@@ -47,6 +59,50 @@ describe('durée de l\'essai gratuit', () => {
     // l'abonnement est facturé tout de suite mais marqué comme sortant
     // d'essai, ce qui fausse `trial_ends_at` et donc l'éligibilité future.
     expect(joursEssaiPour({ trial_ends_at: '2026-01-01T00:00:00Z' })).not.toBe(0)
+  })
+
+  it('les chemins qui lisent le drapeau de campagne le sélectionnent aussi', () => {
+    // Le piège de gorgias.js, transposé : lire `client.campaign_first_month_free`
+    // sans le ramener dans le `.select()` donnerait TOUJOURS undefined. Le
+    // marchand venu de la pub aurait sept jours au lieu de trente, et rien
+    // n'échouerait — la campagne aurait simplement l'air de ne pas marcher.
+    for (const f of ['api/billing/create-subscription.js', 'api/billing/upgrade.js']) {
+      const src = readFileSync(f, 'utf8')
+      if (!/client\.campaign_first_month_free/.test(src)) continue
+      expect(src, `${f} lit le drapeau sans le sélectionner`)
+        .toMatch(/\.select\(\s*'[^']*campaign_first_month_free/)
+    }
+  })
+
+  it('le mois de campagne se consomme, comme celui du parrainage', () => {
+    // Sans ça, un marchand qui résilie et se réabonne le réclame à chaque fois.
+    for (const f of ['api/billing/create-subscription.js', 'api/billing/upgrade.js']) {
+      const src = readFileSync(f, 'utf8')
+      expect(src, `${f} ne remet jamais campaign_first_month_free à false`)
+        .toMatch(/campaign_first_month_free:\s*false/)
+    }
+  })
+
+  it('le code de campagne est validé côté serveur, jamais cru sur parole', () => {
+    // Offrir un mois sur la foi d'un paramètre que le navigateur envoie, c'est
+    // un cadeau à qui devine le mot. Le code doit être confronté à une
+    // variable d'environnement.
+    const src = readFileSync('api/auth/signup.js', 'utf8')
+    expect(src, 'signup.js ne valide pas le code de campagne')
+      .toMatch(/process\.env\.CAMPAIGN_TRIAL_CODES/)
+    expect(src, 'le drapeau doit être écrit côté serveur après validation')
+      .toMatch(/campaign_first_month_free:\s*true/)
+  })
+
+  it('le formulaire d\'inscription transporte bien le code de campagne', () => {
+    // Sans ça, la route accepterait un `campaign_code` que personne
+    // n'envoie jamais : le neuvième « code écrit mais jamais appelé » de la
+    // semaine, et la campagne n'accorderait rien à personne.
+    const src = readFileSync('src/pages/SignupPage.jsx', 'utf8')
+    expect(src, 'SignupPage ne lit pas le code de campagne dans l\'URL')
+      .toMatch(/campaign_code|campagne/)
+    expect(src, 'SignupPage ne transmet pas campaign_code à l\'API')
+      .toMatch(/campaign_code: campaignCode/)
   })
 
   it('aucun chemin de paiement ne redéfinit sa propre durée', () => {
