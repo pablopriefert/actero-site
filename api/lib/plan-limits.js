@@ -60,6 +60,12 @@ export const PLAN_FEATURES = {
     multi_shop: false,
     white_label: false,
     roi_dashboard: 'basic',
+    // Absents de ce miroir jusqu'au 10 septembre : la fonctionnalité était
+    // donc refusée côté serveur pour TOUS les plans, quoi qu'annonce
+    // src/lib/plans.js. Un miroir incomplet ment plus discrètement qu'un
+    // miroir faux. Voir le test de parité dans src/lib/plans.test.js.
+    portal_enabled: false,
+    portal_customization: false,
     email_agent: false,
   },
   starter: {
@@ -73,6 +79,8 @@ export const PLAN_FEATURES = {
     multi_shop: false,
     white_label: false,
     roi_dashboard: 'full',
+    portal_enabled: false,
+    portal_customization: false,
     email_agent: false,
   },
   pro: {
@@ -86,6 +94,8 @@ export const PLAN_FEATURES = {
     multi_shop: false,
     white_label: false,
     roi_dashboard: 'full',
+    portal_enabled: true,
+    portal_customization: true,
     email_agent: true,
   },
   enterprise: {
@@ -100,6 +110,8 @@ export const PLAN_FEATURES = {
     multi_shop: false,
     white_label: true,
     roi_dashboard: 'custom',
+    portal_enabled: true,
+    portal_customization: true,
     email_agent: true,
   },
 }

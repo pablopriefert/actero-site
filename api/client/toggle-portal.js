@@ -7,6 +7,7 @@
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
+import { clientHasEntitlement } from '../lib/entitlements.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -45,6 +46,21 @@ async function handler(req, res) {
   }
 
   if (!clientId) return res.status(404).json({ error: 'Client introuvable' })
+
+  // Le portail est une fonctionnalité payante (Pro et Enterprise). Jusqu'au
+  // 10 septembre, cette route ne vérifiait RIEN : le seul obstacle était le
+  // bouton grisé dans le navigateur. N'importe quel compte, y compris Free,
+  // pouvait ouvrir son portail en appelant cette route directement. Une
+  // fonctionnalité payante gardée uniquement par l'interface n'est pas gardée.
+  //
+  // On ne vérifie qu'à l'activation : un marchand qui rétrograde doit pouvoir
+  // refermer son portail, pas se retrouver coincé avec un portail ouvert.
+  if (enabled) {
+    const autorise = await clientHasEntitlement(supabase, clientId, 'portal_enabled')
+    if (!autorise) {
+      return res.status(403).json({ error: 'Le portail client nécessite le plan Pro ou Enterprise.' })
+    }
+  }
 
   const { error: updateError } = await supabase
     .from('clients')

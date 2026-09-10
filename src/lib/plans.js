@@ -112,8 +112,16 @@ export const PLANS = {
       multi_shop: false,
       white_label: false,
       roi_dashboard: 'full',
-      portal_enabled: false,
-      portal_customization: false,
+      // Le portail client existe et tourne : 14 routes API (dont 6 avec
+      // tests), 8 pages, l'authentification par lien magique, les commandes,
+      // les tickets, les retours, les remboursements, les pièces jointes. Le
+      // sous-domaine générique répond (vérifié le 10 septembre :
+      // *.portal.actero.fr renvoie 200). Il était fermé sur les QUATRE plans,
+      // Enterprise compris — donc vendu et injoignable. Ouvert sur Pro et
+      // Enterprise, les deux plans où api/client/update-portal-branding.js
+      // l'autorisait déjà côté serveur.
+      portal_enabled: true,
+      portal_customization: true,
       email_agent: true, // Agent Email — dès Pro
     },
     support: 'priority_24h',
@@ -154,8 +162,16 @@ export const PLANS = {
       multi_shop: false,
       white_label: true,
       roi_dashboard: 'custom',
-      portal_enabled: false,
-      portal_customization: false,
+      // Le portail client existe et tourne : 14 routes API (dont 6 avec
+      // tests), 8 pages, l'authentification par lien magique, les commandes,
+      // les tickets, les retours, les remboursements, les pièces jointes. Le
+      // sous-domaine générique répond (vérifié le 10 septembre :
+      // *.portal.actero.fr renvoie 200). Il était fermé sur les QUATRE plans,
+      // Enterprise compris — donc vendu et injoignable. Ouvert sur Pro et
+      // Enterprise, les deux plans où api/client/update-portal-branding.js
+      // l'autorisait déjà côté serveur.
+      portal_enabled: true,
+      portal_customization: true,
       email_agent: true,
     },
     support: 'account_manager',

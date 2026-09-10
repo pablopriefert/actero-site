@@ -64,6 +64,7 @@ export const PricingA = ({ onNavigate }) => {
         'Agents spécialisés (WISMO, retours, produit)',
         'Relance paniers abandonnés',
         'Analyse photo — Claude Sonnet 5',
+        'Portail client en marque blanche',
         'Rapport PDF mensuel',
         'Support prioritaire 24h',
       ],

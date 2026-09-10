@@ -156,6 +156,7 @@ function buildFeatures(plan) {
       "Agents IA spécialisés (WISMO, retour, produit, proactif)",
       "Relance paniers abandonnés (agent proactif)",
       "Agent Email natif Actero",
+      "Portail client en marque blanche (suivi, retours, remboursements)",
       "Éditeur ton de marque",
       "Simulateur de conversation",
       "API REST + Webhooks",
