@@ -253,7 +253,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
         url_faq: form.url_faq || null,
         url_about: form.url_about || null,
         workflows_requested: form.workflows_requested,
-        status: 'complete',
+        status: 'complète',
         completed_at: new Date().toISOString(),
       };
 
@@ -263,10 +263,10 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
 
       if (error) throw error;
 
-      setForm(prev => ({ ...prev, status: 'complete' }));
+      setForm(prev => ({ ...prev, status: 'complète' }));
       queryClient.invalidateQueries({ queryKey: ['call-notes', client.id] });
     } catch (err) {
-      console.error('Complete error:', err);
+      console.error('Complète error:', err);
     }
     setSaving(false);
   };
@@ -576,7 +576,7 @@ function StepBusiness({ form, updateField }) {
             onChange={e => updateField('ticketing_tool', e.target.value || null)}
             className="w-full px-3 py-2 bg-surface border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:border-gray-300 transition-colors"
           >
-            <option value="">Selectionner...</option>
+            <option value="">Sélectionner...</option>
             {TICKETING_OPTIONS.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
@@ -602,7 +602,7 @@ function StepBusiness({ form, updateField }) {
 
         <div className="grid grid-cols-2 gap-4">
           <InputField label="Panier moyen" value={form.avg_cart_value} onChange={v => updateField('avg_cart_value', v)} type="number" suffix="EUR" placeholder="80" />
-          <InputField label="Paniers abandonnes/mois" value={form.monthly_abandoned_carts} onChange={v => updateField('monthly_abandoned_carts', v)} type="number" placeholder="500" />
+          <InputField label="Paniers abandonnés/mois" value={form.monthly_abandoned_carts} onChange={v => updateField('monthly_abandoned_carts', v)} type="number" placeholder="500" />
         </div>
       </motion.div>
     );
@@ -624,7 +624,7 @@ function StepBusiness({ form, updateField }) {
 
       <div className="grid grid-cols-2 gap-4">
         <InputField label="Volume leads portails/mois" value={form.monthly_leads_volume} onChange={v => updateField('monthly_leads_volume', v)} type="number" placeholder="50" />
-        <InputField label="Temps de reponse actuel" value={form.avg_response_time_hours} onChange={v => updateField('avg_response_time_hours', v)} type="number" suffix="h" placeholder="24" />
+        <InputField label="Temps de réponse actuel" value={form.avg_response_time_hours} onChange={v => updateField('avg_response_time_hours', v)} type="number" suffix="h" placeholder="24" />
       </div>
 
       <InputField label="Cout horaire agent" value={form.hourly_agent_cost} onChange={v => updateField('hourly_agent_cost', v)} type="number" suffix="EUR/h" />

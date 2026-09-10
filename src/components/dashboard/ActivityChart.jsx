@@ -137,7 +137,7 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
                   itemStyle={{ fontSize: '10px', padding: '1px 0' }}
                   cursor={{ fill: 'rgba(0,0,0,0.02)' }}
                 />
-                <Bar dataKey="ticket_resolved" stackId="a" name="Resolus" fill="#10B981" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="ticket_resolved" stackId="a" name="Résolus" fill="#10B981" radius={[0, 0, 0, 0]} />
                 <Bar dataKey="ticket_escalated" stackId="a" name="Escalades" fill="#F59E0B" radius={[0, 0, 0, 0]} />
                 <Bar dataKey="cart_email_sent" stackId="a" name="Emails" fill="#3B82F6" radius={[0, 0, 0, 0]} />
                 <Bar dataKey="cart_recovered" stackId="a" name="Paniers" fill="#8B5CF6" radius={[2, 2, 0, 0]} />
@@ -190,7 +190,7 @@ export const ActivityChart = ({ theme = "dark", supabase, selectedPeriod = "this
                   cursor={{ fill: 'rgba(0,0,0,0.02)' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '12px' }} />
-                <Bar dataKey="ticket_resolved" stackId="a" name="Resolus" fill="#10B981" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="ticket_resolved" stackId="a" name="Résolus" fill="#10B981" radius={[0, 0, 0, 0]} />
                 <Bar dataKey="ticket_escalated" stackId="a" name="Escalades" fill="#F59E0B" radius={[0, 0, 0, 0]} />
                 <Bar dataKey="cart_email_sent" stackId="a" name="Emails" fill="#3B82F6" radius={[0, 0, 0, 0]} />
                 <Bar dataKey="cart_recovered" stackId="a" name="Paniers" fill="#8B5CF6" radius={[4, 4, 0, 0]} />

@@ -54,9 +54,39 @@ describe('durée de l\'essai gratuit', () => {
     expect(joursEssaiPour({ trial_ends_at: '2026-01-01T00:00:00Z' })).toBeUndefined()
   })
 
-  it('le parrainage l\'emporte sur un essai déjà consommé', () => {
+  it('un essai déjà pris l\'emporte sur TOUS les drapeaux', () => {
+    // Règle inversée le 10 septembre, et c'est le cœur du correctif.
+    //
+    // Avant, les drapeaux passaient devant `trial_ends_at`. Un drapeau resté
+    // posé rouvrait donc un second essai — ce qui obligeait les routes de
+    // facturation à le consommer dès la création de la session Stripe, avant
+    // tout paiement. C'est cette consommation anticipée qui brûlait le mois
+    // d'un marchand ayant simplement fermé l'écran de carte bancaire.
+    //
+    // Maintenant la date tranche en premier : un essai pris est pris, quel que
+    // soit le drapeau. Plus rien n'oblige à consommer par avance.
     expect(joursEssaiPour({ referral_first_month_free: true, trial_ends_at: '2026-01-01T00:00:00Z' }))
-      .toBe(ESSAI_PARRAINAGE_JOURS)
+      .toBeUndefined()
+    expect(joursEssaiPour({ campaign_first_month_free: true, trial_ends_at: '2026-01-01T00:00:00Z' }))
+      .toBeUndefined()
+  })
+
+  it('un panier abandonné ne brûle pas le mois offert', () => {
+    // LE DÉFAUT CONSTATÉ EN VRAI, le 10 septembre.
+    //
+    // Pablo s'inscrit par le lien de la campagne, arrive sur Stripe, et lit
+    // « Démarrer l'essai de 7 jours » alors qu'on lui en promet trente. Cause :
+    // un premier clic avait créé une session Stripe, ce qui consommait le
+    // drapeau sur-le-champ ; il avait fermé la page sans payer, et son mois
+    // était déjà perdu — définitivement, sans aucun moyen de le récupérer.
+    //
+    // Tant que `trial_ends_at` est vide, AUCUN essai n'a réellement eu lieu, et
+    // le mois reste dû. C'est exactement la situation d'un écran de paiement
+    // qu'on referme, le geste le plus banal du parcours.
+    const apresAbandon = { campaign_first_month_free: true, trial_ends_at: null }
+    expect(joursEssaiPour(apresAbandon)).toBe(ESSAI_CAMPAGNE_JOURS)
+    // Et autant de fois qu'il revient : rien ne s'use tant que rien n'est payé.
+    expect(joursEssaiPour(apresAbandon)).toBe(ESSAI_CAMPAGNE_JOURS)
   })
 
   it('« pas d\'essai » vaut undefined, jamais 0', () => {
@@ -79,13 +109,43 @@ describe('durée de l\'essai gratuit', () => {
     }
   })
 
-  it('le mois de campagne se consomme, comme celui du parrainage', () => {
-    // Sans ça, un marchand qui résilie et se réabonne le réclame à chaque fois.
+  it('aucun chemin de paiement ne consomme le mois avant le paiement', () => {
+    // La garde exactement INVERSE de celle qu'il y avait ici avant, parce que
+    // l'ancienne exigeait précisément ce qui cassait le parcours.
+    //
+    // Ces routes créent une session Stripe : à cet instant le marchand n'a rien
+    // payé, rien signé, et peut très bien fermer l'onglet. Remettre un drapeau
+    // à false ici, c'est retirer un mois à quelqu'un qui n'a rien reçu.
+    //
+    // Ce qui interdit d'en réclamer un second est ailleurs, et ne dépend pas de
+    // la bonne volonté de ces fichiers : `joursEssaiPour` refuse tout essai dès
+    // que `trial_ends_at` existe, et cette date n'est écrite qu'une fois
+    // l'abonnement réellement créé par Stripe.
+    const fautifs = []
     for (const f of ['api/billing/create-subscription.js', 'api/billing/upgrade.js']) {
-      const src = readFileSync(f, 'utf8')
-      expect(src, `${f} ne remet jamais campaign_first_month_free à false`)
-        .toMatch(/campaign_first_month_free:\s*false/)
+      const src = sansCommentaires(readFileSync(f, 'utf8'))
+      if (/campaign_first_month_free:\s*false/.test(src)) {
+        fautifs.push(`${f} consomme le mois de campagne avant le paiement`)
+      }
+      if (/referral_first_month_free:\s*false/.test(src)) {
+        fautifs.push(`${f} consomme le mois de parrainage avant le paiement`)
+      }
     }
+    expect(fautifs, `Mois brûlé sans contrepartie :\n${fautifs.join('\n')}`).toEqual([])
+  })
+
+  it('c\'est bien `trial_ends_at` qui garde la porte, et en premier', () => {
+    // Si quelqu'un remet un jour les drapeaux devant la date, le trou se
+    // rouvre en silence : un drapeau non consommé rendrait l'essai infini.
+    // Cette garde lit l'ordre réel des tests dans la fonction.
+    const src = sansCommentaires(readFileSync('api/lib/essai-gratuit.js', 'utf8'))
+    const corps = src.slice(src.indexOf('export function joursEssaiPour'))
+    const posDate = corps.indexOf('trial_ends_at')
+    const posParrainage = corps.indexOf('referral_first_month_free')
+    const posCampagne = corps.indexOf('campaign_first_month_free')
+    expect(posDate, 'trial_ends_at doit être testé AVANT les drapeaux').toBeGreaterThan(-1)
+    expect(posDate).toBeLessThan(posParrainage)
+    expect(posDate).toBeLessThan(posCampagne)
   })
 
   it('le code de campagne est validé côté serveur, jamais cru sur parole', () => {
@@ -209,11 +269,65 @@ describe('durée de l\'essai gratuit', () => {
     expect(fautifs, `Divergence des essais :\n${fautifs.join('\n')}`).toEqual([])
   })
 
+  it('l\'écran de paiement annonce la durée que le SERVEUR a accordée', () => {
+    // Le défaut du 10 septembre, deuxième couche — et le plus trompeur des deux.
+    //
+    // Le serveur accordait bien trente jours à un marchand venu de la campagne.
+    // Stripe enregistrait trente jours. Et l'écran de paiement affichait
+    // « Démarrer l'essai de 7 jours », parce que PaymentModal lisait
+    // `plan?.trial?.days || 7` — la valeur commerciale écrite en dur dans
+    // src/lib/plans.js — faute qu'on lui ait jamais transmis le vrai chiffre.
+    //
+    // Pour une publicité qui promet un mois, afficher sept revient exactement au
+    // même que de n'en donner que sept : le marchand ne vérifie pas dans Stripe,
+    // il lit l'écran et il part.
+    const modal = sansCommentaires(readFileSync('src/components/billing/PaymentModal.jsx', 'utf8'))
+
+    expect(modal, 'le modal n\'utilise pas la durée renvoyée par le serveur')
+      .toMatch(/data\.trial_days/)
+    expect(modal, 'le modal invente une durée d\'essai au lieu de la demander')
+      .not.toMatch(/trial\?\.days\s*\|\|\s*\d/)
+
+    const route = sansCommentaires(readFileSync('api/billing/create-subscription.js', 'utf8'))
+    expect(route, 'la route ne dit pas au navigateur combien de jours elle a accordés')
+      .toMatch(/trial_days:/)
+  })
+
   it('l\'email de fin d\'essai part bien du webhook Stripe', () => {
     // Une durée alignée ne sert à rien si le marchand n'est pas prévenu : le
     // rappel « votre essai se termine le … » est envoyé sur l'événement
     // trial_will_end, trois jours avant.
     const src = readFileSync('api/stripe-webhook.js', 'utf8')
     expect(src, 'plus personne n\'écoute la fin d\'essai').toMatch(/customer\.subscription\.trial_will_end/)
+  })
+
+  it('l\'email de fin d\'essai ne promet pas un renouvellement qui n\'aura pas lieu', () => {
+    // Ce que devient l'abonnement à la fin dépend d'UNE chose : la carte.
+    // create-subscription.js pose `missing_payment_method: 'cancel'`, donc sans
+    // moyen de paiement l'abonnement ne démarre pas — il s'annule.
+    //
+    // L'email affirmait pourtant à tout le monde « aucune action n'est requise,
+    // votre abonnement démarrera automatiquement », et proposait d'aller au
+    // tableau de bord « si vous souhaitez annuler ». Pour un marchand sans
+    // carte, c'était l'inverse exact de ce qu'il devait faire — envoyé trois
+    // jours avant qu'il perde son accès.
+    //
+    // Le cas est courant sur le parcours de la campagne : l'écran de paiement
+    // s'ouvre, le marchand le referme sans saisir sa carte, et l'abonnement
+    // d'essai reste là un mois.
+    const webhook = sansCommentaires(readFileSync('api/stripe-webhook.js', 'utf8'))
+    const bloc = webhook.slice(webhook.indexOf('trial_will_end'))
+
+    expect(bloc, 'le webhook ne regarde pas si une carte est enregistrée')
+      .toMatch(/resolveCustomerCard\(/)
+    expect(bloc, 'aucune version de l\'email ne s\'adresse au marchand sans carte')
+      .toMatch(/Ajouter une carte/)
+
+    // La prémisse. Si `end_behavior` disparaissait, l'abonnement se
+    // poursuivrait sans carte et c'est ce test qu'il faudrait revoir — pas
+    // l'email, qui deviendrait alors juste pour tout le monde.
+    const route = sansCommentaires(readFileSync('api/billing/create-subscription.js', 'utf8'))
+    expect(route, 'l\'email suppose qu\'un essai sans carte s\'annule : ce n\'est plus le cas')
+      .toMatch(/missing_payment_method:\s*'cancel'/)
   })
 })

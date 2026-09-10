@@ -52,11 +52,11 @@ export const PrivacyPage = ({ onNavigate }) => {
     },
     {
       title: "11. Modifications",
-      content: `Nous nous reservons le droit de modifier la presente politique de confidentialite. Toute modification substantielle sera notifiee par email ou via votre dashboard. La date de derniere mise a jour est indiquee en haut de cette page.`,
+      content: `Nous nous reservons le droit de modifier la presente politique de confidentialite. Toute modification substantielle sera notifiee par email ou via votre dashboard. La date de dernière mise a jour est indiquee en haut de cette page.`,
     },
     {
-      title: "12. Contact et reclamation",
-      content: `Pour toute question relative a la protection de vos donnees, contactez-nous :\n\nEmail : contact@actero.fr\n\nSi vous estimez que le traitement de vos donnees constitue une violation du RGPD, vous avez le droit d'introduire une reclamation aupres de la CNIL (Commission Nationale de l'Informatique et des Libertes) : www.cnil.fr`,
+      title: "12. Contact et réclamation",
+      content: `Pour toute question relative a la protection de vos données, contactez-nous :\n\nEmail : contact@actero.fr\n\nSi vous estimez que le traitement de vos données constitue une violation du RGPD, vous avez le droit d'introduire une réclamation aupres de la CNIL (Commission Nationale de l'Informatique et des Libertes) : www.cnil.fr`,
     },
   ];
 
@@ -64,7 +64,7 @@ export const PrivacyPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Politique de confidentialite — Actero"
-        description="Decouvrez comment Actero collecte, utilise et protege vos donnees personnelles. Politique conforme au RGPD."
+        description="Decouvrez comment Actero collecte, utilise et protégé vos données personnelles. Politique conforme au RGPD."
         canonical="/confidentialite"
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626]">
@@ -86,7 +86,7 @@ export const PrivacyPage = ({ onNavigate }) => {
                 Politique de confidentialite
               </h1>
               <p className="text-lg text-[#716D5C] leading-relaxed">
-                Actero s'engage a proteger la vie privee de ses utilisateurs. Cette politique decrit comment nous collectons, utilisons et protegeons vos donnees personnelles, conformement au Reglement General sur la Protection des Donnees (RGPD).
+                Actero s'engage a proteger la vie privee de ses utilisateurs. Cette politique decrit comment nous collectons, utilisons et protegeons vos données personnelles, conformement au Règlement Général sur la Protection des Données (RGPD).
               </p>
               <p className="text-sm text-[#716D5C] mt-4">
                 Derniere mise a jour : 5 avril 2026

@@ -25,7 +25,7 @@ const CATEGORIES = [
   { id: 'sav', label: 'SAV' },
   { id: 'ecommerce', label: 'E-commerce' },
   { id: 'immobilier', label: 'Immobilier' },
-  { id: 'comptabilite', label: 'Comptabilite' },
+  { id: 'comptabilité', label: 'Comptabilité' },
   { id: 'autre', label: 'Autre' },
 ]
 
@@ -337,7 +337,7 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Publication impossible')
-      toast.success(isEditing ? 'Template mis a jour' : 'Template publie avec succes')
+      toast.success(isEditing ? 'Template mis a jour' : 'Template publie avec succès')
       onSaved?.()
     } catch (err) {
       toast.error(err?.message || 'Une erreur est survenue')
@@ -485,7 +485,7 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
             <div className="grid grid-cols-2 gap-2.5">
               {[
                 { icon: MessageSquare, label: 'Tone & prompt', value: configPreview?.tone || '—' },
-                { icon: Shield, label: 'Regles', value: `${configPreview?.rules_count || 0}` },
+                { icon: Shield, label: 'Règles', value: `${configPreview?.rules_count || 0}` },
                 { icon: BookOpen, label: 'Base de savoir', value: `${configPreview?.kb_count || 0}` },
                 { icon: Package, label: 'Templates', value: `${configPreview?.examples_count || 0}` },
               ].map((item, i) => (

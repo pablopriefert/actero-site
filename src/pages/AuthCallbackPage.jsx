@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { supabase, INITIAL_URL } from '../lib/supabase'
 import { fetchUserRole } from '../lib/auth-utils'
@@ -14,6 +14,24 @@ const logger = (...args) => {
 export function AuthCallbackPage({ onNavigate }) {
   const [errorMsg, setErrorMsg] = useState(null);
 
+  // Cette page déclenche l'aiguillage à DEUX endroits : `checkSession()` au
+  // montage, et l'écouteur `onAuthStateChange` quand Supabase finit de résoudre
+  // le fragment d'URL. Les deux trouvent la même session, et les deux
+  // appelaient `redirectUser`.
+  //
+  // Pour une connexion ordinaire ça ne se voyait pas : deux fois la même
+  // destination. Pour une inscription Google venue de la publicité, c'était
+  // visible et cassant. Les deux exécutions créent le client en même temps ;
+  // la perdante échoue, tombe dans le repli et envoie le marchand au tableau
+  // de bord, pendant que la gagnante finit sa validation et l'envoie ensuite
+  // sur la page des plans. D'où le tableau de bord qui apparaît une seconde
+  // avant la bonne page — constaté par Pablo le 10 septembre.
+  //
+  // Un seul aiguillage, donc. Au passage, ça supprime la moitié du travail :
+  // deux créations de client, deux appels à /api/auth/apply-campaign, et une
+  // insertion qui échouait. C'est aussi ça qui rendait l'attente longue.
+  const aiguillageLance = useRef(false);
+
   // Detect if this callback is from an invite link
   // Uses INITIAL_URL because the hash is consumed by Supabase client before React mounts
   const isInviteFlow = () => {
@@ -23,6 +41,9 @@ export function AuthCallbackPage({ onNavigate }) {
   };
 
   const redirectUser = useCallback(async (session) => {
+    if (aiguillageLance.current) return;
+    aiguillageLance.current = true;
+
     // If this is an invite flow, redirect to set password page
     if (isInviteFlow()) {
       logger("Invite flow detected → redirecting to /setup-password");

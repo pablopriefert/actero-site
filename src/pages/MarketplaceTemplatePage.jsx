@@ -171,7 +171,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(data?.error || 'Installation impossible')
-        toast.success('Template installe avec succes')
+        toast.success('Template installe avec succès')
         setTimeout(() => onNavigate('/client'), 800)
       } else {
         // Paid → Stripe checkout
@@ -364,7 +364,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { icon: MessageSquare, label: 'Prompts', value: promptsCount, color: 'bg-emerald-50 text-emerald-700' },
-                      { icon: Shield, label: 'Regles', value: rulesCount, color: 'bg-amber-50 text-amber-700' },
+                      { icon: Shield, label: 'Règles', value: rulesCount, color: 'bg-amber-50 text-amber-700' },
                       { icon: BookOpen, label: 'Base de savoir', value: kbCount, color: 'bg-blue-50 text-blue-700' },
                       { icon: Package, label: 'Exemples', value: examplesCount, color: 'bg-violet-50 text-violet-700' },
                     ].map((item, i) => (
@@ -482,8 +482,8 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
                 <p className="text-[11px] text-[#9ca3af] text-center mb-5">
                   {isFree
-                    ? 'Installation immediate dans votre dashboard'
-                    : 'Paiement securise via Stripe'}
+                    ? 'Installation immédiate dans votre dashboard'
+                    : 'Paiement sécurisé via Stripe'}
                 </p>
 
                 <div className="border-t border-[#f0f0f0] pt-4 space-y-2.5 text-[12px]">

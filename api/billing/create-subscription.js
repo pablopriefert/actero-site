@@ -2,7 +2,7 @@ import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
-import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
+import { getOrCreateStripeCustomer, resolveCustomerCard } from '../lib/stripe-customer.js'
 import { joursEssaiPour } from '../lib/essai-gratuit.js';
 
 /**
@@ -36,28 +36,18 @@ const PRICES = {
 
 const PLAN_ORDER = ['free', 'starter', 'pro', 'enterprise'];
 
+
 /**
- * The card Stripe would actually charge for this subscription, or null.
- * Checks the subscription default, then the customer's invoice default, then
- * any card attached to the customer. Returns the id so the caller can pin it as
- * the subscription default in the same update it already makes.
+ * Combien de jours d'essai il reste sur un abonnement Stripe existant.
+ *
+ * Renvoie `null` quand il n'y a pas d'essai en cours — l'écran doit alors se
+ * taire, pas afficher zéro ni deviner une valeur.
  */
-async function resolveCustomerCard(stripe, subscription, customerId) {
-  const subDefault = subscription?.default_payment_method;
-  if (subDefault) return typeof subDefault === 'string' ? subDefault : subDefault.id;
-
-  try {
-    const customer = await stripe.customers.retrieve(customerId);
-    const invoiceDefault = customer?.invoice_settings?.default_payment_method;
-    if (invoiceDefault) return typeof invoiceDefault === 'string' ? invoiceDefault : invoiceDefault.id;
-  } catch { /* fall through */ }
-
-  try {
-    const list = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 });
-    return list?.data?.[0]?.id || null;
-  } catch {
-    return null;
-  }
+function joursRestantsDEssai(subscription) {
+  const fin = subscription?.trial_end
+  if (!fin) return null
+  const restant = Math.ceil((fin * 1000 - Date.now()) / 86400000)
+  return restant > 0 ? restant : null
 }
 
 async function handler(req, res) {
@@ -186,11 +176,18 @@ async function handler(req, res) {
                 usage: 'off_session',
                 metadata: { client_id, target_plan, billing_period },
               })).client_secret;
+            // La durée vient de l'abonnement DÉJÀ créé, pas d'un nouveau calcul :
+            // c'est lui qui porte l'essai, et c'est ce qu'il en reste que le
+            // marchand va réellement obtenir. Sans ce champ, l'écran n'annonce
+            // aucune durée — ce qui, sur un parcours venu d'une publicité
+            // promettant un mois, est presque aussi mauvais que d'en annoncer
+            // sept.
             return res.status(200).json({
               subscription_id: subscription.id,
               mode: 'setup',
               client_secret: clientSecret,
               requires_card_first: true,
+              trial_days: joursRestantsDEssai(subscription),
             });
           }
 
@@ -211,7 +208,6 @@ async function handler(req, res) {
     }
 
     // --- Trial eligibility (referral 30d > first-time 7d) ---
-    const hadTrial = !!client.trial_ends_at;
     const trialDays = joursEssaiPour(client);
 
     // Resolve the referrer's referral_code for webhook reward attribution.
@@ -265,15 +261,13 @@ async function handler(req, res) {
     // Persist the subscription id so future upgrades hit the instant-swap path.
     await supabaseAdmin.from('clients').update({ stripe_subscription_id: subscription.id }).eq('id', client_id);
 
-    // Consume the one-shot referral perk so it can't be reused.
-    if (client.referral_first_month_free) {
-      await supabaseAdmin.from('clients').update({ referral_first_month_free: false }).eq('id', client_id);
-    }
-    // Le mois offert par la campagne se consomme aussi : sinon un marchand
-    // qui résilie et se réabonne le réclamerait indéfiniment.
-    if (client.campaign_first_month_free) {
-      await supabaseAdmin.from('clients').update({ campaign_first_month_free: false }).eq('id', client_id);
-    }
+    // Pas de consommation anticipée ici non plus — même raison que dans
+    // api/billing/upgrade.js : un abonnement créé en `default_incomplete` peut
+    // très bien ne jamais être confirmé. Consommer le mois à cet instant, c'est
+    // le retirer à quelqu'un qui n'a rien obtenu.
+    //
+    // `trial_ends_at`, écrit par le webhook une fois l'abonnement confirmé,
+    // suffit à interdire un second essai.
 
     // --- Pick the secret the front confirms ---
     //   trial → pending_setup_intent (collect card for later, $0 now)
@@ -296,7 +290,20 @@ async function handler(req, res) {
       return res.status(200).json({ instant: true, subscription_id: subscription.id, message: `Plan ${target_plan} active.` });
     }
 
-    return res.status(200).json({ subscription_id: subscription.id, mode, client_secret: clientSecret });
+    // `trial_days` est renvoyé pour que l'écran de paiement ANNONCE la durée
+    // réellement accordée, au lieu de la deviner.
+    //
+    // Le 10 septembre, un marchand venu de la campagne obtenait bien ses trente
+    // jours côté Stripe, et lisait « Démarrer l'essai de 7 jours » : le modal
+    // retombait sur la valeur écrite en dur dans src/lib/plans.js, faute qu'on
+    // lui ait jamais dit le vrai chiffre. Pour une publicité qui promet un mois,
+    // afficher sept revient exactement au même que de n'en donner que sept.
+    return res.status(200).json({
+      subscription_id: subscription.id,
+      mode,
+      client_secret: clientSecret,
+      trial_days: trialDays ?? null,
+    });
   } catch (error) {
     console.error('create-subscription error:', error);
     return res.status(500).json({ error: 'Erreur interne. Reessayez ou contactez le support.' });

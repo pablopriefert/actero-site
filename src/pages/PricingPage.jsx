@@ -212,7 +212,7 @@ const comparisonCategories = [
         values: compVal(PLAN_ORDER, (p) => fmt(p.limits.workflows_active)),
       },
       {
-        label: "Membres d'equipe",
+        label: "Membres d'équipe",
         values: compVal(PLAN_ORDER, (p) => fmt(p.limits.team_members)),
       },
       {

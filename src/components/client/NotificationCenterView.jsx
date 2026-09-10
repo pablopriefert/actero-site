@@ -13,7 +13,7 @@ const HOURS = Array.from({ length: 17 }, (_, i) => i + 6)
 const CHANNELS = [
   { id: 'email', label: 'Email', icon: Mail, desc: 'Recevez les notifications par email' },
   { id: 'slack', label: 'Slack', icon: MessageSquare, desc: 'Alertes dans ton canal Slack' },
-  { id: 'push', label: 'Push navigateur', icon: Smartphone, desc: 'Notifications en temps reel' },
+  { id: 'push', label: 'Push navigateur', icon: Smartphone, desc: 'Notifications en temps réel' },
 ]
 
 const NOTIFICATION_TYPES = [

@@ -6,7 +6,7 @@ const PLAN_RECO = [
   { max: 50, plan: 'Free', price: '0', color: '#71717a', cta: 'Commencer gratuitement', href: '/signup' },
   { max: 1000, plan: 'Starter', price: '99', color: '#3b82f6', cta: 'Essai gratuit 7 jours', href: '/signup' },
   { max: 5000, plan: 'Pro', price: '399', color: '#13804A', cta: 'Essai gratuit 7 jours', href: '/signup' },
-  { max: Infinity, plan: 'Enterprise', price: 'Sur devis', color: '#f59e0b', cta: 'Contacter l\'equipe', href: 'mailto:contact@actero.fr' },
+  { max: Infinity, plan: 'Enterprise', price: 'Sur devis', color: '#f59e0b', cta: 'Contacter l\'équipe', href: 'mailto:contact@actero.fr' },
 ]
 
 function getRecommendedPlan(tickets) {

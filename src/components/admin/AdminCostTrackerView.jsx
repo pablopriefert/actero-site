@@ -227,7 +227,7 @@ export const AdminCostTrackerView = () => {
           {chartData.length === 0 ? (
             <EmptyState
               icon={DollarSign}
-              title="Pas encore de donnees"
+              title="Pas encore de données"
               description="Le chart se remplira des qu'il y aura des runs."
             />
           ) : (

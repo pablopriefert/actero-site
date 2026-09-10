@@ -22,7 +22,7 @@ export const ROLE_PERMISSIONS = {
   manager: '*',
   operational: [
     'overview', 'automation', 'activity', 'escalations', 'response-templates',
-    'systems', 'integrations', 'migrations', 'channels', 'email-agent', 'sentiment',
+    'systems', 'intégrations', 'migrations', 'channels', 'email-agent', 'sentiment',
     'insights', 'opportunities',
     'agent-control', 'agent-config', 'knowledge', 'guardrails', 'simulator',
   ],

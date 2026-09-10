@@ -24,8 +24,8 @@ const ESCALATION_REASONS = {
 }
 
 const SUBJECT_LABELS = {
-  autre: 'Demande generale',
-  general: 'Demande generale',
+  autre: 'Demande générale',
+  general: 'Demande générale',
   suivi_commande: 'Suivi de commande',
   order_tracking: 'Suivi de commande',
   retour_produit: 'Retour produit',
@@ -33,7 +33,7 @@ const SUBJECT_LABELS = {
   remboursement: 'Demande de remboursement',
   question_produit: 'Question sur un produit',
   product_info: 'Information produit',
-  reclamation: 'Reclamation client',
+  reclamation: 'Réclamation client',
   aggressive: 'Client mecontent',
   billing: 'Facturation',
   livraison: 'Livraison',
@@ -57,7 +57,7 @@ function formatSubject(conv) {
   if (label) return label
   // If it looks like a real subject, return it
   if (conv.subject.length > 3 && !conv.subject.match(/^[a-z_]+$/)) return conv.subject
-  return SUBJECT_LABELS[conv.subject] || 'Demande generale'
+  return SUBJECT_LABELS[conv.subject] || 'Demande générale'
 }
 
 const formatTimeAgo = (dateStr) => {
@@ -348,7 +348,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               </button>
             </div>
             <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl px-4 py-3 text-sm text-[#9ca3af] italic">
-              {conversation.ai_response || 'L\'IA n\'a pas pu repondre a ce message.'}
+              {conversation.ai_response || 'L\'IA n\'a pas pu répondre a ce message.'}
             </div>
           </div>
         </div>

@@ -254,7 +254,7 @@ export const AdminPartnersView = () => {
                 />
                 <input
                   type="text"
-                  placeholder="Type d'activite"
+                  placeholder="Type d'activité"
                   value={newPartner.activity_type}
                   onChange={(e) => setNewPartner(p => ({ ...p, activity_type: e.target.value }))}
                   className="px-3 py-2.5 bg-white border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"

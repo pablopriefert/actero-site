@@ -101,7 +101,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
       id: 'shopify',
       label: 'Connecter votre boutique (Shopify, WooCommerce ou Webflow)',
       icon: ShoppingBag,
-      tab: 'integrations',
+      tab: 'intégrations',
       done: completion.shopify,
     },
     {
@@ -129,7 +129,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
       id: 'email',
       label: 'Connecter votre email (agent email — optionnel)',
       icon: Mail,
-      tab: 'integrations',
+      tab: 'intégrations',
       done: completion.email,
     },
     {
