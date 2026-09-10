@@ -33,3 +33,38 @@ export async function getOrCreateStripeCustomer(stripe, supabase, { clientId, cu
   await supabase.from('clients').update({ stripe_customer_id: customer.id }).eq('id', clientId)
   return customer.id
 }
+
+/**
+ * Le moyen de paiement utilisable de ce client, ou `null` s'il n'y en a aucun.
+ *
+ * Trois endroits peuvent le porter, et il faut les trois : l'abonnement, les
+ * préférences de facturation du client, puis la liste de ses cartes. En
+ * regarder un seul répond « aucune carte » à quelqu'un qui en a une.
+ *
+ * Vit ici et non dans une route parce que DEUX choses en dépendent, et qu'elles
+ * doivent répondre pareil :
+ *   - api/billing/create-subscription.js  décide d'échanger le plan ou de
+ *                                         redemander une carte
+ *   - api/stripe-webhook.js               décide de ce que dit l'email de fin
+ *                                         d'essai, qui n'est pas le même selon
+ *                                         qu'une carte existe ou non
+ *
+ * @returns {Promise<string|null>} l'identifiant du moyen de paiement, ou null
+ */
+export async function resolveCustomerCard(stripe, subscription, customerId) {
+  const subDefault = subscription?.default_payment_method
+  if (subDefault) return typeof subDefault === 'string' ? subDefault : subDefault.id
+
+  try {
+    const customer = await stripe.customers.retrieve(customerId)
+    const invoiceDefault = customer?.invoice_settings?.default_payment_method
+    if (invoiceDefault) return typeof invoiceDefault === 'string' ? invoiceDefault : invoiceDefault.id
+  } catch { /* on tente la liste ci-dessous */ }
+
+  try {
+    const list = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
+    return list?.data?.[0]?.id || null
+  } catch {
+    return null
+  }
+}

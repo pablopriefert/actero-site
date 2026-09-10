@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/install.js';
 import { trackServerEvent } from './lib/amplitude.js';
 import { planUpdateFromSubscription } from './lib/subscription-plan.js';
+import { resolveCustomerCard } from './lib/stripe-customer.js';
 
 export const maxDuration = 60;
 
@@ -761,10 +762,31 @@ async function handler(req, res) {
             ? new Date(subscription.trial_end * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
             : 'bientôt';
 
+          // CE QUI SE PASSE À LA FIN DÉPEND D'UNE SEULE CHOSE : la carte.
+          //
+          // api/billing/create-subscription.js pose
+          // `trial_settings.end_behavior.missing_payment_method: 'cancel'`.
+          // Sans moyen de paiement, l'abonnement ne démarre donc PAS : il
+          // s'annule, et l'accès s'arrête.
+          //
+          // Cet email affirmait pourtant à tout le monde « aucune action n'est
+          // requise — votre abonnement démarrera automatiquement », et invitait
+          // à se rendre au tableau de bord « si vous souhaitez annuler ».
+          // Exactement l'inverse de ce qu'un marchand sans carte devait faire,
+          // envoyé trois jours avant qu'il perde son accès — et il n'apprenait
+          // le contraire qu'en le perdant.
+          //
+          // Le cas est fréquent sur le parcours de la campagne : l'écran de
+          // paiement s'ouvre, le marchand referme sans saisir sa carte, et
+          // l'abonnement d'essai reste là trente jours.
+          const carte = await resolveCustomerCard(stripe, subscription, subscription.customer);
+
           await resend.emails.send({
             from: process.env.RESEND_FROM_EMAIL || 'Actero <onboarding@resend.dev>',
             to: [email],
-            subject: 'Votre essai Actero se termine bientôt',
+            subject: carte
+              ? 'Votre essai Actero se termine bientôt'
+              : 'Votre essai Actero se termine — ajoutez une carte pour continuer',
             html: `<!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
@@ -779,6 +801,7 @@ async function handler(req, res) {
           <h1 style="font-size:24px;font-weight:700;color:#000;margin:0 0 20px 0;line-height:1.3;">
             Votre essai se termine le ${trialEnd}
           </h1>
+          ${carte ? `
           <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 16px 0;">
             Votre période d'essai gratuit Actero touche à sa fin. Pour continuer à bénéficier de vos agents IA et de toutes les fonctionnalités, aucune action n'est requise — votre abonnement démarrera automatiquement.
           </p>
@@ -786,6 +809,15 @@ async function handler(req, res) {
             Si vous souhaitez annuler, rendez-vous dans votre dashboard avant la fin de l'essai.
           </p>
           <a href="https://actero.fr/client/overview" style="display:inline-block;background-color:#0E653A;color:#fff;font-size:15px;font-weight:600;padding:12px 28px;border-radius:12px;text-decoration:none;">Accéder à mon dashboard</a>
+          ` : `
+          <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 16px 0;">
+            Votre période d'essai gratuit Actero touche à sa fin. <strong>Aucun moyen de paiement n'est enregistré sur votre compte</strong> : sans carte, votre abonnement ne démarrera pas et votre accès s'arrêtera à cette date.
+          </p>
+          <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 24px 0;">
+            Pour continuer sans interruption, ajoutez une carte depuis votre espace facturation. Vous restez libre d'annuler à tout moment.
+          </p>
+          <a href="https://actero.fr/client/billing" style="display:inline-block;background-color:#0E653A;color:#fff;font-size:15px;font-weight:600;padding:12px 28px;border-radius:12px;text-decoration:none;">Ajouter une carte</a>
+          `}
         </td></tr>
         <tr><td style="padding:20px 40px 40px 40px;">
           <p style="font-size:14px;color:#444;line-height:1.7;margin:0;">À très vite,</p>

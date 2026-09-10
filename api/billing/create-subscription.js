@@ -2,7 +2,7 @@ import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
-import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
+import { getOrCreateStripeCustomer, resolveCustomerCard } from '../lib/stripe-customer.js'
 import { joursEssaiPour } from '../lib/essai-gratuit.js';
 
 /**
@@ -36,29 +36,6 @@ const PRICES = {
 
 const PLAN_ORDER = ['free', 'starter', 'pro', 'enterprise'];
 
-/**
- * The card Stripe would actually charge for this subscription, or null.
- * Checks the subscription default, then the customer's invoice default, then
- * any card attached to the customer. Returns the id so the caller can pin it as
- * the subscription default in the same update it already makes.
- */
-async function resolveCustomerCard(stripe, subscription, customerId) {
-  const subDefault = subscription?.default_payment_method;
-  if (subDefault) return typeof subDefault === 'string' ? subDefault : subDefault.id;
-
-  try {
-    const customer = await stripe.customers.retrieve(customerId);
-    const invoiceDefault = customer?.invoice_settings?.default_payment_method;
-    if (invoiceDefault) return typeof invoiceDefault === 'string' ? invoiceDefault : invoiceDefault.id;
-  } catch { /* fall through */ }
-
-  try {
-    const list = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 });
-    return list?.data?.[0]?.id || null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Combien de jours d'essai il reste sur un abonnement Stripe existant.

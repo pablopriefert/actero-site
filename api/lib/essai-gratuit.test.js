@@ -300,4 +300,34 @@ describe('durée de l\'essai gratuit', () => {
     const src = readFileSync('api/stripe-webhook.js', 'utf8')
     expect(src, 'plus personne n\'écoute la fin d\'essai').toMatch(/customer\.subscription\.trial_will_end/)
   })
+
+  it('l\'email de fin d\'essai ne promet pas un renouvellement qui n\'aura pas lieu', () => {
+    // Ce que devient l'abonnement à la fin dépend d'UNE chose : la carte.
+    // create-subscription.js pose `missing_payment_method: 'cancel'`, donc sans
+    // moyen de paiement l'abonnement ne démarre pas — il s'annule.
+    //
+    // L'email affirmait pourtant à tout le monde « aucune action n'est requise,
+    // votre abonnement démarrera automatiquement », et proposait d'aller au
+    // tableau de bord « si vous souhaitez annuler ». Pour un marchand sans
+    // carte, c'était l'inverse exact de ce qu'il devait faire — envoyé trois
+    // jours avant qu'il perde son accès.
+    //
+    // Le cas est courant sur le parcours de la campagne : l'écran de paiement
+    // s'ouvre, le marchand le referme sans saisir sa carte, et l'abonnement
+    // d'essai reste là un mois.
+    const webhook = sansCommentaires(readFileSync('api/stripe-webhook.js', 'utf8'))
+    const bloc = webhook.slice(webhook.indexOf('trial_will_end'))
+
+    expect(bloc, 'le webhook ne regarde pas si une carte est enregistrée')
+      .toMatch(/resolveCustomerCard\(/)
+    expect(bloc, 'aucune version de l\'email ne s\'adresse au marchand sans carte')
+      .toMatch(/Ajouter une carte/)
+
+    // La prémisse. Si `end_behavior` disparaissait, l'abonnement se
+    // poursuivrait sans carte et c'est ce test qu'il faudrait revoir — pas
+    // l'email, qui deviendrait alors juste pour tout le monde.
+    const route = sansCommentaires(readFileSync('api/billing/create-subscription.js', 'utf8'))
+    expect(route, 'l\'email suppose qu\'un essai sans carte s\'annule : ce n\'est plus le cas')
+      .toMatch(/missing_payment_method:\s*'cancel'/)
+  })
 })
