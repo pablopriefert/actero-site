@@ -24,6 +24,10 @@ Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, t
 
 À la fin de l'essai (7 jours par défaut), tu repasses automatiquement en plan Free si tu n'as pas saisi de moyen de paiement.
 
+<Note>
+L'essai gratuit est accordé **une seule fois par compte**. La durée est la même quel que soit le chemin d'abonnement (carte de plan, checkout, upgrade). Résilier puis te réabonner ne redémarre pas d'essai : ton abonnement est alors facturé immédiatement.
+</Note>
+
 ## Section 2 — Consommation du mois
 
 Deux barres de progression :
@@ -62,7 +66,7 @@ L'annuel donne **-20 %** sur le prix affiché. Tu paies une fois pour l'année, 
     Clique sur le bouton de la carte (ex : "Passer au Pro — Essai 7j gratuit").
   </Step>
   <Step title="Tu es redirigé vers Stripe Checkout">
-    Saisis ta carte. Si c'est ton premier paiement Actero, l'essai de 7 jours démarre.
+    Saisis ta carte. Si tu n'as jamais eu d'essai Actero, l'essai de 7 jours démarre.
   </Step>
   <Step title="Retour automatique au dashboard">
     Ton plan est mis à jour, tu débloques immédiatement les nouvelles features.
@@ -107,6 +111,9 @@ Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
 ## FAQ
 
 <AccordionGroup>
+  <Accordion title="Puis-je avoir un second essai gratuit ?">
+    Non. L'essai (7 jours, ou 30 jours via parrainage) est accordé une seule fois par compte. Si tu résilies puis te réabonnes, l'abonnement est facturé dès la souscription, sans nouvelle période d'essai.
+  </Accordion>
   <Accordion title="Comment annuler mon abonnement ?">
     Va dans **Gérer mon abonnement** → portail Stripe → Annuler. L'annulation prend effet à la fin du cycle en cours, tu gardes l'accès jusque-là. Aucun remboursement automatique.
   </Accordion>
