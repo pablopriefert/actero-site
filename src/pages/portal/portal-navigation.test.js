@@ -28,7 +28,7 @@ const LAYOUT = readFileSync('src/pages/portal/PortalLayout.jsx', 'utf8')
 describe('navigation du portail après connexion', () => {
   it('la connexion réussie provoque une navigation complète, pas interne', () => {
     // La ligne fautive était : if (r.ok) { setState('ok'); navigate('/portal/tickets') }
-    const brut = VERIFY.match(/if \(r\.ok\) \{[\s\S]*?\n      \}/)?.[0] || ''
+    const brut = VERIFY.match(/if \(r\.ok\) \{[\s\S]*?\n {6}\}/)?.[0] || ''
     expect(brut, 'bloc de succès de la vérification introuvable').toBeTruthy()
     // Les commentaires sont retirés avant l'analyse : celui qui explique ce
     // correctif cite `navigate()` pour dire de ne pas s'en servir, et faisait

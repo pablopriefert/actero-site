@@ -196,4 +196,4 @@ export function KpiRow({ children, className }) {
 }
 
 // Référence tokens pour éviter un warning d'import inutilisé si tree-shake désactivé.
-// eslint-disable-next-line react-refresh/only-export-components
+ 

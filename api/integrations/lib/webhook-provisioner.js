@@ -26,7 +26,7 @@
  * secret global partagé entre tous les clients.
  */
 import crypto from 'crypto'
-import { decryptToken } from '../../lib/crypto.js'
+import { decryptToken, encryptToken } from '../../lib/crypto.js'
 
 const ACTERO_BASE_URL = process.env.PUBLIC_SITE_URL || 'https://actero.fr'
 

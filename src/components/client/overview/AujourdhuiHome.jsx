@@ -198,7 +198,7 @@ export function AujourdhuiHome({ clientId, planName, setActiveTab }) {
           <h1 className={styles.etat}>
             {regles.length === 0
               ? <>conversation réglée cette nuit. L’agent n’a rien eu à traiter.</>
-              : <>conversation{règles.length > 1 ? 's' : ''} réglée{règles.length > 1 ? 's' : ''} cette nuit, pendant que vous dormiez.{' '}</>}
+              : <>conversation{regles.length > 1 ? 's' : ''} réglée{regles.length > 1 ? 's' : ''} cette nuit, pendant que vous dormiez.{' '}</>}
             {nEsc > 0 && (
               <>
                 <b>{enMots} client{nEsc > 1 ? 's' : ''}</b> attend{nEsc > 1 ? 'ent' : ''} votre décision.
@@ -250,14 +250,14 @@ export function AujourdhuiHome({ clientId, planName, setActiveTab }) {
           </p>
 
           <table className={styles['sr-only']}>
-            <caption>{règles.length} conversations réglées depuis 20 h.</caption>
+            <caption>{regles.length} conversations réglées depuis 20 h.</caption>
             <thead><tr><th scope="col">Heure</th><th scope="col">Conversations réglées</th></tr></thead>
             <tbody>
               {bandes.map((b, i) => (
                 <tr key={i}><th scope="row">{String(b.h).padStart(2, '0')} h</th><td>{b.n}</td></tr>
               ))}
             </tbody>
-            <tfoot><tr><th scope="row">Total</th><td>{règles.length}</td></tr></tfoot>
+            <tfoot><tr><th scope="row">Total</th><td>{regles.length}</td></tr></tfoot>
           </table>
         </section>
         )}

@@ -53,6 +53,23 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
+      # ESLint était installé, configuré, déclaré dans package.json — et rien
+      # ne le lançait. Le 10 septembre il trouvait 23 problèmes dont DEUX
+      # plantages certains en production :
+      #
+      #   `encryptToken is not defined`  api/integrations/lib/webhook-provisioner.js
+      #   `règles is not defined`        AujourdhuiHome.jsx, sur le chemin normal
+      #
+      # Le second venait d'un remplacement d'accents qui avait renommé un
+      # identifiant à ses usages mais pas à sa déclaration. Le build passait :
+      # un identifiant accentué est du JavaScript valide, et les tests
+      # n'atteignaient pas cette branche.
+      #
+      # Ni les tests ni le build ne voient ça. Le linter, si — depuis des
+      # semaines, sans que personne ne le lui demande.
+      - name: Lint
+        run: npm run lint
+
       - name: Tests
         run: npm test
 

@@ -131,12 +131,12 @@ export const PlanSelectionPage = ({ onNavigate }) => {
   // Une date, pas une durée. « 30 jours » se discute, « le 10 octobre » se
   // vérifie sur un calendrier — c'est la formulation qui rassure vraiment
   // quelqu'un qui hésite à donner sa carte.
-  const dateFacturation = useMemo(() => {
+  const [dateFacturation] = useState(() => {
     const jours = moisOffert ? 30 : 7;
     return new Date(Date.now() + jours * 86400000).toLocaleDateString("fr-FR", {
       day: "numeric", month: "long", year: "numeric",
     });
-  }, [moisOffert]);
+  });
 
   // Apply Startup discount (-50% first 6 months) for display
   const applyStartupDiscount = (monthlyPrice) => {

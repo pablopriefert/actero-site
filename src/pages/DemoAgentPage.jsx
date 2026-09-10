@@ -79,9 +79,13 @@ export const DemoAgentPage = ({ onNavigate }) => {
   const [enCours, setEnCours] = useState(false)
   const finRef = useRef(null)
   const champRef = useRef(null)
-  const sessionRef = useRef(
-    `demo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+  // Initialisation PARESSEUSE. `useRef(expr)` évalue `expr` à chaque rendu même
+  // s'il n'en garde que la première valeur : l'identifiant était donc recalculé
+  // — horloge et aléa compris — à chaque frappe dans le champ, pour rien.
+  const [sessionId] = useState(
+    () => `demo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
   )
+  const sessionRef = useRef(sessionId)
 
   useEffect(() => {
     finRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })

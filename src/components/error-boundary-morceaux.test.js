@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { estMorceauPerime, rechargerPourMorceauPerime } from './ErrorBoundary.jsx'
+import { estMorceauPerime, rechargerPourMorceauPerime } from './error-boundary-morceaux.js'
 
 /**
  * Le morceau de code périmé après un déploiement.

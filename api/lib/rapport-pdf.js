@@ -44,7 +44,7 @@ export function sansCaracteresExotiques(texte) {
     .replace(/[“”]/g, '"')
     .replace(/[–—]/g, '-')
     .replace(/…/g, '...')
-    .replace(/ | | /g, ' ')
+    .replace(/\u00a0|\u202f|\u2009/g, ' ')  // insécables et fines : illisibles en source
     // Tout le reste hors Latin-1 imprimable disparaît (flèches, emoji…).
     .replace(/[^\x20-\x7E¡-ÿ]/g, '')
 }
