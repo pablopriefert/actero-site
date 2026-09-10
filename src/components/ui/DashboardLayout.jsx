@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
-import { tokens } from '../../lib/design-tokens';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -114,4 +113,3 @@ export function DashboardLayout({
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const __DASHBOARD_LAYOUT_TOKENS__ = tokens;

@@ -38,7 +38,7 @@ export default function PortalVerifyPage({ navigate }) {
     verifying: {
       Icon: Loader2,
       iconClass: 'text-[#1F3A12] animate-spin',
-      tint: 'bg-[#E8F5EC] ring-[#A8C490]',
+      tint: 'bg-primary-tint ring-[#A8C490]',
       title: 'Connexion en cours…',
       description: applyTone(
         'On vérifie ton lien magique. Ça ne prend qu\'un instant.',

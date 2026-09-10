@@ -152,7 +152,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
         </div>
         <div className="max-w-lg mx-auto py-8">
           <div className="bg-white rounded-2xl border border-[#f0f0f0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-10 text-center">
-            <div className="w-16 h-16 rounded-full bg-[#E8F5EC] border border-[#A8C490] flex items-center justify-center mx-auto mb-5">
+            <div className="w-16 h-16 rounded-full bg-primary-tint border border-[#A8C490] flex items-center justify-center mx-auto mb-5">
               <MonitorSmartphone className="w-7 h-7 text-[#1F3A12]" />
             </div>
             <h3 className="text-[20px] font-semibold text-[#1a1a1a] mb-2">
@@ -226,7 +226,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-[#1F3A12] bg-[#E8F5EC] border border-[#A8C490] hover:bg-[#d4edda] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-[#1F3A12] bg-primary-tint border border-[#A8C490] hover:bg-[#d4edda] transition-colors"
               >
                 <ExternalLink className="w-3 h-3" />
                 Voir le portail
@@ -263,7 +263,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
 
         {/* Green confirmation */}
         {justEnabled && portalEnabled && (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#E8F5EC] border border-[#A8C490] text-[13px] text-[#1F3A12] font-medium">
+          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-primary-tint border border-[#A8C490] text-[13px] text-[#1F3A12] font-medium">
             <CheckCheck className="w-4 h-4" />
             Portail activé ! Vos clients peuvent maintenant y accéder.
           </div>
@@ -530,7 +530,7 @@ function CustomDomainSection({ clientRow, clientId, canCustomize, supabase, quer
           )}
 
           {/* DNS instructions */}
-          <div className="mt-2 rounded-xl bg-[#F4F5F7] border border-[#E3E6EA] px-4 py-3.5">
+          <div className="mt-2 rounded-xl bg-cream border border-[#E3E6EA] px-4 py-3.5">
             <p className="text-[12px] font-semibold text-[#1A1A1A] mb-1.5">Configuration DNS requise</p>
             <p className="text-[11px] text-[#5A5A5A] leading-relaxed mb-2">
               Chez votre registrar (Gandi, OVH, Cloudflare…), créez un enregistrement CNAME :

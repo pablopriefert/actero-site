@@ -31,7 +31,7 @@ function Spotlight({ eyebrow, badge, Icon, title, titleAccent, desc, features, m
         {/* Texte */}
         <FadeInUp className={reversed ? 'md:order-2' : ''}>
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-[#E8F5EC] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary-tint flex items-center justify-center">
               <Icon className="w-5 h-5 text-[#003725]" strokeWidth={1.9} />
             </div>
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-cta">{eyebrow}</p>
@@ -51,7 +51,7 @@ function Spotlight({ eyebrow, badge, Icon, title, titleAccent, desc, features, m
           <ul className="space-y-3.5 mb-8">
             {features.map((f, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="mt-0.5 w-5 h-5 rounded-full bg-[#E8F5EC] flex items-center justify-center flex-shrink-0">
+                <span className="mt-0.5 w-5 h-5 rounded-full bg-primary-tint flex items-center justify-center flex-shrink-0">
                   <Check className="w-3 h-3 text-cta" strokeWidth={3} />
                 </span>
                 <span className="text-[15px] text-[#3A3A3A] leading-[1.5]">{f}</span>
@@ -115,7 +115,7 @@ function SavMedia() {
             </div>
           </div>
         </div>
-        <span className="text-[11px] font-bold text-cta bg-[#E8F5EC] px-2.5 py-1 rounded-full">
+        <span className="text-[11px] font-bold text-cta bg-primary-tint px-2.5 py-1 rounded-full">
           Résolu · 8s
         </span>
       </div>
@@ -128,7 +128,7 @@ function SavMedia() {
           </div>
         </div>
         <div className="flex items-end gap-2">
-          <div className="w-6 h-6 rounded-lg bg-[#E8F5EC] flex items-center justify-center flex-shrink-0">
+          <div className="w-6 h-6 rounded-lg bg-primary-tint flex items-center justify-center flex-shrink-0">
             <Logo className="w-3 h-3 text-[#003725]" />
           </div>
           <div className="max-w-[82%] bg-cta text-white text-[13.5px] leading-[1.55] rounded-2xl rounded-bl-md px-4 py-2.5">
@@ -144,7 +144,7 @@ function SavMedia() {
         {channels.map((c) => (
           <span
             key={c}
-            className="text-[11.5px] font-semibold text-[#3A3A3A] bg-[#F4F5F7] border border-[#EDEFF2] px-2.5 py-1 rounded-full"
+            className="text-[11.5px] font-semibold text-[#3A3A3A] bg-cream border border-[#EDEFF2] px-2.5 py-1 rounded-full"
           >
             {c}
           </span>
@@ -188,7 +188,7 @@ function CartMedia() {
       {/* Agent-composed message */}
       <div className="bg-[#FBFAF7] px-5 py-5">
         <div className="flex items-center gap-2 mb-2.5">
-          <div className="w-6 h-6 rounded-lg bg-[#E8F5EC] flex items-center justify-center">
+          <div className="w-6 h-6 rounded-lg bg-primary-tint flex items-center justify-center">
             <Logo className="w-3 h-3 text-[#003725]" />
           </div>
           <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-cta">
@@ -204,7 +204,7 @@ function CartMedia() {
             Finaliser ma commande
             <ArrowRight className="w-3 h-3" />
           </span>
-          <span className="inline-flex items-center gap-1 text-[12px] font-bold text-cta bg-[#E8F5EC] px-2.5 py-1.5 rounded-full">
+          <span className="inline-flex items-center gap-1 text-[12px] font-bold text-cta bg-primary-tint px-2.5 py-1.5 rounded-full">
             <Tag className="w-3 h-3" strokeWidth={2.4} />
             −10 %
           </span>

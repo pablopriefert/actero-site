@@ -217,7 +217,7 @@ export const CompanyPage = ({ onNavigate }) => {
               {values.map((v, i) => (
                 <FadeInUp key={i}>
                   <div className="bg-white rounded-[20px] p-7 border border-black/[0.05] h-full">
-                    <div className="w-11 h-11 rounded-[12px] bg-[#F4F5F7] border border-[#E3E6EA] flex items-center justify-center mb-4">
+                    <div className="w-11 h-11 rounded-[12px] bg-cream border border-[#E3E6EA] flex items-center justify-center mb-4">
                       <v.icon className="w-5 h-5 text-cta" strokeWidth={2} />
                     </div>
                     <h3 className="text-[17px] font-bold text-[#1A1A1A] mb-2 leading-[1.25]">
@@ -333,7 +333,7 @@ export const CompanyPage = ({ onNavigate }) => {
               <div className="flex flex-wrap gap-3.5 justify-center mb-6">
                 <button
                   onClick={() => onNavigate('/signup')}
-                  className="inline-flex items-center gap-2 bg-[#F4F5F7] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
+                  className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                 >
                   Démarrer gratuitement <ArrowRight className="w-3.5 h-3.5" />
                 </button>

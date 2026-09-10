@@ -117,7 +117,7 @@ export function ReasoningDrawer({ open, onClose, conversationId }) {
               </div>
               <button
                 onClick={onClose}
-                className="flex-shrink-0 w-8 h-8 rounded-full bg-surface hover:bg-[#F4F5F7] flex items-center justify-center text-[#716D5C] transition-colors"
+                className="flex-shrink-0 w-8 h-8 rounded-full bg-surface hover:bg-cream flex items-center justify-center text-[#716D5C] transition-colors"
                 aria-label="Fermer"
               >
                 <X className="w-4 h-4" />

@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useSpring, useTransform, animate, useInView, motion } from 'framer-motion';
-import { tokens } from '../../lib/design-tokens';
 
 /**
  * Helper minimaliste pour concaténer des classes.
@@ -11,7 +10,7 @@ import { tokens } from '../../lib/design-tokens';
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
 /**
- * Mapping variantes -> classes Tailwind s'appuyant sur les tokens design-tokens.js.
+ * Mapping variantes -> classes Tailwind.
  * - brand    -> tokens.colors.brand.primary (#13804A)
  * - success  -> tokens.colors.semantic.success (#10b981)
  * - warning  -> tokens.colors.semantic.warning (#f59e0b)
@@ -198,4 +197,3 @@ export function KpiRow({ children, className }) {
 
 // Référence tokens pour éviter un warning d'import inutilisé si tree-shake désactivé.
 // eslint-disable-next-line react-refresh/only-export-components
-export const __KPI_CARD_TOKENS__ = tokens;

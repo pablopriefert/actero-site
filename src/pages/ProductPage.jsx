@@ -194,7 +194,7 @@ export const ProductPage = ({ onNavigate }) => {
               {channels.map((ch, i) => (
                 <FadeInUp key={i}>
                   <div className="bg-white rounded-[18px] p-6 border border-black/[0.06] hover:border-cta/25 hover:shadow-[0_10px_30px_-15px_rgba(0,55,37,0.1)] transition-all h-full">
-                    <div className="w-11 h-11 rounded-[12px] bg-[#F4F5F7] border border-[#E3E6EA] flex items-center justify-center mb-4">
+                    <div className="w-11 h-11 rounded-[12px] bg-cream border border-[#E3E6EA] flex items-center justify-center mb-4">
                       <ch.icon className="w-5 h-5 text-cta" strokeWidth={2} />
                     </div>
                     <h3 className="text-[17px] font-bold text-[#1A1A1A] mb-1.5">{ch.label}</h3>
@@ -233,7 +233,7 @@ export const ProductPage = ({ onNavigate }) => {
                   <FadeInUp key={i} delay={i * 0.05}>
                     <div className="relative h-full bg-white rounded-[20px] p-6 md:p-7 border border-black/[0.06] hover:border-cta/25 hover:shadow-[0_10px_30px_-15px_rgba(0,55,37,0.1)] transition-all">
                       <div className="flex items-start gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-[14px] bg-[#F4F5F7] border border-[#E3E6EA] flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 rounded-[14px] bg-cream border border-[#E3E6EA] flex items-center justify-center flex-shrink-0">
                           <Icon className="w-5 h-5 text-cta" strokeWidth={2} />
                         </div>
                         <div className="min-w-0">
@@ -241,7 +241,7 @@ export const ProductPage = ({ onNavigate }) => {
                             <span className="font-mono text-[11px] font-semibold text-[#9ca3af]">
                               {s.step}
                             </span>
-                            <span className="text-[10px] font-bold text-cta bg-[#E8F5EC] px-2 py-0.5 rounded-full uppercase tracking-[0.12em]">
+                            <span className="text-[10px] font-bold text-cta bg-primary-tint px-2 py-0.5 rounded-full uppercase tracking-[0.12em]">
                               {s.phase}
                             </span>
                           </div>
@@ -374,7 +374,7 @@ export const ProductPage = ({ onNavigate }) => {
               <div className="flex flex-wrap gap-3.5 justify-center mb-6">
                 <button
                   onClick={() => onNavigate('/signup')}
-                  className="inline-flex items-center gap-2 bg-[#F4F5F7] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
+                  className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                 >
                   Démarrer gratuitement <ArrowRight className="w-3.5 h-3.5" />
                 </button>

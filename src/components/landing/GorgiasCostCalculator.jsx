@@ -140,7 +140,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             step="100"
             value={tickets}
             onChange={(e) => setTickets(parseInt(e.target.value, 10))}
-            className="w-full h-2 rounded-full bg-[#F4F5F7] appearance-none cursor-pointer accent-[#003725]"
+            className="w-full h-2 rounded-full bg-cream appearance-none cursor-pointer accent-[#003725]"
           />
           <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-1.5">
             <span>100</span>
@@ -163,7 +163,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             step="5"
             value={aiPercent}
             onChange={(e) => setAiPercent(parseInt(e.target.value, 10))}
-            className="w-full h-2 rounded-full bg-[#F4F5F7] appearance-none cursor-pointer accent-[#003725]"
+            className="w-full h-2 rounded-full bg-cream appearance-none cursor-pointer accent-[#003725]"
           />
           <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-1.5">
             <span>0%</span>

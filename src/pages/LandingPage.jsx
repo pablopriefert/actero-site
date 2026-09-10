@@ -282,7 +282,7 @@ export const LandingPage = ({ onNavigate }) => {
                 <div className="flex flex-wrap gap-3.5 justify-center mb-6">
                   <motion.button
                     onClick={() => onNavigate('/signup')}
-                    className="inline-flex items-center gap-2 bg-[#F4F5F7] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors group"
+                    className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors group"
                     whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
                     whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}

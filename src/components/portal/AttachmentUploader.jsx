@@ -155,7 +155,7 @@ export default function AttachmentUploader({ onChange }) {
         className={`w-full flex flex-col items-center justify-center gap-2 px-4 py-6 rounded-xl border-2 border-dashed transition-colors ${
           isDragging
             ? 'border-[color:var(--portal-primary,#1F3A12)] bg-[#EAE3D1]'
-            : 'border-[#C9BFA6] bg-[#F4F5F7] hover:border-[color:var(--portal-primary,#1F3A12)] hover:bg-[#EEE7D4]'
+            : 'border-[#C9BFA6] bg-cream hover:border-[color:var(--portal-primary,#1F3A12)] hover:bg-[#EEE7D4]'
         } ${!canAdd ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         <Paperclip className="w-6 h-6" style={{ color: primary }} aria-hidden="true" />
@@ -183,7 +183,7 @@ export default function AttachmentUploader({ onChange }) {
         <ul className="flex flex-wrap gap-2" aria-label="Images à envoyer">
           {items.map(item => (
             <li key={item.id} className="relative">
-              <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#C9BFA6] bg-[#F4F5F7]">
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#C9BFA6] bg-cream">
                 <img
                   src={item.preview}
                   alt={item.name}

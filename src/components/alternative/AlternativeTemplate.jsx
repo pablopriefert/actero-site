@@ -387,7 +387,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                       trackEvent('Alternative_Bottom_CTA_Clicked', { competitor: data.competitorKey })
                       onNavigate('/signup')
                     }}
-                    className="inline-flex items-center gap-2 bg-[#F4F5F7] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
+                    className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                   >
                     Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
                   </button>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { tokens } from '../../lib/design-tokens';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -144,4 +143,3 @@ export function EmptyStateInline({ icon: Icon, title, description, action, tone 
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const __EMPTY_STATE_TOKENS__ = tokens;

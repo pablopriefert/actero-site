@@ -1062,7 +1062,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               >
                 <Search className="w-3.5 h-3.5" />
                 <span>Rechercher</span>
-                <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-[#F4F5F7] rounded border border-[#E5E5E0]">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+                <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-cream rounded border border-[#E5E5E0]">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
               </button>
 
               {/* First-visit onboarding hint — localStorage gated, one-shot */}
