@@ -134,13 +134,31 @@ Le marchand voit ses escalades sur `actero.fr/client/escalations`.
 
 ### Ce que le système ne fait pas
 
-**Il n'appelle personne.** Il n'y a pas de délai de réponse contractuel, pas de rotation d'astreinte, pas de règle écrite disant sous combien de temps un humain reprend la main.
+**Il n'appelle personne.** Aucune notification automatique ne remplace un humain qui reprend la main : le délai ci-dessous est tenu par une personne, pas par le code.
 
-> **Décision à prendre par Pablo, elle n'est pas dans le code.** Sous combien de temps s'engage-t-on à traiter une escalade ? Qui, en dehors des heures ouvrées ? Et que dit-on au marchand quand on n'a pas tenu ?
->
-> Tant que ce n'est pas décidé, ce runbook ne peut pas répondre à la question du ticket ACT-13.
+### L'engagement — décidé le 10 septembre 2026
 
-### En attendant, la règle de bon sens
+**Un humain reprend la main sous 2 heures ouvrées. Le week-end et les jours fériés, sous 24 heures.**
+
+Heures ouvrées : du lundi au vendredi, 9 h – 19 h, heure de Paris.
+
+Ce délai a été choisi parce qu'il est **tenable à deux sans astreinte**. Les
+options écartées, et pourquoi :
+
+| | |
+| --- | --- |
+| 4 h ouvrées | Tenable, mais ne rassure pas un marchand dont le SAV est à l'arrêt. |
+| **2 h ouvrées / 24 h le week-end** | **Retenu.** Crédible en rendez-vous, tenable tant que l'un des deux regarde ses emails dans la journée. |
+| 1 h, 7j/7 | Ce que promettent les gros. Impossible à deux sans astreinte — et un délai affiché qu'on rate une fois vaut moins qu'un délai modeste tenu. |
+
+**Quand on ne tient pas**, on le dit avant l'échéance, pas après : un message
+qui annonce le retard et donne une nouvelle heure vaut infiniment mieux qu'un
+silence suivi d'une excuse. C'est la seule règle non négociable de cette
+section.
+
+À revoir le jour où il y a une astreinte, ou plus de dix marchands actifs.
+
+### La priorité dans les 2 heures
 
 | Situation | Délai visé |
 |---|---|
