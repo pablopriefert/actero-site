@@ -30,7 +30,7 @@ Ces couches sont assemblées dans un seul **prompt système** envoyé à Claude 
 
 ## Le cycle de vie d'un ticket
 
-Voici ce qui se passe quand un client envoie "Bonjour, où est ma commande #1042 ?" via ton widget de chat. Ce cycle complet s'applique aux canaux **widget** et **email**. Gorgias et Zendesk suivent un traitement simplifié, détaillé dans [Couverture par canal](#couverture-par-canal).
+Voici ce qui se passe quand un client envoie "Bonjour, où est ma commande #1042 ?" via ton widget de chat. Ce cycle complet s'applique aux quatre canaux de messages : **widget**, **email**, **Gorgias** et **Zendesk**. Seul le canal vocal fonctionne différemment, voir [Couverture par canal](#couverture-par-canal).
 
 <Steps>
   <Step title="Réception & normalisation">
@@ -87,22 +87,15 @@ Voici ce qui se passe quand un client envoie "Bonjour, où est ma commande #1042
 
 ## Couverture par canal
 
-Tous les canaux ne passent pas par le cycle complet ci-dessus :
+Les quatre canaux de messages passent par le cycle complet ci-dessus : classification, sous-agents spécialisés, guardrails, escalade.
 
 | Canal | Traitement |
 |---|---|
-| **Widget de chat** | Cycle complet : classification, sous-agents spécialisés, mémoire client |
+| **Widget de chat** | Cycle complet |
 | **Email** (Gmail, SMTP/IMAP) | Cycle complet |
-| **Gorgias** | Traitement simplifié (voir ci-dessous) |
-| **Zendesk** | Traitement simplifié |
+| **Gorgias** | Cycle complet. La réponse est postée directement dans le ticket Gorgias. |
+| **Zendesk** | Cycle complet. La réponse est postée directement dans le ticket Zendesk. |
 | **Vocal** (ElevenLabs) | La conversation est gérée en direct par ElevenLabs. Actero journalise l'appel après coup dans **Activité**. |
-
-Sur **Gorgias** et **Zendesk**, l'agent traite le ticket en un seul appel : il lit le message, récupère la commande Shopify si le message en mentionne une, et génère la réponse directement. Il n'y a ni étape de classification séparée, ni routage vers un sous-agent spécialisé, ni mémoire client (Actero Memory).
-
-Tes protections restent actives sur ces deux canaux :
-
-- Ton prompt système (identité, ton, base de connaissances, guardrails) s'applique à chaque réponse.
-- La conversation est escaladée si la confiance est insuffisante, si le sentiment est très négatif, si une injection est détectée, ou si l'agent le décide.
 
 ## Quand l'agent escalade
 
