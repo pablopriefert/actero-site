@@ -9,6 +9,8 @@ import { raiseEscalation } from './lib/raise-escalation.js'
 import { doitEtreReservee, reserverAction, cloturerAction } from './lib/action-claim.js'
 import { lookupOrder } from './lib/shopify-client.js'
 import { fetchOverdueInvoices, fetchTreasuryBalance } from './connectors/accounting.js'
+import { sendViaGorgias } from './connectors/gorgias.js'
+import { sendViaZendesk } from './connectors/zendesk.js'
 import { decryptToken } from '../lib/crypto.js'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
@@ -78,6 +80,27 @@ export async function runExecutor(supabase, { event, playbook: _playbook, client
         case 'send_reply':
         case 'send_email':
           if (aiResponse && normalized.customer_email && !normalized.customer_email.includes('@anonymous.actero.fr')) {
+            // Gorgias / Zendesk : la reponse doit atterrir DANS le ticket du
+            // fournisseur (c'est tout l'interet d'un connecteur helpdesk),
+            // pas partir en email brut a cote via SMTP/Resend. On reutilise
+            // les connecteurs deja ecrits pour l'ancien pipeline V1
+            // (api/engine/connectors/{gorgias,zendesk}.js, jusqu'ici
+            // uniquement branches sur respond.js) plutot que de laisser
+            // tomber dans le chemin email generique ci-dessous.
+            if ((normalized.channel === 'ticket_gorgias' || normalized.channel === 'ticket_zendesk') && normalized.ticket_id) {
+              const sendViaTicket = normalized.channel === 'ticket_gorgias' ? sendViaGorgias : sendViaZendesk
+              const ticketResult = await sendViaTicket(supabase, {
+                clientId,
+                ticketId: normalized.ticket_id,
+                response: aiResponse,
+                customerEmail: normalized.customer_email,
+                brandName,
+              })
+              if (!ticketResult.success) throw new Error(ticketResult.error || 'Envoi vers le ticket echoue')
+              stepResult.result = { ticket_reply_sent: true, via: normalized.channel, ticket_id: normalized.ticket_id }
+              break
+            }
+
             const subject = normalized.subject ? `Re: ${escapeHtml(normalized.subject)}` : `${escapeHtml(brandName)} — Reponse a votre demande`
             const safeBody = escapeHtml(aiResponse).replace(/\n/g, '<br/>')
             const safeName = escapeHtml(normalized.customer_name)
