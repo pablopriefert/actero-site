@@ -81,6 +81,39 @@ Pour passer à un plan inférieur, ouvre le portail Stripe via **Gérer mon abon
 
 Le bouton "Contacter l'équipe" ouvre une page de prise de RDV. On te répond sous 24 h pour calibrer un devis (multi-boutique, white-label, SLA, account manager).
 
+## Rétention d'historique
+
+Chaque plan conserve une fenêtre d'historique visible dans le dashboard (conversations et fil d'activité) :
+
+| Plan | Historique visible |
+|---|---|
+| Free | 7 jours |
+| Starter | 90 jours |
+| Pro | Illimité |
+| Entreprise | Illimité |
+
+La limite est appliquée au niveau du compte, pas seulement à l'affichage : les éléments plus anciens que la fenêtre de ton plan n'apparaissent ni dans l'onglet **Activité**, ni dans tes conversations.
+
+Trois choses à savoir :
+
+- **Rien n'est supprimé.** Les données restent stockées. Si tu passes au plan supérieur, ton historique complet réapparaît immédiatement.
+- **Une bannière te prévient.** Quand des éléments sont masqués, le dashboard affiche leur nombre et la date de début de ta fenêtre (ex : "114 éléments plus anciens sont masqués"), avec un bouton d'upgrade.
+- **Pendant l'essai, tout est visible.** La limite ne s'applique qu'à la fin de ta période d'essai.
+
+<Note>
+L'[Export RGPD](/essentials/export-rgpd) n'est pas concerné : il inclut toujours l'intégralité de tes données, quel que soit ton plan.
+</Note>
+
+## Rapport mensuel
+
+Chaque début de mois, Actero t'envoie par email un récapitulatif de l'activité de ton agent (tickets traités, résolution auto, temps économisé).
+
+- **Tous les plans** reçoivent le rapport au format HTML dans l'email.
+- **Pro et Entreprise** reçoivent en plus le rapport en **pièce jointe PDF**, prêt à archiver ou à partager.
+- **Pendant l'essai**, tu reçois aussi le PDF, comme sur le plan que tu testes.
+
+L'email part depuis ta boîte SMTP si tu l'as connectée, sinon depuis l'expéditeur Actero.
+
 ## Section 4 — Crédits à la demande
 
 Si tu sais qu'un mois va être chargé (lancement produit, soldes), tu peux acheter des crédits ponctuels (packs de 500 / 2 000 / 10 000 tickets). Ils s'ajoutent à ton quota du mois.
@@ -127,6 +160,9 @@ Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
   </Accordion>
   <Accordion title="Puis-je voir le détail des coûts IA (tokens Claude / Gemini) ?">
     Pas dans la facturation — c'est inclus dans le prix de ton plan, on absorbe la marge. Si tu veux le détail technique, va dans `Insights → Coût IA` (plans Pro+).
+  </Accordion>
+  <Accordion title="Que devient mon historique si je downgrade ?">
+    Il est masqué, pas supprimé. Ton dashboard n'affiche plus que la fenêtre du nouveau plan (7 jours en Free, 90 jours en Starter). Si tu re-upgrades, tout ton historique réapparaît.
   </Accordion>
   <Accordion title="Je veux passer au plan Entreprise mais sans appel commercial — possible ?">
     Écris à [contact@actero.fr](mailto:contact@actero.fr) avec ton volume mensuel estimé et tes besoins (multi-boutique, white-label). On te fait un devis par email sous 48 h.
