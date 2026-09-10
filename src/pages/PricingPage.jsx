@@ -497,7 +497,7 @@ export const PricingPage = ({ onNavigate }) => {
       <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-cta/10">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
-        <main className="pt-32 pb-24 px-6">
+        <main className="pt-36 md:pt-40 pb-24 px-6">
           <div className="max-w-7xl mx-auto">
 
             {/* ── Hero (variation A style) ── */}

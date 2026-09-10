@@ -172,7 +172,7 @@ export const FaqPage = ({ onNavigate }) => {
     <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-cta/10">
       <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
-      <main className="pt-32 pb-24 px-6">
+      <main className="pt-36 md:pt-40 pb-24 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 text-[#262626]" style={{ fontFamily: "var(--font-display)" }}>
