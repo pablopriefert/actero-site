@@ -94,6 +94,17 @@ describe('durée de l\'essai gratuit', () => {
       .toMatch(/campaign_first_month_free:\s*true/)
   })
 
+  it('le formulaire d\'inscription transporte bien le code de campagne', () => {
+    // Sans ça, la route accepterait un `campaign_code` que personne
+    // n'envoie jamais : le neuvième « code écrit mais jamais appelé » de la
+    // semaine, et la campagne n'accorderait rien à personne.
+    const src = readFileSync('src/pages/SignupPage.jsx', 'utf8')
+    expect(src, 'SignupPage ne lit pas le code de campagne dans l\'URL')
+      .toMatch(/campaign_code|campagne/)
+    expect(src, 'SignupPage ne transmet pas campaign_code à l\'API')
+      .toMatch(/campaign_code: campaignCode/)
+  })
+
   it('aucun chemin de paiement ne redéfinit sa propre durée', () => {
     // C'est la garde qui compte. Trois fichiers, une seule source : si l'un
     // d'eux réécrit un nombre de jours en dur, la divergence recommence — et

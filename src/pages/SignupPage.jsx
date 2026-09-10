@@ -63,6 +63,18 @@ export const SignupPage = ({ onNavigate }) => {
     return match ? decodeURIComponent(match[1]) : null;
   }, [referralFromUrl]);
 
+  // Code de campagne publicitaire (ACT-33) : ?campagne=XXX dans l'URL de la
+  // pub, ou le cookie posé au premier clic si le marchand revient plus tard.
+  // Le serveur le confronte à CAMPAIGN_TRIAL_CODES — ici on ne fait que le
+  // transporter, il n'ouvre aucun droit par lui-même.
+  const campaignCode = useMemo(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("campagne")
+      || new URLSearchParams(window.location.search).get("campaign_code");
+    if (fromUrl) return fromUrl;
+    const match = document.cookie.match(/(?:^|;\s*)campaign_code=([^;]*)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }, []);
+
   // UTM attribution — capture query string params + referrer at mount time.
   // Sent along with signup requests for server-side storage in clients.acquisition_source.
   const acquisitionSource = useMemo(() => {
@@ -118,6 +130,7 @@ export const SignupPage = ({ onNavigate }) => {
           password,
           brand_name: brandName.trim(),
           ...(referralCode && { referral_code: referralCode }),
+          ...(campaignCode && { campaign_code: campaignCode }),
           ...(acquisitionSource && { acquisition_source: acquisitionSource }),
         }),
       });
@@ -211,6 +224,7 @@ export const SignupPage = ({ onNavigate }) => {
           password,
           brand_name: brandName.trim(),
           ...(referralCode && { referral_code: referralCode }),
+          ...(campaignCode && { campaign_code: campaignCode }),
           ...(acquisitionSource && { acquisition_source: acquisitionSource }),
         }),
       });
