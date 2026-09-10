@@ -17,6 +17,7 @@ import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
 import { CreditsPurchase } from './CreditsPurchase'
+import { joursEssaiPour } from '../../../api/lib/essai-gratuit.js'
 
 // ─── Helpers ────────────────────────────────────────────────────
 const MONTH_NAMES = [
@@ -467,10 +468,15 @@ export const ClientBillingView = ({ theme: _theme }) => {
             } else if (isDowngrade) {
               ctaText = 'Rétrograder'
             } else {
-              const isReferred = client?.referral_first_month_free
-              ctaText = isReferred
-                ? `Passer au ${p.name} — 30 jours gratuits`
-                : `Passer au ${p.name} — Essai 7j gratuit`
+              // La durée affichée doit être celle qui sera réellement
+              // accordée : joursEssaiPour est la seule source (ACT-33). Un
+              // bouton qui annonce sept jours à quelqu'un qui en aura trente
+              // est un mensonge dans le sens gentil — celui qui annoncerait
+              // trente pour sept est un remboursement.
+              const jours = joursEssaiPour(client)
+              ctaText = jours
+                ? `Passer au ${p.name} — ${jours} jours gratuits`
+                : `Passer au ${p.name}`
             }
 
             return (

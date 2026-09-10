@@ -1,6 +1,7 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js';
+import { appliquerCampagne } from '../lib/campagne.js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -101,30 +102,12 @@ async function handler(req, res) {
       console.error('[SIGNUP] Client-user link error:', linkError);
     }
 
-    // 4bis. Code de campagne publicitaire → un mois d'essai au lieu de sept
-    // jours (ACT-33).
-    //
-    // Le code est validé contre une variable d'environnement, JAMAIS déduit
-    // de l'URL ni d'un champ libre : offrir un mois d'abonnement sur la foi
-    // d'un paramètre que n'importe qui peut écrire, ce n'est pas une
-    // campagne, c'est un cadeau à qui devine le mot.
-    //
-    // Sans CAMPAIGN_TRIAL_CODES en environnement, aucun code n'est valide et
-    // tout le monde garde l'essai standard — le défaut est fermé.
+    // 4bis. Code de campagne publicitaire → un mois d'essai (ACT-33).
+    // La décision vit dans api/lib/campagne.js : cette route et
+    // /api/auth/apply-campaign (chemin Google) l'appellent toutes les deux.
     if (campaign_code) {
-      const codesValides = (process.env.CAMPAIGN_TRIAL_CODES || '')
-        .split(',').map((c) => c.trim().toUpperCase()).filter(Boolean);
-      if (codesValides.includes(String(campaign_code).trim().toUpperCase())) {
-        await supabase
-          .from('clients')
-          .update({ campaign_first_month_free: true })
-          .eq('id', clientId);
-        console.log(`[SIGNUP] Campagne appliquée pour ${clientId}`);
-      } else {
-        // Bruyant : un code refusé est soit une faute de frappe dans la pub,
-        // soit quelqu'un qui cherche. Les deux méritent d'être vus.
-        console.warn(`[SIGNUP] Code de campagne refusé pour ${clientId}`);
-      }
+      const { applique } = await appliquerCampagne(supabase, clientId, campaign_code);
+      console.log(`[SIGNUP] campagne ${applique ? 'appliquée' : 'refusée'} pour ${clientId}`);
     }
 
     // 5. Process referral code if present

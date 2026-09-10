@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import { joursEssaiPour, ESSAI_STANDARD_JOURS, ESSAI_PARRAINAGE_JOURS, ESSAI_CAMPAGNE_JOURS } from './essai-gratuit.js'
 
 /**
@@ -14,6 +14,11 @@ import { joursEssaiPour, ESSAI_STANDARD_JOURS, ESSAI_PARRAINAGE_JOURS, ESSAI_CAM
  * publicité qui promet un mois gratuit et un produit qui en donne sept jours,
  * c'est la première chose que le marchand vérifie.
  */
+
+// Retire les commentaires avant toute analyse de source.
+function sansCommentaires(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+}
 
 const CHEMINS = [
   'api/create-checkout-session.js',
@@ -87,11 +92,95 @@ describe('durée de l\'essai gratuit', () => {
     // Offrir un mois sur la foi d'un paramètre que le navigateur envoie, c'est
     // un cadeau à qui devine le mot. Le code doit être confronté à une
     // variable d'environnement.
-    const src = readFileSync('api/auth/signup.js', 'utf8')
-    expect(src, 'signup.js ne valide pas le code de campagne')
+    // La décision a été déplacée dans api/lib/campagne.js le 10 septembre,
+    // quand il a fallu la partager avec le chemin Google. C'est donc là que
+    // la validation et l'écriture doivent se trouver — et nulle part ailleurs.
+    const src = readFileSync('api/lib/campagne.js', 'utf8')
+    expect(src, 'le code n\'est pas confronté à la liste des codes actifs')
       .toMatch(/process\.env\.CAMPAIGN_TRIAL_CODES/)
     expect(src, 'le drapeau doit être écrit côté serveur après validation')
-      .toMatch(/campaign_first_month_free:\s*true/)
+      .toMatch(/campaign_first_month_free: true/)
+  })
+
+  it('les DEUX chemins d\'inscription accordent le mois de campagne', () => {
+    // Le défaut du 10 septembre, constaté en vrai : le code était branché sur
+    // l'inscription email/mot de passe seulement. Un marchand venu de la pub
+    // et inscrit avec GOOGLE repartait avec sept jours — son compte n'est créé
+    // par aucune route serveur, mais côté navigateur au retour d'OAuth.
+    //
+    // Un chemin sur deux, et rien ne l'aurait signalé : la campagne aurait
+    // simplement converti moitié moins bien.
+    const signup = sansCommentaires(readFileSync('api/auth/signup.js', 'utf8'))
+    expect(signup, 'le chemin email n\'applique pas la campagne')
+      .toMatch(/appliquerCampagne\(/)
+
+    expect(existsSync('api/auth/apply-campaign.js'),
+      'le chemin Google n\'a pas de route pour réclamer son mois').toBe(true)
+
+    const resolve = sansCommentaires(readFileSync('src/lib/resolve-client.js', 'utf8'))
+    expect(resolve, 'le client créé après OAuth ne présente jamais son code')
+      .toMatch(/presenterCodeCampagne\(/)
+  })
+
+  it('la campagne s\'applique là où le compte est VRAIMENT créé', () => {
+    // Trois routes portent le mot « signup » dans ce dépôt, et une seule crée
+    // le compte pour l'inscription email : verify-code.js. J'avais branché la
+    // campagne sur signup.js — elle ne s'appliquait jamais. Un nom de fichier
+    // n'est pas une preuve de chemin.
+    const verify = sansCommentaires(readFileSync('api/auth/verify-code.js', 'utf8'))
+    expect(verify, 'verify-code.js crée le compte mais n\'applique pas la campagne')
+      .toMatch(/appliquerCampagne\(/)
+    expect(verify, 'verify-code.js doit lire le code envoyé par le formulaire')
+      .toMatch(/payload\.campaign_code/)
+  })
+
+  it('un inscrit venu de la pub voit la page de plans, pas le tableau de bord', () => {
+    // Il vient POUR le mois offert : l'envoyer directement au tableau de bord
+    // lui fait rater ce qu'on a payé pour lui vendre. Les deux chemins
+    // d'inscription doivent l'emmener choisir un plan.
+    const verify = sansCommentaires(readFileSync('api/auth/verify-code.js', 'utf8'))
+    expect(verify, 'le chemin email ne redirige pas vers la sélection de plan')
+      .toMatch(/\/signup\/plan\?campagne=/)
+
+    const callback = sansCommentaires(readFileSync('src/pages/AuthCallbackPage.jsx', 'utf8'))
+    expect(callback, 'le chemin Google ne redirige pas vers la sélection de plan')
+      .toMatch(/\/signup\/plan\?campagne=/)
+  })
+
+  it('la page de plans reconnaît une arrivée par la publicité', () => {
+    // Sans ça, elle annoncerait « Essai gratuit 7 jours » à quelqu'un qui en a
+    // trente — et il partirait en se demandant s'il a bien eu son mois.
+    const page = sansCommentaires(readFileSync('src/pages/PlanSelectionPage.jsx', 'utf8'))
+    expect(page, 'la page de plans ignore le paramètre de campagne')
+      .toMatch(/urlParams\.get\("campagne"\)/)
+    expect(page, 'le bouton n\'annonce pas les 30 jours')
+      .toMatch(/isCampagne\) \? "30 jours gratuits"/)
+  })
+
+  it('le code survit à l\'aller-retour vers Google', () => {
+    // La redirection OAuth perd la chaîne de requête. Sans mémorisation avant
+    // le départ, le code n'existe plus au retour — et la route la mieux
+    // écrite du monde n'a rien à valider.
+    // Commentaires retirés avant l'analyse. Sans ça, mettre l'appel en
+    // commentaire laissait le test vert — vérifié : c'est arrivé. Quatrième
+    // fois aujourd'hui qu'une garde se laisse berner par du texte ; un test
+    // qui lit du code doit lire du code.
+    const main = sansCommentaires(readFileSync('src/main.jsx', 'utf8'))
+    expect(main, 'le code n\'est pas mémorisé au chargement, il sera perdu')
+      .toMatch(/memoriserCodeCampagne\(\)/)
+  })
+
+  it('le navigateur ne s\'accorde jamais le mois lui-même', () => {
+    // resolve-client.js crée le client depuis le navigateur, sous RLS. S'il
+    // écrivait campaign_first_month_free, n'importe qui s'offrirait un mois en
+    // modifiant une requête.
+    const resolve = readFileSync('src/lib/resolve-client.js', 'utf8')
+    expect(resolve, 'le navigateur écrit lui-même le drapeau de campagne')
+      .not.toMatch(/campaign_first_month_free/)
+
+    const campagne = readFileSync('api/lib/campagne.js', 'utf8')
+    expect(campagne, 'le serveur ne confronte pas le code à la liste des codes actifs')
+      .toMatch(/CAMPAIGN_TRIAL_CODES/)
   })
 
   it('le formulaire d\'inscription transporte bien le code de campagne', () => {
@@ -99,8 +188,8 @@ describe('durée de l\'essai gratuit', () => {
     // n'envoie jamais : le neuvième « code écrit mais jamais appelé » de la
     // semaine, et la campagne n'accorderait rien à personne.
     const src = readFileSync('src/pages/SignupPage.jsx', 'utf8')
-    expect(src, 'SignupPage ne lit pas le code de campagne dans l\'URL')
-      .toMatch(/campaign_code|campagne/)
+    expect(src, 'SignupPage ne lit plus le code de campagne')
+      .toMatch(/codeCampagneCourant\(\)/)
     expect(src, 'SignupPage ne transmet pas campaign_code à l\'API')
       .toMatch(/campaign_code: campaignCode/)
   })

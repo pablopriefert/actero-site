@@ -26,6 +26,10 @@ export const PlanSelectionPage = ({ onNavigate }) => {
     [],
   );
   const isReferred = !!urlParams.get("referral_code");
+  // Arrivée par une publicité : le marchand vient POUR le mois offert, c'est
+  // l'argument qu'on a payé pour lui montrer. La page doit le lui redire ici,
+  // au moment du choix — sinon il se demande s'il l'a bien.
+  const isCampagne = !!(urlParams.get("campagne") || urlParams.get("campaign_code"));
   const promoCode = urlParams.get("promo") || null;
   const isStartupPromo = !!promoCode && promoCode.toUpperCase().startsWith("ACTERO-STARTUP-");
 
@@ -155,7 +159,9 @@ export const PlanSelectionPage = ({ onNavigate }) => {
               ? "Votre code Startup est actif — -50% pendant 6 mois, sur Starter ou Pro."
               : isReferred
                 ? "Grâce à votre parrain, bénéficiez de 30 jours gratuits sur n'importe quel plan payant."
-                : "Commencez gratuitement ou démarrez un essai de 7 jours sur nos plans payants."}
+                : isCampagne
+                  ? "Votre mois gratuit est actif. Choisissez votre plan — vous ne serez pas facturé avant 30 jours, et vous pouvez annuler en un clic."
+                  : "Commencez gratuitement ou démarrez un essai de 7 jours sur nos plans payants."}
           </p>
           {isStartupPromo && (
             <div className="inline-flex flex-col items-center gap-2 mt-5">
@@ -167,6 +173,12 @@ export const PlanSelectionPage = ({ onNavigate }) => {
             </div>
           )}
           {isReferred && !isStartupPromo && (
+            <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
+              <Gift className="w-4 h-4 text-emerald-600" />
+              <span className="text-xs font-semibold text-emerald-700">Votre premier mois est offert</span>
+            </div>
+          )}
+          {isCampagne && !isReferred && !isStartupPromo && (
             <div className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-full">
               <Gift className="w-4 h-4 text-emerald-600" />
               <span className="text-xs font-semibold text-emerald-700">Votre premier mois est offert</span>
@@ -209,7 +221,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                 ctaLabel = "Activer mon plan -50%";
                 ctaStyle = "bg-cta text-white hover:bg-cta";
               } else {
-                ctaLabel = isReferred ? "30 jours gratuits" : "Essai gratuit 7 jours";
+                ctaLabel = (isReferred || isCampagne) ? "30 jours gratuits" : "Essai gratuit 7 jours";
                 ctaStyle = isPopular
                   ? "bg-cta text-white hover:bg-cta"
                   : "bg-cta text-white hover:bg-cta";

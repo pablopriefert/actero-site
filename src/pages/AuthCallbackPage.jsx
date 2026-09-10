@@ -3,6 +3,8 @@ import { AlertCircle } from 'lucide-react'
 import { supabase, INITIAL_URL } from '../lib/supabase'
 import { fetchUserRole } from '../lib/auth-utils'
 import { SEO } from '../components/SEO'
+import { codeCampagneCourant, presenterCodeCampagne } from '../lib/campagne'
+import { resolveOrCreateClientId } from '../lib/resolve-client'
 
 const DEBUG_AUTH = false;
 const logger = (...args) => {
@@ -27,6 +29,30 @@ export function AuthCallbackPage({ onNavigate }) {
       onNavigate("/setup-password");
       return;
     }
+    // Inscription venue d'une publicité (ACT-33).
+    //
+    // Le compte Google est créé ici, côté navigateur, sans passer par aucune
+    // route d'inscription : c'est le seul endroit du parcours Google où l'on
+    // peut réclamer le mois offert. On ATTEND la réponse, contrairement au
+    // reste du code, parce que la destination en dépend — l'envoyer au
+    // tableau de bord alors qu'il vient pour un mois gratuit, c'est lui faire
+    // rater ce qu'on a payé pour lui vendre.
+    //
+    // Un échec ne bloque pas : il atterrit au tableau de bord comme avant.
+    try {
+      const codeCampagne = codeCampagneCourant();
+      if (codeCampagne) {
+        await resolveOrCreateClientId(supabase, session);
+        const applique = await presenterCodeCampagne(supabase);
+        if (applique) {
+          onNavigate(`/signup/plan?campagne=${encodeURIComponent(codeCampagne)}`);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("[auth-callback] campagne :", err?.message);
+    }
+
     // Otherwise, redirect based on role
     const userRole = await fetchUserRole(session.user.id);
     onNavigate(userRole === "admin" ? "/admin" : "/client");

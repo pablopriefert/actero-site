@@ -147,7 +147,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
 
               <FadeInUp delay={0.12} className="mb-8">
                 <p className="text-[13px] text-[#262626] font-medium mt-4">
-                  Installé en 15 minutes · Plan Free à vie · Essai 7 jours sans carte bancaire
+                  Installé en 15 minutes · Plan Free à vie · Essai gratuit sur Starter et Pro
                 </p>
               </FadeInUp>
 
