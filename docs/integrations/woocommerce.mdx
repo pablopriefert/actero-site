@@ -44,11 +44,38 @@ Les credentials sont stockés chiffrés côté Supabase, isolés par `client_id`
 
 ## Quelles données circulent
 
-- Commandes (statut, ligne items, total, méthode de paiement, méthode de livraison, tracking si plugin)
+- Commandes (statut, ligne items, total, méthode de paiement, méthode de livraison)
 - Clients (email, nom, adresses de facturation et livraison, historique d'achat)
 - Produits (titre, description, variations, stock, prix, catégories)
 
 L'agent utilise ces données en temps réel pour répondre aux WISMO, gérer les retours, recommander des produits liés et personnaliser le ton selon le segment client.
+
+## Recherche de commandes
+
+Dès que la connexion est active, l'agent lit tes commandes WooCommerce pour répondre aux questions de suivi. Il cherche par numéro de commande (`#1234`) en priorité. Sans numéro, il cherche par email client et récupère les 3 commandes les plus récentes.
+
+<Note>
+Si un compte a une connexion Shopify **et** une connexion WooCommerce, l'agent interroge Shopify en priorité. WooCommerce n'est consulté que si aucune boutique Shopify n'est connectée.
+</Note>
+
+### Correspondance des statuts
+
+WooCommerce n'a qu'un seul champ `status` par commande, là où Shopify sépare paiement et expédition. Actero projette ce statut sur les deux axes :
+
+| Statut WooCommerce | Paiement affiché | Expédition affichée |
+| --- | --- | --- |
+| `pending`, `on-hold`, `failed` | En attente | Non expédié |
+| `processing` | Payé | Non expédié |
+| `completed` | Payé | Expédié |
+| `refunded` | Remboursé | Non expédié |
+| `cancelled`, `trash` | Annulé | Non expédié |
+| Statut personnalisé (plugin) | Statut brut | Statut d'expédition inconnu |
+
+Les statuts personnalisés ajoutés par des plugins (`shipped`, `delivered`…) ne sont pas devinés. L'agent annonce alors **« Statut d'expédition inconnu »** plutôt que d'affirmer à tort qu'une commande n'est pas expédiée.
+
+### Suivi de colis
+
+WooCommerce core n'a pas de notion de suivi de colis (numéro, transporteur, lien). L'agent ne restitue donc **aucun numéro de suivi** pour une commande WooCommerce, et il n'en invente jamais. Il répond avec le statut d'expédition ci-dessus.
 
 ## Webhooks (temps réel)
 
@@ -70,7 +97,7 @@ Si la création échoue (hébergeur qui bloque les requêtes sortantes, plugin d
     Supporté en lecture. L'agent peut consulter les réservations mais ne peut pas en créer ni modifier (limite des scopes `read`).
   </Accordion>
   <Accordion title="Advanced Shipment Tracking, AfterShip, TrackShip">
-    Si l'un de ces plugins ajoute un meta tracking sur la commande, Actero le lit automatiquement et l'utilise dans les réponses WISMO.
+    Non lu pour l'instant. Ces plugins stockent le tracking dans des meta non standardisées, et Actero ne les interprète pas. L'agent répond aux WISMO avec le statut d'expédition de la commande, sans numéro de suivi.
   </Accordion>
   <Accordion title="WPML / Polylang (multilingue)">
     Compatible. L'agent répond dans la langue de la commande détectée par le plugin.
@@ -108,6 +135,6 @@ Si la création échoue (hébergeur qui bloque les requêtes sortantes, plugin d
     Sur le plan **Entreprise**, oui. Sur les autres plans, une seule plateforme e-commerce par compte Actero — crée un second compte si tu gères plusieurs marques.
   </Accordion>
   <Accordion title="Quelle est la différence avec Shopify côté agent ?">
-    Aucune. Ton agent répond, escalade, automatise les paniers abandonnés et personnalise les réponses de la même façon. Seules les modalités techniques de la connexion changent.
+    Le fonctionnement est identique : l'agent répond, escalade et personnalise les réponses de la même façon. Deux limites propres à WooCommerce : pas de numéro de suivi (WooCommerce core n'en fournit pas), et un seul statut de commande que Actero projette sur paiement + expédition (voir [Recherche de commandes](#recherche-de-commandes)).
   </Accordion>
 </AccordionGroup>
