@@ -62,11 +62,6 @@ export const AlternativeZendesk = ({ onNavigate }) => {
         competitor: { main: 'Variable', sub: 'AI Agent à 50 $/agent' },
       },
       {
-        label: 'Agent vocal + numéro FR dédié',
-        actero: { main: '200 min', sub: 'Dès le plan Pro' },
-        competitor: 'partial',
-      },
-      {
         label: 'Relance paniers abandonnés IA',
         actero: true,
         competitor: false,

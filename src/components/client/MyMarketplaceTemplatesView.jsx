@@ -26,7 +26,6 @@ const CATEGORIES = [
   { id: 'ecommerce', label: 'E-commerce' },
   { id: 'immobilier', label: 'Immobilier' },
   { id: 'comptabilite', label: 'Comptabilite' },
-  { id: 'voice', label: 'Voice' },
   { id: 'autre', label: 'Autre' },
 ]
 

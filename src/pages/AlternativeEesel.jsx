@@ -1,5 +1,5 @@
 import React from 'react'
-import { Wallet, ShoppingBag, Mail, Shield, BarChart3, Phone } from 'lucide-react'
+import { Wallet, ShoppingBag, Mail, Shield, BarChart3 } from 'lucide-react'
 import { AlternativeTemplate } from '../components/alternative/AlternativeTemplate'
 
 /**
@@ -30,7 +30,7 @@ export const AlternativeEesel = ({ onNavigate }) => {
 
     hero: {
       subtitle:
-        "eesel AI mise sur le pay-as-you-go (0,40 $ par ticket) — séduisant à l'entrée, mais imprévisible une fois que vous traitez 1 000 ou 5 000 tickets/mois. Solution multi-plateformes (Shopify, WooCommerce, Magento, BigCommerce) sans spécialisation, marché US, anglais natif. Actero est un forfait fixe français : pas de surprise sur la facture, ROI prouvable en direct, RGPD natif, agent vocal inclus.",
+        "eesel AI mise sur le pay-as-you-go (0,40 $ par ticket) — séduisant à l'entrée, mais imprévisible une fois que vous traitez 1 000 ou 5 000 tickets/mois. Solution multi-plateformes (Shopify, WooCommerce, Magento, BigCommerce) sans spécialisation, marché US, anglais natif. Actero est un forfait fixe français : pas de surprise sur la facture, ROI prouvable en direct, RGPD natif.",
     },
 
     comparison: [
@@ -68,11 +68,6 @@ export const AlternativeEesel = ({ onNavigate }) => {
         label: 'Lookup Shopify live (vrai tracking)',
         actero: { main: 'Natif', sub: 'Numéro Colissimo en temps réel' },
         competitor: 'partial',
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
-        competitor: false,
       },
       {
         label: 'Dashboard ROI temps réel (heures + €)',
@@ -123,14 +118,6 @@ export const AlternativeEesel = ({ onNavigate }) => {
         title: 'Pensé pour Shopify DTC, pas multi-plateformes',
         desc:
           "eesel essaie de couvrir Shopify + WooCommerce + Magento + BigCommerce — au prix d'une spécialisation diluée. Actero est Shopify-first : OAuth en 15 min, agents spécialisés (order / return / product / general / escalation), lookup live des commandes Colissimo, refund automatique selon votre politique.",
-      },
-      {
-        icon: Phone,
-        stat: 'Voice',
-        statLabel: 'inclus',
-        title: 'Agent vocal natif, eesel ne l\'a pas',
-        desc:
-          "Actero embarque ElevenLabs avec numéro FR et voix naturelle — inbound (le client appelle), outbound (l'agent relance), 200 min incluses sur Pro. eesel reste sur le chat / email uniquement.",
       },
       {
         icon: BarChart3,

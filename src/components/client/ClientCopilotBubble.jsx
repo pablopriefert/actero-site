@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, Send, Loader2, Sparkles, ArrowUp } from 'lucide-react'
-import { useTTS } from '../../hooks/useTTS'
-import { TTSButton } from '../ui/TTSButton'
 
 const QUICK_QUESTIONS = [
   "Comment fonctionne le SAV automatique ?",
@@ -22,9 +20,6 @@ export const ClientCopilotBubble = ({ clientId, theme = 'dark' }) => {
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
   const isLight = theme === 'light'
-
-  // Shared TTS state — single source of playback for all assistant messages.
-  const tts = useTTS()
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -182,18 +177,6 @@ export const ClientCopilotBubble = ({ clientId, theme = 'dark' }) => {
                         </p>
                       ))}
                     </div>
-                    {/* Voice button for assistant messages */}
-                    {msg.role === 'assistant' && (
-                      <div className="mt-2">
-                        <TTSButton
-                          text={msg.content}
-                          id={`copilot-msg-${i}`}
-                          tts={tts}
-                          size="sm"
-                          label="Écouter la réponse"
-                        />
-                      </div>
-                    )}
                   </div>
                 </motion.div>
               ))}

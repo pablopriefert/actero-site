@@ -97,32 +97,6 @@ const MODAL_CONTENT = {
       'Activez. L\'agent prend la main des la prochaine echeance.',
     ],
   },
-  agent_vocal: {
-    icon: Phone,
-    gradient: 'from-violet-500 to-violet-600',
-    title: 'Agent Vocal IA',
-    subtitle: 'Un numero francais qui repond 24/7 a votre place',
-    whatItDoes: [
-      'Un numero francais dedie que vos clients peuvent appeler a tout moment.',
-      'L\'agent IA repond avec une voix naturelle, gere le suivi de commande, les questions produit, les retours.',
-      'Transfert vers un humain possible si le client le demande ou si le cas est complexe.',
-      'Transcriptions + resumes automatiques de chaque appel, consultables dans votre dashboard.',
-    ],
-    requires: [
-      { label: 'Aucune integration obligatoire', detail: 'Optionnel : Shopify pour acceder aux commandes en direct', providers: ['shopify'], match: 'optional' },
-    ],
-    customerStory: [
-      { role: 'client', text: '*appelle votre numero support a 22h un samedi*' },
-      { role: 'agent', text: '"Bonjour, vous etes bien chez Votre Marque. Je suis Lisa, l\'assistante IA. Comment puis-je vous aider ?"' },
-      { role: 'client', text: '"Je voudrais savoir ou est ma commande 1234."' },
-      { role: 'result', text: 'Lisa recupere la commande dans Shopify, donne le tracking. Appel resolu en 90 secondes. Transcription + resume ajoutes a votre dashboard.' },
-    ],
-    howToActivate: [
-      'Suivez le wizard : choix de la voix (homme/femme), ton de marque, horaires d\'ouverture.',
-      'Un numero francais dedie vous est attribue en moins de 2 minutes.',
-      'Partagez le numero sur votre site, vos emails, vos reseaux. L\'agent est operationnel.',
-    ],
-  },
   email_agent: {
     icon: Mail,
     gradient: 'from-blue-500 to-blue-600',

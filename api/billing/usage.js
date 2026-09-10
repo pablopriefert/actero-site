@@ -55,13 +55,12 @@ async function handler(req, res) {
     // Load usage counters for current month
     const { data: usage } = await supabaseAdmin
       .from('usage_counters')
-      .select('tickets_used, voice_minutes_used, overage_tickets')
+      .select('tickets_used, overage_tickets')
       .eq('client_id', clientId)
       .eq('period', period)
       .maybeSingle();
 
     const ticketsUsed = usage?.tickets_used || 0;
-    const voiceMinutesUsed = usage?.voice_minutes_used || 0;
     const overageTickets = usage?.overage_tickets || 0;
 
     // Plan limits — from the backend source of truth (api/lib/plan-limits.js),
@@ -91,8 +90,6 @@ async function handler(req, res) {
       period,
       tickets_used: ticketsUsed,
       tickets_limit: limits.tickets === Infinity ? -1 : limits.tickets,
-      voice_minutes_used: voiceMinutesUsed,
-      voice_minutes_limit: limits.voice_minutes === Infinity ? -1 : limits.voice_minutes,
       // Kept for backward compatibility with existing consumers — always 0 now
       // that no plan bills overage.
       overage_tickets: overageTickets,

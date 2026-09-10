@@ -13,7 +13,6 @@ export const PLAN_LIMITS = {
     knowledge_entries: 10,
     team_members: 1,
     history_days: 7,
-    voice_minutes: 0,
     vision_analyses_per_month: 10,
   },
   starter: {
@@ -23,7 +22,6 @@ export const PLAN_LIMITS = {
     knowledge_entries: 100,
     team_members: 2,
     history_days: 90,
-    voice_minutes: 0,
     vision_analyses_per_month: 200,
   },
   pro: {
@@ -33,7 +31,6 @@ export const PLAN_LIMITS = {
     knowledge_entries: Infinity,
     team_members: 5,
     history_days: Infinity,
-    voice_minutes: 0, // Agent vocal pas encore live
     vision_analyses_per_month: 2000,
   },
   enterprise: {
@@ -43,7 +40,6 @@ export const PLAN_LIMITS = {
     knowledge_entries: Infinity,
     team_members: Infinity,
     history_days: Infinity,
-    voice_minutes: 0, // Agent vocal pas encore live
     vision_analyses_per_month: Infinity,
   },
 }
@@ -53,7 +49,6 @@ export const PLAN_FEATURES = {
     brand_editor: false,
     guardrails: true,
     simulator: false,
-    voice_agent: false,
     specialized_agents: false,
     api_webhooks: false,
     pdf_report: false,
@@ -72,7 +67,6 @@ export const PLAN_FEATURES = {
     brand_editor: true,
     guardrails: true,
     simulator: true,
-    voice_agent: false,
     specialized_agents: false,
     api_webhooks: true,
     pdf_report: false,
@@ -87,7 +81,6 @@ export const PLAN_FEATURES = {
     brand_editor: true,
     guardrails: true,
     simulator: true,
-    voice_agent: false, // pas encore live
     specialized_agents: true,
     api_webhooks: true,
     pdf_report: true,
@@ -102,7 +95,6 @@ export const PLAN_FEATURES = {
     brand_editor: true,
     guardrails: true,
     simulator: true,
-    voice_agent: false, // pas encore live
     specialized_agents: true,
     api_webhooks: true,
     pdf_report: true,
@@ -178,11 +170,11 @@ export async function getCurrentUsage(supabase, clientId) {
   const period = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
   const { data } = await supabase
     .from('usage_counters')
-    .select('tickets_used, voice_minutes_used, overage_tickets')
+    .select('tickets_used, overage_tickets')
     .eq('client_id', clientId)
     .eq('period', period)
     .maybeSingle()
-  return data || { tickets_used: 0, voice_minutes_used: 0, overage_tickets: 0 }
+  return data || { tickets_used: 0, overage_tickets: 0 }
 }
 
 /**

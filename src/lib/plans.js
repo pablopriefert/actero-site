@@ -24,14 +24,12 @@ export const PLANS = {
       knowledge_entries: 10,
       team_members: 1,
       history_days: 7,
-      voice_minutes: 0,
       vision_analyses_per_month: 10,
     },
     features: {
       brand_editor: false,
       guardrails: true, // Règles & limites — dès Free
       simulator: false,
-      voice_agent: false,
       specialized_agents: false, // general-agent only
       api_webhooks: false,
       pdf_report: false,
@@ -61,14 +59,12 @@ export const PLANS = {
       knowledge_entries: 100,
       team_members: 2,
       history_days: 90,
-      voice_minutes: 0,
       vision_analyses_per_month: 200,
     },
     features: {
       brand_editor: true,
       guardrails: true, // Règles & limites — dès Free
       simulator: true, // Simulateur — dès Starter
-      voice_agent: false,
       specialized_agents: false,
       api_webhooks: true, // API — dès Starter
       pdf_report: false,
@@ -98,14 +94,12 @@ export const PLANS = {
       knowledge_entries: Infinity,
       team_members: 5,
       history_days: Infinity,
-      voice_minutes: 0, // Agent vocal pas encore live — ne rien promettre
       vision_analyses_per_month: 2000,
     },
     features: {
       brand_editor: true,
       guardrails: true,
       simulator: true,
-      voice_agent: false,
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,
@@ -143,14 +137,12 @@ export const PLANS = {
       knowledge_entries: Infinity,
       team_members: Infinity,
       history_days: Infinity,
-      voice_minutes: 0, // Agent vocal pas encore live
       vision_analyses_per_month: Infinity,
     },
     features: {
       brand_editor: true,
       guardrails: true,
       simulator: true,
-      voice_agent: false,
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,

@@ -73,8 +73,6 @@ import ProductTour from '../components/client/ProductTour'
 // rich form editors, chart libs, etc.) that aren't needed until the user
 // navigates to the tab.
 const ClientProfileView = lazy(() => import('../components/client/ClientProfileView').then(m => ({ default: m.ClientProfileView })))
-const VoiceAgentSetupView = lazy(() => import('../components/client/VoiceAgentSetupView').then(m => ({ default: m.VoiceAgentSetupView })))
-const VoiceCallsView = lazy(() => import('../components/client/VoiceCallsView').then(m => ({ default: m.VoiceCallsView })))
 const ClientReferralView = lazy(() => import('../components/client/ClientReferralView').then(m => ({ default: m.ClientReferralView })))
 const PartnerDashboardView = lazy(() => import('../components/client/PartnerDashboardView').then(m => ({ default: m.PartnerDashboardView })))
 const ClientKnowledgeBaseView = lazy(() => import('../components/client/ClientKnowledgeBaseView').then(m => ({ default: m.ClientKnowledgeBaseView })))
@@ -114,8 +112,8 @@ import { trackEvent, identifyUser } from '../lib/analytics'
 /**
  * Lean launch mode — keep the merchant nav focused on the core wedge for the
  * pre-launch / first-merchants phase: agent config + knowledge base + tickets
- * + integrations + settings. Premature or advanced surfaces (voice agent,
- * voice calls, email agent, SAV portal, multi-channel hub, deep analytics) are
+ * + integrations + settings. Premature or advanced surfaces (email agent,
+ * SAV portal, multi-channel hub, deep analytics) are
  * hidden from the sidebar to keep first-run onboarding clear.
  *
  * Nothing is deleted: every hidden tab is still routable directly (deep link
@@ -185,8 +183,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/guardrails") return "guardrails";
     if (route === "/client/escalations") return "escalations";
     if (route === "/client/response-templates") return "response-templates";
-    if (route === "/client/voice-calls") return "voice-calls";
-    if (route === "/client/voice-agent") return "voice-agent";
     if (route === "/client/notifications") return "notifications";
     if (route === "/client/billing") return "billing";
     if (route === "/client/roi") return "roi";
@@ -854,9 +850,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       children: [
         ...(FEATURES.multiChannelHub ? [{ id: 'channels', label: 'Tous les canaux', icon: MessageSquare }] : []),
         { id: 'integrations', label: 'Intégrations', icon: Plug },
-        ...(FEATURES.voiceAgent ? [{ id: 'voice-agent', label: 'Agent vocal', icon: Phone }] : []),
-        ...(FEATURES.voiceAgent ? [{ id: 'voice-calls', label: 'Appels vocaux', icon: Phone }] : []),
-        ...(FEATURES.portalSav ? [{ id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) }] : []),
+        ...(FEATURES.portalSav ? [{ id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'PRO', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) }] : []),
         // Migration tickets — visible only while no completed migration exists.
         ...(hasCompletedMigration ? [] : [{ id: 'migrations', label: 'Migration tickets', icon: Upload }]),
       ],
@@ -1009,8 +1003,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "guardrails" && "Restrictions"}
             {activeTab === "escalations" && "À traiter"}
             {activeTab === "response-templates" && "Modèles de réponse"}
-            {activeTab === "voice-calls" && "Appels vocaux"}
-            {activeTab === "voice-agent" && "Agent vocal"}
             {activeTab === "notifications" && "Notifications"}
             {activeTab === "playbooks" && "Scenarios"}
             {activeTab === "weekly-summary" && "Performance"}
@@ -1423,18 +1415,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             </PlanGate>
           )}
 
-          {activeTab === "voice-calls" && (
-            <PlanGate feature="voice_agent" planId={planId} inTrial={inTrial} onUpgrade={() => setActiveTab('billing')}>
-              <VoiceCallsView clientId={currentClient?.id} theme={theme} />
-            </PlanGate>
-          )}
-
-          {activeTab === "voice-agent" && (
-            <PlanGate feature="voice_agent" planId={planId} inTrial={inTrial} onUpgrade={() => setActiveTab('billing')}>
-              <VoiceAgentSetupView clientId={currentClient?.id} />
-            </PlanGate>
-          )}
-
           {activeTab === "api-docs" && (
             <PlanGate feature="api_webhooks" planId={planId} inTrial={inTrial} onUpgrade={() => setActiveTab('billing')}>
               <ApiDocsView clientId={currentClient?.id} />
@@ -1492,7 +1472,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "insights" && (
-            <InsightsHubView clientId={currentClient?.id} onNavigate={setActiveTab} canAccessVoice={can('voice_agent')} />
+            <InsightsHubView clientId={currentClient?.id} onNavigate={setActiveTab} />
           )}
 
           {activeTab === "settings" && (

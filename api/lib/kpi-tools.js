@@ -6,7 +6,7 @@
  * caller just passes a supabase client + a client_id + a message, and gets
  * back a natural-language reply.
  *
- * NEW copilots (email, Discord, voice, etc.) should ONLY depend on this module.
+ * NEW copilots (email, Discord, etc.) should ONLY depend on this module.
  */
 import { chatComplete } from './llm.js'
 

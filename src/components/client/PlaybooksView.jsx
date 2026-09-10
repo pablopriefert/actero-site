@@ -3,12 +3,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Zap, ShoppingBag, Headphones, Loader2,
   CheckCircle2, Plug, TrendingUp, Mail,
-  MessageSquare, ArrowRight, Phone, HelpCircle,
+  MessageSquare, ArrowRight, HelpCircle,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 import { trackEvent } from '../../lib/analytics'
-import { VocalAgentWizard } from './VocalAgentWizard'
 import { ComptabiliteWizard } from './ComptabiliteWizard'
 import { WorkflowReadinessCheck } from './WorkflowReadinessCheck'
 import { buildReadinessChecks } from '../../lib/workflow-readiness'
@@ -34,12 +33,6 @@ const CATEGORIES = [
     label: 'Comptabilite & Finance',
     desc: 'Automatisez vos taches comptables et suivez votre tresorerie.',
     playbooks: ['comptabilite_auto'],
-  },
-  {
-    id: 'vocal',
-    label: 'Agents Vocaux',
-    desc: 'Un agent telephonique IA qui repond a vos appels.',
-    playbooks: ['agent_vocal'],
   },
 ]
 
@@ -77,18 +70,6 @@ const PLAYBOOK_META = {
       { id: 'slack', label: 'Slack', desc: 'Alertes de tresorerie dans Slack', icon: MessageSquare, needsIntegration: ['slack'] },
     ],
   },
-  agent_vocal: {
-    icon: Phone, color: 'from-violet-500 to-violet-600',
-    simpleDesc: 'Un agent vocal IA qui répond aux questions de tes clients par la voix, 24h/24.',
-    helpId: 'agent-vocal',
-    requires: [],
-    hasConfig: true,
-    configType: 'vocal',
-    channels: [
-      { id: 'widget_vocal', label: 'Widget vocal sur le site', desc: 'Bouton d\'appel vocal sur votre boutique Shopify', icon: Phone, needsIntegration: ['shopify'] },
-      { id: 'phone', label: 'Numéro de téléphone', desc: 'Un numéro dédié que vos clients peuvent appeler', icon: Phone, needsIntegration: [] },
-    ],
-  },
 }
 
 /* ═══════════ COMPONENT ═══════════ */
@@ -96,7 +77,6 @@ const PLAYBOOK_META = {
 export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
-  const [showVocalWizard, setShowVocalWizard] = useState(false)
   const [showComptaWizard, setShowComptaWizard] = useState(false)
   const [readinessState, setReadinessState] = useState({ open: false, checks: [], playbookName: null, playbookLabel: null, activating: false })
   const [selectedChannels, setSelectedChannels] = useState({})
@@ -276,12 +256,6 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
     // Open wizard for comptabilite
     if (playbookName === 'comptabilite_auto' && !isActive(playbookName)) {
       setShowComptaWizard(true)
-      return
-    }
-
-    // Open wizard for vocal agent
-    if (playbookName === 'agent_vocal' && !isActive(playbookName)) {
-      setShowVocalWizard(true)
       return
     }
 
@@ -541,12 +515,6 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
                       </div>
                     )}
 
-                    {/* Vocal agent config — shown when active */}
-                    {active && meta.configType === 'vocal' && (
-                      <div className="px-5 pb-4 pt-3 border-t border-[#f0f0f0]">
-                        <VocalAgentConfig clientId={clientId} />
-                      </div>
-                    )}
                   </div>
                 )
               })}
@@ -606,112 +574,6 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
         />
       )}
 
-      {/* Vocal Agent Wizard Modal */}
-      {showVocalWizard && (
-        <VocalAgentWizard
-          clientId={clientId}
-          onComplete={() => {
-            setShowVocalWizard(false)
-            // Activate the playbook
-            const pb = playbooks.find(p => p.name === 'agent_vocal')
-            if (pb) {
-              supabase.from('engine_client_playbooks').upsert({
-                client_id: clientId,
-                playbook_id: pb.id,
-                is_active: true,
-                activated_at: new Date().toISOString(),
-              }, { onConflict: 'client_id,playbook_id' }).then(() => {
-                queryClient.invalidateQueries({ queryKey: ['client-playbooks', clientId] })
-              })
-            }
-            toast.success('Agent vocal configure et installe !')
-          }}
-          onCancel={() => setShowVocalWizard(false)}
-        />
-      )}
-    </div>
-  )
-}
-
-/* ═══════════ VOCAL AGENT CONFIG ═══════════ */
-
-const ELEVENLABS_AGENT_ID = 'agent_6901kns1pd7yfxz9nk6cq0f7gaq4'
-
-const VocalAgentConfig = ({ clientId }) => {
-  const toast = useToast()
-  const [installing, setInstalling] = useState(false)
-  const [installed, setInstalled] = useState(false)
-
-  const handleInstallOnShopify = async () => {
-    setInstalling(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const res = await fetch('/api/engine/shopify-vocal-widget', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ action: 'install', client_id: clientId }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Erreur')
-      setInstalled(true)
-      toast.success('Agent vocal installe sur votre boutique !')
-    } catch (err) {
-      toast.error(err.message)
-    }
-    setInstalling(false)
-  }
-
-  const handleUninstall = async () => {
-    setInstalling(true)
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      await fetch('/api/engine/shopify-vocal-widget', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ action: 'uninstall', client_id: clientId }),
-      })
-      setInstalled(false)
-      toast.success('Agent vocal retire de votre boutique')
-    } catch (err) {
-      console.error('[PlaybooksView] vocal widget uninstall failed:', err)
-      toast.error('Échec du retrait de l\'agent vocal. Réessayez.')
-    }
-    setInstalling(false)
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="p-4 bg-violet-50 rounded-xl border border-violet-100">
-        <p className="text-[12px] text-violet-800 font-medium mb-1">Agent vocal IA actif</p>
-        <p className="text-[11px] text-violet-600">
-          Vos clients peuvent parler a votre agent directement sur votre site. Il repond aux questions, suit les commandes et escalade si besoin.
-        </p>
-      </div>
-
-      {!installed ? (
-        <button
-          onClick={handleInstallOnShopify}
-          disabled={installing}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-violet-600 text-white text-[13px] font-semibold rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-colors"
-        >
-          {installing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Phone className="w-4 h-4" />}
-          {installing ? 'Installation en cours...' : 'Installer sur ma boutique Shopify'}
-        </button>
-      ) : (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <p className="text-[12px] text-emerald-700 font-medium">Installe sur votre boutique Shopify</p>
-          </div>
-          <button
-            onClick={handleUninstall}
-            disabled={installing}
-            className="text-[11px] text-[#9ca3af] hover:text-red-500 transition-colors"
-          >
-            Retirer de ma boutique
-          </button>
-        </div>
-      )}
     </div>
   )
 }

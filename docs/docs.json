@@ -94,7 +94,6 @@
               "agent/prompt-builder",
               "agent/playbooks",
               "agent/templates-variables",
-              "agent/agent-vocal",
               "agent/proactive-watchdog",
               "agent/manual-review"
             ]

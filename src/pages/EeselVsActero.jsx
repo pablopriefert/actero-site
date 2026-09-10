@@ -29,7 +29,7 @@ export const EeselVsActero = ({ onNavigate }) => {
 
     hero: {
       subtitle:
-        "eesel AI mise sur le pay-as-you-go (0,40 $ par ticket) — séduisant à l'entrée, imprévisible au scaling. Société US, anglais, hébergement US, multi-plateformes. Actero est forfait fixe en français, hébergé UE, RGPD natif, spécialisé Shopify avec agent vocal et ROI prouvable. Voici les chiffres concrets.",
+        "eesel AI mise sur le pay-as-you-go (0,40 $ par ticket) — séduisant à l'entrée, imprévisible au scaling. Société US, anglais, hébergement US, multi-plateformes. Actero est forfait fixe en français, hébergé UE, RGPD natif, spécialisé Shopify, avec ROI prouvable. Voici les chiffres concrets.",
     },
 
     verdict: {
@@ -89,11 +89,6 @@ export const EeselVsActero = ({ onNavigate }) => {
         label: 'Lookup Shopify live (tracking Colissimo)',
         competitor: 'partial',
         actero: { main: 'Natif', sub: 'En temps réel' },
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        competitor: false,
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
       },
       {
         label: 'Relance panier abandonné conversationnelle',

@@ -111,7 +111,7 @@ export const ZendeskVsActero = ({ onNavigate }) => {
       },
       {
         q: 'Combien coûte vraiment Zendesk pour 5 agents avec IA ?',
-        a: "Suite Growth (89 $/agent) + Advanced AI add-on (50 $/agent) = 139 $/agent/mois × 5 agents = 695 $/mois ≈ 645 €/mois. Plus implementation fees (souvent 2-10 k$ initial). Actero Pro à 399 €/mois couvre la même charge avec voice et IA illimitée.",
+        a: "Suite Growth (89 $/agent) + Advanced AI add-on (50 $/agent) = 139 $/agent/mois × 5 agents = 695 $/mois ≈ 645 €/mois. Plus implementation fees (souvent 2-10 k$ initial). Actero Pro à 399 €/mois couvre la même charge avec IA illimitée.",
       },
       {
         q: 'Migration depuis Zendesk — c\'est faisable ?',

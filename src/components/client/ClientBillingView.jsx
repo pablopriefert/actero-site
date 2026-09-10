@@ -253,7 +253,6 @@ export const ClientBillingView = ({ theme: _theme }) => {
 
   const planConfig = plan.config || getPlanConfig('free')
   const currentPrice = planConfig.price?.[billingPeriod]
-  const hasVoice = plan.voiceMinutesLimit > 0
   // Hard cap — no overage billing. Once the monthly quota is reached the agent
   // stops answering until the merchant buys credits or upgrades.
   const quotaReached = !!plan.isOverLimit
@@ -402,15 +401,6 @@ export const ClientBillingView = ({ theme: _theme }) => {
             limit={plan.ticketsLimit}
             label="Tickets utilises"
           />
-
-          {hasVoice && (
-            <UsageBar
-              used={plan.voiceMinutesUsed}
-              limit={plan.voiceMinutesLimit}
-              label="Minutes vocales"
-              unit=" min"
-            />
-          )}
 
           {quotaReached && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200">

@@ -323,7 +323,7 @@ export const PartnerDashboardView = ({ theme: _theme = 'light' }) => {
                   type="text"
                   value={form.specialties}
                   onChange={(e) => setForm({ ...form, specialties: e.target.value })}
-                  placeholder="Shopify, SAV IA, Agent vocal"
+                  placeholder="Shopify, SAV IA, relance panier"
                   className="w-full px-3 py-2 bg-surface border border-gray-200 rounded-lg text-sm outline-none focus:border-indigo-500/40"
                 />
               }

@@ -22,8 +22,8 @@ import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
  * avec les choix du client — 8 sections :
  *   1. Navbar (sticky)
  *   2. Hero (centré, dashboard preview intégré — CTA « Voir les tarifs »)
- *   3. PartnersMarquee (4 badges PNG — ElevenLabs Grants, Shopify
- *      Partner, Google for Startups, Auth0)
+ *   3. PartnersMarquee (badges PNG — Shopify Partner, Google for
+ *      Startups, Auth0, et al.)
  *   4. Capabilities (2 cards — SAV email/chat + Relance paniers)
  *   5. ROI Simulator (split sliders + dark result panel)
  *   6. Pricing (4 cards — Pro popular dark)
@@ -34,8 +34,7 @@ import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
  * Retirées à la demande user :
  * — ChatDemo « Comme votre meilleur employé SAV »
  * — Testimonials « Ce que nos clients disent d'Actero »
- * — Capabilities : 2 cards sur 4 (Agent vocal + Éditeur ton retirés),
- *   les 2 restantes remplissent l'espace
+ * — Capabilities : 2 cards sur 4, les 2 restantes remplissent l'espace
  *
  * Typo : Inter Tight pour tous les h1/h2 (font-normal + italic suffix
  * muted sur la 2e ligne). Inter pour corps. DM Mono pour data accents.

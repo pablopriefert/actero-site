@@ -23,7 +23,7 @@ export const ROLE_PERMISSIONS = {
   operational: [
     'overview', 'automation', 'activity', 'escalations', 'response-templates',
     'systems', 'integrations', 'migrations', 'channels', 'email-agent', 'sentiment',
-    'voice-report', 'voice-calls', 'voice-agent', 'insights', 'opportunities',
+    'insights', 'opportunities',
     'agent-control', 'agent-config', 'knowledge', 'guardrails', 'simulator',
   ],
   support: ['overview', 'escalations', 'response-templates', 'sentiment', 'activity'],

@@ -103,7 +103,10 @@ export const CompanyPage = ({ onNavigate }) => {
     },
     {
       name: 'ElevenLabs Grants',
-      desc: 'Crédits ElevenLabs pour la synthèse vocale — brique voix pour de futures capacités de l\'agent.',
+      // La description ne promet plus de « brique voix pour de futures
+      // capacités » : l'agent vocal a été retiré. La bourse, elle, a bien été
+      // obtenue — c'est un soutien reçu, pas une fonctionnalité annoncée.
+      desc: 'Programme de soutien aux startups d\'ElevenLabs.',
     },
   ]
 

@@ -21,7 +21,6 @@ const ALLOWED_FIELDS = [
   'email_signature',
   'email_exclusions',
   'email_send_delay_seconds',
-  'email_attach_voice',
 ]
 
 async function requireClientAccess(req, res, clientId) {
@@ -65,7 +64,6 @@ async function handler(req, res) {
         'email_signature',
         'email_exclusions',
         'email_send_delay_seconds',
-        'email_attach_voice',
         'email_last_polled_at',
         'email_last_error',
         'email_last_error_at',

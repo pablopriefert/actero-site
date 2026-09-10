@@ -119,7 +119,7 @@ export const CalculateurGorgiasPage = ({ onNavigate }) => {
                   <strong className="text-[#1A1A1A]">Conversion EUR :</strong> taux moyen 12 mois 0,93 USD→EUR. Hors taxes locales et add-ons cachés (voice, SMS, integrations payantes).
                 </div>
                 <div>
-                  <strong className="text-[#1A1A1A]">Plan Actero :</strong> forfait tout inclus selon volume (Starter 99 €/1 000 tickets, Pro 399 €/5 000 tickets). Overage prévisible à 0,15 € puis 0,10 €/ticket — IA, voice et relance panier inclus.
+                  <strong className="text-[#1A1A1A]">Plan Actero :</strong> forfait tout inclus selon volume (Starter 99 €/1 000 tickets, Pro 399 €/5 000 tickets). Overage prévisible à 0,15 € puis 0,10 €/ticket — IA et relance panier inclus.
                 </div>
                 <div>
                   <strong className="text-[#1A1A1A]">Limitations :</strong> calcul conservateur — n'inclut pas voice ni SMS du concurrent, frais d'onboarding payants ni les coûts d'intégrateur souvent imposés. La réalité est typiquement 20-40 % au-dessus du chiffre affiché.

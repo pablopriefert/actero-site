@@ -6,7 +6,7 @@ import {
   CheckCircle2, Clock, AlertTriangle, Sparkles, Settings,
   MessageSquare, Phone, CreditCard, Bell, Globe, Sliders,
   Brain, HelpCircle, Send, Key, Calendar, TrendingUp,
-  PlayCircle, Volume2, Mic, Gift, Users, Terminal, Calculator,
+  PlayCircle, Volume2, Gift, Users, Terminal, Calculator,
   GitBranch, ArrowUpCircle, Rocket,
 } from "lucide-react";
 import { Navbar } from "../components/layout/Navbar";
@@ -486,7 +486,7 @@ const GUIDES = [
       },
       {
         title: 'Les automatisations disponibles',
-        content: "Actero propose 4 automatisations principales :\n\n- SAV E-commerce : repond aux questions de vos clients (ou est mon colis, je veux un retour, probleme de taille...)\n- Relance Paniers Abandonnes : detecte les paniers laisses a l'abandon et envoie des emails de relance personnalises\n- Comptabilite Automatisee : relance les factures impayees, exporte les donnees comptables, alerte sur la tresorerie\n- Agent Vocal IA : un agent telephonique qui repond aux appels sur votre site (bientot disponible)",
+        content: "Actero propose 3 automatisations principales :\n\n- SAV E-commerce : repond aux questions de vos clients (ou est mon colis, je veux un retour, probleme de taille...)\n- Relance Paniers Abandonnes : detecte les paniers laisses a l'abandon et envoie des emails de relance personnalises\n- Comptabilite Automatisee : relance les factures impayees, exporte les donnees comptables, alerte sur la tresorerie",
       },
       {
         title: 'Comment activer une automatisation',
@@ -603,28 +603,6 @@ const GUIDES = [
       {
         title: 'Personnaliser les relances',
         content: "Vous pouvez editer les templates dans Automatisations > Comptabilite > Modeles. Variables disponibles : {{client.nom}}, {{facture.numero}}, {{facture.montant}}, {{facture.jours_retard}}. Les changements s'appliquent au prochain run (nuit suivante).",
-      },
-    ],
-  },
-  {
-    id: 'agent-vocal-ia',
-    category: 'automatisations',
-    title: 'Agent Vocal IA',
-    summary: 'Un agent telephonique IA qui repond aux appels sur votre site. Bientot disponible.',
-    icon: Mic,
-    readTime: '3 min',
-    sections: [
-      {
-        title: 'Ce que c\'est',
-        content: "L'agent vocal est un assistant telephonique propulse par l'IA qui repond aux questions de vos clients par la voix, directement sur votre site. Quand un visiteur clique sur le bouton d'appel, il parle a l'agent comme s'il appelait un vrai conseiller. L'agent comprend les questions, consulte vos donnees (commandes, produits, FAQ) et repond oralement.",
-      },
-      {
-        title: 'Ce qu\'il pourra faire',
-        content: "L'agent vocal pourra repondre aux questions sur vos produits, donner le statut d'une commande en cours, expliquer votre politique de retour et de livraison, et transferer vers un humain si la demande est trop complexe. Il utilisera votre base de connaissances et vos regles, exactement comme l'agent ecrit.",
-      },
-      {
-        title: 'Disponibilite',
-        content: "L'agent vocal est actuellement en cours de developpement. Il sera bientot disponible pour tous les clients Actero. Quand il sera pret, vous pourrez l'activer depuis la page Automatisations, configurer la voix, le message d'accueil et les regles de transfert, puis l'installer sur votre boutique Shopify en un clic.",
       },
     ],
   },

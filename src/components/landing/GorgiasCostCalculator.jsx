@@ -198,7 +198,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             <span className="text-[14px] font-medium text-[#5A8B70] ml-1.5">/an</span>
           </div>
           <div className="text-[12px] text-[#5A8B70] mt-1.5 leading-tight">
-            {formatEUR(calc.acteroMonthlyEUR)}/mois — forfait tout inclus, IA + voice + relance
+            {formatEUR(calc.acteroMonthlyEUR)}/mois — forfait tout inclus, IA + relance
           </div>
         </div>
       </div>

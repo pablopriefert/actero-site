@@ -181,11 +181,9 @@ export const CommandPalette = ({
     // Sous-pages accessibles directement
     { id: 'response-templates', label: 'Modeles de reponse',     icon: FileText },
     { id: 'api-docs',           label: 'API',                    icon: Code },
-    { id: 'voice-agent',        label: 'Agent vocal',            icon: Phone },
     { id: 'weekly-summary',     label: 'Performance',            icon: BarChart3 },
     { id: 'roi',                label: 'ROI',                    icon: TrendingUp },
     { id: 'peak-hours',         label: 'Heures de pic',          icon: Clock },
-    { id: 'voice-calls',        label: 'Appels vocaux',          icon: PhoneCall },
     { id: 'referral',           label: 'Parrainage',             icon: Gift },
     { id: 'profile',            label: 'Compte',                 icon: User },
     { id: 'team',               label: 'Equipe',                 icon: Users },

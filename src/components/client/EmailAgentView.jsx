@@ -493,15 +493,6 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
             </div>
           </div>
 
-          {/* Voice attachment */}
-          <ToggleRow
-            label="Joindre un message vocal aux réponses"
-            description="Feature premium ElevenLabs — l'agent ajoute un audio naturel à chaque email envoyé."
-            value={!!settings.email_attach_voice}
-            onChange={(v) => onUpdate({ email_attach_voice: v })}
-            icon={Volume2}
-          />
-
           {/* Signature */}
           <div>
             <label className="text-[13px] font-semibold text-[#1a1a1a] mb-2 block">Signature email</label>
