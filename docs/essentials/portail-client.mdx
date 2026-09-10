@@ -33,6 +33,16 @@ Chaque demande (retour, remboursement, message) crée une conversation dans ton 
   </Step>
 </Steps>
 
+### Comment l'adresse est choisie
+
+Actero génère le sous-domaine automatiquement à la première activation, à partir de ton nom de marque :
+
+- Les accents sont retirés (« Café Léa » devient `cafe-lea`), les autres caractères sont remplacés par des tirets, 40 caractères maximum
+- Les noms de service (`admin`, `api`, `support`, `www`…) sont réservés : si ta marque en porte un, ou si le nom ne laisse rien d'utilisable, Actero utilise `boutique-` suivi de ton identifiant
+- Si le nom est déjà pris par un autre marchand, un suffixe numérique est ajouté (`cafe-lea-2`)
+
+L'adresse est fixée une fois pour toutes : désactiver puis réactiver le portail ne la change pas. Si aucune adresse ne peut être attribuée, le portail s'active quand même et la réponse contient un champ `avertissement`. Contacte [contact@actero.fr](mailto:contact@actero.fr) dans ce cas.
+
 La vérification de plan se fait côté serveur, pas seulement dans l'interface. Si ton plan n'inclut pas le portail, l'activation renvoie une erreur `403` :
 
 ```json
@@ -50,6 +60,12 @@ curl -X POST https://actero.fr/api/client/toggle-portal \
   -H "Authorization: Bearer $SUPABASE_JWT" \
   -H "Content-Type: application/json" \
   -d '{ "enabled": true }'
+```
+
+La réponse contient le sous-domaine attribué :
+
+```json
+{ "ok": true, "portal_enabled": true, "slug": "tamarque" }
 ```
 
 ## Connexion par lien magique
