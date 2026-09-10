@@ -84,6 +84,21 @@ On te recommande de **télécharger ton export complet** avant de demander la su
 
 Délai : suppression effective sous 30 jours, confirmation écrite. Pendant les 30 jours, tu peux annuler la demande.
 
+### Ce qui arrive à tes intégrations connectées
+
+Avant d'effacer tes données, Actero révoque ses accès chez les fournisseurs que tu avais connectés. Supprimer nos copies des jetons ne suffit pas : l'autorisation resterait active de ton côté. La révocation part donc en premier, automatiquement quand le fournisseur le permet.
+
+| Fournisseur | Révocation | Ce que ça fait |
+|---|---|---|
+| **Shopify** | Automatique | L'app Actero se désinstalle de ta boutique et le jeton est invalidé |
+| **Slack** | Automatique | Le jeton d'accès est révoqué côté Slack |
+| **Zendesk** | Automatique | Le jeton OAuth est supprimé sur ton sous-domaine Zendesk |
+| **Notion** | Manuelle | Notion n'expose pas de révocation par API. Retire Actero dans **Paramètres → Mes connexions** |
+| **Resend** | Manuelle | La clé API est dans ton compte Resend. Supprime-la dans **Resend → API Keys** |
+| **SMTP / IMAP** | Manuelle | Actero détenait le mot de passe de ta boîte email. **Change-le** — le retirer ne suffit pas |
+
+Pour les fournisseurs en révocation manuelle, fais l'action toi-même dès que ta suppression est confirmée. Si une révocation automatique échoue (fournisseur injoignable, jeton déjà expiré), la suppression de tes données n'est pas bloquée : l'équipe Actero te signale ce qu'il reste à retirer manuellement.
+
 ## Conformité RGPD côté Actero
 
 - **Données hébergées en UE** (Supabase Frankfurt, Cloudflare workers EU)
