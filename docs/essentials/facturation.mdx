@@ -20,9 +20,9 @@ Affiche ton plan, son prix, et la date de premier paiement. Bouton **Gérer mon 
 
 ### Si tu es en essai
 
-Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan, sans carte bancaire.
+Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan. La carte saisie à la souscription n'est pas débitée pendant l'essai.
 
-À la fin de l'essai (7 jours par défaut), tu repasses automatiquement en plan Free si tu n'as pas saisi de moyen de paiement.
+À la fin de l'essai (7 jours par défaut), ton abonnement démarre et ta carte est débitée, sauf si tu as annulé avant via **Gérer mon abonnement**.
 
 <Note>
 L'essai gratuit est accordé **une seule fois par compte**. La durée est la même quel que soit le chemin d'abonnement (carte de plan, checkout, upgrade). Résilier puis te réabonner ne redémarre pas d'essai : ton abonnement est alors facturé immédiatement.
@@ -63,7 +63,7 @@ L'annuel donne **-20 %** sur le prix affiché. Tu paies une fois pour l'année, 
 
 <Steps>
   <Step title="Choisis ton nouveau plan">
-    Clique sur le bouton de la carte (ex : "Passer au Pro — Essai 7j gratuit").
+    Clique sur le bouton de la carte (ex : "Passer au Pro — Essai 7j gratuit"). La durée affichée correspond à ton essai réel : 7 jours, ou 30 si tu viens d'un parrainage ou d'une campagne.
   </Step>
   <Step title="Tu es redirigé vers Stripe Checkout">
     Saisis ta carte. Si tu n'as jamais eu d'essai Actero, l'essai de 7 jours démarre.
@@ -109,7 +109,7 @@ Deux cas te donnent 30 jours d'essai au lieu de 7 :
 - **Parrainage** : tu es arrivé via un lien de parrainage. Le badge change : "Passer au Pro — 30 jours gratuits".
 - **Campagne publicitaire** : tu t'es inscrit via un lien de pub contenant un code campagne (`?campagne=` dans l'URL). Le code est validé côté serveur à l'inscription. Si tu reviens plus tard sans le lien, le code est conservé par un cookie.
 
-Dans les deux cas, l'offre s'applique à ton premier abonnement Starter ou Pro, et compte comme ton unique essai.
+Dans les deux cas, l'offre s'applique à ton premier abonnement Starter ou Pro, et compte comme ton unique essai. Si tu arrives par une campagne, l'inscription t'amène d'abord sur la page de sélection de plan (qui confirme ton mois offert), puis sur Stripe, avant le dashboard.
 
 Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
 
