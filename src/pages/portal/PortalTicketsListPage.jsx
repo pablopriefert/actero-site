@@ -56,7 +56,7 @@ export default function PortalTicketsListPage({ navigate }) {
       {tickets.map((t) => (
         <li key={t.id}>
           <button onClick={() => navigate(`/portal/tickets/${t.id}`)}
-            className="w-full text-left px-4 py-3 hover:bg-[#FAFAFA] flex justify-between items-center">
+            className="w-full text-left px-4 py-3 hover:bg-surface flex justify-between items-center">
             <span>
               <span className="font-semibold text-[#1A1A1A]">{t.subject || '(sans objet)'}</span>
               <span className="ml-2 text-xs text-[#8B8070]">{new Date(t.created_at).toLocaleDateString()}</span>

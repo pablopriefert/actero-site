@@ -167,7 +167,7 @@ export const VoiceCallsView = ({ clientId }) => {
                 <button
                   key={call.id}
                   onClick={() => setSelectedCall(call)}
-                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-[#fafafa] transition-colors text-left"
+                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-surface transition-colors text-left"
                 >
                   <div className="w-10 h-10 rounded-full bg-violet-50 flex items-center justify-center flex-shrink-0">
                     <Phone className="w-4 h-4 text-violet-600" />
@@ -293,7 +293,7 @@ const CallDrawer = ({ call, onClose }) => {
               </p>
             </div>
           </div>
-          <button onClick={onClose} aria-label="Fermer" className="p-2 hover:bg-[#fafafa] rounded-lg">
+          <button onClick={onClose} aria-label="Fermer" className="p-2 hover:bg-surface rounded-lg">
             <X className="w-4 h-4 text-[#9ca3af]" />
           </button>
         </div>
@@ -309,7 +309,7 @@ const CallDrawer = ({ call, onClose }) => {
               Sentiment {sent.label.toLowerCase()}
             </span>
             {call.customer_phone && (
-              <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-[#fafafa] text-[#1a1a1a] border border-[#ebebeb]">
+              <span className="text-[11px] font-medium px-2.5 py-1 rounded-full bg-surface text-[#1a1a1a] border border-[#ebebeb]">
                 {call.customer_phone}
               </span>
             )}
@@ -317,7 +317,7 @@ const CallDrawer = ({ call, onClose }) => {
 
           {/* Recording player */}
           {call.recording_url && (
-            <div className="p-4 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+            <div className="p-4 bg-surface rounded-xl border border-[#f0f0f0]">
               <div className="flex items-center gap-3">
                 <button
                   onClick={togglePlay}
@@ -356,7 +356,7 @@ const CallDrawer = ({ call, onClose }) => {
           <div>
             <p className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Transcription</p>
             {messages.length === 0 ? (
-              <div className="p-4 bg-[#fafafa] rounded-xl text-[12px] text-[#9ca3af] italic">
+              <div className="p-4 bg-surface rounded-xl text-[12px] text-[#9ca3af] italic">
                 Aucune transcription disponible.
               </div>
             ) : (
@@ -372,7 +372,7 @@ const CallDrawer = ({ call, onClose }) => {
                     <div key={msg.id} className={`flex ${isAgent ? 'justify-start' : 'justify-end'}`}>
                       <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl ${
                         isAgent
-                          ? 'bg-[#fafafa] text-[#1a1a1a] rounded-tl-sm'
+                          ? 'bg-surface text-[#1a1a1a] rounded-tl-sm'
                           : 'bg-violet-600 text-white rounded-tr-sm'
                       }`}>
                         <p className={`text-[10px] font-semibold mb-0.5 ${isAgent ? 'text-[#9ca3af]' : 'text-white/70'}`}>

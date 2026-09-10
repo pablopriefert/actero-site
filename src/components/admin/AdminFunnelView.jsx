@@ -7,7 +7,7 @@ import {
 import { supabase } from '../../lib/supabase'
 
 const STATUS_CONFIG = {
-  draft: { label: 'Brouillon', color: 'bg-[#fafafa]/10 text-[#71717a] border-gray-500/20' },
+  draft: { label: 'Brouillon', color: 'bg-surface/10 text-[#71717a] border-gray-500/20' },
   sent: { label: 'Email envoyé', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
   paid: { label: 'Payé — Actif', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
   canceled: { label: 'Annulé', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
@@ -385,7 +385,7 @@ export function AdminFunnelView() {
               {funnelClients.map((client) => {
                 const status = STATUS_CONFIG[client.status] || STATUS_CONFIG.draft
                 return (
-                  <tr key={client.id} className="hover:bg-[#fafafa] transition-colors">
+                  <tr key={client.id} className="hover:bg-surface transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-bold text-[#1a1a1a]">{client.company_name}</div>
                       <div className="text-[12px] text-[#71717a] mt-0.5">/start/{client.slug}</div>
@@ -414,7 +414,7 @@ export function AdminFunnelView() {
                         {/* Copy link */}
                         <button
                           onClick={() => copyLink(client.slug, client.id)}
-                          className="p-2 text-[#71717a] hover:text-[#1a1a1a] transition-colors rounded-lg hover:bg-[#fafafa]"
+                          className="p-2 text-[#71717a] hover:text-[#1a1a1a] transition-colors rounded-lg hover:bg-surface"
                           title="Copier le lien"
                         >
                           {copiedId === client.id ? (
@@ -429,7 +429,7 @@ export function AdminFunnelView() {
                           href={`${siteUrl}/start/${client.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-2 text-[#71717a] hover:text-[#1a1a1a] transition-colors rounded-lg hover:bg-[#fafafa]"
+                          className="p-2 text-[#71717a] hover:text-[#1a1a1a] transition-colors rounded-lg hover:bg-surface"
                           title="Ouvrir le lien"
                         >
                           <ExternalLink className="w-4 h-4" />
@@ -439,7 +439,7 @@ export function AdminFunnelView() {
                         <button
                           onClick={() => handleResendEmail(client)}
                           disabled={sendingId === client.id}
-                          className="p-2 text-[#71717a] hover:text-[#1a1a1a] transition-colors rounded-lg hover:bg-[#fafafa] disabled:opacity-40"
+                          className="p-2 text-[#71717a] hover:text-[#1a1a1a] transition-colors rounded-lg hover:bg-surface disabled:opacity-40"
                           title="Renvoyer l'email"
                         >
                           {sendingId === client.id ? (

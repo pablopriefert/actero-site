@@ -84,7 +84,7 @@ const PartnerAccessGate = ({ children }) => {
 
   if (state === 'denied') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-6">
+      <div className="min-h-screen flex items-center justify-center bg-surface px-6">
         <div className="max-w-md text-center">
           <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-5">
             <Lock className="w-8 h-8 text-gray-400" />

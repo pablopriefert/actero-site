@@ -289,7 +289,7 @@ export const AdminPartnersView = () => {
           { label: 'Contactés', value: statCounts.contacted, icon: Mail, color: 'text-amber-400' },
           { label: 'Qualifiés', value: statCounts.qualified, icon: CheckCircle2, color: 'text-green-400' },
         ].map((stat, i) => (
-          <div key={i} className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
+          <div key={i} className="p-4 rounded-xl bg-surface border border-[#f0f0f0]">
             <div className="flex items-center gap-2 mb-2">
               <stat.icon className={`w-4 h-4 ${stat.color}`} />
               <span className="text-[12px] text-[#71717a]">{stat.label}</span>
@@ -338,7 +338,7 @@ export const AdminPartnersView = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-[#f0f0f0] bg-[#fafafa]">
+                <tr className="border-b border-[#f0f0f0] bg-surface">
                   <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Candidat</th>
                   <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Société</th>
                   <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Activité</th>
@@ -352,7 +352,7 @@ export const AdminPartnersView = () => {
                 {filtered.map((p) => (
                   <React.Fragment key={p.id}>
                     <tr
-                      className="border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors cursor-pointer"
+                      className="border-b border-[#f0f0f0] hover:bg-surface transition-colors cursor-pointer"
                       onClick={() => setExpandedRow(expandedRow === p.id ? null : p.id)}
                     >
                       <td className="px-4 py-3">
@@ -405,7 +405,7 @@ export const AdminPartnersView = () => {
                               transition={{ duration: 0.2 }}
                               className="overflow-hidden"
                             >
-                              <div className="px-6 py-4 bg-[#fafafa]/50 border-b border-[#f0f0f0] space-y-2">
+                              <div className="px-6 py-4 bg-surface/50 border-b border-[#f0f0f0] space-y-2">
                                 {p.phone && (
                                   <div className="flex items-center gap-2 text-[13px] text-[#71717a]">
                                     <Phone className="w-3.5 h-3.5" />

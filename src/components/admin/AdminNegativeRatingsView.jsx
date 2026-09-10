@@ -86,7 +86,7 @@ export const AdminNegativeRatingsView = () => {
               onClick={() => setSelectedClientId(selectedClientId === client.id ? null : client.id)}
               className={`rounded-xl border p-3 text-left transition-all ${
                 selectedClientId === client.id
-                  ? 'bg-[#fafafa] border-white/20'
+                  ? 'bg-surface border-white/20'
                   : 'bg-surface border-[#f0f0f0] hover:border-gray-300'
               }`}
             >
@@ -172,7 +172,7 @@ export const AdminNegativeRatingsView = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <p className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider mb-1">Message client</p>
-                    <p className="text-[12px] text-[#71717a] bg-[#fafafa] rounded-lg px-3 py-2 line-clamp-3">
+                    <p className="text-[12px] text-[#71717a] bg-surface rounded-lg px-3 py-2 line-clamp-3">
                       {conv.customer_message}
                     </p>
                   </div>

@@ -756,7 +756,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors whitespace-nowrap ${
                 isActive
                   ? 'bg-[#1a1a1a] text-white'
-                  : 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-[#fafafa]'
+                  : 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-surface'
               }`}
             >
               <CatIcon className="w-3.5 h-3.5" />

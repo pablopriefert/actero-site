@@ -311,7 +311,7 @@ function Section({ icon: Icon, title, children, open, onToggle }) {
     <div className="rounded-2xl border border-[#f0f0f0] overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-white hover:bg-[#fafafa] transition-colors"
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-white hover:bg-surface transition-colors"
         aria-expanded={open}
       >
         <div className="flex items-center gap-2.5">
@@ -339,7 +339,7 @@ function Section({ icon: Icon, title, children, open, onToggle }) {
 
 function Bubble({ label, color = 'neutral', children }) {
   const palettes = {
-    neutral: 'bg-[#fafafa] border-[#f0f0f0] text-[#3A3A3A]',
+    neutral: 'bg-surface border-[#f0f0f0] text-[#3A3A3A]',
     cta: 'bg-cta/[0.04] border-cta/15 text-[#1A1A1A]',
   }
   return (
@@ -420,7 +420,7 @@ function MetricsGrid({ run, metrics, conversation }) {
   return (
     <div className="grid grid-cols-3 gap-2">
       {cells.map((c) => (
-        <div key={c.label} className="p-2.5 rounded-lg bg-[#fafafa] border border-[#f0f0f0]">
+        <div key={c.label} className="p-2.5 rounded-lg bg-surface border border-[#f0f0f0]">
           <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9ca3af] leading-tight">
             {c.label}
           </p>

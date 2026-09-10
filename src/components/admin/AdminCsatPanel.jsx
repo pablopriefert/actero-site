@@ -58,8 +58,8 @@ export function AdminCsatPanel() {
     <SectionCard title="Satisfaction client (bulle SAV)" icon={Smile}>
       {isLoading && (
         <div className="space-y-2" aria-busy="true">
-          <div className="h-14 rounded-xl bg-[#fafafa] animate-pulse" />
-          <div className="h-14 rounded-xl bg-[#fafafa] animate-pulse" />
+          <div className="h-14 rounded-xl bg-surface animate-pulse" />
+          <div className="h-14 rounded-xl bg-surface animate-pulse" />
         </div>
       )}
 
@@ -102,7 +102,7 @@ export function AdminCsatPanel() {
                   <ThumbsDown className="w-4 h-4" /> {down}
                 </span>
               </div>
-              <div className="mt-2 h-1.5 rounded-full bg-[#fafafa] overflow-hidden">
+              <div className="mt-2 h-1.5 rounded-full bg-surface overflow-hidden">
                 <div className="h-full bg-cta rounded-full" style={{ width: `${rate}%` }} />
               </div>
             </div>

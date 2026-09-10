@@ -510,7 +510,7 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
           </div>
         </form>
 
-        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#f0f0f0] bg-[#fafafa]">
+        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#f0f0f0] bg-surface">
           <button
             onClick={onClose}
             type="button"

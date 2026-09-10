@@ -36,7 +36,7 @@ function applyTheme(theme: Theme) {
  *
  * Default is 'light' (not 'system') until the product has been audited
  * screen-by-screen for dark-mode support. Many pages currently hard-code
- * light backgrounds (bg-white, bg-[#FAFAFA]) that don't participate in
+ * light backgrounds (bg-white, bg-surface) that don't participate in
  * the token-based dark swap — auto-switching on OS preference produces
  * broken hybrids (dark CTA on light bg). Dark mode is opt-in explicitly.
  */

@@ -287,7 +287,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight: _isLight }) => {
                 value={credentials[field.key] || ''}
                 onChange={(e) => handleFieldChange(field.key, e.target.value)}
                 placeholder={field.placeholder}
-                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
+                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-surface border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
               />
             </div>
           ))}
@@ -989,7 +989,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
                 onKeyDown={(e) => e.key === 'Enter' && handleOAuthPromptSubmit()}
                 autoFocus
                 placeholder={oauthPromptProvider.oauthPromptPlaceholder || 'ma-boutique'}
-                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
+                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-surface border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
               />
               {oauthPromptProvider.oauthPromptHint && (
                 <p className={`text-xs mt-1.5 mb-4 text-[#9ca3af]`}>
@@ -1046,7 +1046,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
               onKeyDown={(e) => e.key === 'Enter' && handleApiKeySubmit()}
               autoFocus
               placeholder={apiKeyProvider.apiKeyPlaceholder || 'Votre clé API...'}
-              className="w-full px-4 py-3 rounded-lg text-[13px] outline-none bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20"
+              className="w-full px-4 py-3 rounded-lg text-[13px] outline-none bg-surface border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20"
             />
             {apiKeyProvider.apiKeyHint && (
               <p className="text-xs mt-1.5 mb-4 text-[#9ca3af]">{apiKeyProvider.apiKeyHint}</p>
@@ -1114,7 +1114,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
                       value={smtpValues[field.key] || ''}
                       onChange={(e) => setSmtpValues(v => ({ ...v, [field.key]: e.target.value }))}
                       placeholder={field.placeholder}
-                      className="mt-1 w-full px-3 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-indigo-300"
+                      className="mt-1 w-full px-3 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-indigo-300"
                     />
                   )}
                 </div>

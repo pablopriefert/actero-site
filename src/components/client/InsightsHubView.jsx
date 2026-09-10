@@ -241,7 +241,7 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
             className={`px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors ${
               period === p.id
                 ? 'bg-[#1a1a1a] text-white'
-                : 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-[#fafafa]'
+                : 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-surface'
             }`}
           >
             {p.label}

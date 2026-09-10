@@ -80,7 +80,7 @@ export const getInstallBadge = (count = 0) => {
     return {
       label: `${n} installs`,
       icon: null,
-      className: 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]',
+      className: 'bg-surface text-[#71717a] border border-[#f0f0f0]',
       showCount: false,
       count: n,
     }
@@ -279,7 +279,7 @@ export const MarketplacePage = ({ onNavigate }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#1a1a1a]">
+    <div className="min-h-screen bg-surface text-[#1a1a1a]">
       <SEO
         title="Marketplace de templates IA pour e-commerce | Actero"
         description="Découvrez des templates prêts à l'emploi pour automatiser votre service client : SAV, suivi commande, retours, FAQ — directement intégrables dans Actero."
@@ -309,7 +309,7 @@ export const MarketplacePage = ({ onNavigate }) => {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-b from-white to-[#fafafa] border-b border-[#f0f0f0]">
+      <section className="bg-gradient-to-b from-white to-[#FFFFFF] border-b border-[#f0f0f0]">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-10 md:py-14">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="flex-1">

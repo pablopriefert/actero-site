@@ -191,7 +191,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
           />
         </div>
         {categories.length > 0 && (
-          <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-[#fafafa] overflow-x-auto">
+          <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-surface overflow-x-auto">
             <button
               onClick={() => setCategoryFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all whitespace-nowrap ${
@@ -282,7 +282,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                 <button
                   onClick={() => duplicateMutation.mutate(tpl)}
                   disabled={duplicateMutation.isPending}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-semibold bg-white text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#fafafa] transition-all disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-semibold bg-white text-[#1a1a1a] border border-[#ebebeb] hover:bg-surface transition-all disabled:opacity-50"
                 >
                   <Copy className="w-3 h-3" /> Dupliquer
                 </button>
@@ -331,7 +331,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                     value={form.name}
                     onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="Ex : Remboursement livraison retardée"
-                    className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
+                    className="w-full bg-surface border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -342,7 +342,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                       value={form.shortcut}
                       onChange={(e) => setForm(f => ({ ...f, shortcut: e.target.value }))}
                       placeholder="/rembourse"
-                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
+                      className="w-full bg-surface border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                   <div>
@@ -352,7 +352,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                       value={form.category}
                       onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
                       placeholder="Remboursement, SAV..."
-                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
+                      className="w-full bg-surface border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                 </div>
@@ -363,7 +363,7 @@ export const ResponseTemplatesView = ({ clientId, theme: _theme = 'light' }) => 
                     onChange={(e) => setForm(f => ({ ...f, body: e.target.value }))}
                     rows={8}
                     placeholder="Bonjour {{prenom}},&#10;&#10;Nous sommes desoles pour..."
-                    className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-cta/30"
+                    className="w-full bg-surface border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-cta/30"
                   />
                 </div>
               </div>

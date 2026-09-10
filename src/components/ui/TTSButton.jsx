@@ -39,7 +39,7 @@ export const TTSButton = ({
       : isThisError
         ? 'bg-red-50 border-red-200 text-red-600'
         : variant === 'ghost'
-          ? 'bg-transparent border-transparent text-[#71717a] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+          ? 'bg-transparent border-transparent text-[#71717a] hover:bg-surface hover:text-[#1a1a1a]'
           : 'bg-white border-[#f0f0f0] text-[#71717a] hover:bg-cta/[0.04] hover:border-cta/20 hover:text-cta'
 
   const handleClick = () => {

@@ -175,7 +175,7 @@ export const AdminReferralsView = () => {
             {topReferrers.map(([name, count], i) => (
               <div
                 key={name}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#fafafa] border border-[#f0f0f0]"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface border border-[#f0f0f0]"
               >
                 <span className="text-[12px] font-bold text-emerald-500">{i + 1}.</span>
                 <span className="text-[13px] font-medium text-[#1a1a1a]">{name}</span>
@@ -205,7 +205,7 @@ export const AdminReferralsView = () => {
               onClick={() => setStatusFilter(s)}
               className={`px-3 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-all ${
                 statusFilter === s
-                  ? 'bg-[#fafafa] text-[#1a1a1a]'
+                  ? 'bg-surface text-[#1a1a1a]'
                   : 'text-[#71717a] hover:text-[#71717a]'
               }`}
             >
@@ -239,7 +239,7 @@ export const AdminReferralsView = () => {
                 {filteredReferrals.map((ref) => {
                   const statusConf = STATUS_CONFIG[ref.status] || STATUS_CONFIG.pending
                   return (
-                    <tr key={ref.id} className="border-t border-[#f0f0f0] hover:bg-[#fafafa]">
+                    <tr key={ref.id} className="border-t border-[#f0f0f0] hover:bg-surface">
                       <td className="px-6 py-4 text-[13px] font-medium text-[#1a1a1a]">
                         {ref.clients?.brand_name || 'Inconnu'}
                       </td>
@@ -261,7 +261,7 @@ export const AdminReferralsView = () => {
                         <div className="relative">
                           <button
                             onClick={() => setActionMenuId(actionMenuId === ref.id ? null : ref.id)}
-                            className="p-1.5 rounded-lg hover:bg-[#fafafa] transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-surface transition-colors"
                           >
                             <MoreVertical className="w-4 h-4 text-[#71717a]" />
                           </button>
@@ -270,7 +270,7 @@ export const AdminReferralsView = () => {
                               {ref.status !== 'rewarded' && ref.status !== 'cancelled' && (
                                 <button
                                   onClick={() => validateMutation.mutate(ref.id)}
-                                  className="w-full text-left px-4 py-2 text-[13px] text-emerald-500 hover:bg-[#fafafa] flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 text-[13px] text-emerald-500 hover:bg-surface flex items-center gap-2"
                                 >
                                   <CheckCircle2 className="w-3.5 h-3.5" /> Valider
                                 </button>
@@ -278,14 +278,14 @@ export const AdminReferralsView = () => {
                               {ref.status !== 'cancelled' && ref.status !== 'rewarded' && (
                                 <button
                                   onClick={() => cancelMutation.mutate(ref.id)}
-                                  className="w-full text-left px-4 py-2 text-[13px] text-red-400 hover:bg-[#fafafa] flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 text-[13px] text-red-400 hover:bg-surface flex items-center gap-2"
                                 >
                                   <XCircle className="w-3.5 h-3.5" /> Annuler
                                 </button>
                               )}
                               <button
                                 onClick={() => setActionMenuId(null)}
-                                className="w-full text-left px-4 py-2 text-[13px] text-[#71717a] hover:bg-[#fafafa]"
+                                className="w-full text-left px-4 py-2 text-[13px] text-[#71717a] hover:bg-surface"
                               >
                                 Fermer
                               </button>

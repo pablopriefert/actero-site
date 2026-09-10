@@ -222,7 +222,7 @@ export const AdminClientHealthView = () => {
                 </div>
 
                 {/* Health bar */}
-                <div className="w-20 h-2 bg-[#fafafa] rounded-full overflow-hidden hidden lg:block">
+                <div className="w-20 h-2 bg-surface rounded-full overflow-hidden hidden lg:block">
                   <div
                     className={`h-full rounded-full ${scoreClasses.bar} transition-all`}
                     style={{ width: `${client.health.score}%` }}
@@ -233,7 +233,7 @@ export const AdminClientHealthView = () => {
                 <button
                   onClick={() => sendReport(client.id)}
                   disabled={sending === client.id}
-                  className="p-2 rounded-lg bg-[#fafafa] border border-[#f0f0f0] hover:bg-[#fafafa] hover:border-gray-300 transition-all disabled:opacity-50"
+                  className="p-2 rounded-lg bg-surface border border-[#f0f0f0] hover:bg-surface hover:border-gray-300 transition-all disabled:opacity-50"
                   title="Envoyer rapport mensuel"
                 >
                   <Send className={`w-3.5 h-3.5 ${sending === client.id ? 'animate-pulse text-blue-400' : 'text-[#71717a]'}`} />

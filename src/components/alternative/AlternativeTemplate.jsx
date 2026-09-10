@@ -232,7 +232,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                       {data.comparison.map((row, idx) => (
                         <tr
                           key={row.label}
-                          className={idx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}
+                          className={idx % 2 === 0 ? 'bg-white' : 'bg-surface'}
                         >
                           <td className="p-5 text-sm font-semibold text-[#262626] sticky left-0 bg-inherit">
                             {row.label}

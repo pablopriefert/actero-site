@@ -106,7 +106,7 @@ export const AdminEngineTestView = () => {
     if (status >= 200 && status < 300) return 'text-emerald-600 bg-emerald-50'
     if (status >= 400 && status < 500) return 'text-amber-600 bg-amber-50'
     if (status >= 500) return 'text-red-600 bg-red-50'
-    return 'text-gray-600 bg-[#fafafa]'
+    return 'text-gray-600 bg-surface'
   }
 
   return (

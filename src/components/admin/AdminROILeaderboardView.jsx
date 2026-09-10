@@ -192,7 +192,7 @@ export default function AdminROILeaderboardView() {
                       return (
                         <tr
                           key={row.client_id}
-                          className="border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors"
+                          className="border-b border-[#f0f0f0] hover:bg-surface transition-colors"
                         >
                           <td className="px-5 py-3">
                             <div className="flex items-center gap-1.5">

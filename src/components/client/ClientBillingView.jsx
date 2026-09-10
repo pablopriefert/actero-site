@@ -503,7 +503,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isCurrent ? 'bg-cta/10' : 'bg-[#fafafa]'
+                      isCurrent ? 'bg-cta/10' : 'bg-surface'
                     }`}>
                       <PlanIcon className={`w-4 h-4 ${isCurrent ? 'text-cta' : 'text-[#71717a]'}`} />
                     </div>
@@ -545,7 +545,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                       isCurrent
                         ? 'bg-[#f0f0f0] text-[#9ca3af] cursor-default'
                         : isDowngrade
-                        ? 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                        ? 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-surface hover:text-[#1a1a1a]'
                         : isEnterprise
                         ? 'bg-[#1a1a1a] text-white hover:bg-[#333]'
                         : 'bg-cta text-white hover:bg-[#0a4528]'
@@ -581,7 +581,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <button
               onClick={openStripePortal}
               disabled={loadingPortal}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E6E8EC] text-[#1a1a1a] text-[12px] font-semibold rounded-lg hover:bg-[#fafafa] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E6E8EC] text-[#1a1a1a] text-[12px] font-semibold rounded-lg hover:bg-surface transition-colors"
             >
               {loadingPortal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
               Voir mes factures

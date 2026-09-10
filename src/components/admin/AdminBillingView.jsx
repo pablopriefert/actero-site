@@ -10,7 +10,7 @@ import {
 const statusLabels = {
   active: { label: 'Actif', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20' },
   past_due: { label: 'En retard', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
-  canceled: { label: 'Annulé', color: 'text-[#71717a]', bg: 'bg-[#fafafa]/10 border-gray-500/20' },
+  canceled: { label: 'Annulé', color: 'text-[#71717a]', bg: 'bg-surface/10 border-gray-500/20' },
   trialing: { label: 'Essai', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
   incomplete: { label: 'Incomplet', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
   unpaid: { label: 'Impayé', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
@@ -68,7 +68,7 @@ export const AdminBillingView = () => {
           <h2 className="text-[24px] font-bold text-[#1a1a1a]">Facturation</h2>
           <p className="text-[13px] text-[#71717a] mt-1">Suivi des abonnements et paiements Stripe</p>
         </div>
-        <div className="flex p-1 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
+        <div className="flex p-1 rounded-xl bg-surface border border-[#f0f0f0]">
           {[
             { id: 'overview', label: 'Abonnements' },
             { id: 'invoices', label: 'Factures' },
@@ -78,7 +78,7 @@ export const AdminBillingView = () => {
               onClick={() => setView(tab.id)}
               className={`px-4 py-2 rounded-lg text-[12px] font-bold transition-all ${
                 view === tab.id
-                  ? 'bg-[#fafafa] text-[#1a1a1a] shadow-lg'
+                  ? 'bg-surface text-[#1a1a1a] shadow-lg'
                   : 'text-[#71717a] hover:text-[#71717a]'
               }`}
             >
@@ -175,7 +175,7 @@ export const AdminBillingView = () => {
                   const s = invoiceStatusLabels[inv.status] || invoiceStatusLabels.draft
                   const StatusIcon = s.icon
                   return (
-                    <tr key={inv.id} className="hover:bg-[#fafafa] transition-colors">
+                    <tr key={inv.id} className="hover:bg-surface transition-colors">
                       <td className="px-5 py-3 text-[12px] font-mono text-[#71717a]">{inv.number || '—'}</td>
                       <td className="px-5 py-3">
                         <p className="text-[12px] font-medium text-[#1a1a1a]">{inv.customer_name}</p>

@@ -235,7 +235,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-[13px] font-bold text-[#1a1a1a] bg-[#fafafa] hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
+              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-[13px] font-bold text-[#1a1a1a] bg-surface hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
             >
               {loading ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Sauvegarde...</>
@@ -329,7 +329,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
             <button
               onClick={handleSaveBrandContext}
               disabled={savingBrand || !brandContext.trim()}
-              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-[13px] font-bold text-[#1a1a1a] bg-[#fafafa] hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
+              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-[13px] font-bold text-[#1a1a1a] bg-surface hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
             >
               {savingBrand ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Sauvegarde...</>
@@ -462,7 +462,7 @@ const AdminClientIntegrations = ({ clientId }) => {
                 <button
                   onClick={() => handleForceTest(int)}
                   disabled={testingId === int.id}
-                  className="p-1 rounded hover:bg-[#fafafa] transition-colors"
+                  className="p-1 rounded hover:bg-surface transition-colors"
                   title="Forcer le test"
                 >
                   {testingId === int.id ? (

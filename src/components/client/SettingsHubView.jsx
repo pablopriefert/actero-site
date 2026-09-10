@@ -278,7 +278,7 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
               type="button"
               onClick={() => handleExport('json')}
               disabled={exporting === 'json'}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E6E8EC] bg-white text-[12px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E6E8EC] bg-white text-[12px] font-semibold text-[#1a1a1a] hover:bg-surface disabled:opacity-50 transition"
             >
               {exporting === 'json' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
               JSON
@@ -366,7 +366,7 @@ export const SettingsHubView = ({ clientId, onNavigate }) => {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.2, delay: 0.03 * (gidx * 3 + idx) }}
                     onClick={() => onNavigate && onNavigate(it.id)}
-                    className="group w-full flex items-center gap-3 px-4 py-3.5 hover:bg-[#fafafa] transition-colors text-left"
+                    className="group w-full flex items-center gap-3 px-4 py-3.5 hover:bg-surface transition-colors text-left"
                   >
                     <div className="w-9 h-9 rounded-lg bg-cta/10 flex items-center justify-center flex-shrink-0">
                       <Icon className="w-4 h-4 text-cta" />

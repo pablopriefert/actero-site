@@ -335,7 +335,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
           </div>
         ) : filteredEvents.length === 0 ? (
           <div className="p-16 text-center flex flex-col items-center">
-            <div className="w-14 h-14 bg-[#fafafa] rounded-full flex items-center justify-center mb-4 border border-[#eee]">
+            <div className="w-14 h-14 bg-surface rounded-full flex items-center justify-center mb-4 border border-[#eee]">
               <Activity className="w-7 h-7 text-[#ccc]" />
             </div>
             <h3 className="text-base font-semibold text-[#1a1a1a] mb-1">
@@ -364,7 +364,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
                     <button
                       type="button"
                       onClick={() => toggleExpand(event)}
-                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-[#fafafa] transition-colors"
+                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-surface transition-colors"
                     >
                       <div className="flex items-center gap-4 min-w-0">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${details.bg}`}>
@@ -416,7 +416,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.2, ease: 'easeOut' }}
-                          className="overflow-hidden bg-[#fafafa] border-t border-[#f0f0f0]"
+                          className="overflow-hidden bg-surface border-t border-[#f0f0f0]"
                         >
                           <div className="px-6 py-5">
                             {cache?.loading && (

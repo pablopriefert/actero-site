@@ -318,7 +318,7 @@ function DashboardPreview() {
       {/* Content grid — sidebar + main */}
       <div className="grid grid-cols-[220px_1fr] min-h-[480px]">
         {/* Sidebar */}
-        <div className="bg-[#FAFAFA] border-r border-black/[0.05] px-3 py-5">
+        <div className="bg-surface border-r border-black/[0.05] px-3 py-5">
           <div className="px-2 pb-4 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.08em]">
             Boutique
           </div>

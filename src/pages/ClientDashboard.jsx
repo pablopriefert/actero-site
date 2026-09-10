@@ -1023,7 +1023,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "billing" && "Facturation"}
             {planName && (
               <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                planId === 'free' ? 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]' :
+                planId === 'free' ? 'bg-surface text-[#71717a] border border-[#f0f0f0]' :
                 planId === 'starter' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
                 planId === 'pro' ? 'bg-cta/10 text-cta border border-cta/20' :
                 'bg-amber-50 text-amber-700 border border-amber-200'

@@ -200,7 +200,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-surface flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-[#003725]" />
       </div>
     )
@@ -208,7 +208,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
   if (!template) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center text-center px-6">
+      <div className="min-h-screen bg-surface flex items-center justify-center text-center px-6">
         <div>
           <p className="text-[18px] font-bold text-[#1a1a1a] mb-2">Template introuvable</p>
           <p className="text-[13px] text-[#716D5C] mb-4">
@@ -238,7 +238,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
   const examplesCount = contents.examples_count || (Array.isArray(contents.examples) ? contents.examples.length : 0)
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#1a1a1a]">
+    <div className="min-h-screen bg-surface text-[#1a1a1a]">
       <SEO
         title="Template Actero — automatisation support client"
         description="Template prêt à déployer dans Actero pour automatiser votre support client e-commerce."

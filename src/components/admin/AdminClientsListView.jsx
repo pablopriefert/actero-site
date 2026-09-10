@@ -357,7 +357,7 @@ export function AdminClientsListView() {
                   className={`inline-flex items-center h-7 px-2.5 rounded-full border text-[11px] font-semibold transition-all ${
                     active
                       ? 'bg-cta border-cta text-white'
-                      : 'bg-white border-[#f0f0f0] text-[#71717a] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                      : 'bg-white border-[#f0f0f0] text-[#71717a] hover:bg-surface hover:text-[#1a1a1a]'
                   }`}
                 >
                   {f.label}
@@ -386,7 +386,7 @@ export function AdminClientsListView() {
           ) : (
             <div className="overflow-x-auto -mx-4">
               <table className="w-full text-[12px]">
-                <thead className="sticky top-0 z-10 bg-[#fafafa] border-y border-[#f0f0f0]">
+                <thead className="sticky top-0 z-10 bg-surface border-y border-[#f0f0f0]">
                   <tr className="text-left text-[10px] uppercase tracking-wider text-[#9ca3af]">
                     <Th label="Logo" col={null} />
                     <Th label="Brand" col="brand_name" sort={sort} onSort={handleSort} />
@@ -405,7 +405,7 @@ export function AdminClientsListView() {
                     <tr
                       key={c.id}
                       onClick={() => handleRowClick(c)}
-                      className="border-b border-[#f0f0f0] hover:bg-[#fafafa] cursor-pointer transition-colors"
+                      className="border-b border-[#f0f0f0] hover:bg-surface cursor-pointer transition-colors"
                     >
                       <td className="px-4 py-2.5">
                         <div className="w-7 h-7 rounded-lg bg-cta/10 flex items-center justify-center text-[11px] font-bold text-cta">
@@ -607,7 +607,7 @@ function AddClientModal({ onClose, onCreated }) {
           <button
             type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-lg hover:bg-[#fafafa] text-[#9ca3af] hover:text-[#1a1a1a] flex items-center justify-center"
+            className="w-7 h-7 rounded-lg hover:bg-surface text-[#9ca3af] hover:text-[#1a1a1a] flex items-center justify-center"
           >
             <X className="w-4 h-4" />
           </button>
@@ -621,7 +621,7 @@ function AddClientModal({ onClose, onCreated }) {
               type="text"
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
-              className="w-full h-9 px-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
+              className="w-full h-9 px-3 rounded-xl bg-surface border border-[#f0f0f0] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
               placeholder="Acme Inc."
               autoFocus
             />
@@ -634,7 +634,7 @@ function AddClientModal({ onClose, onCreated }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-9 px-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
+              className="w-full h-9 px-3 rounded-xl bg-surface border border-[#f0f0f0] text-[13px] text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30"
               placeholder="contact@acme.com"
             />
           </div>
@@ -642,7 +642,7 @@ function AddClientModal({ onClose, onCreated }) {
             <button
               type="button"
               onClick={onClose}
-              className="h-9 px-3 rounded-lg text-[12px] font-semibold text-[#71717a] hover:bg-[#fafafa]"
+              className="h-9 px-3 rounded-lg text-[12px] font-semibold text-[#71717a] hover:bg-surface"
             >
               Annuler
             </button>

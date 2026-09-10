@@ -40,13 +40,13 @@ const EditKbEntry = ({ entry, onSave, onCancel }) => {
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
+        className="w-full px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
       />
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={3}
-        className="w-full px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-cta/30"
+        className="w-full px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-cta/30"
       />
       <div className="flex gap-2">
         <button onClick={() => onSave(title, content)} className="px-3 py-1.5 bg-cta text-white text-[12px] font-semibold rounded-lg hover:bg-cta">Sauvegarder</button>
@@ -72,7 +72,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
   const [manualContent, setManualContent] = useState('')
   const [newAbsoluteRule, setNewAbsoluteRule] = useState('')
 
-  const inputClass = "w-full px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 placeholder-gray-400"
+  const inputClass = "w-full px-4 py-3 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 placeholder-gray-400"
 
   // -------- Data fetching --------
   const { data: settings, isLoading } = useQuery({
@@ -440,7 +440,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                   ? 'bg-cta text-white'
                   : isCompleted
                     ? 'bg-emerald-50 text-emerald-600'
-                    : 'bg-[#fafafa] text-[#9ca3af]'
+                    : 'bg-surface text-[#9ca3af]'
               }`}>
                 {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
               </div>
@@ -501,7 +501,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                   <select
                     value={form.brand_language}
                     onChange={(e) => setForm(f => ({ ...f, brand_language: e.target.value }))}
-                    className="w-full max-w-md px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 appearance-none cursor-pointer"
+                    className="w-full max-w-md px-4 py-3 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 appearance-none cursor-pointer"
                   >
                     {LANGUAGES.map(l => (
                       <option key={l.value} value={l.value}>{l.label}</option>
@@ -627,7 +627,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                 </div>
 
                 {/* Live preview */}
-                <div className="p-4 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+                <div className="p-4 bg-surface rounded-xl border border-[#f0f0f0]">
                   <p className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Previsualisation</p>
                   <p className="text-[13px] text-[#1a1a1a] leading-relaxed italic">
                     "{(form.tone_formality || 30) < 40
@@ -691,7 +691,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                 {guardrails.length > 0 ? (
                   <div className="space-y-2">
                     {guardrails.map((g, i) => (
-                      <div key={g.id} className="flex items-center gap-3 px-4 py-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+                      <div key={g.id} className="flex items-center gap-3 px-4 py-3 bg-surface rounded-xl border border-[#f0f0f0]">
                         <div className="w-6 h-6 rounded-md bg-red-50 flex items-center justify-center flex-shrink-0">
                           <span className="text-[10px] font-bold text-red-500">{i + 1}</span>
                         </div>
@@ -774,7 +774,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                     Ajouter une entree manuellement
                   </button>
                 ) : (
-                  <div className="space-y-2 p-4 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+                  <div className="space-y-2 p-4 bg-surface rounded-xl border border-[#f0f0f0]">
                     <input
                       type="text"
                       value={manualTitle}
@@ -809,7 +809,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                   <div className="space-y-2 pt-4 border-t border-[#f0f0f0]">
                     <p className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Entrees existantes</p>
                     {kbEntries.map(entry => (
-                      <div key={entry.id} className="p-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+                      <div key={entry.id} className="p-3 bg-surface rounded-xl border border-[#f0f0f0]">
                         {editingKb === entry.id ? (
                           <EditKbEntry
                             entry={entry}
@@ -864,7 +864,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
 
                   <div className="space-y-3">
                     {(form.example_responses || []).map((ex, i) => (
-                      <div key={i} className="p-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0] space-y-2">
+                      <div key={i} className="p-3 bg-surface rounded-xl border border-[#f0f0f0] space-y-2">
                         <div className="flex items-start justify-between gap-2">
                           <span className="text-[10px] font-bold uppercase tracking-wider text-[#9ca3af]">Exemple {i + 1}</span>
                           <button onClick={() => handleRemoveExample(i)} className="p-1 rounded text-[#9ca3af] hover:bg-red-50 hover:text-red-500">

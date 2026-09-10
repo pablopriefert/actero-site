@@ -194,7 +194,7 @@ function MainRouter() {
   else if (currentRoute === "/ressources") page = <PromptLibraryPage onNavigate={navigate} />;
   else if (FEATURES.marketplace && (currentRoute === "/marketplace" || currentRoute.startsWith("/marketplace/"))) {
     page = (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="text-center max-w-md px-6">
           <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">🏪</span>
@@ -208,7 +208,7 @@ function MainRouter() {
   }
   else if (FEATURES.academy && (currentRoute === "/academy" || currentRoute.startsWith("/academy/"))) {
     page = (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="text-center max-w-md px-6">
           <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">🎓</span>

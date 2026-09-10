@@ -8,7 +8,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
  * SearchInput — Input de recherche stylé avec icône et bouton clear.
  *
  * Utilise les tokens design-tokens.js :
- * - tokens.colors.bg.page (#fafafa)
+ * - tokens.colors.bg.page
  * - tokens.colors.bg.border (#f0f0f0)
  * - tokens.colors.text.primary (#1a1a1a)
  * - tokens.colors.text.muted (#9ca3af) pour placeholder
@@ -45,7 +45,7 @@ export function SearchInput({
         onChange={onChange}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#fafafa] border border-[#f0f0f0] text-[13px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30 transition-all"
+        className="w-full pl-9 pr-8 py-2 rounded-xl bg-surface border border-[#f0f0f0] text-[13px] text-[#1a1a1a] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-cta/20 focus:border-cta/30 transition-all"
         {...rest}
       />
       {showClear && (

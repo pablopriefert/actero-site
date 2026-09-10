@@ -53,7 +53,7 @@ export default function PortalOrdersListPage({ navigate }) {
       {orders.map((o) => (
         <li key={o.id}>
           <button onClick={() => navigate(`/portal/orders/${encodeURIComponent(o.name)}`)}
-            className="w-full text-left px-4 py-3 hover:bg-[#FAFAFA] flex justify-between items-center">
+            className="w-full text-left px-4 py-3 hover:bg-surface flex justify-between items-center">
             <span>
               <span className="font-semibold text-[#1A1A1A]">{o.name}</span>
               <span className="ml-2 text-xs text-[#8B8070]">{new Date(o.created_at).toLocaleDateString()}</span>

@@ -100,7 +100,7 @@ export const AdminEngineRunsView = () => {
             return (
               <div key={run.id} className="bg-white border border-[#f0f0f0] rounded-xl overflow-hidden">
                 <button onClick={() => setExpandedRun(isExpanded ? null : run.id)}
-                  className="w-full p-4 flex items-center gap-3 text-left hover:bg-[#fafafa]">
+                  className="w-full p-4 flex items-center gap-3 text-left hover:bg-surface">
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${badge.color}`}>{badge.label}</span>
                   <span className="text-[12px] font-bold text-[#1a1a1a]">{run.clients?.brand_name || 'Client'}</span>
                   <span className="text-[12px] text-[#71717a]">{run.classification || 'N/A'}</span>

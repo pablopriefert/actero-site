@@ -213,7 +213,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                     </thead>
                     <tbody>
                       {data.comparison.map((row, idx) => (
-                        <tr key={row.label} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}>
+                        <tr key={row.label} className={idx % 2 === 0 ? 'bg-white' : 'bg-surface'}>
                           <td className="p-5 text-sm font-semibold text-[#262626] sticky left-0 bg-inherit">{row.label}</td>
                           <td className="p-5 text-center text-sm text-[#5A5A5A]">
                             <CellContent value={row.competitor} />

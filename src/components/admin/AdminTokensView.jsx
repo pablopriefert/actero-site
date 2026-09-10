@@ -281,7 +281,7 @@ export function AdminTokensView() {
                       {aggregates.topClients.map((c, idx) => (
                         <tr
                           key={c.client_id}
-                          className="border-b border-[#f0f0f0] last:border-b-0 hover:bg-[#fafafa]"
+                          className="border-b border-[#f0f0f0] last:border-b-0 hover:bg-surface"
                         >
                           <td className="py-2 pr-3 text-[#9ca3af] tabular-nums">{idx + 1}</td>
                           <td className="py-2 pr-3 font-medium text-[#1a1a1a]">{c.brand_name}</td>
@@ -324,7 +324,7 @@ export function AdminTokensView() {
                       {aggregates.topPlaybooks.map((p, idx) => (
                         <tr
                           key={p.playbook_id}
-                          className="border-b border-[#f0f0f0] last:border-b-0 hover:bg-[#fafafa]"
+                          className="border-b border-[#f0f0f0] last:border-b-0 hover:bg-surface"
                         >
                           <td className="py-2 pr-3 text-[#9ca3af] tabular-nums">{idx + 1}</td>
                           <td className="py-2 pr-3 font-mono text-[#1a1a1a]">

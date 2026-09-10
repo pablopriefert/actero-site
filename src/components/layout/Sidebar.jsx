@@ -177,7 +177,7 @@ export const Sidebar = ({
                       : `w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-150 ${
                           hasActiveChild
                             ? 'text-[#1a1a1a] font-semibold'
-                            : 'text-[#1a1a1a] font-medium hover:bg-[#fafafa]'
+                            : 'text-[#1a1a1a] font-medium hover:bg-surface'
                         }`
                   }
                 >
@@ -233,7 +233,7 @@ export const Sidebar = ({
                               : `h-8 text-[12px] ${
                                   isActive
                                     ? 'text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta'
-                                    : 'text-[#71717a] font-normal hover:text-[#1a1a1a] hover:bg-[#fafafa]'
+                                    : 'text-[#71717a] font-normal hover:text-[#1a1a1a] hover:bg-surface'
                                 }`
                           }`}
                         >
@@ -280,7 +280,7 @@ export const Sidebar = ({
               className={`w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-200 group ${
                 isActive
                   ? "text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta"
-                  : "text-[#1a1a1a] font-medium hover:bg-[#fafafa]"
+                  : "text-[#1a1a1a] font-medium hover:bg-surface"
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -364,7 +364,7 @@ export const Sidebar = ({
           aria-haspopup="menu"
           aria-expanded={showAccountMenu}
           aria-controls="account-menu"
-          className="w-full flex items-center gap-3 px-3 py-3 hover:bg-[#fafafa] transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-3 hover:bg-surface transition-colors"
         >
           <div className="w-8 h-8 rounded-lg bg-cta text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0">
             {initials}
