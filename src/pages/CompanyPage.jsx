@@ -122,7 +122,7 @@ export const CompanyPage = ({ onNavigate }) => {
         <section className="pt-28 md:pt-32 pb-12 px-6">
           <div className="max-w-[920px] mx-auto text-center">
             <FadeInUp className="mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#FFFFFF] border border-[#E3E6EA]">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-surface border border-[#E3E6EA]">
                 <span className="w-1.5 h-1.5 rounded-full bg-cta" />
                 <span>Entreprise</span>
                 <span className="text-[#E3E6EA]">·</span>
@@ -172,7 +172,7 @@ export const CompanyPage = ({ onNavigate }) => {
 
             <FadeInUp>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[#FFFFFF] rounded-[20px] p-8 border border-[#E3E6EA]">
+                <div className="bg-surface rounded-[20px] p-8 border border-[#E3E6EA]">
                   <Rocket className="w-5 h-5 text-cta mb-4" strokeWidth={2} />
                   <h3 className="text-[18px] font-bold text-[#1A1A1A] mb-3">
                     Pourquoi on existe
@@ -183,7 +183,7 @@ export const CompanyPage = ({ onNavigate }) => {
                     Ce temps vaut des milliers d'euros et n'ajoute aucune valeur concurrentielle.
                   </p>
                 </div>
-                <div className="bg-[#FFFFFF] rounded-[20px] p-8 border border-[#E3E6EA]">
+                <div className="bg-surface rounded-[20px] p-8 border border-[#E3E6EA]">
                   <Heart className="w-5 h-5 text-cta mb-4" strokeWidth={2} />
                   <h3 className="text-[18px] font-bold text-[#1A1A1A] mb-3">Ce qu'on construit</h3>
                   <p className="text-[14.5px] text-[#5A5A5A] leading-[1.6]">
@@ -198,7 +198,7 @@ export const CompanyPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ VALEURS ═══════════ */}
-        <section className="py-24 md:py-32 bg-[#FFFFFF] px-6">
+        <section className="py-24 md:py-32 bg-surface px-6">
           <div className="max-w-6xl mx-auto">
             <FadeInUp className="text-center mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -263,7 +263,7 @@ export const CompanyPage = ({ onNavigate }) => {
                 },
               ].map((f, i) => (
                 <FadeInUp key={i}>
-                  <div className="bg-[#FFFFFF] rounded-[20px] p-8 border border-[#E3E6EA] flex flex-col gap-5 h-full">
+                  <div className="bg-surface rounded-[20px] p-8 border border-[#E3E6EA] flex flex-col gap-5 h-full">
                     <div className="w-16 h-16 rounded-full bg-cta text-[#F4F5F7] flex items-center justify-center font-bold text-[22px]">
                       {f.initials}
                     </div>
@@ -280,7 +280,7 @@ export const CompanyPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ PROGRAMMES & SOUTIENS ═══════════ */}
-        <section className="py-24 md:py-32 bg-[#FFFFFF] px-6">
+        <section className="py-24 md:py-32 bg-surface px-6">
           <div className="max-w-[900px] mx-auto">
             <FadeInUp className="text-center mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">

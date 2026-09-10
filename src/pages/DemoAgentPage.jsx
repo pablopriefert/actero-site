@@ -153,7 +153,7 @@ export const DemoAgentPage = ({ onNavigate }) => {
         path="/demo"
       />
 
-      <main className="min-h-screen bg-[#FFFFFF] px-5 py-12 md:py-16">
+      <main className="min-h-screen bg-surface px-5 py-12 md:py-16">
         <div className="mx-auto flex max-w-3xl flex-col gap-8">
 
           {/* ── Cadrage : ce qui est faux, ce qui est vrai ── */}

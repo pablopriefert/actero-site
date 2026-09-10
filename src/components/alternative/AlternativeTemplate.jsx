@@ -120,7 +120,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
           <section className="pt-28 md:pt-32 pb-16 px-6">
             <div className="max-w-[920px] mx-auto text-center">
               <FadeInUp className="mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#FFFFFF] border border-[#E3E6EA]">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-surface border border-[#E3E6EA]">
                   <span className="w-1.5 h-1.5 rounded-full bg-cta" />
                   <span>Alternative à {competitor}</span>
                   <span className="text-[#E3E6EA]">·</span>
@@ -192,7 +192,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
           <PartnersMarquee />
 
           {/* ═══════════ TABLEAU COMPARATIF ═══════════ */}
-          <section className="py-24 md:py-32 bg-[#FFFFFF] px-6">
+          <section className="py-24 md:py-32 bg-surface px-6">
             <div className="max-w-5xl mx-auto">
               <FadeInUp className="text-center mb-14">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -286,7 +286,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                   const Icon = w.icon
                   return (
                     <FadeInUp key={i}>
-                      <div className="bg-[#FFFFFF] rounded-[20px] p-8 border border-[#E3E6EA] h-full">
+                      <div className="bg-surface rounded-[20px] p-8 border border-[#E3E6EA] h-full">
                         <div className="flex items-start gap-4 mb-4">
                           <div className="w-11 h-11 rounded-[12px] bg-white border border-[#E3E6EA] flex items-center justify-center flex-shrink-0">
                             <Icon className="w-5 h-5 text-cta" strokeWidth={2} />
@@ -323,7 +323,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
               !data.testimonials.every(isPlaceholder)
             if (!hasRealTestimonials) return null
             return (
-              <section className="py-24 md:py-32 bg-[#FFFFFF] px-6">
+              <section className="py-24 md:py-32 bg-surface px-6">
                 <div className="max-w-5xl mx-auto">
                   <FadeInUp className="text-center mb-14">
                     <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -437,7 +437,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                         <h3 className="text-[16.5px] font-semibold text-[#1A1A1A] m-0">{f.q}</h3>
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all text-[18px] font-light leading-none ${
-                            isOpen ? 'bg-cta text-white' : 'bg-[#FFFFFF] text-[#716D5C]'
+                            isOpen ? 'bg-cta text-white' : 'bg-surface text-[#716D5C]'
                           }`}
                         >
                           {isOpen ? '−' : '+'}
@@ -473,7 +473,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                     <button
                       key={link.href}
                       onClick={() => onNavigate(link.href)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFFFFF] border border-[#E3E6EA] text-[13px] font-semibold text-[#262626] hover:border-cta hover:text-cta transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface border border-[#E3E6EA] text-[13px] font-semibold text-[#262626] hover:border-cta hover:text-cta transition-colors"
                     >
                       {link.label}
                       <ArrowRight className="w-3 h-3" />

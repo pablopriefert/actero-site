@@ -372,7 +372,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               <button
                 type="button"
                 onClick={() => setReasoningOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E3E6EA] text-[11px] font-semibold text-[#1A1A1A] hover:border-cta hover:text-cta transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface border border-[#E3E6EA] text-[11px] font-semibold text-[#1A1A1A] hover:border-cta hover:text-cta transition-colors"
                 aria-label="Voir le raisonnement de l'agent"
               >
                 <BrainCircuit className="w-3 h-3" strokeWidth={2.2} />

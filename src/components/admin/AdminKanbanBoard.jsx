@@ -78,7 +78,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
           return (
             <div
               key={col.id}
-              className="rounded-3xl border border-[#f0f0f0] bg-[#ffffff]/50 p-4 flex flex-col gap-4 shadow-inner min-h-[60vh]"
+              className="rounded-3xl border border-[#f0f0f0] bg-surface/50 p-4 flex flex-col gap-4 shadow-inner min-h-[60vh]"
             >
               <div className="flex items-center justify-between mb-2 px-2">
                 <h3 className="font-bold text-[#1a1a1a] text-[13px] tracking-widest uppercase">
@@ -99,7 +99,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
                   <motion.div
                     layoutId={req.id}
                     key={req.id}
-                    className={`bg-[#ffffff] border ${col.color} p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow group ${isUpdating ? 'opacity-50 pointer-events-none' : ''}`}
+                    className={`bg-surface border ${col.color} p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow group ${isUpdating ? 'opacity-50 pointer-events-none' : ''}`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span
@@ -208,7 +208,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
+              className="bg-surface border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[15px] font-bold text-[#1a1a1a]">{detail.title || 'Demande'}</h3>

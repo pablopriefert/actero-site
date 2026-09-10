@@ -129,9 +129,9 @@ export const AdminManualReviewView = () => {
 
                   {/* Info */}
                   <div className="flex flex-wrap gap-3 text-[12px] text-[#71717a]">
-                    {proposed.classification && <span className="bg-[#ffffff] px-2 py-1 rounded">Classification: {proposed.classification}</span>}
-                    {normalized.customer_email && <span className="bg-[#ffffff] px-2 py-1 rounded">{normalized.customer_email}</span>}
-                    {event.source && <span className="bg-[#ffffff] px-2 py-1 rounded">Source: {event.source}</span>}
+                    {proposed.classification && <span className="bg-surface px-2 py-1 rounded">Classification: {proposed.classification}</span>}
+                    {normalized.customer_email && <span className="bg-surface px-2 py-1 rounded">{normalized.customer_email}</span>}
+                    {event.source && <span className="bg-surface px-2 py-1 rounded">Source: {event.source}</span>}
                   </div>
 
                   {/* Actions */}

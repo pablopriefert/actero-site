@@ -133,7 +133,7 @@ export function ShopifySuccessPage({ onNavigate }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-surface flex items-center justify-center px-4">
       <SEO
         title="Connexion Shopify réussie | Actero"
         description="Votre boutique Shopify est connectée à Actero. L'onboarding démarre."

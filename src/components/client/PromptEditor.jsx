@@ -510,7 +510,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
 
                   {/* ── Multilingue : whitelist des langues supportées ── */}
                   {form.brand_language === 'multi' && (
-                    <div className="mt-4 p-4 rounded-xl bg-[#FFFFFF] border border-[#E3E6EA] max-w-md">
+                    <div className="mt-4 p-4 rounded-xl bg-surface border border-[#E3E6EA] max-w-md">
                       <div className="flex items-start gap-2 mb-3">
                         <Globe className="w-4 h-4 text-cta mt-0.5 flex-shrink-0" strokeWidth={2} />
                         <div>

@@ -299,7 +299,7 @@ export const MarketplacePage = ({ onNavigate }) => {
             {isLoggedIn && (
               <button
                 onClick={() => onNavigate('/client')}
-                className="hidden md:inline-flex px-3 py-1.5 rounded-lg border border-[#f0f0f0] text-[12px] font-semibold hover:bg-[#FFFFFF]"
+                className="hidden md:inline-flex px-3 py-1.5 rounded-lg border border-[#f0f0f0] text-[12px] font-semibold hover:bg-surface"
               >
                 Mon dashboard
               </button>
@@ -375,7 +375,7 @@ export const MarketplacePage = ({ onNavigate }) => {
                     className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
                       selectedCategory === c.id
                         ? 'bg-cta text-white'
-                        : 'text-[#555] hover:bg-[#FFFFFF]'
+                        : 'text-[#555] hover:bg-surface'
                     }`}
                   >
                     {c.label}
@@ -394,7 +394,7 @@ export const MarketplacePage = ({ onNavigate }) => {
                     className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
                       selectedIndustry === ind.id
                         ? 'bg-cta text-white'
-                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
+                        : 'bg-surface text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {ind.label}
@@ -413,7 +413,7 @@ export const MarketplacePage = ({ onNavigate }) => {
                     className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       selectedPrice === p.id
                         ? 'bg-cta text-white'
-                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
+                        : 'bg-surface text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {p.label}
@@ -432,7 +432,7 @@ export const MarketplacePage = ({ onNavigate }) => {
                     className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       selectedRating === r.id
                         ? 'bg-cta text-white'
-                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
+                        : 'bg-surface text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {r.label}

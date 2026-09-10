@@ -121,7 +121,7 @@ export const AdminEngineRunsView = () => {
                       <div><span className="text-[#71717a]">Classification:</span> <span className="font-bold">{run.classification}</span></div>
                     </div>
                     {run.engine_events?.normalized?.message && (
-                      <div className="p-3 bg-[#ffffff] rounded-lg">
+                      <div className="p-3 bg-surface rounded-lg">
                         <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Message</p>
                         <p className="text-[13px] text-[#1a1a1a]">{run.engine_events.normalized.message.substring(0, 300)}</p>
                       </div>

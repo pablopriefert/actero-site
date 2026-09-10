@@ -130,7 +130,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
         title="Choisir votre plan — Actero"
         description="Sélectionnez le plan Actero adapté à votre boutique."
       />
-      <div className="min-h-screen bg-[#FFFFFF] font-sans">
+      <div className="min-h-screen bg-surface font-sans">
         {/* Logo */}
         <div className="flex justify-center pt-10 pb-4">
           <div className="w-14 h-14 rounded-2xl bg-white border border-gray-200 flex items-center justify-center shadow-sm">
@@ -201,10 +201,10 @@ export const PlanSelectionPage = ({ onNavigate }) => {
               let ctaStyle;
               if (planId === "free") {
                 ctaLabel = "Continuer gratuitement";
-                ctaStyle = "bg-[#FFFFFF] text-[#262626] border border-gray-200 hover:bg-gray-100";
+                ctaStyle = "bg-surface text-[#262626] border border-gray-200 hover:bg-gray-100";
               } else if (planId === "enterprise") {
                 ctaLabel = "Contacter l\u2019\u00E9quipe";
-                ctaStyle = "bg-[#FFFFFF] text-[#262626] border border-gray-200 hover:bg-gray-100";
+                ctaStyle = "bg-surface text-[#262626] border border-gray-200 hover:bg-gray-100";
               } else if (isStartupPromo) {
                 ctaLabel = "Activer mon plan -50%";
                 ctaStyle = "bg-cta text-white hover:bg-cta";

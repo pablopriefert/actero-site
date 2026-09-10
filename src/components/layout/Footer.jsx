@@ -56,7 +56,7 @@ export const Footer = ({ onNavigate }) => {
   ]
 
   return (
-    <footer className="bg-[#FFFFFF] border-t border-gray-200 py-14 px-6 relative z-10 w-full mt-auto">
+    <footer className="bg-surface border-t border-gray-200 py-14 px-6 relative z-10 w-full mt-auto">
       <div className="max-w-6xl mx-auto">
         {/* ── Top grid : brand + 4 link columns ── */}
         <div className="grid grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-8 pb-10 border-b border-gray-200">

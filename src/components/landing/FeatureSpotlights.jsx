@@ -223,7 +223,7 @@ function CartMedia() {
 /* ───────────────────────────── Sections ───────────────────────────── */
 export const SavSpotlight = () => (
   <Spotlight
-    bg="bg-[#FFFFFF]"
+    bg="bg-surface"
     eyebrow="Agent SAV"
     Icon={MessageSquare}
     badge="dès le plan Free"

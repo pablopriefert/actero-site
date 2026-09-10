@@ -157,7 +157,7 @@ export const AdminEngineTestView = () => {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="/api/engine/webhook"
-            className="flex-1 px-4 py-2 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[13px] font-mono text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
+            className="flex-1 px-4 py-2 bg-surface border border-[#f0f0f0] rounded-lg text-[13px] font-mono text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
           />
           <button
             onClick={handleSend}
@@ -185,14 +185,14 @@ export const AdminEngineTestView = () => {
                   value={h.key}
                   onChange={(e) => updateHeader(i, 'key', e.target.value)}
                   placeholder="Key"
-                  className="w-1/3 px-3 py-1.5 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] font-mono text-[#1a1a1a] outline-none"
+                  className="w-1/3 px-3 py-1.5 bg-surface border border-[#f0f0f0] rounded-lg text-[12px] font-mono text-[#1a1a1a] outline-none"
                 />
                 <input
                   type="text"
                   value={h.value}
                   onChange={(e) => updateHeader(i, 'value', e.target.value)}
                   placeholder="Value"
-                  className="flex-1 px-3 py-1.5 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] font-mono text-[#1a1a1a] outline-none"
+                  className="flex-1 px-3 py-1.5 bg-surface border border-[#f0f0f0] rounded-lg text-[12px] font-mono text-[#1a1a1a] outline-none"
                 />
                 <button onClick={() => removeHeader(i)} className="p-1 text-[#c4c4c4] hover:text-red-500">
                   <Trash2 className="w-3.5 h-3.5" />
@@ -262,7 +262,7 @@ export const AdminEngineTestView = () => {
               <button
                 key={i}
                 onClick={() => setResult(entry)}
-                className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-[#ffffff] transition-colors text-left"
+                className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-surface transition-colors text-left"
               >
                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${statusColor(entry.status)}`}>
                   {entry.status}

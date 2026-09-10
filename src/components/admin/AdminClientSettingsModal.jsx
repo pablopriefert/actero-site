@@ -147,7 +147,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[#ffffff] border border-[#f0f0f0] rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-surface border border-[#f0f0f0] rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Settings className="w-5 h-5 text-[#71717a]" />

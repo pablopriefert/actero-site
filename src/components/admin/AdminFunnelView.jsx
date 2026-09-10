@@ -206,7 +206,7 @@ export function AdminFunnelView() {
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-white/60 backdrop-blur-sm" onClick={() => setShowForm(false)} />
-          <div className="relative bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-8 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-surface border border-[#f0f0f0] rounded-2xl p-8 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowForm(false)}
               className="absolute top-4 right-4 text-[#71717a] hover:text-[#1a1a1a] transition-colors"
@@ -356,7 +356,7 @@ export function AdminFunnelView() {
           <Sparkles className="w-8 h-8 animate-pulse text-[#71717a]" />
         </div>
       ) : funnelClients.length === 0 ? (
-        <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-16 text-center flex flex-col items-center">
+        <div className="bg-surface border border-[#f0f0f0] rounded-2xl p-16 text-center flex flex-col items-center">
           <Link2 className="w-12 h-12 text-[#71717a] mb-4" />
           <h3 className="text-[18px] font-bold mb-2">Aucun client funnel</h3>
           <p className="text-[#71717a] mb-4">Créez votre premier lien de paiement privé.</p>
@@ -368,7 +368,7 @@ export function AdminFunnelView() {
           </button>
         </div>
       ) : (
-        <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-x-auto">
+        <div className="bg-surface border border-[#f0f0f0] rounded-2xl overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className="border-b border-[#f0f0f0] bg-white">

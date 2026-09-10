@@ -96,7 +96,7 @@ export const PricingA = ({ onNavigate }) => {
     if (style === 'dark') return 'bg-cta text-white hover:bg-[#1a1a1a]'
     // ghost
     if (popular) return 'bg-[#F4F5F7]/10 text-white hover:bg-[#F4F5F7]/15'
-    return 'bg-[#FFFFFF] text-[#1A1A1A] hover:bg-gray-100 border border-black/[0.08]'
+    return 'bg-surface text-[#1A1A1A] hover:bg-gray-100 border border-black/[0.08]'
   }
 
   return (

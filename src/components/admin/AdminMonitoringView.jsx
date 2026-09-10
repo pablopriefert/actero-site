@@ -81,7 +81,7 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={e => e.stopPropagation()}
-        className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
+        className="bg-surface border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
       >
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-[14px] font-bold text-[#1a1a1a]">Associer à un client</h3>
@@ -90,7 +90,7 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
           </button>
         </div>
 
-        <div className="mb-4 p-3 bg-[#ffffff] rounded-xl border border-[#f0f0f0]">
+        <div className="mb-4 p-3 bg-surface rounded-xl border border-[#f0f0f0]">
           <p className="text-[12px] text-[#71717a]">Workflow</p>
           <p className="text-[13px] text-[#1a1a1a] font-medium">{workflow.name}</p>
           <p className="text-[10px] text-[#71717a] font-mono">{workflow.id}</p>
@@ -105,7 +105,7 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
                 const client = clients.find(c => c.id === a.client_id)
                 const catConfig = CATEGORIES.find(c => c.id === a.category)
                 return (
-                  <div key={a.id} className="flex items-center justify-between p-2.5 bg-[#ffffff] rounded-lg border border-[#f0f0f0]">
+                  <div key={a.id} className="flex items-center justify-between p-2.5 bg-surface rounded-lg border border-[#f0f0f0]">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded bg-violet-500/10 flex items-center justify-center text-[10px] font-bold text-violet-400">
                         {client?.brand_name?.charAt(0) || '?'}
@@ -145,7 +145,7 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
             >
               <option value="">Sélectionner un client...</option>
               {clients.map(c => (
-                <option key={c.id} value={c.id} className="bg-[#ffffff]">{c.brand_name} ({c.client_type})</option>
+                <option key={c.id} value={c.id} className="bg-surface">{c.brand_name} ({c.client_type})</option>
               ))}
             </select>
           </div>
@@ -288,7 +288,7 @@ export const AdminMonitoringView = () => {
           { label: 'Exécutions', value: totalExecs, icon: Activity, color: 'text-violet-400', bg: 'bg-violet-500/10' },
           { label: 'Taux succès', value: `${successRate}%`, icon: ShieldCheck, color: successRate >= 90 ? 'text-emerald-500' : 'text-amber-400', bg: successRate >= 90 ? 'bg-emerald-500/10' : 'bg-amber-500/10' },
         ].map(kpi => (
-          <div key={kpi.label} className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-4">
+          <div key={kpi.label} className="bg-surface border border-[#f0f0f0] rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className={`w-7 h-7 rounded-lg ${kpi.bg} flex items-center justify-center`}>
                 <kpi.icon className={`w-3.5 h-3.5 ${kpi.color}`} />
@@ -344,7 +344,7 @@ export const AdminMonitoringView = () => {
       </div>
 
       {/* Workflow table */}
-      <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-hidden">
+      <div className="bg-surface border border-[#f0f0f0] rounded-2xl overflow-hidden">
         {/* Table header */}
         <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-[#f0f0f0] text-[10px] uppercase tracking-wider text-[#71717a] font-bold">
           <div className="col-span-1">Statut</div>
@@ -490,7 +490,7 @@ export const AdminMonitoringView = () => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden border-b border-[#f0f0f0]"
                   >
-                    <div className="px-5 py-4 bg-[#ffffff] grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="px-5 py-4 bg-surface grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
                         <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">ID Workflow</p>
                         <p className="text-[12px] text-[#1a1a1a] font-mono">{wf.id}</p>

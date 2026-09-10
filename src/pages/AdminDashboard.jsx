@@ -667,7 +667,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
-              className="relative w-4/5 max-w-xs bg-[#ffffff] h-full shadow-2xl"
+              className="relative w-4/5 max-w-xs bg-surface h-full shadow-2xl"
             >
               <Sidebar 
                 title="Actero Admin"
@@ -709,7 +709,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <button
               type="button"
               onClick={toggleCmdk}
-              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-[#FFFFFF] border border-[#EDEFF2] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
+              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-surface border border-[#EDEFF2] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
               title="Recherche globale"
             >
               <Search className="w-3.5 h-3.5" />
@@ -997,7 +997,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: i * 0.05 }}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] hover:bg-[#ffffff] transition-colors cursor-pointer"
+                          className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] hover:bg-surface transition-colors cursor-pointer"
                           onClick={() => setSelectedClient(client)}
                         >
                           <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
@@ -1158,12 +1158,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   <Sparkles className="w-8 h-8 animate-pulse text-[#71717a]" />
                 </div>
               ) : leads.length === 0 ? (
-                <div className="text-center py-20 bg-[#ffffff] rounded-2xl border border-[#f0f0f0]">
+                <div className="text-center py-20 bg-surface rounded-2xl border border-[#f0f0f0]">
                   <Users className="w-12 h-12 text-[#71717a] mx-auto mb-4" />
                   <p className="text-[#71717a]">Aucun lead pour le moment.</p>
                 </div>
               ) : (
-                <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-x-auto">
+                <div className="bg-surface border border-[#f0f0f0] rounded-2xl overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead>
                       <tr className="border-b border-[#f0f0f0] bg-white">

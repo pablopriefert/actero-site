@@ -152,7 +152,7 @@ export const AdminClientHealthView = () => {
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
+        <div className="bg-surface rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
             <Heart className="w-4 h-4 text-emerald-500" />
             <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">Score moyen</span>
@@ -161,14 +161,14 @@ export const AdminClientHealthView = () => {
             {avgScore}%
           </p>
         </div>
-        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
+        <div className="bg-surface rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="w-4 h-4 text-red-400" />
             <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">À risque</span>
           </div>
           <p className="text-[30px] font-bold font-mono text-red-400">{atRisk.length}</p>
         </div>
-        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
+        <div className="bg-surface rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">En bonne santé</span>
@@ -191,7 +191,7 @@ export const AdminClientHealthView = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="bg-[#ffffff] border border-[#f0f0f0] rounded-xl p-4 flex items-center gap-4 hover:border-gray-300 transition-colors"
+              className="bg-surface border border-[#f0f0f0] rounded-xl p-4 flex items-center gap-4 hover:border-gray-300 transition-colors"
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${scoreClasses.box}`}>
                 <span className={`text-[15px] font-bold font-mono ${scoreClasses.text}`}>{client.health.score}</span>

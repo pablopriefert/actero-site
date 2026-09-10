@@ -216,7 +216,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FFFFFF]">
+      <div className="min-h-screen bg-surface">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
         <div className="pt-40 text-center text-[#716D5C]">Chargement...</div>
       </div>
@@ -225,7 +225,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
 
   if (!course || !mod) {
     return (
-      <div className="min-h-screen bg-[#FFFFFF]">
+      <div className="min-h-screen bg-surface">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
         <div className="pt-40 text-center">
           <h1 className="text-2xl font-bold mb-2">Module introuvable</h1>
@@ -244,7 +244,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
   const locked = !enrolledEmail;
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#262626]">
+    <div className="min-h-screen bg-surface text-[#262626]">
       <SEO
         title={`${mod.title} - ${course.title} - Actero Academy`}
         description={mod.description || course.subtitle}
@@ -417,7 +417,7 @@ export const AcademyModulePage = ({ courseSlug, moduleSlug, onNavigate }) => {
                       key={m.id}
                       onClick={() => onNavigate(`/academy/${courseSlug}/${m.slug}`)}
                       className={`w-full flex items-center gap-2 text-left px-2 py-2 rounded-lg transition-colors ${
-                        active ? "bg-cta/10" : "hover:bg-[#FFFFFF]"
+                        active ? "bg-cta/10" : "hover:bg-surface"
                       }`}
                     >
                       {done ? (

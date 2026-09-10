@@ -78,7 +78,7 @@ export const CapabilitiesA = () => {
   }
 
   return (
-    <section className="py-24 md:py-32 bg-[#FFFFFF] px-6">
+    <section className="py-24 md:py-32 bg-surface px-6">
       <div className="max-w-6xl mx-auto">
         <FadeInUp className="text-center mb-16">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">

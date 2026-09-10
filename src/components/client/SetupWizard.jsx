@@ -93,7 +93,7 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#FFFFFF]/95 backdrop-blur-sm overflow-y-auto"
+        className="fixed inset-0 z-[100] bg-surface/95 backdrop-blur-sm overflow-y-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="wizard-title"

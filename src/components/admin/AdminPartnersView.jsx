@@ -214,7 +214,7 @@ export const AdminPartnersView = () => {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="p-6 rounded-xl bg-[#ffffff] border border-[#f0f0f0] space-y-4">
+            <div className="p-6 rounded-xl bg-surface border border-[#f0f0f0] space-y-4">
               <h3 className="text-[13px] font-bold text-[#1a1a1a]">Nouveau partenaire</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <input
@@ -308,17 +308,17 @@ export const AdminPartnersView = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par nom, email, société..."
-            className="w-full pl-10 pr-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-indigo-500/40"
+            className="w-full pl-10 pr-4 py-2.5 bg-surface border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-indigo-500/40"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:border-indigo-500/40 appearance-none cursor-pointer"
+          className="px-4 py-2.5 bg-surface border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:border-indigo-500/40 appearance-none cursor-pointer"
         >
-          <option value="all" className="bg-[#ffffff]">Tous les statuts</option>
+          <option value="all" className="bg-surface">Tous les statuts</option>
           {Object.entries(STATUS_MAP).map(([key, val]) => (
-            <option key={key} value={key} className="bg-[#ffffff]">{val.label}</option>
+            <option key={key} value={key} className="bg-surface">{val.label}</option>
           ))}
         </select>
       </div>
@@ -375,10 +375,10 @@ export const AdminPartnersView = () => {
                               updateStatusMutation.mutate({ id: p.id, status: e.target.value })
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            className="px-2 py-1 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none cursor-pointer"
+                            className="px-2 py-1 bg-surface border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none cursor-pointer"
                           >
                             {Object.entries(STATUS_MAP).map(([key, val]) => (
-                              <option key={key} value={key} className="bg-[#ffffff]">{val.label}</option>
+                              <option key={key} value={key} className="bg-surface">{val.label}</option>
                             ))}
                           </select>
                           <button

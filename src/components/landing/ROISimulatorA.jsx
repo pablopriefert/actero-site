@@ -47,7 +47,7 @@ export const ROISimulatorA = () => {
         </FadeInUp>
 
         <FadeInUp>
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 bg-[#FFFFFF] rounded-3xl p-10 border border-[#E3E6EA]">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 bg-surface rounded-3xl p-10 border border-[#E3E6EA]">
             {/* LEFT — Sliders */}
             <div>
               <div className="mb-7">

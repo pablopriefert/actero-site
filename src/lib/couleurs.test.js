@@ -15,14 +15,31 @@ import { join } from 'node:path'
  * réapparaître, ni les deux anciens verts de CTA — sauf `#0E653A`, qui est
  * devenu `--color-cta-hover` : légitime en contexte de survol, pas ailleurs.
  *
- * Ce que ce fichier NE couvre PAS, et pourquoi :
- * `src/` contient environ 1022 `bg-[#XXXXXX]` écrits en dur sur 193 fichiers
- * (couleurs valides, pas du beige — juste jamais rapatriées vers un token).
- * Un test qui interdirait tout `bg-[#...]` échouerait sur ces 1022 lignes dès
- * aujourd'hui et ne garderait rien de plus que ce que le test ci-dessous
- * garde déjà : il serait juste rouge en permanence, donc ignoré. Avant de
- * pouvoir poser cette garde-là, il faut d'abord rapatrier ces fonds vers
- * `--color-app`, `--color-surface` ou `--color-cream` (selon le cas), fichier
+ * ACT-30 (seconde moitié) : `bg-[#FFFFFF]` rapatrié vers `bg-surface`. 311
+ * occurrences (casse indifférente — `bg-[#FFFFFF]` et `bg-[#ffffff]`
+ * cohabitaient) sur 92 fichiers, car `--color-surface` vaut exactement
+ * `#FFFFFF` (voir index.css). Le test ci-dessous interdit son retour.
+ *
+ * `bg-[#FAFAFA]` n'a PAS été rapatrié, volontairement : `--color-app` vaut
+ * `#FFFFFF`, pas `#FAFAFA` — il n'existe aujourd'hui aucun token qui
+ * corresponde à cette couleur. La convertir vers `bg-app` aurait changé la
+ * couleur réelle (subtil, mais réel), exactement le risque que ce ticket
+ * demandait de vérifier avant de bouger. Au passage : la couleur est écrite
+ * en minuscule dans l'immense majorité des cas (`bg-[#fafafa]`), pour environ
+ * 316 occurrences au total (casse indifférente) — pas les 4 attendues, qui
+ * ne comptaient que la variante MAJUSCULE. Tant qu'aucun token n'existe pour
+ * `#FAFAFA`, ce fichier ne peut pas non plus garder cette couleur-là : le
+ * test serait rouge dès aujourd'hui.
+ *
+ * Ce que ce fichier NE couvre TOUJOURS PAS, et pourquoi :
+ * `src/` contient encore environ 725 `bg-[#XXXXXX]` écrits en dur sur 155
+ * fichiers (couleurs valides, pas du beige — `#FAFAFA` inclus — juste jamais
+ * rapatriées vers un token). Un test qui interdirait tout `bg-[#...]`
+ * échouerait sur ces 725 lignes dès aujourd'hui et ne garderait rien de plus
+ * que ce que les tests ci-dessous gardent déjà : il serait juste rouge en
+ * permanence, donc ignoré. Avant de pouvoir poser cette garde-là, il faut
+ * d'abord rapatrier ces fonds vers `--color-app`, `--color-surface` ou
+ * `--color-cream` (selon le cas) — ou créer le token qui manque — fichier
  * par fichier — ce n'est pas l'objet de ce ticket.
  */
 
@@ -48,6 +65,29 @@ function fichiersSources(dir, acc = []) {
   return acc
 }
 
+// Les commentaires ont le droit de raconter l'histoire d'une bascule (ex. ce
+// fichier lui-même). Suivre l'état des blocs /* … */, dont les lignes de
+// continuation ne commencent par aucun marqueur (repris de typographie.test.js).
+// Retourne les lignes de code utiles, brutes ET en version .trim() (`nu`).
+function lignesDeCode(src) {
+  const lignes = []
+  let dansBloc = false
+  for (const ligne of src.split('\n')) {
+    const nu = ligne.trim()
+    const ouvre = ligne.lastIndexOf('/*')
+    const ferme = ligne.lastIndexOf('*/')
+    const etaitDansBloc = dansBloc
+    if (!dansBloc && ouvre !== -1 && ferme < ouvre) dansBloc = true
+    else if (dansBloc && ferme !== -1 && ferme > ouvre) dansBloc = false
+
+    if (etaitDansBloc || dansBloc) continue
+    if (nu.startsWith('//') || nu.startsWith('/*') || nu.startsWith('*')) continue
+
+    lignes.push({ ligne, nu })
+  }
+  return lignes
+}
+
 const FICHIERS = fichiersSources(RACINE)
 const CSS = readFileSync('src/index.css', 'utf8')
 const TOKENS = readFileSync('src/lib/tokens.ts', 'utf8')
@@ -57,21 +97,7 @@ describe('couleurs — pas de retour du beige ni des anciens verts', () => {
     const fautifs = []
     for (const f of FICHIERS) {
       const src = readFileSync(f, 'utf8')
-      // Les commentaires ont le droit de raconter l'histoire de la bascule.
-      // Suivre l'état des blocs /* … */, dont les lignes de continuation ne
-      // commencent par aucun marqueur (repris de typographie.test.js).
-      let dansBloc = false
-      for (const ligne of src.split('\n')) {
-        const nu = ligne.trim()
-        const ouvre = ligne.lastIndexOf('/*')
-        const ferme = ligne.lastIndexOf('*/')
-        const etaitDansBloc = dansBloc
-        if (!dansBloc && ouvre !== -1 && ferme < ouvre) dansBloc = true
-        else if (dansBloc && ferme !== -1 && ferme > ouvre) dansBloc = false
-
-        if (etaitDansBloc || dansBloc) continue
-        if (nu.startsWith('//') || nu.startsWith('/*') || nu.startsWith('*')) continue
-
+      for (const { ligne, nu } of lignesDeCode(src)) {
         const ligneMaj = ligne.toUpperCase()
 
         for (const beige of BEIGE_ABANDONNE) {
@@ -87,6 +113,29 @@ describe('couleurs — pas de retour du beige ni des anciens verts', () => {
       }
     }
     expect(fautifs, `Couleurs abandonnées encore référencées :\n${fautifs.join('\n')}`).toEqual([])
+  })
+
+  // ACT-30 (seconde moitié). `bg-[#FFFFFF]` vient d'être rapatrié vers
+  // `bg-surface` partout dans src/ (voir le commentaire d'en-tête) — ce test
+  // empêche qu'un prochain composant écrit vite le réintroduise en dur sans
+  // que personne ne le remarque, exactement le sort qu'a connu le beige.
+  //
+  // `bg-[#FAFAFA]` N'EST PAS banni ici : aucun token ne vaut aujourd'hui
+  // `#FAFAFA` (`--color-app` vaut `#FFFFFF`, voir le commentaire d'en-tête),
+  // donc ses ~316 occurrences existantes resteraient fautives et ce test
+  // serait rouge en permanence — même défaut que le garde-fou général sur
+  // `bg-[#XXXXXX]` documenté plus haut, à l'échelle d'une seule couleur. Le
+  // jour où un token `#FAFAFA` existe, ce rapatriement redevient possible et
+  // ce test doit être étendu en même temps.
+  it('bg-[#FFFFFF] écrit en dur ne revient pas (rapatrié vers bg-surface)', () => {
+    const fautifs = []
+    for (const f of FICHIERS) {
+      const src = readFileSync(f, 'utf8')
+      for (const { nu } of lignesDeCode(src)) {
+        if (/bg-\[#FFFFFF\]/i.test(nu)) fautifs.push(`${f} → ${nu.slice(0, 90)}`)
+      }
+    }
+    expect(fautifs, `bg-[#FFFFFF] en dur détecté — utiliser bg-surface :\n${fautifs.join('\n')}`).toEqual([])
   })
 
   it('index.css et tokens.ts déclarent les mêmes couleurs', () => {

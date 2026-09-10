@@ -118,7 +118,7 @@ export const ProductPage = ({ onNavigate }) => {
         <section className="pt-28 md:pt-32 pb-12 px-6">
           <div className="max-w-[920px] mx-auto text-center">
             <FadeInUp className="mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#FFFFFF] border border-[#E3E6EA]">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-surface border border-[#E3E6EA]">
                 <span className="w-1.5 h-1.5 rounded-full bg-cta" />
                 <span>Produit</span>
                 <span className="text-[#E3E6EA]">·</span>
@@ -207,7 +207,7 @@ export const ProductPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ CYCLE D'AMÉLIORATION CONTINUE ═══════════ */}
-        <section id="comment-ca-marche" className="py-24 md:py-32 bg-[#FFFFFF] px-6">
+        <section id="comment-ca-marche" className="py-24 md:py-32 bg-surface px-6">
           <div className="max-w-6xl mx-auto">
             <FadeInUp className="text-center mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -295,7 +295,7 @@ export const ProductPage = ({ onNavigate }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {Object.entries(integrations).map(([category, items]) => (
                 <FadeInUp key={category}>
-                  <div className="bg-[#FFFFFF] rounded-[18px] p-6 border border-[#E3E6EA] h-full">
+                  <div className="bg-surface rounded-[18px] p-6 border border-[#E3E6EA] h-full">
                     <div className="flex items-center gap-2 mb-4">
                       <Plug className="w-4 h-4 text-cta" strokeWidth={2.5} />
                       <h3 className="text-[14px] font-bold text-[#1A1A1A]">{category}</h3>
@@ -318,7 +318,7 @@ export const ProductPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ SÉCURITÉ & CONFORMITÉ ═══════════ */}
-        <section className="py-24 md:py-32 bg-[#FFFFFF] px-6">
+        <section className="py-24 md:py-32 bg-surface px-6">
           <div className="max-w-6xl mx-auto">
             <FadeInUp className="text-center mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">

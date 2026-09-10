@@ -552,7 +552,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
                 step="0.5"
                 value={e2bAmount}
                 onChange={(e) => setE2bAmount(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#FFFFFF] border border-[#E6E8EC] text-[13px] tabular-nums focus:outline-none focus:border-cta focus:bg-white transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-surface border border-[#E6E8EC] text-[13px] tabular-nums focus:outline-none focus:border-cta focus:bg-white transition-colors"
                 disabled={e2bTestState === 'running'}
               />
             </label>
@@ -566,7 +566,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
                 step="10"
                 value={e2bMaxAuto}
                 onChange={(e) => setE2bMaxAuto(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[#FFFFFF] border border-[#E6E8EC] text-[13px] tabular-nums focus:outline-none focus:border-cta focus:bg-white transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-surface border border-[#E6E8EC] text-[13px] tabular-nums focus:outline-none focus:border-cta focus:bg-white transition-colors"
                 disabled={e2bTestState === 'running'}
               />
             </label>
