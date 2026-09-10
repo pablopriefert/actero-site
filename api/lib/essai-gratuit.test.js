@@ -269,6 +269,30 @@ describe('durée de l\'essai gratuit', () => {
     expect(fautifs, `Divergence des essais :\n${fautifs.join('\n')}`).toEqual([])
   })
 
+  it('l\'écran de paiement annonce la durée que le SERVEUR a accordée', () => {
+    // Le défaut du 10 septembre, deuxième couche — et le plus trompeur des deux.
+    //
+    // Le serveur accordait bien trente jours à un marchand venu de la campagne.
+    // Stripe enregistrait trente jours. Et l'écran de paiement affichait
+    // « Démarrer l'essai de 7 jours », parce que PaymentModal lisait
+    // `plan?.trial?.days || 7` — la valeur commerciale écrite en dur dans
+    // src/lib/plans.js — faute qu'on lui ait jamais transmis le vrai chiffre.
+    //
+    // Pour une publicité qui promet un mois, afficher sept revient exactement au
+    // même que de n'en donner que sept : le marchand ne vérifie pas dans Stripe,
+    // il lit l'écran et il part.
+    const modal = sansCommentaires(readFileSync('src/components/billing/PaymentModal.jsx', 'utf8'))
+
+    expect(modal, 'le modal n\'utilise pas la durée renvoyée par le serveur')
+      .toMatch(/data\.trial_days/)
+    expect(modal, 'le modal invente une durée d\'essai au lieu de la demander')
+      .not.toMatch(/trial\?\.days\s*\|\|\s*\d/)
+
+    const route = sansCommentaires(readFileSync('api/billing/create-subscription.js', 'utf8'))
+    expect(route, 'la route ne dit pas au navigateur combien de jours elle a accordés')
+      .toMatch(/trial_days:/)
+  })
+
   it('l\'email de fin d\'essai part bien du webhook Stripe', () => {
     // Une durée alignée ne sert à rien si le marchand n'est pas prévenu : le
     // rappel « votre essai se termine le … » est envoyé sur l'événement

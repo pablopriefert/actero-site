@@ -293,7 +293,20 @@ async function handler(req, res) {
       return res.status(200).json({ instant: true, subscription_id: subscription.id, message: `Plan ${target_plan} active.` });
     }
 
-    return res.status(200).json({ subscription_id: subscription.id, mode, client_secret: clientSecret });
+    // `trial_days` est renvoyé pour que l'écran de paiement ANNONCE la durée
+    // réellement accordée, au lieu de la deviner.
+    //
+    // Le 10 septembre, un marchand venu de la campagne obtenait bien ses trente
+    // jours côté Stripe, et lisait « Démarrer l'essai de 7 jours » : le modal
+    // retombait sur la valeur écrite en dur dans src/lib/plans.js, faute qu'on
+    // lui ait jamais dit le vrai chiffre. Pour une publicité qui promet un mois,
+    // afficher sept revient exactement au même que de n'en donner que sept.
+    return res.status(200).json({
+      subscription_id: subscription.id,
+      mode,
+      client_secret: clientSecret,
+      trial_days: trialDays ?? null,
+    });
   } catch (error) {
     console.error('create-subscription error:', error);
     return res.status(500).json({ error: 'Erreur interne. Reessayez ou contactez le support.' });
