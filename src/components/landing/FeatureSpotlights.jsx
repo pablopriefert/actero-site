@@ -144,7 +144,7 @@ function SavMedia() {
         {channels.map((c) => (
           <span
             key={c}
-            className="text-[11.5px] font-semibold text-[#3A3A3A] bg-[#F4F5F7] border border-[#EFE7D6] px-2.5 py-1 rounded-full"
+            className="text-[11.5px] font-semibold text-[#3A3A3A] bg-[#F4F5F7] border border-[#EDEFF2] px-2.5 py-1 rounded-full"
           >
             {c}
           </span>

@@ -32,7 +32,7 @@ export const tokens = {
   /** Cream canvas — editorial emails, soft info callouts. */
   bgCream: '#F4F5F7',
   /** Off-white app background — dashboard main area. */
-  bgApp: '#FAFAFA',
+  bgApp: '#FFFFFF',
   /** Pure white — cards, surfaces. */
   surface: '#FFFFFF',
 

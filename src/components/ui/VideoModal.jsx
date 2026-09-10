@@ -155,7 +155,7 @@ export function VideoModal({ open, onClose, video = DEMO_VIDEO }) {
                   className="absolute inset-0 w-full h-full"
                 />
               ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center bg-gradient-to-br from-[#003725] to-[#0E653A] text-white">
+                <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center bg-gradient-to-br from-[#003725] to-[#13804A] text-white">
                   <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-5">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#A8C490]">
                       <circle cx="12" cy="12" r="10" />

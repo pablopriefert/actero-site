@@ -709,12 +709,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <button
               type="button"
               onClick={toggleCmdk}
-              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-[#FFFFFF] border border-[#EFE7D6] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
+              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-[#FFFFFF] border border-[#EDEFF2] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
               title="Recherche globale"
             >
               <Search className="w-3.5 h-3.5" />
               <span className="hidden lg:inline">Rechercher</span>
-              <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-white border border-[#EFE7D6] text-[10.5px] font-medium text-[#9ca3af]">
+              <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-white border border-[#EDEFF2] text-[10.5px] font-medium text-[#9ca3af]">
                 {isMac ? '⌘' : 'Ctrl'}K
               </kbd>
             </button>
