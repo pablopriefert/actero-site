@@ -271,7 +271,7 @@ const AutomationCard = ({
                   return (
                     <div
                       key={ch.id}
-                      className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-[#fafafa] border border-dashed border-gray-300"
+                      className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface border border-dashed border-gray-300"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <ChIcon className="w-3.5 h-3.5 text-[#9ca3af] flex-shrink-0" />
@@ -309,8 +309,8 @@ const AutomationCard = ({
                       isSelected
                         ? 'bg-cta/5 border-cta/25 hover:bg-cta/10'
                         : canToggle
-                          ? 'bg-white border-[#E6E8EC] hover:border-cta/30 hover:bg-[#fafafa]'
-                          : 'bg-[#fafafa] border-[#E6E8EC] opacity-60 cursor-not-allowed'
+                          ? 'bg-white border-[#E6E8EC] hover:border-cta/30 hover:bg-surface'
+                          : 'bg-surface border-[#E6E8EC] opacity-60 cursor-not-allowed'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -348,7 +348,7 @@ const AutomationCard = ({
             disabled={mainActionDisabled}
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               isActive
-                ? 'bg-white border border-[#E6E8EC] text-[#1a1a1a] hover:bg-[#fafafa]'
+                ? 'bg-white border border-[#E6E8EC] text-[#1a1a1a] hover:bg-surface'
                 : 'bg-cta hover:bg-cta text-white'
             }`}
           >

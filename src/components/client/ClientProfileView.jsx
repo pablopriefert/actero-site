@@ -152,7 +152,7 @@ const NotificationPreferences = ({ clientId, isLight }) => {
               onChange={(e) => updatePrefMutation.mutate({ key: 'preferred_hour', value: parseInt(e.target.value) })}
               className={`px-3 py-1.5 rounded-lg text-sm font-medium outline-none ${
                 isLight
-                  ? 'bg-[#FFFFFF] border border-[#E6E8EC] text-slate-700'
+                  ? 'bg-surface border border-[#E6E8EC] text-slate-700'
                   : 'bg-gray-50 border border-[#E6E8EC] text-[#1a1a1a]'
               }`}
             >
@@ -311,7 +311,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
 
   const inputClass = `w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all ${
     isLight
-      ? 'bg-[#FFFFFF] border border-[#E6E8EC] text-[#1a1a1a] focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+      ? 'bg-surface border border-[#E6E8EC] text-[#1a1a1a] focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
       : 'bg-gray-50 border border-[#E6E8EC] text-[#1a1a1a] focus:border-gray-400 focus:ring-2 focus:ring-white/5'
   }`
 
@@ -468,7 +468,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
           </div>
         </div>
 
-        <div className={`rounded-xl p-4 ${isLight ? 'bg-[#FFFFFF] border border-[#E6E8EC]' : 'bg-gray-50 border border-[#E6E8EC]'}`}>
+        <div className={`rounded-xl p-4 ${isLight ? 'bg-surface border border-[#E6E8EC]' : 'bg-gray-50 border border-[#E6E8EC]'}`}>
           <div className="flex items-center justify-between">
             <div>
               <p className={`text-sm font-medium ${isLight ? 'text-slate-700' : 'text-[#71717a]'}`}>Portail client Stripe</p>
@@ -554,7 +554,7 @@ export const ClientProfileView = ({ theme = 'dark' }) => {
             disabled={!passwordForm.new || !passwordForm.confirm}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
               isLight
-                ? 'bg-[#FFFFFF] text-[#1a1a1a] hover:bg-gray-50'
+                ? 'bg-surface text-[#1a1a1a] hover:bg-gray-50'
                 : 'bg-gray-50 text-[#1a1a1a] hover:bg-gray-100 border border-[#E6E8EC]'
             } disabled:opacity-30`}
           >

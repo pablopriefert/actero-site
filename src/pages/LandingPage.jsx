@@ -235,7 +235,7 @@ export const LandingPage = ({ onNavigate }) => {
                           className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all text-[18px] font-light leading-none ${
                             isOpen
                               ? 'bg-cta text-white'
-                              : 'bg-[#FFFFFF] text-[#716D5C]'
+                              : 'bg-surface text-[#716D5C]'
                           }`}
                         >
                           {isOpen ? '−' : '+'}

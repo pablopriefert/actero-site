@@ -209,7 +209,7 @@ export function AdminHallucinationView() {
                           onClick={() => setExpandedId(expanded ? null : run.id)}
                         />
                         {expanded && (
-                          <div className="bg-[#fafafa] px-5 py-4 border-b border-[#f0f0f0]">
+                          <div className="bg-surface px-5 py-4 border-b border-[#f0f0f0]">
                             <ExpandedRunDetails run={run} />
                           </div>
                         )}

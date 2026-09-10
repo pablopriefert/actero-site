@@ -14,7 +14,7 @@ const MONTH_LABELS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Ao
  * Returns an rgba-style background color.
  */
 function retentionColor(pct) {
-  if (pct === null || pct === undefined || Number.isNaN(pct)) return { bg: '#fafafa', text: '#9ca3af' }
+  if (pct === null || pct === undefined || Number.isNaN(pct)) return { bg: '#F4F5F7', text: '#9ca3af' }
   const p = Math.max(0, Math.min(100, pct)) / 100
   // red (239, 68, 68) -> green (16, 185, 129)
   const r = Math.round(239 + (16 - 239) * p)
@@ -225,7 +225,7 @@ export default function AdminChurnCohortView() {
                         if (!cell.available) {
                           return (
                             <td key={cell.offset} className="py-1.5 px-1">
-                              <div className="h-8 rounded-md bg-[#fafafa] border border-[#f0f0f0] text-[10px] text-[#9ca3af] flex items-center justify-center">
+                              <div className="h-8 rounded-md bg-surface border border-[#f0f0f0] text-[10px] text-[#9ca3af] flex items-center justify-center">
                                 —
                               </div>
                             </td>

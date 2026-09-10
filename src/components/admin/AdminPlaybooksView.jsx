@@ -98,7 +98,7 @@ export const AdminPlaybooksView = () => {
                 <p className="text-[12px] text-[#71717a] mt-0.5">{playbook.description}</p>
                 <div className="flex gap-1 mt-2">
                   {(playbook.event_types || []).map(et => (
-                    <span key={et} className="px-2 py-0.5 bg-[#ffffff] rounded text-[9px] font-mono text-[#71717a]">{et}</span>
+                    <span key={et} className="px-2 py-0.5 bg-surface rounded text-[9px] font-mono text-[#71717a]">{et}</span>
                   ))}
                 </div>
               </div>

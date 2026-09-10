@@ -65,7 +65,7 @@ function renderSecondary(action) {
   return (
     <button
       onClick={action.onClick}
-      className="px-4 py-2 rounded-full bg-white text-[#3A3A3A] text-[12px] font-semibold border border-[#e5e5e5] hover:bg-[#fafafa] transition-colors"
+      className="px-4 py-2 rounded-full bg-white text-[#3A3A3A] text-[12px] font-semibold border border-[#e5e5e5] hover:bg-surface transition-colors"
     >
       {action.label}
     </button>

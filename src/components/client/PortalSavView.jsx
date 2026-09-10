@@ -54,7 +54,7 @@ function SnippetCard({ title, description, code }) {
         </div>
         <CopyButton text={code} />
       </div>
-      <pre className="px-4 pb-4 text-[11px] text-[#555] bg-[#fafafa] border-t border-[#f0f0f0] overflow-x-auto whitespace-pre-wrap break-all font-mono leading-relaxed">
+      <pre className="px-4 pb-4 text-[11px] text-[#555] bg-surface border-t border-[#f0f0f0] overflow-x-auto whitespace-pre-wrap break-all font-mono leading-relaxed">
         {code}
       </pre>
     </div>
@@ -306,18 +306,18 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
             {hasBranding && (
               <div className="flex flex-wrap gap-4 text-[12px] text-[#71717a]">
                 {clientRow?.portal_display_name && (
-                  <span className="px-3 py-1.5 bg-[#fafafa] border border-[#f0f0f0] rounded-lg">
+                  <span className="px-3 py-1.5 bg-surface border border-[#f0f0f0] rounded-lg">
                     Nom : <strong className="text-[#1a1a1a]">{clientRow.portal_display_name}</strong>
                   </span>
                 )}
                 {clientRow?.portal_logo_url && (
-                  <span className="flex items-center gap-2 px-3 py-1.5 bg-[#fafafa] border border-[#f0f0f0] rounded-lg">
+                  <span className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-[#f0f0f0] rounded-lg">
                     Logo :
                     <img src={clientRow.portal_logo_url} alt="Logo portail" className="h-5 w-auto rounded" />
                   </span>
                 )}
                 {clientRow?.portal_primary_color && (
-                  <span className="flex items-center gap-2 px-3 py-1.5 bg-[#fafafa] border border-[#f0f0f0] rounded-lg">
+                  <span className="flex items-center gap-2 px-3 py-1.5 bg-surface border border-[#f0f0f0] rounded-lg">
                     Couleur :
                     <span
                       className="w-4 h-4 rounded-full border border-[#e0e0e0]"
@@ -475,7 +475,7 @@ function CustomDomainSection({ clientRow, clientId, canCustomize, supabase, quer
         <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Domaine personnalisé</h3>
       </div>
       <p className="text-[12px] text-[#71717a]">
-        Servez le portail sur votre propre domaine (ex : <code className="font-mono text-[11px] bg-[#fafafa] border border-[#f0f0f0] rounded px-1.5 py-0.5">sav.mamarque.fr</code>) plutôt que sur un sous-domaine Actero.
+        Servez le portail sur votre propre domaine (ex : <code className="font-mono text-[11px] bg-surface border border-[#f0f0f0] rounded px-1.5 py-0.5">sav.mamarque.fr</code>) plutôt que sur un sous-domaine Actero.
       </p>
 
       {!canCustomize ? (
@@ -509,7 +509,7 @@ function CustomDomainSection({ clientRow, clientId, canCustomize, supabase, quer
                 <button
                   onClick={() => { setDomain(''); handleSave('') }}
                   disabled={saving}
-                  className="px-3 py-2.5 rounded-lg bg-white text-[#71717a] text-[12px] font-semibold border border-[#e8e8e8] hover:bg-[#fafafa] transition-colors disabled:opacity-50"
+                  className="px-3 py-2.5 rounded-lg bg-white text-[#71717a] text-[12px] font-semibold border border-[#e8e8e8] hover:bg-surface transition-colors disabled:opacity-50"
                 >
                   Retirer
                 </button>

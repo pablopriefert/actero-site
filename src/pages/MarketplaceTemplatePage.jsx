@@ -200,7 +200,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-surface flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-[#003725]" />
       </div>
     )
@@ -208,7 +208,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
   if (!template) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center text-center px-6">
+      <div className="min-h-screen bg-surface flex items-center justify-center text-center px-6">
         <div>
           <p className="text-[18px] font-bold text-[#1a1a1a] mb-2">Template introuvable</p>
           <p className="text-[13px] text-[#716D5C] mb-4">
@@ -238,7 +238,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
   const examplesCount = contents.examples_count || (Array.isArray(contents.examples) ? contents.examples.length : 0)
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#1a1a1a]">
+    <div className="min-h-screen bg-surface text-[#1a1a1a]">
       <SEO
         title="Template Actero — automatisation support client"
         description="Template prêt à déployer dans Actero pour automatiser votre support client e-commerce."
@@ -283,7 +283,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                 </span>
               )}
               {template.industry && (
-                <span className="px-2.5 py-1 rounded-full bg-[#FFFFFF] text-[#555] text-[11px] font-bold uppercase tracking-wider">
+                <span className="px-2.5 py-1 rounded-full bg-surface text-[#555] text-[11px] font-bold uppercase tracking-wider">
                   {template.industry}
                 </span>
               )}
@@ -395,7 +395,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                     <div key={r.id} className="bg-white border border-[#f0f0f0] rounded-2xl p-5">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-[#FFFFFF] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center">
                             <User className="w-3.5 h-3.5 text-[#716D5C]" />
                           </div>
                           <div>
@@ -426,7 +426,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                     {installs.map((inst) => (
                       <li key={inst.id} className="flex items-center justify-between px-5 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-lg bg-[#FFFFFF] flex items-center justify-center">
+                          <div className="w-7 h-7 rounded-lg bg-surface flex items-center justify-center">
                             <CheckCircle2 className="w-3.5 h-3.5 text-[#003725]" />
                           </div>
                           <p className="text-[13px] font-medium">{inst.client_brand_name || 'Client anonyme'}</p>

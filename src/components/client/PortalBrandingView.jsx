@@ -74,7 +74,7 @@ function PortalPreview({ displayName, logoUrl, primaryColor }) {
                   <label className="block text-[13px] font-medium text-[#1a1a1a] mb-1.5">
                     Ton adresse email
                   </label>
-                  <div className="w-full px-4 py-3 rounded-xl border border-[#e0e0e0] bg-[#fafafa] text-[14px] text-[#9ca3af]">
+                  <div className="w-full px-4 py-3 rounded-xl border border-[#e0e0e0] bg-surface text-[14px] text-[#9ca3af]">
                     jean@exemple.com
                   </div>
                 </div>

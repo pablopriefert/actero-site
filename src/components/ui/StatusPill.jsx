@@ -8,7 +8,7 @@ const VARIANT_MAP = {
   warning: 'bg-amber-50 text-amber-700 border border-amber-200',
   danger: 'bg-red-50 text-red-700 border border-red-200',
   info: 'bg-blue-50 text-blue-700 border border-blue-200',
-  neutral: 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]',
+  neutral: 'bg-surface text-[#71717a] border border-[#f0f0f0]',
   brand: 'bg-cta/10 text-cta border border-cta/20',
 };
 

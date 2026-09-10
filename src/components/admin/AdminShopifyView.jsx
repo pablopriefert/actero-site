@@ -91,7 +91,7 @@ export function AdminShopifyView() {
       </div>
 
       {/* Send form */}
-      <form onSubmit={handleSend} className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-6 space-y-5">
+      <form onSubmit={handleSend} className="bg-surface border border-[#f0f0f0] rounded-2xl p-6 space-y-5">
         <h3 className="text-[#1a1a1a] font-bold text-[15px]">Envoyer un lien d'installation</h3>
 
         {/* Client dropdown */}
@@ -103,7 +103,7 @@ export function AdminShopifyView() {
             value={selectedClientId}
             onChange={(e) => setSelectedClientId(e.target.value)}
             required
-            className="w-full bg-[#ffffff] border border-[#f0f0f0] rounded-xl px-4 py-3 text-[#1a1a1a] text-[13px] focus:outline-none focus:border-emerald-500/50 transition-colors"
+            className="w-full bg-surface border border-[#f0f0f0] rounded-xl px-4 py-3 text-[#1a1a1a] text-[13px] focus:outline-none focus:border-emerald-500/50 transition-colors"
           >
             <option value="" className="bg-white">Sélectionner un client...</option>
             {clients.map((c) => (
@@ -134,7 +134,7 @@ export function AdminShopifyView() {
               onChange={(e) => setInstallUrl(e.target.value)}
               placeholder="https://admin.shopify.com/oauth/install_custom_app?client_id=..."
               required
-              className="flex-1 bg-[#ffffff] border border-[#f0f0f0] rounded-xl px-4 py-3 text-[#1a1a1a] text-[13px] placeholder:text-[#71717a] focus:outline-none focus:border-emerald-500/50 transition-colors"
+              className="flex-1 bg-surface border border-[#f0f0f0] rounded-xl px-4 py-3 text-[#1a1a1a] text-[13px] placeholder:text-[#71717a] focus:outline-none focus:border-emerald-500/50 transition-colors"
             />
           </div>
           <p className="mt-2 text-[12px] text-[#71717a]">
@@ -168,7 +168,7 @@ export function AdminShopifyView() {
       </form>
 
       {/* Connected clients table */}
-      <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-6">
+      <div className="bg-surface border border-[#f0f0f0] rounded-2xl p-6">
         <h3 className="text-[#1a1a1a] font-bold text-[15px] mb-4">Connexions Shopify actives</h3>
         {connections.length === 0 ? (
           <p className="text-[#71717a] text-[13px]">Aucun client n'a encore connecté Shopify.</p>
@@ -177,7 +177,7 @@ export function AdminShopifyView() {
             {connections.map((conn) => {
               const client = clients.find(c => c.id === conn.client_id)
               return (
-                <div key={conn.client_id} className="flex items-center justify-between bg-[#ffffff] border border-[#f0f0f0] rounded-xl px-4 py-3">
+                <div key={conn.client_id} className="flex items-center justify-between bg-surface border border-[#f0f0f0] rounded-xl px-4 py-3">
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                     <span className="text-[#1a1a1a] text-[13px] font-medium">{client?.brand_name || 'Client inconnu'}</span>

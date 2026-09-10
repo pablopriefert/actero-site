@@ -361,7 +361,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
         <div className="p-6 space-y-4">
           <div>
             <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-2">Message du client</p>
-            <div className="bg-[#fafafa] rounded-xl px-4 py-3 text-sm text-[#9ca3af] whitespace-pre-wrap">
+            <div className="bg-surface rounded-xl px-4 py-3 text-sm text-[#9ca3af] whitespace-pre-wrap">
               {conversation.customer_message}
             </div>
           </div>
@@ -372,7 +372,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               <button
                 type="button"
                 onClick={() => setReasoningOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E3E6EA] text-[11px] font-semibold text-[#1A1A1A] hover:border-cta hover:text-cta transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface border border-[#E3E6EA] text-[11px] font-semibold text-[#1A1A1A] hover:border-cta hover:text-cta transition-colors"
                 aria-label="Voir le raisonnement de l'agent"
               >
                 <BrainCircuit className="w-3 h-3" strokeWidth={2.2} />
@@ -502,7 +502,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
               {showTemplatePicker && (
                 <div className="mb-2 bg-white border border-[#ebebeb] rounded-lg shadow-lg overflow-hidden">
                   <div className="p-2 border-b border-[#f0f0f0]">
-                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-[#fafafa] border border-[#ebebeb]">
+                    <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-surface border border-[#ebebeb]">
                       <Search className="w-3.5 h-3.5 text-[#9ca3af]" />
                       <input
                         autoFocus
@@ -525,7 +525,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                           key={tpl.id}
                           type="button"
                           onClick={() => applyTemplate(tpl)}
-                          className="w-full text-left px-3 py-2 hover:bg-[#fafafa] border-b border-[#f0f0f0] last:border-0 transition-colors"
+                          className="w-full text-left px-3 py-2 hover:bg-surface border-b border-[#f0f0f0] last:border-0 transition-colors"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0">
@@ -550,7 +550,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 onChange={(e) => setResponse(e.target.value)}
                 rows={5}
                 placeholder="Rédigez votre réponse..."
-                className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-4 py-3 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-cta/30"
+                className="w-full bg-surface border border-[#ebebeb] rounded-lg px-4 py-3 text-[13px] text-[#1a1a1a] outline-none resize-none focus:border-cta/30"
               />
             </div>
 
@@ -559,7 +559,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 type="checkbox"
                 checked={addToKb}
                 onChange={(e) => setAddToKb(e.target.checked)}
-                className="mt-0.5 rounded border-white/20 bg-[#fafafa] text-blue-500"
+                className="mt-0.5 rounded border-white/20 bg-surface text-blue-500"
               />
               <div>
                 <span className="text-sm text-[#9ca3af] group-hover:text-[#1a1a1a] transition-colors">
@@ -666,7 +666,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                 type="button"
                 onClick={() => setShowSaveTemplateModal(true)}
                 disabled={!response.trim()}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold bg-white text-[#1a1a1a] border border-[#ebebeb] hover:bg-[#fafafa] transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-[12px] font-semibold bg-white text-[#1a1a1a] border border-[#ebebeb] hover:bg-surface transition-all disabled:opacity-50"
                 title="Enregistrer cette réponse comme template réutilisable"
               >
                 <Save className="w-4 h-4" />
@@ -728,7 +728,7 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                       value={newTplName}
                       onChange={(e) => setNewTplName(e.target.value)}
                       placeholder="Ex : Remboursement livraison retardée"
-                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
+                      className="w-full bg-surface border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                   <div>
@@ -739,12 +739,12 @@ const EscalationDrawer = ({ conversation, onClose, clientId }) => {
                       value={newTplCategory}
                       onChange={(e) => setNewTplCategory(e.target.value)}
                       placeholder="Ex : Remboursement, Livraison, SAV..."
-                      className="w-full bg-[#fafafa] border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
+                      className="w-full bg-surface border border-[#ebebeb] rounded-lg px-3 py-2 text-[13px] text-[#1a1a1a] outline-none focus:border-cta/30"
                     />
                   </div>
                   <div>
                     <span className="block text-[11px] font-semibold text-[#71717a] uppercase tracking-wider mb-1.5">Aperçu</span>
-                    <div className="bg-[#fafafa] border border-[#ebebeb] rounded-lg p-3 text-[12px] text-[#71717a] max-h-32 overflow-y-auto whitespace-pre-wrap">
+                    <div className="bg-surface border border-[#ebebeb] rounded-lg p-3 text-[12px] text-[#71717a] max-h-32 overflow-y-auto whitespace-pre-wrap">
                       {response}
                     </div>
                   </div>
@@ -927,7 +927,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-[#fafafa] w-fit">
+        <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-surface w-fit">
           {[
             { id: 'pending', label: 'À traiter', count: pendingCount },
             { id: 'resolved', label: 'Résolus' },
@@ -951,7 +951,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
         </div>
 
         {/* Date-range pills — restreint la fenêtre temporelle */}
-        <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-[#fafafa] w-fit">
+        <div className="flex p-1 rounded-xl border border-[#f0f0f0] bg-surface w-fit">
           {[
             { id: 'today', label: "Aujourd'hui" },
             { id: '7d', label: '7j' },
@@ -1036,7 +1036,7 @@ export const ClientEscalationsView = ({ clientId, theme = 'dark' }) => {
                         </span>
                       )}
                       {reason && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#fafafa] text-[#9ca3af] border border-[#f0f0f0]">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface text-[#9ca3af] border border-[#f0f0f0]">
                           {reason}
                         </span>
                       )}

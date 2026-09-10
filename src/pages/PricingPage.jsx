@@ -566,7 +566,7 @@ export const PricingPage = ({ onNavigate }) => {
                 <div
                   role="group"
                   aria-label="Facturation"
-                  className="inline-flex items-center gap-3 bg-[#FFFFFF] border border-gray-200 rounded-full px-2 py-1.5"
+                  className="inline-flex items-center gap-3 bg-surface border border-gray-200 rounded-full px-2 py-1.5"
                 >
                   <button
                     onClick={() => setIsAnnual(false)}
@@ -683,7 +683,7 @@ export const PricingPage = ({ onNavigate }) => {
                     className={`w-full py-3.5 rounded-full font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-8 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group ${
                       plan.highlighted
                         ? "bg-[#A8C490] text-[#003725] hover:bg-white"
-                        : "bg-[#FFFFFF] border border-gray-200 text-[#262626] hover:bg-gray-100"
+                        : "bg-surface border border-gray-200 text-[#262626] hover:bg-gray-100"
                     }`}
                   >
                     {plan.cta}
@@ -729,7 +729,7 @@ export const PricingPage = ({ onNavigate }) => {
                 {faqs.map((faq, i) => (
                   <div
                     key={i}
-                    className="bg-[#FFFFFF] border border-gray-200 rounded-2xl overflow-hidden"
+                    className="bg-surface border border-gray-200 rounded-2xl overflow-hidden"
                   >
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -787,7 +787,7 @@ export const PricingPage = ({ onNavigate }) => {
                     whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
                     whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-[#FFFFFF] transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group"
+                    className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-surface transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group"
                   >
                     Essai gratuit 7 jours
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />

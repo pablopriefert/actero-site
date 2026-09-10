@@ -101,7 +101,7 @@ export const AchievementsView = ({ clientId }) => {
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
                   style={{
-                    backgroundColor: badge.unlocked ? `${badge.color}15` : '#fafafa',
+                    backgroundColor: badge.unlocked ? `${badge.color}15` : '#FFFFFF',
                     border: badge.unlocked ? `1px solid ${badge.color}33` : '1px solid #f0f0f0',
                   }}
                 >

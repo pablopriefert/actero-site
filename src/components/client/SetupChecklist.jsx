@@ -183,7 +183,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
         {dismissible && (
           <button
             onClick={handleDismiss}
-            className="p-1.5 rounded-lg hover:bg-[#fafafa] text-[#9ca3af] hover:text-[#1a1a1a] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface text-[#9ca3af] hover:text-[#1a1a1a] transition-colors"
             title="Masquer"
           >
             <X className="w-4 h-4" />
@@ -222,7 +222,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
           <button
             onClick={handleDismiss}
             aria-label="Masquer la checklist de configuration"
-            className="p-1.5 rounded-lg hover:bg-[#fafafa] text-[#9ca3af] hover:text-[#1a1a1a] transition-colors flex-shrink-0"
+            className="p-1.5 rounded-lg hover:bg-surface text-[#9ca3af] hover:text-[#1a1a1a] transition-colors flex-shrink-0"
             title="Masquer la checklist"
           >
             <X className="w-4 h-4" />
@@ -265,7 +265,7 @@ export const SetupChecklist = ({ clientId, setActiveTab, dismissible = true }) =
                   className={`group flex items-center gap-2 lg:flex-col lg:items-start lg:gap-1.5 p-2.5 rounded-xl text-left transition-colors ${
                     step.done
                       ? 'bg-emerald-50/40 hover:bg-emerald-50'
-                      : 'hover:bg-[#fafafa]'
+                      : 'hover:bg-surface'
                   }`}
                   title={step.label}
                 >
@@ -351,7 +351,7 @@ function ExtrasSection({ extras, setActiveTab, defaultOpen }) {
                       className={`group flex items-center gap-2 lg:flex-col lg:items-start lg:gap-1.5 p-2.5 rounded-xl text-left transition-colors ${
                         step.done
                           ? 'bg-emerald-50/40 hover:bg-emerald-50'
-                          : 'hover:bg-[#fafafa]'
+                          : 'hover:bg-surface'
                       }`}
                       title={step.label}
                     >

@@ -80,7 +80,7 @@ export const ComparisonTable = ({ plans, comparisonCategories, defaultOpen = tru
                       {cat.rows.map((row, idx) => (
                         <tr
                           key={row.label}
-                          className={idx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}
+                          className={idx % 2 === 0 ? 'bg-white' : 'bg-surface'}
                         >
                           <td className="p-4 text-sm font-medium text-[#262626] sticky left-0 bg-inherit z-10">
                             {row.label}

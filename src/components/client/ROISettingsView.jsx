@@ -154,7 +154,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
               value={form.hourly_cost}
               onChange={(e) => setForm(f => ({ ...f, hourly_cost: e.target.value }))}
               placeholder="25"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
+              className="w-32 px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">€ / heure</span>
           </div>
@@ -169,7 +169,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
               value={form.avg_ticket_time_min}
               onChange={(e) => setForm(f => ({ ...f, avg_ticket_time_min: e.target.value }))}
               placeholder="5"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
+              className="w-32 px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">minutes</span>
           </div>
@@ -203,7 +203,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
               value={form.actero_monthly_price}
               onChange={(e) => setForm(f => ({ ...f, actero_monthly_price: e.target.value }))}
               placeholder="0"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
+              className="w-32 px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">€ / mois</span>
           </div>

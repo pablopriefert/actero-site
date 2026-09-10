@@ -69,7 +69,7 @@ export const LiveActivityWidget = ({ supabase, setActiveTab, compact = false, cl
             <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-cta animate-pulse' : 'bg-red-500'}`} />
             <h3 className="font-bold text-[#1a1a1a] text-sm">Activité récente</h3>
           </div>
-          <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-widest px-2 py-0.5 bg-[#FFFFFF] rounded-full">
+          <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-widest px-2 py-0.5 bg-surface rounded-full">
             LIVE
           </span>
         </div>
@@ -83,7 +83,7 @@ export const LiveActivityWidget = ({ supabase, setActiveTab, compact = false, cl
       <div className="divide-y divide-gray-100">
         {recent.length === 0 ? (
           <div className="px-5 py-10 flex flex-col items-center justify-center text-center">
-            <div className="w-10 h-10 rounded-xl bg-[#fafafa] flex items-center justify-center mb-3">
+            <div className="w-10 h-10 rounded-xl bg-surface flex items-center justify-center mb-3">
               <Inbox className="w-5 h-5 text-[#9ca3af]" />
             </div>
             <p className="text-[13px] font-medium text-[#1a1a1a]">Aucune activité aujourd'hui</p>
@@ -94,7 +94,7 @@ export const LiveActivityWidget = ({ supabase, setActiveTab, compact = false, cl
             const formatted = formatEvent(event)
             const Icon = formatted.IconComponent
             return (
-              <div key={event.id || i} className="flex items-center gap-3 px-5 py-3 hover:bg-[#fafafa] transition-colors">
+              <div key={event.id || i} className="flex items-center gap-3 px-5 py-3 hover:bg-surface transition-colors">
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${formatted.bg}`}>
                   <Icon className={`w-3.5 h-3.5 ${formatted.color}`} />
                 </div>

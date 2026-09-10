@@ -108,7 +108,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
           </section>
 
           {/* ── COMMENT CA MARCHE ── */}
-          <section className="py-20 px-6 bg-[#FFFFFF]">
+          <section className="py-20 px-6 bg-surface">
             <div className="max-w-4xl mx-auto">
               <FadeInUp className="text-center mb-16">
                 <p className="text-xs font-bold text-[#716D5C] uppercase tracking-[0.2em] mb-4">
@@ -185,7 +185,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                     { icon: <Zap className="w-5 h-5 text-cta" />, text: 'Shopify, WooCommerce ou Webflow' },
                     { icon: <MessageSquare className="w-5 h-5 text-cta" />, text: 'Engagement de donner du feedback produit' }
                   ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-[#FFFFFF] rounded-xl p-4 border border-gray-200">
+                    <div key={i} className="flex items-center gap-3 bg-surface rounded-xl p-4 border border-gray-200">
                       <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
                         {item.icon}
                       </div>
@@ -283,7 +283,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                         onChange={handleChange}
                         required
                         placeholder="Ma Boutique"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FFFFFF] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-surface text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                       />
                     </div>
 
@@ -298,7 +298,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                         onChange={handleChange}
                         required
                         placeholder="https://maboutique.com"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FFFFFF] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-surface text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                       />
                     </div>
 
@@ -313,7 +313,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                         onChange={handleChange}
                         required
                         placeholder="vous@votreboutique.com"
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FFFFFF] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-surface text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                       />
                     </div>
 
@@ -327,7 +327,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                           value={form.revenue}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FFFFFF] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-surface text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                         >
                           <option value="">Selectionnez</option>
                           <option value="<50k">&lt; 50k&euro;</option>
@@ -345,7 +345,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                           value={form.platform}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FFFFFF] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-surface text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition"
                         >
                           <option value="">Selectionnez</option>
                           <option value="shopify">Shopify</option>
@@ -368,7 +368,7 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
                         rows={3}
                         maxLength={500}
                         placeholder="Decrivez brievement pourquoi vous souhaitez rejoindre le programme..."
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#FFFFFF] text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition resize-none"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-surface text-[#262626] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta transition resize-none"
                       />
                     </div>
 

@@ -269,7 +269,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="vous@boutique.fr"
-                className="flex-1 min-w-0 px-4 py-2.5 rounded-full bg-[#FFFFFF] border border-[#E3E6EA] text-[13.5px] text-[#1A1A1A] placeholder:text-[#9CA3AF] focus:outline-none focus:border-cta focus:bg-white transition-colors"
+                className="flex-1 min-w-0 px-4 py-2.5 rounded-full bg-surface border border-[#E3E6EA] text-[13.5px] text-[#1A1A1A] placeholder:text-[#9CA3AF] focus:outline-none focus:border-cta focus:bg-white transition-colors"
               />
               <button
                 type="submit"

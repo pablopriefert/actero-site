@@ -244,7 +244,7 @@ export const MyMarketplaceTemplatesView = ({ clientId }) => {
                 <div className="flex flex-col gap-2 flex-shrink-0">
                   <button
                     onClick={() => openEdit(template)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FFFFFF] text-[#1a1a1a] text-[12px] font-semibold hover:bg-[#EDEFF2] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface text-[#1a1a1a] text-[12px] font-semibold hover:bg-[#EDEFF2] transition-colors"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     Modifier
@@ -373,7 +373,7 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-[#FFFFFF] flex items-center justify-center"
+            className="w-8 h-8 rounded-lg hover:bg-surface flex items-center justify-center"
           >
             <X className="w-4 h-4 text-[#71717a]" />
           </button>
@@ -479,7 +479,7 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
             )}
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#f0f0f0] rounded-2xl p-4">
+          <div className="bg-surface border border-[#f0f0f0] rounded-2xl p-4">
             <p className="text-[11px] font-bold text-[#71717a] uppercase tracking-widest mb-3">
               Contenu qui sera copie
             </p>
@@ -510,11 +510,11 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
           </div>
         </form>
 
-        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#f0f0f0] bg-[#fafafa]">
+        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#f0f0f0] bg-surface">
           <button
             onClick={onClose}
             type="button"
-            className="px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#555] hover:bg-[#FFFFFF]"
+            className="px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#555] hover:bg-surface"
           >
             Annuler
           </button>

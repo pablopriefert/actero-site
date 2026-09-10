@@ -80,7 +80,7 @@ export const getInstallBadge = (count = 0) => {
     return {
       label: `${n} installs`,
       icon: null,
-      className: 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]',
+      className: 'bg-surface text-[#71717a] border border-[#f0f0f0]',
       showCount: false,
       count: n,
     }
@@ -279,7 +279,7 @@ export const MarketplacePage = ({ onNavigate }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#1a1a1a]">
+    <div className="min-h-screen bg-surface text-[#1a1a1a]">
       <SEO
         title="Marketplace de templates IA pour e-commerce | Actero"
         description="Découvrez des templates prêts à l'emploi pour automatiser votre service client : SAV, suivi commande, retours, FAQ — directement intégrables dans Actero."
@@ -299,7 +299,7 @@ export const MarketplacePage = ({ onNavigate }) => {
             {isLoggedIn && (
               <button
                 onClick={() => onNavigate('/client')}
-                className="hidden md:inline-flex px-3 py-1.5 rounded-lg border border-[#f0f0f0] text-[12px] font-semibold hover:bg-[#FFFFFF]"
+                className="hidden md:inline-flex px-3 py-1.5 rounded-lg border border-[#f0f0f0] text-[12px] font-semibold hover:bg-surface"
               >
                 Mon dashboard
               </button>
@@ -309,7 +309,7 @@ export const MarketplacePage = ({ onNavigate }) => {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-b from-white to-[#fafafa] border-b border-[#f0f0f0]">
+      <section className="bg-gradient-to-b from-white to-[#FFFFFF] border-b border-[#f0f0f0]">
         <div className="max-w-7xl mx-auto px-5 md:px-8 py-10 md:py-14">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="flex-1">
@@ -375,7 +375,7 @@ export const MarketplacePage = ({ onNavigate }) => {
                     className={`w-full text-left px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
                       selectedCategory === c.id
                         ? 'bg-cta text-white'
-                        : 'text-[#555] hover:bg-[#FFFFFF]'
+                        : 'text-[#555] hover:bg-surface'
                     }`}
                   >
                     {c.label}
@@ -394,7 +394,7 @@ export const MarketplacePage = ({ onNavigate }) => {
                     className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
                       selectedIndustry === ind.id
                         ? 'bg-cta text-white'
-                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
+                        : 'bg-surface text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {ind.label}
@@ -413,7 +413,7 @@ export const MarketplacePage = ({ onNavigate }) => {
                     className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       selectedPrice === p.id
                         ? 'bg-cta text-white'
-                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
+                        : 'bg-surface text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {p.label}
@@ -432,7 +432,7 @@ export const MarketplacePage = ({ onNavigate }) => {
                     className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       selectedRating === r.id
                         ? 'bg-cta text-white'
-                        : 'bg-[#FFFFFF] text-[#555] hover:bg-[#EDEFF2]'
+                        : 'bg-surface text-[#555] hover:bg-[#EDEFF2]'
                     }`}
                   >
                     {r.label}

@@ -206,7 +206,7 @@ export const VocalAgentWizard = ({ clientId, onComplete, onCancel }) => {
                     value={greeting}
                     onChange={(e) => setGreeting(e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-xl text-[13px] text-[#1a1a1a] outline-none resize-none focus:ring-1 focus:ring-violet-300"
+                    className="w-full px-4 py-3 bg-surface border border-[#ebebeb] rounded-xl text-[13px] text-[#1a1a1a] outline-none resize-none focus:ring-1 focus:ring-violet-300"
                     placeholder="Bonjour et bienvenue ! Comment puis-je vous aider ?"
                   />
                   <button
@@ -227,7 +227,7 @@ export const VocalAgentWizard = ({ clientId, onComplete, onCancel }) => {
                     value={knowledge}
                     onChange={(e) => setKnowledge(e.target.value)}
                     rows={6}
-                    className="w-full px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-xl text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-violet-300"
+                    className="w-full px-4 py-3 bg-surface border border-[#ebebeb] rounded-xl text-[13px] text-[#1a1a1a] outline-none resize-y focus:ring-1 focus:ring-violet-300"
                     placeholder="Ex: Livraison gratuite a partir de 50€. Retour sous 30 jours. Le serum hydratant convient aux peaux sensibles..."
                   />
                   <p className="text-[11px] text-[#9ca3af]">L'agent utilise aussi la base de connaissances que vous avez configuree dans "Mon Agent".</p>
@@ -246,7 +246,7 @@ export const VocalAgentWizard = ({ clientId, onComplete, onCancel }) => {
                       value={transferNumber}
                       onChange={(e) => setTransferNumber(e.target.value)}
                       placeholder="+33 6 12 34 56 78"
-                      className="mt-1 w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-violet-300"
+                      className="mt-1 w-full px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-violet-300"
                     />
                     <p className="text-[10px] text-[#9ca3af] mt-1">L'agent transferera l'appel a ce numero si besoin.</p>
                   </div>
@@ -258,13 +258,13 @@ export const VocalAgentWizard = ({ clientId, onComplete, onCancel }) => {
                         type="number"
                         value={maxAmount}
                         onChange={(e) => setMaxAmount(e.target.value)}
-                        className="w-24 px-3 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-violet-300"
+                        className="w-24 px-3 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] outline-none focus:ring-1 focus:ring-violet-300"
                       />
                       <span className="text-[13px] text-[#9ca3af]">€ — au-dessus, l'agent transfere vers un humain</span>
                     </div>
                   </div>
 
-                  <div className="p-3 bg-[#fafafa] rounded-xl">
+                  <div className="p-3 bg-surface rounded-xl">
                     <p className="text-[11px] text-[#9ca3af]">L'agent transfere aussi automatiquement si :</p>
                     <ul className="mt-1 space-y-1 text-[11px] text-[#1a1a1a]">
                       <li>• Le client demande explicitement a parler a un humain</li>
@@ -305,7 +305,7 @@ export const VocalAgentWizard = ({ clientId, onComplete, onCancel }) => {
                       </div>
                       <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Pret a installer</h3>
                       <p className="text-[13px] text-[#9ca3af]">Un bouton d'appel vocal apparaitra sur votre boutique Shopify.</p>
-                      <div className="p-4 bg-[#fafafa] rounded-xl text-left space-y-2">
+                      <div className="p-4 bg-surface rounded-xl text-left space-y-2">
                         <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-violet-600" /> <span>Voix : {VOICES.find(v => v.id === selectedVoice)?.name}</span></div>
                         <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-violet-600" /> <span>Message : "{greeting.substring(0, 40)}..."</span></div>
                         {transferNumber && <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-violet-600" /> <span>Transfert : {transferNumber}</span></div>}

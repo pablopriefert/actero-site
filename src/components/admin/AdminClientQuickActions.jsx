@@ -151,7 +151,7 @@ export function AdminClientQuickActions({ client, onAction, align = 'right' }) {
         aria-label="Actions"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="w-8 h-8 rounded-lg hover:bg-[#fafafa] flex items-center justify-center text-[#9ca3af] hover:text-[#1a1a1a] transition-colors"
+        className="w-8 h-8 rounded-lg hover:bg-surface flex items-center justify-center text-[#9ca3af] hover:text-[#1a1a1a] transition-colors"
       >
         <MoreVertical className="w-4 h-4" />
       </button>
@@ -280,7 +280,7 @@ function MenuItem({ icon: Icon, label, onClick, loading, danger }) {
       className={`w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-left transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
         danger
           ? 'text-[#ef4444] hover:bg-[#ef4444]/5'
-          : 'text-[#1a1a1a] hover:bg-[#fafafa]'
+          : 'text-[#1a1a1a] hover:bg-surface'
       }`}
     >
       <Icon className="w-3.5 h-3.5 flex-shrink-0" />

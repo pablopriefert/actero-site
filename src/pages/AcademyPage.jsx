@@ -135,7 +135,7 @@ export const AcademyPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#262626]">
+    <div className="min-h-screen bg-surface text-[#262626]">
       <SEO
         title="Actero Academy - Formations gratuites service client et automatisation e-commerce"
         description="Apprenez gratuitement a automatiser votre SAV, votre e-commerce et a deployer des agents IA performants. 15 cours experts, 100h de contenu, acces libre."

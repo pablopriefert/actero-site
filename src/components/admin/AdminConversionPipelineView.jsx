@@ -128,7 +128,7 @@ export function AdminConversionPipelineView() {
           ) : (
             <div className="-mx-5 -mb-5">
               {/* Table header */}
-              <div className="grid grid-cols-12 gap-2 px-5 py-2.5 bg-[#fafafa] border-b border-[#f0f0f0] text-[11px] font-bold text-[#71717a] uppercase tracking-wider">
+              <div className="grid grid-cols-12 gap-2 px-5 py-2.5 bg-surface border-b border-[#f0f0f0] text-[11px] font-bold text-[#71717a] uppercase tracking-wider">
                 <div className="col-span-3">Client</div>
                 <div className="col-span-2">Inscription</div>
                 <div className="col-span-3">Tickets ce mois</div>
@@ -145,7 +145,7 @@ export function AdminConversionPipelineView() {
                 return (
                   <div
                     key={client.id}
-                    className="grid grid-cols-12 gap-2 items-center px-5 py-3 border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors"
+                    className="grid grid-cols-12 gap-2 items-center px-5 py-3 border-b border-[#f0f0f0] hover:bg-surface transition-colors"
                   >
                     {/* Brand + email */}
                     <div className="col-span-3 min-w-0">
@@ -190,7 +190,7 @@ export function AdminConversionPipelineView() {
                       {client.contact_email && (
                         <a
                           href={`mailto:${client.contact_email}?subject=Votre compte Actero`}
-                          className="p-1.5 rounded-lg hover:bg-[#fafafa] text-[#71717a] hover:text-cta"
+                          className="p-1.5 rounded-lg hover:bg-surface text-[#71717a] hover:text-cta"
                           title="Contacter"
                         >
                           <Mail className="w-3.5 h-3.5" />

@@ -144,8 +144,8 @@ export const tokens = {
    */
   button: {
     primary: 'bg-cta hover:bg-cta text-white',
-    secondary: 'bg-white hover:bg-[#fafafa] text-[#1a1a1a] border border-[#f0f0f0]',
-    ghost: 'bg-transparent hover:bg-[#fafafa] text-[#71717a]',
+    secondary: 'bg-white hover:bg-surface text-[#1a1a1a] border border-[#f0f0f0]',
+    ghost: 'bg-transparent hover:bg-surface text-[#71717a]',
   },
 };
 

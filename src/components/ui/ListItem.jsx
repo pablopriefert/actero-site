@@ -14,7 +14,7 @@ function Avatar({ avatar }) {
       <img
         src={avatar}
         alt=""
-        className="w-8 h-8 rounded-lg flex-shrink-0 object-cover bg-[#fafafa]"
+        className="w-8 h-8 rounded-lg flex-shrink-0 object-cover bg-surface"
       />
     );
   }
@@ -31,7 +31,7 @@ function Avatar({ avatar }) {
  *
  * Couleurs issues des tokens :
  * - tokens.colors.bg.border (#f0f0f0) pour le séparateur
- * - tokens.colors.bg.page (#fafafa) pour le hover
+ * - tokens.colors.bg.page pour le hover
  * - tokens.colors.brand.primary (#13804A) pour l'état sélectionné
  * - tokens.colors.text.primary/muted pour la typographie
  *
@@ -76,7 +76,7 @@ export function ListItem({
       className={cn(
         'flex items-center gap-3 px-5 py-3 border-b border-[#f0f0f0] transition-colors',
         clickable && 'cursor-pointer',
-        !selected && 'hover:bg-[#fafafa]',
+        !selected && 'hover:bg-surface',
         selected && 'bg-cta/5 border-l-2 border-l-cta',
         className
       )}

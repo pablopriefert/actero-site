@@ -181,7 +181,7 @@ export function PaymentModal({ open, onClose, plan, billingPeriod = 'monthly', h
         </button>
 
         {/* Left — recap */}
-        <div className="bg-[#FFFFFF] p-8 flex flex-col">
+        <div className="bg-surface p-8 flex flex-col">
           <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#8B7A50]">Passer à</span>
           <h2 className="mt-1 text-[#1A1A1A] text-3xl" style={SERIF}>{plan?.name}</h2>
           {price && <div className="mt-3 text-[#1A1A1A] text-2xl font-bold">{price}</div>}

@@ -483,7 +483,7 @@ export const PlaybooksView = ({ clientId, setActiveTab, theme: _theme }) => {
                                 }`}
                               >
                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                  isSelected ? 'bg-cta text-white' : 'bg-[#fafafa] text-[#9ca3af]'
+                                  isSelected ? 'bg-cta text-white' : 'bg-surface text-[#9ca3af]'
                                 }`}>
                                   <ChIcon className="w-4 h-4" />
                                 </div>

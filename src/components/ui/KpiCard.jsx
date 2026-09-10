@@ -41,7 +41,7 @@ const COLOR_MAP = {
     iconText: 'text-[#3b82f6]',
   },
   neutral: {
-    iconBg: 'bg-[#fafafa]',
+    iconBg: 'bg-surface',
     iconText: 'text-[#9ca3af]',
   },
 };
@@ -165,7 +165,7 @@ function DeltaBadge({ delta, trend }) {
     ? 'text-[#10b981] bg-[#10b981]/10'
     : negative
     ? 'text-[#ef4444] bg-[#ef4444]/10'
-    : 'text-[#9ca3af] bg-[#fafafa]';
+    : 'text-[#9ca3af] bg-surface';
   const sign = delta > 0 ? '+' : '';
   return (
     <span

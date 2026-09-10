@@ -281,7 +281,7 @@ export const AutomationHowItWorksModal = ({
                       <div
                         key={i}
                         className={`flex items-center gap-3 p-3 rounded-xl border ${
-                          connected ? 'bg-cta/5 border-cta/20' : optional ? 'bg-[#fafafa] border-[#f0f0f0]' : 'bg-amber-50 border-amber-200'
+                          connected ? 'bg-cta/5 border-cta/20' : optional ? 'bg-surface border-[#f0f0f0]' : 'bg-amber-50 border-amber-200'
                         }`}
                       >
                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -325,7 +325,7 @@ export const AutomationHowItWorksModal = ({
                       key={i}
                       className={`p-3.5 rounded-xl ${
                         step.role === 'agent' ? 'bg-cta/5 border border-cta/15' :
-                        step.role === 'client' ? 'bg-[#fafafa] border border-[#f0f0f0]' :
+                        step.role === 'client' ? 'bg-surface border border-[#f0f0f0]' :
                         step.role === 'system' ? 'bg-white border border-[#f0f0f0]' :
                         'bg-emerald-50 border border-emerald-100'
                       }`}
@@ -361,7 +361,7 @@ export const AutomationHowItWorksModal = ({
             </div>
 
             {/* Footer */}
-            <div className="p-5 md:p-6 border-t border-[#f0f0f0] bg-[#fafafa] flex flex-col sm:flex-row items-center gap-3">
+            <div className="p-5 md:p-6 border-t border-[#f0f0f0] bg-surface flex flex-col sm:flex-row items-center gap-3">
               {onActivate && !isActive && (
                 <button
                   onClick={() => { onActivate(); onClose() }}

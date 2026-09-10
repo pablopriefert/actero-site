@@ -31,7 +31,7 @@ export const GlassHero = ({ onNavigate }) => {
           <FadeInUp delay={0.02} className="mb-8">
             <button
               onClick={() => onNavigate && onNavigate('/entreprise')}
-              className="inline-flex items-center gap-2 rounded-full bg-[#FFFFFF] border border-[#E6E8EC] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full bg-surface border border-[#E6E8EC] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
             >
               <span className="rounded-full bg-white border border-[#E6E8EC] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[#8B7A50]">
                 Soutenu par
@@ -308,7 +308,7 @@ function DashboardPreview() {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-black/[0.06] w-full">
       {/* Window chrome */}
-      <div className="h-9 bg-[#FFFFFF] border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
+      <div className="h-9 bg-surface border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
         <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
         <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
         <div className="w-2.5 h-2.5 rounded-full bg-[#E3E6EA]" />
@@ -318,7 +318,7 @@ function DashboardPreview() {
       {/* Content grid — sidebar + main */}
       <div className="grid grid-cols-[220px_1fr] min-h-[480px]">
         {/* Sidebar */}
-        <div className="bg-[#FAFAFA] border-r border-black/[0.05] px-3 py-5">
+        <div className="bg-surface border-r border-black/[0.05] px-3 py-5">
           <div className="px-2 pb-4 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.08em]">
             Boutique
           </div>

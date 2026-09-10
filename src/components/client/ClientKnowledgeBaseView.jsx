@@ -591,7 +591,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                   value={importUrl}
                   onChange={(e) => setImportUrl(e.target.value)}
                   placeholder="https://votre-site.com/faq"
-                  className="w-full px-4 py-2.5 bg-[#FFFFFF] border border-[#E6E8EC] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-blue-300"
+                  className="w-full px-4 py-2.5 bg-surface border border-[#E6E8EC] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-blue-300"
                 />
                 <button
                   onClick={handleImportUrl}
@@ -670,7 +670,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                     value={qaQuestion}
                     onChange={(e) => setQaQuestion(e.target.value)}
                     placeholder="Ex: Quels sont vos delais de livraison ?"
-                    className="mt-1 w-full px-4 py-2.5 bg-[#FFFFFF] border border-[#E6E8EC] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300"
+                    className="mt-1 w-full px-4 py-2.5 bg-surface border border-[#E6E8EC] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300"
                   />
                 </div>
                 <div>
@@ -680,7 +680,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                     onChange={(e) => setQaAnswer(e.target.value)}
                     placeholder="La livraison est gratuite a partir de 50€. Delai: 2-5 jours ouvrés..."
                     rows={3}
-                    className="mt-1 w-full px-4 py-2.5 bg-[#FFFFFF] border border-[#E6E8EC] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
+                    className="mt-1 w-full px-4 py-2.5 bg-surface border border-[#E6E8EC] rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-emerald-300 resize-none"
                   />
                 </div>
                 <button
@@ -756,7 +756,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg transition-colors whitespace-nowrap ${
                 isActive
                   ? 'bg-[#1a1a1a] text-white'
-                  : 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-[#fafafa]'
+                  : 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-surface'
               }`}
             >
               <CatIcon className="w-3.5 h-3.5" />
@@ -777,7 +777,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
               <SkeletonList n={5} />
             </div>
           ) : selectedCategory === 'tone' ? (
-            <div className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-[#E6E8EC]' : 'bg-[#FFFFFF] border-[#E6E8EC]'}`}>
+            <div className={`rounded-2xl border p-6 ${isLight ? 'bg-white border-[#E6E8EC]' : 'bg-surface border-[#E6E8EC]'}`}>
               <ToneEditor
                 entry={filteredEntries[0]}
                 onSave={(entry) => saveMutation.mutate(entry)}
@@ -788,7 +788,7 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
             <>
               {/* Entry list */}
               {filteredEntries.length === 0 && !isCreating ? (
-                <div className={`rounded-2xl border ${isLight ? 'bg-white border-[#E6E8EC]' : 'bg-[#FFFFFF] border-[#E6E8EC]'}`}>
+                <div className={`rounded-2xl border ${isLight ? 'bg-white border-[#E6E8EC]' : 'bg-surface border-[#E6E8EC]'}`}>
                   <EmptyState
                     icon={categoryConfig.icon}
                     tone="info"
@@ -827,8 +827,8 @@ export const ClientKnowledgeBaseView = ({ clientId, clientType, theme = 'dark' }
                         onClick={() => setEditingEntry(entry.id)}
                         className={`rounded-2xl border p-5 cursor-pointer transition-all ${
                           isExpired
-                            ? (isLight ? 'bg-[#FFFFFF] border-[#E6E8EC] opacity-50' : 'bg-gray-50 border-[#E6E8EC] opacity-50')
-                            : (isLight ? 'bg-white border-[#E6E8EC] hover:border-slate-300' : 'bg-[#FFFFFF] border-[#E6E8EC] hover:border-gray-300')
+                            ? (isLight ? 'bg-surface border-[#E6E8EC] opacity-50' : 'bg-gray-50 border-[#E6E8EC] opacity-50')
+                            : (isLight ? 'bg-white border-[#E6E8EC] hover:border-slate-300' : 'bg-surface border-[#E6E8EC] hover:border-gray-300')
                         }`}
                       >
                         <div className="flex items-start justify-between">

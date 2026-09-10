@@ -79,7 +79,7 @@ export const ROISimulator = ({ onNavigate }) => {
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fafafa] border border-[#f0f0f0] text-[#71717a] text-xs font-bold mb-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-[#f0f0f0] text-[#71717a] text-xs font-bold mb-5">
             <Calculator className="w-3.5 h-3.5" />
             Simulateur interactif
           </div>
@@ -121,7 +121,7 @@ export const ROISimulator = ({ onNavigate }) => {
             className="space-y-4"
           >
             {/* Total ROI Card */}
-            <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-2xl p-6 text-center">
+            <div className="bg-surface border border-[#f0f0f0] rounded-2xl p-6 text-center">
               <p className="text-[10px] font-bold text-cta uppercase tracking-[0.15em] mb-2">
                 ROI mensuel estime
               </p>

@@ -109,7 +109,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                     ].map(item => {
                       const Icon = item.icon
                       return (
-                        <div key={item.title} className="flex items-start gap-3 p-3 bg-[#fafafa] rounded-xl">
+                        <div key={item.title} className="flex items-start gap-3 p-3 bg-surface rounded-xl">
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
                             <Icon className="w-4 h-4 text-indigo-600" />
                           </div>
@@ -187,7 +187,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                         type="number"
                         value={relanceDelai}
                         onChange={(e) => setRelanceDelai(e.target.value)}
-                        className="w-24 px-3 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] outline-none focus:ring-1 focus:ring-indigo-300"
+                        className="w-24 px-3 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] outline-none focus:ring-1 focus:ring-indigo-300"
                       />
                       <span className="text-[13px] text-[#9ca3af]">jours</span>
                     </div>
@@ -201,7 +201,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                         type="number"
                         value={alerteSeuil}
                         onChange={(e) => setAlerteSeuil(e.target.value)}
-                        className="w-32 px-3 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] outline-none focus:ring-1 focus:ring-indigo-300"
+                        className="w-32 px-3 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] outline-none focus:ring-1 focus:ring-indigo-300"
                       />
                       <span className="text-[13px] text-[#9ca3af]">€</span>
                     </div>
@@ -279,7 +279,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                         <TrendingUp className="w-8 h-8 text-indigo-600" />
                       </div>
                       <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Pret a activer</h3>
-                      <div className="p-4 bg-[#fafafa] rounded-xl text-left space-y-2">
+                      <div className="p-4 bg-surface rounded-xl text-left space-y-2">
                         <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" /> <span>Outil : {COMPTA_TOOLS.find(t => t.id === selectedTool)?.name}</span></div>
                         <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" /> <span>Relance apres {relanceDelai} jours</span></div>
                         <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" /> <span>Alerte tresorerie sous {alerteSeuil}€</span></div>

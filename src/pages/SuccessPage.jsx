@@ -21,7 +21,7 @@ export function SuccessPage({ onNavigate }) {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] flex items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-16">
       <SEO
         title="Paiement confirmé | Actero"
         description="Bienvenue ! Votre compte Actero est activé."

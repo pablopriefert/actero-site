@@ -114,7 +114,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
             onChange={(e) => setNewRule(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addRule()}
             placeholder="Ex: Ne jamais proposer de remboursement sans escalade humaine"
-            className="flex-1 px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 placeholder-gray-400"
+            className="flex-1 px-4 py-3 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 placeholder-gray-400"
           />
           <button
             onClick={addRule}
@@ -135,7 +135,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
                 <button
                   key={i}
                   onClick={() => setNewRule(ex)}
-                  className="text-xs px-3 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[#9ca3af] hover:border-gray-300 hover:text-[#1a1a1a] transition-colors"
+                  className="text-xs px-3 py-1.5 bg-surface border border-[#ebebeb] rounded-lg text-[#9ca3af] hover:border-gray-300 hover:text-[#1a1a1a] transition-colors"
                 >
                   + {ex}
                 </button>
@@ -167,7 +167,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
                 className={`flex items-center gap-3 p-4 rounded-xl border transition-colors ${
                   rule.is_enabled
                     ? 'bg-white border-[#ebebeb]'
-                    : 'bg-[#fafafa] border-[#f0f0f0] opacity-50'
+                    : 'bg-surface border-[#f0f0f0] opacity-50'
                 }`}
               >
                 {/* Toggle */}
@@ -303,7 +303,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
     <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-5 flex items-center justify-between hover:bg-[#fafafa] transition-colors"
+        className="w-full p-5 flex items-center justify-between hover:bg-surface transition-colors"
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center">
@@ -340,7 +340,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                       <select
                         value={cond.conditionId}
                         onChange={(e) => updateCondition(i, 'conditionId', e.target.value)}
-                        className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
+                        className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
                       >
                         <option value="">Choisir...</option>
                         {CONDITIONS.map(c => (
@@ -353,7 +353,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                           <select
                             value={cond.operator}
                             onChange={(e) => updateCondition(i, 'operator', e.target.value)}
-                            className="px-2 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-16"
+                            className="px-2 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-16"
                           >
                             {(condConfig.operators || ['>']).map(op => (
                               <option key={op} value={op}>{op}</option>
@@ -364,7 +364,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                             value={cond.value}
                             onChange={(e) => updateCondition(i, 'value', e.target.value)}
                             placeholder="0"
-                            className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-24"
+                            className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-24"
                           />
                           {condConfig.unit && <span className="text-xs text-[#9ca3af]">{condConfig.unit}</span>}
                         </>
@@ -374,7 +374,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                         <select
                           value={cond.value}
                           onChange={(e) => updateCondition(i, 'value', e.target.value)}
-                          className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
+                          className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
                         >
                           <option value="">Choisir...</option>
                           {condConfig.options.map(opt => (
@@ -389,7 +389,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                           value={cond.value}
                           onChange={(e) => updateCondition(i, 'value', e.target.value)}
                           placeholder={condConfig.placeholder || 'Valeur...'}
-                          className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none flex-1 min-w-[140px]"
+                          className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none flex-1 min-w-[140px]"
                         />
                       )}
 
@@ -443,14 +443,14 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                   value={actionValue}
                   onChange={(e) => setActionValue(e.target.value)}
                   placeholder={action === 'promo' ? 'Code: SORRY10' : action === 'tag' ? 'Nom du tag' : 'Texte de la reponse'}
-                  className="mt-3 w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
+                  className="mt-3 w-full px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
                 />
               )}
             </div>
 
             {/* Preview */}
             {rulePreview && (
-              <div className="p-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+              <div className="p-3 bg-surface rounded-xl border border-[#f0f0f0]">
                 <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1">Apercu de la regle</p>
                 <p className="text-sm text-[#1a1a1a] font-medium">{rulePreview}</p>
               </div>
@@ -569,7 +569,7 @@ const EscalationThresholds = ({ clientId }) => {
             min="0"
             value={form.order_value_threshold}
             onChange={(e) => setForm(f => ({ ...f, order_value_threshold: e.target.value }))}
-            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
+            className="w-full max-w-xs px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: 150"
           />
         </div>
@@ -585,7 +585,7 @@ const EscalationThresholds = ({ clientId }) => {
             min="0"
             value={form.repeat_customer_orders}
             onChange={(e) => setForm(f => ({ ...f, repeat_customer_orders: e.target.value }))}
-            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
+            className="w-full max-w-xs px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: 5"
           />
         </div>
@@ -638,7 +638,7 @@ const EscalationThresholds = ({ clientId }) => {
             type="text"
             value={form.keywords}
             onChange={(e) => setForm(f => ({ ...f, keywords: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
+            className="w-full px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: avocat, juridique, DGCCRF, plainte"
           />
         </div>
@@ -936,7 +936,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
           type="button"
           onClick={() => runDiscountTest({ persist: false })}
           disabled={policyTestState === 'running' || !clientId}
-          className="inline-flex items-center gap-2 rounded-xl bg-white border border-[#E6E8EC] px-4 py-2 text-[13px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-xl bg-white border border-[#E6E8EC] px-4 py-2 text-[13px] font-semibold text-[#1a1a1a] hover:bg-surface disabled:opacity-50"
         >
           {policyTestState === 'running'
             ? <><Loader2 className="w-4 h-4 animate-spin" /> Test en cours…</>

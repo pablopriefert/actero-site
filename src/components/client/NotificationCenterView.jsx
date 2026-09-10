@@ -250,7 +250,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
                           className={`p-2 rounded-lg border transition-all ${
                             enabled
                               ? 'bg-cta/10 border-cta/30 text-cta'
-                              : 'bg-[#fafafa] border-[#f0f0f0] text-[#e5e5e5] hover:text-[#9ca3af] hover:border-[#ebebeb]'
+                              : 'bg-surface border-[#f0f0f0] text-[#e5e5e5] hover:text-[#9ca3af] hover:border-[#ebebeb]'
                           }`}
                           title={`${CHANNELS.find(c => c.id === ch)?.label}: ${enabled ? 'Actif' : 'Inactif'}`}
                         >
@@ -285,7 +285,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
               setPreferredHour(val)
               updatePref.mutate({ preferred_hour: val })
             }}
-            className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-xl text-sm text-[#1a1a1a] outline-none"
+            className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-xl text-sm text-[#1a1a1a] outline-none"
           >
             {HOURS.map(h => (
               <option key={h} value={h}>{h}h00</option>
@@ -319,7 +319,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
                   setQuietStart(val)
                   updatePref.mutate({ quiet_hours_start: val })
                 }}
-                className="px-2 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
+                className="px-2 py-1.5 bg-surface border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i} value={i}>{i}h00</option>
@@ -333,7 +333,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
                   setQuietEnd(val)
                   updatePref.mutate({ quiet_hours_end: val })
                 }}
-                className="px-2 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
+                className="px-2 py-1.5 bg-surface border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i} value={i}>{i}h00</option>

@@ -72,8 +72,8 @@ export function AdminQuotaWatchPanel() {
     <SectionCard title="Quotas & upsell" icon={Gauge}>
       {isLoading && (
         <div className="space-y-2" aria-busy="true">
-          <div className="h-10 rounded-xl bg-[#fafafa] animate-pulse" />
-          <div className="h-10 rounded-xl bg-[#fafafa] animate-pulse" />
+          <div className="h-10 rounded-xl bg-surface animate-pulse" />
+          <div className="h-10 rounded-xl bg-surface animate-pulse" />
         </div>
       )}
 
@@ -119,7 +119,7 @@ export function AdminQuotaWatchPanel() {
                     <p className="text-[13px] font-semibold text-[#1a1a1a] truncate">{r.name}</p>
                     <p className="text-[11px] text-[#9ca3af]">{PLAN_LABELS[r.plan] || r.plan}</p>
                   </div>
-                  <div className="flex-1 h-2 rounded-full bg-[#fafafa] overflow-hidden">
+                  <div className="flex-1 h-2 rounded-full bg-surface overflow-hidden">
                     <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(100, r.pct)}%` }} />
                   </div>
                   <span className="text-[12px] font-mono text-[#71717a] w-24 text-right tabular-nums">

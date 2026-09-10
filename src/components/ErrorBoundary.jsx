@@ -97,7 +97,7 @@ export function ErrorBoundary({ children }) {
       fallback={({ error, reset }) => (
         <div
           role="alert"
-          className="min-h-screen flex items-center justify-center bg-[#FFFFFF] p-6"
+          className="min-h-screen flex items-center justify-center bg-surface p-6"
         >
           <div className="max-w-md text-center">
             <div className="w-14 h-14 rounded-2xl bg-white border border-[#f0f0f0] shadow-sm flex items-center justify-center mx-auto mb-5">
@@ -172,7 +172,7 @@ export function TabErrorBoundary({ children, tabId, resetKey, tabLabel }) {
                   <summary className="text-[11px] text-[#9ca3af] cursor-pointer hover:text-[#71717a]">
                     Détails techniques
                   </summary>
-                  <pre className="mt-2 text-[11px] text-[#71717a] bg-[#fafafa] border border-[#f0f0f0] rounded-lg p-3 max-h-32 overflow-auto whitespace-pre-wrap break-words">
+                  <pre className="mt-2 text-[11px] text-[#71717a] bg-surface border border-[#f0f0f0] rounded-lg p-3 max-h-32 overflow-auto whitespace-pre-wrap break-words">
                     {error.message}
                   </pre>
                 </details>

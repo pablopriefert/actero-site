@@ -33,7 +33,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-surface flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <h2 className="text-3xl font-bold tracking-tight text-[#262626]">
           Nouveau mot de passe
@@ -66,7 +66,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl focus:ring-2 focus:ring-cta/30 focus:border-cta/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
+                className="block w-full px-4 py-3 bg-surface border border-gray-200 rounded-xl focus:ring-2 focus:ring-cta/30 focus:border-cta/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
                 placeholder="••••••••"
                 required
               />
@@ -81,7 +81,7 @@ export const ResetPasswordPage = ({ onNavigate }) => {
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="block w-full px-4 py-3 bg-[#FFFFFF] border border-gray-200 rounded-xl focus:ring-2 focus:ring-cta/30 focus:border-cta/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
+                className="block w-full px-4 py-3 bg-surface border border-gray-200 rounded-xl focus:ring-2 focus:ring-cta/30 focus:border-cta/40 sm:text-sm outline-none transition-all text-[#262626] placeholder:text-[#716D5C]/60"
                 placeholder="••••••••"
                 required
               />
