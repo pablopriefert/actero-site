@@ -2,6 +2,7 @@ import { withSentry } from './lib/sentry.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, getClientIp } from './lib/rate-limit.js';
+import { joursEssaiPour } from './lib/essai-gratuit.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -91,10 +92,13 @@ async function handler(req, res) {
       quantity: 1,
     });
 
-    // If valid referral, apply 1 month free trial (first month free for the referred person)
+    // Ce chemin n'accordait AUCUN essai à un marchand non parrainé, alors que
+    // les deux autres en donnaient sept. Trois boutons, trois essais : c'est
+    // ACT-33. La durée vient maintenant d'un seul endroit.
     const subscriptionData = {};
-    if (hasValidReferral) {
-      subscriptionData.trial_period_days = 30;
+    const joursEssai = joursEssaiPour({ referral_first_month_free: hasValidReferral });
+    if (joursEssai) {
+      subscriptionData.trial_period_days = joursEssai;
     }
 
     const metadata = {

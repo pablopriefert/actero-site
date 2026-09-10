@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
 import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
+import { joursEssaiPour } from '../lib/essai-gratuit.js';
 
 /**
  * POST /api/billing/create-subscription
@@ -211,7 +212,7 @@ async function handler(req, res) {
 
     // --- Trial eligibility (referral 30d > first-time 7d) ---
     const hadTrial = !!client.trial_ends_at;
-    const trialDays = client.referral_first_month_free ? 30 : (hadTrial ? undefined : 7);
+    const trialDays = joursEssaiPour(client);
 
     // Resolve the referrer's referral_code for webhook reward attribution.
     let referrerCode = null;

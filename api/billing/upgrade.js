@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
 import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
+import { joursEssaiPour } from '../lib/essai-gratuit.js';
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -127,7 +128,7 @@ async function handler(req, res) {
     // --- Determine trial eligibility ---
     // Referral first month free takes priority (30 days), otherwise 7-day trial if never had one
     const hadTrial = !!client.trial_ends_at;
-    const trialDays = client.referral_first_month_free ? 30 : (hadTrial ? undefined : 7);
+    const trialDays = joursEssaiPour(client);
 
     // --- Check if client already has an active subscription (instant upgrade) ---
     const existingSubId = client.stripe_subscription_id;
