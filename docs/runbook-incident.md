@@ -13,8 +13,10 @@ Chaque procédure ci-dessous a été vérifiée dans le code le 9 septembre 2026
 | **Sentry** | cron en échec, erreur non rattrapée | garantie — c'est le chemin de référence |
 | **Webhook ops** (`OPS_ALERT_WEBHOOK_URL`) | mêmes pannes, plus vite | **non vérifiée** — si la variable n'est pas définie, l'alerte part dans le vide, en silence |
 | **Alerte marchand** | son quota à 80 % et 100 % | email garanti + canaux choisis |
-| **Moniteur de silence** | un marchand qui recevait des messages n'en reçoit plus depuis 24 h | une alerte par incident |
+| **Moniteur de silence** | un marchand qui recevait des messages n'en reçoit plus depuis 24 h (`ENGINE_SILENCE_HOURS`) | une alerte par incident, par email Resend à `OPS_ALERT_EMAIL` — Sentry reste le filet garanti |
 | **Le marchand lui-même** | tout le reste | c'est aujourd'hui le canal le plus probable |
+
+> Jusqu'au 10 septembre 2026, le moniteur de silence envoyait son alerte par le webhook ops — le canal marqué « non vérifiée » juste au-dessus, mort depuis la réinstallation de l'app. Corrigé (ACT-21) : l'alerte part maintenant par email via Resend, à l'adresse `OPS_ALERT_EMAIL` (plusieurs adresses possibles, séparées par des virgules). Sans cette variable, l'envoi est ignoré avec un avertissement dans les logs — pas d'échec silencieux — et `captureError` vers Sentry reste le chemin garanti. Une panne Resend ne casse pas le healthcheck lui-même.
 
 > **À faire avant de compter dessus** : provoquer une panne volontaire et **prouver** qu'une alerte arrive. Tant que ce test n'a pas été fait, ce tableau décrit une intention. C'est la leçon des trois workflows d'alerte n8n qui affichaient `NEVER RAN` — ils étaient configurés, ils n'avaient jamais tourné.
 
@@ -173,7 +175,7 @@ section.
 
 - **Aucune restauration de base n'a jamais été testée.** Les sauvegardes existent, huit quotidiennes vérifiées, mais personne n'a jamais restauré. On ne sait donc pas combien de temps ça prend (ACT-14).
 - **Aucun environnement de test** séparé de la production (ACT-15).
-- **L'alerting n'a jamais été prouvé de bout en bout** (ACT-21).
+- **L'alerting n'a jamais été prouvé de bout en bout** (ACT-21). L'alerte du moniteur de silence passe désormais par Resend, le canal déjà éprouvé par les emails de bienvenue et les rapports mensuels — mais le test de bout en bout (panne volontaire, alerte reçue) reste à faire.
 - **Aucune procédure de suppression de compte client** (ACT-25).
 
 Ces quatre trous sont connus et suivis. Les écrire ici évite qu'on les découvre pendant un incident.
