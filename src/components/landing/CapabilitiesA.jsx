@@ -40,7 +40,7 @@ export const CapabilitiesA = () => {
       Icon: ShoppingCart,
       title: 'Relance paniers abandonnés',
       desc:
-        "Un agent proactif qui relance chaque client avec un message personnalisé (produit, remise conditionnelle, lien checkout) — pas une séquence email générique.",
+        "Un agent proactif qui relance chaque client avec un message personnalisé (produit précis, lien de paiement direct) — pas une séquence email générique.",
       highlight: '+15% de CA récupéré en moyenne',
       highlightMarker: '*',
     },

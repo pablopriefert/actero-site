@@ -99,7 +99,7 @@ export const LandingPage = ({ onNavigate }) => {
     },
     {
       q: 'Actero relance-t-il les paniers abandonnés ?',
-      a: "Oui : un agent proactif compose un message personnalisé (produit précis, remise conditionnelle, lien checkout) et relance sur le bon canal — pas une séquence email générique.",
+      a: "Oui : un agent proactif compose un message personnalisé (produit précis, lien de paiement direct) et l'envoie par email — pas une séquence générique.",
     },
     {
       q: 'Y a-t-il un engagement de durée ?',

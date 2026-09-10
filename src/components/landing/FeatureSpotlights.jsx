@@ -214,7 +214,7 @@ function CartMedia() {
       {/* Footer — channels */}
       <div className="px-5 py-3.5 border-t border-black/[0.05] flex items-center gap-2 text-[11.5px] text-[#716D5C]">
         <Zap className="w-3.5 h-3.5 text-cta" strokeWidth={2.2} />
-        Relance envoyée automatiquement · Email + SMS
+        Relance envoyée automatiquement par email
       </div>
     </div>
   )
@@ -251,12 +251,11 @@ export const CartSpotlight = () => (
     badge="dès le plan Free"
     title="Chaque panier abandonné,"
     titleAccent="relancé personnellement."
-    desc="Pas une séquence email générique. Un agent proactif qui compose, pour chaque client, un message unique — bon produit, bonne offre, bon moment — et relance sur le bon canal."
+    desc="Pas une séquence email générique. Un agent proactif qui compose, pour chaque client, un message unique — bon produit, bonne offre, bon moment — et le lui envoie par email."
     features={[
-      'Message 1:1 : produit précis, remise conditionnelle, lien checkout',
+      'Message 1:1 : produit précis, lien de paiement direct',
       'Timing intelligent selon le comportement d’achat',
-      'Remises conditionnelles pour protéger votre marge',
-      'Relance multi-canal : email + SMS',
+      'Relance par email, rédigée pour chaque client',
       'CA récupéré suivi en temps réel dans votre dashboard',
     ]}
     metric="+15% de CA panier récupéré en moyenne"
