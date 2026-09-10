@@ -27,7 +27,6 @@ const supabase = createClient(
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
 
 const FEATURE_DEFINITIONS = [
-  { key: 'brand_editor', name: 'Éditeur de ton de marque' },
   { key: 'guardrails', name: 'Garde-fous & règles métier' },
   { key: 'simulator', name: 'Simulateur de conversation' },
   { key: 'specialized_agents', name: 'Agents IA spécialisés' },

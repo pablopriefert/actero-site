@@ -31,9 +31,25 @@ export const ESSAI_STANDARD_JOURS = 7
 export const ESSAI_PARRAINAGE_JOURS = 30
 
 /**
+ * Essai accordé à un marchand venu d'une campagne publicitaire.
+ *
+ * Décision du 10 septembre : la publicité annonce « 1 mois gratuit », mais on
+ * ne l'ouvre pas à tout le monde — seulement à ceux qui arrivent par elle. Le
+ * marchand qui trouve Actero autrement garde l'essai standard.
+ *
+ * Le drapeau `campaign_first_month_free` est posé **côté serveur** après
+ * validation du code contre `CAMPAIGN_TRIAL_CODES`. Il n'est jamais déduit de
+ * l'URL ni d'un champ envoyé par le navigateur : un mois d'abonnement offert
+ * sur la foi d'un paramètre que n'importe qui peut écrire, ce n'est pas une
+ * campagne, c'est un cadeau à qui devine le mot.
+ */
+export const ESSAI_CAMPAGNE_JOURS = 30
+
+/**
  * Combien de jours d'essai accorder à ce client.
  *
- * @param {{ referral_first_month_free?: boolean, trial_ends_at?: string|null }} client
+ * @param {{ referral_first_month_free?: boolean, campaign_first_month_free?: boolean,
+ *           trial_ends_at?: string|null }} client
  * @returns {number|undefined} un nombre de jours, ou `undefined` pour « pas
  *   d'essai » — c'est ce que Stripe attend quand on ne veut pas de période
  *   d'essai, et non `0`, qui déclencherait une facturation immédiate mais
@@ -41,6 +57,7 @@ export const ESSAI_PARRAINAGE_JOURS = 30
  */
 export function joursEssaiPour(client) {
   if (client?.referral_first_month_free) return ESSAI_PARRAINAGE_JOURS
+  if (client?.campaign_first_month_free) return ESSAI_CAMPAGNE_JOURS
   // Un essai ne se donne qu'une fois. `trial_ends_at` est renseigné dès le
   // premier, même expiré : c'est la trace qui empêche d'en réclamer un second
   // en résiliant puis en se réabonnant.

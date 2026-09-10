@@ -46,7 +46,6 @@ export const PLAN_LIMITS = {
 
 export const PLAN_FEATURES = {
   free: {
-    brand_editor: false,
     guardrails: true,
     simulator: false,
     specialized_agents: false,
@@ -64,7 +63,6 @@ export const PLAN_FEATURES = {
     email_agent: false,
   },
   starter: {
-    brand_editor: true,
     guardrails: true,
     simulator: true,
     specialized_agents: false,
@@ -78,7 +76,6 @@ export const PLAN_FEATURES = {
     email_agent: false,
   },
   pro: {
-    brand_editor: true,
     guardrails: true,
     simulator: true,
     specialized_agents: true,
@@ -92,7 +89,6 @@ export const PLAN_FEATURES = {
     email_agent: true,
   },
   enterprise: {
-    brand_editor: true,
     guardrails: true,
     simulator: true,
     specialized_agents: true,

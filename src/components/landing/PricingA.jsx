@@ -43,7 +43,6 @@ export const PricingA = ({ onNavigate }) => {
       features: [
         '1 000 tickets / mois',
         '3 workflows · 3 intégrations',
-        'Éditeur ton de marque',
         'Simulateur de conversation',
         'API REST + Webhooks',
         'Historique 90 jours',
