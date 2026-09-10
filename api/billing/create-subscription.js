@@ -211,7 +211,6 @@ async function handler(req, res) {
     }
 
     // --- Trial eligibility (referral 30d > first-time 7d) ---
-    const hadTrial = !!client.trial_ends_at;
     const trialDays = joursEssaiPour(client);
 
     // Resolve the referrer's referral_code for webhook reward attribution.
@@ -265,15 +264,13 @@ async function handler(req, res) {
     // Persist the subscription id so future upgrades hit the instant-swap path.
     await supabaseAdmin.from('clients').update({ stripe_subscription_id: subscription.id }).eq('id', client_id);
 
-    // Consume the one-shot referral perk so it can't be reused.
-    if (client.referral_first_month_free) {
-      await supabaseAdmin.from('clients').update({ referral_first_month_free: false }).eq('id', client_id);
-    }
-    // Le mois offert par la campagne se consomme aussi : sinon un marchand
-    // qui résilie et se réabonne le réclamerait indéfiniment.
-    if (client.campaign_first_month_free) {
-      await supabaseAdmin.from('clients').update({ campaign_first_month_free: false }).eq('id', client_id);
-    }
+    // Pas de consommation anticipée ici non plus — même raison que dans
+    // api/billing/upgrade.js : un abonnement créé en `default_incomplete` peut
+    // très bien ne jamais être confirmé. Consommer le mois à cet instant, c'est
+    // le retirer à quelqu'un qui n'a rien obtenu.
+    //
+    // `trial_ends_at`, écrit par le webhook une fois l'abonnement confirmé,
+    // suffit à interdire un second essai.
 
     // --- Pick the secret the front confirms ---
     //   trial → pending_setup_intent (collect card for later, $0 now)

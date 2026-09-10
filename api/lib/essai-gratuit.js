@@ -56,11 +56,25 @@ export const ESSAI_CAMPAGNE_JOURS = 30
  *   marquerait quand même l'abonnement comme sortant d'essai.
  */
 export function joursEssaiPour(client) {
+  // CETTE LIGNE EST LA PREMIÈRE, ET C'EST TOUT L'ENJEU.
+  //
+  // `trial_ends_at` est renseigné dès le premier essai, même expiré : c'est la
+  // trace qui empêche d'en réclamer un second en résiliant puis en se
+  // réabonnant. Tant qu'elle passait APRÈS les deux drapeaux, elle ne
+  // protégeait de rien — un drapeau encore posé l'emportait sur elle.
+  //
+  // C'est pour ça que les routes de facturation consommaient le drapeau dès la
+  // création de la session Stripe. Elles fermaient bien la porte au
+  // réabonnement, mais elles la fermaient AUSSI au marchand qui ouvre l'écran
+  // de paiement, hésite, et revient dix minutes plus tard : son mois était déjà
+  // brûlé alors qu'il n'avait rien payé. Constaté en vrai le 10 septembre —
+  // Stripe affichait « Démarrer l'essai de 7 jours » à quelqu'un venu par le
+  // lien de la publicité.
+  //
+  // L'ordre ci-dessous rend la consommation anticipée inutile : un essai déjà
+  // pris bloque, un essai jamais pris reste dû.
+  if (client?.trial_ends_at) return undefined
   if (client?.referral_first_month_free) return ESSAI_PARRAINAGE_JOURS
   if (client?.campaign_first_month_free) return ESSAI_CAMPAGNE_JOURS
-  // Un essai ne se donne qu'une fois. `trial_ends_at` est renseigné dès le
-  // premier, même expiré : c'est la trace qui empêche d'en réclamer un second
-  // en résiliant puis en se réabonnant.
-  if (client?.trial_ends_at) return undefined
   return ESSAI_STANDARD_JOURS
 }
