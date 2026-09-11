@@ -143,6 +143,18 @@ Deux chemins, même résultat :
 
 Les conversations passées restent dans ton historique pour des raisons RGPD (export et suppression possibles depuis [Export RGPD](/essentials/export-rgpd)). Si Shopify déclenche `shop/redact` 48h après la désinstallation, toutes les données scoped à ta boutique sont effacées définitivement côté Actero.
 
+## Surveillance de la bulle de chat
+
+Une mise à jour de thème retire parfois l'app embed Actero de ta vitrine sans prévenir. L'agent cesse alors de recevoir les messages laissés sur ton site, sans qu'aucune erreur ne te le signale.
+
+Actero vérifie **au moins toutes les 24 heures** que le script Actero est bien présent sur ta vitrine. Le contrôle est automatique dès que ton onboarding Shopify est terminé — rien à activer.
+
+Tu reçois un email intitulé **« Votre agent ne reçoit plus de messages depuis votre site »** uniquement quand la bulle **disparaît** entre deux contrôles (le précédent la trouvait, celui-ci non). L'email indique l'URL contrôlée et la marche à suivre pour la réactiver depuis l'éditeur de thème Shopify.
+
+<Note>
+L'alerte ne se déclenche que sur une régression. Une boutique qui n'a jamais activé l'app embed ne reçoit pas d'email quotidien. Un site temporairement injoignable au moment du contrôle ne déclenche pas d'alerte non plus.
+</Note>
+
 ## Problèmes fréquents
 
 <AccordionGroup>
@@ -157,6 +169,8 @@ Les conversations passées restent dans ton historique pour des raisons RGPD (ex
   </Accordion>
   <Accordion title="Le widget ne s'affiche pas sur ma boutique">
     Vérifie que l'app embed **Actero** est activée : **Boutique en ligne → Thèmes → Personnaliser → Widgets d'application (App embeds)**. Si elle est déjà activée, désactive-la puis réactive-la pour forcer un rechargement du thème.
+
+    Si la bulle disparaît après une mise à jour de thème, Actero t'en informe automatiquement par email — voir [Surveillance de la bulle de chat](#surveillance-de-la-bulle-de-chat).
   </Accordion>
   <Accordion title="J'ai changé de domaine Shopify (migration .myshopify.com)">
     Reconnecte l'intégration avec le nouveau domaine. Les commandes historiques restent indexées, le nouveau token prend le relais sans coupure de service.
