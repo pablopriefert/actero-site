@@ -96,6 +96,9 @@ Si la création échoue (hébergeur qui bloque les requêtes sortantes, plugin d
   <Accordion title="Les webhooks n'arrivent pas sur Actero">
     Va dans **WooCommerce → Settings → Advanced → Webhooks**. Si tu vois des deliveries en échec avec status 401/403, supprime-les et reconnecte l'intégration depuis Actero pour régénérer les secrets.
   </Accordion>
+  <Accordion title="Un visiteur du widget dit avoir donné son numéro de commande sans obtenir de réponse">
+    C'est volontaire. L'agent exige que le numéro **et** l'email correspondent à la même commande WooCommerce avant de renvoyer un statut. Un visiteur anonyme se voit demander son email d'achat plutôt qu'un « commande introuvable ». Si l'email fourni ne correspond pas à celui de la commande côté Woo, l'agent ne divulgue rien et repose la question.
+  </Accordion>
 </AccordionGroup>
 
 ## FAQ

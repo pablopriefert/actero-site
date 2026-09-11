@@ -84,6 +84,9 @@ Actero enregistre les webhooks suivants à l'installation, signés HMAC :
   <Accordion title="Aucune commande n'apparaît après connexion">
     Webflow indexe les commandes en asynchrone via webhook. Passe une commande de test depuis ton site et vérifie qu'elle apparaît dans Actero dans la minute. Sinon, va dans Webflow → **Site Settings → Apps & Integrations → Webhooks** et confirme que les hooks vers `actero.fr` sont en statut **Delivered**.
   </Accordion>
+  <Accordion title="Un visiteur du widget dit avoir donné son numéro de commande sans obtenir de réponse">
+    C'est volontaire. L'agent exige que le numéro **et** l'email correspondent à la même commande Webflow avant de renvoyer un statut. Un visiteur anonyme se voit demander son email d'achat plutôt qu'un « commande introuvable ». Si l'email fourni ne correspond pas à celui de la commande côté Webflow, l'agent ne divulgue rien et repose la question.
+  </Accordion>
   <Accordion title="L'agent ne reconnaît pas mes variantes produit">
     Webflow stocke les variantes en sous-collections. L'indexation peut prendre quelques minutes après l'installation. Lance manuellement une réindexation depuis **Intégrations → Webflow → Réindexer** si besoin.
   </Accordion>

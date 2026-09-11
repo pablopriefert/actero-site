@@ -147,7 +147,7 @@ Les conversations passées restent dans ton historique pour des raisons RGPD (ex
 
 <AccordionGroup>
   <Accordion title="L'agent ne trouve pas ma commande #1234">
-    Vérifie que Shopify est bien en statut **Connecté** dans Intégrations. L'agent matche d'abord par email client, puis par numéro de commande. Si le client a passé sa commande en invité avec une autre adresse email que celle utilisée dans la conversation, demande-lui de confirmer son email d'achat.
+    Vérifie que Shopify est bien en statut **Connecté** dans Intégrations. L'agent exige que le numéro de commande **et** l'email du demandeur correspondent à la même commande côté Shopify avant de renvoyer un résultat. Un visiteur anonyme du widget qui ne donne qu'un numéro obtient donc une demande d'email, pas la commande d'un autre client. Si le client a acheté en invité avec une autre adresse que celle utilisée dans la conversation, demande-lui de confirmer son email d'achat.
   </Accordion>
   <Accordion title="Webhook error 401 ou 403 dans les logs Shopify">
     Le secret HMAC a probablement tourné (rotation côté Shopify). Déconnecte puis reconnecte l'intégration depuis Actero — les webhooks sont régénérés avec un secret frais.
