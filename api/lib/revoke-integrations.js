@@ -19,12 +19,11 @@
  * part dans le journal admin pour qu'un humain finisse le travail.
  */
 import { decryptToken } from './crypto.js'
+import { SHOPIFY_API_VERSION } from './shopify-api-version.js'
 
 // `appUninstall` n'existe qu'à partir de 2025-07. Le reste du code appelle
 // l'API Shopify en 2025-01 : on ne change pas cette version globalement pour
 // un seul appel, on la fixe ici.
-const SHOPIFY_API_UNINSTALL = '2025-07'
-
 const dechiffre = (v) => (v ? decryptToken(v) || v : null)
 
 function resultat(fournisseur, etat, detail) {
@@ -52,7 +51,7 @@ async function revoquerShopify(supabase, clientId) {
 
   try {
     const r = await fetch(
-      `https://${cx.shop_domain}/admin/api/${SHOPIFY_API_UNINSTALL}/graphql.json`,
+      `https://${cx.shop_domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },

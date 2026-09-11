@@ -17,11 +17,10 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { decryptToken } from '../lib/crypto.js'
+import { SHOPIFY_API_VERSION } from '../lib/shopify-api-version.js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
-const SHOPIFY_API_VERSION = '2025-01'
-
 const APP_SUBSCRIPTION_QUERY = `
   query AppSubscription($id: ID!) {
     node(id: $id) {

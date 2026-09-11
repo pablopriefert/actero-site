@@ -13,6 +13,7 @@
 import { decryptToken } from '../../lib/crypto.js'
 import { formatOrder } from './order-format.js'
 import { lookupOrder as lookupWooCommerceOrder } from './woocommerce-client.js'
+import { SHOPIFY_API_VERSION } from '../../lib/shopify-api-version.js'
 
 /**
  * Aiguillage : regarde quelle plateforme e-commerce le client a connectée et
@@ -81,7 +82,7 @@ export async function lookupShopifyOrder(supabase, { clientId, orderId, customer
   // GraphQL Admin API — the REST Admin API is legacy and not allowed for new
   // public apps (App Store requirement 2.2.4). We keep formatOrder's output
   // shape identical by mapping the GraphQL node back to the REST-like object.
-  const endpoint = `https://${shopify.shop_domain}/admin/api/2025-01/graphql.json`
+  const endpoint = `https://${shopify.shop_domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`
   const headers = {
     'X-Shopify-Access-Token': shopifyToken,
     'Content-Type': 'application/json',

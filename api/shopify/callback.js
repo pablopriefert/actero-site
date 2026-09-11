@@ -2,6 +2,7 @@ import { withSentry, captureError } from '../lib/sentry.js'
 import crypto from 'crypto';
 import { encryptToken } from '../lib/crypto.js';
 import { spawnJob } from '../lib/e2b-runner.js';
+import { SHOPIFY_API_VERSION } from '../lib/shopify-api-version.js'
 
 async function handler(req, res) {
   const { shop, code, state, hmac } = req.query;
@@ -178,7 +179,7 @@ async function handler(req, res) {
     let shopName = shop.replace(/\.myshopify\.com$/, '');
     let shopEmail = null;
     try {
-      const shopResp = await fetch(`https://${shop}/admin/api/2025-01/graphql.json`, {
+      const shopResp = await fetch(`https://${shop}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
         method: 'POST',
         headers: {
           'X-Shopify-Access-Token': access_token,
@@ -330,7 +331,7 @@ async function handler(req, res) {
 
     for (const sub of subscriptionsToRegister) {
       try {
-        const resp = await fetch(`https://${shop}/admin/api/2025-01/graphql.json`, {
+        const resp = await fetch(`https://${shop}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

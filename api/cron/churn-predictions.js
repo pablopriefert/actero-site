@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { decryptToken } from '../lib/crypto.js'
 import { withCronMonitor } from '../lib/cron-monitor.js'
 import { chatComplete } from '../lib/llm.js'
+import { SHOPIFY_API_VERSION } from '../lib/shopify-api-version.js'
 
 export const maxDuration = 60;
 
@@ -266,7 +267,7 @@ async function fetchShopifyCustomer(shopify, email) {
     // GraphQL Admin API — new public apps are forbidden from REST (App Store
     // requirement 2.2.4). shopify.access_token is already decrypted by the
     // caller (see the decryptToken call at load time).
-    const endpoint = `https://${shopify.shop_domain}/admin/api/2025-01/graphql.json`
+    const endpoint = `https://${shopify.shop_domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`
     const headers = {
       'X-Shopify-Access-Token': shopify.access_token,
       'Content-Type': 'application/json',

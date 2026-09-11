@@ -20,8 +20,7 @@
  * @returns {Promise<Array>} - Array of product objects (empty if none / no store)
  */
 import { decryptToken } from '../../lib/crypto.js'
-
-const GRAPHQL_API_VERSION = '2025-01'
+import { SHOPIFY_API_VERSION } from '../../lib/shopify-api-version.js'
 
 const PRODUCTS_SEARCH_QUERY = `
   query ProductsSearch($query: String!, $first: Int!) {
@@ -72,7 +71,7 @@ export async function searchShopifyProducts(supabase, { clientId, query, limit =
     const searchTerm = `title:*${safeQuery}*`
 
     const res = await fetch(
-      `https://${shopify.shop_domain}/admin/api/${GRAPHQL_API_VERSION}/graphql.json`,
+      `https://${shopify.shop_domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`,
       {
         method: 'POST',
         headers: {

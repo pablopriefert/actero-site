@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { SHOPIFY_API_VERSION } from '../../lib/shopify-api-version.js'
 
 // decryptToken is imported by shopify-client (et par woocommerce-client, importé
 // par le dispatcher) ; stub-le en un token exploitable.
@@ -80,7 +81,10 @@ describe('lookupShopifyOrder (GraphQL)', () => {
 
     // Hit the GraphQL endpoint, not the legacy REST orders.json.
     const calledUrl = fetchMock.mock.calls[0][0]
-    expect(calledUrl).toContain('/admin/api/2025-01/graphql.json')
+    // La version vient de la source unique : ce test porte sur « GraphQL et
+    // non REST », pas sur un millésime. L'écrire en dur ici le faisait échouer
+    // à chaque montée de version, pour une raison sans rapport avec son objet.
+    expect(calledUrl).toContain(`/admin/api/${SHOPIFY_API_VERSION}/graphql.json`)
     expect(calledUrl).not.toContain('orders.json')
 
     expect(orders).toHaveLength(1)
