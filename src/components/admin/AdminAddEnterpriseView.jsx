@@ -145,7 +145,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               value={form.brand_name}
               onChange={(e) => update('brand_name', e.target.value)}
               placeholder="Le Slip Français, Sézane..."
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               required
               autoFocus
             />
@@ -161,7 +161,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               value={form.contact_email}
               onChange={(e) => update('contact_email', e.target.value)}
               placeholder="ceo@brand.com"
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               required
             />
           </div>
@@ -176,7 +176,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               value={form.shopify_url}
               onChange={(e) => update('shopify_url', e.target.value)}
               placeholder="https://brand.myshopify.com"
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
             />
           </div>
 
@@ -192,7 +192,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
                 step="1"
                 value={form.mrr}
                 onChange={(e) => update('mrr', Number(e.target.value))}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               />
             </div>
             <div>
@@ -205,7 +205,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
                 max="10"
                 value={form.nb_shops}
                 onChange={(e) => update('nb_shops', Number(e.target.value))}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
+                className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
               />
             </div>
           </div>
@@ -220,7 +220,7 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
               value={form.account_manager}
               onChange={(e) => update('account_manager', e.target.value)}
               placeholder="Pablo, Marie..."
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors"
             />
           </div>
 
@@ -232,9 +232,9 @@ export function AdminAddEnterpriseView({ onNavigateToClients }) {
             <textarea
               value={form.notes}
               onChange={(e) => update('notes', e.target.value)}
-              placeholder="Details sur le client, besoins specifiques..."
+              placeholder="Details sur le client, besoins spécifiques..."
               rows={3}
-              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors resize-none"
+              className="w-full px-3 py-2.5 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white transition-colors resize-none"
             />
           </div>
 

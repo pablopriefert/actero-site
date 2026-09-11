@@ -32,7 +32,7 @@ async function handler(req, res) {
 
   // Rate limit: 5 requests/min per IP
   const ip = getClientIp(req);
-  const rl = checkRateLimit(`ambassador_apply:${ip}`, 5, 60_000);
+  const rl = await checkRateLimit(`ambassador_apply:${ip}`, 5, 60_000);
   res.setHeader('X-RateLimit-Remaining', String(rl.remaining));
   if (!rl.allowed) {
     res.setHeader('Retry-After', String(Math.ceil((rl.resetAt - Date.now()) / 1000)));

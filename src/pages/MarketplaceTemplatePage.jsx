@@ -171,7 +171,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(data?.error || 'Installation impossible')
-        toast.success('Template installe avec succes')
+        toast.success('Template installe avec succès')
         setTimeout(() => onNavigate('/client'), 800)
       } else {
         // Paid → Stripe checkout
@@ -200,7 +200,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-surface flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-[#003725]" />
       </div>
     )
@@ -208,7 +208,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
   if (!template) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center text-center px-6">
+      <div className="min-h-screen bg-surface flex items-center justify-center text-center px-6">
         <div>
           <p className="text-[18px] font-bold text-[#1a1a1a] mb-2">Template introuvable</p>
           <p className="text-[13px] text-[#716D5C] mb-4">
@@ -216,7 +216,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
           </p>
           <button
             onClick={() => onNavigate('/marketplace')}
-            className="px-4 py-2 rounded-xl bg-[#003725] text-white text-[13px] font-bold"
+            className="px-4 py-2 rounded-xl bg-cta text-white text-[13px] font-bold"
           >
             Retour au marketplace
           </button>
@@ -238,7 +238,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
   const examplesCount = contents.examples_count || (Array.isArray(contents.examples) ? contents.examples.length : 0)
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#1a1a1a]">
+    <div className="min-h-screen bg-surface text-[#1a1a1a]">
       <SEO
         title="Template Actero — automatisation support client"
         description="Template prêt à déployer dans Actero pour automatiser votre support client e-commerce."
@@ -260,7 +260,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main column */}
           <div className="lg:col-span-2 min-w-0">
-            <div className="aspect-[16/9] rounded-3xl overflow-hidden bg-gradient-to-br from-[#F9F7F1] to-[#eceae2] mb-6 border border-[#f0f0f0]">
+            <div className="aspect-[16/9] rounded-3xl overflow-hidden bg-gradient-to-br from-[#FFFFFF] to-[#EDEFF2] mb-6 border border-[#f0f0f0]">
               {template.preview_image ? (
                 <img src={template.preview_image} alt={template.name} className="w-full h-full object-cover" />
               ) : (
@@ -278,12 +278,12 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                 </span>
               )}
               {template.category && (
-                <span className="px-2.5 py-1 rounded-full bg-[#003725]/5 text-[#003725] text-[11px] font-bold uppercase tracking-wider">
+                <span className="px-2.5 py-1 rounded-full bg-cta/5 text-[#003725] text-[11px] font-bold uppercase tracking-wider">
                   {template.category}
                 </span>
               )}
               {template.industry && (
-                <span className="px-2.5 py-1 rounded-full bg-[#F9F7F1] text-[#555] text-[11px] font-bold uppercase tracking-wider">
+                <span className="px-2.5 py-1 rounded-full bg-surface text-[#555] text-[11px] font-bold uppercase tracking-wider">
                   {template.industry}
                 </span>
               )}
@@ -364,7 +364,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { icon: MessageSquare, label: 'Prompts', value: promptsCount, color: 'bg-emerald-50 text-emerald-700' },
-                      { icon: Shield, label: 'Regles', value: rulesCount, color: 'bg-amber-50 text-amber-700' },
+                      { icon: Shield, label: 'Règles', value: rulesCount, color: 'bg-amber-50 text-amber-700' },
                       { icon: BookOpen, label: 'Base de savoir', value: kbCount, color: 'bg-blue-50 text-blue-700' },
                       { icon: Package, label: 'Exemples', value: examplesCount, color: 'bg-violet-50 text-violet-700' },
                     ].map((item, i) => (
@@ -395,7 +395,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                     <div key={r.id} className="bg-white border border-[#f0f0f0] rounded-2xl p-5">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-[#F9F7F1] flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center">
                             <User className="w-3.5 h-3.5 text-[#716D5C]" />
                           </div>
                           <div>
@@ -426,7 +426,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                     {installs.map((inst) => (
                       <li key={inst.id} className="flex items-center justify-between px-5 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-7 h-7 rounded-lg bg-[#F9F7F1] flex items-center justify-center">
+                          <div className="w-7 h-7 rounded-lg bg-surface flex items-center justify-center">
                             <CheckCircle2 className="w-3.5 h-3.5 text-[#003725]" />
                           </div>
                           <p className="text-[13px] font-medium">{inst.client_brand_name || 'Client anonyme'}</p>
@@ -460,7 +460,7 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
                 <button
                   onClick={handleInstall}
                   disabled={installing}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-[#003725] text-white text-[14px] font-bold hover:bg-[#002a1c] disabled:opacity-60 transition-colors mb-3"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-cta text-white text-[14px] font-bold hover:bg-[#002a1c] disabled:opacity-60 transition-colors mb-3"
                 >
                   {installing ? (
                     <>
@@ -482,8 +482,8 @@ export const MarketplaceTemplatePage = ({ slug, onNavigate }) => {
 
                 <p className="text-[11px] text-[#9ca3af] text-center mb-5">
                   {isFree
-                    ? 'Installation immediate dans votre dashboard'
-                    : 'Paiement securise via Stripe'}
+                    ? 'Installation immédiate dans votre dashboard'
+                    : 'Paiement sécurisé via Stripe'}
                 </p>
 
                 <div className="border-t border-[#f0f0f0] pt-4 space-y-2.5 text-[12px]">

@@ -15,6 +15,7 @@ import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
+import { appliquerCampagne } from '../lib/campagne.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -31,7 +32,7 @@ async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`verify-code-check:${ip}`, 15, 60 * 60 * 1000)
+  const rl = await checkRateLimit(`verify-code-check:${ip}`, 15, 60 * 60 * 1000)
   if (!rl.allowed) return res.status(429).json({ error: 'Trop de tentatives. Réessayez plus tard.' })
 
   const { email, code } = req.body || {}
@@ -85,6 +86,7 @@ async function handler(req, res) {
   const brand_name = payload.brand_name
   const shopify_url = payload.shopify_url
   const referral_code = payload.referral_code
+  const campaign_code = payload.campaign_code
   const acquisition_source = payload.acquisition_source || null
 
   let userId = null
@@ -209,11 +211,34 @@ async function handler(req, res) {
       console.error('[verify-code] lightfield push error:', lightfieldErr.message)
     }
 
-    // 7. Return success — redirect DIRECTLY to dashboard.
-    // Free plan is auto-provisioned on account creation (clients.plan = 'free' by default
-    // in migration, see 20260201_*). We removed the forced /signup/plan step to cut signup
-    // friction by ~30s + 1 decision. Upsell is surfaced from the dashboard sidebar CTA.
-    return res.status(200).json({ success: true, redirect: '/client' })
+    // 6bis. Code de campagne publicitaire (ACT-33).
+    //
+    // C'EST ICI que le compte est réellement créé pour l'inscription
+    // email/mot de passe — pas dans api/auth/signup.js, qui est un chemin
+    // plus ancien. J'avais branché la campagne là-bas : elle ne s'appliquait
+    // donc jamais. Troisième variante du même défaut sur cette seule
+    // fonctionnalité, et la plus coûteuse, parce qu'elle était invisible.
+    let campagneAppliquee = false
+    if (campaign_code) {
+      const { applique } = await appliquerCampagne(supabase, clientId, campaign_code)
+      campagneAppliquee = applique
+      console.log(`[verify-code] campagne ${applique ? 'appliquée' : 'refusée'} pour ${clientId}`)
+    }
+
+    // 7. Où l'envoyer ensuite.
+    //
+    // Par défaut : le tableau de bord. Le plan gratuit est provisionné à la
+    // création, et on avait retiré l'étape de choix de plan pour gagner ~30 s
+    // et une décision au moment le plus fragile du parcours.
+    //
+    // Mais quelqu'un qui arrive par une publicité annonçant « 1 mois
+    // gratuit » vient POUR ça : lui cacher le choix de plan, c'est lui faire
+    // rater ce qu'on a payé pour lui vendre. Il passe donc par la page de
+    // sélection, qui affiche le mois offert et mène à Stripe.
+    const redirect = campagneAppliquee
+      ? `/signup/plan?campagne=${encodeURIComponent(campaign_code)}`
+      : '/client'
+    return res.status(200).json({ success: true, redirect })
   } catch (err) {
     console.error('[verify-code] Account creation error:', err)
     // Cleanup on failure

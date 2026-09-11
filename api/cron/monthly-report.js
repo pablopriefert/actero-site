@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { withCronMonitor } from '../lib/cron-monitor.js'
+import { canAccessFeature } from '../lib/plan-limits.js'
+import { construireRapportPdf } from '../lib/rapport-pdf.js'
 
 export const maxDuration = 60;
 
@@ -50,7 +52,7 @@ function variationBadge(v) {
 /* SMTP sender (reuses client_integrations smtp_imap, fallback Resend)        */
 /* -------------------------------------------------------------------------- */
 
-async function sendViaSMTP(smtpConfig, { to, subject, html, brandName }) {
+async function sendViaSMTP(smtpConfig, { to, subject, html, brandName, attachments }) {
   let nodemailer
   try {
     nodemailer = (await import('nodemailer')).default
@@ -75,10 +77,10 @@ async function sendViaSMTP(smtpConfig, { to, subject, html, brandName }) {
 
   const fromEmail = smtpConfig.email || smtpConfig.username
   const fromDisplay = brandName ? `${brandName} <${fromEmail}>` : fromEmail
-  return transporter.sendMail({ from: fromDisplay, to, subject, html })
+  return transporter.sendMail({ from: fromDisplay, to, subject, html, attachments })
 }
 
-async function sendEmail(clientId, { to, subject, html, brandName }) {
+async function sendEmail(clientId, { to, subject, html, brandName, attachments }) {
   // 1) Try client SMTP
   const { data: smtp } = await supabase
     .from('client_integrations')
@@ -92,7 +94,7 @@ async function sendEmail(clientId, { to, subject, html, brandName }) {
     try {
       const { decryptToken } = await import('../lib/crypto.js')
       const smtpConfig = { ...smtp.extra_config, password: decryptToken(smtp.api_key) }
-      await sendViaSMTP(smtpConfig, { to, subject, html, brandName })
+      await sendViaSMTP(smtpConfig, { to, subject, html, brandName, attachments })
       return { provider: 'smtp' }
     } catch (err) {
       console.error(`[monthly-report] SMTP failed for client ${clientId}:`, err.message)
@@ -106,6 +108,9 @@ async function sendEmail(clientId, { to, subject, html, brandName }) {
     to: [to],
     subject,
     html,
+    // Resend et nodemailer attendent la meme forme { filename, content } :
+    // aucune conversion entre les deux chemins.
+    ...(attachments?.length ? { attachments } : {}),
   })
   if (error) throw new Error(`Resend failed: ${error.message || error}`)
   return { provider: 'resend' }
@@ -375,7 +380,7 @@ async function handler(req, res) {
     // Active clients only
     const { data: clients = [], error: clientsErr } = await supabase
       .from('clients')
-      .select('id, brand_name, contact_email, owner_user_id, status')
+      .select('id, brand_name, contact_email, owner_user_id, status, plan, trial_ends_at')
       .in('status', ['active', 'onboarding', 'live'])
 
     if (clientsErr) throw clientsErr
@@ -413,17 +418,49 @@ async function handler(req, res) {
           previous,
         })
 
+        // « Rapport PDF mensuel auto-envoye » est vendu sur Pro et Enterprise.
+        // Jusqu'au 10 septembre, ce cron envoyait le MEME email HTML a tout le
+        // monde, sans distinction de plan, et aucune librairie PDF n'existait
+        // dans le projet. Le rapport HTML reste pour tous : c'est la piece
+        // jointe qui distingue les formules.
+        const enEssai = client.trial_ends_at && new Date(client.trial_ends_at) > new Date()
+        const aDroitAuPdf = enEssai || canAccessFeature(client.plan || 'free', 'pdf_report')
+
+        let attachments
+        let pdfJoint = false
+        if (aDroitAuPdf) {
+          try {
+            const pdf = await construireRapportPdf({
+              brandName: client.brand_name || 'votre marque',
+              periodLabel,
+              current,
+              previous,
+            })
+            attachments = [{
+              filename: `actero-rapport-${periodLabel.replace(/\s+/g, '-').toLowerCase()}.pdf`,
+              content: pdf,
+            }]
+            pdfJoint = true
+          } catch (err) {
+            // Un PDF qui echoue ne doit pas priver le marchand de son rapport :
+            // l'email part quand meme, et l'echec est bruyant dans les logs.
+            console.error(`[monthly-report] PDF failed for client ${client.id}:`, err.message)
+          }
+        }
+
         const sent = await sendEmail(client.id, {
           to: recipient,
           subject: `Votre rapport mensuel Actero — ${periodLabel}`,
           html,
           brandName: client.brand_name,
+          attachments,
         })
 
         results.push({
           client_id: client.id,
           sent_to: recipient,
           provider: sent.provider,
+          pdf: pdfJoint,
           stats: current,
         })
       } catch (err) {

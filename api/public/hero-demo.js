@@ -73,7 +73,7 @@ async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`hero-demo:${ip}`, RATE_LIMIT, RATE_WINDOW_MS)
+  const rl = await checkRateLimit(`hero-demo:${ip}`, RATE_LIMIT, RATE_WINDOW_MS)
   res.setHeader('X-RateLimit-Limit', String(RATE_LIMIT))
   res.setHeader('X-RateLimit-Remaining', String(rl.remaining))
   if (!rl.allowed) {

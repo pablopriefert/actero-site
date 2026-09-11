@@ -85,7 +85,7 @@ export const AdminPlaybooksView = () => {
         return (
           <div key={playbook.id} className="bg-white border border-[#f0f0f0] rounded-2xl overflow-hidden">
             <div className="p-5 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[#003725]/10 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-cta/10 flex items-center justify-center">
                 <Icon className="w-6 h-6 text-[#003725]" />
               </div>
               <div className="flex-1">
@@ -98,7 +98,7 @@ export const AdminPlaybooksView = () => {
                 <p className="text-[12px] text-[#71717a] mt-0.5">{playbook.description}</p>
                 <div className="flex gap-1 mt-2">
                   {(playbook.event_types || []).map(et => (
-                    <span key={et} className="px-2 py-0.5 bg-[#ffffff] rounded text-[9px] font-mono text-[#71717a]">{et}</span>
+                    <span key={et} className="px-2 py-0.5 bg-surface rounded text-[9px] font-mono text-[#71717a]">{et}</span>
                   ))}
                 </div>
               </div>
@@ -121,7 +121,7 @@ export const AdminPlaybooksView = () => {
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${
                         active
                           ? 'bg-cta text-white'
-                          : 'bg-[#f5f5f5] text-[#71717a] hover:bg-gray-200'
+                          : 'bg-surface text-[#71717a] hover:bg-gray-200'
                       }`}
                     >
                       {active && <CheckCircle2 className="w-3 h-3" />}

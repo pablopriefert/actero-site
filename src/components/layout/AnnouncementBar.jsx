@@ -17,7 +17,7 @@ export const AnnouncementBar = ({ onNavigate, vertical: _vertical }) => {
           className={`relative z-50 border-b ${
             isImmo
               ? 'bg-violet-950/80 border-violet-500/20'
-              : 'bg-[#003725]/80 border-[#003725]/20'
+              : 'bg-cta/80 border-[#003725]/20'
           } backdrop-blur-sm overflow-hidden`}
         >
           <div className="flex items-center justify-center gap-2.5 px-10 py-2.5 text-sm font-medium text-white/90">

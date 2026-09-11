@@ -56,7 +56,7 @@ export const AdminManualReviewView = () => {
       <div>
         <h2 className="text-[24px] font-bold text-[#1a1a1a]">Manual Review</h2>
         <p className="text-[13px] text-[#71717a]">
-          {pendingCount > 0 ? `${pendingCount} evenement${pendingCount > 1 ? 's' : ''} en attente de validation` : 'Aucun evenement en attente'}
+          {pendingCount > 0 ? `${pendingCount} événement${pendingCount > 1 ? 's' : ''} en attente de validation` : 'Aucun événement en attente'}
         </p>
       </div>
 
@@ -88,7 +88,7 @@ export const AdminManualReviewView = () => {
                     <p className="text-[12px] text-amber-600">
                       {review.reason === 'low_confidence' && 'Confiance insuffisante'}
                       {review.reason === 'error' && 'Erreur IA'}
-                      {review.reason === 'rule' && 'Regle declenchee'}
+                      {review.reason === 'rule' && 'Règle declenchee'}
                       {review.reason === 'sentiment' && 'Sentiment tres negatif'}
                       {review.reason === 'injection' && 'Injection detectee'}
                       {' — '}{new Date(review.created_at).toLocaleString('fr-FR')}
@@ -129,9 +129,9 @@ export const AdminManualReviewView = () => {
 
                   {/* Info */}
                   <div className="flex flex-wrap gap-3 text-[12px] text-[#71717a]">
-                    {proposed.classification && <span className="bg-[#ffffff] px-2 py-1 rounded">Classification: {proposed.classification}</span>}
-                    {normalized.customer_email && <span className="bg-[#ffffff] px-2 py-1 rounded">{normalized.customer_email}</span>}
-                    {event.source && <span className="bg-[#ffffff] px-2 py-1 rounded">Source: {event.source}</span>}
+                    {proposed.classification && <span className="bg-surface px-2 py-1 rounded">Classification: {proposed.classification}</span>}
+                    {normalized.customer_email && <span className="bg-surface px-2 py-1 rounded">{normalized.customer_email}</span>}
+                    {event.source && <span className="bg-surface px-2 py-1 rounded">Source: {event.source}</span>}
                   </div>
 
                   {/* Actions */}
@@ -140,7 +140,7 @@ export const AdminManualReviewView = () => {
                       <button
                         onClick={() => handleAction(review.id, 'approved')}
                         disabled={acting === review.id}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-cta text-white text-[12px] font-bold rounded-lg hover:bg-[#003725] disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-cta text-white text-[12px] font-bold rounded-lg hover:bg-cta disabled:opacity-50"
                       >
                         {acting === review.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
                         Approuver et envoyer

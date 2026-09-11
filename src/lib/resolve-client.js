@@ -1,3 +1,4 @@
+import { presenterCodeCampagne } from './campagne'
 /**
  * Resolve the caller's client_id, creating the client on first use.
  *
@@ -62,6 +63,15 @@ export async function resolveOrCreateClientId(supabase, session) {
     email: session.user.email,
   })
   await supabase.from('client_settings').insert({ client_id: newClient.id })
+
+  // Le compte vient d'être créé — c'est le seul moment où un code de campagne
+  // a du sens. Ce chemin est celui de l'inscription Google : aucune route
+  // serveur n'a vu passer l'inscription, donc c'est ici qu'on présente le
+  // code. Le serveur seul décide s'il vaut quelque chose.
+  //
+  // Volontairement sans await : un marchand n'attend pas son tableau de bord
+  // pendant qu'on parle de facturation, et un échec ne doit rien bloquer.
+  presenterCodeCampagne(supabase).catch(() => {})
 
   return newClient.id
 }

@@ -20,6 +20,7 @@
  *
  * Wrapped in a Braintrust span — fail-soft, never blocks.
  */
+import { looksLikeTruncatedEnvelope, salvageResponseText } from './salvage-json.js'
 import { trace } from './braintrust-init.js'
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
@@ -148,11 +149,24 @@ async function _callInner(cfg, { systemPrompt, messages, maxTokens, model }, spa
         try {
           parsed = JSON.parse(jsonStr)
         } catch {
+          // Le contrat JSON n'a pas tenu. Deux cas très différents :
+          //
+          //  - une enveloppe JSON TRONQUÉE (maxTokens atteint en pleine
+          //    chaîne) : mettre `rawText` dans `response` envoyait
+          //    littéralement `{ "response": "Je comprends votre…` au client.
+          //    Constaté sur le banc ACT-8, cas 13, sans revue humaine.
+          //    On récupère la dernière phrase complète et on escalade : une
+          //    réponse amputée n'est pas envoyable.
+          //
+          //  - du texte simple, sans JSON : le modèle a répondu en clair,
+          //    c'est utilisable tel quel.
+          const tronquee = looksLikeTruncatedEnvelope(rawText)
+          const recupere = tronquee ? salvageResponseText(rawText) : null
           parsed = {
-            response: rawText.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim(),
+            response: (recupere || rawText).replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim(),
             confidence: 0.5,
-            should_escalate: false,
-            escalation_reason: null,
+            should_escalate: tronquee,
+            escalation_reason: tronquee ? 'reponse_tronquee' : null,
             detected_intent: 'general',
             sentiment_score: 5,
             injection_detected: false,

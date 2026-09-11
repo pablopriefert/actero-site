@@ -105,7 +105,7 @@ export const PeakHoursChart = ({ clientId }) => {
           <Clock className="w-4 h-4 text-cta" />
           <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Heures de pic</h3>
         </div>
-        <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider bg-[#f5f5f5] px-2 py-0.5 rounded">
+        <span className="text-[10px] font-semibold text-[#9ca3af] uppercase tracking-wider bg-surface px-2 py-0.5 rounded">
           30 jours
         </span>
       </div>
@@ -137,7 +137,7 @@ export const PeakHoursChart = ({ clientId }) => {
               {hourly.map((entry) => (
                 <Cell
                   key={entry.hour}
-                  fill={peakSet.has(entry.hour) ? '#0E653A' : '#e5e7eb'}
+                  fill={peakSet.has(entry.hour) ? '#13804A' : '#e5e7eb'}
                 />
               ))}
             </Bar>

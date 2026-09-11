@@ -276,7 +276,7 @@ export const WidgetSetupView = ({ clientId }) => {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5F35] text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-60"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5F35] text-white text-sm font-semibold hover:bg-cta transition-colors disabled:opacity-60"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
                 {saved ? 'Enregistré' : 'Enregistrer'}
@@ -312,7 +312,7 @@ export const WidgetSetupView = ({ clientId }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              <div className="rounded-xl border border-gray-100 bg-[#FAF7F2] p-4">
+              <div className="rounded-xl border border-gray-100 bg-surface p-4">
                 <div className="flex items-center gap-2 mb-1.5">
                   <ShoppingBag className="w-4 h-4 text-[#0F5F35]" />
                   <span className="text-sm font-semibold text-[#1a1a1a]">Sur Shopify</span>
@@ -328,7 +328,7 @@ export const WidgetSetupView = ({ clientId }) => {
                     href={themesUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-[#003725] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-cta transition-colors"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     Activer la bulle sur ma boutique
@@ -336,7 +336,7 @@ export const WidgetSetupView = ({ clientId }) => {
                 )}
                 <p className="text-[11px] text-[#9ca3af] mt-2">Aucun code à coller : la bulle est livrée avec l'application.</p>
               </div>
-              <div className="rounded-xl border border-gray-100 bg-[#FAF7F2] p-4">
+              <div className="rounded-xl border border-gray-100 bg-surface p-4">
                 <div className="flex items-center gap-2 mb-1.5">
                   <Code2 className="w-4 h-4 text-[#0F5F35]" />
                   <span className="text-sm font-semibold text-[#1a1a1a]">Autre site</span>
@@ -351,7 +351,7 @@ export const WidgetSetupView = ({ clientId }) => {
 
         {/* ── Aperçu live ── */}
         <div className="lg:sticky lg:top-6 self-start">
-          <div className="rounded-2xl border border-gray-200 bg-[#FAF7F2] p-6 h-[440px] relative overflow-hidden">
+          <div className="rounded-2xl border border-gray-200 bg-surface p-6 h-[440px] relative overflow-hidden">
             <p className="text-xs font-semibold text-[#71717a] mb-2">Aperçu</p>
             {/* Mini chat panel preview */}
             <div
@@ -369,7 +369,7 @@ export const WidgetSetupView = ({ clientId }) => {
                 </div>
               </div>
               <div className="p-3 space-y-2">
-                <div className="text-[11px] bg-[#f5f5f0] text-[#262626] rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]">
+                <div className="text-[11px] bg-surface text-[#262626] rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]">
                   {cfg.widget_greeting || 'Bonjour ! Comment puis-je vous aider ?'}
                 </div>
                 <div className="text-[11px] text-white rounded-xl rounded-br-sm px-3 py-2 max-w-[85%] ml-auto" style={{ background: cfg.widget_brand_color }}>

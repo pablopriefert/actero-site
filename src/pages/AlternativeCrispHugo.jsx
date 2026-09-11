@@ -1,5 +1,5 @@
 import React from 'react'
-import { Lock, Shield, Mail, ShoppingBag, BarChart3, Phone } from 'lucide-react'
+import { Lock, Shield, Mail, ShoppingBag, BarChart3 } from 'lucide-react'
 import { AlternativeTemplate } from '../components/alternative/AlternativeTemplate'
 
 /**
@@ -23,14 +23,14 @@ export const AlternativeCrispHugo = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Crisp Hugo AI — Actero | Agent IA Shopify FR',
       description:
-        "Crisp Hugo AI séduit, mais l'usage illimité est verrouillé derrière le plan Plus 295 €/mois. Actero offre un agent IA autonome spécialisé Shopify dès 99 €/mois, IA illimitée, voice inclus, ROI prouvable. RGPD natif, hébergé UE.",
+        "Crisp Hugo AI séduit, mais l'usage illimité est verrouillé derrière le plan Plus 295 €/mois. Actero offre un agent IA autonome spécialisé Shopify dès 99 €/mois, IA illimitée, ROI prouvable. RGPD natif, hébergé UE.",
       keywords:
         'alternative crisp hugo, hugo ai alternative, crisp hugo ai vs actero, agent ia conversation alternative, crisp plus alternative, hugo ai français',
     },
 
     hero: {
       subtitle:
-        "Hugo AI est l'agent que Crisp a lancé le 22 avril 2026 pour rivaliser avec les agents IA spécialisés — il a fait #1 sur Product Hunt. Mais l'usage illimité est verrouillé derrière le plan Crisp Plus à 295 €/mois. Actero est un agent IA autonome spécialisé Shopify, IA illimitée incluse dès 99 €/mois, avec voice agent natif et ROI prouvable au CFO.",
+        "Hugo AI est l'agent que Crisp a lancé le 22 avril 2026 pour rivaliser avec les agents IA spécialisés — il a fait #1 sur Product Hunt. Mais l'usage illimité est verrouillé derrière le plan Crisp Plus à 295 €/mois. Actero est un agent IA autonome spécialisé Shopify, IA illimitée incluse dès 99 €/mois, avec ROI prouvable au CFO.",
     },
 
     comparison: [
@@ -57,11 +57,6 @@ export const AlternativeCrispHugo = ({ onNavigate }) => {
       {
         label: 'SMTP du marchand (réponses brandées)',
         actero: { main: 'Natif', sub: 'Depuis votre domaine' },
-        competitor: false,
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
         competitor: false,
       },
       {
@@ -112,14 +107,6 @@ export const AlternativeCrispHugo = ({ onNavigate }) => {
           "Actero envoie les réponses email depuis contact@votreboutique.com avec votre signature et votre logo. Crisp Hugo répond depuis l'interface chat Crisp, branded Crisp. Vos clients ne savent pas qu'un agent IA répond — l'expérience reste celle de votre marque.",
       },
       {
-        icon: Phone,
-        stat: 'Voice',
-        statLabel: 'inclus',
-        title: 'Agent vocal natif, Hugo ne fait pas de téléphone',
-        desc:
-          "Actero embarque ElevenLabs avec numéro FR, 200 min incluses sur Pro. Inbound (le client appelle), outbound (l'agent relance), unifié au reste du SAV. Crisp Hugo reste cantonné au chat et email.",
-      },
-      {
         icon: BarChart3,
         stat: 'ROI',
         statLabel: 'CFO-grade',
@@ -146,7 +133,7 @@ export const AlternativeCrispHugo = ({ onNavigate }) => {
       },
       {
         q: 'Crisp est français, Actero est français — quelle vraie différence ?',
-        a: "Crisp est une messagerie chat avec une IA en option (Hugo) verrouillée derrière le plan Plus. Actero est un agent IA autonome spécialisé Shopify avec actions natives (refund, échange, WISMO via lookup live), voice agent inclus, dashboard ROI partageable, et SMTP du marchand. Pour un marchand Shopify sérieux, Actero est de plusieurs niveaux au-dessus.",
+        a: "Crisp est une messagerie chat avec une IA en option (Hugo) verrouillée derrière le plan Plus. Actero est un agent IA autonome spécialisé Shopify avec actions natives (refund, échange, WISMO via lookup live), dashboard ROI partageable et SMTP du marchand. Pour un marchand Shopify sérieux, Actero est de plusieurs niveaux au-dessus.",
       },
       {
         q: 'Puis-je utiliser Hugo et Actero ensemble ?',

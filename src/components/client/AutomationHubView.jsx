@@ -72,8 +72,8 @@ const DB_AUTOMATIONS = {
  * Remplace le hero gradient (40% de la fold) par un bandeau blanc
  * cohérent avec Overview refondu : titre + résumé status + 3 KPIs inline.
  */
-const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHours, monthROI }) => (
-  <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6 mb-5">
+const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHours, monthROI, baseRoi }) => (
+  <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 md:p-6 mb-5">
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <div className="flex items-center gap-2 mb-1.5">
@@ -84,7 +84,7 @@ const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHo
             Mon{' '}
             <span
               className="italic font-normal"
-              style={{ fontFamily: "'Spectral', Georgia, serif" }}
+              style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif" }}
             >
               agent
             </span>
@@ -114,7 +114,15 @@ const AutomationHubHeader = ({ activeCount, totalAvailable, weekTickets, monthHo
         <div className="flex flex-col">
           <span className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider">ROI mois</span>
           <span className="text-lg font-bold text-cta tabular-nums leading-tight">{monthROI.toLocaleString('fr-FR')}€</span>
-          <span className="text-[10px] text-[#71717a]">valeur générée</span>
+          {/* « valeur générée » était faux et indéfendable : ce n'est pas du
+              chiffre d'affaires, c'est du temps estimé valorisé au coût horaire
+              que le marchand a lui-même renseigné. On affiche donc la base de
+              calcul sous le nombre — c'est la réponse à « vos chiffres sont
+              gonflés », et elle tient parce qu'elle renvoie à SES réglages
+              (ACT-12). */}
+          <span className="text-[10px] text-[#71717a]" title="Temps estimé économisé, valorisé à votre coût horaire. Modifiable dans l'onglet ROI.">
+            temps valorisé · {baseRoi}
+          </span>
         </div>
       </div>
     </div>
@@ -181,7 +189,7 @@ const AutomationCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
       className={`rounded-2xl bg-white border transition-colors ${
-        isActive ? 'border-cta/30 shadow-[0_1px_3px_rgba(0,55,37,0.04)]' : 'border-[#E5E2D7] hover:border-gray-300'
+        isActive ? 'border-cta/30 shadow-[0_1px_3px_rgba(0,55,37,0.04)]' : 'border-[#E6E8EC] hover:border-gray-300'
       }`}
     >
       <div className="p-6">
@@ -246,7 +254,7 @@ const AutomationCard = ({
 
         {/* Channels — liste avec toggle switches explicites */}
         {hasChannels && status !== 'missing' && (
-          <div className="mb-4 pt-4 border-t border-[#E5E2D7]">
+          <div className="mb-4 pt-4 border-t border-[#E6E8EC]">
             <p className="text-[10px] font-bold text-[#71717a] uppercase tracking-wider mb-2">
               Canaux {isActive ? '(activez ceux à utiliser)' : '(disponibles)'}
             </p>
@@ -263,7 +271,7 @@ const AutomationCard = ({
                   return (
                     <div
                       key={ch.id}
-                      className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-[#fafafa] border border-dashed border-gray-300"
+                      className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg bg-surface border border-dashed border-gray-300"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <ChIcon className="w-3.5 h-3.5 text-[#9ca3af] flex-shrink-0" />
@@ -301,8 +309,8 @@ const AutomationCard = ({
                       isSelected
                         ? 'bg-cta/5 border-cta/25 hover:bg-cta/10'
                         : canToggle
-                          ? 'bg-white border-[#E5E2D7] hover:border-cta/30 hover:bg-[#fafafa]'
-                          : 'bg-[#fafafa] border-[#E5E2D7] opacity-60 cursor-not-allowed'
+                          ? 'bg-white border-[#E6E8EC] hover:border-cta/30 hover:bg-surface'
+                          : 'bg-surface border-[#E6E8EC] opacity-60 cursor-not-allowed'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -340,8 +348,8 @@ const AutomationCard = ({
             disabled={mainActionDisabled}
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               isActive
-                ? 'bg-white border border-[#E5E2D7] text-[#1a1a1a] hover:bg-[#fafafa]'
-                : 'bg-cta hover:bg-[#003725] text-white'
+                ? 'bg-white border border-[#E6E8EC] text-[#1a1a1a] hover:bg-surface'
+                : 'bg-cta hover:bg-cta text-white'
             }`}
           >
             {isActive ? 'Désactiver' : mainActionLabel || 'Activer'}
@@ -407,7 +415,7 @@ export const AutomationHubView = ({ clientId, theme: _theme, setActiveTab }) => 
     queryFn: async () => {
       const { data } = await supabase
         .from('client_settings')
-        .select('email_agent_enabled, hourly_cost')
+        .select('email_agent_enabled, hourly_cost, avg_ticket_time_min, roi_conservative_mode')
         .eq('client_id', clientId)
         .maybeSingle()
       return data
@@ -546,6 +554,17 @@ export const AutomationHubView = ({ clientId, theme: _theme, setActiveTab }) => 
   const monthHours = heroStats?.monthHours || 0
   const hourlyCost = parseFloat(clientSettings?.hourly_cost) || 25
   const monthROI = Math.round(monthHours * hourlyCost)
+  // La base est affichée telle quelle : un chiffre en euros sans son hypothèse
+  // est une affirmation, pas une mesure. En mode conservateur (ACT-12), le
+  // plafond appliqué au moment du calcul réel (resolveAvgTicketTimeSec côté
+  // moteur) doit se retrouver ici, sinon l'hypothèse affichée ment sur ce qui
+  // a effectivement été compté.
+  const CONSERVATIVE_CEILING_MIN = 3
+  const configuredMinutesParTicket = parseInt(clientSettings?.avg_ticket_time_min, 10) || 5
+  const minutesParTicket = clientSettings?.roi_conservative_mode
+    ? Math.min(configuredMinutesParTicket, CONSERVATIVE_CEILING_MIN)
+    : configuredMinutesParTicket
+  const baseRoi = `${minutesParTicket} min × ${hourlyCost} €/h${clientSettings?.roi_conservative_mode ? ' · conservateur' : ''}`
 
   /* ---- Actions ---- */
 
@@ -729,7 +748,7 @@ export const AutomationHubView = ({ clientId, theme: _theme, setActiveTab }) => 
       }
     }
 
-    toast.success(!currentlyActive ? `"${pb.display_name}" active` : `"${pb.display_name}" desactive`)
+    toast.success(!currentlyActive ? `"${pb.display_name}" active` : `"${pb.display_name}" désactivé`)
   }
 
   /* ---- Render ---- */
@@ -764,6 +783,7 @@ export const AutomationHubView = ({ clientId, theme: _theme, setActiveTab }) => 
         weekTickets={weekTickets}
         monthHours={monthHours}
         monthROI={monthROI}
+        baseRoi={baseRoi}
       />
 
       {/* ═══════ AUTOMATIONS GRID ═══════ */}

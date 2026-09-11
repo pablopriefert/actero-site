@@ -19,7 +19,7 @@ Bounded / cost-aware (it's a 30-min sandbox, not infinite):
   - MAX_CHUNKS      max Claude calls (each chunk ~CHUNK_CHARS of content)
   - CHUNK_CHARS     content sent to Claude per chunk
 
-Env (via spawnJob): TAVILY_API_KEY, ANTHROPIC_API_KEY + lib_actero defaults
+Env (via spawnJob): TAVILY_API_KEY, OPENROUTER_API_KEY + lib_actero defaults
 (JOB_ID, SUPABASE_URL, SUPABASE_SERVICE_KEY, CLIENT_ID, JOB_PAYLOAD).
 """
 
@@ -42,7 +42,7 @@ from lib_actero import (  # noqa: E402
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
 TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 # Same SAV-relevant page keywords (FR + EN) as crawl-site.js. Matched
 # case-insensitively against the URL so we only crawl support-useful pages.
@@ -66,7 +66,10 @@ PER_RESULT_CAP = 8000    # chars kept per extracted page
 MAX_CHUNKS = 6           # max Claude calls
 CHUNK_CHARS = 9000       # content per Claude chunk (matches import-url cap)
 
-CLAUDE_MODEL = "claude-sonnet-4-20250514"
+# Même fournisseur et même modèle que api/lib/llm.js : OpenRouter + Sonnet 5.
+# Ce script tapait l'API Anthropic en direct avec Sonnet 4 (mai 2025), donc un
+# modèle et une facturation distincts du reste de la plateforme.
+LLM_MODEL = os.environ.get("OPENROUTER_MODEL") or "anthropic/claude-sonnet-5"
 
 
 def _storefront_url() -> str | None:
@@ -252,27 +255,28 @@ def _claude_entries(content: str, source_label: str, existing_titles: list[str])
 
     try:
         res = requests.post(
-            "https://api.anthropic.com/v1/messages",
+            "https://openrouter.ai/api/v1/chat/completions",
             headers={
                 "Content-Type": "application/json",
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "HTTP-Referer": "https://actero.fr",
+                "X-Title": "Actero",
             },
             json={
-                "model": CLAUDE_MODEL,
+                "model": LLM_MODEL,
                 "max_tokens": 2000,
-                "system": system,
                 "messages": [
+                    {"role": "system", "content": system},
                     {
                         "role": "user",
                         "content": f"Contenu de la page {source_label}:\n\n{content[:CHUNK_CHARS]}",
-                    }
+                    },
                 ],
             },
             timeout=120,
         )
         if not res.ok:
-            sys.stderr.write(f"[kb_deep_crawl] claude {res.status_code}\n")
+            sys.stderr.write(f"[kb_deep_crawl] openrouter {res.status_code}\n")
             return []
         data = res.json() or {}
     except Exception as e:
@@ -280,7 +284,8 @@ def _claude_entries(content: str, source_label: str, existing_titles: list[str])
         return []
 
     try:
-        raw_text = (data.get("content") or [{}])[0].get("text") or "[]"
+        # Réponse au format OpenAI (OpenRouter), pas au format Anthropic natif.
+        raw_text = ((data.get("choices") or [{}])[0].get("message") or {}).get("content") or "[]"
     except Exception:
         return []
 
@@ -315,8 +320,8 @@ def main() -> None:
 
     if not CLIENT_ID:
         fail("CLIENT_ID not set")
-    if not TAVILY_API_KEY or not ANTHROPIC_API_KEY:
-        fail("TAVILY_API_KEY / ANTHROPIC_API_KEY not configured")
+    if not TAVILY_API_KEY or not OPENROUTER_API_KEY:
+        fail("TAVILY_API_KEY / OPENROUTER_API_KEY not configured")
 
     job_progress(5, "Résolution de la boutique...")
     storefront = _storefront_url()

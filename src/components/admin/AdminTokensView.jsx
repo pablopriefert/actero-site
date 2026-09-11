@@ -216,8 +216,8 @@ export function AdminTokensView() {
                         <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gOut" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0E653A" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#0E653A" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#13804A" stopOpacity={0.4} />
+                        <stop offset="95%" stopColor="#13804A" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -252,7 +252,7 @@ export function AdminTokensView() {
                       type="monotone"
                       dataKey="tokens_out_cost"
                       stackId="1"
-                      stroke="#0E653A"
+                      stroke="#13804A"
                       fill="url(#gOut)"
                       name="Tokens OUT"
                     />
@@ -281,7 +281,7 @@ export function AdminTokensView() {
                       {aggregates.topClients.map((c, idx) => (
                         <tr
                           key={c.client_id}
-                          className="border-b border-[#f0f0f0] last:border-b-0 hover:bg-[#fafafa]"
+                          className="border-b border-[#f0f0f0] last:border-b-0 hover:bg-surface"
                         >
                           <td className="py-2 pr-3 text-[#9ca3af] tabular-nums">{idx + 1}</td>
                           <td className="py-2 pr-3 font-medium text-[#1a1a1a]">{c.brand_name}</td>
@@ -324,7 +324,7 @@ export function AdminTokensView() {
                       {aggregates.topPlaybooks.map((p, idx) => (
                         <tr
                           key={p.playbook_id}
-                          className="border-b border-[#f0f0f0] last:border-b-0 hover:bg-[#fafafa]"
+                          className="border-b border-[#f0f0f0] last:border-b-0 hover:bg-surface"
                         >
                           <td className="py-2 pr-3 text-[#9ca3af] tabular-nums">{idx + 1}</td>
                           <td className="py-2 pr-3 font-mono text-[#1a1a1a]">

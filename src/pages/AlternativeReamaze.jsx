@@ -1,5 +1,5 @@
 import React from 'react'
-import { Euro, Languages, Phone, Shield, Sparkles, TrendingUp } from 'lucide-react'
+import { Euro, Languages, Shield, Sparkles, TrendingUp } from 'lucide-react'
 import { AlternativeTemplate } from '../components/alternative/AlternativeTemplate'
 
 /**
@@ -17,14 +17,14 @@ export const AlternativeReamaze = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Re:amaze pour Shopify FR — Actero | Agent IA SAV',
       description:
-        "Re:amaze facture par agent + 0,85 $ par résolution IA en overage. Actero forfaitise dès 99 €/mois, en français, hébergé UE, voice inclus. Migration en 1 jour.",
+        "Re:amaze facture par agent + 0,85 $ par résolution IA en overage. Actero forfaitise dès 99 €/mois, en français, hébergé UE. Migration en 1 jour.",
       keywords:
         'alternative reamaze, reamaze vs actero, reamaze français, reamaze shopify, sav ia français, alternative reamaze rgpd',
     },
 
     hero: {
       subtitle:
-        "Re:amaze cumule prix par agent ET overage IA à 0,85 $/résolution dès le 21ᵉ ticket — la facture grimpe vite et reste anglophone. Actero forfaitise tout, parle français nativement, héberge en UE et inclut un agent vocal — sans pénalité par-agent ni overage IA caché.",
+        "Re:amaze cumule prix par agent ET overage IA à 0,85 $/résolution dès le 21ᵉ ticket — la facture grimpe vite et reste anglophone. Actero forfaitise tout, parle français nativement et héberge en UE — sans pénalité par-agent ni overage IA caché.",
     },
 
     comparison: [
@@ -47,11 +47,6 @@ export const AlternativeReamaze = ({ onNavigate }) => {
         label: 'Interface & support en français',
         actero: true,
         competitor: false,
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
-        competitor: 'partial',
       },
       {
         label: 'Relance panier abandonné conversationnelle',
@@ -98,14 +93,6 @@ export const AlternativeReamaze = ({ onNavigate }) => {
           "Re:amaze est anglo-saxon : interface, support, ton de l'agent. Actero pense en français — la copy de la landing, les guardrails, le dashboard, jusqu'aux prompts par défaut adaptés au e-commerce français.",
       },
       {
-        icon: Phone,
-        stat: 'Voice',
-        statLabel: 'natif + outbound',
-        title: 'Voice agent vraiment intégré',
-        desc:
-          "Re:amaze a du voice via add-on. Actero embarque ElevenLabs nativement avec numéro FR, latence < 800 ms, voix custom Enterprise. Inbound (client appelle), outbound (relance panier vocale) unifiés au texte.",
-      },
-      {
         icon: TrendingUp,
         stat: 'ROI',
         statLabel: 'partageable',
@@ -128,11 +115,11 @@ export const AlternativeReamaze = ({ onNavigate }) => {
       },
       {
         q: 'Combien coûte vraiment Re:amaze pour 1 000 tickets/mois ?',
-        a: "Plan Plus à 69 $/agent × 5 agents = 345 $. Plus 100 résolutions IA incluses, donc 900 résolutions facturées à 0,85 $ = 765 $. Total ≈ 1 110 $/mois. Actero Starter : 99 €/mois, ou Pro 399 €/mois si vous voulez le voice. C'est 8-10× moins cher.",
+        a: "Plan Plus à 69 $/agent × 5 agents = 345 $. Plus 100 résolutions IA incluses, donc 900 résolutions facturées à 0,85 $ = 765 $. Total ≈ 1 110 $/mois. Actero Starter : 99 €/mois. C'est 8-10× moins cher.",
       },
       {
         q: 'Et la latence de réponse ?',
-        a: "Actero répond typiquement en 2-4 secondes en chat, < 800 ms en voice. Re:amaze ne publie pas de SLA de latence IA. Les guardrails Actero garantissent qu'aucune réponse n'est envoyée si la confiance < 60 % — escalade humaine immédiate.",
+        a: "Actero répond typiquement en 2-4 secondes en chat. Re:amaze ne publie pas de SLA de latence IA. Les guardrails Actero garantissent qu'aucune réponse n'est envoyée si la confiance < 60 % — escalade humaine immédiate.",
       },
     ],
 

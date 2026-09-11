@@ -165,7 +165,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
       <button
         onClick={handleOpen}
         disabled={!clientId}
-        className="inline-flex items-center gap-2 px-4 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-cta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="inline-flex items-center gap-2 px-4 py-2.5 bg-cta hover:bg-cta text-white text-[13px] font-semibold rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-cta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <Play className="w-4 h-4 fill-white" />
         Tester mon agent
@@ -207,7 +207,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
                 <button
                   onClick={handleClose}
                   disabled={running}
-                  className="p-1.5 rounded-lg hover:bg-[#fafafa] text-[#9ca3af] hover:text-[#1a1a1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-surface text-[#9ca3af] hover:text-[#1a1a1a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -228,7 +228,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="bg-[#fafafa] rounded-xl border border-[#f0f0f0] p-4"
+                    className="bg-surface rounded-xl border border-[#f0f0f0] p-4"
                   >
                     <div className="flex items-start gap-3">
                       {/* Status icon */}
@@ -295,7 +295,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="border-t border-[#f0f0f0] px-6 py-4 bg-[#fafafa]"
+                    className="border-t border-[#f0f0f0] px-6 py-4 bg-surface"
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3 min-w-0">
@@ -345,7 +345,7 @@ export const QuickTestButton = ({ clientId, setActiveTab }) => {
                             setOpen(false)
                             setActiveTab('agent-config')
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-2 bg-cta hover:bg-[#003725] text-white text-[12px] font-semibold rounded-lg transition-colors flex-shrink-0"
+                          className="inline-flex items-center gap-1.5 px-3 py-2 bg-cta hover:bg-cta text-white text-[12px] font-semibold rounded-lg transition-colors flex-shrink-0"
                         >
                           Mon Agent <ArrowRight className="w-3.5 h-3.5" />
                         </button>

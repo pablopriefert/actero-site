@@ -13,8 +13,7 @@ const HOURS = Array.from({ length: 17 }, (_, i) => i + 6)
 const CHANNELS = [
   { id: 'email', label: 'Email', icon: Mail, desc: 'Recevez les notifications par email' },
   { id: 'slack', label: 'Slack', icon: MessageSquare, desc: 'Alertes dans ton canal Slack' },
-  { id: 'vocal', label: 'Rapport vocal', icon: Volume2, desc: 'Resume audio hebdomadaire' },
-  { id: 'push', label: 'Push navigateur', icon: Smartphone, desc: 'Notifications en temps reel' },
+  { id: 'push', label: 'Push navigateur', icon: Smartphone, desc: 'Notifications en temps réel' },
 ]
 
 const NOTIFICATION_TYPES = [
@@ -36,9 +35,8 @@ const NOTIFICATION_TYPES = [
     color: 'text-blue-500',
     items: [
       { key: 'daily_summary', label: 'Résumé quotidien', desc: 'Email chaque matin avec les performances de la veille', channels: ['email'], defaultChannels: ['email'] },
-      { key: 'weekly_summary', label: 'Résumé hebdomadaire', desc: 'Rapport chaque lundi avec tendances et insights', channels: ['email', 'vocal'], defaultChannels: [] },
+      { key: 'weekly_summary', label: 'Résumé hebdomadaire', desc: 'Rapport chaque lundi avec tendances et insights', channels: ['email'], defaultChannels: [] },
       { key: 'monthly_report', label: 'Rapport mensuel PDF', desc: 'Rapport détaillé en fin de mois avec ROI et KPIs', channels: ['email'], defaultChannels: ['email'] },
-      { key: 'voice_report', label: 'Rapport vocal', desc: 'Résumé audio de 90 secondes de tes métriques', channels: ['vocal'], defaultChannels: [] },
     ],
   },
   {
@@ -59,7 +57,7 @@ const Toggle = ({ isOn, onToggle, small }) => (
   <button
     onClick={onToggle}
     className={`relative rounded-full transition-colors flex-shrink-0 ${
-      isOn ? 'bg-cta' : 'bg-[#e5e5e5]'
+      isOn ? 'bg-cta' : 'bg-surface'
     } ${small ? 'w-8 h-[18px]' : 'w-11 h-6'}`}
   >
     <div className={`absolute top-0.5 rounded-full bg-white shadow transition-transform ${
@@ -193,7 +191,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
         <div>
           <h2
             className="text-2xl italic tracking-tight text-[#1a1a1a]"
-            style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+            style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
           >
             Notifications
           </h2>
@@ -250,7 +248,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
                           className={`p-2 rounded-lg border transition-all ${
                             enabled
                               ? 'bg-cta/10 border-cta/30 text-cta'
-                              : 'bg-[#fafafa] border-[#f0f0f0] text-[#e5e5e5] hover:text-[#9ca3af] hover:border-[#ebebeb]'
+                              : 'bg-surface border-[#f0f0f0] text-[#e5e5e5] hover:text-[#9ca3af] hover:border-[#ebebeb]'
                           }`}
                           title={`${CHANNELS.find(c => c.id === ch)?.label}: ${enabled ? 'Actif' : 'Inactif'}`}
                         >
@@ -285,7 +283,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
               setPreferredHour(val)
               updatePref.mutate({ preferred_hour: val })
             }}
-            className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-xl text-sm text-[#1a1a1a] outline-none"
+            className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-xl text-sm text-[#1a1a1a] outline-none"
           >
             {HOURS.map(h => (
               <option key={h} value={h}>{h}h00</option>
@@ -319,7 +317,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
                   setQuietStart(val)
                   updatePref.mutate({ quiet_hours_start: val })
                 }}
-                className="px-2 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
+                className="px-2 py-1.5 bg-surface border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i} value={i}>{i}h00</option>
@@ -333,7 +331,7 @@ export const NotificationCenterView = ({ clientId, theme: _theme }) => {
                   setQuietEnd(val)
                   updatePref.mutate({ quiet_hours_end: val })
                 }}
-                className="px-2 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
+                className="px-2 py-1.5 bg-surface border border-[#ebebeb] rounded-lg text-sm text-[#1a1a1a] outline-none"
               >
                 {Array.from({ length: 24 }, (_, i) => (
                   <option key={i} value={i}>{i}h00</option>

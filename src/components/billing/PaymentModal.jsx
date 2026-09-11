@@ -3,17 +3,17 @@ import { Elements, PaymentElement, LinkAuthenticationElement, useStripe, useElem
 import { Check, Loader2, Lock, ShieldCheck, X } from 'lucide-react'
 import { getStripe } from '../../lib/stripe-client'
 
-const SERIF = { fontFamily: 'Spectral, Georgia, serif' }
+const SERIF = { fontFamily: 'Inter Tight, ui-sans-serif, system-ui, sans-serif' }
 
 const APPEARANCE = {
   theme: 'stripe',
   variables: {
-    colorPrimary: '#0E653A',
+    colorPrimary: '#13804A',
     colorText: '#1A1A1A',
     colorTextSecondary: '#716D5C',
     colorDanger: '#EF4444',
     borderRadius: '10px',
-    fontFamily: 'DM Sans, system-ui, sans-serif',
+    fontFamily: 'Inter Tight, system-ui, sans-serif',
     spacingUnit: '4px',
   },
 }
@@ -28,13 +28,14 @@ function priceLabel(plan, billingPeriod) {
 /**
  * Inner form — must live inside <Elements> so the Stripe hooks resolve.
  */
-function CheckoutForm({ mode, plan, billingPeriod, requiresCardFirst, onApplyPlan, onSuccess, onClose }) {
+function CheckoutForm({ mode, plan, billingPeriod, trialDays, requiresCardFirst, onApplyPlan, onSuccess, onClose }) {
   const stripe = useStripe()
   const elements = useElements()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
-  const trialDays = plan?.trial?.days || (mode === 'setup' ? 7 : null)
+  // La durée vient du serveur, qui est le seul à savoir si ce marchand vient
+  // d'une campagne, d'un parrainage, ou s'il a déjà consommé son essai.
   const price = priceLabel(plan, billingPeriod)
   const ctaLabel = trialDays ? `Démarrer l'essai de ${trialDays} jours` : (price ? `Payer ${price.replace('/mois', '')}` : 'Payer')
 
@@ -86,7 +87,7 @@ function CheckoutForm({ mode, plan, billingPeriod, requiresCardFirst, onApplyPla
       <button
         type="submit"
         disabled={!stripe || submitting}
-        className="w-full py-3 rounded-full text-sm font-semibold bg-cta text-white hover:bg-[#003725] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full py-3 rounded-full text-sm font-semibold bg-cta text-white hover:bg-cta transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {submitting ? (<><Loader2 className="w-4 h-4 animate-spin" /> Traitement…</>) : (<><Lock className="w-4 h-4" /> {ctaLabel}</>)}
       </button>
@@ -116,6 +117,10 @@ export function PaymentModal({ open, onClose, plan, billingPeriod = 'monthly', h
   const [clientSecret, setClientSecret] = useState(null)
   const [mode, setMode] = useState('payment')
   const [requiresCardFirst, setRequiresCardFirst] = useState(false)
+  // Ce que le SERVEUR a accordé. `null` tant qu'il n'a pas répondu, et `null`
+  // aussi quand il n'accorde aucun essai — les deux cas doivent se taire plutôt
+  // que d'inventer un chiffre.
+  const [trialDays, setTrialDays] = useState(null)
 
   const createSubscription = useMemo(() => () => fetch('/api/billing/create-subscription', {
     method: 'POST',
@@ -154,6 +159,7 @@ export function PaymentModal({ open, onClose, plan, billingPeriod = 'monthly', h
           return
         }
         setMode(data.mode || 'payment')
+        setTrialDays(typeof data.trial_days === 'number' ? data.trial_days : null)
         setClientSecret(data.client_secret)
         setLoading(false)
       } catch {
@@ -166,7 +172,6 @@ export function PaymentModal({ open, onClose, plan, billingPeriod = 'monthly', h
 
   const stripePromise = useMemo(() => getStripe(), [])
   const price = priceLabel(plan, billingPeriod)
-  const trialDays = plan?.trial?.days || 7
 
   if (!open) return null
 
@@ -181,13 +186,15 @@ export function PaymentModal({ open, onClose, plan, billingPeriod = 'monthly', h
         </button>
 
         {/* Left — recap */}
-        <div className="bg-[#F9F7F1] p-8 flex flex-col">
+        <div className="bg-surface p-8 flex flex-col">
           <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#8B7A50]">Passer à</span>
           <h2 className="mt-1 text-[#1A1A1A] text-3xl" style={SERIF}>{plan?.name}</h2>
           {price && <div className="mt-3 text-[#1A1A1A] text-2xl font-bold">{price}</div>}
-          <div className="mt-2 inline-flex items-center gap-2 text-cta text-sm font-semibold">
-            <Check className="w-4 h-4" /> {trialDays} jours gratuits, sans engagement
-          </div>
+          {trialDays > 0 && (
+            <div className="mt-2 inline-flex items-center gap-2 text-cta text-sm font-semibold">
+              <Check className="w-4 h-4" /> {trialDays} jours gratuits, sans engagement
+            </div>
+          )}
 
           <ul className="mt-6 space-y-2.5">
             {highlights.map((h, i) => (
@@ -225,6 +232,7 @@ export function PaymentModal({ open, onClose, plan, billingPeriod = 'monthly', h
                 mode={mode}
                 plan={plan}
                 billingPeriod={billingPeriod}
+                trialDays={trialDays}
                 requiresCardFirst={requiresCardFirst}
                 onApplyPlan={applyPlan}
                 onSuccess={onSuccess}

@@ -74,7 +74,7 @@ const PaymentLinkForm = ({ email, name }) => {
         <button
           onClick={handleSend}
           disabled={!amount || sending}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-cta text-white rounded-lg text-[12px] font-bold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-cta text-white rounded-lg text-[12px] font-bold hover:bg-cta transition-colors disabled:opacity-50"
         >
           {sending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
           Envoyer
@@ -198,7 +198,7 @@ export const AdminPartnersView = () => {
         </div>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-cta text-white rounded-full text-[13px] font-semibold hover:bg-[#003725] transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-cta text-white rounded-full text-[13px] font-semibold hover:bg-cta transition-colors"
         >
           <Plus className="w-4 h-4" />
           Ajouter
@@ -214,7 +214,7 @@ export const AdminPartnersView = () => {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <div className="p-6 rounded-xl bg-[#ffffff] border border-[#f0f0f0] space-y-4">
+            <div className="p-6 rounded-xl bg-surface border border-[#f0f0f0] space-y-4">
               <h3 className="text-[13px] font-bold text-[#1a1a1a]">Nouveau partenaire</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <input
@@ -254,7 +254,7 @@ export const AdminPartnersView = () => {
                 />
                 <input
                   type="text"
-                  placeholder="Type d'activite"
+                  placeholder="Type d'activité"
                   value={newPartner.activity_type}
                   onChange={(e) => setNewPartner(p => ({ ...p, activity_type: e.target.value }))}
                   className="px-3 py-2.5 bg-white border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
@@ -264,7 +264,7 @@ export const AdminPartnersView = () => {
                 <button
                   onClick={handleCreate}
                   disabled={creating || !newPartner.first_name || !newPartner.last_name || !newPartner.email}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-xl text-[13px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-xl text-[13px] font-semibold hover:bg-cta transition-colors disabled:opacity-50"
                 >
                   {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                   Créer le partenaire
@@ -289,7 +289,7 @@ export const AdminPartnersView = () => {
           { label: 'Contactés', value: statCounts.contacted, icon: Mail, color: 'text-amber-400' },
           { label: 'Qualifiés', value: statCounts.qualified, icon: CheckCircle2, color: 'text-green-400' },
         ].map((stat, i) => (
-          <div key={i} className="p-4 rounded-xl bg-[#fafafa] border border-[#f0f0f0]">
+          <div key={i} className="p-4 rounded-xl bg-surface border border-[#f0f0f0]">
             <div className="flex items-center gap-2 mb-2">
               <stat.icon className={`w-4 h-4 ${stat.color}`} />
               <span className="text-[12px] text-[#71717a]">{stat.label}</span>
@@ -308,17 +308,17 @@ export const AdminPartnersView = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par nom, email, société..."
-            className="w-full pl-10 pr-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-indigo-500/40"
+            className="w-full pl-10 pr-4 py-2.5 bg-surface border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-indigo-500/40"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:border-indigo-500/40 appearance-none cursor-pointer"
+          className="px-4 py-2.5 bg-surface border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] outline-none focus:border-indigo-500/40 appearance-none cursor-pointer"
         >
-          <option value="all" className="bg-[#ffffff]">Tous les statuts</option>
+          <option value="all" className="bg-surface">Tous les statuts</option>
           {Object.entries(STATUS_MAP).map(([key, val]) => (
-            <option key={key} value={key} className="bg-[#ffffff]">{val.label}</option>
+            <option key={key} value={key} className="bg-surface">{val.label}</option>
           ))}
         </select>
       </div>
@@ -338,7 +338,7 @@ export const AdminPartnersView = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead>
-                <tr className="border-b border-[#f0f0f0] bg-[#fafafa]">
+                <tr className="border-b border-[#f0f0f0] bg-surface">
                   <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Candidat</th>
                   <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Société</th>
                   <th className="text-left px-4 py-3 text-[12px] font-semibold text-[#71717a] uppercase tracking-wider">Activité</th>
@@ -352,7 +352,7 @@ export const AdminPartnersView = () => {
                 {filtered.map((p) => (
                   <React.Fragment key={p.id}>
                     <tr
-                      className="border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors cursor-pointer"
+                      className="border-b border-[#f0f0f0] hover:bg-surface transition-colors cursor-pointer"
                       onClick={() => setExpandedRow(expandedRow === p.id ? null : p.id)}
                     >
                       <td className="px-4 py-3">
@@ -375,10 +375,10 @@ export const AdminPartnersView = () => {
                               updateStatusMutation.mutate({ id: p.id, status: e.target.value })
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            className="px-2 py-1 bg-[#ffffff] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none cursor-pointer"
+                            className="px-2 py-1 bg-surface border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] outline-none cursor-pointer"
                           >
                             {Object.entries(STATUS_MAP).map(([key, val]) => (
-                              <option key={key} value={key} className="bg-[#ffffff]">{val.label}</option>
+                              <option key={key} value={key} className="bg-surface">{val.label}</option>
                             ))}
                           </select>
                           <button
@@ -405,7 +405,7 @@ export const AdminPartnersView = () => {
                               transition={{ duration: 0.2 }}
                               className="overflow-hidden"
                             >
-                              <div className="px-6 py-4 bg-[#fafafa]/50 border-b border-[#f0f0f0] space-y-2">
+                              <div className="px-6 py-4 bg-surface/50 border-b border-[#f0f0f0] space-y-2">
                                 {p.phone && (
                                   <div className="flex items-center gap-2 text-[13px] text-[#71717a]">
                                     <Phone className="w-3.5 h-3.5" />

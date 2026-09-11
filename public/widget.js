@@ -17,7 +17,7 @@
   // merchant's config and apply it. If the fetch fails, the defaults stand —
   // the widget can never be broken by a config problem.
   const CFG = {
-    brandColor: '#0F5F35',
+    brandColor: '#13804A',
     accentColor: '#14A85C',
     position: 'bottom-right',
     greeting: 'Bonjour ! Comment puis-je vous aider ?',
@@ -88,7 +88,8 @@
     }
   } catch {}
 
-  // Brand fonts (Instrument Serif for the greeting, DM Sans for the UI).
+  // Une seule famille — Inter Tight — comme le reste du produit. Le widget
+  // chargeait deux polices : un serif pour le titre, un sans pour l'interface.
   // display=swap → never blocks; falls back to system fonts if a merchant CSP
   // blocks Google Fonts. Scoped to the widget via font-family.
   try {
@@ -96,7 +97,7 @@
       const f = document.createElement('link')
       f.id = 'actero-fonts'
       f.rel = 'stylesheet'
-      f.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap'
+      f.href = 'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap'
       document.head.appendChild(f)
     }
   } catch {}
@@ -122,7 +123,7 @@
       background: #fff; border-radius: 24px;
       box-shadow: 0 2px 8px rgba(11,75,44,0.08), 0 24px 60px rgba(11,75,44,0.22);
       display: none; flex-direction: column; overflow: hidden;
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     @media (max-width: 480px) {
       #actero-widget-panel {
@@ -147,7 +148,7 @@
     .actero-brand-status { font-size: 12px; color: var(--actero-soft, #A8C490); display: flex; align-items: center; gap: 5px; margin-top: 1px; }
     .actero-header-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.25); flex-shrink: 0; }
     .actero-greet { margin-top: 20px; }
-    .actero-greet h3 { margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.01em; }
+    .actero-greet h3 { margin: 0; font-family: 'Inter Tight', -apple-system, 'Segoe UI', sans-serif; font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.01em; }
     .actero-greet p { margin: 4px 0 0; font-size: 13.5px; color: rgba(255,255,255,0.78); }
     .actero-close-btn {
       position: absolute; top: 20px; right: 20px;
@@ -177,7 +178,7 @@
       background: none; border: none; cursor: pointer; font-size: 15px; line-height: 1;
       padding: 2px 4px; border-radius: 6px;
     }
-    .actero-fb-btn:hover { background: #f0f0ec; }
+    .actero-fb-btn:hover { background: #F5F5F5; }
     .actero-fb-input {
       border: 1px solid #e5e5e5; border-radius: 9999px; padding: 6px 12px; font-size: 12.5px; min-width: 160px;
     }
@@ -187,7 +188,7 @@
     }
     .actero-messages {
       flex: 1; overflow-y: auto; padding: 20px 18px; display: flex;
-      flex-direction: column; gap: 14px; background: #FBFAF7;
+      flex-direction: column; gap: 14px; background: #fff;
     }
     .actero-msg-row { display: flex; gap: 9px; align-items: flex-end; max-width: 88%; }
     .actero-msg-row.user { align-self: flex-end; flex-direction: row-reverse; max-width: 82%; }
@@ -250,9 +251,9 @@
       display: flex; gap: 8px; align-items: center; background: #fff;
     }
     .actero-input-area input[type="text"] {
-      flex: 1; border: 1px solid transparent; border-radius: 9999px;
+      flex: 1; border: 1px solid #e5e5e5; border-radius: 9999px;
       padding: 12px 16px; font-size: 16px; outline: none;
-      background: #F4F3EF; color: #1A1A1A;
+      background: #fff; color: #1A1A1A;
     }
     .actero-input-area input[type="text"]:focus { border-color: var(--actero-primary, #0F5F35); background: #fff; }
     .actero-input-area button#actero-send {
@@ -338,11 +339,11 @@
     }
     .actero-attach-btn {
       width: 38px; height: 38px; border-radius: 10px;
-      background: #f5f5f0; border: none; cursor: pointer;
+      background: #fff; border: 1px solid #e5e5e5; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.2s; flex-shrink: 0;
     }
-    .actero-attach-btn:hover { background: #e8e8e0; }
+    .actero-attach-btn:hover { background: #F5F5F5; }
     .actero-attach-btn svg { width: 18px; height: 18px; fill: #5A5A5A; }
     .actero-attach-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .actero-pending-images {

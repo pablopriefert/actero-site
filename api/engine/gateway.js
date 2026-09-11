@@ -8,6 +8,7 @@
  */
 export const maxDuration = 60
 
+import { raiseEscalation, reviewMeriteAlerte } from './lib/raise-escalation.js'
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { normalizeEvent } from './lib/normalizer.js'
@@ -35,11 +36,17 @@ async function handler(req, res) {
   let isAuthed = (ENGINE_SECRET && secret === ENGINE_SECRET) || (INTERNAL_SECRET && secret === INTERNAL_SECRET)
 
   // Also accept Bearer JWT (for dashboard testing)
+  // `authedUserId` retient QUI a été authentifié : la suite doit vérifier que
+  // cette personne a le droit d'agir sur le client_id qu'elle demande.
+  let authedUserId = null
   if (!isAuthed) {
     const token = req.headers.authorization?.replace('Bearer ', '')
     if (token) {
-      const { error } = await supabase.auth.getUser(token)
-      if (!error) isAuthed = true
+      const { data, error } = await supabase.auth.getUser(token)
+      if (!error && data?.user) {
+        isAuthed = true
+        authedUserId = data.user.id
+      }
     }
   }
 
@@ -49,6 +56,25 @@ async function handler(req, res) {
 
   const { client_id, event_type, source, is_test, ...payload } = req.body || {}
   if (!client_id) return res.status(400).json({ error: 'client_id requis' })
+
+  // Le `client_id` vient du corps de la requête et sert ensuite à tout : charger
+  // le playbook, consommer le quota, et surtout interroger la boutique Shopify
+  // du client via l'agent commande. Authentifier l'appelant ne suffisait donc
+  // pas — sans ce contrôle, n'importe quel compte Actero connaissant l'UUID
+  // d'un autre marchand pouvait faire tourner le moteur sur SA boutique et
+  // recevoir ses vraies commandes en réponse.
+  //
+  // Les appels internes (crons, webhooks) passent par le secret partagé et
+  // n'ont pas d'utilisateur : ils gardent l'accès complet.
+  if (authedUserId) {
+    const [{ data: lien }, { data: possede }] = await Promise.all([
+      supabase.from('client_users').select('client_id').eq('user_id', authedUserId).eq('client_id', client_id).maybeSingle(),
+      supabase.from('clients').select('id').eq('id', client_id).eq('owner_user_id', authedUserId).maybeSingle(),
+    ])
+    if (!lien && !possede) {
+      return res.status(403).json({ error: 'Ce client ne vous appartient pas.' })
+    }
+  }
 
   const eventType = event_type || source || 'api_direct'
   const eventSource = source || 'api_direct'
@@ -108,6 +134,9 @@ async function handler(req, res) {
         clientId: client_id,
         normalized: { ...normalized, _is_test: true },
       })
+      // On renvoie la DÉCISION, pas seulement la réponse : sans la raison de
+      // l'escalade ni l'agent retenu, un banc de test ne peut rien diagnostiquer
+      // (ACT-8).
       return res.status(200).json({
         event_id: 'test',
         run_id: 'test',
@@ -115,6 +144,11 @@ async function handler(req, res) {
         classification: brainResult.classification,
         confidence: brainResult.confidence,
         response: brainResult.aiResponse,
+        needs_review: brainResult.needsReview === true,
+        review_reason: brainResult.reviewReason || null,
+        agent_used: brainResult.agentUsed || null,
+        action_plan: brainResult.actionPlan || [],
+        tools_used: brainResult.toolsUsed || [],
         steps_executed: 0,
         duration_ms: Date.now() - startTime,
         is_test: true,
@@ -182,6 +216,23 @@ async function handler(req, res) {
 
       // Update event status
       await supabase.from('engine_events').update({ status: 'needs_review', processed_at: new Date().toISOString() }).eq('id', event.id)
+
+      // Une mise en revue n'exécute PAS le plan d'action — donc l'étape
+      // `escalate` ne tournait jamais dans cette branche. Un client agressif,
+      // une réponse tronquée ou une référence inventée finissaient dans
+      // `engine_reviews_v2`, table que rien ne surveille et qui ne notifie
+      // personne : plus le message était grave, moins le marchand en était
+      // averti. On déclenche donc ici les mêmes effets que l'exécuteur, mais
+      // seulement pour les vrais signaux — un classifieur qui hésite reste un
+      // cas de relecture, pas une alarme (voir lib/raise-escalation.js).
+      if (reviewMeriteAlerte({ reviewReason: brainResult.reviewReason, actionPlan: brainResult.actionPlan })) {
+        await raiseEscalation(supabase, {
+          clientId: client_id,
+          classification: brainResult.classification,
+          normalized,
+          reason: brainResult.reviewReason,
+        })
+      }
 
     } else {
       // Execute action plan

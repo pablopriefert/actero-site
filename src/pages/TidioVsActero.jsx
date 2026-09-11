@@ -16,21 +16,21 @@ export const TidioVsActero = ({ onNavigate }) => {
     seo: {
       title: 'Tidio vs Actero — Comparatif IA SAV Shopify 2026 | Lequel choisir',
       description:
-        "Tidio Lyro est un chatbot IA léger, Actero est un agent autonome spécialisé Shopify avec voice et actions. Comparatif détaillé prix, features, ROI.",
+        "Tidio Lyro est un chatbot IA léger, Actero est un agent autonome spécialisé Shopify avec actions natives. Comparatif détaillé prix, features, ROI.",
       keywords:
         'tidio vs actero, lyro ai vs actero, tidio ou actero, tidio shopify comparatif, agent ia ecommerce français',
     },
 
     hero: {
       subtitle:
-        "Tidio Lyro plafonne dès les cas complexes (refund, échange, suivi colis) et facture par conversation IA avec des crédits qui s'épuisent. Actero est un agent autonome qui exécute des actions Shopify natives, inclut un agent vocal et ne plafonne jamais. Pour un store sérieux, le choix est évident.",
+        "Tidio Lyro plafonne dès les cas complexes (refund, échange, suivi colis) et facture par conversation IA avec des crédits qui s'épuisent. Actero est un agent autonome qui exécute des actions Shopify natives et ne plafonne jamais. Pour un store sérieux, le choix est évident.",
     },
 
     verdict: {
       winner: 'actero',
       headline: 'Pour un site Shopify français sérieux : Actero, point.',
       body:
-        "Tidio Lyro reste un chatbot FAQ qui redirige vers un humain dès que ça se complique, avec des crédits IA qui s'épuisent vite. Actero exécute des actions Shopify (refund, échange, WISMO), inclut un agent vocal et un dashboard ROI partageable — sans crédit qui s'épuise, sans plafond IA, en français natif.",
+        "Tidio Lyro reste un chatbot FAQ qui redirige vers un humain dès que ça se complique, avec des crédits IA qui s'épuisent vite. Actero exécute des actions Shopify (refund, échange, WISMO) et un dashboard ROI partageable — sans crédit qui s'épuise, sans plafond IA, en français natif.",
     },
 
     comparison: [
@@ -48,11 +48,6 @@ export const TidioVsActero = ({ onNavigate }) => {
         label: 'Spécialisation Shopify (catalogue, commandes, refund)',
         competitor: 'partial',
         actero: { main: 'Native', sub: 'OAuth + actions agentic' },
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        competitor: false,
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
       },
       {
         label: 'Relance panier abandonné conversationnelle',
@@ -90,13 +85,12 @@ export const TidioVsActero = ({ onNavigate }) => {
       'Votre volume est minuscule (< 100 tickets/mois) et vous acceptez de plafonner à 50 conversations IA dans le plan d\'entrée.',
       'Vous tolérez un chatbot qui redirige vers un humain dès que la question dépasse une FAQ basique.',
       'Vous acceptez que vos crédits IA s\'épuisent en milieu de mois sans alerte ni plafond clair.',
-      'Vous n\'avez aucun besoin d\'actions Shopify natives, d\'agent vocal, de dashboard ROI ni de conformité RGPD stricte.',
+      'Vous n\'avez aucun besoin d\'actions Shopify natives, de dashboard ROI ni de conformité RGPD stricte.',
     ],
 
     whenActero: [
       'Vous voulez un agent qui exécute des actions Shopify (refund, échange, WISMO).',
       'Vous traitez 500+ tickets/mois et le coût par conversation Tidio Lyro vous freine.',
-      'Vos clients vous appellent et vous voulez un agent vocal natif (numéro FR).',
       'Vous voulez prouver le ROI au CFO avec un dashboard partageable.',
       'Vous opérez en France ou EU et la conformité RGPD est non-négociable.',
       'Vous voulez démarrer en 15 minutes sans réinventer un système de macros.',

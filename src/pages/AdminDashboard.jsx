@@ -71,7 +71,11 @@ import { SkipToMain } from '../components/ui/SkipToMain'
 import { AdminKanbanBoard } from '../components/admin/AdminKanbanBoard'
 import { AnimatedCounter } from '../components/ui/animated-counter'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
-import { CallNotesWizard } from '../components/admin/CallNotesWizard'
+// Paresseux — c'est un outil interne, ouvert en modale par le staff.
+// Statique, il embarquait dans le morceau principal un champ d'exemple
+// « monstore.myshopify.com ». Sans rapport avec un flux d'installation, mais
+// autant qu'un marchand ne télécharge pas l'outil commercial d'Actero.
+const CallNotesWizard = lazy(() => import('../components/admin/CallNotesWizard').then(m => ({ default: m.CallNotesWizard })))
 import { DeploymentProgress } from '../components/admin/DeploymentProgress'
 
 // Lazy-loaded admin views — only pulled when admin opens the tab.
@@ -152,7 +156,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
           <h3 className="text-[15px] font-semibold text-[#1a1a1a]">Ajouter un client</h3>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#fafafa] text-[#71717a]"
+            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-surface text-[#71717a]"
             aria-label="Fermer"
           >
             <X className="w-4 h-4" />
@@ -166,7 +170,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
               placeholder="Nom commercial de la marque..."
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
               autoFocus
               required
             />
@@ -178,7 +182,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
               placeholder="contact@exemple.com"
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
             />
           </div>
           <div>
@@ -190,14 +194,14 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={monthlyPrice}
               onChange={(e) => setMonthlyPrice(e.target.value)}
               placeholder="490"
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
             />
           </div>
           <div className="flex items-center justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-[13px] font-semibold text-[#71717a] hover:bg-[#fafafa]"
+              className="px-4 py-2 rounded-xl text-[13px] font-semibold text-[#71717a] hover:bg-surface"
             >
               Annuler
             </button>
@@ -268,7 +272,7 @@ const EVENT_CATEGORY_LABELS = {
   visit_reply_sent: { label: 'Réponse visite', color: 'text-purple-400', bg: 'bg-purple-500/10' },
   match_found: { label: 'Match trouvé', color: 'text-pink-400', bg: 'bg-pink-500/10' },
 };
-const EVENT_CATEGORY_FALLBACK = { color: 'text-[#71717a]', bg: 'bg-[#fafafa]' };
+const EVENT_CATEGORY_FALLBACK = { color: 'text-[#71717a]', bg: 'bg-surface' };
 
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const toast = useToast();
@@ -628,7 +632,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col md:flex-row font-sans text-[#1a1a1a]">
+    <div className="min-h-screen bg-surface flex flex-col md:flex-row font-sans text-[#1a1a1a]">
       <SkipToMain />
       {/* Mobile Header */}
       <div className="md:hidden h-16 bg-white border-b border-[#f0f0f0] flex items-center justify-between px-4">
@@ -667,7 +671,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
-              className="relative w-4/5 max-w-xs bg-[#ffffff] h-full shadow-2xl"
+              className="relative w-4/5 max-w-xs bg-surface h-full shadow-2xl"
             >
               <Sidebar 
                 title="Actero Admin"
@@ -709,12 +713,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <button
               type="button"
               onClick={toggleCmdk}
-              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-[#F9F7F1] border border-[#EFE7D6] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
+              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-surface border border-[#EDEFF2] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
               title="Recherche globale"
             >
               <Search className="w-3.5 h-3.5" />
               <span className="hidden lg:inline">Rechercher</span>
-              <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-white border border-[#EFE7D6] text-[10.5px] font-medium text-[#9ca3af]">
+              <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-white border border-[#EDEFF2] text-[10.5px] font-medium text-[#9ca3af]">
                 {isMac ? '⌘' : 'Ctrl'}K
               </kbd>
             </button>
@@ -724,7 +728,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <button
               type="button"
               onClick={handleAddClient}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold bg-cta text-white hover:bg-[#0a4f2c] transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold bg-cta text-white hover:bg-[#0E653A] transition-colors"
               title="Ajouter un client (Cmd+N)"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -864,7 +868,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     return (
                       <div key={plan} className="flex items-center gap-3">
                         <StatusPill variant={variant} size="md">{plan}</StatusPill>
-                        <div className="flex-1 h-2 bg-[#fafafa] rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all ${
                               variant === 'neutral' ? 'bg-[#9ca3af]' :
@@ -916,7 +920,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                             className={`w-full h-full rounded-md transition-colors ${
                               day.events > 0
                                 ? 'bg-emerald-500/60 hover:bg-emerald-500/80'
-                                : 'bg-[#fafafa]'
+                                : 'bg-surface'
                             }`}
                           />
                           <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-[#1a1a1a] text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
@@ -997,7 +1001,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: i * 0.05 }}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] hover:bg-[#ffffff] transition-colors cursor-pointer"
+                          className="flex items-center gap-3 p-3 rounded-xl bg-surface hover:bg-surface transition-colors cursor-pointer"
                           onClick={() => setSelectedClient(client)}
                         >
                           <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
@@ -1060,12 +1064,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                               <span className="text-[12px] text-[#71717a]">{labels[cat] || cat}</span>
                               <span className="text-[12px] font-mono text-[#71717a]">{count} ({pct}%)</span>
                             </div>
-                            <div className="h-1.5 bg-[#fafafa] rounded-full overflow-hidden">
+                            <div className="h-1.5 bg-surface rounded-full overflow-hidden">
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${pct}%` }}
                                 transition={{ delay: i * 0.05, duration: 0.5 }}
-                                className={`h-full rounded-full ${colors[cat] || 'bg-[#fafafa]'}`}
+                                className={`h-full rounded-full ${colors[cat] || 'bg-surface'}`}
                               />
                             </div>
                           </div>
@@ -1095,7 +1099,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: i * 0.05 }}
-                        className="p-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0]"
+                        className="p-3 rounded-xl bg-surface border border-[#f0f0f0]"
                       >
                         <p className="text-[13px] font-medium text-[#1a1a1a]">{lead.brand_name}</p>
                         <p className="text-[12px] text-[#71717a] mt-0.5">{lead.email}</p>
@@ -1158,12 +1162,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   <Sparkles className="w-8 h-8 animate-pulse text-[#71717a]" />
                 </div>
               ) : leads.length === 0 ? (
-                <div className="text-center py-20 bg-[#ffffff] rounded-2xl border border-[#f0f0f0]">
+                <div className="text-center py-20 bg-surface rounded-2xl border border-[#f0f0f0]">
                   <Users className="w-12 h-12 text-[#71717a] mx-auto mb-4" />
                   <p className="text-[#71717a]">Aucun lead pour le moment.</p>
                 </div>
               ) : (
-                <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-x-auto">
+                <div className="bg-surface border border-[#f0f0f0] rounded-2xl overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead>
                       <tr className="border-b border-[#f0f0f0] bg-white">
@@ -1174,7 +1178,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     </thead>
                     <tbody className="divide-y divide-white/5 text-[13px]">
                       {leads.map((lead) => (
-                        <tr key={lead.id} className="hover:bg-[#fafafa] transition-colors">
+                        <tr key={lead.id} className="hover:bg-surface transition-colors">
                           <td className="px-6 py-4 font-bold">{lead.brand_name}</td>
                           <td className="px-6 py-4 text-[#71717a]">{lead.email}</td>
                           <td className="px-6 py-4 text-[#71717a]">
@@ -1211,11 +1215,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       <AnimatePresence>
         {callNotesClient && (
-          <CallNotesWizard
-            client={callNotesClient}
-            onClose={() => setCallNotesClient(null)}
-            onDeployReady={handleDeployReady}
-          />
+          <Suspense fallback={null}>
+            <CallNotesWizard
+              client={callNotesClient}
+              onClose={() => setCallNotesClient(null)}
+              onDeployReady={handleDeployReady}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 

@@ -83,7 +83,7 @@ const Amark = () => (
 )
 
 export function AujourdhuiHome({ clientId, planName, setActiveTab }) {
-  // Pas de chargement de polices ici : depuis l'unification, Spectral, DM Sans
+  // Pas de chargement de polices ici : depuis l'unification, Inter Tight
   // et DM Mono sont importées globalement dans src/index.css. Cet écran prend
   // les tokens de l'app (voir Aujourdhui.module.css) et n'a plus de familles
   // à lui.

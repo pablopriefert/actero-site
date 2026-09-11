@@ -12,35 +12,18 @@ import { trackEvent } from '../../lib/analytics'
  */
 // Hero UI font — la sans de l'app, pour que le hero ne soit pas la seule
 // surface à parler une autre langue typographique.
-const heroFont = { fontFamily: 'var(--font-sans, "DM Sans"), system-ui, sans-serif' }
+const heroFont = { fontFamily: 'var(--font-sans, "Inter Tight"), system-ui, sans-serif' }
 
 export const GlassHero = ({ onNavigate }) => {
-  const fontDisplay = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+  const fontDisplay = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
   return (
     <section className="relative bg-white pt-36 md:pt-44 pb-16 px-6 overflow-hidden">
-      {/* Vertical wash: white at the top ramping into a saturated Actero green
-          at the bottom (Context.dev-style, bottom → top). */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 30%, #F4F8F1 52%, #E6F0E1 72%, #D3E6D6 100%)',
-        }}
-      />
-      {/* Dither/grain — the "random" texture, strongest over the coloured band. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          opacity: 0.16,
-          mixBlendMode: 'multiply',
-          backgroundSize: '140px 140px',
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-        }}
-      />
+      {/* Fond blanc, sans habillage. Le hero portait un dégradé vertical vers
+          un vert saturé, plus un grain à 16 % en fusion multiply dont la seule
+          raison d'être était de texturer cette bande colorée. Sans le dégradé,
+          le grain ne texture plus rien : il salit du blanc. Les deux partent
+          ensemble. */}
 
       <div className="max-w-6xl mx-auto relative">
         <div className="max-w-4xl mx-auto text-center">
@@ -48,9 +31,9 @@ export const GlassHero = ({ onNavigate }) => {
           <FadeInUp delay={0.02} className="mb-8">
             <button
               onClick={() => onNavigate && onNavigate('/entreprise')}
-              className="inline-flex items-center gap-2 rounded-full bg-[#F9F7F1] border border-[#EFE7D6] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full bg-surface border border-[#E6E8EC] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
             >
-              <span className="rounded-full bg-white border border-[#EFE7D6] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[#8B7A50]">
+              <span className="rounded-full bg-white border border-[#E6E8EC] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[#8B7A50]">
                 Soutenu par
               </span>
               <img
@@ -202,8 +185,8 @@ function HeroPrompt({ onNavigate }) {
                 <div
                   className={
                     t.role === 'user'
-                      ? 'max-w-[85%] rounded-2xl rounded-br-md bg-[#F4F4F2] px-3 py-2 text-[14px] text-[#1A1A1A]'
-                      : 'max-w-[90%] rounded-2xl rounded-bl-md bg-[#E8F5EC] px-3 py-2 text-[14px] leading-relaxed text-[#14361F] whitespace-pre-line'
+                      ? 'max-w-[85%] rounded-2xl rounded-br-md bg-surface px-3 py-2 text-[14px] text-[#1A1A1A]'
+                      : 'max-w-[90%] rounded-2xl rounded-bl-md bg-primary-tint px-3 py-2 text-[14px] leading-relaxed text-[#14361F] whitespace-pre-line'
                   }
                 >
                   {t.text}
@@ -213,7 +196,7 @@ function HeroPrompt({ onNavigate }) {
 
             {loading && (
               <div className="flex justify-start">
-                <div className="rounded-2xl rounded-bl-md bg-[#E8F5EC] px-3 py-2 text-[14px] text-[#14361F] inline-flex items-center gap-1.5">
+                <div className="rounded-2xl rounded-bl-md bg-primary-tint px-3 py-2 text-[14px] text-[#14361F] inline-flex items-center gap-1.5">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden />
                   <span className="sr-only">L&apos;agent rédige sa réponse…</span>
                   <span aria-hidden>L&apos;agent rédige…</span>
@@ -235,7 +218,7 @@ function HeroPrompt({ onNavigate }) {
         />
 
         <div className="flex items-center justify-between mt-3">
-          <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#E8F5EC] px-2.5 py-1.5 text-[12px] font-semibold text-cta">
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary-tint px-2.5 py-1.5 text-[12px] font-semibold text-cta">
             <Logo className="w-3.5 h-3.5 text-cta" />
             Agent SAV
           </span>
@@ -245,7 +228,7 @@ function HeroPrompt({ onNavigate }) {
             disabled={loading}
             aria-label="Envoyer la question à l'agent"
             aria-busy={loading}
-            className="w-9 h-9 rounded-full bg-cta text-white flex items-center justify-center hover:bg-[#0a4f2c] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-9 h-9 rounded-full bg-cta text-white flex items-center justify-center hover:bg-[#0E653A] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             whileHover={prefersReducedMotion || loading ? {} : { scale: 1.06 }}
             whileTap={prefersReducedMotion || loading ? {} : { scale: 0.94 }}
           >
@@ -266,7 +249,7 @@ function HeroPrompt({ onNavigate }) {
               trackEvent('Hero_Demo_CTA_Clicked', { turns: turns.length })
               onNavigate && onNavigate('/signup')
             }}
-            className="inline-flex items-center gap-2 rounded-full bg-cta px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-[#0a4f2c] transition-colors"
+            className="inline-flex items-center gap-2 rounded-full bg-cta px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-[#0E653A] transition-colors"
             style={heroFont}
           >
             Créer mon agent gratuitement
@@ -325,17 +308,17 @@ function DashboardPreview() {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-black/[0.06] w-full">
       {/* Window chrome */}
-      <div className="h-9 bg-[#F9F7F1] border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
+      <div className="h-9 bg-surface border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
         <div className="ml-5 text-[11px] text-[#9ca3af] font-mono">app.actero.fr / dashboard</div>
       </div>
 
       {/* Content grid — sidebar + main */}
       <div className="grid grid-cols-[220px_1fr] min-h-[480px]">
         {/* Sidebar */}
-        <div className="bg-[#FAFAFA] border-r border-black/[0.05] px-3 py-5">
+        <div className="bg-surface border-r border-black/[0.05] px-3 py-5">
           <div className="px-2 pb-4 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.08em]">
             Boutique
           </div>
@@ -344,7 +327,7 @@ function DashboardPreview() {
               key={item.label}
               className={`px-2.5 py-[7px] rounded-lg text-[13px] mb-0.5 cursor-pointer ${
                 item.active
-                  ? 'bg-[#E8F5EC] text-cta font-semibold'
+                  ? 'bg-primary-tint text-cta font-semibold'
                   : 'text-[#5A5A5A] font-medium'
               }`}
             >
@@ -388,7 +371,7 @@ function DashboardPreview() {
                   {k.value}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-[11px] font-semibold text-cta bg-[#E8F5EC] px-1.5 rounded tabular-nums">
+                  <span className="text-[11px] font-semibold text-cta bg-primary-tint px-1.5 rounded tabular-nums">
                     {k.delta}
                   </span>
                   <span className="text-[11px] text-[#9ca3af]">{k.hint}</span>
@@ -409,7 +392,7 @@ function DashboardPreview() {
                   Auto
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#E8DFC9]" />
+                  <span className="w-2 h-2 rounded-full bg-surface" />
                   Escalade humain
                 </span>
               </div>
@@ -420,13 +403,13 @@ function DashboardPreview() {
                 const human = 8 + Math.cos(i * 0.7) * 5
                 return (
                   <g key={i} transform={`translate(${i * 20 + 4}, 0)`}>
-                    <rect x="0" y={80 - auto} width="12" height={auto} fill="#0E653A" rx="2" />
+                    <rect x="0" y={80 - auto} width="12" height={auto} fill="#13804A" rx="2" />
                     <rect
                       x="0"
                       y={80 - auto - human}
                       width="12"
                       height={human}
-                      fill="#E8DFC9"
+                      fill="#E3E6EA"
                       rx="1"
                     />
                   </g>

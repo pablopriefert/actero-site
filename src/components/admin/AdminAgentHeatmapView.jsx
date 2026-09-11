@@ -79,14 +79,14 @@ export const AdminAgentHeatmapView = () => {
         subtitle={`Erreurs par agent (24h) - ${totalRuns} runs, ${totalErrors} erreurs (${globalRate}%)`}
       />
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#fafafa]">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface">
         <SectionCard
           title="Taux d'erreur par agent et par heure"
           subtitle="Colonne de gauche = il y a 24h, colonne de droite = maintenant"
           icon={Grid3x3}
         >
           {isLoading ? (
-            <div className="h-64 rounded-xl bg-[#fafafa] animate-pulse" />
+            <div className="h-64 rounded-xl bg-surface animate-pulse" />
           ) : (
             <div className="overflow-x-auto">
               <div className="inline-block min-w-full">

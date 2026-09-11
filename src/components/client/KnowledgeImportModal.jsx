@@ -234,7 +234,7 @@ export const KnowledgeImportModal = ({ clientId, provider, onClose, onSuccess })
             <button
               onClick={() => importMutation.mutate()}
               disabled={selected.size === 0 || importMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] disabled:opacity-40 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-cta disabled:opacity-40 transition-colors"
             >
               {importMutation.isPending ? (
                 <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Import…</>

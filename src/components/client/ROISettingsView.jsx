@@ -15,6 +15,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
     hourly_cost: '',
     avg_ticket_time_min: '',
     actero_monthly_price: '',
+    roi_conservative_mode: false,
   })
 
   const { data: settings, isLoading } = useQuery({
@@ -22,7 +23,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
     queryFn: async () => {
       const { data } = await supabase
         .from('client_settings')
-        .select('hourly_cost, avg_ticket_time_min, actero_monthly_price')
+        .select('hourly_cost, avg_ticket_time_min, actero_monthly_price, roi_conservative_mode')
         .eq('client_id', clientId)
         .maybeSingle()
       return data
@@ -56,6 +57,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
       hourly_cost: settings.hourly_cost || '',
       avg_ticket_time_min: settings.avg_ticket_time_min || '',
       actero_monthly_price: settings.actero_monthly_price || '',
+      roi_conservative_mode: !!settings.roi_conservative_mode,
     })
   }
 
@@ -67,6 +69,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
         hourly_cost: parseFloat(form.hourly_cost) || 0,
         avg_ticket_time_min: parseFloat(form.avg_ticket_time_min) || 0,
         actero_monthly_price: parseFloat(form.actero_monthly_price) || 0,
+        roi_conservative_mode: !!form.roi_conservative_mode,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'client_id' })
       queryClient.invalidateQueries({ queryKey: ['roi-settings', clientId] })
@@ -95,7 +98,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
       <div>
         <h2
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           Calcul du ROI
         </h2>
@@ -151,7 +154,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
               value={form.hourly_cost}
               onChange={(e) => setForm(f => ({ ...f, hourly_cost: e.target.value }))}
               placeholder="25"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
+              className="w-32 px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">€ / heure</span>
           </div>
@@ -166,9 +169,28 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
               value={form.avg_ticket_time_min}
               onChange={(e) => setForm(f => ({ ...f, avg_ticket_time_min: e.target.value }))}
               placeholder="5"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
+              className="w-32 px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">minutes</span>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3 pt-1 border-t border-[#f0f0f0]">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={form.roi_conservative_mode}
+            onClick={() => setForm(f => ({ ...f, roi_conservative_mode: !f.roi_conservative_mode }))}
+            className={`mt-3.5 relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors ${form.roi_conservative_mode ? 'bg-cta' : 'bg-surface'}`}
+          >
+            <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${form.roi_conservative_mode ? 'translate-x-[18px]' : 'translate-x-1'}`} />
+          </button>
+          <div>
+            <label className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider inline-flex items-center gap-1.5">
+              Mode conservateur
+              <HelpTooltip text={`Si votre temps moyen par ticket dépasse ${3} minutes, le calcul du ROI le plafonne à ${3} min au lieu de la valeur saisie — la borne basse déjà citée dans le centre d'aide. Utile si un client conteste vos chiffres : le nombre affiché devient le minimum défendable, pas une estimation optimiste.`} />
+            </label>
+            <p className="text-[11px] text-[#c4c4c4] mt-0.5">Affiche le temps économisé le plus bas défendable plutôt que votre réglage habituel.</p>
           </div>
         </div>
 
@@ -181,7 +203,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
               value={form.actero_monthly_price}
               onChange={(e) => setForm(f => ({ ...f, actero_monthly_price: e.target.value }))}
               placeholder="0"
-              className="w-32 px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
+              className="w-32 px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#9ca3af]">€ / mois</span>
           </div>
@@ -190,7 +212,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-lg hover:bg-[#003725] disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-lg hover:bg-cta disabled:opacity-50 transition-colors"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
           Sauvegarder

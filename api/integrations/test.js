@@ -1,5 +1,6 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
+import { requireClientAccess } from '../lib/tenant-guard.js';
 
 const PROVIDER_TEST_ENDPOINTS = {
   gorgias: {
@@ -78,6 +79,22 @@ async function handler(req, res) {
       if (fetchErr || !integration) {
         return res.status(404).json({ ok: false, message: 'Integration introuvable' });
       }
+
+      // L'intégration était récupérée par son seul id, en service_role, donc
+      // sans que RLS ne filtre rien. Trois conséquences, dans l'ordre de
+      // gravité : on DÉCHIFFRAIT la clé et le jeton d'un autre marchand, on
+      // s'en servait pour appeler l'API du fournisseur en son nom, et on
+      // écrivait dans sa ligne (statut, message, dernière vérification).
+      //
+      // Le message renvoyé constituait en plus un oracle : « Connexion
+      // réussie » contre « Erreur 401 » indique à un tiers si l'intégration
+      // d'un concurrent est vivante (ACT-24).
+      //
+      // Le contrôle vient APRÈS la lecture, ce qui est acceptable : rien n'est
+      // déchiffré, appelé ni écrit avant lui.
+      if (!(await requireClientAccess(supabase, {
+        user, clientId: integration.client_id, res,
+      }))) return;
 
       // Build credentials object from stored data — decrypt tokens in memory only
       const { decryptToken } = await import('../lib/crypto.js');

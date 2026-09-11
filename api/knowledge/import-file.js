@@ -5,6 +5,7 @@
  * Note: For PDF parsing, the client sends the extracted text (via browser FileReader).
  * Complex PDF parsing would require a library like pdf-parse.
  */
+import { requireClientAccess } from '../lib/tenant-guard.js'
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { chatComplete } from '../lib/llm.js'
@@ -31,6 +32,12 @@ async function handler(req, res) {
   const { content, filename, client_id } = req.body
   if (!content) return res.status(400).json({ error: 'content requis (texte du fichier)' })
   if (!client_id) return res.status(400).json({ error: 'client_id requis' })
+
+  // Authentifier l'appelant ne dit pas sur QUI il agit : le client_id vient du
+  // corps de la requête, et cette route utilise la clé service_role, donc RLS
+  // ne filtre rien (ACT-24).
+  if (!(await requireClientAccess(supabase, { user, clientId: client_id, res }))) return
+
 
   if (content.length > 50000) {
     return res.status(400).json({ error: 'Fichier trop volumineux (max ~50000 caracteres). Essayez un fichier plus court.' })

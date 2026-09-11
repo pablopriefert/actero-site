@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { supabase, INITIAL_URL } from '../lib/supabase'
 import { fetchUserRole } from '../lib/auth-utils'
 import { SEO } from '../components/SEO'
+import { codeCampagneCourant, presenterCodeCampagne } from '../lib/campagne'
+import { resolveOrCreateClientId } from '../lib/resolve-client'
 
 const DEBUG_AUTH = false;
 const logger = (...args) => {
@@ -11,6 +13,24 @@ const logger = (...args) => {
 
 export function AuthCallbackPage({ onNavigate }) {
   const [errorMsg, setErrorMsg] = useState(null);
+
+  // Cette page déclenche l'aiguillage à DEUX endroits : `checkSession()` au
+  // montage, et l'écouteur `onAuthStateChange` quand Supabase finit de résoudre
+  // le fragment d'URL. Les deux trouvent la même session, et les deux
+  // appelaient `redirectUser`.
+  //
+  // Pour une connexion ordinaire ça ne se voyait pas : deux fois la même
+  // destination. Pour une inscription Google venue de la publicité, c'était
+  // visible et cassant. Les deux exécutions créent le client en même temps ;
+  // la perdante échoue, tombe dans le repli et envoie le marchand au tableau
+  // de bord, pendant que la gagnante finit sa validation et l'envoie ensuite
+  // sur la page des plans. D'où le tableau de bord qui apparaît une seconde
+  // avant la bonne page — constaté par Pablo le 10 septembre.
+  //
+  // Un seul aiguillage, donc. Au passage, ça supprime la moitié du travail :
+  // deux créations de client, deux appels à /api/auth/apply-campaign, et une
+  // insertion qui échouait. C'est aussi ça qui rendait l'attente longue.
+  const aiguillageLance = useRef(false);
 
   // Detect if this callback is from an invite link
   // Uses INITIAL_URL because the hash is consumed by Supabase client before React mounts
@@ -21,12 +41,39 @@ export function AuthCallbackPage({ onNavigate }) {
   };
 
   const redirectUser = useCallback(async (session) => {
+    if (aiguillageLance.current) return;
+    aiguillageLance.current = true;
+
     // If this is an invite flow, redirect to set password page
     if (isInviteFlow()) {
       logger("Invite flow detected → redirecting to /setup-password");
       onNavigate("/setup-password");
       return;
     }
+    // Inscription venue d'une publicité (ACT-33).
+    //
+    // Le compte Google est créé ici, côté navigateur, sans passer par aucune
+    // route d'inscription : c'est le seul endroit du parcours Google où l'on
+    // peut réclamer le mois offert. On ATTEND la réponse, contrairement au
+    // reste du code, parce que la destination en dépend — l'envoyer au
+    // tableau de bord alors qu'il vient pour un mois gratuit, c'est lui faire
+    // rater ce qu'on a payé pour lui vendre.
+    //
+    // Un échec ne bloque pas : il atterrit au tableau de bord comme avant.
+    try {
+      const codeCampagne = codeCampagneCourant();
+      if (codeCampagne) {
+        await resolveOrCreateClientId(supabase, session);
+        const applique = await presenterCodeCampagne(supabase);
+        if (applique) {
+          onNavigate(`/signup/plan?campagne=${encodeURIComponent(codeCampagne)}`);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("[auth-callback] campagne :", err?.message);
+    }
+
     // Otherwise, redirect based on role
     const userRole = await fetchUserRole(session.user.id);
     onNavigate(userRole === "admin" ? "/admin" : "/client");
@@ -98,7 +145,7 @@ export function AuthCallbackPage({ onNavigate }) {
   if (errorMsg) {
     return (
       <div className="min-h-screen bg-white flex flex-col justify-center items-center py-12 px-6 font-sans text-center">
-        <div className="w-20 h-20 bg-[#F9F7F1] rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center mb-6">
+        <div className="w-20 h-20 bg-surface rounded-3xl border border-gray-100 shadow-sm flex items-center justify-center mb-6">
           <AlertCircle className="w-8 h-8 text-red-500" />
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-[#262626] mb-2">
@@ -116,7 +163,7 @@ export function AuthCallbackPage({ onNavigate }) {
           </button>
           <button
             onClick={() => window.location.replace("/")}
-            className="bg-[#F9F7F1] border border-gray-200 text-[#716D5C] px-8 py-3.5 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition-colors"
+            className="bg-surface border border-gray-200 text-[#716D5C] px-8 py-3.5 rounded-xl font-bold shadow-sm hover:bg-gray-50 transition-colors"
           >
             Retour accueil
           </button>

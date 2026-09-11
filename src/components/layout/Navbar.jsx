@@ -17,13 +17,21 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
+    // Header flottant : une pilule posée sur la page, pas une barre collée en
+    // haut. C'est la forme de gorgias.com, relevée dans leur DOM — fixe, 24 px
+    // du haut, 40 px de chaque côté, entièrement arrondie, ombre douce et sans
+    // décalage. La barre pleine largeur avec bordure basse coupait la page en
+    // deux ; la pilule la laisse respirer.
+    <div className="fixed top-0 left-0 right-0 z-50 px-4 lg:px-10 pt-4 lg:pt-6">
       <nav
-        style={{ fontFamily: 'var(--font-sans, "DM Sans"), system-ui, sans-serif' }}
-        className="w-full bg-white/90 backdrop-blur-sm border-b border-black/[0.05] transition-all duration-300"
+        style={{
+          fontFamily: 'var(--font-sans, "Inter Tight"), system-ui, sans-serif',
+          boxShadow: '0 0 10px rgba(26, 30, 35, 0.10)',
+        }}
+        className="relative mx-auto max-w-[1320px] rounded-full bg-white transition-all duration-300"
       >
-        <div className={`max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center transition-all duration-500 ${
-          scrolled ? 'h-14' : 'h-[60px]'
+        <div className={`px-6 lg:px-8 flex justify-between items-center transition-all duration-500 ${
+          scrolled ? 'h-[64px]' : 'h-[72px]'
         }`}>
           <div
             className="flex items-center gap-2 cursor-pointer group"
@@ -37,7 +45,7 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
             </span>
           </div>
 
-          <div className="hidden lg:flex items-center gap-11 absolute left-1/2 -translate-x-1/2">
+          <div className="hidden lg:flex items-center gap-11 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {[
               { label: 'Produit', to: '/produit' },
               { label: 'Tarifs', to: '/tarifs' },
@@ -73,7 +81,7 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-[#F9F7F1] border border-gray-200 hover:bg-[#F9F7F1] transition-colors"
+              className="lg:hidden w-10 h-10 flex items-center justify-center rounded-full bg-surface border border-gray-200 hover:bg-surface transition-colors"
             >
               {isMobileMenuOpen ? (
                 <X className="w-5 h-5 text-[#262626]" />
@@ -92,7 +100,7 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="mx-4 mt-2 bg-white border border-gray-200 rounded-3xl shadow-xl p-6 space-y-1"
+            className="mt-3 mx-auto max-w-[1320px] bg-white border border-[#E6E8EC] rounded-3xl shadow-xl p-6 space-y-1"
           >
             {[
               {
@@ -148,7 +156,7 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
               <button
                 key={idx}
                 onClick={item.action}
-                className="w-full text-left p-3 rounded-2xl text-sm font-bold text-[#716D5C] hover:text-[#262626] hover:bg-[#F9F7F1] transition-all"
+                className="w-full text-left p-3 rounded-2xl text-sm font-bold text-[#716D5C] hover:text-[#262626] hover:bg-surface transition-all"
               >
                 {item.label}
               </button>

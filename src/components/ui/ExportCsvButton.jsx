@@ -73,7 +73,7 @@ export function ExportCsvButton({
       disabled={isDisabled}
       className={
         className ||
-        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#f0f0f0] bg-white text-[12px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-40 disabled:cursor-not-allowed transition'
+        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#f0f0f0] bg-white text-[12px] font-semibold text-[#1a1a1a] hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition'
       }
       title={isDisabled ? 'Aucune donnée à exporter' : `Exporter ${rows.length} ligne(s)`}
     >

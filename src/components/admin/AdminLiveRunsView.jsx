@@ -111,7 +111,7 @@ export const AdminLiveRunsView = () => {
     <div className="flex flex-col h-full">
       <PageHeader
         title="Live Run Stream"
-        subtitle="Flux temps reel des runs Brain"
+        subtitle="Flux temps réel des runs Brain"
         badge={liveBadge}
       />
 
@@ -128,7 +128,7 @@ export const AdminLiveRunsView = () => {
               className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors ${
                 active
                   ? 'bg-cta text-white'
-                  : 'bg-[#fafafa] text-[#71717a] hover:bg-[#f0f0f0] border border-[#f0f0f0]'
+                  : 'bg-surface text-[#71717a] hover:bg-[#f0f0f0] border border-[#f0f0f0]'
               }`}
             >
               {f.label}
@@ -154,7 +154,7 @@ export const AdminLiveRunsView = () => {
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="h-14 rounded-xl bg-[#fafafa] animate-pulse"
+                className="h-14 rounded-xl bg-surface animate-pulse"
               />
             ))}
           </div>
@@ -188,7 +188,7 @@ export const AdminLiveRunsView = () => {
                   <ListItem
                     icon={iconForStatus(run.status)}
                     title={`${run.classification || 'run'} -> ${
-                      run.agent_used || 'general'
+                      run.agent_used || 'général'
                     }`}
                     subtitle={`${latency ? `${latency}ms` : '—'} - confidence ${confidence}`}
                     meta={

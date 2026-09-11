@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useSpring, useTransform, animate, useInView, motion } from 'framer-motion';
-import { tokens } from '../../lib/design-tokens';
 
 /**
  * Helper minimaliste pour concaténer des classes.
@@ -11,8 +10,8 @@ import { tokens } from '../../lib/design-tokens';
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
 /**
- * Mapping variantes -> classes Tailwind s'appuyant sur les tokens design-tokens.js.
- * - brand    -> tokens.colors.brand.primary (#0E653A)
+ * Mapping variantes -> classes Tailwind.
+ * - brand    -> tokens.colors.brand.primary (#13804A)
  * - success  -> tokens.colors.semantic.success (#10b981)
  * - warning  -> tokens.colors.semantic.warning (#f59e0b)
  * - danger   -> tokens.colors.semantic.danger (#ef4444)
@@ -41,7 +40,7 @@ const COLOR_MAP = {
     iconText: 'text-[#3b82f6]',
   },
   neutral: {
-    iconBg: 'bg-[#fafafa]',
+    iconBg: 'bg-surface',
     iconText: 'text-[#9ca3af]',
   },
 };
@@ -112,10 +111,10 @@ export function KpiCard({
   if (loading) {
     return (
       <div className={baseClasses}>
-        <div className="w-8 h-8 rounded-lg bg-[#f5f5f5] animate-pulse" />
-        <div className="mt-4 h-3 w-24 rounded bg-[#f5f5f5] animate-pulse" />
-        <div className="mt-2 h-7 w-32 rounded bg-[#f5f5f5] animate-pulse" />
-        <div className="mt-2 h-3 w-20 rounded bg-[#f5f5f5] animate-pulse" />
+        <div className="w-8 h-8 rounded-lg bg-surface animate-pulse" />
+        <div className="mt-4 h-3 w-24 rounded bg-surface animate-pulse" />
+        <div className="mt-2 h-7 w-32 rounded bg-surface animate-pulse" />
+        <div className="mt-2 h-3 w-20 rounded bg-surface animate-pulse" />
       </div>
     );
   }
@@ -165,7 +164,7 @@ function DeltaBadge({ delta, trend }) {
     ? 'text-[#10b981] bg-[#10b981]/10'
     : negative
     ? 'text-[#ef4444] bg-[#ef4444]/10'
-    : 'text-[#9ca3af] bg-[#fafafa]';
+    : 'text-[#9ca3af] bg-surface';
   const sign = delta > 0 ? '+' : '';
   return (
     <span
@@ -197,5 +196,4 @@ export function KpiRow({ children, className }) {
 }
 
 // Référence tokens pour éviter un warning d'import inutilisé si tree-shake désactivé.
-// eslint-disable-next-line react-refresh/only-export-components
-export const __KPI_CARD_TOKENS__ = tokens;
+ 

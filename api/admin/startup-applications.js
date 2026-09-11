@@ -121,7 +121,7 @@ async function sendAcceptedEmail({ email, boutique_name, promo_code }) {
           <p style="color:#262626;font-size:15px;line-height:1.6;margin:0 0 24px;">Bonne nouvelle : <strong>${escapeHtml(boutique_name)}</strong> a été sélectionnée pour le programme <strong>Actero for Startups</strong>. Vous bénéficiez de <strong>-50% pendant 6 mois</strong> sur tous les plans payants (Starter ou Pro).</p>
 
           <!-- Promo code card -->
-          <table width="100%" style="background:#F9F7F1;border:1px solid #e5e5e5;border-radius:12px;padding:24px;margin:0 0 24px;">
+          <table width="100%" style="background:#FFFFFF;border:1px solid #e5e5e5;border-radius:12px;padding:24px;margin:0 0 24px;">
             <tr><td>
               <div style="font-size:11px;font-weight:700;color:#716D5C;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Votre code promo</div>
               <div style="font-size:22px;font-weight:800;color:#0E653A;font-family:'SFMono-Regular',Consolas,Menlo,monospace;letter-spacing:0.5px;margin-bottom:8px;">${escapeHtml(promo_code)}</div>
@@ -155,7 +155,7 @@ async function sendAcceptedEmail({ email, boutique_name, promo_code }) {
           <p style="color:#262626;font-size:14px;line-height:1.6;margin:24px 0 0;">À bientôt sur Actero,<br />L'équipe.</p>
         </td></tr>
 
-        <tr><td style="padding:24px 40px;background:#F9F7F1;border-top:1px solid #e5e5e5;">
+        <tr><td style="padding:24px 40px;background:#FFFFFF;border-top:1px solid #e5e5e5;">
           <div style="font-size:11px;color:#9ca3af;line-height:1.5;">Code unique valable pour ${escapeHtml(boutique_name)}. Non cumulable avec d'autres offres. -50% pendant 6 mois, puis prix plein à partir du mois 7. Annulable à tout moment.</div>
         </td></tr>
       </table>

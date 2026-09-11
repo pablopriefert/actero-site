@@ -39,13 +39,13 @@ export default function PortalTicketsListPage({ navigate }) {
   function statusChip(status) {
     if (status === 'resolved') {
       return (
-        <span className="text-xs px-2.5 py-0.5 rounded-full border bg-[#E8F5EC] text-[#1F3A12] border-[#A8C490]">
+        <span className="text-xs px-2.5 py-0.5 rounded-full border bg-primary-tint text-[#1F3A12] border-[#A8C490]">
           {status}
         </span>
       );
     }
     return (
-      <span className="text-xs px-2.5 py-0.5 rounded-full border bg-[#FEF3C7] text-[#8B7A50] border-[#F59E0B]/30">
+      <span className="text-xs px-2.5 py-0.5 rounded-full border bg-warn-bg text-[#8B7A50] border-[#F59E0B]/30">
         {status}
       </span>
     );
@@ -56,7 +56,7 @@ export default function PortalTicketsListPage({ navigate }) {
       {tickets.map((t) => (
         <li key={t.id}>
           <button onClick={() => navigate(`/portal/tickets/${t.id}`)}
-            className="w-full text-left px-4 py-3 hover:bg-[#FAFAFA] flex justify-between items-center">
+            className="w-full text-left px-4 py-3 hover:bg-surface flex justify-between items-center">
             <span>
               <span className="font-semibold text-[#1A1A1A]">{t.subject || '(sans objet)'}</span>
               <span className="ml-2 text-xs text-[#8B8070]">{new Date(t.created_at).toLocaleDateString()}</span>

@@ -102,7 +102,7 @@ function BacktestCard({ clientId }) {
           type="button"
           onClick={handleLaunch}
           disabled={launching || isRunning}
-          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-[#003725] text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-cta text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
         >
           {launching || isRunning ? 'En cours…' : 'Lancer le backtest'}
         </button>
@@ -132,7 +132,7 @@ function BacktestCard({ clientId }) {
           </div>
 
           {latest.status === 'completed' && (
-            <div className="rounded-lg bg-[#fdfcf7] border border-[#f0ead8] p-3">
+            <div className="rounded-lg bg-surface border border-[#f0ead8] p-3">
               <p className="text-[22px] font-bold text-[#003725] tabular-nums">
                 {Number(latest.resolution_rate ?? 0).toFixed(1)}%
               </p>
@@ -281,7 +281,7 @@ function WidgetQaCard({ clientId }) {
           type="button"
           onClick={handleLaunch}
           disabled={launching || pending}
-          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-[#003725] text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg bg-cta text-white text-[11px] font-semibold hover:opacity-90 disabled:opacity-50"
         >
           {launching || pending ? 'Vérification…' : 'Vérifier le widget'}
         </button>
@@ -466,7 +466,7 @@ export function AdminClientDetailView() {
             <button
               type="button"
               onClick={handleBack}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[#f0f0f0] bg-white text-[12px] font-semibold hover:bg-[#fafafa]"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[#f0f0f0] bg-white text-[12px] font-semibold hover:bg-surface"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               Retour
@@ -503,7 +503,7 @@ export function AdminClientDetailView() {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-[12px]">
-                    <thead className="bg-[#fafafa] text-[#71717a] uppercase text-[10px] font-bold">
+                    <thead className="bg-surface text-[#71717a] uppercase text-[10px] font-bold">
                       <tr>
                         <th className="text-left px-3 py-2">Quand</th>
                         <th className="text-left px-3 py-2">Playbook</th>
@@ -514,7 +514,7 @@ export function AdminClientDetailView() {
                     </thead>
                     <tbody>
                       {recentRuns.map((r) => (
-                        <tr key={r.id} className="border-b border-[#f0f0f0] hover:bg-[#fafafa]">
+                        <tr key={r.id} className="border-b border-[#f0f0f0] hover:bg-surface">
                           <td className="px-3 py-2 text-[#71717a] whitespace-nowrap">{new Date(r.created_at).toLocaleString('fr-FR')}</td>
                           <td className="px-3 py-2 font-mono text-[11px]">{r.playbook_slug || '—'}</td>
                           <td className="px-3 py-2">

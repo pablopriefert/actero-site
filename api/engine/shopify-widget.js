@@ -10,6 +10,7 @@
  * Asset API; that path has been removed. It now only returns the theme-editor
  * deep link so the dashboard can guide the merchant to the app-embed block.
  */
+import { requireClientAccess } from '../lib/tenant-guard.js'
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 
@@ -29,6 +30,12 @@ async function handler(req, res) {
 
   const { client_id } = req.body || {}
   if (!client_id) return res.status(400).json({ error: 'client_id requis' })
+
+  // Authentifier l'appelant ne dit pas sur QUI il agit : le client_id vient du
+  // corps de la requête, et cette route utilise la clé service_role, donc RLS
+  // ne filtre rien (ACT-24).
+  if (!(await requireClientAccess(supabase, { user, clientId: client_id, res }))) return
+
 
   // App Store policy 5.1.1: apps must install via a theme app extension, NOT by
   // editing theme files through the Asset/Theme API. This endpoint no longer

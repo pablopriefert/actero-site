@@ -125,7 +125,6 @@ async function toolGetUsage(_args, clientId) {
     plan: client?.plan || 'free',
     period,
     tickets_used: usage?.tickets_used || 0,
-    voice_minutes_used: usage?.voice_minutes_used || 0,
   }
 }
 
@@ -168,7 +167,7 @@ function buildServer(clientId) {
   }, async (args) => toolResponse(await toolSendMessage(args, clientId)))
 
   server.registerTool('actero_get_usage', {
-    description: 'Return the merchant\'s current-month usage counters: plan, tickets used, voice minutes used, brand name. Read-only.',
+    description: 'Return the merchant\'s current-month usage counters: plan, tickets used, brand name. Read-only.',
     inputSchema: {},
     annotations: { readOnlyHint: true },
   }, async () => toolResponse(await toolGetUsage({}, clientId)))

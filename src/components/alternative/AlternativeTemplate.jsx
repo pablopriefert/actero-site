@@ -14,8 +14,8 @@ import { trackEvent } from '../../lib/analytics'
  * AlternativeTemplate — shared layout for /alternative-{gorgias,tidio,zendesk}.
  *
  * Design aligned with Landing/Pricing (variation A Refined Notion) :
- *   - Spectral h1/h2 + italic muted suffix
- *   - Cream #F9F7F1 alternating with white
+ *   - Inter Tight h1/h2 (poids 400) + italic muted suffix
+ *   - Cream #FFFFFF alternating with white
  *   - Cards rounded-[20px] border black/[0.05]
  *   - Pill CTAs — bg-cta primary / dark #003725 final CTA
  *
@@ -32,7 +32,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
     trackEvent('Alternative_Page_Viewed', { competitor: data.competitorKey })
   }, [data.competitorKey])
 
-  const serif = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+  const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
   const competitor = data.competitorName
 
   // ── JSON-LD : FAQ + SoftwareApplication ────────────────────────
@@ -112,7 +112,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
         schemaData={schema}
       />
 
-      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
+      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-cta/10">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
         <main>
@@ -120,10 +120,10 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
           <section className="pt-28 md:pt-32 pb-16 px-6">
             <div className="max-w-[920px] mx-auto text-center">
               <FadeInUp className="mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#F9F7F1] border border-[#E8DFC9]">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-surface border border-[#E3E6EA]">
                   <span className="w-1.5 h-1.5 rounded-full bg-cta" />
                   <span>Alternative à {competitor}</span>
-                  <span className="text-[#E8DFC9]">·</span>
+                  <span className="text-[#E3E6EA]">·</span>
                   <span>FR · RGPD · Shopify natif</span>
                 </div>
               </FadeInUp>
@@ -147,7 +147,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
 
               <FadeInUp delay={0.12} className="mb-8">
                 <p className="text-[13px] text-[#262626] font-medium mt-4">
-                  Installé en 15 minutes · Plan Free à vie · Essai 7 jours sans carte bancaire
+                  Installé en 15 minutes · Plan Free à vie · Essai gratuit sur Starter et Pro
                 </p>
               </FadeInUp>
 
@@ -158,7 +158,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                       trackEvent('Alternative_Hero_CTA_Clicked', { competitor: data.competitorKey })
                       onNavigate('/signup')
                     }}
-                    className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
+                    className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0E653A] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
                   >
                     Essai gratuit 7 jours
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -173,12 +173,12 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                     <Check className="w-3 h-3 text-cta" strokeWidth={2.5} />
                     50 à 70% de résolutions automatiques
                   </span>
-                  <span className="text-[#E8DFC9]">·</span>
+                  <span className="text-[#E3E6EA]">·</span>
                   <span className="inline-flex items-center gap-1.5">
                     <Check className="w-3 h-3 text-cta" strokeWidth={2.5} />
                     Migration depuis {competitor} en 1 jour
                   </span>
-                  <span className="text-[#E8DFC9]">·</span>
+                  <span className="text-[#E3E6EA]">·</span>
                   <span className="inline-flex items-center gap-1.5">
                     <Check className="w-3 h-3 text-cta" strokeWidth={2.5} />
                     Hébergé en UE
@@ -192,7 +192,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
           <PartnersMarquee />
 
           {/* ═══════════ TABLEAU COMPARATIF ═══════════ */}
-          <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
+          <section className="py-24 md:py-32 bg-surface px-6">
             <div className="max-w-5xl mx-auto">
               <FadeInUp className="text-center mb-14">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -220,7 +220,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                         <th className="text-left p-5 text-sm font-bold text-[#262626] w-[36%] sticky left-0 bg-white">
                           Critère
                         </th>
-                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-[#F0F7F2]">
+                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-surface">
                           Actero
                         </th>
                         <th className="p-5 text-center text-sm font-bold text-[#716D5C]">
@@ -232,12 +232,12 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                       {data.comparison.map((row, idx) => (
                         <tr
                           key={row.label}
-                          className={idx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}
+                          className={idx % 2 === 0 ? 'bg-white' : 'bg-surface'}
                         >
                           <td className="p-5 text-sm font-semibold text-[#262626] sticky left-0 bg-inherit">
                             {row.label}
                           </td>
-                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-[#F0F7F2]/40">
+                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-surface/40">
                             <CellContent value={row.actero} winner />
                           </td>
                           <td className="p-5 text-center text-sm text-[#5A5A5A]">
@@ -286,9 +286,9 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                   const Icon = w.icon
                   return (
                     <FadeInUp key={i}>
-                      <div className="bg-[#F9F7F1] rounded-[20px] p-8 border border-[#E8DFC9] h-full">
+                      <div className="bg-surface rounded-[20px] p-8 border border-[#E3E6EA] h-full">
                         <div className="flex items-start gap-4 mb-4">
-                          <div className="w-11 h-11 rounded-[12px] bg-white border border-[#E8DFC9] flex items-center justify-center flex-shrink-0">
+                          <div className="w-11 h-11 rounded-[12px] bg-white border border-[#E3E6EA] flex items-center justify-center flex-shrink-0">
                             <Icon className="w-5 h-5 text-cta" strokeWidth={2} />
                           </div>
                           <div className="flex-1">
@@ -323,7 +323,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
               !data.testimonials.every(isPlaceholder)
             if (!hasRealTestimonials) return null
             return (
-              <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
+              <section className="py-24 md:py-32 bg-surface px-6">
                 <div className="max-w-5xl mx-auto">
                   <FadeInUp className="text-center mb-14">
                     <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -367,7 +367,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
           })()}
 
           {/* ═══════════ CTA (dark, italic accent) ═══════════ */}
-          <section className="py-24 md:py-32 bg-[#003725] px-6">
+          <section className="py-24 md:py-32 bg-cta px-6">
             <div className="max-w-[820px] mx-auto text-center text-white">
               <FadeInUp>
                 <h2
@@ -377,7 +377,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                   Essayez Actero gratuitement —<br className="hidden md:block" />
                   <span className="italic text-[#A8C490]">agent prêt en 15 minutes.</span>
                 </h2>
-                <p className="text-[17px] text-[#F4F0E6]/70 max-w-xl mx-auto mb-8 leading-[1.55]">
+                <p className="text-[17px] text-[#F4F5F7]/70 max-w-xl mx-auto mb-8 leading-[1.55]">
                   Connectez Shopify en 1 clic. L'agent lit votre catalogue, apprend votre ton et
                   répond à vos premiers tickets dans l'heure. Aucune carte bancaire requise.
                 </p>
@@ -387,13 +387,13 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                       trackEvent('Alternative_Bottom_CTA_Clicked', { competitor: data.competitorKey })
                       onNavigate('/signup')
                     }}
-                    className="inline-flex items-center gap-2 bg-[#F4F0E6] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
+                    className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                   >
                     Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <TalkToHumanButton source={`alternative_${data.competitorKey}_final_cta`} variant="dark" />
                 </div>
-                <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F0E6]/55">
+                <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F5F7]/55">
                   <span className="inline-flex items-center gap-1.5">
                     <Check className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Sans carte bancaire
                   </span>
@@ -437,7 +437,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                         <h3 className="text-[16.5px] font-semibold text-[#1A1A1A] m-0">{f.q}</h3>
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all text-[18px] font-light leading-none ${
-                            isOpen ? 'bg-[#003725] text-white' : 'bg-[#F9F7F1] text-[#716D5C]'
+                            isOpen ? 'bg-cta text-white' : 'bg-surface text-[#716D5C]'
                           }`}
                         >
                           {isOpen ? '−' : '+'}
@@ -473,7 +473,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                     <button
                       key={link.href}
                       onClick={() => onNavigate(link.href)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F9F7F1] border border-[#E8DFC9] text-[13px] font-semibold text-[#262626] hover:border-cta hover:text-cta transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface border border-[#E3E6EA] text-[13px] font-semibold text-[#262626] hover:border-cta hover:text-cta transition-colors"
                     >
                       {link.label}
                       <ArrowRight className="w-3 h-3" />

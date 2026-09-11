@@ -16,7 +16,7 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
   const hasData = (metrics && metrics.estimated_roi > 0) || dailyMetrics.length > 0;
 
   // Analytics — fire "ROI Viewed" once per mount when data is available.
-  // Gated on hasData + mount-once ref so we don't pollute Amplitude with zero-ROI views.
+  // Gated on hasData + mount-once ref so we don't pollute Amplitude with zéro-ROI views.
   const firedRef = useRef(false)
   useEffect(() => {
     if (!hasData || firedRef.current) return
@@ -141,7 +141,7 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
 
   return (
     <div
-      className={`rounded-2xl border p-6 shadow-sm flex flex-col h-full relative overflow-hidden group transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-[#F9F7F1] border-gray-200"
+      className={`rounded-2xl border p-6 shadow-sm flex flex-col h-full relative overflow-hidden group transition-colors duration-300 ${isLight ? "bg-white border-gray-200" : "bg-surface border-gray-200"
         }`}
     >
       {!hasData ? (
@@ -183,7 +183,7 @@ export const ROIGlowChart = ({ theme = "dark", metrics, growthPct, dailyMetrics 
             </div>
             <div
               className={`p-3 rounded-xl border ${isLight
-                ? "bg-[#F9F7F1] border-gray-100"
+                ? "bg-surface border-gray-100"
                 : "bg-gray-50 border-gray-100"
                 }`}
             >

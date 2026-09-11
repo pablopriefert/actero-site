@@ -12,7 +12,7 @@ async function handler(req, res) {
   }
 
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`referral-click:${ip}`, 60, 60 * 60 * 1000)
+  const rl = await checkRateLimit(`referral-click:${ip}`, 60, 60 * 60 * 1000)
   if (!rl.allowed) return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' })
 
   const { code } = req.body;

@@ -101,7 +101,7 @@ export const AgentImprovementWidget = ({ clientId, theme: _theme }) => {
                     <button
                       disabled={act.isPending}
                       onClick={() => act.mutate({ recoId: r.id, action: 'apply', title: edit.title, content: edit.content })}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[#0E653A] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#13804A] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
                     >
                       {act.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                       Ajouter à ma base

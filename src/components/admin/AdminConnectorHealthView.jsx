@@ -76,7 +76,7 @@ function TestButton({ clientId, provider }) {
       ? 'text-[#10b981] border-[#10b981]/30 bg-[#10b981]/10'
       : state === 'ko'
       ? 'text-[#ef4444] border-[#ef4444]/30 bg-[#ef4444]/10'
-      : 'text-[#71717a] border-[#f0f0f0] bg-white hover:bg-[#fafafa]'
+      : 'text-[#71717a] border-[#f0f0f0] bg-white hover:bg-surface'
 
   return (
     <button
@@ -154,10 +154,10 @@ export const AdminConnectorHealthView = () => {
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
         title="Sante des connecteurs"
-        subtitle="Etat des integrations cross-clients"
+        subtitle="Etat des intégrations cross-clients"
       />
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#fafafa]">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface">
         <KpiRow>
           <KpiCard
             label="Connecteurs totaux"
@@ -196,11 +196,11 @@ export const AdminConnectorHealthView = () => {
             ))}
           </div>
         ) : grouped.length === 0 ? (
-          <SectionCard title="Aucune integration" icon={Plug}>
+          <SectionCard title="Aucune intégration" icon={Plug}>
             <EmptyState
               icon={Plug}
               title="Aucun connecteur enregistre"
-              description="Les integrations clients apparaitront ici des qu'elles seront configurees."
+              description="Les intégrations clients apparaitront ici des qu'elles seront configurees."
             />
           </SectionCard>
         ) : (

@@ -70,7 +70,7 @@ export function SaveStatus({ state = 'idle', savedAt, className = '' }) {
         : 'il y a 1 min'
 
   return (
-    <span role="status" aria-live="polite" className={`${base} text-[#0E653A]`}>
+    <span role="status" aria-live="polite" className={`${base} text-[#13804A]`}>
       <span aria-hidden="true" className="inline-block w-1.5 h-1.5 rounded-full bg-[#10B981]" />
       Enregistré {label}
     </span>

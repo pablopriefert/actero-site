@@ -5,8 +5,12 @@
  * Chaque step est une action atomique. Si un step échoue, le run est en erreur.
  */
 
+import { raiseEscalation } from './lib/raise-escalation.js'
+import { doitEtreReservee, reserverAction, cloturerAction } from './lib/action-claim.js'
 import { lookupOrder } from './lib/shopify-client.js'
 import { fetchOverdueInvoices, fetchTreasuryBalance } from './connectors/accounting.js'
+import { sendViaGorgias } from './connectors/gorgias.js'
+import { sendViaZendesk } from './connectors/zendesk.js'
 import { decryptToken } from '../lib/crypto.js'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
@@ -30,7 +34,7 @@ function escapeHtml(str) {
  * Execute an action plan step by step.
  * Returns: { success, steps: [{action, status, duration_ms, error}], error }
  */
-export async function runExecutor(supabase, { event: _event, playbook: _playbook, clientId, normalized, brainResult }) {
+export async function runExecutor(supabase, { event, playbook: _playbook, clientId, normalized, brainResult }) {
   const { actionPlan, aiResponse, classification } = brainResult
   const steps = []
   let overallSuccess = true
@@ -54,11 +58,49 @@ export async function runExecutor(supabase, { event: _event, playbook: _playbook
     const stepStart = Date.now()
     let stepResult = { action, status: 'completed', result: null, error: null }
 
+    // Réserver AVANT d'exécuter, pour les seules actions irréversibles qui
+    // sortent du système. L'unicité est portée par la base : deux exécutions
+    // simultanées du même événement ne peuvent pas gagner toutes les deux.
+    // Sans ça, un retry de cron ou un webhook redélivré envoie deux fois la
+    // même réponse au client du marchand (voir lib/action-claim.js).
+    let reservation = null
+    if (doitEtreReservee(action)) {
+      reservation = await reserverAction(supabase, { clientId, eventId: event?.id, action })
+      if (!reservation.autorise) {
+        stepResult.status = 'skipped_duplicate'
+        stepResult.result = { raison: reservation.raison }
+        stepResult.duration_ms = Date.now() - stepStart
+        steps.push(stepResult)
+        continue
+      }
+    }
+
     try {
       switch (action) {
         case 'send_reply':
         case 'send_email':
           if (aiResponse && normalized.customer_email && !normalized.customer_email.includes('@anonymous.actero.fr')) {
+            // Gorgias / Zendesk : la reponse doit atterrir DANS le ticket du
+            // fournisseur (c'est tout l'interet d'un connecteur helpdesk),
+            // pas partir en email brut a cote via SMTP/Resend. On reutilise
+            // les connecteurs deja ecrits pour l'ancien pipeline V1
+            // (api/engine/connectors/{gorgias,zendesk}.js, jusqu'ici
+            // uniquement branches sur respond.js) plutot que de laisser
+            // tomber dans le chemin email generique ci-dessous.
+            if ((normalized.channel === 'ticket_gorgias' || normalized.channel === 'ticket_zendesk') && normalized.ticket_id) {
+              const sendViaTicket = normalized.channel === 'ticket_gorgias' ? sendViaGorgias : sendViaZendesk
+              const ticketResult = await sendViaTicket(supabase, {
+                clientId,
+                ticketId: normalized.ticket_id,
+                response: aiResponse,
+                customerEmail: normalized.customer_email,
+                brandName,
+              })
+              if (!ticketResult.success) throw new Error(ticketResult.error || 'Envoi vers le ticket echoue')
+              stepResult.result = { ticket_reply_sent: true, via: normalized.channel, ticket_id: normalized.ticket_id }
+              break
+            }
+
             const subject = normalized.subject ? `Re: ${escapeHtml(normalized.subject)}` : `${escapeHtml(brandName)} — Reponse a votre demande`
             const safeBody = escapeHtml(aiResponse).replace(/\n/g, '<br/>')
             const safeName = escapeHtml(normalized.customer_name)
@@ -128,55 +170,11 @@ export async function runExecutor(supabase, { event: _event, playbook: _playbook
           break
 
         case 'escalate':
-          // Create escalation entry with full context
-          try {
-            await supabase.from('escalation_tickets').insert({
-              client_id: clientId,
-              classification,
-              customer_email: normalized.customer_email || null,
-              customer_name: normalized.customer_name || null,
-              message_preview: normalized.message ? normalized.message.substring(0, 500) : null,
-              status: 'pending',
-              priority: 'high',
-            })
-          } catch (escErr) {
-            console.error('[executor] escalation_tickets insert error:', escErr.message)
-          }
-          // Notify client via enabled channels (email, slack, etc.)
-          try {
-            const { notifyClient } = await import('../lib/notify.js')
-            await notifyClient(supabase, {
-              clientId,
-              eventKey: 'escalation_alert',
-              title: `Ticket escaladé — ${classification}`,
-              message: `De : ${normalized.customer_name || normalized.customer_email}\n\n${normalized.message?.substring(0, 300) || ''}`,
-              context: {
-                url: 'https://actero.fr/client/escalations',
-                customer_email: normalized.customer_email,
-                classification,
-              },
-            })
-          } catch (notifyErr) {
-            console.error('[executor] notify escalation error:', notifyErr.message)
-          }
+          // Ticket + alerte marchand + webhook. Mutualisé avec gateway.js, qui
+          // doit déclencher les mêmes effets quand il met un message en revue
+          // sans exécuter le plan d'action (voir lib/raise-escalation.js).
+          await raiseEscalation(supabase, { clientId, classification, normalized })
 
-          // Outbound webhook (Pro+)
-          try {
-            const { dispatchWebhook } = await import('../lib/webhooks.js')
-            await dispatchWebhook(supabase, {
-              clientId,
-              eventType: 'ticket.escalated',
-              data: {
-                classification,
-                customer_email: normalized.customer_email,
-                customer_name: normalized.customer_name,
-                subject: normalized.subject,
-                message_preview: normalized.message?.substring(0, 500),
-              },
-            })
-          } catch (hookErr) {
-            console.error('[executor] webhook escalation error:', hookErr.message)
-          }
           stepResult.result = { escalated: true }
           break
 
@@ -428,6 +426,18 @@ export async function runExecutor(supabase, { event: _event, playbook: _playbook
       overallSuccess = false
       overallError = `Step "${action}" failed: ${err.message}`
       // Don't break — continue with remaining steps
+    }
+
+    // Clôturer avec le résultat RÉEL. Un échec repasse la réservation en
+    // `failed`, donc un retry ultérieur pourra reprendre — une erreur réseau
+    // ne doit pas faire perdre définitivement la réponse au client.
+    if (reservation?.id) {
+      await cloturerAction(supabase, {
+        id: reservation.id,
+        reussi: stepResult.status === 'completed',
+        resultat: stepResult.result,
+        erreur: stepResult.error,
+      })
     }
 
     stepResult.duration_ms = Date.now() - stepStart

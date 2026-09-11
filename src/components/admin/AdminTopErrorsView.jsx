@@ -79,25 +79,25 @@ export const AdminTopErrorsView = () => {
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
         title="Top erreurs"
-        subtitle={`${runs.length} erreurs au total sur les 24 dernieres heures`}
+        subtitle={`${runs.length} erreurs au total sur les 24 dernières heures`}
       />
 
-      <div className="flex-1 overflow-y-auto p-6 bg-[#fafafa]">
+      <div className="flex-1 overflow-y-auto p-6 bg-surface">
         <SectionCard
-          title="Top 10 erreurs des 24 dernieres heures"
+          title="Top 10 erreurs des 24 dernières heures"
           subtitle="Grouping par message d'erreur (tronque a 200 caracteres)"
           icon={AlertTriangle}
         >
           {isLoading ? (
             <div className="space-y-2">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-16 rounded-xl bg-[#fafafa] animate-pulse" />
+                <div key={i} className="h-16 rounded-xl bg-surface animate-pulse" />
               ))}
             </div>
           ) : topErrors.length === 0 ? (
             <EmptyState
               icon={CheckCircle2}
-              title="Aucune erreur dans les dernieres 24h"
+              title="Aucune erreur dans les dernières 24h"
               description="Le moteur tourne sans accroc. Felicitations."
             />
           ) : (
@@ -105,7 +105,7 @@ export const AdminTopErrorsView = () => {
               {topErrors.map((err, idx) => (
                 <div
                   key={err.key}
-                  className="flex items-start gap-3 p-3 rounded-xl border border-[#f0f0f0] hover:border-[#ef4444]/30 hover:bg-[#fafafa] transition-colors"
+                  className="flex items-start gap-3 p-3 rounded-xl border border-[#f0f0f0] hover:border-[#ef4444]/30 hover:bg-surface transition-colors"
                 >
                   <div className="w-8 h-8 rounded-lg bg-[#ef4444]/10 text-[#ef4444] flex items-center justify-center text-[12px] font-bold flex-shrink-0">
                     #{idx + 1}
@@ -165,7 +165,7 @@ export const AdminTopErrorsView = () => {
                 </div>
                 <button
                   onClick={() => setDrillDown(null)}
-                  className="p-1.5 rounded-lg hover:bg-[#fafafa] text-[#71717a] flex-shrink-0"
+                  className="p-1.5 rounded-lg hover:bg-surface text-[#71717a] flex-shrink-0"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -175,7 +175,7 @@ export const AdminTopErrorsView = () => {
                   <ListItem
                     key={r.id}
                     icon={<AlertTriangle className="w-4 h-4 text-[#ef4444]" />}
-                    title={`${r.classification || 'run'} -> ${r.agent_used || 'general'}`}
+                    title={`${r.classification || 'run'} -> ${r.agent_used || 'général'}`}
                     subtitle={`client ${r.client_id?.slice(0, 8) || '—'}`}
                     meta={relTime(r.created_at)}
                   />

@@ -71,7 +71,7 @@ export function EmailGateModal({ open, onClose, onSubmit, courseTitle }) {
             >
               <X className="w-4 h-4 text-[#262626]" />
             </button>
-            <div className="w-12 h-12 rounded-2xl bg-[#003725]/10 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-cta/10 flex items-center justify-center mb-4">
               <Lock className="w-5 h-5 text-[#003725]" />
             </div>
             <h2 className="text-2xl font-bold text-[#262626] mb-2">
@@ -80,7 +80,7 @@ export function EmailGateModal({ open, onClose, onSubmit, courseTitle }) {
             <p className="text-sm text-[#716D5C] mb-6">
               {courseTitle
                 ? `Entrez votre email pour debloquer "${courseTitle}" et tous les cours de l'Academy.`
-                : "Entrez votre email pour acceder aux cours de l'Actero Academy."}
+                : "Entrez votre email pour accéder aux cours de l'Actero Academy."}
             </p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -110,9 +110,9 @@ export function EmailGateModal({ open, onClose, onSubmit, courseTitle }) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-[#003725] hover:bg-[#00291c] text-white font-bold px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full bg-cta hover:bg-[#00291c] text-white font-bold px-6 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
               >
-                {submitting ? "Inscription..." : "Acceder au cours"}
+                {submitting ? "Inscription..." : "Accéder au cours"}
                 {!submitting && <ArrowRight className="w-4 h-4" />}
               </button>
             </form>

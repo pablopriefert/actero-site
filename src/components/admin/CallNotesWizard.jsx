@@ -253,7 +253,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
         url_faq: form.url_faq || null,
         url_about: form.url_about || null,
         workflows_requested: form.workflows_requested,
-        status: 'complete',
+        status: 'complète',
         completed_at: new Date().toISOString(),
       };
 
@@ -263,10 +263,10 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
 
       if (error) throw error;
 
-      setForm(prev => ({ ...prev, status: 'complete' }));
+      setForm(prev => ({ ...prev, status: 'complète' }));
       queryClient.invalidateQueries({ queryKey: ['call-notes', client.id] });
     } catch (err) {
-      console.error('Complete error:', err);
+      console.error('Complète error:', err);
     }
     setSaving(false);
   };
@@ -335,7 +335,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-surface border border-[#f0f0f0] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -348,7 +348,7 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
           </div>
           <div className="flex items-center gap-2">
             {saving && <Loader2 className="w-4 h-4 text-[#71717a] animate-spin" />}
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#fafafa] transition-colors">
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface transition-colors">
               <X className="w-5 h-5 text-[#71717a]" />
             </button>
           </div>
@@ -367,10 +367,10 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
                     onClick={() => handleStepChange(i)}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
                       isActive
-                        ? 'bg-[#fafafa] text-[#1a1a1a]'
+                        ? 'bg-surface text-[#1a1a1a]'
                         : isDone
-                        ? 'text-emerald-500 hover:bg-[#fafafa]'
-                        : 'text-[#71717a] hover:bg-[#fafafa]'
+                        ? 'text-emerald-500 hover:bg-surface'
+                        : 'text-[#71717a] hover:bg-surface'
                     }`}
                   >
                     {isDone ? (
@@ -381,14 +381,14 @@ export const CallNotesWizard = ({ client, onClose, onDeployReady }) => {
                     <span className="hidden sm:inline">{step.label}</span>
                   </button>
                   {i < STEPS.length - 1 && (
-                    <div className={`flex-1 h-px ${isDone ? 'bg-emerald-500/30' : 'bg-[#fafafa]'}`} />
+                    <div className={`flex-1 h-px ${isDone ? 'bg-emerald-500/30' : 'bg-surface'}`} />
                   )}
                 </React.Fragment>
               );
             })}
           </div>
           {/* Progress bar */}
-          <div className="mt-3 h-1 bg-[#fafafa] rounded-full overflow-hidden">
+          <div className="mt-3 h-1 bg-surface rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-emerald-500 rounded-full"
               animate={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
@@ -483,7 +483,7 @@ function InputField({ label, value, onChange, type = 'text', placeholder, suffix
           value={value || ''}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-gray-300 transition-colors"
+          className="w-full px-3 py-2 bg-surface border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-gray-300 transition-colors"
         />
         {suffix && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-[#71717a]">{suffix}</span>
@@ -502,7 +502,7 @@ function TextareaField({ label, value, onChange, placeholder, rows = 3 }) {
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="w-full px-3 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-gray-300 transition-colors resize-none"
+        className="w-full px-3 py-2 bg-surface border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] placeholder-gray-600 outline-none focus:border-gray-300 transition-colors resize-none"
       />
     </div>
   );
@@ -543,7 +543,7 @@ function StepBasics({ form, updateField }) {
                 className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
                   selected
                     ? `border-${opt.color}-500/30 bg-${opt.color}-500/10`
-                    : 'border-[#f0f0f0] bg-[#fafafa] hover:border-gray-300'
+                    : 'border-[#f0f0f0] bg-surface hover:border-gray-300'
                 }`}
               >
                 <Icon className={`w-5 h-5 ${selected ? `text-${opt.color}-400` : 'text-[#71717a]'}`} />
@@ -574,9 +574,9 @@ function StepBusiness({ form, updateField }) {
           <select
             value={form.ticketing_tool || ''}
             onChange={e => updateField('ticketing_tool', e.target.value || null)}
-            className="w-full px-3 py-2 bg-[#fafafa] border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:border-gray-300 transition-colors"
+            className="w-full px-3 py-2 bg-surface border border-[#f0f0f0] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:border-gray-300 transition-colors"
           >
-            <option value="">Selectionner...</option>
+            <option value="">Sélectionner...</option>
             {TICKETING_OPTIONS.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
@@ -590,11 +590,11 @@ function StepBusiness({ form, updateField }) {
 
         <InputField label="Cout horaire support" value={form.hourly_support_cost} onChange={v => updateField('hourly_support_cost', v)} type="number" suffix="EUR/h" />
 
-        <div className="flex items-center justify-between p-3 bg-[#fafafa] border border-[#f0f0f0] rounded-lg">
+        <div className="flex items-center justify-between p-3 bg-surface border border-[#f0f0f0] rounded-lg">
           <span className="text-[13px] text-[#71717a]">Chatbot souhaite ?</span>
           <button
             onClick={() => updateField('wants_chatbot', !form.wants_chatbot)}
-            className={`relative w-10 h-5 rounded-full transition-colors ${form.wants_chatbot ? 'bg-emerald-500' : 'bg-[#fafafa]'}`}
+            className={`relative w-10 h-5 rounded-full transition-colors ${form.wants_chatbot ? 'bg-emerald-500' : 'bg-surface'}`}
           >
             <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${form.wants_chatbot ? 'translate-x-5' : 'translate-x-0.5'}`} />
           </button>
@@ -602,7 +602,7 @@ function StepBusiness({ form, updateField }) {
 
         <div className="grid grid-cols-2 gap-4">
           <InputField label="Panier moyen" value={form.avg_cart_value} onChange={v => updateField('avg_cart_value', v)} type="number" suffix="EUR" placeholder="80" />
-          <InputField label="Paniers abandonnes/mois" value={form.monthly_abandoned_carts} onChange={v => updateField('monthly_abandoned_carts', v)} type="number" placeholder="500" />
+          <InputField label="Paniers abandonnés/mois" value={form.monthly_abandoned_carts} onChange={v => updateField('monthly_abandoned_carts', v)} type="number" placeholder="500" />
         </div>
       </motion.div>
     );
@@ -624,7 +624,7 @@ function StepBusiness({ form, updateField }) {
 
       <div className="grid grid-cols-2 gap-4">
         <InputField label="Volume leads portails/mois" value={form.monthly_leads_volume} onChange={v => updateField('monthly_leads_volume', v)} type="number" placeholder="50" />
-        <InputField label="Temps de reponse actuel" value={form.avg_response_time_hours} onChange={v => updateField('avg_response_time_hours', v)} type="number" suffix="h" placeholder="24" />
+        <InputField label="Temps de réponse actuel" value={form.avg_response_time_hours} onChange={v => updateField('avg_response_time_hours', v)} type="number" suffix="h" placeholder="24" />
       </div>
 
       <InputField label="Cout horaire agent" value={form.hourly_agent_cost} onChange={v => updateField('hourly_agent_cost', v)} type="number" suffix="EUR/h" />
@@ -656,7 +656,7 @@ function StepEmail({ form, updateField, onAutoDetect, autoDetecting }) {
               className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
                 form.email_sending_preference === opt.value
                   ? 'border-emerald-500/30 bg-emerald-500/10'
-                  : 'border-[#f0f0f0] bg-[#fafafa] hover:border-gray-300'
+                  : 'border-[#f0f0f0] bg-surface hover:border-gray-300'
               }`}
             >
               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -676,7 +676,7 @@ function StepEmail({ form, updateField, onAutoDetect, autoDetecting }) {
       </div>
 
       {form.email_sending_preference === 'smtp_client' && (
-        <div className="space-y-3 p-4 bg-[#fafafa] border border-[#f0f0f0] rounded-lg">
+        <div className="space-y-3 p-4 bg-surface border border-[#f0f0f0] rounded-lg">
           <InputField label="Hote SMTP" value={form.smtp_host} onChange={v => updateField('smtp_host', v)} placeholder="smtp.gmail.com" />
           <div className="grid grid-cols-2 gap-3">
             <InputField label="Port" value={form.smtp_port} onChange={v => updateField('smtp_port', v)} type="number" placeholder="587" />
@@ -730,7 +730,7 @@ function StepWorkflows({ form, toggleWorkflow, workflows }) {
             className={`w-full flex items-start gap-4 p-4 rounded-xl border transition-all text-left ${
               selected
                 ? 'border-emerald-500/30 bg-emerald-500/10'
-                : 'border-[#f0f0f0] bg-[#fafafa] hover:border-gray-300'
+                : 'border-[#f0f0f0] bg-surface hover:border-gray-300'
             }`}
           >
             <div className={`mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors ${

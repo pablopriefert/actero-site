@@ -12,10 +12,10 @@ import { useToast } from '../ui/Toast'
 const EXAMPLES = [
   "Ne jamais proposer de remboursement sans escalade humaine",
   "Ne jamais mentionner la concurrence",
-  "Toujours rediriger les questions sur les prix vers l'equipe commerciale",
-  "Ne jamais partager de donnees personnelles d'autres clients",
-  "Toujours demander le numero de commande avant de traiter un retour",
-  "Ne jamais promettre un delai de livraison specifique",
+  "Toujours rediriger les questions sur les prix vers l'équipe commerciale",
+  "Ne jamais partager de données personnelles d'autres clients",
+  "Toujours demander le numéro de commande avant de traiter un retour",
+  "Ne jamais promettre un délai de livraison spécifique",
 ]
 
 export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
@@ -84,7 +84,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
           <div>
             <h2
               className="text-2xl italic tracking-tight text-[#1a1a1a]"
-              style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+              style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
             >
               Règles d'exclusion
             </h2>
@@ -99,7 +99,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
       <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
         <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
         <p className="text-sm text-amber-800">
-          Ces regles sont des règles & limites. L'agent IA les verifie <strong>avant chaque reponse</strong>.
+          Ces regles sont des règles & limites. L'agent IA les verifie <strong>avant chaque réponse</strong>.
           Definissez ce que l'agent ne doit <strong>jamais</strong> faire.
         </p>
       </div>
@@ -114,12 +114,12 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
             onChange={(e) => setNewRule(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addRule()}
             placeholder="Ex: Ne jamais proposer de remboursement sans escalade humaine"
-            className="flex-1 px-4 py-3 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 placeholder-gray-400"
+            className="flex-1 px-4 py-3 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20 placeholder-gray-400"
           />
           <button
             onClick={addRule}
             disabled={!newRule.trim() || adding}
-            className="flex items-center gap-2 px-5 py-3 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-3 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-cta transition-colors disabled:opacity-50"
           >
             {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Ajouter
@@ -135,7 +135,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
                 <button
                   key={i}
                   onClick={() => setNewRule(ex)}
-                  className="text-xs px-3 py-1.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[#9ca3af] hover:border-gray-300 hover:text-[#1a1a1a] transition-colors"
+                  className="text-xs px-3 py-1.5 bg-surface border border-[#ebebeb] rounded-lg text-[#9ca3af] hover:border-gray-300 hover:text-[#1a1a1a] transition-colors"
                 >
                   + {ex}
                 </button>
@@ -167,14 +167,14 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
                 className={`flex items-center gap-3 p-4 rounded-xl border transition-colors ${
                   rule.is_enabled
                     ? 'bg-white border-[#ebebeb]'
-                    : 'bg-[#fafafa] border-[#f0f0f0] opacity-50'
+                    : 'bg-surface border-[#f0f0f0] opacity-50'
                 }`}
               >
                 {/* Toggle */}
                 <button
                   onClick={() => toggleRule(rule.id, rule.is_enabled)}
                   className="flex-shrink-0"
-                  title={rule.is_enabled ? 'Desactiver' : 'Activer'}
+                  title={rule.is_enabled ? 'Désactiver' : 'Activer'}
                 >
                   {rule.is_enabled ? (
                     <ToggleRight className="w-6 h-6 text-cta" />
@@ -220,14 +220,14 @@ const CONDITIONS = [
   { id: 'contact_count', label: 'Nb contacts (7j)', type: 'number', unit: '', operators: ['>', '>=', '='] },
   { id: 'keyword', label: 'Mot-cle detecte', type: 'text', placeholder: 'avocat, procès, arnaque...' },
   { id: 'sentiment', label: 'Sentiment', type: 'select', options: ['Tres negatif', 'Negatif', 'Neutre'] },
-  { id: 'topic', label: 'Sujet', type: 'select', options: ['Remboursement', 'Retour', 'Livraison', 'Reclamation', 'Autre'] },
+  { id: 'topic', label: 'Sujet', type: 'select', options: ['Remboursement', 'Retour', 'Livraison', 'Réclamation', 'Autre'] },
 ]
 
 const ACTIONS = [
   { id: 'escalate', label: 'Escalader vers un humain', icon: '🧑‍💼', color: 'bg-red-50 border-red-200 text-red-700' },
   { id: 'promo', label: 'Proposer un code promo', icon: '🎁', color: 'bg-violet-50 border-violet-200 text-violet-700' },
-  { id: 'template', label: 'Reponse standard', icon: '📋', color: 'bg-blue-50 border-blue-200 text-blue-700' },
-  { id: 'notify', label: 'Notifier l\'equipe', icon: '🔔', color: 'bg-amber-50 border-amber-200 text-amber-700' },
+  { id: 'template', label: 'Réponse standard', icon: '📋', color: 'bg-blue-50 border-blue-200 text-blue-700' },
+  { id: 'notify', label: 'Notifier l\'équipe', icon: '🔔', color: 'bg-amber-50 border-amber-200 text-amber-700' },
   { id: 'tag', label: 'Ajouter un tag', icon: '🏷️', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
 ]
 
@@ -285,7 +285,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
         priority: 0,
       })
       if (error) throw error
-      toast.success('Regle creee')
+      toast.success('Règle creee')
       setConditions([{ conditionId: '', operator: '>', value: '' }])
       setAction('')
       setActionValue('')
@@ -303,7 +303,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
     <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border border-[#f0f0f0] overflow-hidden">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-5 flex items-center justify-between hover:bg-[#fafafa] transition-colors"
+        className="w-full p-5 flex items-center justify-between hover:bg-surface transition-colors"
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center">
@@ -340,7 +340,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                       <select
                         value={cond.conditionId}
                         onChange={(e) => updateCondition(i, 'conditionId', e.target.value)}
-                        className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
+                        className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
                       >
                         <option value="">Choisir...</option>
                         {CONDITIONS.map(c => (
@@ -353,7 +353,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                           <select
                             value={cond.operator}
                             onChange={(e) => updateCondition(i, 'operator', e.target.value)}
-                            className="px-2 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-16"
+                            className="px-2 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-16"
                           >
                             {(condConfig.operators || ['>']).map(op => (
                               <option key={op} value={op}>{op}</option>
@@ -364,7 +364,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                             value={cond.value}
                             onChange={(e) => updateCondition(i, 'value', e.target.value)}
                             placeholder="0"
-                            className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-24"
+                            className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none w-24"
                           />
                           {condConfig.unit && <span className="text-xs text-[#9ca3af]">{condConfig.unit}</span>}
                         </>
@@ -374,7 +374,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                         <select
                           value={cond.value}
                           onChange={(e) => updateCondition(i, 'value', e.target.value)}
-                          className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
+                          className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none"
                         >
                           <option value="">Choisir...</option>
                           {condConfig.options.map(opt => (
@@ -389,7 +389,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                           value={cond.value}
                           onChange={(e) => updateCondition(i, 'value', e.target.value)}
                           placeholder={condConfig.placeholder || 'Valeur...'}
-                          className="px-3 py-2 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none flex-1 min-w-[140px]"
+                          className="px-3 py-2 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none flex-1 min-w-[140px]"
                         />
                       )}
 
@@ -442,15 +442,15 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                   type="text"
                   value={actionValue}
                   onChange={(e) => setActionValue(e.target.value)}
-                  placeholder={action === 'promo' ? 'Code: SORRY10' : action === 'tag' ? 'Nom du tag' : 'Texte de la reponse'}
-                  className="mt-3 w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
+                  placeholder={action === 'promo' ? 'Code: SORRY10' : action === 'tag' ? 'Nom du tag' : 'Texte de la réponse'}
+                  className="mt-3 w-full px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
                 />
               )}
             </div>
 
             {/* Preview */}
             {rulePreview && (
-              <div className="p-3 bg-[#fafafa] rounded-xl border border-[#f0f0f0]">
+              <div className="p-3 bg-surface rounded-xl border border-[#f0f0f0]">
                 <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-1">Apercu de la regle</p>
                 <p className="text-sm text-[#1a1a1a] font-medium">{rulePreview}</p>
               </div>
@@ -460,7 +460,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
             <button
               onClick={handleSave}
               disabled={!rulePreview || saving}
-              className="w-full py-3 bg-cta text-white text-sm font-bold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 bg-cta text-white text-sm font-bold rounded-xl hover:bg-cta disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               Créer la règle
@@ -569,7 +569,7 @@ const EscalationThresholds = ({ clientId }) => {
             min="0"
             value={form.order_value_threshold}
             onChange={(e) => setForm(f => ({ ...f, order_value_threshold: e.target.value }))}
-            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
+            className="w-full max-w-xs px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: 150"
           />
         </div>
@@ -585,7 +585,7 @@ const EscalationThresholds = ({ clientId }) => {
             min="0"
             value={form.repeat_customer_orders}
             onChange={(e) => setForm(f => ({ ...f, repeat_customer_orders: e.target.value }))}
-            className="w-full max-w-xs px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
+            className="w-full max-w-xs px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: 5"
           />
         </div>
@@ -638,7 +638,7 @@ const EscalationThresholds = ({ clientId }) => {
             type="text"
             value={form.keywords}
             onChange={(e) => setForm(f => ({ ...f, keywords: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
+            className="w-full px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
             placeholder="Ex: avocat, juridique, DGCCRF, plainte"
           />
         </div>
@@ -649,7 +649,7 @@ const EscalationThresholds = ({ clientId }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 bg-cta text-white rounded-lg text-[12px] font-semibold hover:bg-cta transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Enregistrer les seuils
@@ -879,7 +879,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               key={t.id}
               type="button"
               onClick={() => loadTemplate(t)}
-              className="text-left p-3 rounded-xl border border-[#E5E2D7] bg-[#fafaf7] hover:border-cta/40 hover:bg-cta/5 transition"
+              className="text-left p-3 rounded-xl border border-[#E6E8EC] bg-surface hover:border-cta/40 hover:bg-cta/5 transition"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[13px] font-bold text-[#1a1a1a]">{t.name}</span>
@@ -893,7 +893,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
       </div>
 
       {/* Plafond */}
-      <div className="mb-5 p-3 rounded-xl bg-[#fafaf7] border border-[#E5E2D7]">
+      <div className="mb-5 p-3 rounded-xl bg-surface border border-[#E6E8EC]">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
             <p className="text-[12px] font-semibold text-[#1a1a1a]">Plafond max de remise</p>
@@ -904,7 +904,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               type="number" min="0" max="100" step="0.5"
               value={policyMaxPct}
               onChange={(e) => { setPolicyMaxPct(e.target.value); setPolicyDirty(true) }}
-              className="w-20 text-[13px] rounded-lg border border-[#E5E2D7] bg-white px-3 py-1.5 text-[#1a1a1a] text-right focus:outline-none focus:ring-2 focus:ring-cta/30"
+              className="w-20 text-[13px] rounded-lg border border-[#E6E8EC] bg-white px-3 py-1.5 text-[#1a1a1a] text-right focus:outline-none focus:ring-2 focus:ring-cta/30"
             />
             <span className="text-[13px] text-[#71717a]">%</span>
           </div>
@@ -921,7 +921,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               type="button"
               onClick={() => applyScenario(s)}
               className={`text-left p-2 rounded-lg border transition ${
-                policyScenarioId === s.id ? 'border-cta/40 bg-cta/5' : 'border-[#E5E2D7] bg-white hover:border-cta/30'
+                policyScenarioId === s.id ? 'border-cta/40 bg-cta/5' : 'border-[#E6E8EC] bg-white hover:border-cta/30'
               }`}
             >
               <p className="text-[12px] font-semibold text-[#1a1a1a]">{s.name}</p>
@@ -936,7 +936,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
           type="button"
           onClick={() => runDiscountTest({ persist: false })}
           disabled={policyTestState === 'running' || !clientId}
-          className="inline-flex items-center gap-2 rounded-xl bg-white border border-[#E5E2D7] px-4 py-2 text-[13px] font-semibold text-[#1a1a1a] hover:bg-[#fafafa] disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-xl bg-white border border-[#E6E8EC] px-4 py-2 text-[13px] font-semibold text-[#1a1a1a] hover:bg-surface disabled:opacity-50"
         >
           {policyTestState === 'running'
             ? <><Loader2 className="w-4 h-4 animate-spin" /> Test en cours…</>
@@ -1009,14 +1009,14 @@ const DiscountPolicyPanel = ({ clientId }) => {
         {policyShowCode && (
           <div className="mt-3">
             <p className="text-[11px] text-[#71717a] mb-2">
-              La règle est une fonction <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[10px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque appel. Tu peux y mettre n'importe quelle logique conditionnelle Python. Le plafond ci-dessus s'applique <em>après</em> ton retour, donc une coquille ne peut jamais dépasser ta marge.
+              La règle est une fonction <code className="px-1 py-0.5 rounded bg-surface font-mono text-[10px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque appel. Tu peux y mettre n'importe quelle logique conditionnelle Python. Le plafond ci-dessus s'applique <em>après</em> ton retour, donc une coquille ne peut jamais dépasser ta marge.
             </p>
             <textarea
               value={policyCode}
               onChange={(e) => { setPolicyCode(e.target.value); setPolicyDirty(true) }}
               spellCheck={false}
               rows={14}
-              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E5E2D7] bg-[#fafaf7] p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
+              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E6E8EC] bg-surface p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
             />
             {policyDirty && (
               <div className="mt-1 text-[11px] text-amber-700">

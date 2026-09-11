@@ -40,7 +40,7 @@ const STATUS_BADGES = {
   active: { label: 'Connecté', className: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
   expired: { label: 'Expiré', className: 'bg-amber-50 text-amber-700 border-amber-200' },
   error: { label: 'Erreur', className: 'bg-red-50 text-red-600 border-red-200' },
-  revoked: { label: 'Révoqué', className: 'bg-[#f5f5f5] text-[#9ca3af] border-[#ebebeb]' },
+  revoked: { label: 'Révoqué', className: 'bg-surface text-[#9ca3af] border-[#ebebeb]' },
   pending: { label: 'En attente', className: 'bg-blue-50 text-blue-600 border-blue-200' },
 };
 
@@ -94,7 +94,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                   <button
                     onClick={() => onOAuthConnect(provider)}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-colors"
-                    style={{ backgroundColor: provider.color || '#0E653A' }}
+                    style={{ backgroundColor: provider.color || '#13804A' }}
                   >
                     <RefreshCw className="w-3 h-3" /> Reconnecter
                   </button>
@@ -110,7 +110,7 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                       if (result?.ok) setTimeout(() => setTestResult(null), 3000);
                     }}
                     disabled={testing}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-cta bg-[#f5f5f5] hover:bg-[#ebebeb] border border-[#ebebeb] transition-colors disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-cta bg-surface hover:bg-[#ebebeb] border border-[#ebebeb] transition-colors disabled:opacity-50"
                   >
                     {testing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     {testing ? 'Test...' : 'Tester'}
@@ -137,20 +137,20 @@ const IntegrationCard = ({ provider, connection, shopifyConnected, shopifyDomain
                 )}
               </>
             ) : provider.authType === 'coming_soon' ? (
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#9ca3af] bg-[#f5f5f5] cursor-not-allowed">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-[#9ca3af] bg-surface cursor-not-allowed">
                 <Plug className="w-3 h-3" /> Bientot
               </span>
             ) : provider.authType === 'smtp' ? (
               <button
                 onClick={() => onOAuthConnect(provider)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors bg-cta text-white hover:bg-[#003725]"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-colors bg-cta text-white hover:bg-cta"
               >
                 <Plug className="w-3 h-3" /> Configurer
               </button>
             ) : provider.authType === 'api_key' ? (
               <button
                 onClick={() => onOAuthConnect(provider)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-cta text-white hover:bg-[#003725]"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-cta text-white hover:bg-cta"
               >
                 <Plug className="w-3 h-3" /> Connecter
               </button>
@@ -287,7 +287,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight: _isLight }) => {
                 value={credentials[field.key] || ''}
                 onChange={(e) => handleFieldChange(field.key, e.target.value)}
                 placeholder={field.placeholder}
-                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
+                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-surface border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
               />
             </div>
           ))}
@@ -313,7 +313,7 @@ const ConnectModal = ({ provider, onClose, onSuccess, isLight: _isLight }) => {
           <button
             onClick={handleTest}
             disabled={!allFieldsFilled || testing}
-            className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] rounded-lg`}
+            className={`flex-1 flex justify-center items-center gap-2 py-3 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 bg-surface text-[#71717a] hover:bg-[#ebebeb] rounded-lg`}
           >
             {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
             Tester
@@ -347,7 +347,7 @@ const DisconnectModal = ({ provider, onClose, onConfirm, disconnecting, isLight:
       <div className="flex gap-3">
         <button
           onClick={onClose}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]`}
+          className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors bg-surface text-[#71717a] hover:bg-[#ebebeb]`}
         >
           Annuler
         </button>
@@ -436,7 +436,7 @@ const LinearAutoIssuePanel = ({ clientId }) => {
   }
 
   return (
-    <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5">
+    <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -571,6 +571,16 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
   const [smtpValues, setSmtpValues] = useState({});
   const [smtpSaving, setSmtpSaving] = useState(false);
 
+  /**
+   * Enregistre une boîte SMTP/IMAP.
+   *
+   * Passe obligatoirement par /api/integrations/connect : c'est cette route qui
+   * chiffre le mot de passe (AES-256-GCM) avant l'insertion. L'écriture directe
+   * depuis le navigateur qui existait ici déposait le mot de passe email du
+   * marchand en clair dans `client_integrations.api_key` — alors que la
+   * documentation lui promet l'inverse. Ne pas réintroduire de repli en base :
+   * mieux vaut un échec visible qu'un secret en clair.
+   */
   const handleSmtpSubmit = async () => {
     if (!smtpProvider || !clientId) return;
     // Validate required fields
@@ -583,38 +593,51 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
 
     setSmtpSaving(true);
     try {
-      const { error } = await supabase.from('client_integrations').upsert({
-        client_id: clientId,
-        provider: smtpProvider.id,
-        provider_label: 'Email personnalisé (SMTP/IMAP)',
-        auth_type: 'smtp',
-        status: 'active',
-        api_key: String(smtpValues.password),
-        extra_config: {
-          email: String(smtpValues.email),
-          smtp_host: String(smtpValues.smtp_host),
-          smtp_port: parseInt(smtpValues.smtp_port) || 587,
-          imap_host: String(smtpValues.imap_host),
-          imap_port: parseInt(smtpValues.imap_port) || 993,
-          username: String(smtpValues.username),
-          use_ssl: smtpValues.use_ssl !== false,
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/integrations/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
         },
-        connected_at: new Date().toISOString(),
-      }, { onConflict: 'client_id,provider' });
-      if (error) {
-        console.error('SMTP save error:', error);
-        toastError('Erreur: ' + error.message);
-      } else {
-        queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
-        setSmtpProvider(null);
-        setSmtpValues({});
-        toastSuccess('Configuration SMTP enregistrée');
+        body: JSON.stringify({
+          provider: smtpProvider.id,
+          provider_label: 'Email personnalisé (SMTP/IMAP)',
+          auth_type: 'smtp',
+          credentials: {
+            api_key: String(smtpValues.password),
+            email: String(smtpValues.email),
+            smtp_host: String(smtpValues.smtp_host),
+            smtp_port: parseInt(smtpValues.smtp_port) || 587,
+            imap_host: String(smtpValues.imap_host),
+            imap_port: parseInt(smtpValues.imap_port) || 993,
+            username: String(smtpValues.username),
+            use_ssl: smtpValues.use_ssl !== false,
+          },
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        // Rien n'a été enregistré : la route teste la connexion avant d'écrire.
+        // On garde le formulaire ouvert avec les valeurs saisies pour que le
+        // marchand corrige le champ fautif au lieu de tout re-saisir.
+        toastError(data.test_failed
+          ? `Connexion refusée — ${data.error}`
+          : `Erreur : ${data.error || res.status}`);
+        return;
       }
+
+      queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
+      setSmtpProvider(null);
+      setSmtpValues({});
+      toastSuccess('Boîte email connectée et vérifiée');
     } catch (err) {
       console.error('SMTP error:', err);
-      toastError('Erreur: ' + err.message);
+      toastError('Erreur : ' + err.message);
+    } finally {
+      setSmtpSaving(false);
     }
-    setSmtpSaving(false);
   };
 
   const handleOAuthConnect = async (provider) => {
@@ -628,7 +651,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
       const connectedCount = integrations?.filter(i => i.status === 'active')?.length || 0
       if (integLimit !== Infinity && connectedCount >= integLimit) {
         const planName = getPlanConfig(plan).name
-        toastError(`Limite atteinte : ${integLimit} integration${integLimit > 1 ? 's' : ''} sur le plan ${planName}. Passez au plan superieur.`)
+        toastError(`Limite atteinte : ${integLimit} intégration${integLimit > 1 ? 's' : ''} sur le plan ${planName}. Passez au plan superieur.`)
         return
       }
     } catch { /* skip if plans.js not available */ }
@@ -698,44 +721,31 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
           credentials: { api_key: apiKeyValue.trim() },
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        // If API test failed, save anyway but show warning
-        if (data.test_failed) {
-          toastError('Test de connexion échoué (' + data.error + '). Clé sauvegardée — vérifiez vos identifiants.');
-        } else {
-          throw new Error(data.error || 'Erreur connexion');
-        }
+        // La route teste la clé avant d'écrire : un 400 signifie que RIEN n'a
+        // été enregistré. L'ancien message annonçait « Clé sauvegardée » dans ce
+        // cas, et le marchand repartait convaincu d'être connecté.
+        toastError(data.test_failed
+          ? `Clé refusée par ${apiKeyProvider.name} — ${data.error}. Rien n'a été enregistré.`
+          : `Erreur : ${data.error || res.status}`);
+        return;
       }
+
       queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
       setApiKeyProvider(null);
       setApiKeyValue('');
-      if (res.ok) toastSuccess('Intégration connectée');
-    } catch (_err) {
-      // Fallback: save directly to DB
-      try {
-        const { error } = await supabase.from('client_integrations').upsert({
-          client_id: clientId,
-          provider: apiKeyProvider.id,
-          provider_label: apiKeyProvider.name || apiKeyProvider.id,
-          auth_type: 'api_key',
-          status: 'active',
-          api_key: apiKeyValue.trim(),
-          connected_at: new Date().toISOString(),
-        }, { onConflict: 'client_id,provider' });
-        if (error) {
-          toastError('Erreur: ' + error.message);
-        } else {
-          queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
-          setApiKeyProvider(null);
-          setApiKeyValue('');
-          toastSuccess('Intégration connectée');
-        }
-      } catch (e) {
-        toastError('Erreur: ' + e.message);
-      }
+      toastSuccess('Intégration connectée');
+    } catch (err) {
+      // Pas de repli par écriture directe : il déposait la clé en clair en base
+      // dès le moindre incident réseau, en silence. Un échec visible est
+      // préférable — le marchand réessaie, le secret ne traîne pas.
+      console.error('API key connect error:', err);
+      toastError('Connexion impossible : ' + err.message);
+    } finally {
+      setApiKeySaving(false);
     }
-    setApiKeySaving(false);
   };
 
   const handleOAuthPromptSubmit = async () => {
@@ -790,7 +800,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
     setDisconnecting(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      await fetch('/api/integrations/disconnect', {
+      await fetch('/api/intégrations/disconnect', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -813,7 +823,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
       <div>
         <h2
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           Intégrations
         </h2>
@@ -979,7 +989,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
                 onKeyDown={(e) => e.key === 'Enter' && handleOAuthPromptSubmit()}
                 autoFocus
                 placeholder={oauthPromptProvider.oauthPromptPlaceholder || 'ma-boutique'}
-                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
+                className={`w-full px-4 py-3 rounded-lg text-[13px] outline-none transition-all bg-surface border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20`}
               />
               {oauthPromptProvider.oauthPromptHint && (
                 <p className={`text-xs mt-1.5 mb-4 text-[#9ca3af]`}>
@@ -991,7 +1001,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
                 <button
                   onClick={() => setOauthPromptProvider(null)}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-                    'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+                    'bg-surface text-[#71717a] hover:bg-[#ebebeb]'
                   }`}
                 >
                   Annuler
@@ -1036,7 +1046,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
               onKeyDown={(e) => e.key === 'Enter' && handleApiKeySubmit()}
               autoFocus
               placeholder={apiKeyProvider.apiKeyPlaceholder || 'Votre clé API...'}
-              className="w-full px-4 py-3 rounded-lg text-[13px] outline-none bg-[#fafafa] border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20"
+              className="w-full px-4 py-3 rounded-lg text-[13px] outline-none bg-surface border border-[#ebebeb] text-[#1a1a1a] focus:ring-1 focus:ring-cta/20"
             />
             {apiKeyProvider.apiKeyHint && (
               <p className="text-xs mt-1.5 mb-4 text-[#9ca3af]">{apiKeyProvider.apiKeyHint}</p>
@@ -1045,14 +1055,14 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
             <div className="flex gap-3">
               <button
                 onClick={() => setApiKeyProvider(null)}
-                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] transition-colors"
+                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-surface text-[#71717a] hover:bg-[#ebebeb] transition-colors"
               >
                 Annuler
               </button>
               <button
                 onClick={handleApiKeySubmit}
                 disabled={!apiKeyValue.trim() || apiKeySaving}
-                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-cta text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl text-sm font-bold bg-cta text-white hover:bg-cta disabled:opacity-50 transition-colors"
               >
                 {apiKeySaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plug className="w-4 h-4" />}
                 Connecter
@@ -1093,7 +1103,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
                       <span className="text-[12px] text-[#1a1a1a]">{field.label}</span>
                       <button
                         onClick={() => setSmtpValues(v => ({ ...v, [field.key]: !(v[field.key] ?? field.defaultValue) }))}
-                        className={`relative w-10 h-5 rounded-full transition-colors ${(smtpValues[field.key] ?? field.defaultValue) ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
+                        className={`relative w-10 h-5 rounded-full transition-colors ${(smtpValues[field.key] ?? field.defaultValue) ? 'bg-cta' : 'bg-surface'}`}
                       >
                         <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${(smtpValues[field.key] ?? field.defaultValue) ? 'translate-x-5' : 'translate-x-0.5'}`} />
                       </button>
@@ -1104,7 +1114,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
                       value={smtpValues[field.key] || ''}
                       onChange={(e) => setSmtpValues(v => ({ ...v, [field.key]: e.target.value }))}
                       placeholder={field.placeholder}
-                      className="mt-1 w-full px-3 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-indigo-300"
+                      className="mt-1 w-full px-3 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-indigo-300"
                     />
                   )}
                 </div>
@@ -1114,14 +1124,14 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
             <div className="flex gap-3 mt-5">
               <button
                 onClick={() => setSmtpProvider(null)}
-                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb] transition-colors"
+                className="flex-1 py-2.5 rounded-lg text-[12px] font-semibold bg-surface text-[#71717a] hover:bg-[#ebebeb] transition-colors"
               >
                 Annuler
               </button>
               <button
                 onClick={handleSmtpSubmit}
                 disabled={smtpSaving}
-                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                className="flex-1 flex justify-center items-center gap-2 py-2.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-cta disabled:opacity-50 transition-colors"
               >
                 {smtpSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plug className="w-4 h-4" />}
                 Connecter

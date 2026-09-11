@@ -31,7 +31,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
     trackEvent('Vs_Page_Viewed', { competitor: data.competitorKey })
   }, [data.competitorKey])
 
-  const serif = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+  const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
   const competitor = data.competitorName
 
   const schema = [
@@ -52,7 +52,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
       applicationSubCategory: 'Customer Service Software',
       operatingSystem: 'Web',
       description:
-        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. 50 à 70% des tickets résolus seul, relance paniers abandonnés, analyse photo (Claude Vision), hébergement UE.",
+        "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. 50 à 70% des tickets résolus seul, relance paniers abandonnés, analyse photo (Claude Sonnet 5), hébergement UE.",
       offers: [
         { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'EUR' },
         { '@type': 'Offer', name: 'Starter', price: '99', priceCurrency: 'EUR' },
@@ -79,8 +79,8 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
 
   const verdictTone = {
     actero: { bg: '#003725', accent: '#A8C490', label: 'Actero', strokeColor: 'text-[#A8C490]' },
-    tie: { bg: '#716D5C', accent: '#F4F0E6', label: 'Match nul', strokeColor: 'text-[#F4F0E6]' },
-    competitor: { bg: '#1A1A1A', accent: '#F4F0E6', label: competitor, strokeColor: 'text-[#F4F0E6]' },
+    tie: { bg: '#716D5C', accent: '#F4F5F7', label: 'Match nul', strokeColor: 'text-[#F4F5F7]' },
+    competitor: { bg: '#1A1A1A', accent: '#F4F5F7', label: competitor, strokeColor: 'text-[#F4F5F7]' },
   }[data.verdict?.winner || 'actero']
 
   return (
@@ -94,7 +94,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
         schemaData={schema}
       />
 
-      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
+      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-cta/10">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
         <main>
@@ -102,10 +102,10 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
           <section className="pt-28 md:pt-32 pb-12 px-6">
             <div className="max-w-[920px] mx-auto text-center">
               <FadeInUp className="mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#F9F7F1] border border-[#E8DFC9]">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-surface border border-[#E3E6EA]">
                   <span className="w-1.5 h-1.5 rounded-full bg-cta" />
                   <span>Comparatif détaillé</span>
-                  <span className="text-[#E8DFC9]">·</span>
+                  <span className="text-[#E3E6EA]">·</span>
                   <span>Mis à jour {data.comparisonDate}</span>
                 </div>
               </FadeInUp>
@@ -134,7 +134,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                       trackEvent('Vs_Hero_CTA_Clicked', { competitor: data.competitorKey })
                       onNavigate('/signup')
                     }}
-                    className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
+                    className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0E653A] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
                   >
                     Essai gratuit 7 jours
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -181,7 +181,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
           <PartnersMarquee />
 
           {/* COMPARISON TABLE */}
-          <section className="py-20 md:py-28 bg-[#F9F7F1] px-6">
+          <section className="py-20 md:py-28 bg-surface px-6">
             <div className="max-w-5xl mx-auto">
               <FadeInUp className="text-center mb-12">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -208,17 +208,17 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                           Critère
                         </th>
                         <th className="p-5 text-center text-sm font-bold text-[#716D5C]">{competitor}</th>
-                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-[#F0F7F2]">Actero</th>
+                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-surface">Actero</th>
                       </tr>
                     </thead>
                     <tbody>
                       {data.comparison.map((row, idx) => (
-                        <tr key={row.label} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}>
+                        <tr key={row.label} className={idx % 2 === 0 ? 'bg-white' : 'bg-surface'}>
                           <td className="p-5 text-sm font-semibold text-[#262626] sticky left-0 bg-inherit">{row.label}</td>
                           <td className="p-5 text-center text-sm text-[#5A5A5A]">
                             <CellContent value={row.competitor} />
                           </td>
-                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-[#F0F7F2]/40">
+                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-surface/40">
                             <CellContent value={row.actero} winner />
                           </td>
                         </tr>
@@ -260,7 +260,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
               </FadeInUp>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="bg-[#F9F7F1] rounded-[20px] p-7 border border-[#E8DFC9]">
+                <div className="bg-surface rounded-[20px] p-7 border border-[#E3E6EA]">
                   <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#716D5C] mb-3">
                     Choisir {competitor} si…
                   </div>
@@ -274,7 +274,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                   </ul>
                 </div>
 
-                <div className="bg-[#003725] rounded-[20px] p-7 text-white">
+                <div className="bg-cta rounded-[20px] p-7 text-white">
                   <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#A8C490] mb-3">
                     Choisir Actero si…
                   </div>
@@ -292,7 +292,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
           </section>
 
           {/* CTA */}
-          <section className="py-24 md:py-28 bg-[#F9F7F1] px-6">
+          <section className="py-24 md:py-28 bg-surface px-6">
             <div className="max-w-[820px] mx-auto text-center">
               <FadeInUp>
                 <h2
@@ -311,7 +311,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                       trackEvent('Vs_Bottom_CTA_Clicked', { competitor: data.competitorKey })
                       onNavigate('/signup')
                     }}
-                    className="inline-flex items-center gap-2 bg-cta hover:bg-[#0A4F2C] text-white px-[26px] py-[14px] rounded-full text-[15px] font-semibold transition-colors"
+                    className="inline-flex items-center gap-2 bg-cta hover:bg-[#0E653A] text-white px-[26px] py-[14px] rounded-full text-[15px] font-semibold transition-colors"
                   >
                     Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
                   </button>
@@ -348,7 +348,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                         <h3 className="text-[16.5px] font-semibold text-[#1A1A1A] m-0">{f.q}</h3>
                         <div
                           className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all text-[18px] font-light leading-none ${
-                            isOpen ? 'bg-[#003725] text-white' : 'bg-[#F9F7F1] text-[#716D5C]'
+                            isOpen ? 'bg-cta text-white' : 'bg-surface text-[#716D5C]'
                           }`}
                         >
                           {isOpen ? '−' : '+'}
@@ -381,7 +381,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                     <button
                       key={link.href}
                       onClick={() => onNavigate(link.href)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F9F7F1] border border-[#E8DFC9] text-[13px] font-semibold text-[#262626] hover:border-cta hover:text-cta transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface border border-[#E3E6EA] text-[13px] font-semibold text-[#262626] hover:border-cta hover:text-cta transition-colors"
                     >
                       {link.label}
                       <ArrowRight className="w-3 h-3" />

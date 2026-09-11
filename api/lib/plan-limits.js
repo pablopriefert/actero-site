@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Actero SaaS Plans — Backend mirror of src/lib/plans.js
  *
@@ -13,7 +14,6 @@ export const PLAN_LIMITS = {
     knowledge_entries: 10,
     team_members: 1,
     history_days: 7,
-    voice_minutes: 0,
     vision_analyses_per_month: 10,
   },
   starter: {
@@ -23,7 +23,6 @@ export const PLAN_LIMITS = {
     knowledge_entries: 100,
     team_members: 2,
     history_days: 90,
-    voice_minutes: 0,
     vision_analyses_per_month: 200,
   },
   pro: {
@@ -33,7 +32,6 @@ export const PLAN_LIMITS = {
     knowledge_entries: Infinity,
     team_members: 5,
     history_days: Infinity,
-    voice_minutes: 0, // Agent vocal pas encore live
     vision_analyses_per_month: 2000,
   },
   enterprise: {
@@ -43,62 +41,66 @@ export const PLAN_LIMITS = {
     knowledge_entries: Infinity,
     team_members: Infinity,
     history_days: Infinity,
-    voice_minutes: 0, // Agent vocal pas encore live
     vision_analyses_per_month: Infinity,
   },
 }
 
 export const PLAN_FEATURES = {
   free: {
-    brand_editor: false,
     guardrails: true,
     simulator: false,
-    voice_agent: false,
     specialized_agents: false,
     api_webhooks: false,
     pdf_report: false,
     multi_shop: false,
     white_label: false,
     roi_dashboard: 'basic',
+    // Absents de ce miroir jusqu'au 10 septembre : la fonctionnalité était
+    // donc refusée côté serveur pour TOUS les plans, quoi qu'annonce
+    // src/lib/plans.js. Un miroir incomplet ment plus discrètement qu'un
+    // miroir faux. Voir le test de parité dans src/lib/plans.test.js.
+    portal_enabled: false,
+    portal_customization: false,
     email_agent: false,
   },
   starter: {
-    brand_editor: true,
     guardrails: true,
     simulator: true,
-    voice_agent: false,
     specialized_agents: false,
     api_webhooks: true,
     pdf_report: false,
     multi_shop: false,
     white_label: false,
     roi_dashboard: 'full',
+    portal_enabled: false,
+    portal_customization: false,
     email_agent: false,
   },
   pro: {
-    brand_editor: true,
     guardrails: true,
     simulator: true,
-    voice_agent: false, // pas encore live
     specialized_agents: true,
     api_webhooks: true,
     pdf_report: true,
     multi_shop: false,
     white_label: false,
     roi_dashboard: 'full',
+    portal_enabled: true,
+    portal_customization: true,
     email_agent: true,
   },
   enterprise: {
-    brand_editor: true,
     guardrails: true,
     simulator: true,
-    voice_agent: false, // pas encore live
     specialized_agents: true,
     api_webhooks: true,
     pdf_report: true,
-    multi_shop: true,
+    // Aucune implémentation — voir src/lib/plans.js.
+    multi_shop: false,
     white_label: true,
     roi_dashboard: 'custom',
+    portal_enabled: true,
+    portal_customization: true,
     email_agent: true,
   },
 }
@@ -165,11 +167,11 @@ export async function getCurrentUsage(supabase, clientId) {
   const period = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
   const { data } = await supabase
     .from('usage_counters')
-    .select('tickets_used, voice_minutes_used, overage_tickets')
+    .select('tickets_used, overage_tickets')
     .eq('client_id', clientId)
     .eq('period', period)
     .maybeSingle()
-  return data || { tickets_used: 0, voice_minutes_used: 0, overage_tickets: 0 }
+  return data || { tickets_used: 0, overage_tickets: 0 }
 }
 
 /**

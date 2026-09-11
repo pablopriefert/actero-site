@@ -84,7 +84,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
           </button>
           <button
             onClick={handleCTA}
-            className="bg-cta hover:bg-[#003725] text-white px-5 py-2 rounded-xl text-sm font-bold transition-all"
+            className="bg-cta hover:bg-cta text-white px-5 py-2 rounded-xl text-sm font-bold transition-all"
           >
             Commencer
           </button>
@@ -127,7 +127,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
             <div className="inline-block bg-gradient-to-r from-amber-500/10 to-emerald-500/10 border border-amber-500/20 rounded-2xl px-8 py-5">
               <p className="text-lg md:text-xl font-medium">
                 <span className="text-emerald-400 font-bold">Votre premier mois offert</span>
-                {referrerName ? ` grace a ${referrerName}` : ' grace a votre parrain'}
+                {referrerName ? ` grâce a ${referrerName}` : ' grâce a votre parrain'}
               </p>
               <p className="text-sm text-[#716D5C] mt-1">
                 Inscrivez-vous et profitez d'un mois gratuit sur n'importe quel plan
@@ -142,7 +142,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
           >
             <button
               onClick={handleCTA}
-              className="group bg-cta hover:bg-[#003725] text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all inline-flex items-center gap-3 shadow-lg shadow-[#003725]/15"
+              className="group bg-cta hover:bg-cta text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all inline-flex items-center gap-3 shadow-lg shadow-[#003725]/15"
             >
               Créer mon compte gratuitement
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -191,7 +191,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-[#F9F7F1] rounded-2xl border border-gray-200 p-6 hover:border-gray-300 transition-colors"
+                className="bg-surface rounded-2xl border border-gray-200 p-6 hover:border-gray-300 transition-colors"
               >
                 <div className={`w-10 h-10 rounded-xl bg-${item.color}-500/10 flex items-center justify-center mb-4`}>
                   <item.icon className={`w-5 h-5 text-${item.color}-400`} />
@@ -205,7 +205,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
       </div>
 
       {/* Pricing */}
-      <div className="py-20 px-6 border-t border-gray-100 bg-[#F9F7F1]">
+      <div className="py-20 px-6 border-t border-gray-100 bg-surface">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0 }}
@@ -293,8 +293,8 @@ export const ReferralLanding = ({ code, onNavigate }) => {
                     onClick={handleCTA}
                     className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                       isPopular
-                        ? 'bg-cta text-white hover:bg-[#003725]'
-                        : 'bg-[#F9F7F1] text-[#262626] hover:bg-gray-100 border border-gray-200'
+                        ? 'bg-cta text-white hover:bg-cta'
+                        : 'bg-surface text-[#262626] hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
                     {planId === 'free' ? 'Commencer gratuitement' : 'Essayer 30 jours gratuits'}
@@ -339,11 +339,11 @@ export const ReferralLanding = ({ code, onNavigate }) => {
             <p className="text-[#716D5C] mb-6">
               {referrerName
                 ? `Offert par ${referrerName}. Creez votre compte et profitez d'un mois gratuit.`
-                : `Creez votre compte et profitez d'un mois gratuit grace a votre parrain.`}
+                : `Creez votre compte et profitez d'un mois gratuit grâce a votre parrain.`}
             </p>
             <button
               onClick={handleCTA}
-              className="bg-cta hover:bg-[#003725] text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all inline-flex items-center gap-3"
+              className="bg-cta hover:bg-cta text-white px-8 py-4 rounded-2xl text-lg font-bold transition-all inline-flex items-center gap-3"
             >
               Créer mon compte gratuitement
               <ArrowRight className="w-5 h-5" />

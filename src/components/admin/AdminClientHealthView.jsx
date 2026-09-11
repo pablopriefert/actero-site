@@ -152,7 +152,7 @@ export const AdminClientHealthView = () => {
 
       {/* Summary */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
+        <div className="bg-surface rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
             <Heart className="w-4 h-4 text-emerald-500" />
             <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">Score moyen</span>
@@ -161,14 +161,14 @@ export const AdminClientHealthView = () => {
             {avgScore}%
           </p>
         </div>
-        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
+        <div className="bg-surface rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="w-4 h-4 text-red-400" />
             <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">À risque</span>
           </div>
           <p className="text-[30px] font-bold font-mono text-red-400">{atRisk.length}</p>
         </div>
-        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5">
+        <div className="bg-surface rounded-2xl border border-[#f0f0f0] p-5">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">En bonne santé</span>
@@ -191,7 +191,7 @@ export const AdminClientHealthView = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
-              className="bg-[#ffffff] border border-[#f0f0f0] rounded-xl p-4 flex items-center gap-4 hover:border-gray-300 transition-colors"
+              className="bg-surface border border-[#f0f0f0] rounded-xl p-4 flex items-center gap-4 hover:border-gray-300 transition-colors"
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${scoreClasses.box}`}>
                 <span className={`text-[15px] font-bold font-mono ${scoreClasses.text}`}>{client.health.score}</span>
@@ -222,7 +222,7 @@ export const AdminClientHealthView = () => {
                 </div>
 
                 {/* Health bar */}
-                <div className="w-20 h-2 bg-[#fafafa] rounded-full overflow-hidden hidden lg:block">
+                <div className="w-20 h-2 bg-surface rounded-full overflow-hidden hidden lg:block">
                   <div
                     className={`h-full rounded-full ${scoreClasses.bar} transition-all`}
                     style={{ width: `${client.health.score}%` }}
@@ -233,7 +233,7 @@ export const AdminClientHealthView = () => {
                 <button
                   onClick={() => sendReport(client.id)}
                   disabled={sending === client.id}
-                  className="p-2 rounded-lg bg-[#fafafa] border border-[#f0f0f0] hover:bg-[#fafafa] hover:border-gray-300 transition-all disabled:opacity-50"
+                  className="p-2 rounded-lg bg-surface border border-[#f0f0f0] hover:bg-surface hover:border-gray-300 transition-all disabled:opacity-50"
                   title="Envoyer rapport mensuel"
                 >
                   <Send className={`w-3.5 h-3.5 ${sending === client.id ? 'animate-pulse text-blue-400' : 'text-[#71717a]'}`} />

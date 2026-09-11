@@ -27,7 +27,7 @@ export const AlternativeTidio = ({ onNavigate }) => {
 
     hero: {
       subtitle:
-        "Tidio est un chatbot générique greffé à votre boutique avec un Lyro plafonné à 50 conversations IA en plan d'entrée et des crédits qui s'épuisent vite. Pas d'actions Shopify natives, pas d'agent vocal, pas de dashboard ROI partageable. Actero est pensé Shopify d'abord : l'agent lit votre catalogue, traite les commandes, relance les paniers et mesure le ROI.",
+        "Tidio est un chatbot générique greffé à votre boutique avec un Lyro plafonné à 50 conversations IA en plan d'entrée et des crédits qui s'épuisent vite. Pas d'actions Shopify natives, pas de dashboard ROI partageable. Actero est pensé Shopify d'abord : l'agent lit votre catalogue, traite les commandes, relance les paniers et mesure le ROI.",
     },
 
     comparison: [
@@ -62,11 +62,6 @@ export const AlternativeTidio = ({ onNavigate }) => {
         competitor: 'partial',
       },
       {
-        label: 'Agent vocal + numéro FR',
-        actero: { main: '200 min', sub: 'Dès le plan Pro' },
-        competitor: false,
-      },
-      {
         label: 'Dashboard ROI (heures, CA récupéré)',
         actero: { main: 'Natif', sub: 'Export PDF mensuel' },
         competitor: 'partial',
@@ -99,11 +94,11 @@ export const AlternativeTidio = ({ onNavigate }) => {
       },
       {
         icon: TrendingUp,
-        stat: '+15 %',
+        stat: "jusqu'à 15 %",
         statLabel: 'de paniers récupérés',
         title: '3 relances IA incluses, pas un module à part',
         desc:
-          "Actero relance les paniers abandonnés avec 3 emails personnalisés (15 min, 24h, 72h), produit exact, réduction conditionnelle et lien checkout direct — inclus dès le plan Free. Tidio fait du chatbot, pas de la reconquête panier IA.",
+          "Actero relance les paniers abandonnés avec 3 emails personnalisés (15 min, 24h, 72h), produit exact et lien de paiement direct — inclus dès le plan Free. Tidio fait du chatbot, pas de la reconquête panier IA.",
       },
       {
         icon: Euro,
@@ -140,7 +135,7 @@ export const AlternativeTidio = ({ onNavigate }) => {
       },
       {
         q: 'Combien je paie réellement si je fais 2 000 conversations/mois ?',
-        a: "Sur Actero Pro (399 €/mois) : 5 000 tickets inclus, aucun add-on. Sur Tidio équivalent : Growth à 59 $/mois + Lyro à 39 $/mois + frais supplémentaires au-delà des limites Lyro ≈ 100–150 $/mois — mais sans agent vocal, sans portail SAV, sans dashboard ROI e-commerce. Le prix nominal est proche, la couverture est incomparable.",
+        a: "Sur Actero Pro (399 €/mois) : 5 000 tickets inclus, aucun add-on. Sur Tidio équivalent : Growth à 59 $/mois + Lyro à 39 $/mois + frais supplémentaires au-delà des limites Lyro ≈ 100–150 $/mois — mais sans portail SAV, sans dashboard ROI e-commerce. Le prix nominal est proche, la couverture est incomparable.",
       },
       {
         q: 'Combien de temps prend la migration depuis Tidio ?',

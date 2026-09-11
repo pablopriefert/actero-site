@@ -133,7 +133,7 @@ export const WorkflowReadinessCheck = ({ isOpen, onClose, onConfirm, setActiveTa
                     className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
                       isOptionalUnmet
                         ? 'bg-white border border-blue-200 text-blue-700 hover:bg-blue-50'
-                        : 'bg-cta text-white hover:bg-[#003725]'
+                        : 'bg-cta text-white hover:bg-cta'
                     }`}
                   >
                     {check.fixLabel}
@@ -156,7 +156,7 @@ export const WorkflowReadinessCheck = ({ isOpen, onClose, onConfirm, setActiveTa
           <button
             onClick={onConfirm}
             disabled={!allRequiredMet || loading}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-cta disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
               <>

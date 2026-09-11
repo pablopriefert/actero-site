@@ -139,7 +139,7 @@ export const AdminPartnerTokensView = () => {
           </button>
           <button
             onClick={() => setShowSendEmail(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-cta transition-colors"
           >
             <Send className="w-4 h-4" /> Envoyer par email
           </button>
@@ -339,7 +339,7 @@ export const AdminPartnerTokensView = () => {
             <button
               onClick={() => createMutation.mutate(form)}
               disabled={!form.agency_name || createMutation.isPending}
-              className="w-full mt-5 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-5 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-cta transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               Créer et copier le lien
@@ -397,7 +397,7 @@ export const AdminPartnerTokensView = () => {
                   type="text"
                   value={emailForm.contact_name}
                   onChange={(e) => setEmailForm({ ...emailForm, contact_name: e.target.value })}
-                  placeholder="Jean (personnalise le Bonjour Jean)"
+                  placeholder="Jean (personnalisé le Bonjour Jean)"
                   className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-cta/20"
                 />
               </div>
@@ -425,7 +425,7 @@ export const AdminPartnerTokensView = () => {
             <button
               onClick={() => sendEmailMutation.mutate(emailForm)}
               disabled={!emailForm.agency_name || !emailForm.contact_email || sendEmailMutation.isPending}
-              className="w-full mt-5 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full mt-5 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-cta transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {sendEmailMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Envoyer l'invitation

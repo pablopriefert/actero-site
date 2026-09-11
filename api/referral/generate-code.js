@@ -46,7 +46,7 @@ async function handler(req, res) {
     }
 
     // Rate limit: 20 requests/min per user
-    const rl = checkRateLimit(`referral_code:${user.id}`, 20, 60_000);
+    const rl = await checkRateLimit(`referral_code:${user.id}`, 20, 60_000);
     res.setHeader('X-RateLimit-Limit', '20');
     res.setHeader('X-RateLimit-Remaining', String(rl.remaining));
     if (!rl.allowed) {

@@ -29,7 +29,7 @@ const PLAYBOOK_ICONS = {
 
 const PLAYBOOK_TESTS = {
   sav_ecommerce: [
-    { label: 'Suivi commande', message: "Bonjour, ou en est ma commande #4521 ? Ca fait 8 jours que j'attends.", event_type: 'email_inbound' },
+    { label: 'Suivi commande', message: "Bonjour, ou en est ma commande #4521 ? Ça fait 8 jours que j'attends.", event_type: 'email_inbound' },
     { label: 'Retour produit', message: "Je voudrais retourner le sérum que j'ai reçu. Il ne convient pas à ma peau.", event_type: 'email_inbound' },
     { label: 'Client agressif', message: "C'est INADMISSIBLE ! 3 semaines sans réponse ! Je vais porter plainte !", event_type: 'email_inbound' },
     { label: 'Question produit', message: "Est-ce que le serum hydratant convient aux peaux sensibles ?", event_type: 'widget_message' },
@@ -39,36 +39,36 @@ const PLAYBOOK_TESTS = {
     { label: 'Panier 150€ multi-articles', message: 'Panier abandonné', event_type: 'shopify_abandoned_cart', metadata: { total_price: '149.70', line_items: [{ title: 'Serum', quantity: 1, price: '49.90' }, { title: 'Creme jour', quantity: 2, price: '49.90' }] } },
   ],
   shipping_tracker: [
-    { label: 'Ou est mon colis ?', message: "Bonjour, je n'ai toujours pas recu mon colis. Commande #4521.", event_type: 'email_inbound' },
-    { label: 'Delai de livraison', message: "Combien de temps pour recevoir ma commande ?", event_type: 'widget_message' },
+    { label: 'Ou est mon colis ?', message: "Bonjour, je n'ai toujours pas reçu mon colis. Commande #4521.", event_type: 'email_inbound' },
+    { label: 'Délai de livraison', message: "Combien de temps pour recevoir ma commande ?", event_type: 'widget_message' },
     { label: 'Changement adresse', message: "Je veux changer l'adresse de livraison de ma commande #4521.", event_type: 'email_inbound' },
   ],
   order_issue_handler: [
-    { label: 'Colis endommage', message: "J'ai recu mon colis mais il etait completement ecrase. Les produits sont casses.", event_type: 'email_inbound' },
-    { label: 'Article manquant', message: "Il manque un article dans ma commande #4521. J'avais commande 3 produits mais n'en ai recu que 2.", event_type: 'email_inbound' },
-    { label: 'Erreur expedition', message: "J'ai recu la mauvaise commande. Ce n'est pas ce que j'avais commande.", event_type: 'email_inbound' },
+    { label: 'Colis endommage', message: "J'ai reçu mon colis mais il était complètement ecrase. Les produits sont casses.", event_type: 'email_inbound' },
+    { label: 'Article manquant', message: "Il manque un article dans ma commande #4521. J'avais commande 3 produits mais n'en ai reçu que 2.", event_type: 'email_inbound' },
+    { label: 'Erreur expédition', message: "J'ai reçu la mauvaise commande. Ce n'est pas ce que j'avais commande.", event_type: 'email_inbound' },
   ],
   promo_code_handler: [
     { label: 'Code invalide', message: "Mon code promo BIENVENUE20 ne fonctionne pas. Il dit 'code invalide'.", event_type: 'email_inbound' },
-    { label: 'Code expire', message: "J'ai un code promo de la semaine derniere mais il est marque comme expire.", event_type: 'widget_message' },
+    { label: 'Code expire', message: "J'ai un code promo de la semaine dernière mais il est marque comme expire.", event_type: 'widget_message' },
     { label: 'Demande de code', message: "Est-ce que vous avez des codes promo en ce moment ?", event_type: 'widget_message' },
   ],
   vip_customer_care: [
     { label: 'VIP suivi commande', message: "Bonjour, j'ai passe une commande de 350€ et je n'ai pas de nouvelles.", event_type: 'email_inbound' },
-    { label: 'VIP reclamation', message: "Je suis client depuis 2 ans et c'est la premiere fois que j'ai un probleme. Le produit ne correspond pas.", event_type: 'email_inbound' },
+    { label: 'VIP réclamation', message: "Je suis client depuis 2 ans et c'est la première fois que j'ai un problème. Le produit ne correspond pas.", event_type: 'email_inbound' },
   ],
   anti_churn: [
-    { label: 'Menace de partir', message: "Franchement je suis tres decu. Si ca continue je vais aller chez un concurrent.", event_type: 'email_inbound' },
-    { label: 'Insatisfaction', message: "La qualite a vraiment baisse ces derniers temps. C'est pas normal pour le prix.", event_type: 'email_inbound' },
+    { label: 'Menace de partir', message: "Franchement je suis tres decu. Si ça continue je vais aller chez un concurrent.", event_type: 'email_inbound' },
+    { label: 'Insatisfaction', message: "La qualité a vraiment baisse ces derniers temps. C'est pas normal pour le prix.", event_type: 'email_inbound' },
   ],
   post_purchase_followup: [
-    { label: 'Commande livree', message: 'Commande livree', event_type: 'shopify_order', metadata: { order_number: '4521', total_price: '89.90' } },
+    { label: 'Commande livrée', message: 'Commande livrée', event_type: 'shopify_order', metadata: { order_number: '4521', total_price: '89.90' } },
   ],
   winback_inactive: [
     { label: 'Client inactif 60j', message: 'Client inactif depuis 60 jours', event_type: 'schedule', metadata: { days_inactive: 60 } },
   ],
   review_collector: [
-    { label: 'Demande avis J+7', message: 'Commande livree depuis 7 jours', event_type: 'shopify_order', metadata: { days_since_delivery: 7 } },
+    { label: 'Demande avis J+7', message: 'Commande livrée depuis 7 jours', event_type: 'shopify_order', metadata: { days_since_delivery: 7 } },
   ],
   support_technique: [
     { label: 'Bug report', message: "Le bouton 'Ajouter au panier' ne fonctionne plus sur mobile depuis ce matin.", event_type: 'email_inbound' },
@@ -231,7 +231,7 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
         })
         const data = await res.json()
         const response = (data.response || '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim()
-        setChatMessages(prev => [...prev, { role: 'assistant', content: response || 'Pas de reponse.' }])
+        setChatMessages(prev => [...prev, { role: 'assistant', content: response || 'Pas de réponse.' }])
       } else {
         const { data: { session } } = await supabase.auth.getSession()
         const res = await fetch('/api/engine/gateway', {
@@ -249,7 +249,7 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
         })
         const data = await res.json()
         const response = (data.response || '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim()
-        setChatMessages(prev => [...prev, { role: 'assistant', content: response || 'Pas de reponse.' }])
+        setChatMessages(prev => [...prev, { role: 'assistant', content: response || 'Pas de réponse.' }])
       }
     } catch {
       setChatMessages(prev => [...prev, { role: 'assistant', content: 'Erreur lors du test.', error: true }])
@@ -277,7 +277,7 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
           <button
             onClick={testAllPlaybooks}
             disabled={testingAll}
-            className="flex items-center gap-2 px-4 py-2 bg-cta text-white text-sm font-bold rounded-full hover:bg-[#003725] disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-cta text-white text-sm font-bold rounded-full hover:bg-cta disabled:opacity-50"
           >
             {testingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
             Tester tous les playbooks actifs
@@ -380,14 +380,14 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
           {chatMessages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-lg bg-[#003725]/10 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-cta/10 flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4 text-[#003725]" />
                 </div>
               )}
               <div className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                msg.role === 'user' ? 'bg-[#003725] text-white rounded-tr-md' :
+                msg.role === 'user' ? 'bg-cta text-white rounded-tr-md' :
                 msg.error ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-md' :
-                'bg-[#F5F5F0] text-[#1a1a1a] rounded-tl-md'
+                'bg-surface text-[#1a1a1a] rounded-tl-md'
               }`}>
                 {msg.content}
               </div>
@@ -400,10 +400,10 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
           ))}
           {chatLoading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#003725]/10 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-cta/10 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-[#003725]" />
               </div>
-              <div className="px-4 py-3 bg-[#F5F5F0] rounded-2xl rounded-tl-md">
+              <div className="px-4 py-3 bg-surface rounded-2xl rounded-tl-md">
                 <Loader2 className="w-4 h-4 animate-spin text-[#71717a]" />
               </div>
             </div>
@@ -423,10 +423,10 @@ export const ConversationSimulator = ({ clientId, clientType: _clientType, theme
             onKeyDown={(e) => e.key === 'Enter' && sendChat(chatInput)}
             placeholder="Tapez un message client..."
             disabled={chatLoading}
-            className="flex-1 px-4 py-3 bg-[#F5F5F0] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50"
+            className="flex-1 px-4 py-3 bg-surface border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 disabled:opacity-50"
           />
           <button onClick={() => sendChat(chatInput)} disabled={!chatInput.trim() || chatLoading}
-            className="px-4 py-3 bg-cta text-white rounded-xl hover:bg-[#003725] disabled:opacity-50">
+            className="px-4 py-3 bg-cta text-white rounded-xl hover:bg-cta disabled:opacity-50">
             <Send className="w-4 h-4" />
           </button>
         </div>

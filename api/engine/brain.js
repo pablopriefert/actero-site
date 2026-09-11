@@ -19,6 +19,7 @@ import { searchShopifyProducts } from './lib/shopify-products.js'
 import { getAgentForClassification } from './agents/index.js'
 import { calculateCost } from './lib/claude-pricing.js'
 import { canAccessFeature } from '../lib/plan-limits.js'
+import { asksForHuman as detectAsksForHuman } from './lib/escalation-signals.js'
 
 // Keywords hinting the customer is asking for a product recommendation.
 const PRODUCT_INTENT_PATTERNS = /\b(recommand|suggest|conseill(?:e|ez|er)|cherch(?:e|es|ez|er)|besoin d[eu'’]|je veux|j'aimerais|j'?ai envie|je voudrais|acheter|commander|similaire|equivalent|alternative|montre-?moi|montrez-?moi|propose[rz]?|avez-?vous.*(produit|article|modele|reference))\b/i
@@ -154,7 +155,7 @@ async function _runBrainInner(supabase, { event, playbook, clientId, normalized,
 
   // --- Vision pre-analysis (before classification) ---
   // If the incoming event carries image paths AND the client has vision enabled,
-  // delegate to /api/vision/analyze which runs Claude Vision on the uploads and
+  // delegate to /api/vision/analyze which runs Claude Sonnet 5 on the uploads and
   // returns structured extractions. A sensitive-document detection short-circuits
   // the whole flow into a human escalation so we don't spend more tokens.
   let visionContext = null
@@ -381,8 +382,12 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
   }
 
   // --- Step 4: Check escalation signals ---
-  const msgLower = (normalized?.message || '').toLowerCase()
-  const asksForHuman = /\b(parler.*humain|parler.*conseiller|parler.*responsable|parler.*agent|parler.*personne|transferer|escalad|vrai.*(humain|personne|conseiller)|besoin.*humain|responsable.*humain)\b/i.test(msgLower)
+  // La détection vit dans lib/escalation-signals.js et y est testée. La version
+  // précédente était construite autour du seul verbe « parler » et ne gérait
+  // pas les accents : sur un échantillon de douze formulations réelles, elle en
+  // reconnaissait trois. « Passez-moi un humain », « arrêtez le robot »,
+  // « transférez-moi » passaient tous à travers.
+  const asksForHuman = detectAsksForHuman(normalized?.message)
 
   const shouldForceEscalate =
     asksForHuman ||

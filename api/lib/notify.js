@@ -15,6 +15,8 @@
  *   })
  */
 
+import { decryptToken } from './crypto.js'
+
 /**
  * Send a client-facing notification through all enabled channels.
  * Fails silently: individual channel failures are logged, never throw.
@@ -77,11 +79,6 @@ export async function notifyClient(supabase, { clientId, eventKey, title, messag
     results.skipped.push({ channel: 'push', reason: 'not_implemented' })
   }
 
-  // VOCAL — not implemented yet
-  if (channels.includes('vocal')) {
-    results.skipped.push({ channel: 'vocal', reason: 'not_implemented' })
-  }
-
   return results
 }
 
@@ -100,7 +97,7 @@ async function sendSimpleSlackMessage(supabase, clientId, { title, message, cont
   if (!integration) return { success: false, error: 'Slack non connecté' }
 
   const webhookUrl = integration.extra_config?.webhook_url
-  const accessToken = integration.access_token
+  const accessToken = decryptToken(integration.access_token) || integration.access_token
   const channelId = integration.extra_config?.channel_id
 
   // Build blocks

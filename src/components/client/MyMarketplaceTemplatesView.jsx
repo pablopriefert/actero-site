@@ -25,8 +25,7 @@ const CATEGORIES = [
   { id: 'sav', label: 'SAV' },
   { id: 'ecommerce', label: 'E-commerce' },
   { id: 'immobilier', label: 'Immobilier' },
-  { id: 'comptabilite', label: 'Comptabilite' },
-  { id: 'voice', label: 'Voice' },
+  { id: 'comptabilité', label: 'Comptabilité' },
   { id: 'autre', label: 'Autre' },
 ]
 
@@ -150,7 +149,7 @@ export const MyMarketplaceTemplatesView = ({ clientId }) => {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#003725] text-white text-[13px] font-bold hover:bg-[#002a1c] transition-colors whitespace-nowrap"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cta text-white text-[13px] font-bold hover:bg-[#002a1c] transition-colors whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           Publier un nouveau template
@@ -170,7 +169,7 @@ export const MyMarketplaceTemplatesView = ({ clientId }) => {
           </p>
           <button
             onClick={openCreate}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#003725] text-white text-[13px] font-bold"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cta text-white text-[13px] font-bold"
           >
             <Plus className="w-4 h-4" />
             Publier mon premier template
@@ -190,7 +189,7 @@ export const MyMarketplaceTemplatesView = ({ clientId }) => {
                 key={template.id}
                 className="bg-white border border-[#f0f0f0] rounded-2xl p-5 flex items-start gap-5"
               >
-                <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-gradient-to-br from-[#F9F7F1] to-[#eceae2] overflow-hidden">
+                <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-gradient-to-br from-[#FFFFFF] to-[#EDEFF2] overflow-hidden">
                   {template.preview_image ? (
                     <img src={template.preview_image} alt={template.name} className="w-full h-full object-cover" />
                   ) : (
@@ -244,7 +243,7 @@ export const MyMarketplaceTemplatesView = ({ clientId }) => {
                 <div className="flex flex-col gap-2 flex-shrink-0">
                   <button
                     onClick={() => openEdit(template)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F9F7F1] text-[#1a1a1a] text-[12px] font-semibold hover:bg-[#eceae2] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface text-[#1a1a1a] text-[12px] font-semibold hover:bg-[#EDEFF2] transition-colors"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     Modifier
@@ -338,7 +337,7 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Publication impossible')
-      toast.success(isEditing ? 'Template mis a jour' : 'Template publie avec succes')
+      toast.success(isEditing ? 'Template mis a jour' : 'Template publie avec succès')
       onSaved?.()
     } catch (err) {
       toast.error(err?.message || 'Une erreur est survenue')
@@ -373,7 +372,7 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-[#F9F7F1] flex items-center justify-center"
+            className="w-8 h-8 rounded-lg hover:bg-surface flex items-center justify-center"
           >
             <X className="w-4 h-4 text-[#71717a]" />
           </button>
@@ -479,19 +478,19 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
             )}
           </div>
 
-          <div className="bg-[#F9F7F1] border border-[#f0f0f0] rounded-2xl p-4">
+          <div className="bg-surface border border-[#f0f0f0] rounded-2xl p-4">
             <p className="text-[11px] font-bold text-[#71717a] uppercase tracking-widest mb-3">
               Contenu qui sera copie
             </p>
             <div className="grid grid-cols-2 gap-2.5">
               {[
                 { icon: MessageSquare, label: 'Tone & prompt', value: configPreview?.tone || '—' },
-                { icon: Shield, label: 'Regles', value: `${configPreview?.rules_count || 0}` },
+                { icon: Shield, label: 'Règles', value: `${configPreview?.rules_count || 0}` },
                 { icon: BookOpen, label: 'Base de savoir', value: `${configPreview?.kb_count || 0}` },
                 { icon: Package, label: 'Templates', value: `${configPreview?.examples_count || 0}` },
               ].map((item, i) => (
                 <div key={i} className="bg-white rounded-xl px-3 py-2.5 flex items-center gap-2.5 border border-[#f0f0f0]">
-                  <div className="w-7 h-7 rounded-lg bg-[#003725]/5 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-cta/5 flex items-center justify-center">
                     <item.icon className="w-3.5 h-3.5 text-[#003725]" />
                   </div>
                   <div className="min-w-0">
@@ -510,11 +509,11 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
           </div>
         </form>
 
-        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#f0f0f0] bg-[#fafafa]">
+        <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#f0f0f0] bg-surface">
           <button
             onClick={onClose}
             type="button"
-            className="px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#555] hover:bg-[#F9F7F1]"
+            className="px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#555] hover:bg-surface"
           >
             Annuler
           </button>
@@ -522,7 +521,7 @@ const PublishModal = ({ template, configPreview, clientId, onClose, onSaved }) =
             onClick={handleSubmit}
             disabled={saving}
             type="button"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#003725] text-white text-[13px] font-bold hover:bg-[#002a1c] disabled:opacity-60 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cta text-white text-[13px] font-bold hover:bg-[#002a1c] disabled:opacity-60 transition-colors"
           >
             {saving ? (
               <>

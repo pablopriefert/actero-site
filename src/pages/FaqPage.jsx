@@ -30,7 +30,7 @@ export const FaqPage = ({ onNavigate }) => {
       questions: [
         {
           q: "Qu'est-ce qu'Actero exactement ?",
-          a: "Actero est une plateforme SaaS française d'automatisation du service client e-commerce. Nos agents IA résolvent automatiquement les questions récurrentes (suivi de commande, retours, changements d'adresse, disponibilité produit) sur les canaux email, chat et téléphone — en moyenne 60% du volume de tickets SAV d'une boutique Shopify. Les cas complexes sont automatiquement escaladés à votre équipe humaine avec tout le contexte nécessaire.",
+          a: "Actero est une plateforme SaaS française d'automatisation du service client e-commerce. Nos agents IA résolvent automatiquement les questions récurrentes (suivi de commande, retours, changements d'adresse, disponibilité produit) sur les canaux email et chat — en moyenne 60% du volume de tickets SAV d'une boutique Shopify. Les cas complexes sont automatiquement escaladés à votre équipe humaine avec tout le contexte nécessaire.",
         },
         {
           q: "En quoi Actero est-il différent de Gorgias, Zendesk ou Tidio ?",
@@ -42,7 +42,7 @@ export const FaqPage = ({ onNavigate }) => {
         },
         {
           q: "Quels canaux de support Actero automatise-t-il ?",
-          a: "Trois canaux : email (réponses automatiques aux tickets entrants), chat (widget intégré sur votre site Shopify ou via Gorgias/Zendesk/Tidio), et téléphone (agent vocal ElevenLabs avec numéro FR dédié sur le plan Pro). Tous les canaux partagent le même contexte produit et l'historique client.",
+          a: "Deux canaux : email (réponses automatiques aux tickets entrants) et chat (widget intégré sur votre site Shopify ou via Gorgias/Zendesk/Tidio). Les deux canaux partagent le même contexte produit et l'historique client.",
         },
       ],
     },
@@ -51,7 +51,7 @@ export const FaqPage = ({ onNavigate }) => {
       questions: [
         {
           q: "Combien de temps prend l'installation ?",
-          a: "Moins de 15 minutes pour une configuration standard. Vous connectez Shopify en OAuth (1 clic), Actero lit automatiquement votre catalogue produits, vos politiques de retour et vos pages légales. L'agent commence à répondre à vos emails / chats / appels dans l'heure qui suit la connexion. Aucune modification de thème Shopify, aucun code à déployer.",
+          a: "Moins de 15 minutes pour une configuration standard. Vous connectez Shopify en OAuth (1 clic), Actero lit automatiquement votre catalogue produits, vos politiques de retour et vos pages légales. L'agent commence à répondre à vos emails / chats dans l'heure qui suit la connexion. Aucune modification de thème Shopify, aucun code à déployer.",
         },
         {
           q: "L'agent IA a-t-il accès aux commandes de mes clients ?",
@@ -101,7 +101,7 @@ export const FaqPage = ({ onNavigate }) => {
         },
         {
           q: "Actero utilise-t-il mes données pour entraîner ses modèles IA ?",
-          a: "Non. Nous nous sommes explicitement opt-out du Text and Data Mining (TDM) conformément à l'Article 4 de la Directive EU 2019/790. Vos conversations clients ne sont jamais utilisées pour entraîner ou fine-tuner nos modèles, ni ceux de nos fournisseurs (OpenAI, Anthropic, ElevenLabs sont tous configurés en mode 'no training data').",
+          a: "Non. Nous nous sommes explicitement opt-out du Text and Data Mining (TDM) conformément à l'Article 4 de la Directive EU 2019/790. Vos conversations clients ne sont jamais utilisées pour entraîner ou fine-tuner nos modèles, ni ceux de nos fournisseurs (OpenAI et Anthropic sont configurés en mode 'no training data').",
         },
         {
           q: "Actero modifie-t-il le code de mon site Shopify ?",
@@ -165,14 +165,14 @@ export const FaqPage = ({ onNavigate }) => {
     <>
       <SEO
         title="FAQ Actero — Questions frequentes sur nos agents IA"
-        description="Reponses a vos questions sur les agents IA Actero : fonctionnement, integration Shopify, tarifs, delais de deploiement, support."
+        description="Réponses a vos questions sur les agents IA Actero : fonctionnement, intégration Shopify, tarifs, délais de deploiement, support."
         canonical="/faq"
         schemaData={faqSchema}
       />
-    <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
+    <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-cta/10">
       <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
-      <main className="pt-32 pb-24 px-6">
+      <main className="pt-36 md:pt-40 pb-24 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 text-[#262626]" style={{ fontFamily: "var(--font-display)" }}>
@@ -189,7 +189,7 @@ export const FaqPage = ({ onNavigate }) => {
                 placeholder="Rechercher une question..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#F9F7F1] border border-gray-200 rounded-2xl py-4 pl-12 pr-4 text-[#262626] focus:ring-2 focus:ring-cta/30 outline-none transition-all font-medium"
+                className="w-full bg-surface border border-gray-200 rounded-2xl py-4 pl-12 pr-4 text-[#262626] focus:ring-2 focus:ring-cta/30 outline-none transition-all font-medium"
               />
             </div>
           </div>
@@ -206,7 +206,7 @@ export const FaqPage = ({ onNavigate }) => {
                     return (
                       <div
                         key={i}
-                        className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-hidden group hover:border-gray-300 transition-colors"
+                        className="bg-surface border border-gray-200 rounded-2xl overflow-hidden group hover:border-gray-300 transition-colors"
                       >
                         <button
                           onClick={() => setOpenFaq(openFaq === uniqueId ? null : uniqueId)}
@@ -239,7 +239,7 @@ export const FaqPage = ({ onNavigate }) => {
             ))}
 
             {filteredCategories.length === 0 && (
-              <div className="text-center py-20 bg-[#F9F7F1] rounded-3xl border border-gray-200 border-dashed">
+              <div className="text-center py-20 bg-surface rounded-3xl border border-gray-200 border-dashed">
                 <HelpCircle className="w-12 h-12 text-[#716D5C] mx-auto mb-4" />
                 <h3 className="text-xl font-bold text-[#262626]">Aucun résultat trouvé</h3>
                 <p className="text-[#716D5C] mt-2">Essayez d'autres mots-clés ou contactez-nous.</p>
@@ -247,7 +247,7 @@ export const FaqPage = ({ onNavigate }) => {
             )}
           </div>
 
-          <div className="mt-24 p-10 bg-[#F9F7F1] border border-gray-200 rounded-3xl text-center">
+          <div className="mt-24 p-10 bg-surface border border-gray-200 rounded-3xl text-center">
             <h3 className="text-2xl font-bold mb-4 text-[#262626]" style={{ fontFamily: "var(--font-display)" }}>Besoin d'une réponse immédiate ?</h3>
             <p className="text-[#716D5C] mb-8 max-w-md mx-auto">
               Notre équipe d'ingénieurs est disponible pour discuter de votre architecture spécifique.

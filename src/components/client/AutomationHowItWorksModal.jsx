@@ -10,7 +10,7 @@ import {
  *
  * Four sections :
  *  1. Ce que fait cette automation
- *  2. Ce qu'il te faut (integrations with connected check)
+ *  2. Ce qu'il te faut (intégrations with connected check)
  *  3. Ce que vit ton client (storytelling)
  *  4. Comment ca s'active
  */
@@ -23,104 +23,78 @@ const MODAL_CONTENT = {
     subtitle: 'Un agent support qui ne dort jamais',
     whatItDoes: [
       'Lit toutes les demandes clients entrantes (email, chat, Gorgias, Zendesk) et comprend l\'intention (suivi commande, retour, remboursement, question produit).',
-      'Interroge votre Shopify en temps reel pour recuperer le statut exact des commandes, le suivi transporteur, les politiques de retour.',
-      'Repond en moins de 30 secondes avec votre ton de marque, signature personnalisee, threading parfait dans le meme fil.',
+      'Interroge votre Shopify en temps réel pour récupérer le statut exact des commandes, le suivi transporteur, les politiques de retour.',
+      'Répond en moins de 30 secondes avec votre ton de marque, signature personnalisée, threading parfait dans le même fil.',
       'Escalade automatiquement vers vous les cas complexes (insatisfaction, remboursement hors politique, question hors perimetre).',
     ],
     requires: [
       { label: 'Un canal de reception', detail: 'Email, Gorgias ou Zendesk', providers: ['gmail', 'smtp_imap', 'gorgias', 'zendesk'], match: 'any' },
-      { label: 'Shopify', detail: 'Pour acceder aux donnees reelles (commandes, clients, produits)', providers: ['shopify'], match: 'any', recommended: true },
+      { label: 'Shopify', detail: 'Pour accéder aux données réelles (commandes, clients, produits)', providers: ['shopify'], match: 'any', recommended: true },
     ],
     customerStory: [
       { role: 'client', text: '"Bonjour, ou est mon colis commande il y a 3 jours ?"' },
       { role: 'system', text: 'Actero identifie le client, retrouve la commande #1234 dans Shopify, recupere le tracking.' },
       { role: 'agent', text: '"Bonjour Marie, votre commande #1234 est en cours de livraison, arrivee prevue demain entre 10h et 13h. Voici votre tracking : [lien Colissimo]. Bonne journee !"' },
-      { role: 'result', text: 'Reponse envoyee en 28 secondes. Marie n\'a meme pas eu le temps d\'attendre.' },
+      { role: 'result', text: 'Réponse envoyee en 28 secondes. Marie n\'a même pas eu le temps d\'attendre.' },
     ],
     howToActivate: [
       'Activez le toggle de l\'automation.',
-      'Selectionnez les canaux sur lesquels l\'agent doit repondre (Email / Chat / Gorgias / Zendesk).',
-      'L\'agent devient actif immediatement et repond aux nouvelles demandes entrantes.',
+      'Sélectionnez les canaux sur lesquels l\'agent doit répondre (Email / Chat / Gorgias / Zendesk).',
+      'L\'agent devient actif immédiatement et répond aux nouvelles demandes entrantes.',
     ],
   },
   abandoned_cart: {
     icon: ShoppingBag,
     gradient: 'from-amber-500 to-amber-600',
-    title: 'Relance Paniers Abandonnes',
+    title: 'Relance Paniers Abandonnés',
     subtitle: 'Recuperez les ventes perdues automatiquement',
     whatItDoes: [
-      'Lit votre Shopify en continu et detecte tous les paniers abandonnes (clients qui ajoutent un produit sans finaliser).',
-      'Envoie une sequence d\'emails personnalises a 1h, 24h et 72h apres l\'abandon.',
+      'Lit votre Shopify en continu et detecte tous les paniers abandonnés (clients qui ajoutent un produit sans finaliser).',
+      'Envoie une séquence d\'emails personnalisés a 1h, 24h et 72h après l\'abandon.',
       'Inclut la photo du produit, le CTA direct vers le panier, et un code promo optionnel pour declencher la conversion.',
-      'Stoppe automatiquement la sequence si le client finalise sa commande entre-temps.',
+      'Stoppe automatiquement la séquence si le client finalise sa commande entre-temps.',
     ],
     requires: [
-      { label: 'Shopify', detail: 'Pour detecter les paniers abandonnes', providers: ['shopify'], match: 'any' },
+      { label: 'Shopify', detail: 'Pour detecter les paniers abandonnés', providers: ['shopify'], match: 'any' },
       { label: 'Email professionnel', detail: 'Gmail ou SMTP pour envoyer les relances depuis votre domaine', providers: ['gmail', 'smtp_imap'], match: 'any' },
     ],
     customerStory: [
       { role: 'client', text: 'Marie ajoute une robe a 89 euros dans son panier, puis quitte le site.' },
-      { role: 'system', text: '1 heure plus tard, Actero detecte l\'abandon et envoie un email personnalise.' },
+      { role: 'system', text: '1 heure plus tard, Actero detecte l\'abandon et envoie un email personnalisé.' },
       { role: 'agent', text: '"Marie, votre coup de coeur vous attend. Profitez de -10% avec le code CODE10 jusqu\'a demain soir."' },
-      { role: 'result', text: 'Marie clique, finalise l\'achat. +89 euros de CA recupere qui etait perdu.' },
+      { role: 'result', text: 'Marie clique, finalise l\'achat. +89 euros de CA recupere qui était perdu.' },
     ],
     howToActivate: [
-      'Connectez votre boutique Shopify dans l\'onglet Integrations.',
+      'Connectez votre boutique Shopify dans l\'onglet Intégrations.',
       'Activez le toggle de l\'automation.',
-      'Personnalisez le ton des emails et le code promo (optionnel) dans les parametres.',
+      'Personnalisez le ton des emails et le code promo (optionnel) dans les paramètres.',
     ],
   },
   comptabilite_auto: {
     icon: TrendingUp,
     gradient: 'from-indigo-500 to-indigo-600',
-    title: 'Comptabilite Automatisee',
-    subtitle: 'Votre comptable IA qui ne rate jamais une echeance',
+    title: 'Comptabilité Automatisee',
+    subtitle: 'Votre comptable IA qui ne rate jamais une échéance',
     whatItDoes: [
       'Se connecte a Axonaut, Pennylane ou iPaidThat pour lire vos factures et paiements en continu.',
       'Relance automatiquement les factures en retard avec escalade progressive (J+3 rappel soft, J+15 ferme, J+30 mise en demeure).',
-      'Envoie des alertes tresorerie Slack ou email quand votre runway passe sous un seuil critique.',
+      'Envoie des alertes trésorerie Slack ou email quand votre runway passe sous un seuil critique.',
       'Genere les exports comptables mensuels pour votre expert-comptable sans intervention.',
     ],
     requires: [
       { label: 'Un outil de facturation', detail: 'Axonaut, Pennylane ou iPaidThat', providers: ['axonaut', 'pennylane', 'ipaidthat'], match: 'any' },
-      { label: 'Slack ou Email', detail: 'Pour recevoir les alertes tresorerie', providers: ['slack', 'gmail', 'smtp_imap'], match: 'any' },
+      { label: 'Slack ou Email', detail: 'Pour recevoir les alertes trésorerie', providers: ['slack', 'gmail', 'smtp_imap'], match: 'any' },
     ],
     customerStory: [
       { role: 'client', text: 'Vous : "Tiens, j\'ai oublie de relancer la facture de Client X de janvier..."' },
-      { role: 'system', text: 'Actero l\'a deja relancee il y a 2 jours. Client X a promis de payer sous 48h.' },
+      { role: 'system', text: 'Actero l\'a déjà relancee il y a 2 jours. Client X a promis de payer sous 48h.' },
       { role: 'agent', text: 'Notification Slack : "Facture #INV-024 - 2 450 euros - Client X - relance envoyee le 14/04 - engagement client : paiement avant 16/04"' },
-      { role: 'result', text: 'Zero facture oubliee ce mois. +3 jours de tresorerie recuperes en moyenne par facture.' },
+      { role: 'result', text: 'Zéro facture oubliée ce mois. +3 jours de trésorerie recuperes en moyenne par facture.' },
     ],
     howToActivate: [
       'Connectez votre outil de facturation (Axonaut, Pennylane ou iPaidThat).',
-      'Suivez le wizard de configuration : seuils tresorerie, cadence relances, canal d\'alerte.',
-      'Activez. L\'agent prend la main des la prochaine echeance.',
-    ],
-  },
-  agent_vocal: {
-    icon: Phone,
-    gradient: 'from-violet-500 to-violet-600',
-    title: 'Agent Vocal IA',
-    subtitle: 'Un numero francais qui repond 24/7 a votre place',
-    whatItDoes: [
-      'Un numero francais dedie que vos clients peuvent appeler a tout moment.',
-      'L\'agent IA repond avec une voix naturelle, gere le suivi de commande, les questions produit, les retours.',
-      'Transfert vers un humain possible si le client le demande ou si le cas est complexe.',
-      'Transcriptions + resumes automatiques de chaque appel, consultables dans votre dashboard.',
-    ],
-    requires: [
-      { label: 'Aucune integration obligatoire', detail: 'Optionnel : Shopify pour acceder aux commandes en direct', providers: ['shopify'], match: 'optional' },
-    ],
-    customerStory: [
-      { role: 'client', text: '*appelle votre numero support a 22h un samedi*' },
-      { role: 'agent', text: '"Bonjour, vous etes bien chez Votre Marque. Je suis Lisa, l\'assistante IA. Comment puis-je vous aider ?"' },
-      { role: 'client', text: '"Je voudrais savoir ou est ma commande 1234."' },
-      { role: 'result', text: 'Lisa recupere la commande dans Shopify, donne le tracking. Appel resolu en 90 secondes. Transcription + resume ajoutes a votre dashboard.' },
-    ],
-    howToActivate: [
-      'Suivez le wizard : choix de la voix (homme/femme), ton de marque, horaires d\'ouverture.',
-      'Un numero francais dedie vous est attribue en moins de 2 minutes.',
-      'Partagez le numero sur votre site, vos emails, vos reseaux. L\'agent est operationnel.',
+      'Suivez le wizard de configuration : seuils trésorerie, cadence relances, canal d\'alerte.',
+      'Activez. L\'agent prend la main des la prochaine échéance.',
     ],
   },
   email_agent: {
@@ -130,18 +104,18 @@ const MODAL_CONTENT = {
     subtitle: 'Votre boite pro traitee comme un expert humain',
     whatItDoes: [
       'Lit votre boite email professionnelle (Gmail OAuth ou IMAP) en continu, 24/7.',
-      'Repond automatiquement aux questions SAV courantes (suivi, retour, remboursement, FAQ produit) avec signature personnalisee.',
-      'Threading parfait : les reponses arrivent dans le meme fil que le message client, pas un nouveau mail.',
-      'Escalade intelligemment : si la confiance est faible ou le cas sensible, la reponse est mise dans "A traiter" pour validation.',
+      'Répond automatiquement aux questions SAV courantes (suivi, retour, remboursement, FAQ produit) avec signature personnalisée.',
+      'Threading parfait : les réponses arrivent dans le même fil que le message client, pas un nouveau mail.',
+      'Escalade intelligemment : si la confiance est faible ou le cas sensible, la réponse est mise dans "A traiter" pour validation.',
     ],
     requires: [
       { label: 'Gmail ou IMAP/SMTP', detail: 'Connexion OAuth Gmail (1 clic) ou configuration IMAP classique', providers: ['gmail', 'smtp_imap'], match: 'any' },
     ],
     customerStory: [
-      { role: 'client', text: 'Un client envoie un email : "Bonjour, puis-je retourner mon article achete la semaine derniere ?"' },
+      { role: 'client', text: 'Un client envoie un email : "Bonjour, puis-je retourner mon article acheté la semaine dernière ?"' },
       { role: 'system', text: 'Actero lit l\'email, identifie le client dans Shopify, verifie la politique de retour.' },
       { role: 'agent', text: '"Bonjour Marie, vous avez bien 30 jours pour retourner votre commande. Voici votre etiquette de retour prepayee : [lien]. Une fois receptionne, le remboursement arrive sous 3 jours ouvres."' },
-      { role: 'result', text: 'Reponse envoyee dans le meme fil, 2 minutes apres reception. Marie est ravie.' },
+      { role: 'result', text: 'Réponse envoyee dans le même fil, 2 minutes après reception. Marie est ravie.' },
     ],
     howToActivate: [
       'Connectez votre Gmail en 1 clic, ou configurez votre IMAP/SMTP.',
@@ -155,9 +129,9 @@ const MODAL_CONTENT = {
     title: 'Slack Copilot',
     subtitle: 'Posez vos questions a Actero depuis Slack',
     whatItDoes: [
-      'Integration native dans votre workspace Slack : interagissez avec Actero sans jamais quitter Slack.',
+      'Intégration native dans votre workspace Slack : interagissez avec Actero sans jamais quitter Slack.',
       'Mentions @Actero ou commandes /actero pour obtenir en 3 secondes vos KPIs live (tickets du jour, taux d\'auto, CA du mois).',
-      'Demandez des recommandations contextualisees : "Donne-moi une reco pour ameliorer mon taux de reponse cette semaine."',
+      'Demandez des recommandations contextualisees : "Donne-moi une reco pour améliorer mon taux de réponse cette semaine."',
       'Receive les alertes importantes (pic de tickets, escalade urgente, sentiment negatif) directement dans votre canal dedie.',
     ],
     requires: [
@@ -165,9 +139,9 @@ const MODAL_CONTENT = {
     ],
     customerStory: [
       { role: 'client', text: 'Vous, lundi matin dans #ops : "@Actero combien de tickets ce weekend ?"' },
-      { role: 'agent', text: '"47 tickets traites (vendredi soir -> dimanche). 89% resolus en auto. 5 escalades : 3 retours produit, 1 reclamation urgente, 1 question technique."' },
+      { role: 'agent', text: '"47 tickets traites (vendredi soir -> dimanche). 89% résolus en auto. 5 escalades : 3 retours produit, 1 réclamation urgente, 1 question technique."' },
       { role: 'client', text: 'Vous : "/actero donne-moi une reco"' },
-      { role: 'result', text: '"Je remarque 3 questions recurrentes sur les delais de livraison cette semaine. Je te suggere d\'ajouter une FAQ a ta base de connaissance. Veux-tu que je la redige ?"' },
+      { role: 'result', text: '"Je remarque 3 questions recurrentes sur les délais de livraison cette semaine. Je te suggere d\'ajouter une FAQ a ta base de connaissance. Veux-tu que je la redige ?"' },
     ],
     howToActivate: [
       'Installez l\'app Actero dans votre workspace Slack (OAuth 1 clic).',
@@ -281,7 +255,7 @@ export const AutomationHowItWorksModal = ({
                       <div
                         key={i}
                         className={`flex items-center gap-3 p-3 rounded-xl border ${
-                          connected ? 'bg-cta/5 border-cta/20' : optional ? 'bg-[#fafafa] border-[#f0f0f0]' : 'bg-amber-50 border-amber-200'
+                          connected ? 'bg-cta/5 border-cta/20' : optional ? 'bg-surface border-[#f0f0f0]' : 'bg-amber-50 border-amber-200'
                         }`}
                       >
                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -325,7 +299,7 @@ export const AutomationHowItWorksModal = ({
                       key={i}
                       className={`p-3.5 rounded-xl ${
                         step.role === 'agent' ? 'bg-cta/5 border border-cta/15' :
-                        step.role === 'client' ? 'bg-[#fafafa] border border-[#f0f0f0]' :
+                        step.role === 'client' ? 'bg-surface border border-[#f0f0f0]' :
                         step.role === 'system' ? 'bg-white border border-[#f0f0f0]' :
                         'bg-emerald-50 border border-emerald-100'
                       }`}
@@ -361,12 +335,12 @@ export const AutomationHowItWorksModal = ({
             </div>
 
             {/* Footer */}
-            <div className="p-5 md:p-6 border-t border-[#f0f0f0] bg-[#fafafa] flex flex-col sm:flex-row items-center gap-3">
+            <div className="p-5 md:p-6 border-t border-[#f0f0f0] bg-surface flex flex-col sm:flex-row items-center gap-3">
               {onActivate && !isActive && (
                 <button
                   onClick={() => { onActivate(); onClose() }}
                   disabled={!reqsMet}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-cta text-white text-[13px] font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Sparkles className="w-4 h-4" /> Activer maintenant
                 </button>
@@ -374,7 +348,7 @@ export const AutomationHowItWorksModal = ({
               {isActive && onViewStats && (
                 <button
                   onClick={() => { onViewStats(); onClose() }}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-[#003725] text-white text-[13px] font-semibold rounded-xl transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-cta hover:bg-cta text-white text-[13px] font-semibold rounded-xl transition-colors"
                 >
                   <ArrowRight className="w-4 h-4" /> Voir les stats detaillees
                 </button>

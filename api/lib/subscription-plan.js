@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Decide the clients-row update for a Stripe subscription event.
  *
@@ -7,7 +8,9 @@
  * method is on file AND the subscription is active/trialing. Terminal states
  * downgrade to free.
  *
- * @param {object} subscription — Stripe Subscription object
+ * @param {any} subscription — objet Subscription de Stripe. `any` et non
+ *   `object` : ce dernier interdit l'accès aux propriétés, et le type réel de
+ *   Stripe n'est pas installé dans ce projet.
  * @param {Record<string,string>} priceMap — Stripe price_id → plan name
  * @returns {{ plan?: string, status?: string, trial_ends_at?: string }}
  */

@@ -116,11 +116,11 @@ export const EmailAgentView = ({ clientId }) => {
             description="Ton agent lit automatiquement tes emails entrants et répond aux questions clients courantes (livraison, retours, produits) 24h/24, avec ton ton de marque."
             action={{
               label: 'Connecter Gmail (recommandé)',
-              onClick: () => { window.location.href = '/client/integrations' },
+              onClick: () => { window.location.href = '/client/intégrations' },
             }}
             secondaryAction={{
               label: 'Configurer SMTP/IMAP',
-              onClick: () => { window.location.href = '/client/integrations' },
+              onClick: () => { window.location.href = '/client/intégrations' },
             }}
           />
         </div>
@@ -256,7 +256,7 @@ function StatusHero({ clientId, settings, activity, integration, onToggle, toggl
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[12px] font-semibold transition-all disabled:opacity-50 ${
               enabled
                 ? 'bg-white border border-[#f0f0f0] text-[#71717a] hover:bg-zinc-50'
-                : 'bg-cta text-white hover:bg-[#003725]'
+                : 'bg-cta text-white hover:bg-cta'
             }`}
           >
             <Power className="w-3.5 h-3.5" />
@@ -493,15 +493,6 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
             </div>
           </div>
 
-          {/* Voice attachment */}
-          <ToggleRow
-            label="Joindre un message vocal aux réponses"
-            description="Feature premium ElevenLabs — l'agent ajoute un audio naturel à chaque email envoyé."
-            value={!!settings.email_attach_voice}
-            onChange={(v) => onUpdate({ email_attach_voice: v })}
-            icon={Volume2}
-          />
-
           {/* Signature */}
           <div>
             <label className="text-[13px] font-semibold text-[#1a1a1a] mb-2 block">Signature email</label>
@@ -567,7 +558,7 @@ function AutoReplyConfig({ settings, onUpdate, saving }) {
                   onUpdate({ email_exclusions: next })
                   setNewExcl('')
                 }}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-[#003725]"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] font-semibold bg-cta text-white hover:bg-cta"
               >
                 <Plus className="w-3 h-3" /> Ajouter
               </button>

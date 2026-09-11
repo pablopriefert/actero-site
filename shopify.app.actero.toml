@@ -32,9 +32,15 @@ scopes = "read_orders,read_customers,read_products,read_fulfillments,read_checko
 # OPTIONAL — the merchant can decline these without breaking install. Power
 # features (upsells, live shipping rates) light up automatically when the
 # merchant accepts them. We deliberately do NOT request write_orders here:
-# the agent never modifies orders directly. Refunds, if surfaced through
-# the agent, are drafted in our dashboard for the merchant to approve, and
-# the actual mutation runs server-to-server under read_orders.
+# the agent never modifies orders directly. Refunds, if surfaced through the
+# agent, are drafted for the merchant to approve, and the merchant completes
+# them natively in Shopify Admin.
+#
+# Corrected 2026-09-09: this comment previously ended with "the actual mutation
+# runs server-to-server under read_orders". That is impossible — refundCreate
+# requires write_orders. Nothing in the codebase does it; the sentence
+# described a design that cannot work, and it made the current one look like a
+# constraint rather than the choice it is.
 optional_scopes = [ "read_draft_orders", "read_shipping" ]
 
 # Managed installation flow — Shopify handles the OAuth grant and we receive

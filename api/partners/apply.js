@@ -22,7 +22,7 @@ async function handler(req, res) {
 
   // Rate limit: 5 applications/min/IP
   const ip = getClientIp(req);
-  const rl = checkRateLimit(`partners-apply:${ip}`, 5, 60_000);
+  const rl = await checkRateLimit(`partners-apply:${ip}`, 5, 60_000);
   res.setHeader('X-RateLimit-Limit', '5');
   res.setHeader('X-RateLimit-Remaining', String(rl.remaining));
   if (!rl.allowed) {

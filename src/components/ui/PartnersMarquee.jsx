@@ -29,6 +29,8 @@ import { Shield } from 'lucide-react'
  *   shopify  6.2   | 26  | ~161px  (surface 4186)
  */
 const partners = [
+  // La bourse ElevenLabs est réelle et reste affichée : l'agent vocal a été
+  // retiré le 10 septembre 2026, pas le soutien reçu.
   {
     name: 'ElevenLabs Grants',
     src: '/partners/v2/elevenlabs-grants.png',

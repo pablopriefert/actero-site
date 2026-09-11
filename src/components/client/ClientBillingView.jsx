@@ -17,6 +17,7 @@ import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
 import { CreditsPurchase } from './CreditsPurchase'
+import { joursEssaiPour } from '../../../api/lib/essai-gratuit.js'
 
 // ─── Helpers ────────────────────────────────────────────────────
 const MONTH_NAMES = [
@@ -91,7 +92,7 @@ function UsageBar({ used, limit, label, unit = '' }) {
           {used.toLocaleString('fr-FR')}{unit} / {isUnlimited ? '\u221E' : limit.toLocaleString('fr-FR')}{unit}
         </span>
       </div>
-      <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden">
+      <div className="h-2 rounded-full bg-surface overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500 ${color}`}
           style={{ width: `${isUnlimited ? 0 : percent}%` }}
@@ -253,7 +254,6 @@ export const ClientBillingView = ({ theme: _theme }) => {
 
   const planConfig = plan.config || getPlanConfig('free')
   const currentPrice = planConfig.price?.[billingPeriod]
-  const hasVoice = plan.voiceMinutesLimit > 0
   // Hard cap — no overage billing. Once the monthly quota is reached the agent
   // stops answering until the merchant buys credits or upgrades.
   const quotaReached = !!plan.isOverLimit
@@ -269,7 +269,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6">
+      <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -377,7 +377,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
         </div>
 
         {/* Manage subscription button */}
-        <div className="mt-4 pt-4 border-t border-[#E5E2D7] flex items-center justify-between">
+        <div className="mt-4 pt-4 border-t border-[#E6E8EC] flex items-center justify-between">
           <p className="text-[12px] text-[#9ca3af]">Gerez votre abonnement via Stripe</p>
           <button
             onClick={openStripePortal}
@@ -393,7 +393,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
       {/* ━━━ Section 2 — Consommation du mois ━━━ */}
       <SectionCard
         title="Consommation du mois"
-        subtitle={`Periode : ${currentMonthLabel()}`}
+        subtitle={`Période : ${currentMonthLabel()}`}
         icon={TrendingUp}
       >
         <div className="space-y-4">
@@ -402,15 +402,6 @@ export const ClientBillingView = ({ theme: _theme }) => {
             limit={plan.ticketsLimit}
             label="Tickets utilises"
           />
-
-          {hasVoice && (
-            <UsageBar
-              used={plan.voiceMinutesUsed}
-              limit={plan.voiceMinutesLimit}
-              label="Minutes vocales"
-              unit=" min"
-            />
-          )}
 
           {quotaReached && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200">
@@ -432,7 +423,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <p className="text-[12px] text-[#9ca3af] mt-0.5">Comparez les options et passez au niveau superieur</p>
           </div>
           {/* Billing period toggle */}
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#f0f0f0]">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-surface">
             <button
               onClick={() => setBillingPeriod('monthly')}
               className={`px-3 py-1.5 text-[11px] font-semibold rounded-md transition-colors ${
@@ -473,14 +464,19 @@ export const ClientBillingView = ({ theme: _theme }) => {
             if (isCurrent) {
               ctaText = 'Plan actuel'
             } else if (isEnterprise) {
-              ctaText = 'Contacter l\'equipe'
+              ctaText = 'Contacter l\'équipe'
             } else if (isDowngrade) {
               ctaText = 'Rétrograder'
             } else {
-              const isReferred = client?.referral_first_month_free
-              ctaText = isReferred
-                ? `Passer au ${p.name} — 30 jours gratuits`
-                : `Passer au ${p.name} — Essai 7j gratuit`
+              // La durée affichée doit être celle qui sera réellement
+              // accordée : joursEssaiPour est la seule source (ACT-33). Un
+              // bouton qui annonce sept jours à quelqu'un qui en aura trente
+              // est un mensonge dans le sens gentil — celui qui annoncerait
+              // trente pour sept est un remboursement.
+              const jours = joursEssaiPour(client)
+              ctaText = jours
+                ? `Passer au ${p.name} — ${jours} jours gratuits`
+                : `Passer au ${p.name}`
             }
 
             return (
@@ -491,7 +487,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                     ? 'border-cta/30 bg-cta/5'
                     : p.popular
                     ? 'border-cta shadow-md'
-                    : 'border-[#E5E2D7] bg-white'
+                    : 'border-[#E6E8EC] bg-white'
                 }`}
               >
                 {p.popular && !isCurrent && (
@@ -503,7 +499,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isCurrent ? 'bg-cta/10' : 'bg-[#fafafa]'
+                      isCurrent ? 'bg-cta/10' : 'bg-surface'
                     }`}>
                       <PlanIcon className={`w-4 h-4 ${isCurrent ? 'text-cta' : 'text-[#71717a]'}`} />
                     </div>
@@ -543,9 +539,9 @@ export const ClientBillingView = ({ theme: _theme }) => {
                     disabled={isCurrent || upgradingPlan === planKey || (isDowngrade && loadingPortal)}
                     className={`w-full py-2.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       isCurrent
-                        ? 'bg-[#f0f0f0] text-[#9ca3af] cursor-default'
+                        ? 'bg-surface text-[#9ca3af] cursor-default'
                         : isDowngrade
-                        ? 'bg-white border border-[#E5E2D7] text-[#71717a] hover:bg-[#fafafa] hover:text-[#1a1a1a]'
+                        ? 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-surface hover:text-[#1a1a1a]'
                         : isEnterprise
                         ? 'bg-[#1a1a1a] text-white hover:bg-[#333]'
                         : 'bg-cta text-white hover:bg-[#0a4528]'
@@ -581,7 +577,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <button
               onClick={openStripePortal}
               disabled={loadingPortal}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E5E2D7] text-[#1a1a1a] text-[12px] font-semibold rounded-lg hover:bg-[#fafafa] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E6E8EC] text-[#1a1a1a] text-[12px] font-semibold rounded-lg hover:bg-surface transition-colors"
             >
               {loadingPortal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
               Voir mes factures

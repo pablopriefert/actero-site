@@ -2,10 +2,28 @@
  * Python script — runs inside an E2B sandbox.
  *
  * Reads /workspace/context.json (injected by execute-agent-action.js) and
- * produces a REFUND RECOMMENDATION. It NEVER issues the refund itself:
- *   - Actero does not hold the write_orders scope.
- *   - Shopify App Store policy 1.1.15 requires refunds to be processed through
- *     the merchant's native Admin flow (to the original payment method).
+ * produces a REFUND RECOMMENDATION. It NEVER issues the refund itself, for ONE
+ * reason: Actero does not hold the `write_orders` scope. That is a deliberate
+ * product choice (see shopify.app.actero.toml), not a platform restriction.
+ *
+ * An earlier version of this comment claimed App Store policy 1.1.15 "requires
+ * refunds to be processed through the merchant's native Admin flow". That is
+ * NOT what 1.1.15 says. Verified against the official requirement list on
+ * 2026-09-09:
+ *
+ *   1.1.15 — Process refunds only through the original payment processor.
+ *   "Your app must not offer methods for processing refunds outside of the
+ *   original payment processor. If your app issues store credits during a
+ *   refund, it must use either refundCreate or returnProcess to do so."
+ *
+ * The rule constrains the DESTINATION of a refund — original payment method or
+ * store credit, never gift cards or cashback wallets — and it explicitly names
+ * the two mutations an app may call. An app MAY therefore issue refunds itself,
+ * given write_orders.
+ *
+ * The distinction matters: it is the difference between "we cannot" and "we
+ * chose not to". Anyone reconsidering autonomous refunds should weigh a scope
+ * request, not assume the door is closed.
  *
  * So this action decides one of:
  *   1. draft_refund  — within the merchant's rules → propose a draft the

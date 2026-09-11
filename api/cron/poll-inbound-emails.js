@@ -165,4 +165,4 @@ async function handler(req, res) {
   }
 }
 
-export default withCronMonitor('cron-poll-inbound-emails', '*/2 * * * *', handler)
+export default withCronMonitor('cron-poll-inbound-emails', '*/5 * * * *', handler)

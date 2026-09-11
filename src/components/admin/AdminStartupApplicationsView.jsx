@@ -266,7 +266,7 @@ export const AdminStartupApplicationsView = () => {
                     <button
                       onClick={() => reviewMutation.mutate({ id: selected.id, action: 'accept' })}
                       disabled={reviewMutation.isPending}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[12px] font-bold bg-cta text-white hover:bg-[#003725] transition-colors disabled:opacity-50"
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[12px] font-bold bg-cta text-white hover:bg-cta transition-colors disabled:opacity-50"
                     >
                       {reviewMutation.isPending && reviewMutation.variables?.action === 'accept' ? (
                         <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Traitement…</>

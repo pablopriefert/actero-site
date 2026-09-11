@@ -22,7 +22,7 @@ const AI_AGENTS = [
         color: 'text-blue-400',
         bg: 'bg-blue-500/10',
         border: 'border-blue-500/20',
-        desc: 'Appelle ou SMS automatiquement les paniers abandonnés > 500€.',
+        desc: 'Relance automatiquement par email les paniers abandonnés > 500€.',
         humanSalary: 3500,
         aiCost: 399
     },

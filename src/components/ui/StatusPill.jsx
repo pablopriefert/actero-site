@@ -1,5 +1,4 @@
 import React from 'react';
-import { tokens } from '../../lib/design-tokens';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -8,7 +7,7 @@ const VARIANT_MAP = {
   warning: 'bg-amber-50 text-amber-700 border border-amber-200',
   danger: 'bg-red-50 text-red-700 border border-red-200',
   info: 'bg-blue-50 text-blue-700 border border-blue-200',
-  neutral: 'bg-[#fafafa] text-[#71717a] border border-[#f0f0f0]',
+  neutral: 'bg-surface text-[#71717a] border border-[#f0f0f0]',
   brand: 'bg-cta/10 text-cta border border-cta/20',
 };
 
@@ -73,5 +72,4 @@ export function StatusPill({
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const __STATUS_PILL_TOKENS__ = tokens;
+ 

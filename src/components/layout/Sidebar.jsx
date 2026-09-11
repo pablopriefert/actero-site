@@ -62,7 +62,7 @@ export const Sidebar = ({
   ]
 
   return (
-    <div data-tour="sidebar" className="w-full md:w-[230px] flex flex-col h-full bg-[#F7F5F0] border-r border-[#E5E2D7]">
+    <div data-tour="sidebar" className="w-full md:w-[230px] flex flex-col h-full bg-surface border-r border-[#E6E8EC]">
       {/* Header */}
       <div className="h-[52px] flex items-center px-4 justify-between md:justify-start">
         <div className="flex items-center gap-2.5">
@@ -87,7 +87,7 @@ export const Sidebar = ({
           type="button"
           onClick={() => { window.dispatchEvent(new CustomEvent('actero:open-command-palette')) }}
           aria-label={`Rechercher (${CMD_LABEL})`}
-          className="w-full relative flex items-center gap-2 pl-3 pr-2 py-2 rounded-xl bg-white border border-[#E5E2D7] text-[12px] text-[#9ca3af] hover:border-cta/30 hover:text-[#1a1a1a] transition-all group text-left"
+          className="w-full relative flex items-center gap-2 pl-3 pr-2 py-2 rounded-xl bg-white border border-[#E6E8EC] text-[12px] text-[#9ca3af] hover:border-cta/30 hover:text-[#1a1a1a] transition-all group text-left"
         >
           <Search className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
           <span className="flex-1">Rechercher...</span>
@@ -111,7 +111,7 @@ export const Sidebar = ({
             return (
               <div
                 key={idx}
-                className={`px-2 py-2 ${firstInList ? 'mt-1' : 'mt-4 pt-3 border-t border-[#E5E2D7]'}`}
+                className={`px-2 py-2 ${firstInList ? 'mt-1' : 'mt-4 pt-3 border-t border-[#E6E8EC]'}`}
               >
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9ca3af]">
                   {item.label}
@@ -177,7 +177,7 @@ export const Sidebar = ({
                       : `w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-150 ${
                           hasActiveChild
                             ? 'text-[#1a1a1a] font-semibold'
-                            : 'text-[#1a1a1a] font-medium hover:bg-[#fafafa]'
+                            : 'text-[#1a1a1a] font-medium hover:bg-surface'
                         }`
                   }
                 >
@@ -233,7 +233,7 @@ export const Sidebar = ({
                               : `h-8 text-[12px] ${
                                   isActive
                                     ? 'text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta'
-                                    : 'text-[#71717a] font-normal hover:text-[#1a1a1a] hover:bg-[#fafafa]'
+                                    : 'text-[#71717a] font-normal hover:text-[#1a1a1a] hover:bg-surface'
                                 }`
                           }`}
                         >
@@ -254,7 +254,7 @@ export const Sidebar = ({
                                   ? "bg-[#ef4444] text-white"
                                   : isActive
                                     ? "bg-cta/10 text-cta"
-                                    : (child.badgeColor || "bg-[#f0f0f0] text-[#71717a]")
+                                    : (child.badgeColor || "bg-surface text-[#71717a]")
                               }`}
                             >
                               {child.badge}
@@ -280,7 +280,7 @@ export const Sidebar = ({
               className={`w-full h-9 flex items-center justify-between px-2.5 rounded-lg text-[13px] transition-all duration-200 group ${
                 isActive
                   ? "text-cta font-semibold bg-cta/[0.08] border-l-2 border-cta"
-                  : "text-[#1a1a1a] font-medium hover:bg-[#fafafa]"
+                  : "text-[#1a1a1a] font-medium hover:bg-surface"
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -296,7 +296,7 @@ export const Sidebar = ({
                       ? "bg-[#ef4444] text-white"
                       : isActive
                         ? "bg-cta/10 text-cta"
-                        : (item.badgeColor || "bg-[#f0f0f0] text-[#71717a]")
+                        : (item.badgeColor || "bg-surface text-[#71717a]")
                   }`}
                 >
                   {item.badge}
@@ -315,14 +315,14 @@ export const Sidebar = ({
       )}
 
       {/* Footer — User profile with dropdown */}
-      <div className="relative border-t border-[#E5E2D7]" ref={accountRef}>
+      <div className="relative border-t border-[#E6E8EC]" ref={accountRef}>
         {/* Dropdown menu */}
         {showAccountMenu && (
           <div
             id="account-menu"
             role="menu"
             aria-label="Menu du compte"
-            className="absolute bottom-full left-2 right-2 mb-1 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-[#E5E2D7] py-1.5 z-50"
+            className="absolute bottom-full left-2 right-2 mb-1 bg-white rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-[#E6E8EC] py-1.5 z-50"
           >
             {ACCOUNT_ITEMS.map(item => {
               const Icon = item.icon
@@ -345,7 +345,7 @@ export const Sidebar = ({
                 </button>
               )
             })}
-            <div className="border-t border-[#E5E2D7] mt-1.5 pt-1.5">
+            <div className="border-t border-[#E6E8EC] mt-1.5 pt-1.5">
               <button
                 onClick={onLogout}
                 role="menuitem"
@@ -364,7 +364,7 @@ export const Sidebar = ({
           aria-haspopup="menu"
           aria-expanded={showAccountMenu}
           aria-controls="account-menu"
-          className="w-full flex items-center gap-3 px-3 py-3 hover:bg-[#fafafa] transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-3 hover:bg-surface transition-colors"
         >
           <div className="w-8 h-8 rounded-lg bg-cta text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0">
             {initials}

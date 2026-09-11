@@ -16,9 +16,9 @@
 export const tokens = {
   // ── Greens (primary brand) ──────────────────────────────────
   /** Canonical CTA color — all buttons, primary links, checkboxes. */
-  cta: '#0E653A',
+  cta: '#13804A',
   /** CTA hover / pressed state — darker. */
-  ctaHover: '#0A4F2C',
+  ctaHover: '#0E653A',
   /** Forest primary — accent bars, dividers, editorial accents. */
   primary: '#1F3A12',
   /** Deeper primary — sidebar logo filled, chart greens. */
@@ -30,9 +30,9 @@ export const tokens = {
 
   // ── Backgrounds ─────────────────────────────────────────────
   /** Cream canvas — editorial emails, soft info callouts. */
-  bgCream: '#F4F0E6',
+  bgCream: '#F4F5F7',
   /** Off-white app background — dashboard main area. */
-  bgApp: '#FAFAFA',
+  bgApp: '#FFFFFF',
   /** Pure white — cards, surfaces. */
   surface: '#FFFFFF',
 
@@ -66,7 +66,7 @@ export const tokens = {
   /** Hairline borders inside cards. */
   border: 'rgba(0,0,0,0.06)',
   /** Cream-compatible border (for cream-backed sections). */
-  borderCream: '#E8DFC9',
+  borderCream: '#E3E6EA',
 } as const
 
 /** Radius scale — pill for buttons/badges, 16 for cards, 12 for inner panels. */
@@ -80,8 +80,8 @@ export const radii = {
 
 /** Font families — match src/index.css @theme (loaded from Google Fonts). */
 export const fonts = {
-  sans: 'DM Sans, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  display: '"Instrument Serif", Georgia, serif',
+  sans: 'Inter Tight, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  display: '"Inter Tight", ui-sans-serif, system-ui, sans-serif',
   mono: '"DM Mono", ui-monospace, monospace',
 } as const
 

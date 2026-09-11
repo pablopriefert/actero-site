@@ -1,5 +1,6 @@
 import React from 'react'
 import { AlertCircle, RefreshCw } from 'lucide-react'
+import { estMorceauPerime, rechargerPourMorceauPerime } from './error-boundary-morceaux.js'
 
 /**
  * ErrorBoundary — two flavors:
@@ -21,6 +22,8 @@ import { AlertCircle, RefreshCw } from 'lucide-react'
  * the sidebar + nav interactive and let the user try a different tab.
  */
 
+
+
 class BaseErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
@@ -32,22 +35,7 @@ class BaseErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Stale chunk after a new deploy: the hashed bundle filename changed and the
-    // user's cached HTML/JS references a chunk that no longer exists. Force a
-    // hard reload once per session to pick up the new bundle map.
-    const msg = error?.message || ''
-    const isStaleChunk =
-      /Failed to fetch dynamically imported module/i.test(msg) ||
-      /Importing a module script failed/i.test(msg) ||
-      /Loading chunk \d+ failed/i.test(msg)
-    if (isStaleChunk && typeof window !== 'undefined') {
-      const key = 'actero-stale-chunk-reloaded'
-      if (!sessionStorage.getItem(key)) {
-        sessionStorage.setItem(key, '1')
-        window.location.reload()
-        return
-      }
-    }
+    if (estMorceauPerime(error) && rechargerPourMorceauPerime(error)) return
 
     console.error('[ErrorBoundary]', this.props.scope || 'root', ':', error?.message)
     if (error?.stack) {
@@ -73,6 +61,13 @@ class BaseErrorBoundary extends React.Component {
   }
 
   reset = () => {
+    // « Réessayer » sur un morceau de code périmé redemandait la MÊME URL
+    // morte : le bouton ne pouvait que rééchouer. Il faut recharger la page
+    // pour récupérer la nouvelle table des morceaux.
+    if (estMorceauPerime(this.state.error) && typeof window !== 'undefined') {
+      window.location.reload()
+      return
+    }
     this.setState({ hasError: false, error: null })
   }
 
@@ -97,7 +92,7 @@ export function ErrorBoundary({ children }) {
       fallback={({ error, reset }) => (
         <div
           role="alert"
-          className="min-h-screen flex items-center justify-center bg-[#F9F7F1] p-6"
+          className="min-h-screen flex items-center justify-center bg-surface p-6"
         >
           <div className="max-w-md text-center">
             <div className="w-14 h-14 rounded-2xl bg-white border border-[#f0f0f0] shadow-sm flex items-center justify-center mx-auto mb-5">
@@ -172,7 +167,7 @@ export function TabErrorBoundary({ children, tabId, resetKey, tabLabel }) {
                   <summary className="text-[11px] text-[#9ca3af] cursor-pointer hover:text-[#71717a]">
                     Détails techniques
                   </summary>
-                  <pre className="mt-2 text-[11px] text-[#71717a] bg-[#fafafa] border border-[#f0f0f0] rounded-lg p-3 max-h-32 overflow-auto whitespace-pre-wrap break-words">
+                  <pre className="mt-2 text-[11px] text-[#71717a] bg-surface border border-[#f0f0f0] rounded-lg p-3 max-h-32 overflow-auto whitespace-pre-wrap break-words">
                     {error.message}
                   </pre>
                 </details>

@@ -467,7 +467,12 @@ async function handler(req, res) {
               client_id: onboardedClientId,
               playbook_id: playbookId,
               is_active: true,
-              custom_config: { confidence_threshold: 0.4 },
+              // 0.75 : l'agent ne répond seul que s'il est nettement sûr de son
+              // classement. La valeur précédente, 0.4, le laissait répondre
+              // alors qu'il avait plus de chances de se tromper que d'avoir
+              // raison — et elle s'était propagée à tous les playbooks en base,
+              // écrasant le 0.85 prévu par playbook-loader.js (ACT-8).
+              custom_config: { confidence_threshold: 0.75 },
               activated_at: new Date().toISOString(),
             }),
           });

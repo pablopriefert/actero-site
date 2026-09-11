@@ -147,7 +147,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[#ffffff] border border-[#f0f0f0] rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-surface border border-[#f0f0f0] rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Settings className="w-5 h-5 text-[#71717a]" />
@@ -235,7 +235,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-[13px] font-bold text-[#1a1a1a] bg-[#fafafa] hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
+              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-[13px] font-bold text-[#1a1a1a] bg-surface hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
             >
               {loading ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Sauvegarde...</>
@@ -329,7 +329,7 @@ export const AdminClientSettingsModal = ({ client, onClose, onSaved, onOpenCallN
             <button
               onClick={handleSaveBrandContext}
               disabled={savingBrand || !brandContext.trim()}
-              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-[13px] font-bold text-[#1a1a1a] bg-[#fafafa] hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
+              className="w-full flex justify-center items-center gap-2 py-3 px-6 rounded-xl text-[13px] font-bold text-[#1a1a1a] bg-surface hover:bg-[#f5f5f5] disabled:opacity-50 transition-colors"
             >
               {savingBrand ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Sauvegarde...</>
@@ -357,7 +357,7 @@ const STATUS_COLORS = {
   active: 'text-emerald-500 bg-emerald-500/20',
   expired: 'text-amber-400 bg-amber-500/20',
   error: 'text-red-400 bg-red-500/20',
-  revoked: 'text-[#71717a] bg-[#f5f5f5]',
+  revoked: 'text-[#71717a] bg-surface',
   pending: 'text-blue-400 bg-blue-500/20',
 };
 
@@ -462,7 +462,7 @@ const AdminClientIntegrations = ({ clientId }) => {
                 <button
                   onClick={() => handleForceTest(int)}
                   disabled={testingId === int.id}
-                  className="p-1 rounded hover:bg-[#fafafa] transition-colors"
+                  className="p-1 rounded hover:bg-surface transition-colors"
                   title="Forcer le test"
                 >
                   {testingId === int.id ? (

@@ -93,7 +93,7 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#F9F7F1]/95 backdrop-blur-sm overflow-y-auto"
+        className="fixed inset-0 z-[100] bg-surface/95 backdrop-blur-sm overflow-y-auto"
         role="dialog"
         aria-modal="true"
         aria-labelledby="wizard-title"
@@ -115,7 +115,7 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
             <button
               onClick={handleDismiss}
               aria-label="Fermer le wizard et continuer sans guide"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium text-[#71717a] hover:text-[#1a1a1a] hover:bg-[#fafafa] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-[12px] font-medium text-[#71717a] hover:text-[#1a1a1a] hover:bg-surface transition-colors"
             >
               Continuer sans guide <X className="w-4 h-4" />
             </button>
@@ -146,7 +146,7 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
                       </span>
                     </button>
                     {i < steps.length - 1 && (
-                      <div className={`flex-1 h-0.5 mx-1 rounded-full transition-colors ${steps[i].done ? 'bg-cta' : 'bg-[#e5e5e5]'}`} />
+                      <div className={`flex-1 h-0.5 mx-1 rounded-full transition-colors ${steps[i].done ? 'bg-cta' : 'bg-surface'}`} />
                     )}
                   </React.Fragment>
                 ))}
@@ -186,14 +186,14 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
                 {currentStep < steps.length - 1 ? (
                   <button
                     onClick={() => setCurrentStep(currentStep + 1)}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-semibold bg-cta text-white hover:bg-[#003725] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-semibold bg-cta text-white hover:bg-cta transition-colors"
                   >
                     {steps[currentStep]?.done ? 'Suivant' : 'Passer pour plus tard'} <ArrowRight className="w-4 h-4" />
                   </button>
                 ) : allDone ? (
                   <button
                     onClick={handleDismiss}
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-bold bg-cta text-white hover:bg-[#003725] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-bold bg-cta text-white hover:bg-cta transition-colors"
                   >
                     🎉 Terminé — aller au dashboard <ArrowRight className="w-4 h-4" />
                   </button>
@@ -209,21 +209,26 @@ export function SetupWizard({ clientId, onComplete, onDismiss }) {
 
 // ───────── Step 1 : Shopify (OAuth direct) ─────────
 function StepShopify({ progress }) {
-  const [shopDomain, setShopDomain] = useState('')
   const [connecting, setConnecting] = useState(false)
 
-  // /api/shopify/install exige ?shop= (400 sinon) et lit ?token= pour
-  // retrouver le client_id au callback. On demande donc le domaine puis on
-  // redirige avec le domaine normalisé + le token de session Supabase.
+  // ON NE DEMANDE PLUS LE DOMAINE DE LA BOUTIQUE.
+  //
+  // App Store 2.3.1 : une installation doit partir d'une surface appartenant à
+  // Shopify, et l'app « ne doit pas demander la saisie manuelle d'une URL
+  // myshopify.com ». Cet écran affichait un champ « ma-boutique.myshopify.com »
+  // — exactement ce que la consigne de vérification de Shopify dit de chercher
+  // dans le code. C'est un motif de refus classique.
+  //
+  // /api/shopify/install sans `shop` pose le cookie de session et redirige vers
+  // la fiche App Store. Le marchand installe depuis là, Shopify fournit le
+  // domaine au retour, et le cookie permet à callback.js de rattacher la
+  // boutique au compte Actero déjà ouvert — donc pas de compte en double.
   const connectShopify = async () => {
-    let shop = shopDomain.trim().replace(/^https?:\/\//, '').replace(/\/.*$/, '')
-    if (!shop) return
-    if (!shop.includes('.')) shop += '.myshopify.com'
     setConnecting(true)
     trackEvent('Setup Wizard Shopify Clicked')
     const { data: { session } } = await supabase.auth.getSession()
     window.location.href =
-      `/api/shopify/install?shop=${encodeURIComponent(shop)}&token=${encodeURIComponent(session?.access_token || '')}`
+      `/api/shopify/install?token=${encodeURIComponent(session?.access_token || '')}`
   }
 
   if (progress?.shopify) {
@@ -247,36 +252,27 @@ function StepShopify({ progress }) {
       <p className="text-[#71717a] text-center mb-10 max-w-lg mx-auto">
         L'agent IA va lire votre catalogue, vos politiques de retour et vos commandes pour répondre à vos clients — en lecture seule, 100% RGPD.
       </p>
+      <p className="text-[#a1a1aa] text-center text-[13px] mb-8 max-w-lg mx-auto">
+        L'installation se fait depuis l'App Store Shopify. Vous serez redirigé, et
+        votre boutique sera rattachée à ce compte au retour.
+      </p>
       <div className="space-y-3 max-w-md mx-auto">
-        <input
-          type="text"
-          value={shopDomain}
-          onChange={(e) => setShopDomain(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') connectShopify() }}
-          placeholder="ma-boutique.myshopify.com"
-          autoComplete="off"
-          spellCheck={false}
-          className="w-full px-4 py-3.5 rounded-2xl border border-[#e5e5e5] text-[15px] text-[#1a1a1a] placeholder:text-[#a1a1aa] focus:outline-none focus:border-cta focus:ring-2 focus:ring-cta/20 transition-all"
-        />
-        <p className="text-[12px] text-[#a1a1aa] px-1 -mt-1">
-          Trouvez-le dans Shopify Admin → Paramètres → Domaines
-        </p>
         <button
           type="button"
           onClick={connectShopify}
-          disabled={!shopDomain.trim() || connecting}
-          className="flex items-center justify-between w-full px-5 py-4 rounded-2xl border-2 border-cta bg-cta text-white font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={connecting}
+          className="flex items-center justify-between w-full px-5 py-4 rounded-2xl border-2 border-cta bg-cta text-white font-semibold hover:bg-cta transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
               <ShoppingBag className="w-5 h-5" />
             </div>
-            <span>{connecting ? 'Redirection…' : 'Connecter Shopify (OAuth)'}</span>
+            <span>{connecting ? 'Redirection…' : 'Installer depuis l’App Store Shopify'}</span>
           </span>
           <ArrowRight className="w-5 h-5" />
         </button>
         <a
-          href="/client/integrations"
+          href="/client/intégrations"
           className="flex items-center justify-center w-full px-5 py-3 rounded-2xl border border-[#f0f0f0] text-[#71717a] hover:text-[#1a1a1a] hover:bg-white transition-colors text-[13px]"
         >
           Utiliser WooCommerce, Webflow ou autre →
@@ -365,7 +361,7 @@ function StepTone({ clientId, progress, queryClient, toast }) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-cta text-white font-semibold hover:bg-[#003725] transition-colors disabled:opacity-50"
+          className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-cta text-white font-semibold hover:bg-cta transition-colors disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
           Enregistrer le ton
@@ -456,7 +452,7 @@ function StepTest({ clientId, progress, queryClient, toast }) {
             } disabled:opacity-50`}
           >
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#f0f0f0] flex items-center justify-center">
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface flex items-center justify-center">
                 <Send className="w-4 h-4 text-[#71717a]" />
               </div>
               <p className="text-[14px] text-[#1a1a1a] font-medium flex-1">{q.q}</p>

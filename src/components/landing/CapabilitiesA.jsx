@@ -13,16 +13,16 @@ import { FadeInUp } from '../ui/scroll-animations'
  *   3. Automatisations & workflows e-commerce
  *
  * Design :
- * — Background cream #F9F7F1
+ * — Background cream #FFFFFF
  * — 3 cards blanc rounded-[20px], grid 3 cols desktop
- * — Icon container cream square #F4F0E6 avec Lucide icon
+ * — Icon container cream square #F4F5F7 avec Lucide icon
  * — Badge « Dès Free » en pill cta/10
  * — Highlight footer avec check icon + border-t (1 metric par pilier)
  * — Task 3 : stagger reveal (80ms between cards) + hover lift -4px
  *   + icon scale+rotate on hover + metric scale on hover
  */
 export const CapabilitiesA = () => {
-  const serif = { fontFamily: 'var(--font-display, "Spectral", Georgia, serif)' }
+  const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
   const prefersReducedMotion = useReducedMotion()
 
   const caps = [
@@ -40,8 +40,8 @@ export const CapabilitiesA = () => {
       Icon: ShoppingCart,
       title: 'Relance paniers abandonnés',
       desc:
-        "Un agent proactif qui relance chaque client avec un message personnalisé (produit, remise conditionnelle, lien checkout) — pas une séquence email générique.",
-      highlight: '+15% de CA récupéré en moyenne',
+        "Un agent proactif qui relance chaque client avec un message personnalisé (produit précis, lien de paiement direct) — pas une séquence email générique.",
+      highlight: "jusqu'à 15 % de CA récupéré, selon votre volume",
       highlightMarker: '*',
     },
     {
@@ -78,7 +78,7 @@ export const CapabilitiesA = () => {
   }
 
   return (
-    <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
+    <section className="py-24 md:py-32 bg-surface px-6">
       <div className="max-w-6xl mx-auto">
         <FadeInUp className="text-center mb-16">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -125,7 +125,7 @@ export const CapabilitiesA = () => {
                 <div className="flex items-center gap-3 mb-5">
                   {/* TASK 3: icon scale + rotate on card hover */}
                   <motion.div
-                    className="w-10 h-10 rounded-lg bg-[#F4F0E6] flex items-center justify-center"
+                    className="w-10 h-10 rounded-lg bg-cream flex items-center justify-center"
                     whileHover={
                       prefersReducedMotion
                         ? {}
@@ -134,7 +134,7 @@ export const CapabilitiesA = () => {
                   >
                     <Icon className="w-5 h-5 text-[#003725]" strokeWidth={1.8} />
                   </motion.div>
-                  <span className="text-[10px] font-bold text-cta bg-[#E8F5EC] px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">
+                  <span className="text-[10px] font-bold text-cta bg-primary-tint px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">
                     {c.badge}
                   </span>
                 </div>

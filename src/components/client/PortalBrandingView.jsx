@@ -6,7 +6,7 @@ import { UpgradeBanner } from '../ui/UpgradeBanner'
 
 // ─── Live portal preview ────────────────────────────────────────────
 function PortalPreview({ displayName, logoUrl, primaryColor }) {
-  const color = primaryColor || '#0E653A'
+  const color = primaryColor || '#13804A'
   const name = displayName || 'Votre boutique'
 
   return (
@@ -17,7 +17,7 @@ function PortalPreview({ displayName, logoUrl, primaryColor }) {
       {/* Mockup browser shell */}
       <div className="rounded-2xl border border-[#e0e0e0] overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
         {/* Browser top bar */}
-        <div className="bg-[#f5f5f5] border-b border-[#e0e0e0] px-4 py-2.5 flex items-center gap-2">
+        <div className="bg-surface border-b border-[#e0e0e0] px-4 py-2.5 flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
           <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
           <span className="w-3 h-3 rounded-full bg-[#27c93f]" />
@@ -27,7 +27,7 @@ function PortalPreview({ displayName, logoUrl, primaryColor }) {
         </div>
 
         {/* Scaled-down portal page at ~60% */}
-        <div className="bg-[#f8f8f8] overflow-hidden" style={{ height: '360px' }}>
+        <div className="bg-surface overflow-hidden" style={{ height: '360px' }}>
           <div
             style={{
               transform: 'scale(0.6)',
@@ -74,7 +74,7 @@ function PortalPreview({ displayName, logoUrl, primaryColor }) {
                   <label className="block text-[13px] font-medium text-[#1a1a1a] mb-1.5">
                     Ton adresse email
                   </label>
-                  <div className="w-full px-4 py-3 rounded-xl border border-[#e0e0e0] bg-[#fafafa] text-[14px] text-[#9ca3af]">
+                  <div className="w-full px-4 py-3 rounded-xl border border-[#e0e0e0] bg-surface text-[14px] text-[#9ca3af]">
                     jean@exemple.com
                   </div>
                 </div>
@@ -110,7 +110,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
 
   const [displayName, setDisplayName] = useState(client?.portal_display_name || '')
   const [logoUrl, setLogoUrl] = useState(client?.portal_logo_url || '')
-  const [primaryColor, setPrimaryColor] = useState(client?.portal_primary_color || '#0E653A')
+  const [primaryColor, setPrimaryColor] = useState(client?.portal_primary_color || '#13804A')
   const [saveStatus, setSaveStatus] = useState(null) // null | 'success' | 'error'
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -169,7 +169,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
           feature="portal_customization"
           onUpgrade={onBack}
           compact={false}
-          fallbackDescription="Personnalise ton portail SAV à ton image — logo, couleurs, nom de marque. Disponible dès le plan Pro."
+          fallbackDescription="Personnalisé ton portail SAV à ton image — logo, couleurs, nom de marque. Disponible dès le plan Pro."
         />
       </div>
     )
@@ -191,7 +191,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
       <div>
         <h2
           className="text-2xl italic tracking-tight text-[#1a1a1a]"
-          style={{ fontFamily: "'Spectral', Georgia, serif", fontWeight: 400 }}
+          style={{ fontFamily: "'Inter Tight', ui-sans-serif, system-ui, sans-serif", fontWeight: 400 }}
         >
           Personnaliser mon portail
         </h2>
@@ -255,20 +255,20 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
                     const val = e.target.value
                     setPrimaryColor(val)
                   }}
-                  placeholder="#0E653A"
+                  placeholder="#13804A"
                   maxLength={7}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-[#e0e0e0] text-[14px] text-[#1a1a1a] font-mono placeholder:text-[#c0c0c0] focus:outline-none focus:ring-2 focus:ring-[#1F3A12]/20 focus:border-[#1F3A12] transition-colors"
                 />
                 <input
                   type="color"
-                  value={/^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#0E653A'}
+                  value={/^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#13804A'}
                   onChange={(e) => setPrimaryColor(e.target.value)}
                   className="w-10 h-10 rounded-xl border border-[#e0e0e0] cursor-pointer overflow-hidden p-0.5 flex-shrink-0"
                   title="Choisir une couleur"
                 />
               </div>
               <p className="text-[11px] text-[#9ca3af] mt-1.5">
-                Utilisée pour le bouton de connexion et les accents. Format hex — ex: #0E653A.
+                Utilisée pour le bouton de connexion et les accents. Format hex — ex: #13804A.
               </p>
             </div>
           </div>
@@ -304,7 +304,7 @@ export const PortalBrandingView = ({ client, clientId, supabase, planId, onBack 
           <PortalPreview
             displayName={displayName}
             logoUrl={logoUrl}
-            primaryColor={/^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#0E653A'}
+            primaryColor={/^#[0-9a-fA-F]{6}$/.test(primaryColor) ? primaryColor : '#13804A'}
           />
         </div>
       </div>
