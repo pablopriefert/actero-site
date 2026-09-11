@@ -37,7 +37,7 @@ async function handler(req, res) {
     // Fetch funnel client data to get custom pricing
     const { data: funnelClient } = await supabase
       .from('funnel_clients')
-      .select('setup_price, monthly_price, company_name, client_type, onboarded_client_id')
+      .select('setup_price, monthly_price, company_name, client_type, onboarded_client_id, email, stripe_customer_id')
       .eq('slug', client)
       .maybeSingle();
 
@@ -105,8 +105,30 @@ async function handler(req, res) {
     // Ce chemin n'accordait AUCUN essai à un marchand non parrainé, alors que
     // les deux autres en donnaient sept. Trois boutons, trois essais : c'est
     // ACT-33. La durée vient maintenant d'un seul endroit.
+    //
+    // Et il faut lui donner le VRAI client, pas un objet fabriqué sur place.
+    // `joursEssaiPour` teste `trial_ends_at` EN PREMIER, justement pour qu'un
+    // essai déjà consommé l'emporte sur tous les drapeaux. Lui passer
+    // `{ referral_first_month_free }` seul rendait ce garde-fou inopérant ici :
+    // un marchand qui a déjà eu son essai en obtenait un second en repassant
+    // par un lien de tunnel.
+    let clientPourEssai = { referral_first_month_free: hasValidReferral };
+    if (funnelClient?.onboarded_client_id) {
+      const { data: reel } = await supabase
+        .from('clients')
+        .select('trial_ends_at, referral_first_month_free, campaign_first_month_free')
+        .eq('id', funnelClient.onboarded_client_id)
+        .maybeSingle();
+      if (reel) {
+        clientPourEssai = {
+          ...reel,
+          referral_first_month_free: reel.referral_first_month_free || hasValidReferral,
+        };
+      }
+    }
+
     const subscriptionData = {};
-    const joursEssai = joursEssaiPour({ referral_first_month_free: hasValidReferral });
+    const joursEssai = joursEssaiPour(clientPourEssai);
     if (joursEssai) {
       subscriptionData.trial_period_days = joursEssai;
     }
@@ -121,9 +143,42 @@ async function handler(req, res) {
       metadata.referrer_client_id = referrerClientId;
     }
 
+    // ACT-39 — LA SESSION DOIT PORTER SON CLIENT.
+    //
+    // Sans `customer` ni `customer_email`, Stripe fabrique un client NEUF à
+    // chaque session. Deux clics sur le même lien de tunnel = deux clients
+    // Stripe pour un seul prospect, et `stripe_customer_id` écrasé par le
+    // second (api/stripe-webhook.js:574). Restent alors deux historiques de
+    // facturation et des abonnements que le produit ne voit plus — ça ne se
+    // découvre qu'au premier litige de paiement.
+    //
+    // `getOrCreateStripeCustomer` existe exactement pour ça ; cette route ne
+    // l'appelait pas. On réutilise donc le client déjà enregistré sur la ligne
+    // de tunnel, après avoir vérifié qu'il existe encore sous la clé courante
+    // (une bascule test ↔ live rend l'ancien identifiant inutilisable).
+    let clientStripe = null;
+    if (funnelClient?.stripe_customer_id) {
+      try {
+        const existant = await stripe.customers.retrieve(funnelClient.stripe_customer_id);
+        if (existant && !existant.deleted) clientStripe = funnelClient.stripe_customer_id;
+        else console.warn(`[checkout] ${client} : client Stripe supprimé, Stripe en créera un neuf`);
+      } catch (err) {
+        // Comme dans getOrCreateStripeCustomer : seul « introuvable » est
+        // rattrapable. Une panne d'authentification ou de réseau ne doit pas
+        // se traduire par un client en double.
+        if (err?.code !== 'resource_missing' && err?.statusCode !== 404) throw err;
+        console.warn(`[checkout] ${client} : ${funnelClient.stripe_customer_id} introuvable sous la clé courante`);
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
+      // Un client connu est réutilisé ; sinon Stripe en crée un, mais rattaché
+      // au bon email — et le webhook l'enregistre pour la fois d'après.
+      ...(clientStripe
+        ? { customer: clientStripe }
+        : funnelClient?.email && { customer_email: funnelClient.email }),
       line_items: lineItems,
       ...(subscriptionData.trial_period_days && { subscription_data: subscriptionData }),
       metadata,
