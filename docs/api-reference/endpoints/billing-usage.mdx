@@ -67,7 +67,7 @@ Sinon → `403 Acces refuse.`
 
 <ResponseField name="credits_balance" type="integer">Crédits disponibles. Consommés automatiquement (1 crédit = 1 ticket) au-delà du quota.</ResponseField>
 
-<ResponseField name="trial_ends_at" type="string|null">ISO timestamp de fin de période d'essai. `null` si le tenant n'est pas en trial.</ResponseField>
+<ResponseField name="trial_ends_at" type="string|null">ISO timestamp de fin de période d'essai. Reste renseigné après expiration (l'essai n'est accordé qu'une fois par compte). `null` si le tenant n'a jamais eu d'essai. Pour savoir si le trial est en cours, compare la date à maintenant.</ResponseField>
 
 <ResponseField name="next_billing_date" type="string">Date approximative du prochain prélèvement (1er du mois suivant). Format `YYYY-MM-DD`. Le prélèvement est opéré par **Shopify** pour les boutiques ayant installé Actero depuis l'App Store, et par notre prestataire de paiement pour les inscriptions directes.</ResponseField>
 
