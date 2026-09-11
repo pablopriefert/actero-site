@@ -54,7 +54,7 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
     ['gmail', 'outlook', 'resend', 'smtp_imap'].includes(i.provider) && i.status === 'active',
   )
   const helpdeskConnected = (integrations || []).some(i =>
-    ['gorgias', 'zendesk', 'intercom'].includes(i.provider) && i.status === 'active',
+    ['gorgias', 'zendesk'].includes(i.provider) && i.status === 'active',
   )
 
   // Email address (if connected, try to extract from config)
@@ -64,7 +64,7 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
   const emailAddress = emailProvider?.config?.email || emailProvider?.config?.from_email || null
 
   const helpdeskProvider = (integrations || []).find(i =>
-    ['gorgias', 'zendesk', 'intercom'].includes(i.provider) && i.status === 'active',
+    ['gorgias', 'zendesk'].includes(i.provider) && i.status === 'active',
   )
   const helpdeskName = helpdeskProvider?.provider
     ? helpdeskProvider.provider.charAt(0).toUpperCase() + helpdeskProvider.provider.slice(1)
@@ -85,13 +85,13 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
     {
       id: 'chat',
       name: 'Chat / Helpdesk',
-      description: 'Gorgias, Zendesk, Intercom — l\'agent répond dans votre helpdesk',
+      description: 'Gorgias ou Zendesk — l\'agent répond dans votre helpdesk',
       icon: MessagesSquare,
       color: '#FF6B6B',
       status: helpdeskConnected ? 'connected' : 'available',
       targetTab: 'intégrations',
       detail: helpdeskName,
-      metric: (channelStats?.gorgias || 0) + (channelStats?.zendesk || 0) + (channelStats?.intercom || 0),
+      metric: (channelStats?.gorgias || 0) + (channelStats?.zendesk || 0),
     },
   ]
 

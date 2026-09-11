@@ -12,7 +12,6 @@ const INTEGRATIONS = {
     { name: "OpenAI", src: "/openai.svg", desc: "Moteur LLM pour les réponses IA" },
     { name: "Zendesk", icon: "zendesk", color: "03363D", desc: "Escalade intelligente des tickets" },
     { name: "Make", icon: "make", color: "5F4CFF", desc: "Connecteur universel" },
-    { name: "Intercom", icon: "intercom", color: "0058DD", desc: "Chat en direct augmenté IA" },
   ],
 }
 

@@ -63,11 +63,14 @@ const LACUNES_CONNUES = {
     + "déclenche `checkouts/create`. Son entrée vit dans api/engine/webhooks/"
     + "shopify-cart.js, qui n'est pas un canal de support.",
   intercom:
-    "ACT-40 — PROPOSÉ AU MARCHAND ET SANS CHEMIN ENTRANT. C'est la lacune que "
-    + "ce fichier a servi à trouver. Deux issues : construire "
-    + "api/engine/webhooks/intercom.js et brancher le connecteur déjà écrit, ou "
-    + "retirer Intercom de src/config/integrations.js. Tant que ce n'est pas "
-    + "tranché, un marchand peut le connecter et n'obtenir rien.",
+    "ACT-40 — RETIRÉ DE L'OFFRE le 11 septembre 2026. C'est la lacune que ce "
+    + "fichier a servi à trouver : proposé au marchand, connectable, et sans "
+    + "aucun chemin entrant. Des deux issues — construire le webhook ou retirer "
+    + "l'intégration — Pablo a tranché pour la seconde. Le code reste en place "
+    + "(OAuth, les 5 fonctions du connecteur, l'import E2B de l'historique), "
+    + "prêt si l'arbitrage change ; seules les surfaces qui le PROMETTAIENT ont "
+    + "été retirées : le catalogue, la grille de la landing, le hub des canaux "
+    + "et l'article d'aide. Même état que crisp désormais.",
   crisp:
     "Présent dans le registre avec un repli email, mais PAS proposé dans "
     + "src/config/integrations.js. Configuration morte, sans conséquence "

@@ -411,32 +411,6 @@ const GUIDES = [
       },
     ],
   },
-  {
-    id: 'connecter-intercom-crisp',
-    category: 'intégrations',
-    title: 'Connecter Intercom ou Crisp',
-    summary: 'Brancher votre chat en direct pour que l\'IA reponde aux conversations.',
-    icon: MessageSquare,
-    readTime: '4 min',
-    sections: [
-      {
-        title: 'A quoi ça sert',
-        content: "Si vous utilisez Intercom ou Crisp pour le chat en direct sur votre site, Actero peut s'y connecter pour répondre automatiquement aux conversations. L'IA traite les messages entrants, répond aux questions courantes, et escalade les cas complexes vers votre équipe. Vous gardez votre outil de chat habituel, mais avec un agent IA qui répond en premier.",
-      },
-      {
-        title: 'Connecter Intercom',
-        content: "1. Connectez-vous a Intercom\n2. Allez dans Settings puis Developers puis Access Token\n3. Copiez votre token d'accès (il commence par dG9r...)\n4. Dans Actero, allez dans Intégrations, trouvez Intercom et cliquez Connecter\n5. Collez votre token et validez\n6. Badge vert = c'est connecte",
-      },
-      {
-        title: 'Connecter Crisp',
-        content: "1. Connectez-vous a Crisp\n2. Allez dans Settings puis Website Settings puis Setup instructions\n3. Copiez votre identifiant de site (un long code au format xxxx-xxxx-xxxx-xxxx)\n4. Dans Actero, allez dans Intégrations, trouvez Crisp et cliquez Connecter\n5. Collez l'identifiant et validez",
-      },
-      {
-        title: 'Chat Actero vs Intercom/Crisp',
-        content: "Si vous n'avez pas encore de solution de chat, sachez qu'Actero inclut son propre widget de chat integrable sur votre site. Pas besoin d'Intercom ou Crisp. Mais si vous les utilisez déjà et que vos équipes y sont habituees, il est plus simple de les connecter plutot que de changer d'outil.",
-      },
-    ],
-  },
 
   {
     id: 'configurer-mcp-claude-desktop',

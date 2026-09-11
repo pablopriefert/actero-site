@@ -13,7 +13,7 @@ export const INTEGRATION_CATEGORIES = [
     id: 'helpdesk',
     label: 'Helpdesk',
     description: 'Votre IA gère les tickets directement dans votre outil de support',
-    ids: ['gorgias', 'zendesk', 'intercom'],
+    ids: ['gorgias', 'zendesk'],
   },
   {
     id: 'messaging',
@@ -55,7 +55,7 @@ export const CONFLICT_GROUPS = {
   helpdesk: {
     label: 'Helpdesk',
     message: 'Vous ne pouvez connecter qu\'un seul helpdesk à la fois.',
-    ids: ['gorgias', 'zendesk', 'intercom'],
+    ids: ['gorgias', 'zendesk'],
   },
   email_sending: {
     label: 'Envoi d\'emails',
@@ -128,17 +128,6 @@ export const INTEGRATIONS = {
       oauthUrl: (params) => `/api/intégrations/oauth/zendesk/install?subdomain=${encodeURIComponent(params.subdomain)}&token=${encodeURIComponent(params.token)}`,
       docsUrl: 'https://developer.zendesk.com/api-reference/',
       color: '#03363D',
-    },
-    {
-      id: 'intercom',
-      name: 'Intercom',
-      description: 'Helpdesk & messaging — conversations, tickets, base de connaissances',
-      icon: 'https://logo.clearbit.com/intercom.com',
-      authType: 'oauth',
-      oauthUrl: (params) => `/api/intégrations/intercom/authorize?client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
-      docsUrl: 'https://developers.intercom.com/docs',
-      color: '#1F8DED',
-      popular: true,
     },
     {
       id: 'webflow',
