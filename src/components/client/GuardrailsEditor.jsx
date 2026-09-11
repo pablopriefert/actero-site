@@ -12,10 +12,10 @@ import { useToast } from '../ui/Toast'
 const EXAMPLES = [
   "Ne jamais proposer de remboursement sans escalade humaine",
   "Ne jamais mentionner la concurrence",
-  "Toujours rediriger les questions sur les prix vers l'equipe commerciale",
-  "Ne jamais partager de donnees personnelles d'autres clients",
-  "Toujours demander le numero de commande avant de traiter un retour",
-  "Ne jamais promettre un delai de livraison specifique",
+  "Toujours rediriger les questions sur les prix vers l'équipe commerciale",
+  "Ne jamais partager de données personnelles d'autres clients",
+  "Toujours demander le numéro de commande avant de traiter un retour",
+  "Ne jamais promettre un délai de livraison spécifique",
 ]
 
 export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
@@ -99,7 +99,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
       <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
         <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
         <p className="text-sm text-amber-800">
-          Ces regles sont des règles & limites. L'agent IA les verifie <strong>avant chaque reponse</strong>.
+          Ces regles sont des règles & limites. L'agent IA les verifie <strong>avant chaque réponse</strong>.
           Definissez ce que l'agent ne doit <strong>jamais</strong> faire.
         </p>
       </div>
@@ -174,7 +174,7 @@ export const GuardrailsEditor = ({ clientId, theme: _theme }) => {
                 <button
                   onClick={() => toggleRule(rule.id, rule.is_enabled)}
                   className="flex-shrink-0"
-                  title={rule.is_enabled ? 'Desactiver' : 'Activer'}
+                  title={rule.is_enabled ? 'Désactiver' : 'Activer'}
                 >
                   {rule.is_enabled ? (
                     <ToggleRight className="w-6 h-6 text-cta" />
@@ -220,14 +220,14 @@ const CONDITIONS = [
   { id: 'contact_count', label: 'Nb contacts (7j)', type: 'number', unit: '', operators: ['>', '>=', '='] },
   { id: 'keyword', label: 'Mot-cle detecte', type: 'text', placeholder: 'avocat, procès, arnaque...' },
   { id: 'sentiment', label: 'Sentiment', type: 'select', options: ['Tres negatif', 'Negatif', 'Neutre'] },
-  { id: 'topic', label: 'Sujet', type: 'select', options: ['Remboursement', 'Retour', 'Livraison', 'Reclamation', 'Autre'] },
+  { id: 'topic', label: 'Sujet', type: 'select', options: ['Remboursement', 'Retour', 'Livraison', 'Réclamation', 'Autre'] },
 ]
 
 const ACTIONS = [
   { id: 'escalate', label: 'Escalader vers un humain', icon: '🧑‍💼', color: 'bg-red-50 border-red-200 text-red-700' },
   { id: 'promo', label: 'Proposer un code promo', icon: '🎁', color: 'bg-violet-50 border-violet-200 text-violet-700' },
-  { id: 'template', label: 'Reponse standard', icon: '📋', color: 'bg-blue-50 border-blue-200 text-blue-700' },
-  { id: 'notify', label: 'Notifier l\'equipe', icon: '🔔', color: 'bg-amber-50 border-amber-200 text-amber-700' },
+  { id: 'template', label: 'Réponse standard', icon: '📋', color: 'bg-blue-50 border-blue-200 text-blue-700' },
+  { id: 'notify', label: 'Notifier l\'équipe', icon: '🔔', color: 'bg-amber-50 border-amber-200 text-amber-700' },
   { id: 'tag', label: 'Ajouter un tag', icon: '🏷️', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
 ]
 
@@ -285,7 +285,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
         priority: 0,
       })
       if (error) throw error
-      toast.success('Regle creee')
+      toast.success('Règle creee')
       setConditions([{ conditionId: '', operator: '>', value: '' }])
       setAction('')
       setActionValue('')
@@ -442,7 +442,7 @@ const VisualRuleBuilder = ({ clientId, onRuleCreated }) => {
                   type="text"
                   value={actionValue}
                   onChange={(e) => setActionValue(e.target.value)}
-                  placeholder={action === 'promo' ? 'Code: SORRY10' : action === 'tag' ? 'Nom du tag' : 'Texte de la reponse'}
+                  placeholder={action === 'promo' ? 'Code: SORRY10' : action === 'tag' ? 'Nom du tag' : 'Texte de la réponse'}
                   className="mt-3 w-full px-4 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/20"
                 />
               )}
@@ -879,7 +879,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
               key={t.id}
               type="button"
               onClick={() => loadTemplate(t)}
-              className="text-left p-3 rounded-xl border border-[#E6E8EC] bg-[#fafaf7] hover:border-cta/40 hover:bg-cta/5 transition"
+              className="text-left p-3 rounded-xl border border-[#E6E8EC] bg-surface hover:border-cta/40 hover:bg-cta/5 transition"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[13px] font-bold text-[#1a1a1a]">{t.name}</span>
@@ -893,7 +893,7 @@ const DiscountPolicyPanel = ({ clientId }) => {
       </div>
 
       {/* Plafond */}
-      <div className="mb-5 p-3 rounded-xl bg-[#fafaf7] border border-[#E6E8EC]">
+      <div className="mb-5 p-3 rounded-xl bg-surface border border-[#E6E8EC]">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
             <p className="text-[12px] font-semibold text-[#1a1a1a]">Plafond max de remise</p>
@@ -1009,14 +1009,14 @@ const DiscountPolicyPanel = ({ clientId }) => {
         {policyShowCode && (
           <div className="mt-3">
             <p className="text-[11px] text-[#71717a] mb-2">
-              La règle est une fonction <code className="px-1 py-0.5 rounded bg-[#f5f5f5] font-mono text-[10px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque appel. Tu peux y mettre n'importe quelle logique conditionnelle Python. Le plafond ci-dessus s'applique <em>après</em> ton retour, donc une coquille ne peut jamais dépasser ta marge.
+              La règle est une fonction <code className="px-1 py-0.5 rounded bg-surface font-mono text-[10px]">decide_discount(cart, customer, policy_caps)</code> exécutée dans un sandbox isolé E2B à chaque appel. Tu peux y mettre n'importe quelle logique conditionnelle Python. Le plafond ci-dessus s'applique <em>après</em> ton retour, donc une coquille ne peut jamais dépasser ta marge.
             </p>
             <textarea
               value={policyCode}
               onChange={(e) => { setPolicyCode(e.target.value); setPolicyDirty(true) }}
               spellCheck={false}
               rows={14}
-              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E6E8EC] bg-[#fafaf7] p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
+              className="w-full font-mono text-[12px] leading-relaxed rounded-xl border border-[#E6E8EC] bg-surface p-3 text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta/40"
             />
             {policyDirty && (
               <div className="mt-1 text-[11px] text-amber-700">

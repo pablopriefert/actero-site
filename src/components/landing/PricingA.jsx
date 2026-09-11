@@ -43,7 +43,6 @@ export const PricingA = ({ onNavigate }) => {
       features: [
         '1 000 tickets / mois',
         '3 workflows · 3 intégrations',
-        'Éditeur ton de marque',
         'Simulateur de conversation',
         'API REST + Webhooks',
         'Historique 90 jours',
@@ -64,6 +63,7 @@ export const PricingA = ({ onNavigate }) => {
         'Agents spécialisés (WISMO, retours, produit)',
         'Relance paniers abandonnés',
         'Analyse photo — Claude Sonnet 5',
+        'Portail client en marque blanche',
         'Rapport PDF mensuel',
         'Support prioritaire 24h',
       ],
@@ -95,7 +95,7 @@ export const PricingA = ({ onNavigate }) => {
     if (style === 'primary') return 'bg-[#A8C490] text-[#003725] hover:bg-white'
     if (style === 'dark') return 'bg-cta text-white hover:bg-[#1a1a1a]'
     // ghost
-    if (popular) return 'bg-[#F4F5F7]/10 text-white hover:bg-[#F4F5F7]/15'
+    if (popular) return 'bg-cream/10 text-white hover:bg-cream/15'
     return 'bg-surface text-[#1A1A1A] hover:bg-gray-100 border border-black/[0.08]'
   }
 

@@ -17,6 +17,7 @@
  *   - silent_vip : VIP client (>500€ total) sans commande depuis > seuil
  */
 import { decryptToken } from './crypto.js'
+import { SHOPIFY_API_VERSION } from './shopify-api-version.js'
 
 /* -------------------------------------------------------------------------- */
 /*  Detector registry                                                         */
@@ -165,8 +166,6 @@ async function detectFailedPayment(supabase, clientId, config) {
 
 // Shopify GraphQL Admin API — required by App Store policy 2.2.4 for all
 // non-Theme/Asset endpoints in new public apps.
-const GRAPHQL_API_VERSION = '2025-01'
-
 const UNPAID_ORDERS_QUERY = `
   query UnpaidOrders($query: String!, $first: Int!) {
     orders(first: $first, query: $query, sortKey: CREATED_AT, reverse: true) {
@@ -193,7 +192,7 @@ function gidToNumericId(gid) {
 
 async function shopifyGraphql(conn, query, variables) {
   const resp = await fetch(
-    `https://${conn.shop_domain}/admin/api/${GRAPHQL_API_VERSION}/graphql.json`,
+    `https://${conn.shop_domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`,
     {
       method: 'POST',
       headers: {

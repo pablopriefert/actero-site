@@ -1,6 +1,7 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js';
+import { appliquerCampagne } from '../lib/campagne.js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -18,7 +19,7 @@ async function handler(req, res) {
     return res.status(429).json({ error: 'Trop de tentatives. Réessayez plus tard.' });
   }
 
-  const { email, password, brand_name, shopify_url, referral_code, acquisition_source } = req.body || {};
+  const { email, password, brand_name, shopify_url, referral_code, campaign_code, acquisition_source } = req.body || {};
 
   // --- Validation ---
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -99,6 +100,14 @@ async function handler(req, res) {
 
     if (linkError) {
       console.error('[SIGNUP] Client-user link error:', linkError);
+    }
+
+    // 4bis. Code de campagne publicitaire → un mois d'essai (ACT-33).
+    // La décision vit dans api/lib/campagne.js : cette route et
+    // /api/auth/apply-campaign (chemin Google) l'appellent toutes les deux.
+    if (campaign_code) {
+      const { applique } = await appliquerCampagne(supabase, clientId, campaign_code);
+      console.log(`[SIGNUP] campagne ${applique ? 'appliquée' : 'refusée'} pour ${clientId}`);
     }
 
     // 5. Process referral code if present

@@ -108,12 +108,12 @@ export function AdminClientsListView() {
         })
       }
 
-      // 3) Client settings (voice agent flag)
+      // 3) Client settings (drapeau d'activation de l'agent)
       let settingsMap = {}
       if (ids.length > 0) {
         const { data: settings } = await supabase
           .from('client_settings')
-          .select('client_id, voice_agent_enabled')
+          .select('client_id, agent_enabled')
           .in('client_id', ids)
         ;(settings || []).forEach((s) => {
           settingsMap[s.client_id] = s
@@ -141,7 +141,7 @@ export function AdminClientsListView() {
         const settings = settingsMap[c.id]
         return {
           ...c,
-          agent_enabled: settings?.voice_agent_enabled || false,
+          agent_enabled: settings?.agent_enabled ?? false,
           last_activity_at: runs?.last || null,
           runs_7d: runs?.count || 0,
           escalations_count: escalationMap[c.id] || 0,

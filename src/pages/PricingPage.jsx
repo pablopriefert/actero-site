@@ -132,7 +132,6 @@ function buildFeatures(plan) {
       `Shopify + ${limits.integrations - 1} intégrations`,
       `Base de connaissances ${limits.knowledge_entries} entrées`,
       `${limits.team_members} membres d'équipe`,
-      "Éditeur ton de marque",
       "Règles métier & guardrails",
       "Simulateur de conversation",
       "API REST + Webhooks",
@@ -156,7 +155,7 @@ function buildFeatures(plan) {
       "Agents IA spécialisés (WISMO, retour, produit, proactif)",
       "Relance paniers abandonnés (agent proactif)",
       "Agent Email natif Actero",
-      "Éditeur ton de marque",
+      "Portail client en marque blanche (suivi, retours, remboursements)",
       "Simulateur de conversation",
       "API REST + Webhooks",
       "Rapport PDF mensuel auto-envoyé",
@@ -213,7 +212,7 @@ const comparisonCategories = [
         values: compVal(PLAN_ORDER, (p) => fmt(p.limits.workflows_active)),
       },
       {
-        label: "Membres d'equipe",
+        label: "Membres d'équipe",
         values: compVal(PLAN_ORDER, (p) => fmt(p.limits.team_members)),
       },
       {
@@ -289,10 +288,6 @@ const comparisonCategories = [
   {
     name: "Personnalisation",
     rows: [
-      {
-        label: "Éditeur ton de marque",
-        values: compVal(PLAN_ORDER, (p) => p.features.brand_editor),
-      },
       {
         label: "Règles & limites",
         values: compVal(PLAN_ORDER, (p) => p.features.guardrails),
@@ -425,7 +420,7 @@ export const PricingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Tarifs Actero — Agent IA pour Shopify à partir de 99€/mois"
-        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Essai 7 jours sans carte bancaire."
+        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Essai gratuit sur Starter et Pro."
         canonical="/tarifs"
         schemaData={{
           "@context": "https://schema.org",

@@ -79,11 +79,6 @@ export async function notifyClient(supabase, { clientId, eventKey, title, messag
     results.skipped.push({ channel: 'push', reason: 'not_implemented' })
   }
 
-  // VOCAL — not implemented yet
-  if (channels.includes('vocal')) {
-    results.skipped.push({ channel: 'vocal', reason: 'not_implemented' })
-  }
-
   return results
 }
 

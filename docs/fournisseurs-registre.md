@@ -27,7 +27,6 @@ Une clé configurée est une facture qui peut démarrer. Relevé du nombre de fi
 | **Resend** | 29 | **tout l'email sortant** — réponses clients, alertes, rapports | plafond de plan atteint en silence |
 | **Anthropic** | 11 | voir l'avertissement ci-dessous | facturé en parallèle d'OpenRouter |
 | **Gemini** | 6 | analyse d'images des tickets | à l'usage |
-| **ElevenLabs** | 6 | agent vocal | **le plus cher à la minute** |
 | **E2B** | 5 | bacs à sable des politiques, onboarding | facturé à la seconde |
 | **OpenAI** | 4 | repli LLM, embeddings | à l'usage |
 | **OpenRouter** | 3 | **le moteur SAV entier** | prépayé — s'arrête net à zéro |

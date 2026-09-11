@@ -2,10 +2,10 @@ import { withSentry } from '../lib/sentry.js'
 import { getServiceRoleClient } from './lib/supabase.js';
 import { requirePortalSession } from './lib/session.js';
 import { decryptToken } from '../lib/crypto.js';
+import { SHOPIFY_API_VERSION } from '../lib/shopify-api-version.js'
 
 // Shopify GraphQL Admin API — required by App Store policy 2.2.4 for all
 // non-Theme/Asset endpoints in new public apps.
-const GRAPHQL_API_VERSION = '2025-01';
 
 const ORDER_BY_NAME_QUERY = `
   query OrderByName($query: String!) {
@@ -26,7 +26,7 @@ const SEND_INVOICE_MUTATION = `
 
 async function shopifyGraphql(shopDomain, token, query, variables) {
   const resp = await fetch(
-    `https://${shopDomain}/admin/api/${GRAPHQL_API_VERSION}/graphql.json`,
+    `https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`,
     {
       method: 'POST',
       headers: {

@@ -17,12 +17,11 @@ import { supabase } from '../lib/supabase'
 import { SEO } from '../components/SEO'
 
 const CATEGORIES = [
-  { id: 'all', label: 'Toutes les categories' },
+  { id: 'all', label: 'Toutes les catégories' },
   { id: 'sav', label: 'SAV' },
   { id: 'ecommerce', label: 'E-commerce' },
   { id: 'immobilier', label: 'Immobilier' },
-  { id: 'comptabilite', label: 'Comptabilite' },
-  { id: 'voice', label: 'Voice' },
+  { id: 'comptabilité', label: 'Comptabilité' },
   { id: 'autre', label: 'Autre' },
 ]
 
@@ -343,7 +342,7 @@ export const MarketplacePage = ({ onNavigate }) => {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher un template, une categorie, un createur..."
+              placeholder="Rechercher un template, une catégorie, un createur..."
               className="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white border border-[#f0f0f0] text-[14px] placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#003725]/20 focus:border-[#003725] transition"
             />
           </div>

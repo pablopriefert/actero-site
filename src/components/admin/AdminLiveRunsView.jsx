@@ -111,7 +111,7 @@ export const AdminLiveRunsView = () => {
     <div className="flex flex-col h-full">
       <PageHeader
         title="Live Run Stream"
-        subtitle="Flux temps reel des runs Brain"
+        subtitle="Flux temps réel des runs Brain"
         badge={liveBadge}
       />
 
@@ -188,7 +188,7 @@ export const AdminLiveRunsView = () => {
                   <ListItem
                     icon={iconForStatus(run.status)}
                     title={`${run.classification || 'run'} -> ${
-                      run.agent_used || 'general'
+                      run.agent_used || 'général'
                     }`}
                     subtitle={`${latency ? `${latency}ms` : '—'} - confidence ${confidence}`}
                     meta={

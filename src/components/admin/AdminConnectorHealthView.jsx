@@ -154,7 +154,7 @@ export const AdminConnectorHealthView = () => {
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
         title="Sante des connecteurs"
-        subtitle="Etat des integrations cross-clients"
+        subtitle="Etat des intégrations cross-clients"
       />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface">
@@ -196,11 +196,11 @@ export const AdminConnectorHealthView = () => {
             ))}
           </div>
         ) : grouped.length === 0 ? (
-          <SectionCard title="Aucune integration" icon={Plug}>
+          <SectionCard title="Aucune intégration" icon={Plug}>
             <EmptyState
               icon={Plug}
               title="Aucun connecteur enregistre"
-              description="Les integrations clients apparaitront ici des qu'elles seront configurees."
+              description="Les intégrations clients apparaitront ici des qu'elles seront configurees."
             />
           </SectionCard>
         ) : (

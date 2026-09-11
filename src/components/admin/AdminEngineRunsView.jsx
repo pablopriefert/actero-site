@@ -9,8 +9,8 @@ import { supabase } from '../../lib/supabase'
 import { RunTagFlagButton } from './RunTagFlagButton'
 
 const STATUS_BADGES = {
-  completed: { label: 'Complete', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-  error: { label: 'Echoue', color: 'bg-red-50 text-red-600 border-red-200' },
+  completed: { label: 'Complète', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+  error: { label: 'Échoué', color: 'bg-red-50 text-red-600 border-red-200' },
   needs_review: { label: 'Review', color: 'bg-amber-50 text-amber-600 border-amber-200' },
   running: { label: 'En cours', color: 'bg-blue-50 text-blue-600 border-blue-200' },
 }
@@ -80,7 +80,7 @@ export const AdminEngineRunsView = () => {
       <div className="flex gap-2">
         {['all', 'completed', 'error', 'needs_review'].map(s => (
           <button key={s} onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors ${statusFilter === s ? 'bg-cta text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-gray-200'}`}>
+            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors ${statusFilter === s ? 'bg-cta text-white' : 'bg-surface text-[#71717a] hover:bg-gray-200'}`}>
             {s === 'all' ? 'Tous' : STATUS_BADGES[s]?.label || s}
           </button>
         ))}

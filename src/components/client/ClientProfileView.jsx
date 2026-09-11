@@ -16,7 +16,7 @@ const NOTIFICATION_TOGGLES = [
     { key: 'urgent_ticket_alert', label: 'Tickets urgents', desc: 'Email immediat pour les tickets detectes comme urgents ou agressifs', defaultVal: true },
   ]},
   { section: 'Rapports', items: [
-    { key: 'daily_summary', label: 'Resume quotidien', desc: 'Email chaque matin avec les performances de la veille', defaultVal: true },
+    { key: 'daily_summary', label: 'Résumé quotidien', desc: 'Email chaque matin avec les performances de la veille', defaultVal: true },
     { key: 'weekly_summary', label: 'Résumé hebdomadaire', desc: 'Rapport chaque lundi matin', defaultVal: false },
     { key: 'monthly_report', label: 'Rapport mensuel', desc: 'Rapport détaillé en fin de mois', defaultVal: true },
   ]},

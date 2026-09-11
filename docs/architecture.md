@@ -21,7 +21,6 @@ Tous les canaux qui touchent un client final finissent normalisés dans la même
 | Email (polling cron) | `webhooks/inbound-email.js` | V2 |
 | **Gorgias** | `webhooks/gorgias.js` | **V1** — voir plus bas |
 | **Zendesk** | `webhooks/zendesk.js` | **V1** — voir plus bas |
-| Vocal (ElevenLabs) | `webhooks/elevenlabs-postcall.js` | Ni l'un ni l'autre — la conversation a lieu côté ElevenLabs ; ce webhook ne fait que journaliser l'appel après coup dans `engine_events`/`ai_conversations` pour le dashboard. |
 | `gateway.js` en direct | `/api/engine/gateway` | Réservé au dashboard : simulateur de conversation, assistant de setup, bouton de test rapide. Toujours appelé avec `is_test: true` ou des emails `*@actero-test.com`. Ce n'est pas un canal client. |
 
 **Le point important : Gorgias et Zendesk tournent sur un pipeline différent.** `webhooks/gorgias.js` et `webhooks/zendesk.js` appellent `process.js` (`processMessage`), pas `brain.js`/`executor.js`. `process.js` fait un seul appel Claude monolithique (`buildSystemPrompt` + `buildMessages`, pas de classification séparée, pas d'agents spécialisés, pas de plan d'action) puis route la réponse via `respond.js`. Un marchand sur Gorgias ou Zendesk n'a donc ni les agents spécialisés, ni les actions de l'executor (`notify_slack`, `create_ticket`, le dédoublonnage par `action-claim.js`) — seulement une escalade si `should_escalate`/sentiment le déclenche. Documenter le pipeline V2 comme universel serait faux : c'est le pipeline de trois canaux sur cinq.

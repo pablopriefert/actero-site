@@ -22,8 +22,8 @@ import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
  * avec les choix du client — 8 sections :
  *   1. Navbar (sticky)
  *   2. Hero (centré, dashboard preview intégré — CTA « Voir les tarifs »)
- *   3. PartnersMarquee (4 badges PNG — ElevenLabs Grants, Shopify
- *      Partner, Google for Startups, Auth0)
+ *   3. PartnersMarquee (badges PNG — Shopify Partner, Google for
+ *      Startups, Auth0, et al.)
  *   4. Capabilities (2 cards — SAV email/chat + Relance paniers)
  *   5. ROI Simulator (split sliders + dark result panel)
  *   6. Pricing (4 cards — Pro popular dark)
@@ -34,8 +34,7 @@ import { TalkToHumanButton } from '../components/ui/TalkToHumanButton'
  * Retirées à la demande user :
  * — ChatDemo « Comme votre meilleur employé SAV »
  * — Testimonials « Ce que nos clients disent d'Actero »
- * — Capabilities : 2 cards sur 4 (Agent vocal + Éditeur ton retirés),
- *   les 2 restantes remplissent l'espace
+ * — Capabilities : 2 cards sur 4, les 2 restantes remplissent l'espace
  *
  * Typo : Inter Tight pour tous les h1/h2 (font-normal + italic suffix
  * muted sur la 2e ligne). Inter pour corps. DM Mono pour data accents.
@@ -99,7 +98,7 @@ export const LandingPage = ({ onNavigate }) => {
     },
     {
       q: 'Actero relance-t-il les paniers abandonnés ?',
-      a: "Oui : un agent proactif compose un message personnalisé (produit précis, remise conditionnelle, lien checkout) et relance sur le bon canal — pas une séquence email générique.",
+      a: "Oui : un agent proactif compose un message personnalisé (produit précis, lien de paiement direct) et l'envoie par email — pas une séquence générique.",
     },
     {
       q: 'Y a-t-il un engagement de durée ?',
@@ -282,7 +281,7 @@ export const LandingPage = ({ onNavigate }) => {
                 <div className="flex flex-wrap gap-3.5 justify-center mb-6">
                   <motion.button
                     onClick={() => onNavigate('/signup')}
-                    className="inline-flex items-center gap-2 bg-[#F4F5F7] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors group"
+                    className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors group"
                     whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
                     whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}

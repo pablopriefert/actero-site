@@ -1,18 +1,11 @@
 import React from 'react';
 import { Search, X } from 'lucide-react';
-import { tokens } from '../../lib/design-tokens';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
 /**
  * SearchInput — Input de recherche stylé avec icône et bouton clear.
  *
- * Utilise les tokens design-tokens.js :
- * - tokens.colors.bg.page
- * - tokens.colors.bg.border (#f0f0f0)
- * - tokens.colors.text.primary (#1a1a1a)
- * - tokens.colors.text.muted (#9ca3af) pour placeholder
- * - tokens.colors.brand.primary (#13804A) pour focus ring
  *
  * @param {Object} props
  * @param {string} props.value                 Valeur contrôlée. Requis.
@@ -62,5 +55,4 @@ export function SearchInput({
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const __SEARCH_INPUT_TOKENS__ = tokens;
+ 

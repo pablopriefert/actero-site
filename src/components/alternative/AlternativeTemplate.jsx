@@ -147,7 +147,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
 
               <FadeInUp delay={0.12} className="mb-8">
                 <p className="text-[13px] text-[#262626] font-medium mt-4">
-                  Installé en 15 minutes · Plan Free à vie · Essai 7 jours sans carte bancaire
+                  Installé en 15 minutes · Plan Free à vie · Essai gratuit sur Starter et Pro
                 </p>
               </FadeInUp>
 
@@ -220,7 +220,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                         <th className="text-left p-5 text-sm font-bold text-[#262626] w-[36%] sticky left-0 bg-white">
                           Critère
                         </th>
-                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-[#F0F7F2]">
+                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-surface">
                           Actero
                         </th>
                         <th className="p-5 text-center text-sm font-bold text-[#716D5C]">
@@ -237,7 +237,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                           <td className="p-5 text-sm font-semibold text-[#262626] sticky left-0 bg-inherit">
                             {row.label}
                           </td>
-                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-[#F0F7F2]/40">
+                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-surface/40">
                             <CellContent value={row.actero} winner />
                           </td>
                           <td className="p-5 text-center text-sm text-[#5A5A5A]">
@@ -387,7 +387,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                       trackEvent('Alternative_Bottom_CTA_Clicked', { competitor: data.competitorKey })
                       onNavigate('/signup')
                     }}
-                    className="inline-flex items-center gap-2 bg-[#F4F5F7] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
+                    className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                   >
                     Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
                   </button>

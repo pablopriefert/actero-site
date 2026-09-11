@@ -79,12 +79,12 @@ export const AdminTopErrorsView = () => {
     <div className="flex flex-col h-full overflow-hidden">
       <PageHeader
         title="Top erreurs"
-        subtitle={`${runs.length} erreurs au total sur les 24 dernieres heures`}
+        subtitle={`${runs.length} erreurs au total sur les 24 dernières heures`}
       />
 
       <div className="flex-1 overflow-y-auto p-6 bg-surface">
         <SectionCard
-          title="Top 10 erreurs des 24 dernieres heures"
+          title="Top 10 erreurs des 24 dernières heures"
           subtitle="Grouping par message d'erreur (tronque a 200 caracteres)"
           icon={AlertTriangle}
         >
@@ -97,7 +97,7 @@ export const AdminTopErrorsView = () => {
           ) : topErrors.length === 0 ? (
             <EmptyState
               icon={CheckCircle2}
-              title="Aucune erreur dans les dernieres 24h"
+              title="Aucune erreur dans les dernières 24h"
               description="Le moteur tourne sans accroc. Felicitations."
             />
           ) : (
@@ -175,7 +175,7 @@ export const AdminTopErrorsView = () => {
                   <ListItem
                     key={r.id}
                     icon={<AlertTriangle className="w-4 h-4 text-[#ef4444]" />}
-                    title={`${r.classification || 'run'} -> ${r.agent_used || 'general'}`}
+                    title={`${r.classification || 'run'} -> ${r.agent_used || 'général'}`}
                     subtitle={`client ${r.client_id?.slice(0, 8) || '—'}`}
                     meta={relTime(r.created_at)}
                   />

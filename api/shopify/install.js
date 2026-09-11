@@ -1,14 +1,61 @@
 import { withSentry } from '../lib/sentry.js'
 import crypto from 'crypto';
 
+// La fiche de l'app sur l'App Store — une surface appartenant à Shopify.
+// C'est de là que doit partir toute installation (App Store 2.3.1).
+//
+// PAS DE REPLI DEVINÉ, ET C'EST DÉLIBÉRÉ.
+//
+// Le 11 septembre 2026, la valeur par défaut était `'actero'`. Vérifié :
+// https://apps.shopify.com/actero renvoie 404. Le handle réel n'est pas
+// connaissable tant que l'app est en examen — la fiche n'est pas publiée, et
+// le Partner Dashboard est en lecture seule pendant la soumission.
+//
+// Deviner produirait le pire résultat possible : un marchand envoyé sur une
+// page introuvable de Shopify au moment précis où il veut installer l'app,
+// sans rien pour comprendre ni rattraper. Tant que le handle n'est pas posé
+// explicitement, on garde le marchand chez nous et on lui explique.
+const APP_HANDLE = process.env.SHOPIFY_APP_HANDLE || null;
+
 function handler(req, res) {
   const { shop, client, token } = req.query;
 
-  if (!shop) {
-    return res.status(400).json({ error: 'Missing shop parameter. Use ?shop=store-name.myshopify.com' });
-  }
-
   const clientId = process.env.SHOPIFY_CLIENT_ID;
+
+  // SANS `shop`, ON NE LE DEMANDE PLUS : ON ENVOIE SUR L'APP STORE.
+  //
+  // App Store 2.3.1 : « votre app ne doit pas demander la saisie manuelle
+  // d'une URL myshopify.com ni du domaine d'une boutique pendant
+  // l'installation ou la configuration ». Cette route renvoyait un 400 quand
+  // le paramètre manquait, ce qui obligeait l'interface à le réclamer — et
+  // deux écrans le réclamaient : l'assistant de démarrage et la page
+  // Intégrations.
+  //
+  // Le paramètre `shop` reste accepté, mais il ne vient plus que de Shopify
+  // lui-même : c'est Shopify qui le fournit à `application_url` quand un
+  // marchand ouvre ou installe l'app depuis son admin. Fourni par Shopify,
+  // il est légitime ; tapé par le marchand, il ne l'est pas.
+  //
+  // LE COMPTE RESTE RATTACHÉ. C'est le cookie `actero_token` posé ci-dessous,
+  // et non le paramètre `shop`, qui permet à callback.js de retrouver le
+  // client Actero du marchand déjà connecté. Le cookie est en SameSite=Lax et
+  // le retour depuis Shopify est une navigation de premier niveau : il est
+  // donc bien renvoyé. Un marchand déjà inscrit ne se retrouve pas avec un
+  // second compte.
+  if (!shop) {
+    if (token) {
+      res.setHeader(
+        'Set-Cookie',
+        `actero_token=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=1800`,
+      );
+    }
+    if (!APP_HANDLE) {
+      // Fiche pas encore publiée, ou handle pas configuré. On renvoie le
+      // marchand dans l'app avec de quoi comprendre, plutôt que sur un 404.
+      return res.redirect(302, '/client/intégrations?shopify=fiche_indisponible');
+    }
+    return res.redirect(302, `https://apps.shopify.com/${APP_HANDLE}`);
+  }
   const redirectUri = process.env.SHOPIFY_REDIRECT_URI || 'https://actero.fr/api/shopify/callback';
 
   // Required scopes — every feature of the agent depends on these. Anything

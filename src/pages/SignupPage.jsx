@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 import { SEO } from "../components/SEO";
 import { useMotion } from "../lib/motion";
 import { trackEvent } from "../lib/analytics";
+import { codeCampagneCourant } from '../lib/campagne'
 
 export const SignupPage = ({ onNavigate }) => {
   const m = useMotion();
@@ -63,6 +64,11 @@ export const SignupPage = ({ onNavigate }) => {
     return match ? decodeURIComponent(match[1]) : null;
   }, [referralFromUrl]);
 
+  // Le code vient du module partagé : URL d'abord, cookie ensuite. Le cookie
+  // est posé au chargement de l'application (voir main.jsx), ce qui le fait
+  // survivre à l'aller-retour vers Google.
+  const campaignCode = useMemo(() => codeCampagneCourant(), []);
+
   // UTM attribution — capture query string params + referrer at mount time.
   // Sent along with signup requests for server-side storage in clients.acquisition_source.
   const acquisitionSource = useMemo(() => {
@@ -118,6 +124,7 @@ export const SignupPage = ({ onNavigate }) => {
           password,
           brand_name: brandName.trim(),
           ...(referralCode && { referral_code: referralCode }),
+          ...(campaignCode && { campaign_code: campaignCode }),
           ...(acquisitionSource && { acquisition_source: acquisitionSource }),
         }),
       });
@@ -203,7 +210,7 @@ export const SignupPage = ({ onNavigate }) => {
     setLoading(true);
     setError("");
     try {
-      await fetch("/api/auth/send-verification-code", {
+      await fetch("/api/auth/send-vérification-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -211,6 +218,7 @@ export const SignupPage = ({ onNavigate }) => {
           password,
           brand_name: brandName.trim(),
           ...(referralCode && { referral_code: referralCode }),
+          ...(campaignCode && { campaign_code: campaignCode }),
           ...(acquisitionSource && { acquisition_source: acquisitionSource }),
         }),
       });
@@ -349,7 +357,7 @@ export const SignupPage = ({ onNavigate }) => {
             {referralFromUrl && (
               <div className="flex items-center gap-2 p-3 mb-4 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-xl border border-emerald-100 text-center justify-center">
                 <Gift className="w-4 h-4 flex-shrink-0" />
-                <span>Votre premier mois est offert grace a votre parrain !</span>
+                <span>Votre premier mois est offert grâce a votre parrain !</span>
               </div>
             )}
 
@@ -415,7 +423,7 @@ export const SignupPage = ({ onNavigate }) => {
                   onChange={(e) => setEmail(e.target.value)}
                   aria-label="Adresse email"
                   className="w-full pl-11 pr-4 py-3.5 bg-surface border border-gray-200 rounded-xl text-sm text-[#262626] placeholder:text-[#716D5C]/60 focus:outline-none focus:border-cta/40 transition-all"
-                  placeholder="adresse email"
+                  placeholder="Adresse email"
                 />
               </div>
 

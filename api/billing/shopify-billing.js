@@ -23,6 +23,7 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { isActeroAdmin } from '../lib/admin-auth.js'
+import { origineDeFacturation, urlManagedPricing } from '../lib/facturation-shopify.js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -84,24 +85,24 @@ async function handler(req, res) {
   }
 
   // --- Require a Shopify connection to use Managed Pricing ---
-  const { data: connection } = await supabase
-    .from('client_shopify_connections')
-    .select('shop_domain')
-    .eq('client_id', client_id)
-    .maybeSingle()
+  //
+  // L'erreur de requête était jetée ici : `const { data: connection } = ...`.
+  // Une base indisponible devenait donc « pas de boutique Shopify », le front
+  // recevait 409, et repliait sur Stripe — soit exactement la violation d'App
+  // Store 1.2.1 qu'on veut éviter, déclenchée par un simple chemin d'erreur.
+  const origine = await origineDeFacturation(supabase, client_id)
 
-  if (!connection?.shop_domain) {
+  if (origine.statut === 'indetermine') {
+    console.error(`[shopify-billing] origine indéterminée pour ${client_id} : ${origine.raison}`)
+    return res.status(503).json({ error: 'billing_origin_unknown' })
+  }
+
+  if (origine.statut === 'direct') {
     // No connected Shopify store → direct signup → caller falls back to Stripe.
     return res.status(409).json({ error: 'no_shopify_connection' })
   }
 
-  // --- Build the Shopify-hosted Managed Pricing plan-selection URL ---
-  const storeHandle = String(connection.shop_domain).replace(/\.myshopify\.com$/, '')
-  const confirmationUrl =
-    `https://admin.shopify.com/store/${encodeURIComponent(storeHandle)}` +
-    `/charges/${encodeURIComponent(APP_HANDLE)}/pricing_plans`
-
-  return res.status(200).json({ confirmation_url: confirmationUrl })
+  return res.status(200).json({ confirmation_url: urlManagedPricing(origine.shopDomain) })
 }
 
 export default withSentry(handler)

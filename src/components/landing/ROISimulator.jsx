@@ -6,7 +6,7 @@ const PLAN_RECO = [
   { max: 50, plan: 'Free', price: '0', color: '#71717a', cta: 'Commencer gratuitement', href: '/signup' },
   { max: 1000, plan: 'Starter', price: '99', color: '#3b82f6', cta: 'Essai gratuit 7 jours', href: '/signup' },
   { max: 5000, plan: 'Pro', price: '399', color: '#13804A', cta: 'Essai gratuit 7 jours', href: '/signup' },
-  { max: Infinity, plan: 'Enterprise', price: 'Sur devis', color: '#f59e0b', cta: 'Contacter l\'equipe', href: 'mailto:contact@actero.fr' },
+  { max: Infinity, plan: 'Enterprise', price: 'Sur devis', color: '#f59e0b', cta: 'Contacter l\'équipe', href: 'mailto:contact@actero.fr' },
 ]
 
 function getRecommendedPlan(tickets) {
@@ -29,7 +29,7 @@ const SliderInput = ({ label, value, onChange, min, max, step: s = 1, unit, icon
       step={s}
       value={value}
       onChange={e => onChange(Number(e.target.value))}
-      className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#f0f0f0]
+      className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface
         [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
         [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cta
         [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(15,95,53,0.3)]

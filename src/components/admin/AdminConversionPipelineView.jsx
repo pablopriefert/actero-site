@@ -161,7 +161,7 @@ export function AdminConversionPipelineView() {
                     {/* Progress bar */}
                     <div className="col-span-3">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 bg-[#f0f0f0] rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all ${
                               isReady ? 'bg-[#10b981]' : pct > 50 ? 'bg-[#f59e0b]' : 'bg-[#3b82f6]'

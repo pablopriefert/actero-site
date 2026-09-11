@@ -73,8 +73,6 @@ import ProductTour from '../components/client/ProductTour'
 // rich form editors, chart libs, etc.) that aren't needed until the user
 // navigates to the tab.
 const ClientProfileView = lazy(() => import('../components/client/ClientProfileView').then(m => ({ default: m.ClientProfileView })))
-const VoiceAgentSetupView = lazy(() => import('../components/client/VoiceAgentSetupView').then(m => ({ default: m.VoiceAgentSetupView })))
-const VoiceCallsView = lazy(() => import('../components/client/VoiceCallsView').then(m => ({ default: m.VoiceCallsView })))
 const ClientReferralView = lazy(() => import('../components/client/ClientReferralView').then(m => ({ default: m.ClientReferralView })))
 const PartnerDashboardView = lazy(() => import('../components/client/PartnerDashboardView').then(m => ({ default: m.PartnerDashboardView })))
 const ClientKnowledgeBaseView = lazy(() => import('../components/client/ClientKnowledgeBaseView').then(m => ({ default: m.ClientKnowledgeBaseView })))
@@ -85,6 +83,7 @@ const GuardrailsEditor = lazy(() => import('../components/client/GuardrailsEdito
 const PromptEditor = lazy(() => import('../components/client/PromptEditor').then(m => ({ default: m.PromptEditor })))
 const ConversationSimulator = lazy(() => import('../components/client/ConversationSimulator').then(m => ({ default: m.ConversationSimulator })))
 const TeamManager = lazy(() => import('../components/client/TeamManager').then(m => ({ default: m.TeamManager })))
+import { RetentionBanner } from '../components/client/RetentionBanner'
 const ClientEscalationsView = lazy(() => import('../components/client/ClientEscalationsView').then(m => ({ default: m.ClientEscalationsView })))
 const ResponseTemplatesView = lazy(() => import('../components/client/ResponseTemplatesView').then(m => ({ default: m.ResponseTemplatesView })))
 const ApiDocsView = lazy(() => import('../components/client/ApiDocsView').then(m => ({ default: m.ApiDocsView })))
@@ -113,8 +112,8 @@ import { trackEvent, identifyUser } from '../lib/analytics'
 /**
  * Lean launch mode — keep the merchant nav focused on the core wedge for the
  * pre-launch / first-merchants phase: agent config + knowledge base + tickets
- * + integrations + settings. Premature or advanced surfaces (voice agent,
- * voice calls, email agent, SAV portal, multi-channel hub, deep analytics) are
+ * + integrations + settings. Premature or advanced surfaces (email agent,
+ * SAV portal, multi-channel hub, deep analytics) are
  * hidden from the sidebar to keep first-run onboarding clear.
  *
  * Nothing is deleted: every hidden tab is still routable directly (deep link
@@ -173,7 +172,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/support") return "support";
     if (route === "/client/referral") return "referral";
     if (route === "/client/partner") return "partner";
-    if (route === "/client/integrations") return "integrations";
+    if (route === "/client/intégrations") return "intégrations";
     if (route === "/client/migrations") return "migrations";
     if (route === "/client/portal-sav") return "portal-sav";
     if (route === "/client/portal-branding") return "portal-branding";
@@ -184,8 +183,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/client/guardrails") return "guardrails";
     if (route === "/client/escalations") return "escalations";
     if (route === "/client/response-templates") return "response-templates";
-    if (route === "/client/voice-calls") return "voice-calls";
-    if (route === "/client/voice-agent") return "voice-agent";
     if (route === "/client/notifications") return "notifications";
     if (route === "/client/billing") return "billing";
     if (route === "/client/roi") return "roi";
@@ -852,10 +849,8 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       icon: Plug,
       children: [
         ...(FEATURES.multiChannelHub ? [{ id: 'channels', label: 'Tous les canaux', icon: MessageSquare }] : []),
-        { id: 'integrations', label: 'Intégrations', icon: Plug },
-        ...(FEATURES.voiceAgent ? [{ id: 'voice-agent', label: 'Agent vocal', icon: Phone }] : []),
-        ...(FEATURES.voiceAgent ? [{ id: 'voice-calls', label: 'Appels vocaux', icon: Phone }] : []),
-        ...(FEATURES.portalSav ? [{ id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'STARTER', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) }] : []),
+        { id: 'intégrations', label: 'Intégrations', icon: Plug },
+        ...(FEATURES.portalSav ? [{ id: 'portal-sav', label: 'Portail SAV', icon: MonitorSmartphone, ...(can('portal_enabled') ? {} : { badge: 'PRO', badgeColor: 'bg-blue-50 text-blue-600 border border-blue-200' }) }] : []),
         // Migration tickets — visible only while no completed migration exists.
         ...(hasCompletedMigration ? [] : [{ id: 'migrations', label: 'Migration tickets', icon: Upload }]),
       ],
@@ -920,10 +915,10 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   ) : null
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#F7F8FA] text-[#1a1a1a]">
+    <div className="min-h-screen flex flex-col md:flex-row font-sans bg-surface text-[#1a1a1a]">
       <SkipToMain />
       {/* Mobile Header */}
-      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 bg-[#F7F8FA] border-b border-[#E6E8EC]`}>
+      <div className={`md:hidden h-16 flex items-center justify-between px-4 sticky top-0 z-50 bg-surface border-b border-[#E6E8EC]`}>
         <div className="flex items-center gap-2">
           <Logo className={`w-6 h-6 ${isLight ? "text-[#003725]" : "text-[#1a1a1a]"}`} />
           <span className={`font-bold text-lg ${isLight ? "text-[#1a1a1a]" : "text-[#1a1a1a]"}`}>Actero OS</span>
@@ -985,7 +980,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header — clean, minimal like Instantly */}
-        <header className="sticky top-0 z-40 bg-[#F7F8FA] px-5 md:px-8 h-[48px] flex items-center justify-between border-b border-[#E6E8EC]">
+        <header className="sticky top-0 z-40 bg-surface px-5 md:px-8 h-[48px] flex items-center justify-between border-b border-[#E6E8EC]">
           <h1 className="text-[14px] font-semibold text-[#1a1a1a]">
             {activeTab === "overview" && "Vue d'ensemble"}
             {activeTab === "automation" && "Automatisation"}
@@ -996,7 +991,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "support" && "Centre d'aide"}
             {activeTab === "referral" && "Parrainage"}
             {activeTab === "partner" && "Actero Partners"}
-            {activeTab === "integrations" && "Intégrations"}
+            {activeTab === "intégrations" && "Intégrations"}
             {activeTab === "migrations" && "Migration de tickets"}
             {activeTab === "portal-sav" && "Portail SAV"}
             {activeTab === "portal-branding" && "Personnaliser mon portail"}
@@ -1008,8 +1003,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             {activeTab === "guardrails" && "Restrictions"}
             {activeTab === "escalations" && "À traiter"}
             {activeTab === "response-templates" && "Modèles de réponse"}
-            {activeTab === "voice-calls" && "Appels vocaux"}
-            {activeTab === "voice-agent" && "Agent vocal"}
             {activeTab === "notifications" && "Notifications"}
             {activeTab === "playbooks" && "Scenarios"}
             {activeTab === "weekly-summary" && "Performance"}
@@ -1062,7 +1055,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               >
                 <Search className="w-3.5 h-3.5" />
                 <span>Rechercher</span>
-                <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-[#F4F5F7] rounded border border-[#E5E5E0]">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+                <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-cream rounded border border-[#E5E5E0]">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
               </button>
 
               {/* First-visit onboarding hint — localStorage gated, one-shot */}
@@ -1118,7 +1111,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
         <main
           id="main-content"
-          className={`flex-1 overflow-y-auto bg-[#F7F8FA] ${pleinePage ? '' : 'p-4 md:px-10 md:py-8'}`}
+          className={`flex-1 overflow-y-auto bg-surface ${pleinePage ? '' : 'p-4 md:px-10 md:py-8'}`}
         >
           <TabErrorBoundary tabId={activeTab} resetKey={activeTab} tabLabel={activeTab}>
           <Suspense fallback={
@@ -1179,7 +1172,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   {/* ── Primary CTA: Connect Shopify ── */}
                   {currentClient?.client_type === 'ecommerce' && !setupCompletion?.shopify && (
                     <button
-                      onClick={() => setActiveTab('integrations')}
+                      onClick={() => setActiveTab('intégrations')}
                       className="w-full mb-6 rounded-2xl bg-cta hover:bg-[#0d5430] transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.08)] px-6 py-5 flex items-center justify-between group active:scale-[0.98]"
                     >
                       <div className="flex items-center gap-4 min-w-0">
@@ -1302,7 +1295,20 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             </div>
           )}
 
-          {activeTab === "activity" && <ActivityView supabase={supabase} theme={theme} clientId={currentClient?.id} />}
+          {activeTab === "activity" && (
+            <>
+              {/* La limite de rétention est appliquée en base : sans ce
+                  bandeau, les lignes trop anciennes disparaîtraient en
+                  silence et le marchand n'aurait aucune raison de payer
+                  pour les retrouver (ACT-36). */}
+              <RetentionBanner
+                clientId={currentClient?.id}
+                planId={planId}
+                onUpgrade={() => setActiveTab('billing')}
+              />
+              <ActivityView supabase={supabase} theme={theme} clientId={currentClient?.id} />
+            </>
+          )}
 
           {activeTab === "profile" && <ClientProfileView theme={theme} />}
 
@@ -1333,7 +1339,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             />
           )}
 
-          {activeTab === "integrations" && (
+          {activeTab === "intégrations" && (
             <ClientIntegrationsView
               clientId={currentClient?.id}
               clientType={currentClient?.client_type}
@@ -1409,18 +1415,6 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             </PlanGate>
           )}
 
-          {activeTab === "voice-calls" && (
-            <PlanGate feature="voice_agent" planId={planId} inTrial={inTrial} onUpgrade={() => setActiveTab('billing')}>
-              <VoiceCallsView clientId={currentClient?.id} theme={theme} />
-            </PlanGate>
-          )}
-
-          {activeTab === "voice-agent" && (
-            <PlanGate feature="voice_agent" planId={planId} inTrial={inTrial} onUpgrade={() => setActiveTab('billing')}>
-              <VoiceAgentSetupView clientId={currentClient?.id} />
-            </PlanGate>
-          )}
-
           {activeTab === "api-docs" && (
             <PlanGate feature="api_webhooks" planId={planId} inTrial={inTrial} onUpgrade={() => setActiveTab('billing')}>
               <ApiDocsView clientId={currentClient?.id} />
@@ -1478,7 +1472,7 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           )}
 
           {activeTab === "insights" && (
-            <InsightsHubView clientId={currentClient?.id} onNavigate={setActiveTab} canAccessVoice={can('voice_agent')} />
+            <InsightsHubView clientId={currentClient?.id} onNavigate={setActiveTab} />
           )}
 
           {activeTab === "settings" && (

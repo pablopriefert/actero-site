@@ -113,7 +113,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
     >
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
-        <div className="w-10 h-10 rounded-[12px] bg-[#F0F7F2] border border-[#A8C490]/40 flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 rounded-[12px] bg-surface border border-[#A8C490]/40 flex items-center justify-center flex-shrink-0">
           <Calculator className="w-5 h-5 text-cta" strokeWidth={2} />
         </div>
         <div>
@@ -140,7 +140,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             step="100"
             value={tickets}
             onChange={(e) => setTickets(parseInt(e.target.value, 10))}
-            className="w-full h-2 rounded-full bg-[#F4F5F7] appearance-none cursor-pointer accent-[#003725]"
+            className="w-full h-2 rounded-full bg-cream appearance-none cursor-pointer accent-[#003725]"
           />
           <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-1.5">
             <span>100</span>
@@ -163,7 +163,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             step="5"
             value={aiPercent}
             onChange={(e) => setAiPercent(parseInt(e.target.value, 10))}
-            className="w-full h-2 rounded-full bg-[#F4F5F7] appearance-none cursor-pointer accent-[#003725]"
+            className="w-full h-2 rounded-full bg-cream appearance-none cursor-pointer accent-[#003725]"
           />
           <div className="flex justify-between text-[10px] text-[#9CA3AF] mt-1.5">
             <span>0%</span>
@@ -176,7 +176,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
 
       {/* Result split */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-        <div className="rounded-[16px] border border-black/[0.08] bg-[#FAFAF8] p-5">
+        <div className="rounded-[16px] border border-black/[0.08] bg-surface p-5">
           <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#716D5C] mb-2">
             Gorgias — plan {calc.gorgiasPlan.name}
           </div>
@@ -198,7 +198,7 @@ export const GorgiasCostCalculator = ({ onNavigate, source = 'inline', compact =
             <span className="text-[14px] font-medium text-[#5A8B70] ml-1.5">/an</span>
           </div>
           <div className="text-[12px] text-[#5A8B70] mt-1.5 leading-tight">
-            {formatEUR(calc.acteroMonthlyEUR)}/mois — forfait tout inclus, IA + voice + relance
+            {formatEUR(calc.acteroMonthlyEUR)}/mois — forfait tout inclus, IA + relance
           </div>
         </div>
       </div>

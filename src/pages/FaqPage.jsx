@@ -30,7 +30,7 @@ export const FaqPage = ({ onNavigate }) => {
       questions: [
         {
           q: "Qu'est-ce qu'Actero exactement ?",
-          a: "Actero est une plateforme SaaS française d'automatisation du service client e-commerce. Nos agents IA résolvent automatiquement les questions récurrentes (suivi de commande, retours, changements d'adresse, disponibilité produit) sur les canaux email, chat et téléphone — en moyenne 60% du volume de tickets SAV d'une boutique Shopify. Les cas complexes sont automatiquement escaladés à votre équipe humaine avec tout le contexte nécessaire.",
+          a: "Actero est une plateforme SaaS française d'automatisation du service client e-commerce. Nos agents IA résolvent automatiquement les questions récurrentes (suivi de commande, retours, changements d'adresse, disponibilité produit) sur les canaux email et chat — en moyenne 60% du volume de tickets SAV d'une boutique Shopify. Les cas complexes sont automatiquement escaladés à votre équipe humaine avec tout le contexte nécessaire.",
         },
         {
           q: "En quoi Actero est-il différent de Gorgias, Zendesk ou Tidio ?",
@@ -42,7 +42,7 @@ export const FaqPage = ({ onNavigate }) => {
         },
         {
           q: "Quels canaux de support Actero automatise-t-il ?",
-          a: "Trois canaux : email (réponses automatiques aux tickets entrants), chat (widget intégré sur votre site Shopify ou via Gorgias/Zendesk/Tidio), et téléphone (agent vocal ElevenLabs avec numéro FR dédié sur le plan Pro). Tous les canaux partagent le même contexte produit et l'historique client.",
+          a: "Deux canaux : email (réponses automatiques aux tickets entrants) et chat (widget intégré sur votre site Shopify ou via Gorgias/Zendesk/Tidio). Les deux canaux partagent le même contexte produit et l'historique client.",
         },
       ],
     },
@@ -51,7 +51,7 @@ export const FaqPage = ({ onNavigate }) => {
       questions: [
         {
           q: "Combien de temps prend l'installation ?",
-          a: "Moins de 15 minutes pour une configuration standard. Vous connectez Shopify en OAuth (1 clic), Actero lit automatiquement votre catalogue produits, vos politiques de retour et vos pages légales. L'agent commence à répondre à vos emails / chats / appels dans l'heure qui suit la connexion. Aucune modification de thème Shopify, aucun code à déployer.",
+          a: "Moins de 15 minutes pour une configuration standard. Vous connectez Shopify en OAuth (1 clic), Actero lit automatiquement votre catalogue produits, vos politiques de retour et vos pages légales. L'agent commence à répondre à vos emails / chats dans l'heure qui suit la connexion. Aucune modification de thème Shopify, aucun code à déployer.",
         },
         {
           q: "L'agent IA a-t-il accès aux commandes de mes clients ?",
@@ -101,7 +101,7 @@ export const FaqPage = ({ onNavigate }) => {
         },
         {
           q: "Actero utilise-t-il mes données pour entraîner ses modèles IA ?",
-          a: "Non. Nous nous sommes explicitement opt-out du Text and Data Mining (TDM) conformément à l'Article 4 de la Directive EU 2019/790. Vos conversations clients ne sont jamais utilisées pour entraîner ou fine-tuner nos modèles, ni ceux de nos fournisseurs (OpenAI, Anthropic, ElevenLabs sont tous configurés en mode 'no training data').",
+          a: "Non. Nous nous sommes explicitement opt-out du Text and Data Mining (TDM) conformément à l'Article 4 de la Directive EU 2019/790. Vos conversations clients ne sont jamais utilisées pour entraîner ou fine-tuner nos modèles, ni ceux de nos fournisseurs (OpenAI et Anthropic sont configurés en mode 'no training data').",
         },
         {
           q: "Actero modifie-t-il le code de mon site Shopify ?",
@@ -165,7 +165,7 @@ export const FaqPage = ({ onNavigate }) => {
     <>
       <SEO
         title="FAQ Actero — Questions frequentes sur nos agents IA"
-        description="Reponses a vos questions sur les agents IA Actero : fonctionnement, integration Shopify, tarifs, delais de deploiement, support."
+        description="Réponses a vos questions sur les agents IA Actero : fonctionnement, intégration Shopify, tarifs, délais de deploiement, support."
         canonical="/faq"
         schemaData={faqSchema}
       />

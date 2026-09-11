@@ -1,14 +1,72 @@
 /**
  * Actero Engine — Shopify Client
  * Looks up order data from Shopify to enrich AI responses with real order info.
+ *
+ * ACT-32 — ce fichier expose aussi `lookupOrder`, l'aiguillage multi-plateforme
+ * appelé par executor.js, process.js et order-agent.js : il regarde quelle
+ * plateforme e-commerce le client a connectée (Shopify via
+ * `client_shopify_connections`, WooCommerce via `client_integrations`) et
+ * délègue à `lookupShopifyOrder` (ci-dessous, comportement Shopify inchangé)
+ * ou à `lookupOrder` de woocommerce-client.js. Les trois appelants n'ont pas
+ * besoin de changer : ils continuent d'importer `lookupOrder` d'ici.
  */
 import { decryptToken } from '../../lib/crypto.js'
+import { formatOrder } from './order-format.js'
+import { lookupOrder as lookupWooCommerceOrder } from './woocommerce-client.js'
+import { SHOPIFY_API_VERSION } from '../../lib/shopify-api-version.js'
+
+/**
+ * Aiguillage : regarde quelle plateforme e-commerce le client a connectée et
+ * délègue au connecteur correspondant. Ne lève jamais — un client sans
+ * connexion, ou avec une connexion mal configurée, reçoit `null` comme avant.
+ */
+export async function lookupOrder(supabase, params) {
+  let platform
+  try {
+    platform = await detectConnectedPlatform(supabase, params?.clientId)
+  } catch (err) {
+    console.error('[shopify-client] Erreur de détection de plateforme:', err.message)
+    return null
+  }
+
+  if (platform === 'shopify') return lookupShopifyOrder(supabase, params)
+  if (platform === 'woocommerce') return lookupWooCommerceOrder(supabase, params)
+  return null // Aucune plateforme e-commerce connectée
+}
+
+/**
+ * Détermine la plateforme e-commerce connectée pour ce client.
+ * Shopify a sa propre table dédiée (présence de ligne = connecté, comme le
+ * faisait déjà lookupShopifyOrder ci-dessous). WooCommerce vit dans
+ * client_integrations, où plusieurs providers coexistent : on exige
+ * status = 'active' pour ignorer les connexions pending/revoked/error.
+ */
+async function detectConnectedPlatform(supabase, clientId) {
+  if (!clientId) return null
+
+  const { data: shopifyConn } = await supabase
+    .from('client_shopify_connections')
+    .select('id')
+    .eq('client_id', clientId)
+    .maybeSingle()
+  if (shopifyConn) return 'shopify'
+
+  const { data: wooConn } = await supabase
+    .from('client_integrations')
+    .select('id, status')
+    .eq('client_id', clientId)
+    .eq('provider', 'woocommerce')
+    .maybeSingle()
+  if (wooConn?.status === 'active') return 'woocommerce'
+
+  return null
+}
 
 /**
  * Look up a Shopify order by order name (#1234) or customer email.
  * Returns order details the AI can use to answer customer questions accurately.
  */
-export async function lookupOrder(supabase, { clientId, orderId, customerEmail }) {
+export async function lookupShopifyOrder(supabase, { clientId, orderId, customerEmail }) {
   // Load Shopify credentials
   const { data: shopify } = await supabase
     .from('client_shopify_connections')
@@ -24,7 +82,7 @@ export async function lookupOrder(supabase, { clientId, orderId, customerEmail }
   // GraphQL Admin API — the REST Admin API is legacy and not allowed for new
   // public apps (App Store requirement 2.2.4). We keep formatOrder's output
   // shape identical by mapping the GraphQL node back to the REST-like object.
-  const endpoint = `https://${shopify.shop_domain}/admin/api/2025-01/graphql.json`
+  const endpoint = `https://${shopify.shop_domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`
   const headers = {
     'X-Shopify-Access-Token': shopifyToken,
     'Content-Type': 'application/json',
@@ -106,104 +164,4 @@ function mapGraphQLOrder(node) {
       : null,
     refunds: [],
   }
-}
-
-/**
- * Format a Shopify order into a concise context string for the AI.
- */
-function formatOrder(order) {
-  const fulfillmentStatus = order.fulfillment_status || 'non expedie'
-  const financialStatus = order.financial_status || 'inconnu'
-
-  // Get tracking info
-  const fulfillments = order.fulfillments || []
-  const trackingInfo = fulfillments.map(f => ({
-    status: f.status,
-    trackingNumber: f.tracking_number,
-    trackingUrl: f.tracking_url,
-    carrier: f.tracking_company,
-  })).filter(f => f.trackingNumber)
-
-  // Get line items
-  const items = (order.line_items || []).map(item => ({
-    name: item.title,
-    variant: item.variant_title,
-    quantity: item.quantity,
-    price: item.price,
-  }))
-
-  // Get shipping address
-  const shipping = order.shipping_address
-  const shippingStr = shipping
-    ? `${shipping.city}, ${shipping.country}`
-    : 'Non renseignee'
-
-  return {
-    id: order.id || null,
-    orderName: order.name || `#${order.order_number}`,
-    orderDate: new Date(order.created_at).toLocaleDateString('fr-FR'),
-    totalPrice: `${order.total_price} ${order.currency}`,
-    financialStatus: translateFinancialStatus(financialStatus),
-    fulfillmentStatus: translateFulfillmentStatus(fulfillmentStatus),
-    items,
-    trackingInfo,
-    shippingAddress: shippingStr,
-    email: order.email,
-    // Formatted text for AI injection
-    contextText: buildOrderContextText(order, items, trackingInfo, fulfillmentStatus, financialStatus),
-  }
-}
-
-function buildOrderContextText(order, items, trackingInfo, fulfillmentStatus, financialStatus) {
-  let text = `COMMANDE ${order.name || '#' + order.order_number}:\n`
-  text += `- Date: ${new Date(order.created_at).toLocaleDateString('fr-FR')}\n`
-  text += `- Montant: ${order.total_price} ${order.currency}\n`
-  text += `- Paiement: ${translateFinancialStatus(financialStatus)}\n`
-  text += `- Expedition: ${translateFulfillmentStatus(fulfillmentStatus)}\n`
-
-  if (items.length > 0) {
-    text += `- Articles: ${items.map(i => `${i.quantity}x ${i.name}${i.variant ? ' (' + i.variant + ')' : ''}`).join(', ')}\n`
-  }
-
-  if (trackingInfo.length > 0) {
-    const t = trackingInfo[0]
-    text += `- Transporteur: ${t.carrier || 'Non precise'}\n`
-    text += `- Numero de suivi: ${t.trackingNumber}\n`
-    if (t.trackingUrl) text += `- Lien de suivi: ${t.trackingUrl}\n`
-  }
-
-  // Refund info
-  if (order.refunds && order.refunds.length > 0) {
-    const totalRefunded = order.refunds.reduce((sum, r) =>
-      sum + r.refund_line_items.reduce((s, li) => s + parseFloat(li.subtotal || 0), 0), 0
-    )
-    if (totalRefunded > 0) {
-      text += `- Remboursement: ${totalRefunded.toFixed(2)} ${order.currency}\n`
-    }
-  }
-
-  return text
-}
-
-function translateFulfillmentStatus(status) {
-  const map = {
-    fulfilled: 'Expedie',
-    partial: 'Partiellement expedie',
-    unfulfilled: 'Non expedie',
-    null: 'Non expedie',
-    restocked: 'Restitue',
-  }
-  return map[status] || status
-}
-
-function translateFinancialStatus(status) {
-  const map = {
-    paid: 'Paye',
-    pending: 'En attente',
-    refunded: 'Rembourse',
-    partially_refunded: 'Partiellement rembourse',
-    voided: 'Annule',
-    authorized: 'Autorise',
-  }
-  return map[status] || status
 }

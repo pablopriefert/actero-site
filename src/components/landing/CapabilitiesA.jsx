@@ -40,8 +40,8 @@ export const CapabilitiesA = () => {
       Icon: ShoppingCart,
       title: 'Relance paniers abandonnés',
       desc:
-        "Un agent proactif qui relance chaque client avec un message personnalisé (produit, remise conditionnelle, lien checkout) — pas une séquence email générique.",
-      highlight: '+15% de CA récupéré en moyenne',
+        "Un agent proactif qui relance chaque client avec un message personnalisé (produit précis, lien de paiement direct) — pas une séquence email générique.",
+      highlight: "jusqu'à 15 % de CA récupéré, selon votre volume",
       highlightMarker: '*',
     },
     {
@@ -125,7 +125,7 @@ export const CapabilitiesA = () => {
                 <div className="flex items-center gap-3 mb-5">
                   {/* TASK 3: icon scale + rotate on card hover */}
                   <motion.div
-                    className="w-10 h-10 rounded-lg bg-[#F4F5F7] flex items-center justify-center"
+                    className="w-10 h-10 rounded-lg bg-cream flex items-center justify-center"
                     whileHover={
                       prefersReducedMotion
                         ? {}
@@ -134,7 +134,7 @@ export const CapabilitiesA = () => {
                   >
                     <Icon className="w-5 h-5 text-[#003725]" strokeWidth={1.8} />
                   </motion.div>
-                  <span className="text-[10px] font-bold text-cta bg-[#E8F5EC] px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">
+                  <span className="text-[10px] font-bold text-cta bg-primary-tint px-2 py-0.5 rounded-full uppercase tracking-[0.1em]">
                     {c.badge}
                   </span>
                 </div>

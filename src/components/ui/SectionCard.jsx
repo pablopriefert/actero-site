@@ -1,5 +1,4 @@
 import React from 'react';
-import { tokens } from '../../lib/design-tokens';
 
 /**
  * Helper cn minimaliste.
@@ -15,11 +14,6 @@ const PADDING_MAP = {
 /**
  * SectionCard — Wrapper générique pour une section de contenu.
  *
- * Consomme les tokens design-tokens.js :
- * - tokens.colors.bg.surface (#ffffff)
- * - tokens.colors.bg.border (#f0f0f0)
- * - tokens.colors.text.primary (#1a1a1a)
- * - tokens.colors.text.muted (#9ca3af)
  *
  * @param {Object} props
  * @param {string} props.title                Titre de la section. Requis.
@@ -67,5 +61,4 @@ export function SectionCard({
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const __SECTION_CARD_TOKENS__ = tokens;
+ 

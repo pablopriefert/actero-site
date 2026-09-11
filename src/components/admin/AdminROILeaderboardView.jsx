@@ -224,7 +224,7 @@ export default function AdminROILeaderboardView() {
                             {formatEuro(row.total_savings)}
                           </td>
                           <td className="px-5 py-3">
-                            <div className="w-full h-1.5 rounded-full bg-[#f0f0f0] overflow-hidden">
+                            <div className="w-full h-1.5 rounded-full bg-surface overflow-hidden">
                               <div
                                 className="h-full rounded-full transition-all"
                                 style={{

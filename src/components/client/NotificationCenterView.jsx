@@ -13,8 +13,7 @@ const HOURS = Array.from({ length: 17 }, (_, i) => i + 6)
 const CHANNELS = [
   { id: 'email', label: 'Email', icon: Mail, desc: 'Recevez les notifications par email' },
   { id: 'slack', label: 'Slack', icon: MessageSquare, desc: 'Alertes dans ton canal Slack' },
-  { id: 'vocal', label: 'Rapport vocal', icon: Volume2, desc: 'Resume audio hebdomadaire' },
-  { id: 'push', label: 'Push navigateur', icon: Smartphone, desc: 'Notifications en temps reel' },
+  { id: 'push', label: 'Push navigateur', icon: Smartphone, desc: 'Notifications en temps réel' },
 ]
 
 const NOTIFICATION_TYPES = [
@@ -36,9 +35,8 @@ const NOTIFICATION_TYPES = [
     color: 'text-blue-500',
     items: [
       { key: 'daily_summary', label: 'Résumé quotidien', desc: 'Email chaque matin avec les performances de la veille', channels: ['email'], defaultChannels: ['email'] },
-      { key: 'weekly_summary', label: 'Résumé hebdomadaire', desc: 'Rapport chaque lundi avec tendances et insights', channels: ['email', 'vocal'], defaultChannels: [] },
+      { key: 'weekly_summary', label: 'Résumé hebdomadaire', desc: 'Rapport chaque lundi avec tendances et insights', channels: ['email'], defaultChannels: [] },
       { key: 'monthly_report', label: 'Rapport mensuel PDF', desc: 'Rapport détaillé en fin de mois avec ROI et KPIs', channels: ['email'], defaultChannels: ['email'] },
-      { key: 'voice_report', label: 'Rapport vocal', desc: 'Résumé audio de 90 secondes de tes métriques', channels: ['vocal'], defaultChannels: [] },
     ],
   },
   {
@@ -59,7 +57,7 @@ const Toggle = ({ isOn, onToggle, small }) => (
   <button
     onClick={onToggle}
     className={`relative rounded-full transition-colors flex-shrink-0 ${
-      isOn ? 'bg-cta' : 'bg-[#e5e5e5]'
+      isOn ? 'bg-cta' : 'bg-surface'
     } ${small ? 'w-8 h-[18px]' : 'w-11 h-6'}`}
   >
     <div className={`absolute top-0.5 rounded-full bg-white shadow transition-transform ${

@@ -121,7 +121,7 @@ export const AdminPlaybooksView = () => {
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${
                         active
                           ? 'bg-cta text-white'
-                          : 'bg-[#f5f5f5] text-[#71717a] hover:bg-gray-200'
+                          : 'bg-surface text-[#71717a] hover:bg-gray-200'
                       }`}
                     >
                       {active && <CheckCircle2 className="w-3 h-3" />}

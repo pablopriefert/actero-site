@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Actero SaaS Plans — Single source of truth
  *
@@ -24,14 +25,11 @@ export const PLANS = {
       knowledge_entries: 10,
       team_members: 1,
       history_days: 7,
-      voice_minutes: 0,
       vision_analyses_per_month: 10,
     },
     features: {
-      brand_editor: false,
       guardrails: true, // Règles & limites — dès Free
       simulator: false,
-      voice_agent: false,
       specialized_agents: false, // general-agent only
       api_webhooks: false,
       pdf_report: false,
@@ -61,14 +59,11 @@ export const PLANS = {
       knowledge_entries: 100,
       team_members: 2,
       history_days: 90,
-      voice_minutes: 0,
       vision_analyses_per_month: 200,
     },
     features: {
-      brand_editor: true,
       guardrails: true, // Règles & limites — dès Free
       simulator: true, // Simulateur — dès Starter
-      voice_agent: false,
       specialized_agents: false,
       api_webhooks: true, // API — dès Starter
       pdf_report: false,
@@ -98,22 +93,27 @@ export const PLANS = {
       knowledge_entries: Infinity,
       team_members: 5,
       history_days: Infinity,
-      voice_minutes: 0, // Agent vocal pas encore live — ne rien promettre
       vision_analyses_per_month: 2000,
     },
     features: {
-      brand_editor: true,
       guardrails: true,
       simulator: true,
-      voice_agent: false,
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,
       multi_shop: false,
       white_label: false,
       roi_dashboard: 'full',
-      portal_enabled: false,
-      portal_customization: false,
+      // Le portail client existe et tourne : 14 routes API (dont 6 avec
+      // tests), 8 pages, l'authentification par lien magique, les commandes,
+      // les tickets, les retours, les remboursements, les pièces jointes. Le
+      // sous-domaine générique répond (vérifié le 10 septembre :
+      // *.portal.actero.fr renvoie 200). Il était fermé sur les QUATRE plans,
+      // Enterprise compris — donc vendu et injoignable. Ouvert sur Pro et
+      // Enterprise, les deux plans où api/client/update-portal-branding.js
+      // l'autorisait déjà côté serveur.
+      portal_enabled: true,
+      portal_customization: true,
       email_agent: true, // Agent Email — dès Pro
     },
     support: 'priority_24h',
@@ -135,14 +135,11 @@ export const PLANS = {
       knowledge_entries: Infinity,
       team_members: Infinity,
       history_days: Infinity,
-      voice_minutes: 0, // Agent vocal pas encore live
       vision_analyses_per_month: Infinity,
     },
     features: {
-      brand_editor: true,
       guardrails: true,
       simulator: true,
-      voice_agent: false,
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,
@@ -154,8 +151,16 @@ export const PLANS = {
       multi_shop: false,
       white_label: true,
       roi_dashboard: 'custom',
-      portal_enabled: false,
-      portal_customization: false,
+      // Le portail client existe et tourne : 14 routes API (dont 6 avec
+      // tests), 8 pages, l'authentification par lien magique, les commandes,
+      // les tickets, les retours, les remboursements, les pièces jointes. Le
+      // sous-domaine générique répond (vérifié le 10 septembre :
+      // *.portal.actero.fr renvoie 200). Il était fermé sur les QUATRE plans,
+      // Enterprise compris — donc vendu et injoignable. Ouvert sur Pro et
+      // Enterprise, les deux plans où api/client/update-portal-branding.js
+      // l'autorisait déjà côté serveur.
+      portal_enabled: true,
+      portal_customization: true,
       email_agent: true,
     },
     support: 'account_manager',
@@ -211,6 +216,6 @@ export function isInTrial(client) {
 
 export function getTrialDaysLeft(client) {
   if (!client?.trial_ends_at) return 0
-  const diff = new Date(client.trial_ends_at) - new Date()
+  const diff = new Date(client.trial_ends_at).getTime() - Date.now()
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }

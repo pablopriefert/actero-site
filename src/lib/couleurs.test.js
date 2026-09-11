@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 /**
@@ -20,22 +20,40 @@ import { join } from 'node:path'
  * cohabitaient) sur 92 fichiers, car `--color-surface` vaut exactement
  * `#FFFFFF` (voir index.css). Le test ci-dessous interdit son retour.
  *
- * `bg-[#FAFAFA]` n'a PAS été rapatrié, volontairement : `--color-app` vaut
- * `#FFFFFF`, pas `#FAFAFA` — il n'existe aujourd'hui aucun token qui
- * corresponde à cette couleur. La convertir vers `bg-app` aurait changé la
- * couleur réelle (subtil, mais réel), exactement le risque que ce ticket
- * demandait de vérifier avant de bouger. Au passage : la couleur est écrite
- * en minuscule dans l'immense majorité des cas (`bg-[#fafafa]`), pour environ
- * 316 occurrences au total (casse indifférente) — pas les 4 attendues, qui
- * ne comptaient que la variante MAJUSCULE. Tant qu'aucun token n'existe pour
- * `#FAFAFA`, ce fichier ne peut pas non plus garder cette couleur-là : le
- * test serait rouge dès aujourd'hui.
+ * `bg-[#FAFAFA]` a depuis été rapatrié (commit `d219167`), après l'arbitrage
+ * « on fait en blanc pur » : il n'en reste zéro occurrence dans `src/` hors
+ * de ce fichier. Ce paragraphe disait le contraire jusqu'au 10 septembre — un
+ * commentaire qui survit à la décision qu'il décrit est un piège de plus, pas
+ * une trace.
+ *
+ * 10 septembre — « je veux que tout soit en blanc ». 118 fonds neutres et
+ * très clairs (`#F5F5F5`, `#F0F0F0`, `#F7F8FA`, et les blancs cassés chauds
+ * `#FAF9F4`, `#FDFCF7`, `#F7F5EF`…) sont passés à `bg-surface`, c'est-à-dire
+ * au blanc pur, sur 48 fichiers. Trois garde-fous à cette bascule :
+ *
+ *  1. Les **variantes** (`hover:`, `dark:`, `group-hover:`) n'ont PAS été
+ *     converties. Un survol blanc sur un fond blanc ne donne plus aucun
+ *     retour visuel, et un `dark:` doit rester sombre. 30 occurrences.
+ *  2. Les **teintes sémantiques** sont épargnées : jaune d'avertissement,
+ *     vert de succès, rouge d'erreur portent une information, pas un style.
+ *     `#FEF3C7` a été rapatrié vers `bg-warn-bg` plutôt que blanchi.
+ *  3. Seuls les **fonds** ont bougé. Les bordures restent, donc les cartes
+ *     gardent leur séparation visuelle sur fond blanc.
+ *
+ * 10 septembre, `#F4F5F7` et `#E8F5EC` rapatriés à leur tour (22 et 19
+ * occurrences) : ils valent exactement `--color-cream` et
+ * `--color-primary-tint`. Uniquement en contexte `bg-` — `text-[#F4F5F7]`
+ * reste écrit en dur, et doit le rester : c'est un texte quasi blanc posé sur
+ * un fond sombre, et `--color-cream` bascule au sombre en thème sombre. Le
+ * convertir rendrait ce texte invisible. Une couleur identique ne veut pas
+ * dire un rôle identique.
  *
  * Ce que ce fichier NE couvre TOUJOURS PAS, et pourquoi :
- * `src/` contient encore environ 725 `bg-[#XXXXXX]` écrits en dur sur 155
- * fichiers (couleurs valides, pas du beige — `#FAFAFA` inclus — juste jamais
+ * `src/` contient encore 234 `bg-[#XXXXXX]` écrits en dur sur 92
+ * fichiers — dont 203 ne sont pas clairs du tout (fonds volontairement
+ * sombres, couleurs de marque) (couleurs valides, pas du beige — `#FAFAFA` inclus — juste jamais
  * rapatriées vers un token). Un test qui interdirait tout `bg-[#...]`
- * échouerait sur ces 725 lignes dès aujourd'hui et ne garderait rien de plus
+ * échouerait sur ces 234 lignes dès aujourd'hui et ne garderait rien de plus
  * que ce que les tests ci-dessous gardent déjà : il serait juste rouge en
  * permanence, donc ignoré. Avant de pouvoir poser cette garde-là, il faut
  * d'abord rapatrier ces fonds vers `--color-app`, `--color-surface` ou
@@ -49,6 +67,25 @@ const RACINE = 'src'
 const BEIGE_ABANDONNE = [
   '#F9F7F1', '#F4F0E6', '#FAF8F3', '#E5E2D7', '#E8DFC9',
   '#E5E1D6', '#ECEAE2', '#F5F5F0', '#F7F5F0', '#EFE7D6',
+  // 10 septembre : trois beiges avaient survécu au nettoyage du 9, dans le
+  // téléchargeur de pièces jointes du portail. Ils échappaient à la liste
+  // ci-dessus, tout simplement parce qu'ils n'y étaient pas — une liste de
+  // couleurs interdites ne garde que ce qu'on a pensé à y écrire.
+  '#EAE3D1', '#EEE7D4', '#C9BFA6',
+  // Et un quatrième, planqué dans une variable CSS d'un module de vue.
+  '#EFEBE1',
+]
+// 10 septembre — « je veux que tout soit en blanc ». La famille des blancs
+// cassés, chauds comme froids, tous remplacés par du blanc pur. Aucun n'était
+// dans la liste ci-dessus : pas assez beiges pour y figurer, assez beiges pour
+// se voir. Quatre d'entre eux vivaient dans public/widget.js.
+//
+// #F5F5F5 n'est volontairement PAS banni : c'est le gris de survol, et un
+// survol doit rester perceptible. Le blanc pur concerne les surfaces, pas les
+// retours d'interaction.
+const BLANCS_CASSES_ABANDONNES = [
+  '#FBFAF7', '#F4F3EF', '#F0F0EC', '#E8E8E0', '#F7F8FA',
+  '#FAF9F4', '#FDFCF7', '#F7F5EF', '#FAF7F2', '#FAFAF7', '#FAFAF8', '#F4F4F2',
 ]
 // Anciens verts de CTA. #0A4F2C est abandonné partout. #0E653A est devenu
 // --color-cta-hover : on ne le bannit que hors d'un contexte de survol.
@@ -88,7 +125,12 @@ function lignesDeCode(src) {
   return lignes
 }
 
-const FICHIERS = fichiersSources(RACINE)
+// public/widget.js n'est pas dans src/, et c'est précisément le problème :
+// c'est la bulle que voient les clients FINAUX des marchands — la surface la
+// plus exposée du produit — et elle a traversé sans une égratignure le
+// nettoyage du 9 septembre, qui ne balayait que src/. Elle portait encore
+// quatre beiges le 10 septembre. Une garde ne protège que ce qu'elle regarde.
+const FICHIERS = [...fichiersSources(RACINE), 'public/widget.js']
 const CSS = readFileSync('src/index.css', 'utf8')
 const TOKENS = readFileSync('src/lib/tokens.ts', 'utf8')
 
@@ -100,8 +142,8 @@ describe('couleurs — pas de retour du beige ni des anciens verts', () => {
       for (const { ligne, nu } of lignesDeCode(src)) {
         const ligneMaj = ligne.toUpperCase()
 
-        for (const beige of BEIGE_ABANDONNE) {
-          if (ligneMaj.includes(beige)) fautifs.push(`${f} → ${nu.slice(0, 90)}`)
+        for (const abandonnee of [...BEIGE_ABANDONNE, ...BLANCS_CASSES_ABANDONNES]) {
+          if (ligneMaj.includes(abandonnee)) fautifs.push(`${f} → ${nu.slice(0, 90)}`)
         }
         if (ligneMaj.includes(VERT_ABANDONNE_PARTOUT)) {
           fautifs.push(`${f} → ${nu.slice(0, 90)}`)
@@ -119,14 +161,6 @@ describe('couleurs — pas de retour du beige ni des anciens verts', () => {
   // `bg-surface` partout dans src/ (voir le commentaire d'en-tête) — ce test
   // empêche qu'un prochain composant écrit vite le réintroduise en dur sans
   // que personne ne le remarque, exactement le sort qu'a connu le beige.
-  //
-  // `bg-[#FAFAFA]` N'EST PAS banni ici : aucun token ne vaut aujourd'hui
-  // `#FAFAFA` (`--color-app` vaut `#FFFFFF`, voir le commentaire d'en-tête),
-  // donc ses ~316 occurrences existantes resteraient fautives et ce test
-  // serait rouge en permanence — même défaut que le garde-fou général sur
-  // `bg-[#XXXXXX]` documenté plus haut, à l'échelle d'une seule couleur. Le
-  // jour où un token `#FAFAFA` existe, ce rapatriement redevient possible et
-  // ce test doit être étendu en même temps.
   it('bg-[#FFFFFF] écrit en dur ne revient pas (rapatrié vers bg-surface)', () => {
     const fautifs = []
     for (const f of FICHIERS) {
@@ -136,6 +170,48 @@ describe('couleurs — pas de retour du beige ni des anciens verts', () => {
       }
     }
     expect(fautifs, `bg-[#FFFFFF] en dur détecté — utiliser bg-surface :\n${fautifs.join('\n')}`).toEqual([])
+  })
+
+  it('les couleurs qui ont un token exact ne se réécrivent pas en dur en fond', () => {
+    // Rapatriées le 10 septembre. Volontairement limité au contexte `bg-` :
+    // `text-[#F4F5F7]` est un texte clair sur fond sombre et doit rester en
+    // dur, parce que le token bascule au sombre en thème sombre.
+    const AVEC_TOKEN = [
+      ['#F4F5F7', 'bg-cream'],
+      ['#E8F5EC', 'bg-primary-tint'],
+      ['#FAFAFA', 'bg-app'],
+    ]
+    const fautifs = []
+    for (const f of FICHIERS) {
+      const src = readFileSync(f, 'utf8')
+      for (const { nu } of lignesDeCode(src)) {
+        for (const [hex, token] of AVEC_TOKEN) {
+          if (new RegExp(`bg-\\[${hex}\\]`, 'i').test(nu)) {
+            fautifs.push(`${f} → ${nu.slice(0, 90)} (utiliser ${token})`)
+          }
+        }
+      }
+    }
+    expect(fautifs, `Fond écrit en dur alors qu'un token exact existe :\n${fautifs.join('\n')}`).toEqual([])
+  })
+
+  it("il n'existe qu'une source de vérité pour les couleurs", () => {
+    // `src/lib/design-tokens.js` s'annonçait « Source of Truth » et posait une
+    // règle d'or — « si une couleur n'est pas ici, elle ne devrait pas
+    // apparaître dans le code applicatif ». Huit composants l'importaient et
+    // documentaient la consommer. Aucun ne lisait la moindre valeur : chacun
+    // se terminait par un `export const __X_TOKENS__ = tokens` dont le seul
+    // rôle était d'empêcher l'import de passer pour inutilisé. Le fichier
+    // déclarait par ailleurs `page: '#fafafa'` quand `--color-app` valait
+    // `#FFFFFF` — deux vérités contradictoires, dont une seule s'affichait.
+    // Supprimé le 10 septembre. index.css est la source, tokens.ts son miroir
+    // (test ci-dessous).
+    expect(existsSync('src/lib/design-tokens.js'),
+      'src/lib/design-tokens.js est revenu : une seconde source de couleurs que rien ne lit finit toujours par contredire index.css',
+    ).toBe(false)
+
+    const importateurs = FICHIERS.filter((f) => readFileSync(f, 'utf8').includes('design-tokens'))
+    expect(importateurs, `Fichiers référençant design-tokens : ${importateurs.join(', ')}`).toEqual([])
   })
 
   it('index.css et tokens.ts déclarent les mêmes couleurs', () => {

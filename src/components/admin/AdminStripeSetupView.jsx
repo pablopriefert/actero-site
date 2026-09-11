@@ -181,7 +181,7 @@ export function AdminStripeSetupView() {
           {result && (
             <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
               <p className="text-[13px] font-semibold text-emerald-700 mb-1">
-                {result.status === 'already_exists' ? 'Produits deja crees' : 'Produits crees avec succes'}
+                {result.status === 'already_exists' ? 'Produits déjà crees' : 'Produits crees avec succès'}
               </p>
               <p className="text-[12px] text-emerald-600 mb-4">
                 Copiez ces Price IDs dans vos variables d'environnement Vercel :
@@ -212,7 +212,7 @@ export function AdminStripeSetupView() {
         </SectionCard>
 
         {/* Env vars reference */}
-        <SectionCard title="Variables d'environnement necessaires" icon={AlertTriangle}>
+        <SectionCard title="Variables d'environnement nécessaires" icon={AlertTriangle}>
           <div className="space-y-3">
             {ENV_VARS.map((v) => (
               <div key={v.key} className="flex items-start gap-3">

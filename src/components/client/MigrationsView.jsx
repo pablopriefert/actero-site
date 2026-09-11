@@ -38,7 +38,7 @@ const PROVIDERS = [
     fields: [
       { key: 'zendesk_subdomain', label: 'Sous-domaine Zendesk', placeholder: 'monshop', help: 'monshop.zendesk.com' },
       { key: 'zendesk_email', label: 'Email du compte', placeholder: 'admin@monshop.com', type: 'email' },
-      { key: 'zendesk_api_token', label: 'API token', placeholder: 'xxxxxxxx', type: 'password', help: 'Admin Center → Apps and integrations → Zendesk API → Add API token' },
+      { key: 'zendesk_api_token', label: 'API token', placeholder: 'xxxxxxxx', type: 'password', help: 'Admin Center → Apps and intégrations → Zendesk API → Add API token' },
     ],
   },
   {
@@ -212,7 +212,7 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
                 onChange={handleField(f.key)}
                 required
                 autoComplete={f.type === 'password' ? 'new-password' : 'off'}
-                className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-[#FAF9F4] text-[14px] text-[#1a1a1a] placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta"
+                className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-surface text-[14px] text-[#1a1a1a] placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-cta/30 focus:border-cta"
               />
               {f.help && (
                 <p className="mt-1 text-[11px] text-[#6b6b6b]">{f.help}</p>
@@ -230,7 +230,7 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
               type="date"
               value={since}
               onChange={(e) => setSince(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-[#FAF9F4] text-[14px]"
+              className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-surface text-[14px]"
             />
             <p className="mt-1 text-[11px] text-[#6b6b6b]">Laissez vide pour tout importer</p>
           </div>
@@ -245,13 +245,13 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
               placeholder="Ex: 5000"
               value={limit}
               onChange={(e) => setLimit(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-[#FAF9F4] text-[14px]"
+              className="w-full px-3 py-2.5 rounded-lg border border-[#E6E8EC] bg-surface text-[14px]"
             />
             <p className="mt-1 text-[11px] text-[#6b6b6b]">Nombre max de tickets à importer</p>
           </div>
         </div>
 
-        <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-[#FAF9F4] border border-[#E6E8EC]">
+        <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-surface border border-[#E6E8EC]">
           <Info className="w-4 h-4 text-[#6b6b6b] flex-shrink-0 mt-0.5" />
           <p className="text-[12px] text-[#6b6b6b] leading-relaxed">
             Vos identifiants ne sont jamais stockés en base. Ils transitent uniquement
@@ -396,12 +396,12 @@ const STATUS_LABEL = {
 }
 
 const STATUS_META = {
-  queued: { icon: <Clock className="w-4 h-4 text-[#6b6b6b]" />, color: { bg: 'bg-[#FAF9F4]' } },
+  queued: { icon: <Clock className="w-4 h-4 text-[#6b6b6b]" />, color: { bg: 'bg-surface' } },
   running: { icon: <Loader2 className="w-4 h-4 text-cta animate-spin" />, color: { bg: 'bg-cta/10' } },
   completed: { icon: <CheckCircle2 className="w-4 h-4 text-emerald-500" />, color: { bg: 'bg-emerald-50' } },
   failed: { icon: <AlertTriangle className="w-4 h-4 text-red-500" />, color: { bg: 'bg-red-50' } },
   timeout: { icon: <AlertTriangle className="w-4 h-4 text-amber-500" />, color: { bg: 'bg-amber-50' } },
-  cancelled: { icon: <X className="w-4 h-4 text-[#6b6b6b]" />, color: { bg: 'bg-[#FAF9F4]' } },
+  cancelled: { icon: <X className="w-4 h-4 text-[#6b6b6b]" />, color: { bg: 'bg-surface' } },
 }
 
 export default MigrationsView

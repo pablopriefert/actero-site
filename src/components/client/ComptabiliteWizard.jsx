@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 
 const STEPS = [
-  { id: 'explain', title: 'Comment ca marche' },
+  { id: 'explain', title: 'Comment ça marche' },
   { id: 'tools', title: 'Vos outils' },
   { id: 'config', title: 'Configuration' },
   { id: 'channels', title: 'Canaux' },
@@ -18,7 +18,7 @@ const STEPS = [
 
 const COMPTA_TOOLS = [
   { id: 'axonaut', name: 'Axonaut', desc: 'CRM et facturation pour PME' },
-  { id: 'pennylane', name: 'Pennylane', desc: 'Comptabilite automatisee' },
+  { id: 'pennylane', name: 'Pennylane', desc: 'Comptabilité automatisee' },
   { id: 'ipaidthat', name: 'iPaidThat', desc: 'Collecte de factures' },
   { id: 'none', name: 'Aucun pour le moment', desc: 'Je veux juste les alertes et relances par email' },
 ]
@@ -50,7 +50,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
       }, { onConflict: 'client_id' })
 
       setActivated(true)
-      toast.success('Comptabilite automatisee activee !')
+      toast.success('Comptabilité automatisee activee !')
     } catch (err) {
       toast.error(err.message)
     }
@@ -103,8 +103,8 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                   <div className="space-y-3">
                     {[
                       { icon: FileText, title: 'Relance de factures', desc: 'L\'IA detecte les factures impayees et envoie des relances automatiques a vos clients.' },
-                      { icon: AlertTriangle, title: 'Alertes de tresorerie', desc: 'Recevez une alerte quand votre tresorerie passe sous un seuil que vous definissez.' },
-                      { icon: Calendar, title: 'Rapports comptables', desc: 'Recevez un recapitulatif automatique de vos donnees comptables par email.' },
+                      { icon: AlertTriangle, title: 'Alertes de trésorerie', desc: 'Recevez une alerte quand votre trésorerie passe sous un seuil que vous définissez.' },
+                      { icon: Calendar, title: 'Rapports comptables', desc: 'Recevez un recapitulatif automatique de vos données comptables par email.' },
                       { icon: Bell, title: 'Notifications', desc: 'Soyez prevenu par email ou Slack de chaque action comptable.' },
                     ].map(item => {
                       const Icon = item.icon
@@ -153,7 +153,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                                 <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">Connecte</span>
                               )}
                               {tool.id !== 'none' && !isConnected && (
-                                <span className="text-[9px] font-bold text-[#9ca3af] bg-[#f5f5f5] px-1.5 py-0.5 rounded-full">Non connecte</span>
+                                <span className="text-[9px] font-bold text-[#9ca3af] bg-surface px-1.5 py-0.5 rounded-full">Non connecte</span>
                               )}
                             </div>
                             <p className="text-[11px] text-[#9ca3af]">{tool.desc}</p>
@@ -215,7 +215,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                           key={freq}
                           onClick={() => setExportFrequency(freq)}
                           className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition-all ${
-                            exportFrequency === freq ? 'bg-indigo-600 text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+                            exportFrequency === freq ? 'bg-indigo-600 text-white' : 'bg-surface text-[#71717a] hover:bg-[#ebebeb]'
                           }`}
                         >
                           {freq.charAt(0).toUpperCase() + freq.slice(1)}

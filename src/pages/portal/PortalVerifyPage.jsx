@@ -18,7 +18,19 @@ export default function PortalVerifyPage({ navigate }) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ token: verifyToken, clientId: client.clientId }),
     }).then((r) => {
-      if (r.ok) { setState('ok'); navigate('/portal/tickets'); }
+      if (r.ok) {
+        setState('ok');
+        // Navigation COMPLÈTE, pas la navigation interne : PortalLayout est
+        // monté depuis cette page-ci, donc AVANT que le cookie de session
+        // existe. Son usePortalAuth a déjà répondu « non connecté » et ne
+        // refait jamais la requête — PortalApp ne remplace que la page
+        // intérieure, jamais la coquille. Avec navigate(), le client arrivait
+        // donc sur ses conversations sans barre de navigation et sans bouton
+        // de déconnexion : aucun moyen d'atteindre ses commandes, qui sont la
+        // seule raison d'ouvrir un espace SAV. Rien ne signalait l'anomalie,
+        // et un rechargement manuel la faisait disparaître.
+        window.location.assign('/portal/tickets');
+      }
       else setState('expired');
     }).catch(() => setState('error'));
   }, [client, navigate, verifyToken]);
@@ -38,7 +50,7 @@ export default function PortalVerifyPage({ navigate }) {
     verifying: {
       Icon: Loader2,
       iconClass: 'text-[#1F3A12] animate-spin',
-      tint: 'bg-[#E8F5EC] ring-[#A8C490]',
+      tint: 'bg-primary-tint ring-[#A8C490]',
       title: 'Connexion en cours…',
       description: applyTone(
         'On vérifie ton lien magique. Ça ne prend qu\'un instant.',
@@ -50,7 +62,7 @@ export default function PortalVerifyPage({ navigate }) {
     expired: {
       Icon: Clock,
       iconClass: 'text-[#B45309]',
-      tint: 'bg-[#FEF3C7] ring-[#F59E0B]/30',
+      tint: 'bg-warn-bg ring-[#F59E0B]/30',
       title: 'Lien expiré',
       description: applyTone(
         'Ce lien de connexion n\'est plus valide. On te redirige vers la page de connexion…',

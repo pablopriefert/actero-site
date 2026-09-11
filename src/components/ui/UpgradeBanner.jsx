@@ -4,8 +4,6 @@ import { trackEvent } from '../../lib/analytics'
 
 const FEATURE_LABELS = {
   simulator: 'Simulateur de conversation',
-  voice_agent: 'Agent vocal téléphonique',
-  brand_editor: 'Éditeur de ton de marque',
   guardrails: 'Règles & limites',
   api_webhooks: 'API & webhooks',
   specialized_agents: 'Agents IA spécialisés',

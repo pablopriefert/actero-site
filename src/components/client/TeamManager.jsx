@@ -16,12 +16,12 @@ export { ROLE_PERMISSIONS, canAccessTab } from '../../lib/role-permissions'
 const ROLES = [
   { id: 'manager', label: 'Manager', desc: 'Tout voir et modifier', icon: Shield, color: 'text-[#003725] bg-emerald-50' },
   { id: 'operational', label: 'Operationnel', desc: 'Metriques et tickets escalades', icon: Eye, color: 'text-blue-600 bg-blue-50' },
-  { id: 'support', label: 'Support', desc: 'Voir et repondre aux escalades uniquement', icon: Headphones, color: 'text-amber-600 bg-amber-50' },
+  { id: 'support', label: 'Support', desc: 'Voir et répondre aux escalades uniquement', icon: Headphones, color: 'text-amber-600 bg-amber-50' },
   { id: 'finance', label: 'Finance', desc: 'Factures uniquement', icon: Receipt, color: 'text-violet-600 bg-violet-50' },
 ]
 
 const ROLE_LABELS = {
-  owner: { label: 'Proprietaire', icon: Crown, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
+  owner: { label: 'Propriétaire', icon: Crown, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
   manager: { label: 'Manager', icon: Shield, color: 'text-[#003725] bg-emerald-50 border-emerald-200' },
   operational: { label: 'Operationnel', icon: Eye, color: 'text-blue-600 bg-blue-50 border-blue-200' },
   support: { label: 'Support', icon: Headphones, color: 'text-amber-600 bg-amber-50 border-amber-200' },
@@ -105,7 +105,7 @@ export const TeamManager = ({ clientId }) => {
 
   const handleChangeRole = async (member, newRole) => {
     if (member.role === 'owner') {
-      toast.error('Impossible de modifier le role du proprietaire')
+      toast.error('Impossible de modifier le role du propriétaire')
       return
     }
     try {
@@ -123,7 +123,7 @@ export const TeamManager = ({ clientId }) => {
 
   const handleRemove = async (member) => {
     if (member.role === 'owner') {
-      toast.error('Impossible de supprimer le proprietaire')
+      toast.error('Impossible de supprimer le propriétaire')
       return
     }
     if (!window.confirm(`Retirer ${member.email || 'ce membre'} de l'équipe ?`)) return
@@ -195,7 +195,7 @@ export const TeamManager = ({ clientId }) => {
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="collegue@entreprise.com"
-                    className="w-full px-4 py-2.5 bg-[#F7F8FA] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
+                    className="w-full px-4 py-2.5 bg-surface border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300"
                   />
                 </div>
                 <div className="w-48">
@@ -203,7 +203,7 @@ export const TeamManager = ({ clientId }) => {
                   <select
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-[#F7F8FA] border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 appearance-none cursor-pointer"
+                    className="w-full px-4 py-2.5 bg-surface border border-gray-200 rounded-xl text-sm text-[#1a1a1a] outline-none focus:ring-1 focus:ring-gray-300 appearance-none cursor-pointer"
                   >
                     {ROLES.map(r => (
                       <option key={r.id} value={r.id}>{r.label} — {r.desc}</option>
@@ -246,7 +246,7 @@ export const TeamManager = ({ clientId }) => {
             return (
               <div key={member.user_id} className="flex items-center gap-4 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-full bg-[#F7F8FA] flex items-center justify-center text-sm font-bold text-[#71717a]">
+                <div className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-sm font-bold text-[#71717a]">
                   {(member.email || '?')[0].toUpperCase()}
                 </div>
 

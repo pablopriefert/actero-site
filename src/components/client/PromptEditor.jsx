@@ -24,11 +24,11 @@ const LANGUAGES = [
 ]
 
 const STEPS = [
-  { id: 'identity', label: 'Identite', icon: Building, desc: 'Marque & langue' },
+  { id: 'identity', label: 'Identité', icon: Building, desc: 'Marque & langue' },
   { id: 'tone', label: 'Ton', icon: MessageCircle, desc: 'Personnalite' },
-  { id: 'rules', label: 'Regles', icon: ShieldAlert, desc: 'Règles & limites' },
+  { id: 'rules', label: 'Règles', icon: ShieldAlert, desc: 'Règles & limites' },
   { id: 'knowledge', label: 'Connaissances', icon: BookOpen, desc: 'FAQ & infos' },
-  { id: 'preview', label: 'Apercu', icon: Eye, desc: 'Prompt final' },
+  { id: 'preview', label: 'Aperçu', icon: Eye, desc: 'Prompt final' },
 ]
 
 const EditKbEntry = ({ entry, onSave, onCancel }) => {
@@ -326,7 +326,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
   const buildPreviewPrompt = () => {
     const brandName = 'Votre marque'
     let p = `Tu es un agent de support client IA professionnel pour "${brandName}".`
-    p += ` Tu reponds aux demandes des clients de maniere ${form.brand_tone || 'professionnelle et chaleureuse'}.`
+    p += ` Tu reponds aux demandes des clients de manière ${form.brand_tone || 'professionnelle et chaleureuse'}.`
     if (form.brand_identity?.trim()) p += `\n\nIDENTITE DE MARQUE:\n${form.brand_identity.trim()}`
     const toneLines = []
     if (form.tone_formality != null) {
@@ -340,9 +340,9 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
       else toneLines.push('- Ton cordial.')
     }
     if (form.tone_detail != null) {
-      if (form.tone_detail >= 67) toneLines.push('- Reponses detaillees.')
-      else if (form.tone_detail <= 33) toneLines.push('- Reponses concises.')
-      else toneLines.push('- Reponses de longueur moyenne.')
+      if (form.tone_detail >= 67) toneLines.push('- Réponses détaillées.')
+      else if (form.tone_detail <= 33) toneLines.push('- Réponses concises.')
+      else toneLines.push('- Réponses de longueur moyenne.')
     }
     if (toneLines.length > 0) p += `\n\nTON DE COMMUNICATION:\n${toneLines.join('\n')}`
     if (form.tone_style?.trim()) p += `\n\nSTYLE PARTICULIER:\n${form.tone_style.trim()}`
@@ -407,7 +407,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
 
       {/* Progress bar */}
       <div className="mb-6">
-        <div className="h-1 bg-[#f0f0f0] rounded-full overflow-hidden">
+        <div className="h-1 bg-surface rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-cta"
             initial={false}
@@ -587,7 +587,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_formality || 30}
                       onChange={(e) => setForm(f => ({ ...f, tone_formality: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
+                      className="w-full h-1.5 bg-surface rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
 
@@ -596,7 +596,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[11px] font-semibold text-[#9ca3af] inline-flex items-center gap-1">
                         Froid
-                        <HelpTooltip text="Niveau d'empathie. À droite : l'agent reconnaît explicitement les émotions du client et personnalise sa réponse." />
+                        <HelpTooltip text="Niveau d'empathie. À droite : l'agent reconnaît explicitement les émotions du client et personnalisé sa réponse." />
                       </span>
                       <span className="text-[11px] font-semibold text-[#9ca3af]">Chaleureux</span>
                     </div>
@@ -604,7 +604,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_warmth || 70}
                       onChange={(e) => setForm(f => ({ ...f, tone_warmth: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
+                      className="w-full h-1.5 bg-surface rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
 
@@ -613,7 +613,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[11px] font-semibold text-[#9ca3af] inline-flex items-center gap-1">
                         Court
-                        <HelpTooltip text="Longueur des reponses. A gauche : reponses concises (1-2 phrases). A droite : reponses detaillees avec contexte et etapes." />
+                        <HelpTooltip text="Longueur des réponses. A gauche : réponses concises (1-2 phrases). A droite : réponses détaillées avec contexte et étapes." />
                       </span>
                       <span className="text-[11px] font-semibold text-[#9ca3af]">Detaille</span>
                     </div>
@@ -621,7 +621,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       type="range" min="0" max="100" step="1"
                       value={form.tone_detail || 50}
                       onChange={(e) => setForm(f => ({ ...f, tone_detail: parseInt(e.target.value) }))}
-                      className="w-full h-1.5 bg-[#f0f0f0] rounded-full appearance-none cursor-pointer accent-cta"
+                      className="w-full h-1.5 bg-surface rounded-full appearance-none cursor-pointer accent-cta"
                     />
                   </div>
                 </div>
@@ -632,11 +632,11 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                   <p className="text-[13px] text-[#1a1a1a] leading-relaxed italic">
                     "{(form.tone_formality || 30) < 40
                       ? (form.tone_warmth || 70) > 60
-                        ? 'Bonjour, merci pour votre message. Nous comprenons votre situation et allons faire le necessaire pour resoudre cela rapidement. N\'hesitez pas si vous avez d\'autres questions.'
-                        : 'Bonjour. Nous avons bien recu votre demande. Notre equipe la traite dans les meilleurs delais. Cordialement.'
+                        ? 'Bonjour, merci pour votre message. Nous comprenons votre situation et allons faire le nécessaire pour résoudre cela rapidement. N\'hésitez pas si vous avez d\'autres questions.'
+                        : 'Bonjour. Nous avons bien reçu votre demande. Notre équipe la traite dans les meilleurs délais. Cordialement.'
                       : (form.tone_warmth || 70) > 60
-                        ? 'Hey ! Merci de nous avoir contactes ! On s\'occupe de ca tout de suite, pas de souci. Tu as besoin d\'autre chose ?'
-                        : 'Salut ! On a bien recu ton message. On regarde ca et on te tient au courant. A bientot !'
+                        ? 'Hey ! Merci de nous avoir contactes ! On s\'occupe de ça tout de suite, pas de souci. Tu as besoin d\'autre chose ?'
+                        : 'Salut ! On a bien reçu ton message. On regarde ça et on te tient au courant. A bientôt !'
                     }"
                   </p>
                 </div>
@@ -650,7 +650,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                     value={form.tone_style}
                     onChange={(e) => setForm(f => ({ ...f, tone_style: e.target.value }))}
                     rows={3}
-                    placeholder={'ex: utilise des expressions francaises decontractees, signe toujours par "L\'equipe"'}
+                    placeholder={'ex: utilise des expressions francaises decontractees, signe toujours par "L\'équipe"'}
                     className={inputClass + ' resize-y'}
                   />
                 </div>
@@ -779,7 +779,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                       type="text"
                       value={manualTitle}
                       onChange={(e) => setManualTitle(e.target.value)}
-                      placeholder="Titre (ex: Delais de livraison)"
+                      placeholder="Titre (ex: Délais de livraison)"
                       className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[13px] text-[#1a1a1a] outline-none focus:ring-1 focus:ring-cta/30"
                     />
                     <textarea
@@ -859,7 +859,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                 <div>
                   <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3 inline-flex items-center gap-1.5">
                     Exemples de bonnes reponses (few-shot)
-                    <HelpTooltip text="Paires Question/Reponse que l'agent doit imiter en termes de ton et structure. 2-3 exemples suffisent generalement." />
+                    <HelpTooltip text="Paires Question/Réponse que l'agent doit imiter en termes de ton et structure. 2-3 exemples suffisent généralement." />
                   </p>
 
                   <div className="space-y-3">
@@ -881,7 +881,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                         <textarea
                           value={ex.answer || ''}
                           onChange={(e) => handleUpdateExample(i, 'answer', e.target.value)}
-                          placeholder="Reponse ideale que l'IA doit imiter"
+                          placeholder="Réponse idéale que l'IA doit imiter"
                           rows={2}
                           className="w-full px-3 py-2 bg-white border border-[#ebebeb] rounded-lg text-[12px] outline-none focus:ring-1 focus:ring-cta/30 resize-y"
                         />
@@ -900,7 +900,7 @@ export const PromptEditor = ({ clientId, theme: _theme }) => {
                 <div className="pt-4 border-t border-[#f0f0f0]">
                   <p className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider mb-3 inline-flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3" /> Apercu du prompt final
-                    <HelpTooltip text="C'est ce qui sera envoye a l'IA pour generer les reponses. Il se met a jour en temps reel selon vos parametres." />
+                    <HelpTooltip text="C'est ce qui sera envoye a l'IA pour generer les réponses. Il se met a jour en temps réel selon vos paramètres." />
                   </p>
                   <pre className="p-4 bg-[#0b0b0b] text-[#e5e5e5] rounded-xl text-[11px] font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto max-h-[300px]">{buildPreviewPrompt()}</pre>
                 </div>

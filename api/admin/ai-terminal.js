@@ -32,7 +32,7 @@ Tu connais parfaitement l'architecture et les données d'Actero.
 - clients: id, brand_name, contact_email, plan, status, owner_user_id, shopify_url, created_at
 - client_users: client_id, user_id, role (owner/member)
 - client_settings: client_id, widget_api_key, hourly_cost, tone, guardrails
-- usage_counters: client_id, period (YYYY-MM), tickets_used, voice_minutes_used
+- usage_counters: client_id, period (YYYY-MM), tickets_used
 - automation_events: client_id, event_type, status, customer_email, ai_response, created_at
 - metrics_daily: client_id, date, tickets_total, tickets_auto, avg_response_time_ms
 - escalation_tickets: client_id, customer_email, subject, status, created_at
@@ -96,8 +96,6 @@ const ALLOWED_TABLES = new Set([
   'marketplace_installs',
   'startup_applications',
   'churn_predictions',
-  'voice_calls',
-  'voice_agent_config',
   'sentiment_logs',
   'admin_action_logs',
   'admin_alert_rules',

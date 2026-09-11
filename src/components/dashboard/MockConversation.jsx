@@ -60,7 +60,7 @@ export function MockConversation() {
                 className={`flex items-start gap-2 ${isCustomer ? 'justify-start' : 'justify-end'}`}
               >
                 {isCustomer && (
-                  <div className="w-6 h-6 rounded-full bg-[#e5e5e5] flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-surface flex items-center justify-center flex-shrink-0">
                     <span className="text-[10px] font-semibold text-[#5A5A5A]">M</span>
                   </div>
                 )}

@@ -13,7 +13,7 @@ const MockupAudit = ({ isImmo }) => (
         { name: 'HubSpot CRM', status: 'connected' },
         { name: 'Google Calendar', status: 'connected' },
         { name: 'Gmail', status: 'connected' },
-        { name: 'Twilio SMS', status: 'pending' },
+        { name: 'Slack', status: 'pending' },
       ] : [
         { name: 'Shopify', status: 'connected' },
         { name: 'Gorgias', status: 'connected' },

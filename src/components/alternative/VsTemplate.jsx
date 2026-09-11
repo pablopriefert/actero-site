@@ -208,7 +208,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                           Critère
                         </th>
                         <th className="p-5 text-center text-sm font-bold text-[#716D5C]">{competitor}</th>
-                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-[#F0F7F2]">Actero</th>
+                        <th className="p-5 text-center text-sm font-bold text-[#003725] bg-surface">Actero</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -218,7 +218,7 @@ export const VsTemplate = ({ onNavigate, data, children }) => {
                           <td className="p-5 text-center text-sm text-[#5A5A5A]">
                             <CellContent value={row.competitor} />
                           </td>
-                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-[#F0F7F2]/40">
+                          <td className="p-5 text-center text-sm text-[#1A1A1A] bg-surface/40">
                             <CellContent value={row.actero} winner />
                           </td>
                         </tr>

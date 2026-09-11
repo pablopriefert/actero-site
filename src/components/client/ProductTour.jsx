@@ -319,7 +319,7 @@ export default function ProductTour({ isOpen, onClose }) {
                       ? 'w-6 bg-cta'
                       : i < currentStep
                       ? 'w-1.5 bg-cta/40'
-                      : 'w-1.5 bg-[#e5e5e5]'
+                      : 'w-1.5 bg-surface'
                   }`}
                 />
               ))}

@@ -1,5 +1,4 @@
 import React from 'react';
-import { tokens } from '../../lib/design-tokens';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -73,5 +72,4 @@ export function StatusPill({
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const __STATUS_PILL_TOKENS__ = tokens;
+ 

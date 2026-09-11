@@ -106,7 +106,7 @@ async function handler(req, res) {
   // Fetch client email-agent settings up-front (used for exclusions + auto-reply logic)
   const { data: clientSettings } = await supabase
     .from('client_settings')
-    .select('email_agent_enabled, email_auto_reply_enabled, email_confidence_threshold, email_quiet_hours_start, email_quiet_hours_end, email_exclusions, email_signature, email_attach_voice, email_send_delay_seconds')
+    .select('email_agent_enabled, email_auto_reply_enabled, email_confidence_threshold, email_quiet_hours_start, email_quiet_hours_end, email_exclusions, email_signature, email_send_delay_seconds')
     .eq('client_id', resolvedClientId)
     .maybeSingle()
 

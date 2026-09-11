@@ -63,7 +63,7 @@
      `bg-surface-3` = topmost layer (modals, popovers, menus).
      Pair with `shadow-elev-{1,2,3}` for matching elevation.
      ────────────────────────────────────────── */
-  --color-surface-1: #FAF8F2;
+  --color-surface-1: #FFFFFF; /* etait #FAF8F2 : un beige survivant, que le commentaire ci-dessus recommandait d'utiliser comme fond de page */
   --color-surface-2: #FFFFFF;
   --color-surface-3: #FFFFFF;
 

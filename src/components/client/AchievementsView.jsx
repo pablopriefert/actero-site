@@ -54,7 +54,7 @@ export const AchievementsView = ({ clientId }) => {
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-[#f0f0f0] rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-surface rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress.pct}%` }}

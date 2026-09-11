@@ -27,25 +27,6 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
     enabled: !!clientId,
   })
 
-  const { data: voiceAgent } = useQuery({
-    queryKey: ['voice-agent-status', clientId],
-    queryFn: async () => {
-      if (!clientId) return null
-      const { data } = await supabase
-        .from('client_settings')
-        .select('voice_agent_enabled, elevenlabs_agent_id, voice_phone_number')
-        .eq('client_id', clientId)
-        .maybeSingle()
-      return data
-        ? {
-            status: (data.voice_agent_enabled && data.elevenlabs_agent_id) ? 'active' : null,
-            phone: data.voice_phone_number,
-          }
-        : null
-    },
-    enabled: !!clientId,
-  })
-
   // Per-channel metrics 7j — compte par source_channel
   const { data: channelStats } = useQuery({
     queryKey: ['channels-metrics-7d', clientId],
@@ -75,7 +56,6 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
   const helpdeskConnected = (integrations || []).some(i =>
     ['gorgias', 'zendesk', 'intercom'].includes(i.provider) && i.status === 'active',
   )
-  const voiceConnected = !!voiceAgent && voiceAgent.status === 'active'
 
   // Email address (if connected, try to extract from config)
   const emailProvider = (integrations || []).find(i =>
@@ -98,7 +78,7 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
       icon: Mail,
       color: '#4285F4',
       status: emailConnected ? 'connected' : 'available',
-      targetTab: emailConnected ? 'email-agent' : 'integrations',
+      targetTab: emailConnected ? 'email-agent' : 'intégrations',
       detail: emailAddress,
       metric: channelStats?.email || channelStats?.gmail || channelStats?.imap || 0,
     },
@@ -109,20 +89,9 @@ export const ChannelsHubView = ({ clientId, onNavigate }) => {
       icon: MessagesSquare,
       color: '#FF6B6B',
       status: helpdeskConnected ? 'connected' : 'available',
-      targetTab: 'integrations',
+      targetTab: 'intégrations',
       detail: helpdeskName,
       metric: (channelStats?.gorgias || 0) + (channelStats?.zendesk || 0) + (channelStats?.intercom || 0),
-    },
-    {
-      id: 'voice',
-      name: 'Agent vocal',
-      description: 'Un numéro qui répond aux appels clients 24/7',
-      icon: Phone,
-      color: '#8B5CF6',
-      status: voiceConnected ? 'connected' : 'available',
-      targetTab: 'voice-agent',
-      detail: voiceAgent?.phone || null,
-      metric: channelStats?.voice || 0,
     },
   ]
 

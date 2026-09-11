@@ -17,6 +17,7 @@ import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
 import { CreditsPurchase } from './CreditsPurchase'
+import { joursEssaiPour } from '../../../api/lib/essai-gratuit.js'
 
 // ─── Helpers ────────────────────────────────────────────────────
 const MONTH_NAMES = [
@@ -91,7 +92,7 @@ function UsageBar({ used, limit, label, unit = '' }) {
           {used.toLocaleString('fr-FR')}{unit} / {isUnlimited ? '\u221E' : limit.toLocaleString('fr-FR')}{unit}
         </span>
       </div>
-      <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden">
+      <div className="h-2 rounded-full bg-surface overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500 ${color}`}
           style={{ width: `${isUnlimited ? 0 : percent}%` }}
@@ -253,7 +254,6 @@ export const ClientBillingView = ({ theme: _theme }) => {
 
   const planConfig = plan.config || getPlanConfig('free')
   const currentPrice = planConfig.price?.[billingPeriod]
-  const hasVoice = plan.voiceMinutesLimit > 0
   // Hard cap — no overage billing. Once the monthly quota is reached the agent
   // stops answering until the merchant buys credits or upgrades.
   const quotaReached = !!plan.isOverLimit
@@ -393,7 +393,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
       {/* ━━━ Section 2 — Consommation du mois ━━━ */}
       <SectionCard
         title="Consommation du mois"
-        subtitle={`Periode : ${currentMonthLabel()}`}
+        subtitle={`Période : ${currentMonthLabel()}`}
         icon={TrendingUp}
       >
         <div className="space-y-4">
@@ -402,15 +402,6 @@ export const ClientBillingView = ({ theme: _theme }) => {
             limit={plan.ticketsLimit}
             label="Tickets utilises"
           />
-
-          {hasVoice && (
-            <UsageBar
-              used={plan.voiceMinutesUsed}
-              limit={plan.voiceMinutesLimit}
-              label="Minutes vocales"
-              unit=" min"
-            />
-          )}
 
           {quotaReached && (
             <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200">
@@ -432,7 +423,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <p className="text-[12px] text-[#9ca3af] mt-0.5">Comparez les options et passez au niveau superieur</p>
           </div>
           {/* Billing period toggle */}
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#f0f0f0]">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-surface">
             <button
               onClick={() => setBillingPeriod('monthly')}
               className={`px-3 py-1.5 text-[11px] font-semibold rounded-md transition-colors ${
@@ -473,14 +464,19 @@ export const ClientBillingView = ({ theme: _theme }) => {
             if (isCurrent) {
               ctaText = 'Plan actuel'
             } else if (isEnterprise) {
-              ctaText = 'Contacter l\'equipe'
+              ctaText = 'Contacter l\'équipe'
             } else if (isDowngrade) {
               ctaText = 'Rétrograder'
             } else {
-              const isReferred = client?.referral_first_month_free
-              ctaText = isReferred
-                ? `Passer au ${p.name} — 30 jours gratuits`
-                : `Passer au ${p.name} — Essai 7j gratuit`
+              // La durée affichée doit être celle qui sera réellement
+              // accordée : joursEssaiPour est la seule source (ACT-33). Un
+              // bouton qui annonce sept jours à quelqu'un qui en aura trente
+              // est un mensonge dans le sens gentil — celui qui annoncerait
+              // trente pour sept est un remboursement.
+              const jours = joursEssaiPour(client)
+              ctaText = jours
+                ? `Passer au ${p.name} — ${jours} jours gratuits`
+                : `Passer au ${p.name}`
             }
 
             return (
@@ -543,7 +539,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                     disabled={isCurrent || upgradingPlan === planKey || (isDowngrade && loadingPortal)}
                     className={`w-full py-2.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       isCurrent
-                        ? 'bg-[#f0f0f0] text-[#9ca3af] cursor-default'
+                        ? 'bg-surface text-[#9ca3af] cursor-default'
                         : isDowngrade
                         ? 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-surface hover:text-[#1a1a1a]'
                         : isEnterprise

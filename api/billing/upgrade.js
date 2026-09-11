@@ -3,6 +3,8 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
 import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
+import { joursEssaiPour } from '../lib/essai-gratuit.js';
+import { refuserFacturationStripe } from '../lib/facturation-shopify.js';
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -56,13 +58,19 @@ async function handler(req, res) {
     // --- Load current client ---
     const { data: client, error: clientErr } = await supabaseAdmin
       .from('clients')
-      .select('id, plan, stripe_customer_id, stripe_subscription_id, contact_email, brand_name, trial_ends_at, referral_first_month_free, referred_by_client_id')
+      .select('id, plan, stripe_customer_id, stripe_subscription_id, contact_email, brand_name, trial_ends_at, referral_first_month_free, campaign_first_month_free, referred_by_client_id')
       .eq('id', client_id)
       .single();
 
     if (clientErr || !client) {
       return res.status(404).json({ error: 'Client introuvable.' });
     }
+
+
+    // App Store 1.2.1 — un marchand venu de Shopify se facture chez Shopify.
+    // Cette garde vivait uniquement dans le navigateur (billing-router.js) :
+    // cette route facturait qui l'appelait. Voir api/lib/facturation-shopify.js.
+    if (await refuserFacturationStripe(supabaseAdmin, client_id, res)) return;
 
     const currentPlan = client.plan || 'free';
 
@@ -126,8 +134,7 @@ async function handler(req, res) {
 
     // --- Determine trial eligibility ---
     // Referral first month free takes priority (30 days), otherwise 7-day trial if never had one
-    const hadTrial = !!client.trial_ends_at;
-    const trialDays = client.referral_first_month_free ? 30 : (hadTrial ? undefined : 7);
+    const trialDays = joursEssaiPour(client);
 
     // --- Check if client already has an active subscription (instant upgrade) ---
     const existingSubId = client.stripe_subscription_id;
@@ -264,13 +271,23 @@ async function handler(req, res) {
       cancel_url: `${siteUrl}/client/billing?upgrade=cancel`,
     });
 
-    // Mark referral first month as consumed so it can't be reused
-    if (client.referral_first_month_free) {
-      await supabaseAdmin
-        .from('clients')
-        .update({ referral_first_month_free: false })
-        .eq('id', client_id);
-    }
+    // ON NE CONSOMME RIEN ICI — ET C'EST DÉLIBÉRÉ.
+    //
+    // Ces deux drapeaux étaient remis à false juste après la création de la
+    // session Stripe, c'est-à-dire avant que le marchand ait tapé le moindre
+    // chiffre de carte. Ouvrir l'écran de paiement puis le fermer suffisait à
+    // brûler le mois, définitivement et sans aucun moyen de le récupérer.
+    //
+    // Le cas est loin d'être théorique : c'est exactement ce qu'a vécu Pablo le
+    // 10 septembre en testant le lien de la campagne, et c'est le comportement
+    // le plus banal qui soit devant un formulaire de carte bancaire. Sur une
+    // campagne payée pour amener des gens à cet écran précis, c'est le pire
+    // endroit du parcours où poser un piège.
+    //
+    // La protection contre le réabonnement en boucle est ailleurs, et elle est
+    // plus solide : `joursEssaiPour` refuse tout essai dès que `trial_ends_at`
+    // existe, et cette date est écrite par le webhook quand l'abonnement est
+    // réellement créé. Voir api/lib/essai-gratuit.js.
 
     return res.status(200).json({ checkout_url: session.url });
   } catch (error) {

@@ -748,7 +748,7 @@ export const AutomationHubView = ({ clientId, theme: _theme, setActiveTab }) => 
       }
     }
 
-    toast.success(!currentlyActive ? `"${pb.display_name}" active` : `"${pb.display_name}" desactive`)
+    toast.success(!currentlyActive ? `"${pb.display_name}" active` : `"${pb.display_name}" désactivé`)
   }
 
   /* ---- Render ---- */

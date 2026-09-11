@@ -36,13 +36,13 @@ export default function PortalOrdersListPage({ navigate }) {
     const s = status || 'pending';
     if (s === 'fulfilled') {
       return (
-        <span className="text-xs px-2.5 py-0.5 rounded-full border bg-[#E8F5EC] text-[#1F3A12] border-[#A8C490]">
+        <span className="text-xs px-2.5 py-0.5 rounded-full border bg-primary-tint text-[#1F3A12] border-[#A8C490]">
           {s}
         </span>
       );
     }
     return (
-      <span className="text-xs px-2.5 py-0.5 rounded-full border bg-[#FEF3C7] text-[#8B7A50] border-[#F59E0B]/30">
+      <span className="text-xs px-2.5 py-0.5 rounded-full border bg-warn-bg text-[#8B7A50] border-[#F59E0B]/30">
         {s}
       </span>
     );

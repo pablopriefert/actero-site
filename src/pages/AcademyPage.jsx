@@ -138,7 +138,7 @@ export const AcademyPage = ({ onNavigate }) => {
     <div className="min-h-screen bg-surface text-[#262626]">
       <SEO
         title="Actero Academy - Formations gratuites service client et automatisation e-commerce"
-        description="Apprenez gratuitement a automatiser votre SAV, votre e-commerce et a deployer des agents IA performants. 15 cours experts, 100h de contenu, acces libre."
+        description="Apprenez gratuitement a automatiser votre SAV, votre e-commerce et a deployer des agents IA performants. 15 cours experts, 100h de contenu, accès libre."
         canonical="/academy"
         keywords="formation SAV, service client e-commerce, agent IA, automation, Shopify, Actero Academy"
         schemaData={schemaData}

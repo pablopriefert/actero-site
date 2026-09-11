@@ -1,0 +1,53 @@
+{
+  "//": [
+    "Vérification de types SANS compilation — `tsc --noEmit`. Vite continue de",
+    "construire le projet ; TypeScript ne fait que relire.",
+    "",
+    "POURQUOI CE FICHIER EXISTE",
+    "",
+    "Le 10 septembre 2026, en refaisant la page de choix de formule, j'ai écrit",
+    "`limits.workflows_active === null` pour détecter « illimité ». La sentinelle",
+    "vaut `Infinity`. Mon relevé passait par JSON.stringify, qui rend `Infinity`",
+    "en `null` — le relevé mentait, pas la source. La carte Pro a donc annoncé",
+    "« Infinity workflows » en production.",
+    "",
+    "Ni les tests ni le build ne pouvaient le voir. Un vérificateur de types,",
+    "si : `number === null` est une comparaison impossible, et il la refuse.",
+    "",
+    "ADOPTION PROGRESSIVE, ET C'EST VOLONTAIRE",
+    "",
+    "`checkJs` est à false : 589 fichiers JS d'un coup produiraient des milliers",
+    "d'erreurs que personne ne lirait, et la vérification finirait désactivée.",
+    "Un fichier entre dans le périmètre en recevant `// @ts-check` sur sa",
+    "première ligne — un par un, en commençant par ceux où une erreur coûte de",
+    "l'argent : durée d'essai, limites de plan, facturation.",
+    "",
+    "Les fichiers .ts et .tsx, eux, sont vérifiés d'office. Il y en avait huit",
+    "dans le projet, et personne ne les relisait : Vite retire les types sans",
+    "jamais les contrôler."
+  ],
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+
+    "strict": false,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "types": ["vite/client"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src", "api", "scripts"],
+  "exclude": ["node_modules", "dist", "**/*.test.js", "**/*.test.jsx"]
+}

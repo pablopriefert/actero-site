@@ -357,7 +357,7 @@ const STATUS_COLORS = {
   active: 'text-emerald-500 bg-emerald-500/20',
   expired: 'text-amber-400 bg-amber-500/20',
   error: 'text-red-400 bg-red-500/20',
-  revoked: 'text-[#71717a] bg-[#f5f5f5]',
+  revoked: 'text-[#71717a] bg-surface',
   pending: 'text-blue-400 bg-blue-500/20',
 };
 

@@ -181,7 +181,7 @@ export const ROISettingsView = ({ clientId, theme: _theme }) => {
             role="switch"
             aria-checked={form.roi_conservative_mode}
             onClick={() => setForm(f => ({ ...f, roi_conservative_mode: !f.roi_conservative_mode }))}
-            className={`mt-3.5 relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors ${form.roi_conservative_mode ? 'bg-cta' : 'bg-[#e5e5e5]'}`}
+            className={`mt-3.5 relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors ${form.roi_conservative_mode ? 'bg-cta' : 'bg-surface'}`}
           >
             <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${form.roi_conservative_mode ? 'translate-x-[18px]' : 'translate-x-1'}`} />
           </button>

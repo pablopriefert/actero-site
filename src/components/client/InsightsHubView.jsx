@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import {
-  BarChart3, TrendingUp, Clock, PhoneCall, ChevronRight,
+  BarChart3, TrendingUp, Clock, ChevronRight,
   Sparkles, TrendingDown, Activity, Euro,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
@@ -19,7 +19,7 @@ import { SkeletonCard, SkeletonStatRow } from '../ui/Skeleton'
  *
  * Pattern cohérent avec Overview + Automation Hub + Agent Control.
  */
-export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }) => {
+export const InsightsHubView = ({ clientId, onNavigate }) => {
   const [period, setPeriod] = useState('7d') // '7d' | '30d'
 
   const days = period === '7d' ? 7 : 30
@@ -82,12 +82,6 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
         }
       })
 
-      // Voice stats
-      const voice = resolved.filter(e => e.source_channel === 'voice')
-      const voiceCount = voice.length
-      const voiceAvgLatency = voice.length
-        ? Math.round(voice.reduce((s, e) => s + (Number(e.latency_ms) || 0), 0) / voice.length / 1000)
-        : null
 
       return {
         total: resolved.length,
@@ -95,8 +89,6 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
         roi,
         trendPct,
         peakSlot,
-        voiceCount,
-        voiceAvgLatency,
       }
     },
     enabled: !!clientId,
@@ -116,8 +108,6 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
   const roi = insights?.roi ?? 0
   const trendPct = insights?.trendPct
   const peakLabel = fmtPeak(insights?.peakSlot)
-  const voiceCount = insights?.voiceCount ?? 0
-  const voiceAvgLatency = insights?.voiceAvgLatency
 
   const periodLabel = period === '7d' ? '7 derniers jours' : '30 derniers jours'
   const shortLabel = period === '7d' ? '7j' : '30j'
@@ -154,21 +144,6 @@ export const InsightsHubView = ({ clientId, onNavigate, canAccessVoice = false }
       color: '#d97706',
       metric: peakLabel || '—',
       metricSub: peakLabel ? 'Créneau le plus chargé' : 'Pas assez de données',
-    },
-    {
-      id: 'voice-calls',
-      title: 'Appels vocaux',
-      description: 'Analytics de l\'agent téléphonique',
-      icon: PhoneCall,
-      color: '#7c3aed',
-      locked: !canAccessVoice,
-      lockedLabel: 'PRO',
-      metric: canAccessVoice
-        ? (voiceCount > 0 ? `${voiceCount} appel${voiceCount > 1 ? 's' : ''}` : 'Aucun appel')
-        : 'Débloqué au plan Pro',
-      metricSub: canAccessVoice && voiceAvgLatency
-        ? `${voiceAvgLatency}s de réponse moyenne`
-        : (canAccessVoice ? `Sur ${shortLabel}` : 'Agent vocal ElevenLabs'),
     },
   ]
 

@@ -443,7 +443,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
         >
           <div className="flex items-start gap-3 min-w-0">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-              visionEnabled ? 'bg-cta/10 text-cta' : 'bg-[#f5f5f5] text-[#9ca3af]'
+              visionEnabled ? 'bg-cta/10 text-cta' : 'bg-surface text-[#9ca3af]'
             }`}>
               <Eye className="w-4 h-4" />
             </div>
@@ -492,7 +492,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
         >
           <div className="flex items-start gap-3 min-w-0">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-              linearAutoIssueEnabled ? 'bg-cta/10 text-cta' : 'bg-[#f5f5f5] text-[#9ca3af]'
+              linearAutoIssueEnabled ? 'bg-cta/10 text-cta' : 'bg-surface text-[#9ca3af]'
             }`}>
               <GitBranch className="w-4 h-4" />
             </div>

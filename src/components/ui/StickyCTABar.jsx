@@ -75,7 +75,7 @@ export function StickyCTABar({ onNavigate }) {
             Prêt à automatiser votre SAV Shopify ?
           </p>
           <p className="text-[11px] md:text-[12px] text-white/60 font-medium leading-tight mt-0.5 truncate">
-            Essai 7 jours · Sans carte bancaire · Annulable en 1 clic
+            Essai gratuit · Annulable en 1 clic
           </p>
         </div>
         <button
