@@ -30,10 +30,54 @@ export async function lookupOrder(supabase, params) {
     return null
   }
 
-  if (platform === 'shopify') return lookupShopifyOrder(supabase, params)
-  if (platform === 'woocommerce') return lookupWooCommerceOrder(supabase, params)
-  if (platform === 'webflow') return lookupWebflowOrder(supabase, params)
-  return null // Aucune plateforme e-commerce connectée
+  let commandes = null
+  if (platform === 'shopify') commandes = await lookupShopifyOrder(supabase, params)
+  else if (platform === 'woocommerce') commandes = await lookupWooCommerceOrder(supabase, params)
+  else if (platform === 'webflow') commandes = await lookupWebflowOrder(supabase, params)
+  else return null // Aucune plateforme e-commerce connectée
+
+  return filtrerParAppartenance(commandes, params)
+}
+
+/**
+ * Ne rend une commande qu'à qui peut prouver qu'elle est la sienne.
+ *
+ * LE DÉFAUT QUE CETTE FONCTION ARRÊTE — 11 septembre 2026
+ *
+ * La recherche se faisait par numéro SEUL : `name:4521`. L'email du demandeur
+ * n'entrait jamais dans la requête dès qu'un numéro était présent. Or les
+ * numéros de commande Shopify sont séquentiels.
+ *
+ * N'importe qui ouvrant la bulle de chat d'une boutique et tapant « où en est
+ * ma commande #1042 » recevait la commande de quelqu'un d'autre : montant,
+ * articles, transporteur, numéro de suivi et lien de suivi. Sans compte, sans
+ * email, sans rien. Il suffisait d'énumérer.
+ *
+ * Le contrôle vit ICI, dans l'aiguilleur, et pas chez les cinq appelants
+ * (executor, process, order-agent, return-agent, widget) : une règle de
+ * confidentialité répétée cinq fois est une règle oubliée une fois.
+ *
+ * TROIS CAS
+ *
+ *   recherche par email      la plateforme a déjà filtré sur cet email.
+ *   numéro + email connu     on ne garde que les commandes de cet email. Une
+ *                            commande sans email ne prouve rien : écartée.
+ *   numéro, email inconnu    on ne peut RIEN prouver. On ne rend rien.
+ *
+ * Le troisième cas est celui du visiteur anonyme, et c'est le seul qui
+ * dégrade l'usage : il faut désormais qu'il donne son email. C'est le prix, et
+ * il est juste — order-agent.js le lui demande explicitement.
+ */
+function filtrerParAppartenance(commandes, { orderId, customerEmail }) {
+  if (!Array.isArray(commandes) || commandes.length === 0) return null
+  if (!orderId) return commandes
+  if (!customerEmail) return null
+
+  const attendu = String(customerEmail).trim().toLowerCase()
+  const siennes = commandes.filter(
+    (c) => c?.email && String(c.email).trim().toLowerCase() === attendu,
+  )
+  return siennes.length > 0 ? siennes : null
 }
 
 /**
@@ -102,9 +146,13 @@ export async function lookupShopifyOrder(supabase, { clientId, orderId, customer
     'Content-Type': 'application/json',
   }
 
-  // Order name search first (e.g. "#4521" → name:4521), else customer email.
-  const searchQuery = orderId
-    ? `name:${String(orderId).replace(/^#/, '')}`
+  // Quand on connaît l'email du demandeur, il CONTRAINT la requête : on ne
+  // rapatrie même pas la commande d'un autre. `filtrerParAppartenance` reste
+  // le garde-fou qui décide, mais ne rien faire descendre est plus sûr que
+  // faire descendre puis jeter.
+  const numero = orderId ? String(orderId).replace(/^#/, '') : null
+  const searchQuery = numero
+    ? (customerEmail ? `name:${numero} AND email:${customerEmail}` : `name:${numero}`)
     : (customerEmail ? `email:${customerEmail}` : null)
   if (!searchQuery) return null
 

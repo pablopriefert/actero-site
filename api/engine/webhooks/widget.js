@@ -62,9 +62,18 @@ async function buildCards({ brainResult, clientId, message, email, isTest }) {
       const orderId = explicitOrderRef ? ((String(message).match(/#?\s*(\d{3,8})/) || [])[1] || null) : null
       const orders = await lookupOrder(supabase, { clientId, orderId, customerEmail: email || null })
       const o = Array.isArray(orders) ? orders[0] : null
-      // Ownership guard: if we know the shopper's email and the resolved order
-      // belongs to a different email, do NOT reveal it (PII / tracking leak).
-      const ownsOrder = o && (!email || !o.email || String(o.email).toLowerCase() === String(email).toLowerCase())
+      // Contrôle d'appartenance, seconde ligne. La première vit désormais dans
+      // `lookupOrder` (api/engine/lib/shopify-client.js), qui ne rend plus une
+      // commande cherchée par NUMÉRO à quelqu'un dont on ignore l'email.
+      //
+      // Cette version-ci disait `!email || !o.email || …` : pour un visiteur
+      // anonyme `email` est vide, donc `!email` valait true et la carte
+      // s'affichait — avec le montant, les articles, le transporteur et le
+      // lien de suivi d'un inconnu. La garde ne bloquait que le cas où le
+      // visiteur avait donné un email DIFFÉRENT, c'est-à-dire le seul cas où
+      // il ne cherchait probablement pas à tricher.
+      const ownsOrder = !!o && !!email && !!o.email
+        && String(o.email).trim().toLowerCase() === String(email).trim().toLowerCase()
       if (o && ownsOrder) {
         cards.push({
           type: 'order_status',

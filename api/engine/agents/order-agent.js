@@ -37,7 +37,7 @@ export const orderAgent = {
   classifications: ['suivi_commande', 'livraison', 'tracking', 'order_tracking'],
   tools: ['lookup_order'],
 
-  buildSystemPrompt(clientConfig, memoryContext, orderContext, trackingContext) {
+  buildSystemPrompt(clientConfig, memoryContext, orderContext, trackingContext, demandeSansEmail = false) {
     const base = buildSystemPrompt(clientConfig) + (memoryContext || '')
 
     let specialization = `\n\nROLE SPECIALISE — SUIVI DE COMMANDE:
@@ -53,8 +53,16 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     if (orderContext && orderContext.length > 0) {
       specialization += `\n\nDONNEES COMMANDE (source de verite — n'invente rien au-dela):\n`
       specialization += orderContext.map(o => o.contextText || '').join('\n')
+    } else if (demandeSansEmail) {
+      // Un numéro de commande a été donné, mais on ne sait pas à qui on parle.
+      // `lookupOrder` refuse alors de rendre la commande — les numéros Shopify
+      // étant séquentiels, la rendre reviendrait à donner celle d'un autre.
+      // Ce n'est donc PAS « introuvable » : c'est « prouvez-moi qu'elle est la
+      // vôtre ». Le dire autrement ferait croire au client qu'on a perdu sa
+      // commande, et le pousserait à réclamer.
+      specialization += `\n\nDONNEES COMMANDE: tu ne sais pas a qui tu parles, donc tu ne peux pas ouvrir cette commande. Demande POLIMENT l'adresse email utilisee lors de la commande, en expliquant que c'est pour verifier qu'elle est bien la sienne. N'affirme RIEN sur son contenu ni son statut, et ne dis JAMAIS qu'elle est introuvable.`
     } else {
-      specialization += `\n\nDONNEES COMMANDE: aucune commande trouvee (pas de connexion Shopify OU commande introuvable). Demande poliment le numero de commande et/ou l'email associe si le client ne les a pas deja fournis.`
+      specialization += `\n\nDONNEES COMMANDE: aucune commande trouvee (pas de connexion Shopify OU commande introuvable).`
     }
 
     // AfterShip real-time tracking data
@@ -80,11 +88,16 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     // 1. Try to fetch the real order from Shopify
     let orderContext = null
     let trackingContext = null
+    let demandeSansEmail = false
     const toolsUsed = []
 
     if (!normalized?._is_test) {
       try {
         const orderId = extractOrderId(normalized?.message || '')
+        // Un numéro donné sans qu'on sache à qui on parle : lookupOrder
+        // refusera de rendre la commande (contrôle d'appartenance). Il faut le
+        // savoir ICI pour demander l'email au lieu d'annoncer « introuvable ».
+        demandeSansEmail = !!orderId && !normalized?.customer_email
         const fetched = await lookupOrder(supabase, {
           clientId,
           orderId,
@@ -138,7 +151,7 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     }
 
     // 2. Build prompt + messages
-    const systemPrompt = this.buildSystemPrompt(clientConfig, memoryContext, orderContext, trackingContext)
+    const systemPrompt = this.buildSystemPrompt(clientConfig, memoryContext, orderContext, trackingContext, demandeSansEmail)
     const { claudeMessages, hasHistory } = buildClaudeMessages({
       conversationHistory,
       currentMessage: normalized.message,

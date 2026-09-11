@@ -131,7 +131,30 @@ describe('lookupOrder (aiguillage multi-plateforme)', () => {
     expect(wooLookupOrderMock).not.toHaveBeenCalled()
   })
 
-  it('délègue à Shopify et garde exactement le comportement Shopify actuel quand la connexion existe', async () => {
+  it('délègue à Shopify et rend la commande à qui prouve qu’elle est la sienne', async () => {
+    const supa = makeSupabaseStub({
+      client_shopify_connections: { data: { id: 'conn-1', shop_domain: 'demo.myshopify.com', access_token: 'enc' } },
+    })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(graphqlOrdersResponse()))
+
+    const result = await lookupOrder(supa, {
+      clientId: 'c-shopify', orderId: '#1001', customerEmail: 'marie@example.com',
+    })
+
+    expect(wooLookupOrderMock).not.toHaveBeenCalled()
+    expect(result).toHaveLength(1)
+    expect(result[0].orderName).toBe('#1001')
+  })
+
+  it('LA FUITE : un numéro seul, sans savoir à qui on parle, ne rend rien', async () => {
+    // Ce test remplace celui qui vérifiait le contraire — il s'appelait
+    // « garde exactement le comportement Shopify actuel » et il gardait
+    // exactement la faille.
+    //
+    // Les numéros de commande Shopify sont séquentiels. N'importe qui ouvrant
+    // la bulle d'une boutique et tapant « où en est ma commande #1042 »
+    // recevait la commande d'un autre : montant, articles, transporteur,
+    // numéro ET lien de suivi. Sans compte, sans email, sans rien.
     const supa = makeSupabaseStub({
       client_shopify_connections: { data: { id: 'conn-1', shop_domain: 'demo.myshopify.com', access_token: 'enc' } },
     })
@@ -139,9 +162,22 @@ describe('lookupOrder (aiguillage multi-plateforme)', () => {
 
     const result = await lookupOrder(supa, { clientId: 'c-shopify', orderId: '#1001' })
 
-    expect(wooLookupOrderMock).not.toHaveBeenCalled()
-    expect(result).toHaveLength(1)
-    expect(result[0].orderName).toBe('#1001')
+    expect(result, 'une commande est rendue à un visiteur dont on ignore l’email').toBeNull()
+  })
+
+  it('un numéro accompagné de l’email de QUELQU’UN D’AUTRE ne rend rien', async () => {
+    // Le cas que l'ancienne garde du widget laissait passer à moitié : elle
+    // ne bloquait que celui-ci, et laissait passer le visiteur anonyme.
+    const supa = makeSupabaseStub({
+      client_shopify_connections: { data: { id: 'conn-1', shop_domain: 'demo.myshopify.com', access_token: 'enc' } },
+    })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(graphqlOrdersResponse()))
+
+    const result = await lookupOrder(supa, {
+      clientId: 'c-shopify', orderId: '#1001', customerEmail: 'curieux@example.com',
+    })
+
+    expect(result).toBeNull()
   })
 
   it('délègue à WooCommerce quand seule une connexion WooCommerce active existe', async () => {
@@ -149,13 +185,17 @@ describe('lookupOrder (aiguillage multi-plateforme)', () => {
       client_shopify_connections: { data: null },
       client_integrations: { data: { id: 'int-1', status: 'active' } },
     })
-    const fakeOrders = [{ orderName: '#7', contextText: 'COMMANDE #7' }]
+    // La commande porte l'email du demandeur : le contrôle d'appartenance de
+    // l'aiguilleur la laisse passer. Sans email dans la commande, il l'écarte —
+    // une commande anonyme ne prouve l'appartenance de personne.
+    const fakeOrders = [{ orderName: '#7', contextText: 'COMMANDE #7', email: 'marie@example.com' }]
     wooLookupOrderMock.mockResolvedValue(fakeOrders)
 
-    const result = await lookupOrder(supa, { clientId: 'c-woo', orderId: '#7' })
+    const params = { clientId: 'c-woo', orderId: '#7', customerEmail: 'marie@example.com' }
+    const result = await lookupOrder(supa, params)
 
-    expect(wooLookupOrderMock).toHaveBeenCalledWith(supa, { clientId: 'c-woo', orderId: '#7' })
-    expect(result).toBe(fakeOrders)
+    expect(wooLookupOrderMock).toHaveBeenCalledWith(supa, params)
+    expect(result).toEqual(fakeOrders)
   })
 
   it("ignore une intégration WooCommerce non active (pending/revoked) — ce n'est pas une connexion", async () => {
