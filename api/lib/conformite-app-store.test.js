@@ -80,7 +80,14 @@ describe('App Store 2.3.1 — l\'installation part de chez Shopify', () => {
 
   it('le fournisseur Shopify n\'a pas d\'invite de domaine', () => {
     const src = sansCommentaires(readFileSync('src/config/integrations.js', 'utf8'))
-    const bloc = src.slice(src.indexOf("id: 'shopify'"), src.indexOf("category: 'ecommerce'", src.indexOf("id: 'shopify'")))
+    // Borne de fin : l'entrée SUIVANTE. La version précédente s'arrêtait sur
+    // `category: 'ecommerce'`, un champ que personne ne lisait — et qui a été
+    // retiré. Se borner sur un champ dont on ne se sert pas, c'est confier sa
+    // garde à une ligne que rien ne protège.
+    const début = src.indexOf("id: 'shopify'")
+    const suivant = src.indexOf("id: '", début + 5)
+    const bloc = src.slice(début, suivant === -1 ? undefined : suivant)
+    expect(bloc.length, 'bloc Shopify introuvable ou vide').toBeGreaterThan(50)
     expect(bloc, 'le bloc Shopify redemande un domaine').not.toMatch(/oauthPrompt\s*:/)
   })
 

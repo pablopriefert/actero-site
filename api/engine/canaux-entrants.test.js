@@ -23,10 +23,16 @@ import { existsSync, readFileSync } from 'node:fs'
  *
  * POURQUOI PAS UNE GARDE SUR LA CATÉGORIE
  *
- * `src/config/integrations.js` étiquette Gorgias, Zendesk ET Intercom comme
+ * `src/config/integrations.js` étiquetait Gorgias, Zendesk ET Intercom
  * `category: 'ecommerce'` alors que ce sont des helpdesks. Se fier à ce champ
  * aurait donné une garde qui ne regarde rien. On ancre donc sur le registre de
  * connecteurs, qui est la vraie liste des canaux que le moteur connaît.
+ *
+ * Ce champ a depuis été retiré (11 septembre) : il n'était lu par personne, et
+ * l'écran des intégrations groupe via `INTEGRATION_CATEGORIES[].ids`, qui
+ * range ces trois-là sous `helpdesk` correctement. Voir
+ * src/config/integrations.test.js. L'ancrage sur le registre reste le bon :
+ * il décrit ce que le MOTEUR sait faire, pas ce que l'écran affiche.
  */
 
 /**
