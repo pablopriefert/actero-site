@@ -147,7 +147,7 @@ Les conversations passées restent dans ton historique pour des raisons RGPD (ex
 
 Une mise à jour de thème retire parfois l'app embed Actero de ta vitrine sans prévenir. L'agent cesse alors de recevoir les messages laissés sur ton site, sans qu'aucune erreur ne te le signale.
 
-Actero vérifie **au moins toutes les 24 heures** que le script Actero est bien présent sur ta vitrine. Le contrôle est automatique dès que ton onboarding Shopify est terminé — rien à activer.
+Actero vérifie **au moins toutes les 24 heures** que la bulle de chat s'affiche bien sur ta vitrine. Le contrôle charge ta page d'accueil dans un vrai navigateur et cherche la bulle rendue à l'écran — pas seulement la balise `<script>` dans le HTML. Il détecte donc aussi les cas où le script est bien présent mais où la bulle n'apparaît pas : fichier widget en 404, erreur JavaScript, ou politique de sécurité de contenu (CSP) du thème qui bloque le domaine Actero. Le contrôle est automatique dès que ton onboarding Shopify est terminé — rien à activer.
 
 Tu reçois un email intitulé **« Votre agent ne reçoit plus de messages depuis votre site »** uniquement quand la bulle **disparaît** entre deux contrôles (le précédent la trouvait, celui-ci non). L'email indique l'URL contrôlée et la marche à suivre pour la réactiver depuis l'éditeur de thème Shopify.
 
