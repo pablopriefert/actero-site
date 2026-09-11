@@ -8,6 +8,10 @@
  *      (and kill their sandboxes to release credits).
  *   2. Kill orphan sandboxes that have no matching DB row (defensive cleanup).
  *   3. Kill sandboxes attached to jobs that already self-reported completion.
+ *   4. Relancer les travaux périodiques par client : rafraîchissement profond
+ *      de la base de connaissances (2c) et contrôle de la bulle de chat (2d).
+ *   5. Prévenir le marchand quand la bulle a DISPARU de sa vitrine (2e) —
+ *      uniquement sur une régression, voir api/lib/widget-alerte.js.
  *
  * Auth: Vercel Cron header OR Authorization: Bearer <CRON_SECRET>.
  */
@@ -16,6 +20,8 @@ import { createClient } from '@supabase/supabase-js'
 import { withCronMonitor } from '../lib/cron-monitor.js'
 import { killSandbox, listActiveSandboxes } from '../lib/e2b-runner.js'
 import { notifyOnboardingFailure } from '../lib/notify-onboarding.js'
+import { notifyClient, sendClientEmail } from '../lib/notify.js'
+import { doitAlerterWidget } from '../lib/widget-alerte.js'
 
 export const maxDuration = 60
 
@@ -205,6 +211,158 @@ async function handler(req, res) {
     }
   } catch (err) {
     console.warn('[process-e2b-jobs] kb deep refresh scan failed:', err.message)
+  }
+
+  // 2d. Contrôle périodique de la bulle de chat.
+  //
+  //     Une mise à jour de thème retire le script Actero de la vitrine, et
+  //     l'agent cesse de recevoir des conversations. Il n'y a AUCUNE erreur à
+  //     voir : juste un silence qui ressemble à une boutique calme. Le
+  //     contrôle existait (widget_qa.py) mais ne partait que d'un clic dans un
+  //     écran d'administration — il fallait y penser.
+  //
+  //     Même forme que le rafraîchissement 2c : les clients rodés, ceux dont
+  //     la dernière vérification date de plus de 24 h, trois par passage, en
+  //     fire-and-forget. La route 409 elle-même sur un travail en vol.
+  try {
+    const seuil = new Date(Date.now() - 24 * 60 * 60_000).toISOString()
+
+    const { data: rodes } = await supabase
+      .from('e2b_jobs')
+      .select('client_id')
+      .eq('status', 'completed')
+      .eq('job_type', 'shopify_onboard')
+      .not('client_id', 'is', null)
+      .limit(500)
+
+    const ids = Array.from(new Set((rodes || []).map((j) => j.client_id).filter(Boolean)))
+
+    if (ids.length > 0) {
+      const { data: derniers } = await supabase
+        .from('widget_health')
+        .select('client_id, checked_at')
+        .in('client_id', ids)
+        .order('checked_at', { ascending: false })
+
+      // La vérification la plus récente par client — la liste arrive déjà triée.
+      const vuLe = new Map()
+      for (const r of derniers || []) {
+        if (!vuLe.has(r.client_id)) vuLe.set(r.client_id, r.checked_at)
+      }
+      const aVerifier = ids.filter((id) => !vuLe.has(id) || vuLe.get(id) < seuil)
+
+      let lances = 0
+      for (const clientId of aVerifier) {
+        if (lances >= 3) break
+        try {
+          const { data: enVol } = await supabase
+            .from('e2b_jobs')
+            .select('id')
+            .eq('client_id', clientId)
+            .eq('job_type', 'widget_qa')
+            .in('status', ['queued', 'running'])
+            .maybeSingle()
+          if (enVol) continue
+
+          const base = process.env.PUBLIC_API_URL || 'https://actero.fr'
+          fetch(`${base}/api/jobs/widget-qa`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.CRON_SECRET}`,
+            },
+            body: JSON.stringify({ client_id: clientId }),
+          }).catch(() => {})
+          lances++
+        } catch (err) {
+          console.warn(`[process-e2b-jobs] contrôle widget non lancé pour ${clientId}:`, err.message)
+        }
+      }
+      stats.widget_qa_lances = lances
+    }
+  } catch (err) {
+    console.warn('[process-e2b-jobs] scan des contrôles widget échoué:', err.message)
+  }
+
+  // 2e. Prévenir le marchand quand la bulle a DISPARU.
+  //
+  //     On n'alerte que sur une RÉGRESSION : la vérification précédente
+  //     trouvait le script, celle-ci ne le trouve plus. C'est ce qui rend
+  //     l'alerte silencieuse pour les boutiques qui n'ont jamais installé la
+  //     bulle — les prévenir qu'il manque quelque chose qu'elles n'ont jamais
+  //     posé serait du bruit, et le bruit finit par masquer le signal.
+  //
+  //     Pas de baseline, pas d'alerte non plus : une première vérification qui
+  //     échoue ne prouve rien.
+  try {
+    const fenetre = new Date(Date.now() - 48 * 60 * 60_000).toISOString()
+
+    const { data: recentes } = await supabase
+      .from('widget_health')
+      .select('id, client_id, widget_found, url_checked, checked_at')
+      .gte('checked_at', fenetre)
+      .is('alerted_at', null)
+      .eq('widget_found', false)
+      .order('checked_at', { ascending: false })
+      .limit(50)
+
+    let alertes = 0
+    for (const ligne of recentes || []) {
+      try {
+        // La vérification qui PRÉCÈDE celle-ci, pour ce client.
+        const { data: precedente } = await supabase
+          .from('widget_health')
+          .select('widget_found')
+          .eq('client_id', ligne.client_id)
+          .lt('checked_at', ligne.checked_at)
+          .order('checked_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        // La décision vit dans api/lib/widget-alerte.js, avec sa table de
+        // vérité : elle est entièrement faite de cas limites, et alerter trop
+        // coûte aussi cher qu'alerter trop peu.
+        if (!doitAlerterWidget(ligne, precedente)) continue
+
+        // Réclamer la ligne AVANT d'envoyer : deux passages simultanés du cron
+        // n'enverront qu'un message. Même motif que quota-alerts.js.
+        const { data: reclamee } = await supabase
+          .from('widget_health')
+          .update({ alerted_at: new Date().toISOString() })
+          .eq('id', ligne.id)
+          .is('alerted_at', null)
+          .select('id')
+          .maybeSingle()
+        if (!reclamee) continue
+
+        const titre = 'Votre agent ne reçoit plus de messages depuis votre site'
+        const message =
+          'La bulle de chat Actero n\'est plus présente sur '
+          + `${ligne.url_checked || 'votre boutique'}. Elle y était lors du dernier contrôle.\n\n`
+          + 'Une mise à jour de thème la retire parfois sans prévenir. Tant '
+          + 'qu\'elle est absente, les messages laissés sur votre site ne nous '
+          + 'parviennent pas — et rien d\'autre ne vous le signalerait.\n\n'
+          + 'Pour la remettre : éditeur de thème Shopify → Intégrations d\'app → '
+          + 'activer Actero.'
+
+        await notifyClient(supabase, {
+          clientId: ligne.client_id,
+          eventKey: 'widget_absent',
+          title: titre,
+          message,
+          context: { url: ligne.url_checked },
+        })
+        // Doublé d'un email direct : un marchand qui n'a jamais configuré ses
+        // préférences de notification doit quand même l'apprendre.
+        await sendClientEmail(supabase, ligne.client_id, { title: titre, message, context: {} })
+        alertes++
+      } catch (err) {
+        console.warn(`[process-e2b-jobs] alerte widget échouée pour ${ligne.client_id}:`, err.message)
+      }
+    }
+    stats.alertes_widget = alertes
+  } catch (err) {
+    console.warn('[process-e2b-jobs] scan des alertes widget échoué:', err.message)
   }
 
   // 3. Detect orphan sandboxes (alive in E2B but no matching active job row).
