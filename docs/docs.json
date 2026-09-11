@@ -63,7 +63,6 @@
             "pages": [
               "integrations/gorgias",
               "integrations/zendesk",
-              "integrations/intercom",
               "integrations/gmail",
               "integrations/smtp-imap"
             ]
