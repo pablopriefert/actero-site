@@ -800,7 +800,7 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
     setDisconnecting(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      await fetch('/api/intégrations/disconnect', {
+      const res = await fetch('/api/integrations/disconnect', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -808,10 +808,24 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
         },
         body: JSON.stringify({ integration_id: disconnectTarget.id }),
       });
+      // `fetch` ne rejette que sur une panne réseau : un 404 ou un 500 arrive
+      // ici comme une réponse normale. Sans cette vérification, la fenêtre se
+      // fermait et l'écran se rafraîchissait comme si la déconnexion avait eu
+      // lieu — en laissant la connexion active, et le marchand convaincu du
+      // contraire. C'est exactement ce qui est arrivé pendant des mois :
+      // l'URL appelée était `/api/intégrations/disconnect`, accentuée, donc
+      // toujours 404. Personne ne l'a vu parce que personne ne regardait.
+      if (!res.ok) {
+        toastError('La déconnexion a échoué. L’intégration est toujours active.');
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ['client-integrations'] });
+      toastSuccess('Intégration déconnectée');
+      setDisconnectTarget(null);
+    } catch {
+      toastError('La déconnexion a échoué. Vérifiez votre connexion.');
     } finally {
       setDisconnecting(false);
-      setDisconnectTarget(null);
     }
   };
 
