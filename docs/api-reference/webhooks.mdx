@@ -1,6 +1,6 @@
 ---
 title: "Webhooks"
-description: "L'agent Actero peut pousser ses événements vers ton URL en HTTP POST signé HMAC-SHA256. Configuration dans le dashboard, livraisons rejouables, signature vérifiable."
+description: "Reçois les événements Actero (tickets, escalades, quota) en HTTP POST signé HMAC-SHA256 : configuration, signature vérifiable, livraisons rejouables."
 ---
 
 Quand l'agent Actero termine un ticket, escalade un cas, ou détecte un sentiment critique, tu peux recevoir l'événement en temps réel sur ton propre serveur via un webhook sortant. Chaque livraison est signée HMAC-SHA256 pour que tu puisses vérifier l'origine.
@@ -31,7 +31,8 @@ Dashboard → **API & Intégrations → Webhooks → Nouveau webhook**.
 | `ticket.response_failed`           | L'agent n'a pas pu générer de réponse (erreur LLM, etc.)   |
 | `conversation.created`             | Un nouvel échange entrant (avant traitement par l'agent)   |
 | `conversation.sentiment_negative`  | Le sentiment d'une conversation passe en zone critique     |
-| `usage.threshold_reached`          | 80 % puis 100 % du quota mensuel atteint                   |
+| `usage.threshold_reached`          | 80 % du quota mensuel de tickets atteint                   |
+| `usage.quota_reached`              | Quota mensuel épuisé — l'agent est en pause                |
 | `integration.connected`            | Une intégration vient d'être activée (Shopify, Gorgias…)   |
 | `integration.disconnected`         | Une intégration a été déconnectée ou est tombée en erreur  |
 | `playbook.activated`               | Un workflow IA a été activé dans le dashboard              |

@@ -165,7 +165,7 @@ if usage["tickets_limit"] != -1:
 
 ## Polling vs webhook
 
-Pour suivre la consommation en temps réel **sans** poller cet endpoint en continu, abonne-toi à l'événement `usage.threshold_reached` via un [webhook sortant](/api-reference/webhooks). Tu reçois un POST quand le tenant franchit 80 % puis 100 % de son quota mensuel — utile pour :
+Pour suivre la consommation en temps réel **sans** poller cet endpoint en continu, abonne-toi aux événements `usage.threshold_reached` (80 % du quota) et `usage.quota_reached` (100 % — agent en pause) via un [webhook sortant](/api-reference/webhooks). Chaque événement est émis une seule fois par mois. Utile pour :
 
 - Notifier l'équipe finance avant le hard cap (Free).
 - Déclencher un upgrade automatique côté ton CRM.

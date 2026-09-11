@@ -39,6 +39,17 @@ Code couleur :
 | Orange | 70-89 % — surveille |
 | Rouge | ≥ 90 % — l'agent se mettra en pause au plafond |
 
+### Alertes à 80 % et 100 %
+
+Actero t'alerte automatiquement deux fois par mois maximum :
+
+- **À 80 % du quota** : notification "80 % de votre quota mensuel atteint" — anticipe avec un pack de crédits ou un upgrade.
+- **À 100 %** : notification "Quota atteint — votre agent est en pause" — ton agent ne répond plus à tes clients tant que tu n'as pas réagi.
+
+Chaque alerte part sur les canaux configurés dans **Paramètres → Notifications** (événements `usage.threshold_reached` et `usage.quota_reached`), **plus un email systématique** à l'adresse de contact du compte — même si tu n'as configuré aucune préférence. Ces alertes sont critiques : elles ignorent les heures calmes.
+
+Chaque seuil ne déclenche qu'une seule alerte par mois, même si plusieurs tickets arrivent en même temps.
+
 ### Dépassement
 
 Ton quota est un **plafond strict** : rien n'est facturé en plus à ton insu. Quand il est atteint, l'agent se met en pause. Deux façons de le réactiver immédiatement : acheter un **pack de crédits** (1 crédit = 1 ticket, sans engagement) ou **passer au plan supérieur**. Si tu as déjà des crédits, ils sont consommés automatiquement et le service ne s'interrompt pas.
@@ -68,6 +79,10 @@ L'annuel donne **-20 %** sur le prix affiché. Tu paies une fois pour l'année, 
     Ton plan est mis à jour, tu débloques immédiatement les nouvelles features.
   </Step>
 </Steps>
+
+<Note>
+Si ta boutique Shopify est connectée, le paiement passe par **Shopify** et non par Stripe : le bouton d'upgrade te redirige vers la sélection de plan dans Shopify Admin, et l'abonnement apparaît sur ta facture Shopify. C'est une exigence du Shopify App Store — Actero ne peut pas te facturer via Stripe dans ce cas.
+</Note>
 
 ### Cas particulier : upgrade instantané
 

@@ -39,6 +39,10 @@ Actero est listée sur le Shopify App Store. L'installation est gratuite et pass
 Si tu n'as pas encore configuré ton agent, regarde le [quickstart](/essentials/quickstart) — c'est la suite logique de cette connexion.
 </Tip>
 
+### Installer sans compte Actero
+
+Tu peux installer l'app depuis le Shopify App Store **avant** de créer ton compte Actero : Actero crée automatiquement ton espace de travail à partir du nom et de l'email de ta boutique Shopify, et la page de confirmation te propose de créer ton compte (voir l'étape 4 ci-dessus). Le rattachement reste valable **30 jours** — voir la [FAQ](#faq). Une boutique déjà rattachée à un compte ne peut pas être récupérée par un autre compte.
+
 ### Bouton « Open app » dans Shopify Admin
 
 Une fois installée, Actero apparaît dans **Apps** dans ton Shopify Admin. Cliquer dessus t'envoie automatiquement vers le bon endroit :
@@ -176,7 +180,7 @@ Les conversations passées restent dans ton historique pour des raisons RGPD (ex
     Non. Le rattachement de ta boutique reste valable **30 jours** après l'installation. Reviens sur la page de confirmation depuis **Shopify Admin → Apps → Actero**, crée ton compte, et la boutique se rattache. Passé ce délai, il suffit de relancer l'installation depuis Shopify Admin.
   </Accordion>
   <Accordion title="Combien de temps pour indexer toute ma boutique ?">
-    Les 30 dernières commandes sont indexées en ~20 secondes (immédiat). L'indexation complète (catalogue, clients, historique 12 mois) prend de 2 à 30 minutes selon la taille de ta boutique. Tu reçois une notification dans le dashboard quand c'est fini.
+    Les 30 dernières commandes sont indexées en ~20 secondes (immédiat). L'indexation complète (catalogue, clients, 60 derniers jours de commandes) prend de 2 à 30 minutes selon la taille de ta boutique. Tu reçois une notification dans le dashboard quand c'est fini. L'historique de commandes est limité à 60 jours : Shopify réserve les commandes plus anciennes aux apps disposant du scope `read_all_orders`, qu'Actero ne demande volontairement pas.
   </Accordion>
   <Accordion title="Mes clients voient-ils que c'est une IA ?">
     Tu choisis. Par défaut, l'agent signe avec le nom de ta marque. Tu peux activer une signature explicite (« Réponse assistée par notre agent IA ») depuis **Configurer l'agent → Identité**.
