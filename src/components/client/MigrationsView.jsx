@@ -11,6 +11,7 @@ import {
   Info,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { BacktestCard } from './BacktestCard'
 
 /**
  * MigrationsView — UI to import historical tickets from competitors
@@ -292,6 +293,8 @@ export function MigrationsView({ clientId, theme: _theme = 'light' }) {
       </form>
 
       {/* History */}
+      <BacktestCard clientId={clientId} />
+
       <section>
         <h2 className="text-[14px] font-bold text-[#1a1a1a] mb-3">Migrations récentes</h2>
         {history.length === 0 ? (

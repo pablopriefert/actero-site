@@ -61,13 +61,32 @@ const MOTIF_ID_DU_CORPS = new RegExp(
   'm',
 )
 
-/** Une protection reconnue : appartenance, rôle admin, ou secret partagé requis. */
+/** Une protection reconnue : appartenance, rôle admin, ou secret partagé requis.
+ *
+ * 11 septembre 2026 — le garde-fou partagé était reconnu sur son seul NOM.
+ * Une route qui écrivait `import { requireClientAccess } from …` et ne
+ * l'appelait jamais satisfaisait ce test. Constaté en ajoutant
+ * `api/jobs/backtest-marchand.js` : appel retiré, import conservé, test vert.
+ *
+ * C'est la maladie de la semaine — du code importé que rien n'appelle — logée
+ * dans une garde de SÉCURITÉ, celle qui empêche une route de croire sur parole
+ * le `client_id` que lui donne l'appelant (ACT-24).
+ *
+ * On exige donc un APPEL, pas une mention. Et `sansCommentaires` s'applique
+ * avant : un paragraphe qui explique pourquoi on vérifie l'appartenance ne
+ * vérifie rien. Quatrième fois cette semaine qu'une garde se laisse berner par
+ * du texte. */
 const PROTECTIONS = [
-  /requireClientAccess|userCanAccessClient/,   // le garde-fou partagé
-  /client_users/,                              // vérification manuelle d'appartenance
-  /owner_user_id/,
+  /\b(?:requireClientAccess|userCanAccessClient)\s*\(/,  // le garde-fou partagé, APPELÉ
+  /\bclient_users\b/,                          // vérification manuelle d'appartenance
+  /\bowner_user_id\b/,
   /isActeroAdmin|profile\?\.role\s*!==\s*'admin'|role\s*===\s*'admin'/,
 ]
+
+/** Retire les commentaires : un test qui lit du code doit lire du code. */
+function sansCommentaires(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+}
 
 function fichiersJs(dir, acc = []) {
   for (const e of readdirSync(dir)) {
@@ -84,7 +103,7 @@ describe('ACT-24 — aucune route ne fait confiance au client_id de l’appelant
     const coupables = []
 
     for (const fichier of fichiersJs('api')) {
-      const source = readFileSync(fichier, 'utf8')
+      const source = sansCommentaires(readFileSync(fichier, 'utf8'))
       if (!MOTIF_ID_DU_CORPS.test(source)) continue
 
       const relatif = fichier.replace(/^api\//, '')

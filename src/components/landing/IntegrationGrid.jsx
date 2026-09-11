@@ -6,7 +6,6 @@ const INTEGRATIONS = {
     { name: "Shopify", icon: "shopify", color: "95BF47", desc: "Commandes & clients en temps réel" },
     { name: "Stripe", icon: "stripe", color: "635BFF", desc: "Paiements et anomalies de facturation" },
     { name: "Gorgias", icon: "gorgias", color: "EA580C", desc: "Tickets support automatisés" },
-    { name: "HubSpot", icon: "hubspot", color: "FF7A59", desc: "Synchronisation CRM et scoring clients" },
     { name: "Slack", src: "/slack.svg", desc: "Alertes temps réel dans vos channels" },
     { name: "n8n", icon: "n8n", color: "FF6D5A", desc: "Orchestration des workflows" },
     { name: "OpenAI", src: "/openai.svg", desc: "Moteur LLM pour les réponses IA" },

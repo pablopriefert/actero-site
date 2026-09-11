@@ -38,8 +38,9 @@ import { join } from 'node:path'
  *
  * En l'écrivant, deux choses sont apparues qu'aucune revue n'avait vues :
  *
- *  — **Douze verts foncés** vivent hors de l'échelle (`#0D5430`, `#0F5F35`,
- *    `#0A4A29`, `#002A1C`…). Le vert de marque n'a pas de rampe : chaque
+ *  — **Onze verts foncés** vivent hors de l'échelle (`#0D5430`, `#0F5F35`,
+ *    `#0A4A29`, `#002A1C`…) — douze avant que le comparateur de coûts ne passe
+ *    à `bg-primary`. Le vert de marque n'a pas de rampe : chaque
  *    composant a choisi sa nuance. Ce n'est pas une faute par fichier, c'est un
  *    token manquant — `--color-primary` n'a ni palier clair ni palier sombre.
  *  — **Onze gris neutres** aussi, dont deux qui portent un vrai sens :
@@ -77,7 +78,6 @@ const FONDS_ADMIS = {
   '#030303': 'presque noir des héros sombres (shape-landing-hero, ProspectDemoPage)',
   '#0E0E0E': 'panneau du journal d’actions',
   '#0B0B0B': 'fond de l’éditeur de prompt',
-  '#0F1014': 'colonne sombre du comparateur de coûts',
   '#18181B': 'zinc-900 des vues admin et de la doc API',
   '#262626': 'neutral-800 de l’Academy et du comparateur',
   '#1A0F0F': 'rouge très sombre : le « avant » du before-after-slider',
@@ -105,7 +105,6 @@ const FONDS_ADMIS = {
   '#002A1C': 'vert-noir du marketplace',
   '#00291C': 'vert-noir de l’Academy',
   '#14A85C': 'vert vif des barres de progression et du badge tarifaire',
-  '#B8D2A0': 'sauge claire, bouton du comparateur de coûts',
 
   // ── Deux tokens non rapatriés, volontairement ──────────────────────────
   '#1F3A12':

@@ -3671,7 +3671,8 @@ CREATE TABLE IF NOT EXISTS "public"."widget_health" (
     "widget_found" boolean DEFAULT false NOT NULL,
     "widget_visible" boolean DEFAULT false NOT NULL,
     "error" "text",
-    "checked_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "checked_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "alerted_at" timestamp with time zone
 );
 
 
@@ -5065,6 +5066,10 @@ CREATE INDEX "idx_startup_applications_status" ON "public"."startup_applications
 
 
 CREATE INDEX "idx_templates_client" ON "public"."client_response_templates" USING "btree" ("client_id", "usage_count" DESC);
+
+
+
+CREATE INDEX "idx_widget_health_client_checked" ON "public"."widget_health" USING "btree" ("client_id", "checked_at" DESC);
 
 
 
@@ -7035,6 +7040,16 @@ ALTER TABLE "public"."ticket_backtests" ENABLE ROW LEVEL SECURITY;
 
 
 CREATE POLICY "ticket_backtests_admin_read" ON "public"."ticket_backtests" FOR SELECT TO "authenticated" USING ("public"."is_admin"());
+
+
+
+CREATE POLICY "ticket_backtests_client_read" ON "public"."ticket_backtests" FOR SELECT TO "authenticated" USING (("client_id" IN ( SELECT "clients"."id"
+   FROM "public"."clients"
+  WHERE ("clients"."owner_user_id" = "auth"."uid"()))));
+
+
+
+CREATE POLICY "ticket_backtests_member_read" ON "public"."ticket_backtests" FOR SELECT TO "authenticated" USING ("public"."is_member_of_client"("client_id"));
 
 
 
