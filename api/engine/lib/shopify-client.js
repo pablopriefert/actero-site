@@ -5,7 +5,7 @@
  * ACT-32 — ce fichier expose aussi `lookupOrder`, l'aiguillage multi-plateforme
  * appelé par executor.js, process.js et order-agent.js : il regarde quelle
  * plateforme e-commerce le client a connectée (Shopify via
- * `client_shopify_connections`, WooCommerce via `client_integrations`) et
+ * `client_shopify_connections`, WooCommerce et Webflow via `client_integrations`) et
  * délègue à `lookupShopifyOrder` (ci-dessous, comportement Shopify inchangé)
  * ou à `lookupOrder` de woocommerce-client.js. Les trois appelants n'ont pas
  * besoin de changer : ils continuent d'importer `lookupOrder` d'ici.
@@ -13,6 +13,7 @@
 import { decryptToken } from '../../lib/crypto.js'
 import { formatOrder } from './order-format.js'
 import { lookupOrder as lookupWooCommerceOrder } from './woocommerce-client.js'
+import { lookupOrder as lookupWebflowOrder } from './webflow-client.js'
 import { SHOPIFY_API_VERSION } from '../../lib/shopify-api-version.js'
 
 /**
@@ -31,6 +32,7 @@ export async function lookupOrder(supabase, params) {
 
   if (platform === 'shopify') return lookupShopifyOrder(supabase, params)
   if (platform === 'woocommerce') return lookupWooCommerceOrder(supabase, params)
+  if (platform === 'webflow') return lookupWebflowOrder(supabase, params)
   return null // Aucune plateforme e-commerce connectée
 }
 
@@ -58,6 +60,18 @@ async function detectConnectedPlatform(supabase, clientId) {
     .eq('provider', 'woocommerce')
     .maybeSingle()
   if (wooConn?.status === 'active') return 'woocommerce'
+
+  // Webflow vit au même endroit que WooCommerce. Il était proposé au
+  // marchand SANS être détecté ici ni aiguillé ci-dessus : la connexion
+  // s'affichait « active » et toute recherche de commande renvoyait `null`,
+  // sans une erreur pour le dire. Garde : api/engine/plateformes-commerce.test.js
+  const { data: webflowConn } = await supabase
+    .from('client_integrations')
+    .select('id, status')
+    .eq('client_id', clientId)
+    .eq('provider', 'webflow')
+    .maybeSingle()
+  if (webflowConn?.status === 'active') return 'webflow'
 
   return null
 }
