@@ -3,7 +3,12 @@ title: "WooCommerce"
 description: "Connecte ta boutique WooCommerce à Actero en OAuth 1-clic depuis ton WordPress."
 ---
 
-WooCommerce est la deuxième plateforme e-commerce supportée par Actero. La connexion passe par le flow `wc-auth` officiel WordPress : tu approuves Actero depuis ton admin WP, et ton agent récupère commandes, clients et produits en lecture seule.
+WooCommerce est la deuxième plateforme e-commerce supportée par Actero. Deux étapes indépendantes composent l'installation complète :
+
+1. **Poser la bulle de chat** sur ta boutique — soit via l'extension WordPress officielle (recommandé), soit en collant le snippet dans ton thème.
+2. **Autoriser Actero à lire tes commandes** via le flow `wc-auth` officiel WordPress — commandes, clients et produits en lecture seule.
+
+Tu peux faire l'une sans l'autre, mais les deux sont nécessaires pour qu'Actero réponde aux WISMO et suive les retours.
 
 ## Prérequis
 
@@ -12,8 +17,44 @@ WooCommerce est la deuxième plateforme e-commerce supportée par Actero. La con
 - HTTPS activé sur ton site (WooCommerce refuse les `wc-auth` en HTTP)
 - Permaliens en mode **Post name** (Settings → Permalinks) — sinon les endpoints REST sont inaccessibles
 - Un compte Actero avec au moins le plan **Starter** pour les webhooks temps réel
+- Pour l'extension WordPress : **WordPress 6.5+** et **PHP 7.4+**
 
-## Connexion
+## Extension WordPress « Actero for WooCommerce »
+
+L'extension officielle installe la bulle de chat depuis l'admin WordPress, sans que tu modifies le code de ton thème. C'est la méthode recommandée : une mise à jour de thème ne peut plus effacer le snippet et tu conserves la bulle même quand tu changes de template.
+
+<Note>
+L'extension **ne lit aucune commande**. Elle sert uniquement à poser la bulle et à te mener vers l'écran d'autorisation WooCommerce. L'accès aux commandes reste accordé séparément via `wc-auth` (voir la section [Autoriser les commandes](#autoriser-les-commandes)).
+</Note>
+
+### Installation
+
+<Steps>
+  <Step title="Installe l'extension">
+    Dans WordPress, va dans **Extensions → Ajouter** et cherche « Actero for WooCommerce ». Clique **Installer**, puis **Activer**. WordPress refuse l'activation si WooCommerce n'est pas déjà actif.
+  </Step>
+  <Step title="Récupère ta clé widget dans Actero">
+    Dans ton tableau de bord Actero, va dans **Réglages → Widget** et copie la **clé widget**. Elle est alphanumérique, tirets et underscores admis, entre 8 et 128 caractères.
+  </Step>
+  <Step title="Colle la clé dans WordPress">
+    Dans WordPress, va dans **WooCommerce → Actero**. Colle la clé dans le champ prévu et enregistre. La bulle apparaît immédiatement sur le front de ta boutique.
+  </Step>
+  <Step title="Connecte tes commandes (facultatif à ce stade)">
+    Depuis le même écran, clique **Connecter mes commandes** pour être redirigé vers l'écran WooCommerce qui autorise Actero à lire tes commandes. Voir la section suivante pour le détail du flow.
+  </Step>
+</Steps>
+
+### Comment ça fonctionne
+
+- La bulle est chargée via `wp_enqueue_script`, pas via un `echo` en pied de page. WordPress gère l'ordre de chargement, le cache et la déduplication, et les extensions d'optimisation (WP Rocket, LiteSpeed Cache, etc.) savent quoi en faire.
+- L'extension déclare la compatibilité avec **HPOS** (High-Performance Order Storage) : aucun avertissement WooCommerce, activation de HPOS non découragée.
+- La désinstallation efface la clé stockée. La bulle disparaît de ta boutique. Les accès WooCommerce, eux, restent tant que tu ne les révoques pas depuis **WooCommerce → Réglages → Avancé → API REST**.
+
+<Warning>
+Si tu utilisais déjà le snippet manuel dans ton thème, retire-le après avoir activé l'extension. Deux bulles chargées simultanément dégradent l'affichage et peuvent doubler les événements.
+</Warning>
+
+## Autoriser les commandes
 
 <Steps>
   <Step title="Ouvre Intégrations dans Actero">
