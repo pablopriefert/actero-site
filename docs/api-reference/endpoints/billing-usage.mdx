@@ -69,7 +69,7 @@ Sinon → `403 Acces refuse.`
 
 <ResponseField name="trial_ends_at" type="string|null">ISO timestamp de fin de période d'essai. `null` si le tenant n'est pas en trial.</ResponseField>
 
-<ResponseField name="next_billing_date" type="string">Date approximative de prochain prélèvement Stripe (1er du mois suivant). Format `YYYY-MM-DD`.</ResponseField>
+<ResponseField name="next_billing_date" type="string">Date approximative du prochain prélèvement (1er du mois suivant). Format `YYYY-MM-DD`. Le prélèvement est opéré par **Shopify** pour les boutiques ayant installé Actero depuis l'App Store, et par notre prestataire de paiement pour les inscriptions directes.</ResponseField>
 
 ## Response — autres cas
 
@@ -117,7 +117,7 @@ Cet endpoint accepte uniquement `GET`. Tout autre verbe renvoie `405`.
 | Enterprise | Illimité       | —                         |
 
 <Note>
-Les `price_ids` Stripe ne sont **pas** exposés via l'API publique — ils restent server-side. Aucun dépassement n'est facturé : surveille `quota_reached` et `credits_balance` pour savoir si l'agent est en pause.
+Les identifiants de tarif du prestataire de paiement ne sont **pas** exposés via l'API publique — ils restent server-side. Aucun dépassement n'est facturé : surveille `quota_reached` et `credits_balance` pour savoir si l'agent est en pause.
 </Note>
 
 ## Exemples
