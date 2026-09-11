@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plug, X, Loader2, CheckCircle, AlertCircle, ExternalLink,
-  RefreshCw, Trash2, Star, Search, Mail, GitBranch
+  RefreshCw, Trash2, Star, Search, Mail, GitBranch, Info,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
@@ -817,8 +817,30 @@ export const ClientIntegrationsView = ({ clientId, clientType: _clientType, them
 
   const connectedCount = integrations.filter(i => i.status === 'active').length + (shopifyConnected ? 1 : 0);
 
+  // L'installation Shopify part de la fiche App Store (exigence 2.3.1). Tant
+  // que cette fiche n'est pas publiée — l'app est en examen — /api/shopify/install
+  // n'a nulle part où envoyer le marchand, et le renvoie ici avec ce drapeau.
+  // Sans ce message, le clic sur « Connecter » le ramènerait à son point de
+  // départ sans un mot d'explication.
+  const ficheIndisponible = typeof window !== 'undefined'
+    && new URLSearchParams(window.location.search).get('shopify') === 'fiche_indisponible'
+
   return (
     <div className="space-y-6">
+      {ficheIndisponible && (
+        <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl bg-amber-50 border border-amber-200">
+          <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" aria-hidden="true" />
+          <div className="text-[13px] text-amber-900 leading-snug">
+            <strong>L'installation Shopify n'est pas encore ouverte.</strong> Notre
+            application est en cours d'examen par Shopify ; elle s'installera depuis
+            l'App Store dès qu'elle sera publiée.{' '}
+            <a href="mailto:contact@actero.fr?subject=Connexion%20Shopify"
+               className="underline font-semibold">Écrivez-nous</a>{' '}
+            et on connecte votre boutique manuellement en attendant.
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h2

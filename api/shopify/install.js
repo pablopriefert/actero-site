@@ -3,8 +3,19 @@ import crypto from 'crypto';
 
 // La fiche de l'app sur l'App Store — une surface appartenant à Shopify.
 // C'est de là que doit partir toute installation (App Store 2.3.1).
-const APP_HANDLE = process.env.SHOPIFY_APP_HANDLE || 'actero';
-const FICHE_APP_STORE = `https://apps.shopify.com/${APP_HANDLE}`;
+//
+// PAS DE REPLI DEVINÉ, ET C'EST DÉLIBÉRÉ.
+//
+// Le 11 septembre 2026, la valeur par défaut était `'actero'`. Vérifié :
+// https://apps.shopify.com/actero renvoie 404. Le handle réel n'est pas
+// connaissable tant que l'app est en examen — la fiche n'est pas publiée, et
+// le Partner Dashboard est en lecture seule pendant la soumission.
+//
+// Deviner produirait le pire résultat possible : un marchand envoyé sur une
+// page introuvable de Shopify au moment précis où il veut installer l'app,
+// sans rien pour comprendre ni rattraper. Tant que le handle n'est pas posé
+// explicitement, on garde le marchand chez nous et on lui explique.
+const APP_HANDLE = process.env.SHOPIFY_APP_HANDLE || null;
 
 function handler(req, res) {
   const { shop, client, token } = req.query;
@@ -38,7 +49,12 @@ function handler(req, res) {
         `actero_token=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=1800`,
       );
     }
-    return res.redirect(302, FICHE_APP_STORE);
+    if (!APP_HANDLE) {
+      // Fiche pas encore publiée, ou handle pas configuré. On renvoie le
+      // marchand dans l'app avec de quoi comprendre, plutôt que sur un 404.
+      return res.redirect(302, '/client/intégrations?shopify=fiche_indisponible');
+    }
+    return res.redirect(302, `https://apps.shopify.com/${APP_HANDLE}`);
   }
   const redirectUri = process.env.SHOPIFY_REDIRECT_URI || 'https://actero.fr/api/shopify/callback';
 
