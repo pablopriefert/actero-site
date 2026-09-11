@@ -198,13 +198,21 @@ describe('durée de l\'essai gratuit', () => {
     // Il vient POUR le mois offert : l'envoyer directement au tableau de bord
     // lui fait rater ce qu'on a payé pour lui vendre. Les deux chemins
     // d'inscription doivent l'emmener choisir un plan.
-    const verify = sansCommentaires(readFileSync('api/auth/verify-code.js', 'utf8'))
-    expect(verify, 'le chemin email ne redirige pas vers la sélection de plan')
-      .toMatch(/\/signup\/plan\?campagne=/)
-
-    const callback = sansCommentaires(readFileSync('src/pages/AuthCallbackPage.jsx', 'utf8'))
-    expect(callback, 'le chemin Google ne redirige pas vers la sélection de plan')
-      .toMatch(/\/signup\/plan\?campagne=/)
+    //
+    // La destination se vérifie ; le CODE dans l'URL ne doit surtout pas s'y
+    // trouver. Le 11 septembre, ces deux redirections remettaient le code
+    // dans la chaîne de requête, `memoriserCodeCampagne()` le relisait au
+    // chargement, et le cookie de trente jours se réarmait après que le mois
+    // eut été accordé — tout compte créé ensuite dans ce navigateur repartait
+    // avec un mois offert. Ce test épinglait ce mécanisme et le protégeait.
+    // Il porte maintenant sur l'intention : arriver sur la page de plans.
+    for (const f of ['api/auth/verify-code.js', 'src/pages/AuthCallbackPage.jsx']) {
+      const src = sansCommentaires(readFileSync(f, 'utf8'))
+      expect(src, `${f} ne redirige pas vers la sélection de plan`)
+        .toMatch(/\/signup\/plan/)
+      expect(src, `${f} remet le code de campagne dans l'URL — le cookie se réarmera`)
+        .not.toMatch(/signup\/plan\?campagne=/)
+    }
   })
 
   it('la page de plans reconnaît une arrivée par la publicité', () => {

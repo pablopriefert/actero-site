@@ -235,9 +235,13 @@ async function handler(req, res) {
     // gratuit » vient POUR ça : lui cacher le choix de plan, c'est lui faire
     // rater ce qu'on a payé pour lui vendre. Il passe donc par la page de
     // sélection, qui affiche le mois offert et mène à Stripe.
-    const redirect = campagneAppliquee
-      ? `/signup/plan?campagne=${encodeURIComponent(campaign_code)}`
-      : '/client'
+    //
+    // `?offre=mois` et NON le code. Renvoyer le code dans l'URL le faisait
+    // re-mémoriser au chargement de la page — un cookie de trente jours
+    // réarmé après coup, alors que le mois vient justement d'être accordé.
+    // Chaque compte créé ensuite dans ce navigateur repartait avec un mois
+    // offert. Ce marqueur ne dit que « affiche l'offre » ; il n'accorde rien.
+    const redirect = campagneAppliquee ? '/signup/plan?offre=mois' : '/client'
     return res.status(200).json({ success: true, redirect })
   } catch (err) {
     console.error('[verify-code] Account creation error:', err)

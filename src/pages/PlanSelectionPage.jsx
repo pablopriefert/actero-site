@@ -118,7 +118,12 @@ export const PlanSelectionPage = ({ onNavigate }) => {
   // Arrivée par une publicité : le marchand vient POUR le mois offert, c'est
   // l'argument qu'on a payé pour lui montrer. La page doit le lui redire ici,
   // au moment du choix — sinon il se demande s'il l'a bien.
-  const isCampagne = !!(urlParams.get("campagne") || urlParams.get("campaign_code"));
+  // `offre=mois` est posé par AuthCallbackPage APRÈS que le serveur a accordé
+  // le mois : c'est un marqueur d'affichage, pas un code. Il remplace la
+  // réinjection du code dans l'URL, qui renouvelait le cookie à chaque
+  // chargement et offrait le mois à tous les comptes créés ensuite.
+  const isCampagne = !!(urlParams.get("campagne") || urlParams.get("campaign_code")
+    || urlParams.get("offre"));
   const promoCode = urlParams.get("promo") || null;
   const isStartupPromo = !!promoCode && promoCode.toUpperCase().startsWith("ACTERO-STARTUP-");
 

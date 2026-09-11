@@ -66,7 +66,13 @@ export function AuthCallbackPage({ onNavigate }) {
         await resolveOrCreateClientId(supabase, session);
         const applique = await presenterCodeCampagne(supabase);
         if (applique) {
-          onNavigate(`/signup/plan?campagne=${encodeURIComponent(codeCampagne)}`);
+          // `?offre=mois` et NON le code. Remettre le code dans l'URL le
+          // faisait re-mémoriser au chargement suivant — le cookie se
+          // renouvelait de trente jours à chaque passage, et un navigateur
+          // venu une fois par la publicité gardait le mois offert pour
+          // toujours. Ce marqueur ne dit que « affiche l'offre » ; il
+          // n'accorde rien et n'est pas un code.
+          onNavigate('/signup/plan?offre=mois');
           return;
         }
       }
