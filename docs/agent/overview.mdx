@@ -30,7 +30,7 @@ Ces couches sont assemblées dans un seul **prompt système** envoyé à Claude 
 
 ## Le cycle de vie d'un ticket
 
-Voici ce qui se passe quand un client envoie "Bonjour, où est ma commande #1042 ?" via ton widget de chat :
+Voici ce qui se passe quand un client envoie "Bonjour, où est ma commande #1042 ?" via ton widget de chat. Ce cycle complet s'applique aux quatre canaux de messages : **widget**, **email**, **Gorgias** et **Zendesk**. Seul le canal vocal fonctionne différemment, voir [Couverture par canal](#couverture-par-canal).
 
 <Steps>
   <Step title="Réception & normalisation">
@@ -84,6 +84,19 @@ Voici ce qui se passe quand un client envoie "Bonjour, où est ma commande #1042
     Tout est tracé : prompt envoyé, réponse, tokens consommés, coût USD, temps d'exécution, statut final. Visible dans **Activité**.
   </Step>
 </Steps>
+
+## Couverture par canal
+
+Les quatre canaux de messages passent par le cycle complet ci-dessus : classification, sous-agents spécialisés, guardrails, escalade.
+
+| Canal | Traitement |
+|---|---|
+| **Widget de chat** | Cycle complet |
+| **Email** (Gmail, SMTP/IMAP) | Cycle complet |
+| **Gorgias** | Cycle complet. La réponse est postée directement dans le ticket Gorgias. |
+| **Zendesk** | Cycle complet. La réponse est postée directement dans le ticket Zendesk. |
+| **Intercom** | Pas encore pris en charge. La connexion OAuth fonctionne, mais l'agent ne reçoit pas les conversations Intercom. |
+| **Vocal** (ElevenLabs) | La conversation est gérée en direct par ElevenLabs. Actero journalise l'appel après coup dans **Activité**. |
 
 ## Quand l'agent escalade
 
