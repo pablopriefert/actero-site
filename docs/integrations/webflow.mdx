@@ -41,11 +41,20 @@ Actero ne demande **aucun scope d'écriture**. L'agent ne peut ni modifier une c
 
 ## Quelles données circulent
 
-- **Commandes** : statut, items, total, méthode d'expédition, tracking si renseigné
+- **Commandes** : statut, items, total, méthode d'expédition, transporteur, numéro de suivi et URL de suivi
 - **Clients** : email, nom, adresses, historique d'achat
 - **Produits** : titre, description, variantes, prix, stock, catégorie
 
 L'agent utilise tout cela pour répondre WISMO, gérer retours, recommander des produits et personnaliser ses réponses selon le profil client.
+
+## Recherche de commande WISMO
+
+Quand un client demande « où est ma commande », l'agent interroge Webflow selon deux modes :
+
+- **Par numéro de commande** : recherche exacte, réponse immédiate.
+- **Par email client** : l'API Ecommerce de Webflow ne filtre pas les commandes par email. Actero parcourt donc les **100 commandes les plus récentes** du site et filtre localement. Au-delà de cette fenêtre, demande le numéro de commande au client.
+
+Le suivi de colis est natif côté Webflow (`shippingProvider`, `shippingTracking`, `shippingTrackingURL`). L'agent répond avec le transporteur et le numéro de suivi sans plugin tiers, dès que ces champs sont renseignés sur la commande.
 
 ## Limites côté Webflow
 
@@ -55,8 +64,8 @@ L'API Ecommerce de Webflow est plus jeune que celle de Shopify ou WooCommerce, d
   <Accordion title="Pas de webhook `cart.abandoned`">
     Webflow n'expose pas (encore) les paniers abandonnés via API. Le playbook **Panier abandonné** d'Actero est donc inactif sur Webflow. Si tu as besoin de relances panier, utilise un outil tiers (par exemple Klaviyo connecté à Webflow) ou migre sur Shopify / WooCommerce.
   </Accordion>
-  <Accordion title="Données de tracking limitées">
-    Webflow ne stocke pas nativement le numéro de tracking transporteur. Si tu utilises un plugin tiers de fulfillment (ShipStation, Easyship), Actero peut le récupérer via webhook custom — contacte le support pour activer.
+  <Accordion title="Recherche par email limitée à 100 commandes">
+    L'API Ecommerce de Webflow ne permet pas de filtrer les commandes par email client. Actero balaie les 100 commandes les plus récentes du site et filtre localement. Une commande plus ancienne ne sera pas retrouvée par email seul — demande le numéro de commande au client dans ce cas.
   </Accordion>
   <Accordion title="Multi-langue">
     Webflow Localization est supporté en lecture, mais l'agent répond dans la langue détectée par la conversation client (pas par la locale produit).
