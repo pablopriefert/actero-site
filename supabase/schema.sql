@@ -7038,6 +7038,16 @@ CREATE POLICY "ticket_backtests_admin_read" ON "public"."ticket_backtests" FOR S
 
 
 
+CREATE POLICY "ticket_backtests_client_read" ON "public"."ticket_backtests" FOR SELECT TO "authenticated" USING (("client_id" IN ( SELECT "clients"."id"
+   FROM "public"."clients"
+  WHERE ("clients"."owner_user_id" = "auth"."uid"()))));
+
+
+
+CREATE POLICY "ticket_backtests_member_read" ON "public"."ticket_backtests" FOR SELECT TO "authenticated" USING ("public"."is_member_of_client"("client_id"));
+
+
+
 CREATE POLICY "update own profile" ON "public"."profiles" FOR UPDATE USING (("auth"."uid"() = "id")) WITH CHECK (("auth"."uid"() = "id"));
 
 

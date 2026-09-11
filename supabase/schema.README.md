@@ -20,6 +20,12 @@ hébergeur. C'est ce qui bloquait aussi ACT-15.
 **Ce n'est pas une migration.** Ne pas le rejouer sur la base de production.
 C'est une photo, destinée à recréer le schéma **ailleurs**, à partir de rien.
 
+**11 septembre 2026** — les deux politiques de lecture de `ticket_backtests`
+(ACT-18) ont été ajoutées **à la main** dans `schema.sql`, pas par un dump : le
+worktree où la migration a été appliquée n'est pas lié au projet Supabase. Le
+contenu est exact — vérifié par `pg_policies` après application — mais le
+prochain `db dump` reste la seule source qui fasse foi.
+
 **Il vieillit.** Chaque migration appliquée le rend un peu faux. Le
 regénérer après une série de changements de schéma :
 
