@@ -36,7 +36,7 @@ import { WatchDemoButton } from '../components/ui/WatchDemoButton'
  * — Canaux : Email, Chat widget Shopify, Gorgias, Zendesk
  * — Sécurité : OAuth Shopify, AES-256, hébergé UE, RGPD, opt-out TDM
  * — Intégrations : Shopify, WooCommerce, Webflow, Gorgias, Zendesk,
- *   Tidio, Crisp, Stripe, Pennylane, Axonaut, iPaidThat, Slack, Resend
+ *   Pennylane, Axonaut, iPaidThat, Slack, Resend, Gmail, SMTP/IMAP
  * — Aucun témoignage fictif, pas de KPI inventé
  */
 export const ProductPage = ({ onNavigate }) => {
@@ -95,11 +95,15 @@ export const ProductPage = ({ onNavigate }) => {
     { icon: Shield, title: 'Opt-out TDM', desc: 'Art. 4, Directive EU 2019/790 — vos données n\'entraînent jamais nos modèles.' },
   ]
 
-  /* Stack intégrations — logos réels supportés */
+  /* Stack intégrations — ce qu'un marchand peut RÉELLEMENT connecter.
+     Source de vérité : src/config/integrations.js pour le catalogue, plus le
+     wizard comptabilité. Tidio et Crisp figuraient ici sans une ligne de code
+     derrière (ACT-41) ; les annoncer coûte un marchand qui choisit Actero
+     pour ça et le découvre après. */
   const integrations = {
     'E-commerce': ['Shopify', 'WooCommerce', 'Webflow'],
-    'Helpdesk': ['Gorgias', 'Zendesk', 'Tidio', 'Crisp'],
-    'Compta FR': ['Pennylane', 'Axonaut', 'iPaidThat', 'Stripe'],
+    'Helpdesk': ['Gorgias', 'Zendesk'],
+    'Compta FR': ['Pennylane', 'Axonaut', 'iPaidThat'],
     'Notifications': ['Slack', 'Resend', 'Gmail', 'SMTP/IMAP'],
   }
 

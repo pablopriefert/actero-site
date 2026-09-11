@@ -42,7 +42,7 @@ export const FaqPage = ({ onNavigate }) => {
         },
         {
           q: "Quels canaux de support Actero automatise-t-il ?",
-          a: "Deux canaux : email (réponses automatiques aux tickets entrants) et chat (widget intégré sur votre site Shopify ou via Gorgias/Zendesk/Tidio). Les deux canaux partagent le même contexte produit et l'historique client.",
+          a: "Deux canaux : email (réponses automatiques aux tickets entrants) et chat (widget intégré sur votre site Shopify, ou via Gorgias/Zendesk). Les deux canaux partagent le même contexte produit et l'historique client.",
         },
       ],
     },
@@ -76,7 +76,7 @@ export const FaqPage = ({ onNavigate }) => {
       questions: [
         {
           q: "Quelles intégrations sont disponibles ?",
-          a: "E-commerce : Shopify (natif, OAuth), WooCommerce, Webflow. Helpdesk : Gorgias, Zendesk, Tidio, Crisp. Email : Gmail, Outlook, Resend, SMTP custom. Transport : Shippo, Sendcloud, Chronopost, Colissimo (via Shopify). Compta : Stripe, Axonaut, Pennylane, iPaidThat. Communication : Slack (notifications), Amplitude (analytics). API REST + webhooks disponibles à partir du plan Pro pour connecter vos outils custom.",
+          a: "E-commerce : Shopify (natif, OAuth), WooCommerce, Webflow. Helpdesk : Gorgias, Zendesk. Email : Gmail, Resend, SMTP/IMAP. Compta : Pennylane, Axonaut, iPaidThat. Documents : Google Docs, Notion. Communication : Slack (notifications), Linear (escalades). Les numéros de suivi transporteur remontent via Shopify, sans connexion séparée. API REST + webhooks à partir du plan Pro pour vos outils custom.",
         },
         {
           q: "Puis-je garder Gorgias ou Zendesk en plus d'Actero ?",
