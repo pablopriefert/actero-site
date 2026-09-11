@@ -29,8 +29,8 @@ import { doitAlerterWidget } from './widget-alerte.js'
  */
 
 describe('quand prévenir que la bulle a disparu', () => {
-  const presente = { widget_found: true }
-  const absente = { widget_found: false }
+  const presente = { widget_visible: true }
+  const absente = { widget_visible: false }
 
   it('ALERTE : elle était là au contrôle précédent, elle n’y est plus', () => {
     // Le seul cas qui déclenche, et la raison d'être de tout le mécanisme.
@@ -42,6 +42,14 @@ describe('quand prévenir que la bulle a disparu', () => {
     // la bulle ne doit pas recevoir d'alerte le jour où on la découvre.
     expect(doitAlerterWidget(absente, null)).toBe(false)
     expect(doitAlerterWidget(absente, undefined)).toBe(false)
+  })
+
+  it('ALERTE : la balise est là mais la bulle ne s’affiche plus', () => {
+    // Le cas que le contrôle statique ne savait PAS voir, et la raison d'être
+    // du passage par un vrai navigateur : widget.js en 404, erreur JS, ou CSP
+    // du thème. La balise <script> est dans la page, le client ne voit rien.
+    const balisePresenteBulleAbsente = { widget_found: true, widget_visible: false }
+    expect(doitAlerterWidget(balisePresenteBulleAbsente, presente)).toBe(true)
   })
 
   it('silence : la panne était déjà connue au contrôle précédent', () => {
@@ -60,13 +68,14 @@ describe('quand prévenir que la bulle a disparu', () => {
   })
 
   it('silence : une vérification sans verdict n’en est pas un', () => {
-    // `widget_found` absent ou null = le contrôle n'a pas abouti (site
-    // injoignable, timeout). Ce n'est pas « la bulle a disparu ».
+    // `widget_visible` absent ou null = le contrôle n'a pas abouti (site
+    // injoignable, timeout, navigateur indisponible). Ce n'est pas « la bulle
+    // a disparu ».
     expect(doitAlerterWidget({}, presente)).toBe(false)
-    expect(doitAlerterWidget({ widget_found: null }, presente)).toBe(false)
+    expect(doitAlerterWidget({ widget_visible: null }, presente)).toBe(false)
     expect(doitAlerterWidget(null, presente)).toBe(false)
     expect(doitAlerterWidget(absente, {})).toBe(false)
-    expect(doitAlerterWidget(absente, { widget_found: null })).toBe(false)
+    expect(doitAlerterWidget(absente, { widget_visible: null })).toBe(false)
   })
 })
 

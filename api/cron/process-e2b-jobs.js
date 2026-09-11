@@ -299,10 +299,10 @@ async function handler(req, res) {
 
     const { data: recentes } = await supabase
       .from('widget_health')
-      .select('id, client_id, widget_found, url_checked, checked_at')
+      .select('id, client_id, widget_found, widget_visible, url_checked, checked_at')
       .gte('checked_at', fenetre)
       .is('alerted_at', null)
-      .eq('widget_found', false)
+      .eq('widget_visible', false)
       .order('checked_at', { ascending: false })
       .limit(50)
 
@@ -312,7 +312,7 @@ async function handler(req, res) {
         // La vérification qui PRÉCÈDE celle-ci, pour ce client.
         const { data: precedente } = await supabase
           .from('widget_health')
-          .select('widget_found')
+          .select('widget_found, widget_visible')
           .eq('client_id', ligne.client_id)
           .lt('checked_at', ligne.checked_at)
           .order('checked_at', { ascending: false })
@@ -335,22 +335,32 @@ async function handler(req, res) {
           .maybeSingle()
         if (!reclamee) continue
 
+        // Deux pannes différentes, deux gestes différents. Les confondre
+        // enverrait le marchand chercher un bloc de thème absent alors que le
+        // problème est un script qui ne s'exécute pas.
+        const ou = ligne.url_checked || 'votre boutique'
         const titre = 'Votre agent ne reçoit plus de messages depuis votre site'
-        const message =
-          'La bulle de chat Actero n\'est plus présente sur '
-          + `${ligne.url_checked || 'votre boutique'}. Elle y était lors du dernier contrôle.\n\n`
-          + 'Une mise à jour de thème la retire parfois sans prévenir. Tant '
-          + 'qu\'elle est absente, les messages laissés sur votre site ne nous '
-          + 'parviennent pas — et rien d\'autre ne vous le signalerait.\n\n'
-          + 'Pour la remettre : éditeur de thème Shopify → Intégrations d\'app → '
-          + 'activer Actero.'
+        const message = ligne.widget_found
+          ? `La bulle de chat Actero est toujours installée sur ${ou}, mais elle `
+            + 'ne s\'affiche plus pour vos visiteurs. C\'est en général un script '
+            + 'bloqué par le thème, ou une erreur JavaScript sur la page.\n\n'
+            + 'Tant qu\'elle ne s\'affiche pas, les messages laissés sur votre '
+            + 'site ne nous parviennent pas — et rien d\'autre ne vous le '
+            + 'signalerait.\n\nRépondez à cet email et on regarde avec vous.'
+          : `La bulle de chat Actero n'est plus présente sur ${ou}. Elle y était `
+            + 'lors du dernier contrôle.\n\n'
+            + 'Une mise à jour de thème la retire parfois sans prévenir. Tant '
+            + 'qu\'elle est absente, les messages laissés sur votre site ne nous '
+            + 'parviennent pas — et rien d\'autre ne vous le signalerait.\n\n'
+            + 'Pour la remettre : éditeur de thème Shopify → Intégrations d\'app '
+            + '→ activer Actero.'
 
         await notifyClient(supabase, {
           clientId: ligne.client_id,
           eventKey: 'widget_absent',
           title: titre,
           message,
-          context: { url: ligne.url_checked },
+          context: { url: ligne.url_checked, balise_presente: !!ligne.widget_found },
         })
         // Doublé d'un email direct : un marchand qui n'a jamais configuré ses
         // préférences de notification doit quand même l'apprendre.

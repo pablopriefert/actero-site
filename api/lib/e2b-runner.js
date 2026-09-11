@@ -11,6 +11,13 @@
  *      using the service role key passed as an env var.
  *   4. spawnJob() returns immediately with { jobId, sandboxId }.
  *
+ * Dépendances :
+ *   - trois paquets Python de base, installés AVANT le retour de la fonction
+ *     Vercel : rapide, et un échec remonte immédiatement.
+ *   - `paquets: []` ajoute des paquets, `navigateur: true` installe Chromium.
+ *     Ces deux-là s'installent en ARRIÈRE-PLAN, devant le script : Playwright
+ *     prend des minutes et ferait expirer la fonction Vercel (60 s).
+ *
  * Cost guardrails:
  *   - Default sandbox timeout = 30 min. Override via opts.timeoutMinutes.
  *   - If the script doesn't write any progress in 5 min, the watchdog kills it.
@@ -24,6 +31,17 @@ import { Sandbox } from '@e2b/code-interpreter'
 import { createClient } from '@supabase/supabase-js'
 import { captureError } from './sentry.js'
 import { notifyOnboardingFailure } from './notify-onboarding.js'
+
+/**
+ * Un nom de paquet pip, et rien d'autre : `nom`, `nom==1.2.3`, `nom[extra]`.
+ * Pas d'espace, pas de `;`, pas de `$`, pas de `/` — la valeur est interpolée
+ * dans une commande shell.
+ *
+ * Exporté pour que sa table de vérité soit testable directement
+ * (api/lib/e2b-runner.test.js) : c'est une frontière de sécurité, et la
+ * vérifier à travers spawnJob demanderait un vrai bac à sable.
+ */
+export const PAQUET_VALIDE = /^[A-Za-z0-9][A-Za-z0-9._-]*(\[[A-Za-z0-9,._-]+\])?(==[A-Za-z0-9.]+)?$/
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -58,6 +76,8 @@ export async function spawnJob({
   payload = {},
   env = {},
   timeoutMinutes = 30,
+  paquets = [],
+  navigateur = false,
 }) {
   if (!jobType) throw new Error('jobType is required')
   if (!scriptName) throw new Error('scriptName is required')
@@ -157,6 +177,16 @@ export async function spawnJob({
   // 7. Install minimal Python deps + run the script in background.
   // We use `nohup ... &` so the command returns immediately while the script
   // keeps running until it exits (or the sandbox times out).
+  // Les noms de paquets finissent dans un shell : on n'y laisse passer que ce
+  // qui ressemble à un nom de paquet. L'appelant est notre propre code
+  // aujourd'hui, mais une liste qui vient d'ailleurs demain ne doit pas pouvoir
+  // exécuter autre chose qu'un pip install.
+  const paquetsSurs = []
+  for (const p of paquets) {
+    if (PAQUET_VALIDE.test(String(p))) paquetsSurs.push(String(p))
+    else console.warn(`[e2b-runner] paquet refusé (nom non conforme) : ${String(p).slice(0, 60)}`)
+  }
+
   const installCmd = [
     'pip install -q --no-input',
     'requests==2.32.3',
@@ -174,10 +204,38 @@ export async function spawnJob({
     throw err
   }
 
+  // 7b. Dépendances LOURDES — installées en arrière-plan, jamais ici.
+  //
+  //     L'installation ci-dessus bloque la fonction Vercel, qui a 60 secondes.
+  //     C'est tenable pour trois paquets Python (5-15 s) et c'est voulu : un
+  //     échec remonte tout de suite. Playwright et son Chromium prennent des
+  //     MINUTES — les mettre là ferait expirer la fonction avant même que le
+  //     script démarre, et le travail n'existerait jamais.
+  //
+  //     Ils rejoignent donc la commande de fond, devant le script. Vercel rend
+  //     la main immédiatement ; le bac à sable installe à son rythme et le
+  //     script rend compte de son avancement comme d'habitude.
+  //
+  //     Chaque étape se termine par `|| true` : le script doit tourner DANS
+  //     TOUS LES CAS. Une installation ratée qui empêcherait le script de
+  //     démarrer laisserait un travail muet jusqu'au chien de garde, alors
+  //     qu'un script qui démarre sans sa dépendance peut se rabattre sur une
+  //     méthode dégradée — et le dire.
+  const etapes = []
+  if (paquetsSurs.length > 0) {
+    etapes.push(`pip install -q --no-input ${paquetsSurs.join(' ')} || true`)
+  }
+  if (navigateur) {
+    etapes.push('playwright install --with-deps chromium || true')
+  }
+  const commande = etapes.length > 0
+    ? `sh -c ${JSON.stringify([...etapes, 'python /script.py'].join('; '))}`
+    : 'python /script.py'
+
   // Fire-and-forget the actual script. We do NOT await this — the sandbox
   // keeps running after the Vercel function returns.
   sandbox.commands
-    .run(`python /script.py`, {
+    .run(commande, {
       envs: fullEnv,
       background: true,
       onStderr: (data) => console.error(`[sandbox ${sandboxId}] stderr:`, data),
