@@ -54,6 +54,8 @@ Voici ce qui se passe quand un client envoie "Bonjour, où est ma commande #1042
   </Step>
   <Step title="Récupération de contexte Shopify">
     Si la classification est `order`, l'agent va lire la commande dans Shopify (statut, tracking, items). Si c'est `product`, il cherche dans ton catalogue.
+
+    Pour un visiteur anonyme du widget qui donne seulement un numéro de commande, l'agent demande d'abord l'email d'achat avant de divulguer le moindre détail. Un numéro seul ne suffit jamais : il faut que le numéro **et** l'email correspondent à la même commande côté plateforme. Cette règle s'applique à Shopify, WooCommerce et Webflow.
   </Step>
   <Step title="Génération de la réponse (Claude #2)">
     L'agent spécialisé combine ton prompt système (identité + ton + KB + guardrails) avec le contexte récupéré et génère une réponse en JSON strict :
