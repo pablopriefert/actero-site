@@ -2406,8 +2406,8 @@ CREATE TABLE IF NOT EXISTS "public"."clients" (
     "created_at" timestamp without time zone DEFAULT "now"(),
     "stripe_customer_id" "text",
     "stripe_subscription_id" "text",
-    "status" "text" DEFAULT 'inactive'::"text" NOT NULL,
-    "plan" "text",
+    "status" "text" DEFAULT 'active'::"text" NOT NULL,
+    "plan" "text" DEFAULT 'free'::"text",
     "client_type" "text" DEFAULT 'ecommerce'::"text" NOT NULL,
     "contact_email" "text",
     "referral_code" "text",
@@ -2434,14 +2434,14 @@ CREATE TABLE IF NOT EXISTS "public"."clients" (
     "billing_period" "text",
     "deletion_requested_at" timestamp with time zone,
     CONSTRAINT "clients_client_type_check" CHECK (("client_type" = ANY (ARRAY['ecommerce'::"text", 'immobilier'::"text"]))),
-    CONSTRAINT "clients_status_check" CHECK (("status" = ANY (ARRAY['inactive'::"text", 'active'::"text", 'canceled'::"text", 'past_due'::"text", 'redacted'::"text", 'pending_deletion'::"text"])))
+    CONSTRAINT "clients_status_check" CHECK (("status" = ANY (ARRAY['active'::"text", 'inactive'::"text", 'canceled'::"text", 'past_due'::"text", 'uninstalled'::"text", 'redacted'::"text", 'pending_deletion'::"text"])))
 );
 
 
 ALTER TABLE "public"."clients" OWNER TO "postgres";
 
 
-COMMENT ON COLUMN "public"."clients"."status" IS 'Lifecycle status. NULL = active (default). Known values: ''uninstalled'' (Shopify app removed; data still present pending shop/redact), ''redacted'' (shop/redact processed — data wiped, row kept for FK integrity).';
+COMMENT ON COLUMN "public"."clients"."status" IS 'Cycle de vie du compte. Defaut ''active''. ''inactive'' = abonnement payant termine (api/lib/subscription-plan.js), et RIEN d''autre. ''uninstalled'' = app Shopify retiree, donnees encore presentes. ''redacted'' = shop/redact traite, donnees effacees, ligne conservee pour l''integrite referentielle. api/engine/webhooks/widget.js refuse tout statut autre qu''''active''.';
 
 
 
