@@ -83,11 +83,19 @@ export const INTEGRATIONS = {
       description: 'Synchronisation commandes, clients et produits',
       icon: '/intégrations/shopify.png',
       authType: 'oauth',
-      oauthPrompt: 'shop',
-      oauthPromptLabel: 'Votre domaine Shopify',
-      oauthPromptPlaceholder: 'ma-boutique.myshopify.com',
-      oauthPromptHint: 'Trouvez-le dans Shopify Admin → Settings → Domains',
-      oauthUrl: (params) => `/api/shopify/install?shop=${encodeURIComponent(params.shop)}&token=${encodeURIComponent(params.token || '')}`,
+      // PAS D'`oauthPrompt` ICI, ET C'EST UNE EXIGENCE, PAS UN CHOIX.
+      //
+      // Ce bloc réclamait « Votre domaine Shopify » avec un champ de saisie.
+      // App Store 2.3.1 l'interdit : une installation doit partir d'une
+      // surface appartenant à Shopify, jamais d'un domaine que le marchand
+      // tape. C'est un motif de refus classique, et la consigne de
+      // vérification de Shopify dit explicitement de chercher ce genre de
+      // champ dans le code.
+      //
+      // Sans `shop`, /api/shopify/install pose le cookie de session et
+      // redirige vers la fiche App Store. Le marchand installe depuis là ;
+      // Shopify fournit le domaine au retour.
+      oauthUrl: (params) => `/api/shopify/install?token=${encodeURIComponent(params.token || '')}`,
       category: 'ecommerce',
       docsUrl: 'https://help.shopify.com/en/manual/apps',
       color: '#96BF48',

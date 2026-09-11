@@ -61,7 +61,7 @@ const GUIDES = [
       },
       {
         title: 'Étape 1 : Connecter Shopify',
-        content: "Cliquez sur Intégrations dans le menu a gauche. Trouvez Shopify et cliquez Connecter. Entrez votre domaine Shopify (celui qui finit par .myshopify.com). Vous serez redirige vers Shopify pour autoriser l'accès. Acceptez et c'est fait. Actero peut maintenant accéder a vos commandes, clients et produits en lecture seule.",
+        content: "Cliquez sur Intégrations dans le menu à gauche. Trouvez Shopify et cliquez Connecter. Vous êtes redirigé vers la fiche Actero sur l'App Store Shopify : cliquez Installer et autorisez l'accès. Aucune adresse à saisir, Shopify transmet votre boutique. Acceptez et c'est fait. Actero peut maintenant accéder a vos commandes, clients et produits en lecture seule.",
       },
       {
         title: 'Étape 2 : Connecter votre email',
@@ -99,7 +99,7 @@ const GUIDES = [
       },
       {
         title: 'Erreur lors de la connexion Shopify',
-        content: "Vérifiez que vous utilisez bien votre domaine au format ma-boutique.myshopify.com (pas votre domaine personnalisé comme maboutique.com). Assurez-vous d'avoir les droits administrateur sur la boutique. Si ça ne marche toujours pas, essayez de déconnecter puis reconnecter. Vous pouvez aussi lancer un Diagnostic depuis la Vue d'ensemble pour voir ou ça bloque.",
+        content: "Assurez-vous d'avoir les droits administrateur sur la boutique : un compte staff sans ces droits ne peut pas installer d'application. Si ça ne marche toujours pas, essayez de déconnecter puis reconnecter. Vous pouvez aussi lancer un Diagnostic depuis la Vue d'ensemble pour voir ou ça bloque.",
       },
       {
         title: 'Le dashboard ne se charge pas',
@@ -155,7 +155,7 @@ const GUIDES = [
       },
       {
         title: 'Comment connecter, étape par étape',
-        content: "1. Connectez-vous a votre dashboard Actero\n2. Cliquez sur Intégrations dans le menu a gauche\n3. Trouvez la carte Shopify et cliquez Connecter\n4. Un champ apparait : entrez votre domaine Shopify. C'est celui qui finit par .myshopify.com (par exemple ma-boutique.myshopify.com). Vous le trouvez dans Shopify Admin, dans Paramètres puis Domaines.\n5. Cliquez Connecter. Vous etes redirige vers Shopify.\n6. Sur Shopify, cliquez Installer l'application pour autoriser l'accès.\n7. Vous revenez automatiquement sur Actero. Un badge vert Connecte apparait.",
+        content: "1. Connectez-vous a votre dashboard Actero\n2. Cliquez sur Intégrations dans le menu a gauche\n3. Trouvez la carte Shopify et cliquez Connecter\n4. Vous êtes redirigé vers la fiche Actero sur l'App Store Shopify. Aucune adresse à saisir : Shopify sait de quelle boutique il s'agit.\n5. Cliquez Installer l'application et autorisez les accès demandés.\n7. Vous revenez automatiquement sur Actero. Un badge vert Connecte apparait.",
       },
       {
         title: 'Quelles données sont synchronisees',
@@ -163,7 +163,7 @@ const GUIDES = [
       },
       {
         title: 'Si ça ne marche pas',
-        content: "Vérifiez que vous etes bien administrateur de votre boutique Shopify (un compte staff sans droits admin ne peut pas installer d'application). Vérifiez que le domaine entre est au format .myshopify.com et non votre domaine personnalisé. Si l'erreur persiste, lancez un Diagnostic depuis la Vue d'ensemble de votre dashboard ou contactez-nous a contact@actero.fr.",
+        content: "Vérifiez que vous êtes bien administrateur de votre boutique Shopify : un compte staff sans droits admin ne peut pas installer d'application. Vérifiez aussi que vous êtes connecté à la bonne boutique dans Shopify Admin avant de lancer l'installation. Si l'erreur persiste, lancez un Diagnostic depuis la Vue d'ensemble de votre dashboard ou contactez-nous a contact@actero.fr.",
       },
     ],
   },

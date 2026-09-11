@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
 import { getOrCreateStripeCustomer, resolveCustomerCard } from '../lib/stripe-customer.js'
 import { joursEssaiPour } from '../lib/essai-gratuit.js';
+import { refuserFacturationStripe } from '../lib/facturation-shopify.js';
 
 /**
  * POST /api/billing/create-subscription
@@ -93,6 +94,12 @@ async function handler(req, res) {
     if (clientErr || !client) {
       return res.status(404).json({ error: 'Client introuvable.' });
     }
+
+
+    // App Store 1.2.1 — un marchand venu de Shopify se facture chez Shopify.
+    // Cette garde vivait uniquement dans le navigateur (billing-router.js) :
+    // cette route facturait qui l'appelait. Voir api/lib/facturation-shopify.js.
+    if (await refuserFacturationStripe(supabaseAdmin, client_id, res)) return;
 
     const currentPlan = client.plan || 'free';
 

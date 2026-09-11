@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit, getClientIp } from './lib/rate-limit.js';
 import { joursEssaiPour } from './lib/essai-gratuit.js';
+import { refuserFacturationStripe } from './lib/facturation-shopify.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -36,9 +37,18 @@ async function handler(req, res) {
     // Fetch funnel client data to get custom pricing
     const { data: funnelClient } = await supabase
       .from('funnel_clients')
-      .select('setup_price, monthly_price, company_name, client_type')
+      .select('setup_price, monthly_price, company_name, client_type, onboarded_client_id')
       .eq('slug', client)
       .maybeSingle();
+
+    // App Store 1.2.1 — ce tunnel de vente sert des marchands recrutés à la
+    // main, pas des installations App Store. Mais rien ne l'empêchait de
+    // facturer un compte ayant une boutique Shopify connectée, et c'est
+    // exactement ce que la règle interdit. La garde ne coûte rien ici.
+    if (funnelClient?.onboarded_client_id
+        && await refuserFacturationStripe(supabase, funnelClient.onboarded_client_id, res)) {
+      return;
+    }
 
     const setupPrice = funnelClient?.setup_price ?? 800;
     const monthlyPrice = funnelClient?.monthly_price ?? 800;

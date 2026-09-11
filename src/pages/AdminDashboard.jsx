@@ -71,7 +71,11 @@ import { SkipToMain } from '../components/ui/SkipToMain'
 import { AdminKanbanBoard } from '../components/admin/AdminKanbanBoard'
 import { AnimatedCounter } from '../components/ui/animated-counter'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
-import { CallNotesWizard } from '../components/admin/CallNotesWizard'
+// Paresseux — c'est un outil interne, ouvert en modale par le staff.
+// Statique, il embarquait dans le morceau principal un champ d'exemple
+// « monstore.myshopify.com ». Sans rapport avec un flux d'installation, mais
+// autant qu'un marchand ne télécharge pas l'outil commercial d'Actero.
+const CallNotesWizard = lazy(() => import('../components/admin/CallNotesWizard').then(m => ({ default: m.CallNotesWizard })))
 import { DeploymentProgress } from '../components/admin/DeploymentProgress'
 
 // Lazy-loaded admin views — only pulled when admin opens the tab.
@@ -1211,11 +1215,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       <AnimatePresence>
         {callNotesClient && (
-          <CallNotesWizard
-            client={callNotesClient}
-            onClose={() => setCallNotesClient(null)}
-            onDeployReady={handleDeployReady}
-          />
+          <Suspense fallback={null}>
+            <CallNotesWizard
+              client={callNotesClient}
+              onClose={() => setCallNotesClient(null)}
+              onDeployReady={handleDeployReady}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
