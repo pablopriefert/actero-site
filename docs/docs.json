@@ -39,6 +39,7 @@
               "essentials/base-connaissance",
               "essentials/guardrails",
               "essentials/simulator",
+              "essentials/backtest",
               "essentials/escalades",
               "essentials/equipe",
               "essentials/facturation",

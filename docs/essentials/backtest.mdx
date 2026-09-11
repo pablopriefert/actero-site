@@ -1,0 +1,99 @@
+---
+title: "Backtest — ce qu'Actero aurait fait"
+description: "Rejoue tes anciennes conversations dans l'agent pour voir combien il aurait traitées seul, sans rien envoyer à tes clients ni consommer ton quota."
+---
+
+Le Backtest prend un échantillon de tes anciens tickets, les repasse dans l'agent en mode « à blanc », et te donne une phrase du type _« sur vos 1 240 conversations, Actero en aurait réglé 61 % tout seul »_.
+
+À utiliser : juste après l'import de ton historique, pour voir ce que ton agent aurait fait sur **tes** données avant de l'activer en production.
+
+<Note>
+Le Backtest est inclus dans tous les plans, y compris Free. Il n'appelle jamais l'exécuteur ni les webhooks sortants : aucun email, aucune modification Shopify, aucune consommation de ton quota mensuel de tickets.
+</Note>
+
+## Prérequis
+
+- Une intégration helpdesk connectée (Gorgias, Zendesk, Intercom, Gmail, IMAP) ou Shopify avec des conversations.
+- Ton historique importé : **au moins 20 conversations** dans `ai_conversations`. En dessous, le résultat ne veut rien dire et Actero refuse de lancer l'analyse.
+
+## Où trouver le Backtest
+
+Sidebar : **Intégrations → Migrations**. La carte **« Ce qu'Actero aurait fait »** apparaît juste après le bloc d'import d'historique.
+
+## Lancer une analyse
+
+<Steps>
+  <Step title="Importe ton historique">
+    Depuis l'onglet Migrations, connecte ta source (Gorgias, Zendesk, Intercom) et laisse l'import se terminer. Compte quelques minutes pour quelques milliers de tickets.
+  </Step>
+  <Step title="Clique sur « Lancer l'analyse »">
+    Actero ouvre un bac à sable isolé, rejoue jusqu'à 500 tickets à travers l'agent et écrit le résultat en base. Tu peux fermer la page pendant que ça tourne.
+  </Step>
+  <Step title="Lis le résultat">
+    Quand l'analyse est terminée, la carte affiche le taux de résolution projeté, le nombre de tickets qu'Actero aurait traités seul, le nombre qu'il aurait escaladés, et quelques exemples concrets.
+  </Step>
+  <Step title="Relance si besoin">
+    Après une modification de ton [ton de marque](/essentials/ton-marque), de ta [base de connaissance](/essentials/base-connaissance) ou de tes [guardrails](/essentials/guardrails), relance pour voir l'effet.
+  </Step>
+</Steps>
+
+## Lire les résultats
+
+| Champ | Sens |
+|---|---|
+| **Taux de résolution** | Part des conversations qu'Actero aurait clôturées seul, sans escalade humaine. |
+| **Total analysé** | Nombre de conversations rejouées (plafonné à 500 par analyse). |
+| **Auraient été traitées** | Tickets pour lesquels l'agent aurait proposé une réponse au-dessus du seuil de confiance. |
+| **Passées à un humain** | Tickets escaladés par manque de confiance, mention juridique, agressivité ou politique. |
+| **Quelques cas** | 4 messages clients d'exemple, avec un point vert (traité seul) ou orange (escaladé). |
+
+## Limites
+
+<Warning>
+Chaque analyse loue un bac à sable facturé à la minute. Pour éviter les abus :
+
+- **1 seule analyse à la fois** par boutique. Une deuxième requête pendant qu'une analyse tourne renvoie `409 analyse_en_cours` avec l'ID de l'analyse en cours.
+- **3 analyses par 24 h** maximum. Au-delà, la route renvoie `429 plafond_atteint` — reviens le lendemain.
+- **500 tickets maximum** par analyse. Si tu en as plus, seuls les plus récents sont rejoués.
+</Warning>
+
+## Ce que le Backtest ne fait pas
+
+- **Aucun envoi** — pas d'email, pas de réponse widget, pas de webhook sortant.
+- **Aucune écriture** sur tes conversations existantes : le rejeu est isolé dans une table dédiée.
+- **Aucune consommation de quota** : rejouer 500 tickets ne décompte rien sur ton plan mensuel.
+- **Pas de choix de modèle** : le backtest utilise la config production de ton compte (même seuil de confiance, même prompt, même KB). Comparer plusieurs modèles reste un outil interne.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Pourquoi le bouton « Lancer l'analyse » ne fait rien ?">
+    Trois causes possibles : 1) tu as moins de 20 conversations importées (le message précise combien il t'en manque) ; 2) une analyse tourne déjà (attends la fin) ; 3) tu as épuisé tes 3 analyses du jour. Le serveur renvoie toujours un message lisible tel quel.
+  </Accordion>
+  <Accordion title="Combien de temps prend une analyse ?">
+    Quelques minutes en général. Le temps dépend du nombre de tickets et du fournisseur LLM configuré. Tu peux fermer la page : la carte se met à jour toute seule au retour.
+  </Accordion>
+  <Accordion title="Le taux affiché est-il ce que je verrai en production ?">
+    C'est une bonne approximation. En production, l'agent voit aussi les commandes Shopify en temps réel, l'historique client complet et les playbooks concurrents — le taux réel peut varier légèrement dans les deux sens.
+  </Accordion>
+  <Accordion title="Puis-je relancer sur les mêmes tickets après avoir modifié ma config ?">
+    Oui. C'est même le cas d'usage principal : modifie ton ton, ta KB ou tes guardrails, relance, compare. Chaque relance écrit une nouvelle ligne et la carte affiche toujours la plus récente.
+  </Accordion>
+  <Accordion title="Le Backtest consomme-t-il mes crédits IA ?">
+    Non. Le rejeu est facturé sur un budget interne à la plateforme, pas sur ton quota de tickets ni sur tes crédits d'add-ons.
+  </Accordion>
+  <Accordion title="Puis-je déclencher un backtest en API ?">
+    Oui. Envoie `POST /api/jobs/backtest-marchand` avec un `Bearer` valide et le corps `{ "client_id": "<ton client_id>" }`. La route renvoie `202` avec un `backtest_id` que tu peux relire ensuite depuis la table `ticket_backtests`.
+
+    ```bash
+    curl -X POST https://app.actero.fr/api/jobs/backtest-marchand \
+      -H "Authorization: Bearer $ACTERO_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"client_id":"clt_abc123"}'
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Étape suivante
+
+Une fois le Backtest passé et le résultat convaincant, va vérifier ton agent live avec le [Simulateur](/essentials/simulator), puis surveille les premières vraies conversations depuis le [tour du dashboard](/essentials/dashboard-tour).
