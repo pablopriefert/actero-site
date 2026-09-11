@@ -12,10 +12,17 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ────────────────────────────────────────────────────────────────
-   Actero design tokens — mirrored from src/lib/tokens.ts
-   Exposed via Tailwind v4 @theme so classes like `bg-cta`,
-   `text-ink`, `bg-cream` become available app-wide.
-   Any change here MUST be replicated in tokens.ts + actero-branding skill.
+   Actero design tokens — la source. src/lib/tokens.ts en est le miroir,
+   et src/lib/couleurs.test.js tient les deux ensemble sur 21 tokens.
+   Exposés via Tailwind v4 @theme : `bg-cta`, `text-ink`, `bg-cream`…
+
+   La skill `actero-branding` recopie ces valeurs, et RIEN NE L'Y OBLIGE :
+   elle vit dans ~/.claude/skills, .claude/ est ignoré par git, la CI ne la
+   voit jamais. Elle a dérivé six mois sans que personne ne le remarque —
+   elle prescrivait Instrument Serif + DM Sans, deux polices que
+   typographie.test.js refuse depuis. La mettre à jour ici reste manuel ;
+   la traiter comme périmée tant qu'on ne l'a pas relue est la seule
+   protection réelle.
    ──────────────────────────────────────────────────────────────── */
 @theme {
   /* Fonts */
