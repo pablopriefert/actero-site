@@ -215,14 +215,37 @@ describe('durée de l\'essai gratuit', () => {
     }
   })
 
-  it('la page de plans reconnaît une arrivée par la publicité', () => {
-    // Sans ça, elle annoncerait « Essai gratuit 7 jours » à quelqu'un qui en a
-    // trente — et il partirait en se demandant s'il a bien eu son mois.
+  it('la page de plans annonce le mois — et seulement quand il est accordé', () => {
+    // Deux erreurs symétriques, et ce test a longtemps ne gardé que la
+    // première :
+    //
+    //   annoncer 7 jours à quelqu'un qui en a 30 → il part en se demandant
+    //     s'il a bien eu son mois ;
+    //   annoncer 30 jours à quelqu'un qui en a 7 → il le découvre sur sa
+    //     facture, et c'est le premier motif de remboursement.
+    //
+    // La page décidait sur la SEULE PRÉSENCE d'un paramètre dans l'URL, quelle
+    // que soit sa valeur : `?campagne=NIMPORTEQUOI` promettait un mois. Un
+    // vieux code d'une publicité arrêtée faisait pareil. Ce test épinglait
+    // `urlParams.get("campagne")` — il protégeait donc le mécanisme fautif.
     const page = sansCommentaires(readFileSync('src/pages/PlanSelectionPage.jsx', 'utf8'))
-    expect(page, 'la page de plans ignore le paramètre de campagne')
-      .toMatch(/urlParams\.get\("campagne"\)/)
-    expect(page, 'le bouton n\'annonce pas les 30 jours')
-      .toMatch(/isCampagne\) \? "30 jours gratuits"/)
+
+    expect(page, 'le bouton n\'annonce plus les 30 jours')
+      .toMatch(/moisOffert \? "30 jours gratuits"/)
+
+    // Ce que la page a le droit de croire : le marqueur que NOUS posons après
+    // l'accord du serveur, et les drapeaux écrits sur la ligne `clients`.
+    expect(page, 'le marqueur d\'affichage posé par le serveur n\'est pas lu')
+      .toMatch(/urlParams\.get\("offre"\)/)
+    expect(page, 'la page ne confirme pas auprès du serveur')
+      .toMatch(/campaign_first_month_free/)
+
+    // Ce qu'elle n'a pas le droit de croire : un code brut dans l'URL.
+    for (const param of ['campagne', 'campaign_code', 'referral_code']) {
+      expect(page, `la page décide encore d'après urlParams.get("${param}") — `
+        + 'une valeur quelconque suffit alors à promettre un mois')
+        .not.toMatch(new RegExp(`urlParams\\.get\\("${param}"\\)`))
+    }
   })
 
   it('le code survit à l\'aller-retour vers Google', () => {

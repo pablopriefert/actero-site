@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Gift, Loader2, Rocket, Sparkles, ShieldCheck, CreditCard, RefreshCw } from "lucide-react";
 import { Logo } from "../components/layout/Logo";
@@ -114,16 +114,58 @@ export const PlanSelectionPage = ({ onNavigate }) => {
     () => new URLSearchParams(window.location.search),
     [],
   );
-  const isReferred = !!urlParams.get("referral_code");
-  // Arrivée par une publicité : le marchand vient POUR le mois offert, c'est
-  // l'argument qu'on a payé pour lui montrer. La page doit le lui redire ici,
-  // au moment du choix — sinon il se demande s'il l'a bien.
-  // `offre=mois` est posé par AuthCallbackPage APRÈS que le serveur a accordé
-  // le mois : c'est un marqueur d'affichage, pas un code. Il remplace la
-  // réinjection du code dans l'URL, qui renouvelait le cookie à chaque
-  // chargement et offrait le mois à tous les comptes créés ensuite.
-  const isCampagne = !!(urlParams.get("campagne") || urlParams.get("campaign_code")
-    || urlParams.get("offre"));
+  // CE QUE LA PAGE A LE DROIT DE PROMETTRE
+  //
+  // Elle annonçait « 30 jours gratuits » dès qu'un paramètre `campagne` ou
+  // `referral_code` existait dans l'URL — n'importe quelle valeur. Donc
+  // `?campagne=NIMPORTEQUOI` promettait un mois, et le serveur en accordait
+  // sept. Le cas n'est pas qu'une URL bricolée : un vieux code d'une publicité
+  // arrêtée, retiré de CAMPAIGN_TRIAL_CODES, produit exactement la même
+  // promesse non tenue — et c'est la première chose que le marchand vérifie.
+  //
+  // Deux sources de vérité, aucune n'est l'URL brute :
+  //
+  //   `offre=mois`  posé par NOUS (AuthCallbackPage, verify-code.js) APRÈS que
+  //                 le serveur a accordé le mois. Il ne porte aucun code et ne
+  //                 sort jamais de notre propre redirection.
+  //   les drapeaux  `campaign_first_month_free` / `referral_first_month_free`
+  //                 sur la ligne `clients`, écrits côté serveur. C'est ce que
+  //                 `joursEssaiPour()` lira au moment de facturer.
+  //
+  // Le marqueur sert d'affichage immédiat, les drapeaux confirment. Un
+  // marchand venu par la pub voit donc son mois tout de suite, et personne ne
+  // se voit promettre ce qu'il n'aura pas.
+  const marqueurServeur = urlParams.get("offre") === "mois";
+  const [droitAuMois, setDroitAuMois] = useState(marqueurServeur);
+  const [parParrainage, setParParrainage] = useState(false);
+
+  useEffect(() => {
+    let vivant = true;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user?.id) return;
+        // Pas de filtre `where` : la RLS ne renvoie déjà que les lignes que
+        // cet utilisateur a le droit de voir — la sienne (clients_select) ou
+        // celles de ses équipes (clients_select_member). À ce moment du
+        // parcours il n'en a qu'une.
+        const { data } = await supabase
+          .from("clients")
+          .select("campaign_first_month_free, referral_first_month_free")
+          .limit(1)
+          .maybeSingle();
+        if (!vivant || !data) return;
+        if (data.referral_first_month_free) setParParrainage(true);
+        if (data.campaign_first_month_free || data.referral_first_month_free) setDroitAuMois(true);
+      } catch {
+        // Le marqueur d'URL reste la source d'affichage : une lecture ratée ne
+        // doit pas retirer au marchand un mois que le serveur lui a accordé.
+      }
+    })();
+    return () => { vivant = false; };
+  }, []);
+
+  const isReferred = parParrainage;
   const promoCode = urlParams.get("promo") || null;
   const isStartupPromo = !!promoCode && promoCode.toUpperCase().startsWith("ACTERO-STARTUP-");
 
@@ -131,17 +173,22 @@ export const PlanSelectionPage = ({ onNavigate }) => {
   const [error, setError] = useState(null);
   const [payModal, setPayModal] = useState(null);
 
-  const moisOffert = isReferred || isCampagne;
+  const moisOffert = droitAuMois;
 
   // Une date, pas une durée. « 30 jours » se discute, « le 10 octobre » se
   // vérifie sur un calendrier — c'est la formulation qui rassure vraiment
   // quelqu'un qui hésite à donner sa carte.
-  const [dateFacturation] = useState(() => {
+  // `Date.now()` est impur en rendu (react-hooks/purity) : on le fige au
+  // montage, et le calcul reste réactif au verdict du serveur.
+  const [maintenant] = useState(() => Date.now());
+  const dateFacturation = useMemo(() => {
+    // Recalculée quand le verdict serveur arrive : figée au premier rendu, elle
+    // annonçait une date à sept jours à un marchand qui en avait trente.
     const jours = moisOffert ? 30 : 7;
-    return new Date(Date.now() + jours * 86400000).toLocaleDateString("fr-FR", {
+    return new Date(maintenant + jours * 86400000).toLocaleDateString("fr-FR", {
       day: "numeric", month: "long", year: "numeric",
     });
-  });
+  }, [moisOffert, maintenant]);
 
   // Apply Startup discount (-50% first 6 months) for display
   const applyStartupDiscount = (monthlyPrice) => {
@@ -342,7 +389,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                 ctaLabel = "Activer mon plan -50 %";
                 ctaStyle = "bg-cta text-white hover:bg-cta-hover";
               } else {
-                ctaLabel = (isReferred || isCampagne) ? "30 jours gratuits" : "Essai gratuit 7 jours";
+                ctaLabel = moisOffert ? "30 jours gratuits" : "Essai gratuit 7 jours";
                 ctaStyle = "bg-cta text-white hover:bg-cta-hover";
               }
 
