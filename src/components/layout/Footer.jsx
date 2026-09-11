@@ -133,7 +133,7 @@ export const Footer = ({ onNavigate }) => {
               Français
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-success" />
               Système opérationnel
             </span>
           </div>

@@ -105,9 +105,9 @@ export const AdminTopErrorsView = () => {
               {topErrors.map((err, idx) => (
                 <div
                   key={err.key}
-                  className="flex items-start gap-3 p-3 rounded-xl border border-[#f0f0f0] hover:border-[#ef4444]/30 hover:bg-surface transition-colors"
+                  className="flex items-start gap-3 p-3 rounded-xl border border-[#f0f0f0] hover:border-danger/30 hover:bg-surface transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-[#ef4444]/10 text-[#ef4444] flex items-center justify-center text-[12px] font-bold flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-danger/10 text-danger flex items-center justify-center text-[12px] font-bold flex-shrink-0">
                     #{idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -174,7 +174,7 @@ export const AdminTopErrorsView = () => {
                 {drillDownGroup.runs.map((r) => (
                   <ListItem
                     key={r.id}
-                    icon={<AlertTriangle className="w-4 h-4 text-[#ef4444]" />}
+                    icon={<AlertTriangle className="w-4 h-4 text-danger" />}
                     title={`${r.classification || 'run'} -> ${r.agent_used || 'général'}`}
                     subtitle={`client ${r.client_id?.slice(0, 8) || '—'}`}
                     meta={relTime(r.created_at)}

@@ -73,9 +73,9 @@ function TestButton({ clientId, provider }) {
 
   const className =
     state === 'ok'
-      ? 'text-[#10b981] border-[#10b981]/30 bg-[#10b981]/10'
+      ? 'text-success border-success/30 bg-success/10'
       : state === 'ko'
-      ? 'text-[#ef4444] border-[#ef4444]/30 bg-[#ef4444]/10'
+      ? 'text-danger border-danger/30 bg-danger/10'
       : 'text-[#71717a] border-[#f0f0f0] bg-white hover:bg-surface'
 
   return (

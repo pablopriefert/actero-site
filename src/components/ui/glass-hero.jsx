@@ -228,7 +228,7 @@ function HeroPrompt({ onNavigate }) {
             disabled={loading}
             aria-label="Envoyer la question à l'agent"
             aria-busy={loading}
-            className="w-9 h-9 rounded-full bg-cta text-white flex items-center justify-center hover:bg-[#0E653A] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-9 h-9 rounded-full bg-cta text-white flex items-center justify-center hover:bg-cta-hover transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             whileHover={prefersReducedMotion || loading ? {} : { scale: 1.06 }}
             whileTap={prefersReducedMotion || loading ? {} : { scale: 0.94 }}
           >
@@ -249,7 +249,7 @@ function HeroPrompt({ onNavigate }) {
               trackEvent('Hero_Demo_CTA_Clicked', { turns: turns.length })
               onNavigate && onNavigate('/signup')
             }}
-            className="inline-flex items-center gap-2 rounded-full bg-cta px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-[#0E653A] transition-colors"
+            className="inline-flex items-center gap-2 rounded-full bg-cta px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-cta-hover transition-colors"
             style={heroFont}
           >
             Créer mon agent gratuitement

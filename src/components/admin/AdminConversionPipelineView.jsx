@@ -164,7 +164,7 @@ export function AdminConversionPipelineView() {
                         <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all ${
-                              isReady ? 'bg-[#10b981]' : pct > 50 ? 'bg-[#f59e0b]' : 'bg-[#3b82f6]'
+                              isReady ? 'bg-success' : pct > 50 ? 'bg-warn' : 'bg-[#3b82f6]'
                             }`}
                             style={{ width: `${pct}%` }}
                           />

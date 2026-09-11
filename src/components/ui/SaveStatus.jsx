@@ -44,7 +44,7 @@ export function SaveStatus({ state = 'idle', savedAt, className = '' }) {
   if (state === 'dirty') {
     return (
       <span role="status" aria-live="polite" className={`${base} text-[#8B7A50]`}>
-        <span aria-hidden="true" className="inline-block w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
+        <span aria-hidden="true" className="inline-block w-1.5 h-1.5 rounded-full bg-warn" />
         Modifications non enregistrées
       </span>
     )
@@ -71,7 +71,7 @@ export function SaveStatus({ state = 'idle', savedAt, className = '' }) {
 
   return (
     <span role="status" aria-live="polite" className={`${base} text-[#13804A]`}>
-      <span aria-hidden="true" className="inline-block w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+      <span aria-hidden="true" className="inline-block w-1.5 h-1.5 rounded-full bg-success" />
       Enregistré {label}
     </span>
   )

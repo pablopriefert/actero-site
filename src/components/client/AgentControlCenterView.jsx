@@ -576,7 +576,7 @@ export const AgentControlCenterView = ({ clientId, onNavigate }) => {
             type="button"
             onClick={runE2BTest}
             disabled={e2bTestState === 'running' || !clientId}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-cta hover:bg-[#0E653A] text-white text-[13px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-cta hover:bg-cta-hover text-white text-[13px] font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {e2bTestState === 'running' ? (
               <>

@@ -728,7 +728,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <button
               type="button"
               onClick={handleAddClient}
-              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold bg-cta text-white hover:bg-[#0E653A] transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold bg-cta text-white hover:bg-cta-hover transition-colors"
               title="Ajouter un client (Cmd+N)"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -874,7 +874,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                               variant === 'neutral' ? 'bg-[#9ca3af]' :
                               variant === 'info' ? 'bg-[#3b82f6]' :
                               variant === 'success' ? 'bg-cta' :
-                              'bg-[#f59e0b]'
+                              'bg-warn'
                             }`}
                             style={{ width: `${pct}%` }}
                           />

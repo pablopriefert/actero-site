@@ -279,7 +279,7 @@ function MenuItem({ icon: Icon, label, onClick, loading, danger }) {
       disabled={loading}
       className={`w-full flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-left transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
         danger
-          ? 'text-[#ef4444] hover:bg-[#ef4444]/5'
+          ? 'text-danger hover:bg-danger/5'
           : 'text-[#1a1a1a] hover:bg-surface'
       }`}
     >

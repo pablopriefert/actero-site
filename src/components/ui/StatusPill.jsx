@@ -12,9 +12,9 @@ const VARIANT_MAP = {
 };
 
 const DOT_MAP = {
-  success: 'bg-[#10b981]',
-  warning: 'bg-[#f59e0b]',
-  danger: 'bg-[#ef4444]',
+  success: 'bg-success',
+  warning: 'bg-warn',
+  danger: 'bg-danger',
   info: 'bg-[#3b82f6]',
   neutral: 'bg-[#9ca3af]',
   brand: 'bg-cta',

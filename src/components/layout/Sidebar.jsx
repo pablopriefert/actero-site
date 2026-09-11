@@ -251,7 +251,7 @@ export const Sidebar = ({
                             <span
                               className={`flex-shrink-0 min-w-[18px] text-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                                 isNumericBadge
-                                  ? "bg-[#ef4444] text-white"
+                                  ? "bg-danger text-white"
                                   : isActive
                                     ? "bg-cta/10 text-cta"
                                     : (child.badgeColor || "bg-surface text-[#71717a]")
@@ -293,7 +293,7 @@ export const Sidebar = ({
                 <span
                   className={`flex-shrink-0 min-w-[18px] text-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                     isNumericBadge
-                      ? "bg-[#ef4444] text-white"
+                      ? "bg-danger text-white"
                       : isActive
                         ? "bg-cta/10 text-cta"
                         : (item.badgeColor || "bg-surface text-[#71717a]")

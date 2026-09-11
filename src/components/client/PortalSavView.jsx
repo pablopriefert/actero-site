@@ -500,7 +500,7 @@ function CustomDomainSection({ clientRow, clientId, canCustomize, supabase, quer
               <button
                 onClick={() => handleSave()}
                 disabled={saving || domain.trim() === existing}
-                className="px-4 py-2.5 rounded-lg bg-cta text-white text-[12px] font-semibold hover:bg-[#0E653A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-4 py-2.5 rounded-lg bg-cta text-white text-[12px] font-semibold hover:bg-cta-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
                 Enregistrer

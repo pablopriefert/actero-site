@@ -158,7 +158,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                       trackEvent('Alternative_Hero_CTA_Clicked', { competitor: data.competitorKey })
                       onNavigate('/signup')
                     }}
-                    className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0E653A] text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
+                    className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-cta-hover text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
                   >
                     Essai gratuit 7 jours
                     <ArrowRight className="w-3.5 h-3.5" />

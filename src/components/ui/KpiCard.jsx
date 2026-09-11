@@ -24,16 +24,16 @@ const COLOR_MAP = {
     iconText: 'text-cta',
   },
   success: {
-    iconBg: 'bg-[#10b981]/10',
-    iconText: 'text-[#10b981]',
+    iconBg: 'bg-success/10',
+    iconText: 'text-success',
   },
   warning: {
-    iconBg: 'bg-[#f59e0b]/10',
-    iconText: 'text-[#f59e0b]',
+    iconBg: 'bg-warn/10',
+    iconText: 'text-warn',
   },
   danger: {
-    iconBg: 'bg-[#ef4444]/10',
-    iconText: 'text-[#ef4444]',
+    iconBg: 'bg-danger/10',
+    iconText: 'text-danger',
   },
   info: {
     iconBg: 'bg-[#3b82f6]/10',
@@ -161,9 +161,9 @@ function DeltaBadge({ delta, trend }) {
   const negative = trend === 'down';
   const Icon = positive ? TrendingUp : negative ? TrendingDown : Minus;
   const classes = positive
-    ? 'text-[#10b981] bg-[#10b981]/10'
+    ? 'text-success bg-success/10'
     : negative
-    ? 'text-[#ef4444] bg-[#ef4444]/10'
+    ? 'text-danger bg-danger/10'
     : 'text-[#9ca3af] bg-surface';
   const sign = delta > 0 ? '+' : '';
   return (

@@ -112,7 +112,7 @@ export function AdminQuotaWatchPanel() {
 
           <div className="space-y-1.5">
             {rows.slice(0, 8).map((r) => {
-              const barColor = r.paused ? 'bg-red-500' : r.pct >= 80 ? 'bg-[#f59e0b]' : 'bg-cta'
+              const barColor = r.paused ? 'bg-red-500' : r.pct >= 80 ? 'bg-warn' : 'bg-cta'
               return (
                 <div key={r.id} className="flex items-center gap-3 rounded-xl border border-[#f0f0f0] bg-white px-3.5 py-2.5">
                   <div className="min-w-0 w-40">

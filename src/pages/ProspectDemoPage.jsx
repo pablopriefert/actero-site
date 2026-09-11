@@ -248,7 +248,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
           </p>
           <button
             onClick={() => onNavigate('/signup')}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-cta text-white text-xs font-bold hover:bg-[#0E653A] transition-all"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-cta text-white text-xs font-bold hover:bg-cta-hover transition-all"
           >
             Obtenir mon vrai dashboard <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -409,7 +409,7 @@ export const ProspectDemoPage = ({ onNavigate }) => {
                   </div>
                   <button
                     onClick={() => onNavigate('/signup')}
-                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-cta text-white font-bold hover:bg-[#0E653A] transition-all text-sm"
+                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-cta text-white font-bold hover:bg-cta-hover transition-all text-sm"
                   >
                     Voir mon vrai potentiel <ArrowRight className="w-4 h-4" />
                   </button>
