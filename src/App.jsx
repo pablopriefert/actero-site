@@ -2,6 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AlertCircle } from "lucide-react";
 import { supabase, INITIAL_URL } from "./lib/supabase";
 import { FEATURES } from "./config/features.js";
@@ -296,6 +297,7 @@ export default function App() {
             <ErrorBoundary>
               <MainRouter />
               <Analytics />
+              <SpeedInsights />
               <Toaster />
             </ErrorBoundary>
           </ToastProvider>
