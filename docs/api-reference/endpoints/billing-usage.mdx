@@ -1,6 +1,6 @@
 ---
 title: "GET /billing/usage"
-description: "Récupère la consommation tickets + minutes vocales du mois en cours, le plan actif, et l'overage facturable."
+description: "Récupère la consommation de tickets du mois en cours, le plan actif, le solde de crédits et l'état du quota."
 ---
 
 L'endpoint `billing/usage` te retourne la consommation du mois calendaire courant pour un tenant donné. C'est ce que le dashboard utilise pour afficher la jauge "X / Y tickets utilisés" et estimer la prochaine facture.
@@ -41,7 +41,7 @@ Sinon → `403 Acces refuse.`
   "tickets_used": 1247,
   "tickets_limit": 5000,
   "voice_minutes_used": 38,
-  "voice_minutes_limit": 200,
+  "voice_minutes_limit": 0,
   "overage_tickets": 0,
   "overage_cost": 0,
   "trial_ends_at": null,
@@ -57,17 +57,19 @@ Sinon → `403 Acces refuse.`
 
 <ResponseField name="tickets_limit" type="integer">Quota du plan. Vaut **`-1`** si illimité (Enterprise).</ResponseField>
 
-<ResponseField name="voice_minutes_used" type="number">Minutes consommées par l'agent vocal (ElevenLabs). 0 sur les plans Free / Starter qui n'incluent pas la voix.</ResponseField>
 
-<ResponseField name="voice_minutes_limit" type="number">Quota minutes vocales du plan. **`-1`** si illimité.</ResponseField>
 
-<ResponseField name="overage_tickets" type="integer">Nombre de tickets traités au-delà du quota (uniquement Starter / Pro). Facturés au taux du plan.</ResponseField>
+<ResponseField name="overage_tickets" type="integer">Déprécié — toujours `0`. Aucun plan ne facture de dépassement (plafond strict).</ResponseField>
 
-<ResponseField name="overage_cost" type="number">Montant en euros qui s'ajoutera à la prochaine facture, arrondi au centime. `overage_tickets * overage_rate`.</ResponseField>
+<ResponseField name="overage_cost" type="number">Déprécié — toujours `0`.</ResponseField>
+
+<ResponseField name="quota_reached" type="boolean">`true` quand le quota mensuel est atteint : l'agent est en pause jusqu'à l'achat de crédits ou un upgrade.</ResponseField>
+
+<ResponseField name="credits_balance" type="integer">Crédits disponibles. Consommés automatiquement (1 crédit = 1 ticket) au-delà du quota.</ResponseField>
 
 <ResponseField name="trial_ends_at" type="string|null">ISO timestamp de fin de période d'essai. `null` si le tenant n'est pas en trial.</ResponseField>
 
-<ResponseField name="next_billing_date" type="string">Date approximative de prochain prélèvement Stripe (1er du mois suivant). Format `YYYY-MM-DD`.</ResponseField>
+<ResponseField name="next_billing_date" type="string">Date approximative du prochain prélèvement (1er du mois suivant). Format `YYYY-MM-DD`. Le prélèvement est opéré par **Shopify** pour les boutiques ayant installé Actero depuis l'App Store, et par notre prestataire de paiement pour les inscriptions directes.</ResponseField>
 
 ## Response — autres cas
 
@@ -105,17 +107,17 @@ Cet endpoint accepte uniquement `GET`. Tout autre verbe renvoie `405`.
 { "error": "Erreur interne." }
 ```
 
-## Tarifs d'overage
+## Dépassement de quota
 
-| Plan       | Tickets inclus | Overage rate         |
-| ---------- | -------------- | -------------------- |
-| Free       | 50             | 0 € (hard cap, pas d'overage) |
-| Starter    | 1 000          | 0,10 € / ticket      |
-| Pro        | 5 000          | 0,10 € / ticket      |
-| Enterprise | Illimité       | —                    |
+| Plan       | Tickets inclus | Au-delà du quota          |
+| ---------- | -------------- | ------------------------- |
+| Free       | 50             | Bloqué (crédits/upgrade)  |
+| Starter    | 1 000          | Bloqué (crédits/upgrade)  |
+| Pro        | 5 000          | Bloqué (crédits/upgrade)  |
+| Enterprise | Illimité       | —                         |
 
 <Note>
-Les `price_ids` Stripe ne sont **pas** exposés via l'API publique — ils restent server-side (commit `1e1bd96`). Si tu construis un dashboard custom, lis `overage_cost` directement depuis cet endpoint plutôt que recalculer côté client.
+Les identifiants de tarif du prestataire de paiement ne sont **pas** exposés via l'API publique — ils restent server-side. Aucun dépassement n'est facturé : surveille `quota_reached` et `credits_balance` pour savoir si l'agent est en pause.
 </Note>
 
 ## Exemples
@@ -139,8 +141,8 @@ const usage = await res.json()
 const pct = (usage.tickets_used / usage.tickets_limit) * 100
 console.log(`${usage.tickets_used}/${usage.tickets_limit} tickets (${pct.toFixed(1)}%)`)
 
-if (usage.overage_cost > 0) {
-  console.warn(`Overage : ${usage.overage_cost} € facturés en plus le ${usage.next_billing_date}`)
+if (usage.quota_reached) {
+  console.warn(`Quota atteint — agent en pause. Crédits restants : ${usage.credits_balance}`)
 }
 ```
 

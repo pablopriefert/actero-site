@@ -1,255 +1,92 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { ArrowRight, Check, X } from 'lucide-react'
-import { motion, useSpring, useTransform, animate, useInView, useReducedMotion } from 'framer-motion'
+import React, { useEffect, useRef, useState } from 'react'
+import { ArrowRight, ArrowUpRight, Loader2 } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { FadeInUp } from './scroll-animations'
-import { WatchDemoButton } from './WatchDemoButton'
-import { CONTACT } from '../../config/contact'
+import { Logo } from '../layout/Logo'
 import { trackEvent } from '../../lib/analytics'
 
 /**
- * GlassHero — Variation A (Refined Notion) implementation.
- *
- * Premium upgrade :
- * — Announcement bar dismissible (localStorage "actero_announce_vision_v1")
- *   en haut : "Claude Vision est disponible — l'agent comprend maintenant
- *   les photos clients →"
- * — Titre Instrument Serif avec 1 mot gradient vert (from #003725 to #14A85C)
- * — Subtitle 3-piliers (SAV + relance paniers + automatisations)
- * — CTA primary unique + ghost "Voir la démo"
- * — Link "Parler à un humain" demoted en text-link avec arrow
- * — 3 KPIs mappés sur les 3 piliers (50-70%, +15%, 5min setup)
- * — Dashboard mockup avec aspect-ratio déclaré pour réduire CLS
- * — Task 1 : count-up animated KPI numbers on enter
- * — Task 2 : ambient aurora glow blobs behind hero (z-0)
- * — Task 8 : announcement pill spring entrance
+ * GlassHero — end-to-end "AI ecosystem" style hero (Timbal-inspired), in Actero
+ * colours + French: announcement pill → bold headline with a serif-italic gold
+ * accent → subtitle → an interactive AI prompt box → dashboard preview.
  */
+// Hero UI font — la sans de l'app, pour que le hero ne soit pas la seule
+// surface à parler une autre langue typographique.
+const heroFont = { fontFamily: 'var(--font-sans, "Inter Tight"), system-ui, sans-serif' }
+
 export const GlassHero = ({ onNavigate }) => {
-  const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
-  const prefersReducedMotion = useReducedMotion()
-
-  /* ─── Announcement bar dismiss (localStorage, default visible) ─── */
-  const ANNOUNCE_KEY = 'actero_announce_vision_v1'
-  const [showAnnounce, setShowAnnounce] = useState(() => {
-    try {
-      return window.localStorage.getItem(ANNOUNCE_KEY) !== '1'
-    } catch {
-      /* localStorage unavailable — keep default visible */
-      return true
-    }
-  })
-
-  const dismissAnnounce = () => {
-    setShowAnnounce(false)
-    try {
-      window.localStorage.setItem(ANNOUNCE_KEY, '1')
-    } catch {
-      /* ignore */
-    }
-  }
+  const fontDisplay = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
   return (
-    <section className="relative bg-white pt-28 md:pt-24 pb-6 px-6 overflow-hidden">
-      {/* ══════════════════ TASK 2: AURORA GLOW BLOBS (z-0, behind everything) ══════════════════ */}
-      {!prefersReducedMotion && (
-        <>
-          <motion.div
-            className="absolute -top-24 -left-32 w-[520px] h-[520px] rounded-full bg-[#14A85C]/[0.07] blur-3xl pointer-events-none"
-            style={{ zIndex: 0 }}
-            animate={{
-              x: [0, 30, -15, 0],
-              y: [0, -20, 25, 0],
-              scale: [1, 1.08, 0.95, 1],
-            }}
-            transition={{
-              duration: 18,
-              ease: 'easeInOut',
-              repeat: Infinity,
-              repeatType: 'loop',
-            }}
-          />
-          <motion.div
-            className="absolute top-1/3 -right-40 w-[480px] h-[480px] rounded-full bg-[#A8C490]/[0.12] blur-3xl pointer-events-none"
-            style={{ zIndex: 0 }}
-            animate={{
-              x: [0, -25, 10, 0],
-              y: [0, 20, -30, 0],
-              scale: [1, 0.92, 1.06, 1],
-            }}
-            transition={{
-              duration: 22,
-              ease: 'easeInOut',
-              repeat: Infinity,
-              repeatType: 'loop',
-              delay: 3,
-            }}
-          />
-          <motion.div
-            className="absolute bottom-0 left-1/3 w-[360px] h-[360px] rounded-full bg-[#14A85C]/[0.05] blur-3xl pointer-events-none"
-            style={{ zIndex: 0 }}
-            animate={{
-              x: [0, 20, -10, 0],
-              y: [0, -15, 10, 0],
-              scale: [1, 1.1, 0.97, 1],
-            }}
-            transition={{
-              duration: 16,
-              ease: 'easeInOut',
-              repeat: Infinity,
-              repeatType: 'loop',
-              delay: 6,
-            }}
-          />
-        </>
-      )}
+    <section className="relative bg-white pt-36 md:pt-44 pb-16 px-6 overflow-hidden">
+      {/* Fond blanc, sans habillage. Le hero portait un dégradé vertical vers
+          un vert saturé, plus un grain à 16 % en fusion multiply dont la seule
+          raison d'être était de texturer cette bande colorée. Sans le dégradé,
+          le grain ne texture plus rien : il salit du blanc. Les deux partent
+          ensemble. */}
 
-      <div className="max-w-6xl mx-auto relative" style={{ zIndex: 1 }}>
-        {/* ══════════════════ ANNOUNCEMENT BAR — TASK 8: spring entrance ══════════════════ */}
-        {showAnnounce && (
-          <motion.div
-            className="mb-8 flex justify-center"
-            initial={prefersReducedMotion ? false : { opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={
-              prefersReducedMotion
-                ? { duration: 0 }
-                : { type: 'spring', stiffness: 300, damping: 28, delay: 0.1 }
-            }
-          >
-            <div className="group inline-flex items-center gap-2 pl-3 pr-1.5 py-1.5 rounded-full bg-[#F4F0E6] border border-[#E8DFC9] text-[12.5px] text-[#003725] max-w-full">
-              <span className="shrink-0 text-[#716D5C]" aria-hidden>
-                ✨
+      <div className="max-w-6xl mx-auto relative">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Announcement / social-proof pill */}
+          <FadeInUp delay={0.02} className="mb-8">
+            <button
+              onClick={() => onNavigate && onNavigate('/entreprise')}
+              className="inline-flex items-center gap-2 rounded-full bg-surface border border-[#E6E8EC] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
+            >
+              <span className="rounded-full bg-white border border-[#E6E8EC] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[#8B7A50]">
+                Soutenu par
               </span>
-              <button
-                type="button"
-                onClick={() => onNavigate && onNavigate('/produit')}
-                className="inline-flex items-center gap-1.5 font-medium hover:underline underline-offset-2 decoration-[#003725]/40 truncate"
-              >
-                <strong className="font-semibold">Claude Vision est disponible</strong>
-                <span className="hidden sm:inline text-[#5A5A5A]">
-                  — l'agent comprend maintenant les photos clients
-                </span>
-                <ArrowRight className="w-3 h-3 shrink-0 transition-transform group-hover:translate-x-0.5" />
-              </button>
-              <button
-                type="button"
-                onClick={dismissAnnounce}
-                aria-label="Fermer l'annonce"
-                className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[#716D5C] hover:bg-white hover:text-[#003725] transition-colors"
-              >
-                <X className="w-3 h-3" strokeWidth={2.2} />
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* ══════════════════ HERO TEXT — centered ══════════════════ */}
-        <div className="max-w-3xl mx-auto text-center">
-          {/* Eyebrow — clean category chip */}
-          <FadeInUp className="mb-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#F9F7F1] border border-[#E8DFC9]">
-              <span className="w-1.5 h-1.5 rounded-full bg-cta" />
-              <span>Agent IA de support client · Shopify · Hébergé en Europe</span>
-            </div>
+              <img
+                src="/stationf-logo.png"
+                alt="Station F"
+                className="h-[13px] w-auto object-contain"
+                loading="eager"
+                decoding="async"
+              />
+              <ArrowRight className="w-3.5 h-3.5 text-[#716D5C]" />
+            </button>
           </FadeInUp>
 
-          {/* Headline — Instrument Serif, big + gold italic accent (editorial) */}
+          {/* Headline — bold sans, serif-italic gold accent (mirrors "for creators") */}
           <FadeInUp delay={0.05} className="mb-6">
             <h1
-              className="leading-[1.03] text-[#1A1A1A] font-normal"
+              className="font-bold text-[#1A1A1A] leading-[1.02]"
               style={{
-                ...fontDisplay,
-                fontSize: 'clamp(42px, 6vw, 76px)',
-                letterSpacing: '-0.02em',
+                ...heroFont,
+                fontSize: 'clamp(44px, 7vw, 88px)',
+                letterSpacing: '-0.03em',
               }}
             >
-              Votre support client,
+              L&apos;agent IA du support
               <br />
-              <span className="italic text-[#8B7A50]">résolu tout seul.</span>
+              client pour{' '}
+              <span className="font-normal italic text-[#8B7A50]" style={fontDisplay}>
+                le e-commerce
+              </span>
             </h1>
           </FadeInUp>
 
-          {/* Subtitle — leads with the proof wedge */}
-          <FadeInUp delay={0.1} className="mb-3">
-            <p className="text-[15px] md:text-[17px] text-[#5A5A5A] leading-[1.6] max-w-xl mx-auto font-light">
-              L'agent IA autonome pour les boutiques Shopify. Il résout la majorité de vos
-              tickets en français — et vous{' '}
-              <span className="text-[#262626] font-semibold">prouve son ROI sur vos vrais tickets</span>{' '}
-              avant que vous payiez.
+          {/* Subtitle */}
+          <FadeInUp delay={0.08} className="mb-10">
+            <p className="text-[#716D5C] text-[17px] md:text-[19px] leading-relaxed max-w-2xl mx-auto" style={heroFont}>
+              Actero est l&apos;agent SAV autonome pour Shopify. Il répond à vos clients,
+              suit les commandes et relance les paniers abandonnés — dans votre ton de
+              marque, 24/7.
             </p>
           </FadeInUp>
 
-          {/* Reassurance line — the wedge in one line */}
-          <FadeInUp delay={0.12} className="mb-8">
-            <p className="text-[14px] text-[#1A1A1A] font-semibold">
-              Ne nous croyez pas sur parole. On vous le montre.
-            </p>
-          </FadeInUp>
-
-          {/* CTAs — primary unique + ghost demo + text-link humain */}
-          <FadeInUp delay={0.15}>
-            <div className="flex flex-wrap items-center justify-center gap-3.5 mb-3">
-              {/* TASK 4: primary CTA with motion micro-interactions */}
-              <motion.button
-                onClick={() => onNavigate && onNavigate('/signup')}
-                className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-[#0A4F2C] text-white text-[15px] font-semibold transition-colors shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] group"
-                whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
-                whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              >
-                Créer un compte gratuitement
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-              </motion.button>
-              <WatchDemoButton source="landing_hero" variant="light" />
-            </div>
-            <div className="mb-5">
-              <button
-                onClick={() => {
-                  trackEvent('Talk_To_Human_Clicked', { source: 'landing_hero_link' })
-                  window.open(CONTACT.demo.url, '_blank', 'noopener,noreferrer')
-                }}
-                className="inline-flex items-center gap-1 text-[13px] text-[#716D5C] hover:text-[#003725] font-medium transition-colors"
-              >
-                ou parler à un humain
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          </FadeInUp>
-
-          {/* Hero KPIs — 3 chiffres mappés sur les 3 piliers — TASK 1: count-up */}
-          <FadeInUp delay={0.18}>
-            <HeroKpiRow />
-          </FadeInUp>
-
-          {/* Compliance tags — plus discret, sous les KPIs */}
-          <FadeInUp delay={0.22} className="mt-5">
-            <div className="inline-flex flex-wrap items-center justify-center gap-4 text-[11px] text-[#9ca3af]">
-              <span className="inline-flex items-center gap-1.5">
-                <Check className="w-3 h-3 text-cta" strokeWidth={2.5} />
-                RGPD · Hébergé en UE
-              </span>
-              <span className="text-[#E8DFC9]">·</span>
-              <span className="inline-flex items-center gap-1.5">
-                <Check className="w-3 h-3 text-cta" strokeWidth={2.5} />
-                OAuth Shopify 1-clic
-              </span>
-              <span className="text-[#E8DFC9]">·</span>
-              <span className="inline-flex items-center gap-1.5">
-                <Check className="w-3 h-3 text-cta" strokeWidth={2.5} />
-                Opt-out TDM
-              </span>
-            </div>
+          {/* AI prompt box */}
+          <FadeInUp delay={0.12}>
+            <HeroPrompt onNavigate={onNavigate} />
           </FadeInUp>
         </div>
 
-        {/* ══════════════════ DASHBOARD PREVIEW (desktop only — fixed 220px sidebar cramps mobile) ══════════════════ */}
-        <FadeInUp delay={0.25} className="mt-16 hidden md:block">
+        {/* ══════════ DASHBOARD PREVIEW (desktop only) ══════════ */}
+        <FadeInUp delay={0.2} className="mt-16 hidden md:block">
           <div
-            className="relative rounded-3xl p-4 border border-[#E8DFC9]"
+            className="relative rounded-3xl p-4 bg-white border border-black/[0.08]"
             style={{
-              background: 'linear-gradient(180deg, #F9F7F1 0%, #F4F0E6 100%)',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 40px 80px -20px rgba(0,55,37,0.15)',
-              /* CLS guard — réserve la hauteur du dashboard preview
-                 (window chrome 36px + grid 480px + padding 32px ≈ 552px) */
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 40px 80px -20px rgba(0,0,0,0.12)',
               minHeight: '552px',
             }}
           >
@@ -262,38 +99,192 @@ export const GlassHero = ({ onNavigate }) => {
 }
 
 /**
- * AnimatedKpiNumber — count-up on enter into viewport.
- * Respects prefers-reduced-motion (shows final value immediately).
+ * HeroPrompt — the "chat AI" box under the subtitle. A real input styled like a
+ * product surface; submitting (Enter or the send button) calls the public demo
+ * endpoint (`/api/public/hero-demo`) and renders the agent's answer inline, so
+ * a visitor experiences the agent BEFORE signing up. The reply is followed by
+ * the signup CTA — the demo IS the conversion path.
  */
-function AnimatedKpiNumber({ target, prefix = '', suffix = '', fontStyle: _fontStyle }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, amount: 0.5 })
+const EXAMPLES = [
+  'Où est ma commande #1082 ?',
+  'Je veux échanger ma taille M contre une L',
+  'Quel est le délai de livraison vers Lyon ?',
+]
+
+const GENERIC_ERROR =
+  "Impossible de joindre l'agent pour le moment. Réessayez dans un instant."
+
+function HeroPrompt({ onNavigate }) {
+  const [value, setValue] = useState('')
+  const [turns, setTurns] = useState([]) // { role: 'user' | 'agent', text }
+  const [loading, setLoading] = useState(false)
   const prefersReducedMotion = useReducedMotion()
+  const inputRef = useRef(null)
+  const transcriptRef = useRef(null)
 
-  const spring = useSpring(prefersReducedMotion ? target : 0, {
-    damping: 30,
-    stiffness: 100,
-  })
-  const display = useTransform(spring, (v) => Math.round(v).toString())
-
+  // Keep the newest bubble in view inside the capped transcript area.
   useEffect(() => {
-    if (inView && !prefersReducedMotion) {
-      animate(spring, target, { duration: 1.8, ease: 'easeOut' })
+    const el = transcriptRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [turns, loading])
+
+  const submit = async () => {
+    const q = value.trim()
+    trackEvent('Hero_Prompt_Submitted', { has_text: !!q })
+    if (!q || loading) return
+
+    setValue('')
+    setTurns((prev) => [...prev, { role: 'user', text: q }])
+    setLoading(true)
+
+    try {
+      const res = await fetch('/api/public/hero-demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: q }),
+      })
+      const data = await res.json().catch(() => null)
+      // The endpoint answers 200 with a graceful fallback, and still ships a
+      // French `response` on 429 / too-long — so trust `response` when present.
+      const reply = typeof data?.response === 'string' ? data.response.trim() : ''
+      setTurns((prev) => [...prev, { role: 'agent', text: reply || GENERIC_ERROR }])
+    } catch {
+      setTurns((prev) => [...prev, { role: 'agent', text: GENERIC_ERROR }])
+    } finally {
+      setLoading(false)
     }
-  }, [inView, prefersReducedMotion, spring, target])
+  }
+
+  const prefill = (example) => {
+    setValue(example)
+    inputRef.current?.focus()
+  }
+
+  const hasReply = turns.some((t) => t.role === 'agent')
 
   return (
-    <span ref={ref}>
-      {prefix}
-      <motion.span>{display}</motion.span>
-      {suffix}
-    </span>
+    <div className="mx-auto w-full max-w-2xl">
+      <motion.div
+        className="rounded-[22px] bg-white border border-black/[0.08] px-4 pt-4 pb-3 text-left"
+        style={{ boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 24px 48px -24px rgba(0,0,0,0.18)' }}
+        whileHover={prefersReducedMotion ? {} : { y: -2 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+      >
+        {/* Conversation — compact, scrolls internally so the hero never grows. */}
+        {turns.length > 0 && (
+          <div
+            ref={transcriptRef}
+            role="log"
+            aria-live="polite"
+            aria-label="Conversation avec l'agent SAV de démonstration"
+            className="mb-3 max-h-[220px] overflow-y-auto space-y-2 pr-1"
+            style={heroFont}
+          >
+            {turns.map((t, i) => (
+              <div key={i} className={t.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
+                <div
+                  className={
+                    t.role === 'user'
+                      ? 'max-w-[85%] rounded-2xl rounded-br-md bg-surface px-3 py-2 text-[14px] text-[#1A1A1A]'
+                      : 'max-w-[90%] rounded-2xl rounded-bl-md bg-primary-tint px-3 py-2 text-[14px] leading-relaxed text-[#14361F] whitespace-pre-line'
+                  }
+                >
+                  {t.text}
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start">
+                <div className="rounded-2xl rounded-bl-md bg-primary-tint px-3 py-2 text-[14px] text-[#14361F] inline-flex items-center gap-1.5">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden />
+                  <span className="sr-only">L&apos;agent rédige sa réponse…</span>
+                  <span aria-hidden>L&apos;agent rédige…</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <input
+          ref={inputRef}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
+          placeholder={turns.length ? 'Posez une autre question…' : `Essayez : « ${EXAMPLES[0]} »`}
+          aria-label="Posez une question à l'agent SAV Actero"
+          style={heroFont}
+          className="w-full bg-transparent text-[16px] md:text-[17px] text-[#1A1A1A] placeholder:text-[#9ca3af] outline-none py-1.5"
+        />
+
+        <div className="flex items-center justify-between mt-3">
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary-tint px-2.5 py-1.5 text-[12px] font-semibold text-cta">
+            <Logo className="w-3.5 h-3.5 text-cta" />
+            Agent SAV
+          </span>
+
+          <motion.button
+            onClick={submit}
+            disabled={loading}
+            aria-label="Envoyer la question à l'agent"
+            aria-busy={loading}
+            className="w-9 h-9 rounded-full bg-cta text-white flex items-center justify-center hover:bg-cta-hover transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            whileHover={prefersReducedMotion || loading ? {} : { scale: 1.06 }}
+            whileTap={prefersReducedMotion || loading ? {} : { scale: 0.94 }}
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+            ) : (
+              <ArrowUpRight className="w-4 h-4" aria-hidden />
+            )}
+          </motion.button>
+        </div>
+      </motion.div>
+
+      {/* Conversion CTA — appears as soon as the visitor has seen a real answer. */}
+      {hasReply && (
+        <div className="mt-3">
+          <button
+            onClick={() => {
+              trackEvent('Hero_Demo_CTA_Clicked', { turns: turns.length })
+              onNavigate && onNavigate('/signup')
+            }}
+            className="inline-flex items-center gap-2 rounded-full bg-cta px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-cta-hover transition-colors"
+            style={heroFont}
+          >
+            Créer mon agent gratuitement
+            <ArrowRight className="w-4 h-4" aria-hidden />
+          </button>
+        </div>
+      )}
+
+      {/* Example questions — one tap to prefill the input. */}
+      <div className="mt-3 flex flex-wrap justify-center gap-2">
+        {EXAMPLES.map((example) => (
+          <button
+            key={example}
+            onClick={() => prefill(example)}
+            aria-label={`Pré-remplir : ${example}`}
+            style={heroFont}
+            className="rounded-full bg-white/70 border border-black/[0.08] px-3 py-1.5 text-[12.5px] text-[#5A5A5A] hover:border-cta/40 hover:text-[#1A1A1A] transition-colors"
+          >
+            {example}
+          </button>
+        ))}
+      </div>
+
+      <p className="mt-3 text-[12.5px] text-[#716D5C]">
+        {hasReply
+          ? 'Démo publique · données de boutique fictives'
+          : 'Testez l’agent en direct · sans carte bancaire'}
+      </p>
+    </div>
   )
 }
 
 /**
  * DashboardPreview — mock visuel du dashboard client (browser chrome +
- * sidebar + KPIs + histogramme SVG). Tous les chiffres sont static —
+ * sidebar + KPIs + histogramme SVG). Tous les chiffres sont statiques —
  * c'est un visuel de preview, pas une connexion live.
  */
 function DashboardPreview() {
@@ -301,7 +292,7 @@ function DashboardPreview() {
     { label: "Vue d'ensemble", active: true },
     { label: 'Tickets SAV' },
     { label: 'Paniers relancés' },
-    { label: 'Agent vocal' },
+    { label: 'Simulateur' },
     { label: 'Base connaissance' },
     { label: 'Intégrations' },
     { label: 'Ton de marque' },
@@ -317,17 +308,17 @@ function DashboardPreview() {
   return (
     <div className="bg-white rounded-2xl overflow-hidden border border-black/[0.06] w-full">
       {/* Window chrome */}
-      <div className="h-9 bg-[#F9F7F1] border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
-        <div className="w-2.5 h-2.5 rounded-full bg-[#E8DFC9]" />
+      <div className="h-9 bg-surface border-b border-black/[0.05] flex items-center px-3.5 gap-1.5">
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
+        <div className="w-2.5 h-2.5 rounded-full bg-surface" />
         <div className="ml-5 text-[11px] text-[#9ca3af] font-mono">app.actero.fr / dashboard</div>
       </div>
 
       {/* Content grid — sidebar + main */}
       <div className="grid grid-cols-[220px_1fr] min-h-[480px]">
         {/* Sidebar */}
-        <div className="bg-[#FAFAFA] border-r border-black/[0.05] px-3 py-5">
+        <div className="bg-surface border-r border-black/[0.05] px-3 py-5">
           <div className="px-2 pb-4 text-[11px] font-semibold text-[#9ca3af] uppercase tracking-[0.08em]">
             Boutique
           </div>
@@ -336,7 +327,7 @@ function DashboardPreview() {
               key={item.label}
               className={`px-2.5 py-[7px] rounded-lg text-[13px] mb-0.5 cursor-pointer ${
                 item.active
-                  ? 'bg-[#E8F5EC] text-cta font-semibold'
+                  ? 'bg-primary-tint text-cta font-semibold'
                   : 'text-[#5A5A5A] font-medium'
               }`}
             >
@@ -380,7 +371,7 @@ function DashboardPreview() {
                   {k.value}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-[11px] font-semibold text-cta bg-[#E8F5EC] px-1.5 rounded tabular-nums">
+                  <span className="text-[11px] font-semibold text-cta bg-primary-tint px-1.5 rounded tabular-nums">
                     {k.delta}
                   </span>
                   <span className="text-[11px] text-[#9ca3af]">{k.hint}</span>
@@ -401,7 +392,7 @@ function DashboardPreview() {
                   Auto
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-[#E8DFC9]" />
+                  <span className="w-2 h-2 rounded-full bg-surface" />
                   Escalade humain
                 </span>
               </div>
@@ -412,13 +403,13 @@ function DashboardPreview() {
                 const human = 8 + Math.cos(i * 0.7) * 5
                 return (
                   <g key={i} transform={`translate(${i * 20 + 4}, 0)`}>
-                    <rect x="0" y={80 - auto} width="12" height={auto} fill="#0E653A" rx="2" />
+                    <rect x="0" y={80 - auto} width="12" height={auto} fill="#13804A" rx="2" />
                     <rect
                       x="0"
                       y={80 - auto - human}
                       width="12"
                       height={human}
-                      fill="#E8DFC9"
+                      fill="#E3E6EA"
                       rx="1"
                     />
                   </g>
@@ -428,86 +419,6 @@ function DashboardPreview() {
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-/**
- * HeroKpiRow — 3 KPIs mappés 1:1 sur les 3 piliers du produit.
- * TASK 1: animated count-up on viewport enter.
- *
- *   Pilier 1 · Agent SAV          → 50-70% de tickets auto-résolus
- *   Pilier 2 · Relance paniers    → +15% de CA récupéré
- *   Pilier 3 · Automatisations    → 5 min pour activer un playbook
- */
-function HeroKpiRow() {
-  const fontDisplay = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
-  const prefersReducedMotion = useReducedMotion()
-
-  const kpis = [
-    {
-      numericTarget: 70,
-      prefix: '',
-      suffix: '',
-      unit: '%',
-      label: 'de tickets auto-résolus',
-      sub: 'Agent SAV — généralement 50 à 70% selon votre volume',
-    },
-    {
-      numericTarget: 15,
-      prefix: '+',
-      suffix: '',
-      unit: '%',
-      label: 'de CA paniers récupérés',
-      sub: 'Agent de relance proactif, personnalisé',
-    },
-    {
-      numericTarget: 5,
-      prefix: '',
-      suffix: '',
-      unit: 'min',
-      label: "pour activer un playbook",
-      sub: '10+ workflows e-commerce prêts à brancher',
-    },
-  ]
-
-  return (
-    <div className="mt-10 max-w-3xl mx-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {kpis.map((k, i) => (
-          <motion.div
-            key={i}
-            className="px-5 py-5 rounded-[18px] bg-white border border-[#E8DFC9] text-left"
-            whileHover={prefersReducedMotion ? {} : { y: -4, borderColor: '#D4C59E' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 20, duration: 0.25 }}
-          >
-            <div
-              className="leading-none text-[#1A1A1A] font-normal tabular-nums"
-              style={{ ...fontDisplay, fontSize: 'clamp(38px, 4.6vw, 52px)', letterSpacing: '-0.02em' }}
-            >
-              <AnimatedKpiNumber
-                target={k.numericTarget}
-                prefix={k.prefix}
-                suffix={k.suffix}
-                fontStyle={fontDisplay}
-              />
-              <span className="text-[#716D5C] text-[0.45em] font-medium ml-0.5 align-baseline">
-                {k.unit}
-              </span>
-              <span className="text-[#716D5C] text-[0.35em] font-medium ml-0.5 align-super">*</span>
-            </div>
-            <div className="text-[12.5px] font-bold text-[#1A1A1A] mt-2 leading-[1.3]">
-              {k.label}
-            </div>
-            <div className="text-[11px] text-[#716D5C] mt-1 leading-[1.4]">
-              {k.sub}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-      <p className="mt-3 text-[11px] italic text-[#716D5C] text-center leading-[1.4]">
-        * Objectifs produit, benchmark pilote
-      </p>
     </div>
   )
 }

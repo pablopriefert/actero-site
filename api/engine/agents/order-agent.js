@@ -7,6 +7,8 @@
  * tracking codes, carriers, or dates.
  */
 import { callLLM as callClaude } from '../lib/llm-client.js'
+import { decryptToken } from '../../lib/crypto.js'
+import { findUngroundedReferences } from '../lib/escalation-signals.js'
 import { buildSystemPrompt } from '../lib/prompt-builder.js'
 import { lookupOrder } from '../lib/shopify-client.js'
 import {
@@ -35,7 +37,7 @@ export const orderAgent = {
   classifications: ['suivi_commande', 'livraison', 'tracking', 'order_tracking'],
   tools: ['lookup_order'],
 
-  buildSystemPrompt(clientConfig, memoryContext, orderContext, trackingContext) {
+  buildSystemPrompt(clientConfig, memoryContext, orderContext, trackingContext, demandeSansEmail = false) {
     const base = buildSystemPrompt(clientConfig) + (memoryContext || '')
 
     let specialization = `\n\nROLE SPECIALISE — SUIVI DE COMMANDE:
@@ -51,8 +53,16 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     if (orderContext && orderContext.length > 0) {
       specialization += `\n\nDONNEES COMMANDE (source de verite — n'invente rien au-dela):\n`
       specialization += orderContext.map(o => o.contextText || '').join('\n')
+    } else if (demandeSansEmail) {
+      // Un numéro de commande a été donné, mais on ne sait pas à qui on parle.
+      // `lookupOrder` refuse alors de rendre la commande — les numéros Shopify
+      // étant séquentiels, la rendre reviendrait à donner celle d'un autre.
+      // Ce n'est donc PAS « introuvable » : c'est « prouvez-moi qu'elle est la
+      // vôtre ». Le dire autrement ferait croire au client qu'on a perdu sa
+      // commande, et le pousserait à réclamer.
+      specialization += `\n\nDONNEES COMMANDE: tu ne sais pas a qui tu parles, donc tu ne peux pas ouvrir cette commande. Demande POLIMENT l'adresse email utilisee lors de la commande, en expliquant que c'est pour verifier qu'elle est bien la sienne. N'affirme RIEN sur son contenu ni son statut, et ne dis JAMAIS qu'elle est introuvable.`
     } else {
-      specialization += `\n\nDONNEES COMMANDE: aucune commande trouvee (pas de connexion Shopify OU commande introuvable). Demande poliment le numero de commande et/ou l'email associe si le client ne les a pas deja fournis.`
+      specialization += `\n\nDONNEES COMMANDE: aucune commande trouvee (pas de connexion Shopify OU commande introuvable).`
     }
 
     // AfterShip real-time tracking data
@@ -78,11 +88,16 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     // 1. Try to fetch the real order from Shopify
     let orderContext = null
     let trackingContext = null
+    let demandeSansEmail = false
     const toolsUsed = []
 
     if (!normalized?._is_test) {
       try {
         const orderId = extractOrderId(normalized?.message || '')
+        // Un numéro donné sans qu'on sache à qui on parle : lookupOrder
+        // refusera de rendre la commande (contrôle d'appartenance). Il faut le
+        // savoir ICI pour demander l'email au lieu d'annoncer « introuvable ».
+        demandeSansEmail = !!orderId && !normalized?.customer_email
         const fetched = await lookupOrder(supabase, {
           clientId,
           orderId,
@@ -107,6 +122,7 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
           .maybeSingle()
 
         if (aftership?.api_key) {
+          const aftershipKey = decryptToken(aftership.api_key) || aftership.api_key
           const { getTrackingsByOrderId, getTrackingsByEmail } = await import('../connectors/aftership.js')
 
           // Priority 1: use Shopify order IDs if available
@@ -114,13 +130,13 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
           const trackings = []
 
           for (const oid of shopifyOrderIds) {
-            const r = await getTrackingsByOrderId(aftership.api_key, String(oid))
+            const r = await getTrackingsByOrderId(aftershipKey, String(oid))
             if (r.trackings?.length) trackings.push(...r.trackings)
           }
 
           // Priority 2: fallback to email if no orderIds (or no trackings found)
           if (trackings.length === 0 && normalized?.customer_email) {
-            const r = await getTrackingsByEmail(aftership.api_key, normalized.customer_email)
+            const r = await getTrackingsByEmail(aftershipKey, normalized.customer_email)
             if (r.trackings?.length) trackings.push(...r.trackings.slice(0, 3))
           }
 
@@ -135,7 +151,7 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     }
 
     // 2. Build prompt + messages
-    const systemPrompt = this.buildSystemPrompt(clientConfig, memoryContext, orderContext, trackingContext)
+    const systemPrompt = this.buildSystemPrompt(clientConfig, memoryContext, orderContext, trackingContext, demandeSansEmail)
     const { claudeMessages, hasHistory } = buildClaudeMessages({
       conversationHistory,
       currentMessage: normalized.message,
@@ -146,16 +162,43 @@ REGLES ANTI-HALLUCINATION (CRITIQUES):
     const respResult = await callClaude({
       systemPrompt: finalSystem,
       messages: claudeMessages,
-      maxTokens: 400,
+      maxTokens: 700,
     })
 
     const aiResponse = cleanMarkdown(respResult.response || respResult.rawText)
 
+    // 4. Vérifier que la réponse ne cite rien qui n'existe pas.
+    //
+    // Le prompt interdit déjà d'inventer un numéro de commande ou de suivi
+    // (REGLES ANTI-HALLUCINATION ci-dessus), mais rien ne vérifiait que le
+    // modèle avait obéi. Un numéro de suivi inventé est pire qu'une absence de
+    // réponse : le client attend un colis qui n'arrivera pas, et la confiance
+    // ne revient pas. On compare donc la réponse aux seules sources
+    // légitimes — les données Shopify, le suivi AfterShip, et le message du
+    // client lui-même — et on escalade dès qu'une référence sort de nulle part.
+    const ancrage = [
+      ...(orderContext || []).map((o) => o.contextText || ''),
+      JSON.stringify(trackingContext || []),
+      normalized?.message || '',
+      ...(conversationHistory || []).map((m) => m?.content || ''),
+    ].join('\n')
+
+    const inventees = findUngroundedReferences(aiResponse, ancrage)
+    if (inventees.length > 0) {
+      console.warn('[order-agent] références non ancrées:', inventees.join(', '))
+    }
+
     return {
       aiResponse,
-      shouldEscalate: respResult.should_escalate === true,
-      escalationReason: respResult.escalation_reason || null,
-      sentimentScore: respResult.sentiment_score || 5,
+      shouldEscalate: respResult.should_escalate === true || inventees.length > 0,
+      escalationReason: inventees.length > 0
+        ? `references_inventees:${inventees.join(',')}`
+        : (respResult.escalation_reason || null),
+      // `??` et non `||` : un sentiment de 0 est le plus négatif possible, et
+      // `0 || 5` le transformait silencieusement en neutre — donc en
+      // non-escalade.
+      sentimentScore: respResult.sentiment_score ?? 5,
+      ungroundedReferences: inventees,
       toolsUsed,
       usage: respResult.usage || null,
       modelId: respResult.modelId || null,

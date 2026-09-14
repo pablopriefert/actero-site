@@ -25,11 +25,11 @@ export function usePlan(clientId) {
     queryFn: async () => {
       const { data } = await supabase
         .from('usage_counters')
-        .select('tickets_used, voice_minutes_used, overage_tickets')
+        .select('tickets_used, overage_tickets')
         .eq('client_id', clientId)
         .eq('period', period)
         .maybeSingle()
-      return data || { tickets_used: 0, voice_minutes_used: 0, overage_tickets: 0 }
+      return data || { tickets_used: 0, overage_tickets: 0 }
     },
     enabled: !!clientId,
     refetchInterval: 30_000, // refresh every 30s
@@ -55,8 +55,6 @@ export function usePlan(clientId) {
     ticketsLimit,
     ticketsPercent,
     isOverLimit,
-    voiceMinutesUsed: usage?.voice_minutes_used || 0,
-    voiceMinutesLimit: config.limits.voice_minutes,
     // Feature access
     canAccess: (feature) => canAccess(planId, feature) || inTrial,
     getLimit: (key) => getLimit(planId, key),

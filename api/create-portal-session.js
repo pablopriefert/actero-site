@@ -24,7 +24,9 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Missing client_id' });
   }
 
-  // Verify user belongs to this client or is admin (app_metadata authoritative)
+  // Verify user belongs to this client or is admin (app_metadata authoritative).
+  // Owners may not have a client_users row (legacy / best-effort insert), so we
+  // also accept clients.owner_user_id — mirrors the sibling client endpoints.
   const isAdmin = user.app_metadata?.role === 'admin';
   if (!isAdmin) {
     const { data: link } = await supabaseAdmin
@@ -33,33 +35,53 @@ async function handler(req, res) {
       .eq('user_id', user.id)
       .eq('client_id', client_id)
       .maybeSingle();
-    if (!link) return res.status(403).json({ error: 'Accès refusé.' });
+    if (!link) {
+      const { data: owned } = await supabaseAdmin
+        .from('clients')
+        .select('id')
+        .eq('id', client_id)
+        .eq('owner_user_id', user.id)
+        .maybeSingle();
+      if (!owned) return res.status(403).json({ error: 'Accès refusé.' });
+    }
   }
 
   try {
-    // Find Stripe customer ID from funnel_clients
-    const { data: funnel } = await supabaseAdmin
-      .from('funnel_clients')
+    // The Stripe customer id lives on clients.stripe_customer_id (set by the
+    // billing flow). Fall back to funnel_clients for legacy funnel signups.
+    let stripeCustomerId = null;
+    const { data: clientRow } = await supabaseAdmin
+      .from('clients')
       .select('stripe_customer_id')
-      .eq('onboarded_client_id', client_id)
-      .not('stripe_customer_id', 'is', null)
-      .limit(1)
-      .single();
+      .eq('id', client_id)
+      .maybeSingle();
+    stripeCustomerId = clientRow?.stripe_customer_id || null;
 
-    if (!funnel?.stripe_customer_id) {
+    if (!stripeCustomerId) {
+      const { data: funnel } = await supabaseAdmin
+        .from('funnel_clients')
+        .select('stripe_customer_id')
+        .eq('onboarded_client_id', client_id)
+        .not('stripe_customer_id', 'is', null)
+        .limit(1)
+        .maybeSingle();
+      stripeCustomerId = funnel?.stripe_customer_id || null;
+    }
+
+    if (!stripeCustomerId) {
       return res.status(404).json({ error: 'No Stripe customer found for this client' });
     }
 
     // Create a Stripe Customer Portal session
     const session = await stripe.billingPortal.sessions.create({
-      customer: funnel.stripe_customer_id,
+      customer: stripeCustomerId,
       return_url: `${process.env.SITE_URL || 'https://actero.fr'}/client/profile`,
     });
 
     return res.status(200).json({ url: session.url });
   } catch (error) {
     console.error('Portal session error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: 'Impossible d\'ouvrir le portail de facturation.' });
   }
 }
 

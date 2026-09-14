@@ -29,6 +29,8 @@ import { Shield } from 'lucide-react'
  *   shopify  6.2   | 26  | ~161px  (surface 4186)
  */
 const partners = [
+  // La bourse ElevenLabs est réelle et reste affichée : l'agent vocal a été
+  // retiré le 10 septembre 2026, pas le soutien reçu.
   {
     name: 'ElevenLabs Grants',
     src: '/partners/v2/elevenlabs-grants.png',
@@ -58,6 +60,18 @@ const partners = [
     src: '/partners/v2/auth0-startup.png',
     href: 'https://auth0.com/startups',
     mH: 34, dH: 42,
+  },
+  {
+    name: 'Vercel',
+    src: '/partners/v2/vercel.png',
+    href: 'https://vercel.com/',
+    mH: 25, dH: 30,
+  },
+  {
+    name: 'OpenAI',
+    src: '/partners/v2/openai.png',
+    href: 'https://openai.com/',
+    mH: 28, dH: 34,
   },
 ]
 

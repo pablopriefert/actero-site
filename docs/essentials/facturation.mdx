@@ -12,7 +12,7 @@ En haut de la page, un bandeau résume :
 - **Ton plan actuel** (Free / Starter / Pro / Entreprise) et un badge "Essai" si tu es en période d'essai
 - **Le prix** actuel (€/mois ou €/an)
 - **Ta consommation tickets** (% utilisé du quota mensuel)
-- **Le dépassement** s'il y en a (en € à la fin du mois)
+- **L'état du quota** (agent actif, ou en pause si le plafond est atteint)
 
 ## Section 1 — Plan actuel
 
@@ -29,7 +29,7 @@ Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, t
 Deux barres de progression :
 
 - **Tickets utilisés** : ce mois, sur la limite de ton plan
-- **Minutes vocales** (si tu as l'agent vocal Pro) : minutes consommées
+- **Crédits** : solde de crédits ponctuels, consommés automatiquement au-delà du quota
 
 Code couleur :
 
@@ -37,14 +37,14 @@ Code couleur :
 |---|---|
 | Vert | < 70 % du quota — tout va bien |
 | Orange | 70-89 % — surveille |
-| Rouge | ≥ 90 % — risque de dépassement |
+| Rouge | ≥ 90 % — l'agent se mettra en pause au plafond |
 
 ### Dépassement
 
-Si tu dépasses ton quota, chaque ticket supplémentaire est facturé au tarif overage (10 centimes le ticket sur Starter, 8 centimes sur Pro). La facture du mois suivant inclut l'overage.
+Ton quota est un **plafond strict** : rien n'est facturé en plus à ton insu. Quand il est atteint, l'agent se met en pause. Deux façons de le réactiver immédiatement : acheter un **pack de crédits** (1 crédit = 1 ticket, sans engagement) ou **passer au plan supérieur**. Si tu as déjà des crédits, ils sont consommés automatiquement et le service ne s'interrompt pas.
 
 <Tip>
-Si tu approches systématiquement la limite, calcule : `tickets_estimés × overage_unit` versus `différence_de_prix_avec_le_plan_supérieur`. Au-delà de 200 € d'overage récurrent, l'upgrade est rentable.
+Si tu approches systématiquement la limite, compare le coût des crédits que tu rachètes chaque mois à la différence de prix avec le plan supérieur : au-delà de quelques packs par mois, l'upgrade est plus rentable.
 </Tip>
 
 ## Section 3 — Changer de plan
@@ -120,7 +120,7 @@ Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
     Oui sur le plan Entreprise. Sur Starter et Pro, c'est carte uniquement (Stripe Checkout).
   </Accordion>
   <Accordion title="Mon quota tickets — c'est quoi exactement ?">
-    Un "ticket" = une conversation traitée par l'agent (peu importe le canal : email, chat, helpdesk). Une conversation à plusieurs allers-retours = 1 ticket. Un panier abandonné relancé = 1 ticket. Un appel vocal = 1 ticket + minutes vocales facturées à part.
+    Un "ticket" = une conversation traitée par l'agent (peu importe le canal : email, chat, helpdesk). Une conversation à plusieurs allers-retours = 1 ticket. Un panier abandonné relancé = 1 ticket.
   </Accordion>
   <Accordion title="Je vois un onglet Crédits — c'est différent du plan ?">
     Oui. Les crédits sont des **achats ponctuels** qui s'ajoutent à ton quota mensuel, sans engagement. Le plan est l'**abonnement récurrent**. Tu peux avoir les deux en parallèle.

@@ -53,7 +53,7 @@ async function handler(req, res) {
     needs_review: false,
     source: 'improvement_loop',
   })
-  if (kbError) return res.status(500).json({ error: kbError.message })
+  if (kbError) { console.error('[apply-recommendation]', kbError.message); return res.status(500).json({ error: 'Erreur serveur, réessayez.' }) }
 
   await supabase.rpc('mark_ai_recommendation', { p_id: reco_id, p_status: 'implemented' })
   await supabase.from('automation_events').insert({

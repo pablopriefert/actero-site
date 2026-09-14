@@ -38,7 +38,7 @@ export default function PortalLayout({ children, navigate }) {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]" style={{ '--portal-primary': primaryColor }}>
+    <div className="min-h-screen bg-surface" style={{ '--portal-primary': primaryColor }}>
       <header className="flex items-center justify-between px-6 py-4 border-b bg-white">
         {headerContent}
         {authed && (

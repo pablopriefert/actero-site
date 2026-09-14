@@ -115,7 +115,7 @@ export const formatEvent = (event) => {
       IconComponent,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
-      message: `${typeLabel} resolu${orderSuffix}`,
+      message: `${typeLabel} résolu${orderSuffix}`,
       detail: timeSavedLabel,
       confidence,
       source,
@@ -137,7 +137,7 @@ export const formatEvent = (event) => {
       IconComponent: Mail,
       color: "text-blue-600",
       bg: "bg-blue-50",
-      message: "Email panier abandonne envoye",
+      message: "Email panier abandonné envoye",
       detail: meta.cart_value ? `Valeur: ${meta.cart_value}EUR` : null,
       confidence: null,
       source,
@@ -298,7 +298,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
           </p>
         </div>
 
-        <div className="flex p-0.5 rounded-lg bg-[#f5f5f5] border border-[#e5e5e5]">
+        <div className="flex p-0.5 rounded-lg bg-surface border border-[#e5e5e5]">
           {[
             { id: 'all', label: 'Tous' },
             { id: 'tickets', label: 'Tickets' },
@@ -325,17 +325,17 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
           <div className="p-8 space-y-5">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex gap-4 items-center animate-pulse">
-                <div className="w-10 h-10 bg-[#f5f5f5] rounded-xl" />
+                <div className="w-10 h-10 bg-surface rounded-xl" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3.5 bg-[#f5f5f5] rounded w-2/5" />
-                  <div className="h-3 bg-[#f5f5f5] rounded w-1/4" />
+                  <div className="h-3.5 bg-surface rounded w-2/5" />
+                  <div className="h-3 bg-surface rounded w-1/4" />
                 </div>
               </div>
             ))}
           </div>
         ) : filteredEvents.length === 0 ? (
           <div className="p-16 text-center flex flex-col items-center">
-            <div className="w-14 h-14 bg-[#fafafa] rounded-full flex items-center justify-center mb-4 border border-[#eee]">
+            <div className="w-14 h-14 bg-surface rounded-full flex items-center justify-center mb-4 border border-[#eee]">
               <Activity className="w-7 h-7 text-[#ccc]" />
             </div>
             <h3 className="text-base font-semibold text-[#1a1a1a] mb-1">
@@ -364,7 +364,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
                     <button
                       type="button"
                       onClick={() => toggleExpand(event)}
-                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-[#fafafa] transition-colors"
+                      className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-surface transition-colors"
                     >
                       <div className="flex items-center gap-4 min-w-0">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${details.bg}`}>
@@ -386,7 +386,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
                               </span>
                             )}
                             {details.source && (
-                              <span className="text-[11px] font-medium text-[#888] bg-[#f5f5f5] px-1.5 py-0.5 rounded capitalize">
+                              <span className="text-[11px] font-medium text-[#888] bg-surface px-1.5 py-0.5 rounded capitalize">
                                 {details.source}
                               </span>
                             )}
@@ -416,7 +416,7 @@ export const ActivityView = ({ supabase, theme: _theme = "dark", clientId }) => 
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.2, ease: 'easeOut' }}
-                          className="overflow-hidden bg-[#fafafa] border-t border-[#f0f0f0]"
+                          className="overflow-hidden bg-surface border-t border-[#f0f0f0]"
                         >
                           <div className="px-6 py-5">
                             {cache?.loading && (

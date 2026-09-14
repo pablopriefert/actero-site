@@ -121,7 +121,7 @@ export const ClientReferralView = ({ clientId, theme: _theme = 'light' }) => {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                     copied
                       ? 'bg-emerald-50 text-emerald-600'
-                      : 'bg-cta text-white hover:bg-[#003725]'
+                      : 'bg-cta text-white hover:bg-cta'
                   }`}
                 >
                   {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

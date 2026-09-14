@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
-import { tokens } from '../../lib/design-tokens';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -9,11 +8,11 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
  * admin et client dashboards.
  *
  * Tokens utilisés :
- * - tokens.colors.bg.page (#fafafa)
+ * - tokens.colors.bg.page
  * - tokens.colors.bg.surface (#ffffff)
  * - tokens.colors.bg.border (#f0f0f0)
  * - tokens.colors.text.primary (#1a1a1a)
- * - tokens.colors.brand.primary (#0E653A)
+ * - tokens.colors.brand.primary (#13804A)
  *
  * Desktop : sidebar fixe (240px md / 256px lg) + main flex-1.
  * Mobile : header + sidebar off-canvas drawer.
@@ -61,7 +60,7 @@ export function DashboardLayout({
   }, [mobileMenuOpen, setMobileMenuOpen]);
 
   return (
-    <div className={cn('min-h-screen bg-[#fafafa]', className)}>
+    <div className={cn('min-h-screen bg-surface', className)}>
       {/* Header mobile (< md) */}
       <div className="md:hidden flex items-center justify-between h-12 px-4 bg-white border-b border-[#f0f0f0] sticky top-0 z-40">
         <div className="flex items-center gap-2 min-w-0">
@@ -71,7 +70,7 @@ export function DashboardLayout({
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[#71717a] hover:bg-[#fafafa] transition-colors"
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[#71717a] hover:bg-surface transition-colors"
         >
           {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
         </button>
@@ -113,5 +112,4 @@ export function DashboardLayout({
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const __DASHBOARD_LAYOUT_TOKENS__ = tokens;
+ 

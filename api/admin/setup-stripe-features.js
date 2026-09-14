@@ -27,17 +27,14 @@ const supabase = createClient(
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
 
 const FEATURE_DEFINITIONS = [
-  { key: 'brand_editor', name: 'Éditeur de ton de marque' },
   { key: 'guardrails', name: 'Garde-fous & règles métier' },
   { key: 'simulator', name: 'Simulateur de conversation' },
-  { key: 'voice_agent', name: 'Agent vocal IA' },
   { key: 'specialized_agents', name: 'Agents IA spécialisés' },
   { key: 'api_webhooks', name: 'API + Webhooks sortants' },
   { key: 'pdf_report', name: 'Rapport PDF mensuel' },
   { key: 'multi_shop', name: 'Multi-boutiques' },
   { key: 'white_label', name: 'White-label' },
   { key: 'roi_dashboard_full', name: 'Dashboard ROI complet' },
-  { key: 'voice_minutes_200', name: '200 minutes d\'appel vocal incluses' },
   { key: 'workflows_unlimited', name: 'Workflows illimités' },
   { key: 'integrations_unlimited', name: 'Intégrations illimitées' },
 ]

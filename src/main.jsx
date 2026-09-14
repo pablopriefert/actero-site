@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.jsx'
 import { initTheme } from './lib/theme'
 import { initAnalytics } from './lib/analytics'
+import { memoriserCodeCampagne } from './lib/campagne'
 
 // Apply stored / system theme before React mounts to avoid flash of wrong theme
 initTheme()
@@ -38,7 +39,8 @@ if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
       /Acquiring an exclusive Navigator LockManager lock/i,
       // User navigated away / iOS aborted fetch or media play — not actionable.
       'AbortError',
-      // Stale bundle after a deploy — ErrorBoundary auto-reloads once per session.
+      // Morceau de code périmé après un déploiement — ErrorBoundary recharge
+      // la page une fois par morceau (voir src/components/ErrorBoundary.jsx).
       /Failed to fetch dynamically imported module/i,
       /Importing a module script failed/i,
     ],
@@ -50,6 +52,11 @@ if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
 // Initialize Amplitude Analytics + Session Replay (client-side only, once per lifecycle).
 // Canonical init path lives in src/lib/analytics.ts — this call just wires it up.
 initAnalytics()
+
+// Mémoriser un éventuel code de campagne AVANT toute navigation : la
+// redirection vers Google perd la chaîne de requête, et le marchand revient
+// sur /auth/callback sans le code (ACT-33).
+memoriserCodeCampagne()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

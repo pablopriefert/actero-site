@@ -108,7 +108,7 @@ export const PartnersLandingPage = ({ onNavigate }) => {
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626] selection:bg-indigo-500/20 selection:text-[#262626]">
         <div className="fixed inset-0 z-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#F9F7F1] to-white" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FFFFFF] to-white" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-indigo-500/5 rounded-full blur-[120px]" />
           <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-violet-500/5 rounded-full blur-[100px]" />
         </div>

@@ -1,6 +1,6 @@
 ---
 title: "Playbooks"
-description: "Les automatisations pré-construites de ton agent : SAV e-commerce, relance panier, comptabilité, vocal."
+description: "Les automatisations pré-construites de ton agent : SAV e-commerce, relance panier, comptabilité."
 ---
 
 Un **playbook** est une automatisation prête à l'emploi qui combine un déclencheur (message reçu, panier abandonné, facture en retard…) et une suite d'actions (classification, génération, envoi, escalade). Tu actives ce dont tu as besoin, tu choisis tes canaux, l'agent travaille en continu.
@@ -18,9 +18,6 @@ Tu trouves la liste dans le dashboard sous **Mon Agent → Automatisation**.
   </Card>
   <Card title="Comptabilité automatisée" icon="calculator">
     Relances de factures, exports comptables, alertes de trésorerie. Connecté à Axonaut, Pennylane ou iPaidThat.
-  </Card>
-  <Card title="Agent vocal" icon="phone">
-    Un agent téléphonique IA qui répond aux questions par la voix. Voir [Agent Vocal](/agent/agent-vocal).
   </Card>
 </CardGroup>
 
@@ -83,14 +80,6 @@ Automatise tes relances clients et tes alertes de trésorerie.
 
 L'agent tourne chaque nuit (cron `accounting-daily`) et envoie ses relances le matin.
 
-## Agent vocal (`agent_vocal`)
-
-<Note type="warning">
-L'agent vocal est en accès anticipé. Voir [Agent Vocal](/agent/agent-vocal) pour t'inscrire à la liste d'attente.
-</Note>
-
-Un agent téléphonique IA qui répond aux appels via un widget vocal sur ton site Shopify, ou via un numéro de téléphone dédié (à venir).
-
 ## Activer un playbook
 
 <Steps>
@@ -144,9 +133,6 @@ Les playbooks sont **standardisés** aujourd'hui. La customisation profonde (mod
   </Accordion>
   <Accordion title="Comment savoir si un playbook a bien tourné ?">
     Va dans **Activité → Historique des runs**. Chaque run affiche le playbook utilisé, le statut (`ok` / `escalated` / `error`), et le détail de la réponse.
-  </Accordion>
-  <Accordion title="L'agent vocal compte-t-il dans la limite de playbooks ?">
-    Oui. Sur Free (1 playbook actif), tu dois choisir entre SAV et vocal. Sur Pro, tu peux tout activer.
   </Accordion>
 </AccordionGroup>
 

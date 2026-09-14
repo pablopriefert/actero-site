@@ -81,6 +81,11 @@ async function handler(req, res) {
 
     // Fetch user/site info to display in the dashboard
     let siteName = null
+    // L'identifiant du site, et pas seulement son nom : c'est LUI que l'API
+    // commandes exige (/v2/sites/{site_id}/orders). On ne gardait que le nom,
+    // donc webflow-client.js devait le re-résoudre à chaque connexion
+    // existante. Le stocker ici évite cet aller-retour.
+    let siteId = null
     try {
       const sitesRes = await fetch('https://api.webflow.com/v2/sites', {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -88,8 +93,9 @@ async function handler(req, res) {
       const sitesData = await sitesRes.json()
       if (sitesData?.sites?.[0]) {
         siteName = sitesData.sites[0].displayName || sitesData.sites[0].shortName
+        siteId = sitesData.sites[0].id || null
       }
-    } catch { /* non-critical */ }
+    } catch { /* non-critical — webflow-client.js sait résoudre le site_id */ }
 
     // Store the integration
     const { error: upsertErr } = await supabase
@@ -103,6 +109,7 @@ async function handler(req, res) {
         api_key: encryptToken(accessToken),
         extra_config: {
           site_name: siteName,
+          site_id: siteId,
           connected_at: new Date().toISOString(),
           token_type: 'bearer',
         },

@@ -1,6 +1,8 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { encryptToken } from '../lib/crypto.js';
+import nodemailer from 'nodemailer';
+import { ImapFlow } from 'imapflow';
 
 const PROVIDER_TEST_ENDPOINTS = {
   gorgias: {
@@ -59,7 +61,58 @@ const PROVIDER_TEST_ENDPOINTS = {
   },
 };
 
+/**
+ * Vérifie un couple SMTP/IMAP avant de l'enregistrer.
+ *
+ * Les deux sens sont testés séparément parce qu'ils échouent pour des raisons
+ * différentes — un mot de passe d'application Gmail valide en SMTP peut être
+ * refusé en IMAP si l'accès IMAP n'est pas activé dans la boîte. Dire lequel
+ * des deux a échoué évite au marchand de tout re-saisir à l'aveugle.
+ *
+ * Les délais sont courts : cette route tourne en serverless, et un hôte
+ * injoignable ne doit pas consommer tout le budget d'exécution.
+ */
+async function testSmtpImap(c) {
+  const password = c.api_key;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: c.smtp_host,
+      port: parseInt(c.smtp_port, 10) || 587,
+      secure: (parseInt(c.smtp_port, 10) || 587) === 465,
+      auth: { user: c.username, pass: password },
+      connectionTimeout: 8_000,
+      greetingTimeout: 5_000,
+      socketTimeout: 10_000,
+    });
+    await transporter.verify();
+  } catch (err) {
+    return { ok: false, message: `SMTP (envoi) : ${err.message}` };
+  }
+
+  const imap = new ImapFlow({
+    host: c.imap_host,
+    port: parseInt(c.imap_port, 10) || 993,
+    secure: c.use_ssl !== false,
+    auth: { user: c.username, pass: password },
+    logger: false,
+    connectionTimeout: 8_000,
+    greetingTimeout: 5_000,
+    socketTimeout: 10_000,
+  });
+  try {
+    await imap.connect();
+    return { ok: true, message: 'Connexion SMTP et IMAP réussies' };
+  } catch (err) {
+    return { ok: false, message: `IMAP (réception) : ${err.message}` };
+  } finally {
+    try { await imap.logout(); } catch { /* déjà fermé */ }
+  }
+}
+
 async function testProvider(provider, credentials) {
+  if (provider === 'smtp_imap') return testSmtpImap(credentials);
+
   const config = PROVIDER_TEST_ENDPOINTS[provider];
   if (!config) return { ok: true, message: 'Pas de test disponible pour ce provider' };
 
@@ -109,7 +162,7 @@ async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser(token);
   if (authError || !user) return res.status(401).json({ error: 'Non authentifié' });
 
-  const { provider, provider_label, credentials } = req.body;
+  const { provider, provider_label, auth_type, credentials } = req.body;
   if (!provider || !credentials) {
     return res.status(400).json({ error: 'Provider et credentials requis' });
   }
@@ -141,13 +194,22 @@ async function handler(req, res) {
     const extraConfig = { ...credentials };
     delete extraConfig.api_key;
 
+    // Les ports arrivent du formulaire en chaînes ; les lecteurs (email-poller,
+    // executor, escalation) les repassent en entier à chaque usage. On normalise
+    // une fois ici pour que la ligne en base soit exploitable telle quelle.
+    if (provider === 'smtp_imap') {
+      extraConfig.smtp_port = parseInt(extraConfig.smtp_port, 10) || 587;
+      extraConfig.imap_port = parseInt(extraConfig.imap_port, 10) || 993;
+      extraConfig.use_ssl = extraConfig.use_ssl !== false;
+    }
+
     const { data, error } = await supabase
       .from('client_integrations')
       .upsert({
         client_id: clientId,
         provider,
         provider_label: provider_label || provider,
-        auth_type: 'api_key',
+        auth_type: auth_type || 'api_key',
         api_key: apiKey ? encryptToken(apiKey) : null,
         extra_config: Object.keys(extraConfig).length > 0 ? extraConfig : {},
         status: 'active',

@@ -1,4 +1,5 @@
 import { withSentry } from '../lib/sentry.js'
+import { requireClientAccess } from '../lib/tenant-guard.js';
 import { chatComplete } from '../lib/llm.js'
 import { createClient } from '@supabase/supabase-js';
 
@@ -16,6 +17,12 @@ async function handler(req, res) {
   if (authError || !user) return res.status(401).json({ error: 'Non autorise' });
 
   const { message, client_id, customer_name } = req.body;
+
+  // Le client_id est optionnel ici (attribution du journal), mais s'il est
+  // fourni il doit appartenir à l'appelant : cette route passe en service_role,
+  // donc RLS ne filtre rien (ACT-24).
+  if (client_id && !(await requireClientAccess(supabase, { user, clientId: client_id, res }))) return;
+
   if (!message) return res.status(400).json({ error: 'Missing message' });
 
   try {
@@ -29,6 +36,8 @@ async function handler(req, res) {
 }`,
       messages: [{ role: 'user', content: message }],
       maxTokens: 200,
+      // Classification courte : le tier rapide suffit.
+      tier: 'fast',
       json: true,
     });
 

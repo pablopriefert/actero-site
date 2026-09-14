@@ -78,13 +78,13 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
           return (
             <div
               key={col.id}
-              className="rounded-3xl border border-[#f0f0f0] bg-[#ffffff]/50 p-4 flex flex-col gap-4 shadow-inner min-h-[60vh]"
+              className="rounded-3xl border border-[#f0f0f0] bg-surface/50 p-4 flex flex-col gap-4 shadow-inner min-h-[60vh]"
             >
               <div className="flex items-center justify-between mb-2 px-2">
                 <h3 className="font-bold text-[#1a1a1a] text-[13px] tracking-widest uppercase">
                   {col.title}
                 </h3>
-                <span className="bg-[#fafafa] text-[#71717a] px-2.5 py-0.5 rounded-full text-[12px] font-bold">
+                <span className="bg-surface text-[#71717a] px-2.5 py-0.5 rounded-full text-[12px] font-bold">
                   {columnTasks.length}
                 </span>
               </div>
@@ -99,7 +99,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
                   <motion.div
                     layoutId={req.id}
                     key={req.id}
-                    className={`bg-[#ffffff] border ${col.color} p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow group ${isUpdating ? 'opacity-50 pointer-events-none' : ''}`}
+                    className={`bg-surface border ${col.color} p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow group ${isUpdating ? 'opacity-50 pointer-events-none' : ''}`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span
@@ -115,7 +115,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
                         )}
                         <button
                           onClick={() => setDetail(req)}
-                          className="p-1 rounded hover:bg-[#fafafa] text-[#71717a] hover:text-[#1a1a1a] transition-colors"
+                          className="p-1 rounded hover:bg-surface text-[#71717a] hover:text-[#1a1a1a] transition-colors"
                           title="Voir détails"
                         >
                           <Eye className="w-3.5 h-3.5" />
@@ -134,7 +134,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
                       {canGoLeft && (
                         <button
                           onClick={() => updateStatus(req.id, COLUMNS[currentColIdx - 1].statusValue)}
-                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-[#fafafa] hover:bg-[#fafafa] text-[#71717a] hover:text-[#1a1a1a] text-[11px] font-medium transition-all border border-[#f0f0f0]"
+                          className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-surface hover:bg-surface text-[#71717a] hover:text-[#1a1a1a] text-[11px] font-medium transition-all border border-[#f0f0f0]"
                         >
                           <ChevronLeft className="w-3.5 h-3.5" />
                           {COLUMNS[currentColIdx - 1].title.split(' ')[0]}
@@ -166,7 +166,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
 
                     <div className="flex items-center justify-between border-t border-[#f0f0f0] pt-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-[#fafafa] flex items-center justify-center text-[10px] font-bold text-[#1a1a1a] uppercase">
+                        <div className="w-6 h-6 rounded bg-surface flex items-center justify-center text-[10px] font-bold text-[#1a1a1a] uppercase">
                           {req.clients?.brand_name?.charAt(0) || "?"}
                         </div>
                         <span className="text-[12px] font-bold text-[#71717a] truncate max-w-[100px]">
@@ -208,11 +208,11 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
+              className="bg-surface border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[15px] font-bold text-[#1a1a1a]">{detail.title || 'Demande'}</h3>
-                <button onClick={() => setDetail(null)} className="p-1 hover:bg-[#fafafa] rounded-lg transition-colors">
+                <button onClick={() => setDetail(null)} className="p-1 hover:bg-surface rounded-lg transition-colors">
                   <X className="w-5 h-5 text-[#71717a]" />
                 </button>
               </div>
@@ -250,7 +250,7 @@ export const AdminKanbanBoard = ({ requests, onRefresh }) => {
                       {idx > 0 && (
                         <button
                           onClick={() => { updateStatus(detail.id, COLUMNS[idx - 1].statusValue); setDetail(null) }}
-                          className="flex-1 px-3 py-2 rounded-lg bg-[#fafafa] hover:bg-[#fafafa] text-[#71717a] text-[13px] font-medium transition-all border border-[#f0f0f0]"
+                          className="flex-1 px-3 py-2 rounded-lg bg-surface hover:bg-surface text-[#71717a] text-[13px] font-medium transition-all border border-[#f0f0f0]"
                         >
                           ← {COLUMNS[idx - 1].title}
                         </button>

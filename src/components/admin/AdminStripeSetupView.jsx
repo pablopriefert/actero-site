@@ -94,7 +94,7 @@ export function AdminStripeSetupView() {
               {ENV_VARS.map((v) => (
                 <div key={v.key} className="flex items-center justify-between py-2 border-b border-[#f0f0f0] last:border-0">
                   <div className="flex items-center gap-2">
-                    <code className="text-[12px] font-mono bg-[#fafafa] px-2 py-0.5 rounded">{v.label}</code>
+                    <code className="text-[12px] font-mono bg-surface px-2 py-0.5 rounded">{v.label}</code>
                   </div>
                   {status[v.key] ? (
                     <StatusPill variant="success" icon={Check}>Configuree</StatusPill>
@@ -126,7 +126,7 @@ export function AdminStripeSetupView() {
           <div className="border border-[#f0f0f0] rounded-xl overflow-hidden mb-4">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-[#fafafa] border-b border-[#f0f0f0]">
+                <tr className="bg-surface border-b border-[#f0f0f0]">
                   <th className="px-4 py-2.5 text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Produit</th>
                   <th className="px-4 py-2.5 text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Mensuel</th>
                   <th className="px-4 py-2.5 text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Annuel</th>
@@ -181,7 +181,7 @@ export function AdminStripeSetupView() {
           {result && (
             <div className="mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
               <p className="text-[13px] font-semibold text-emerald-700 mb-1">
-                {result.status === 'already_exists' ? 'Produits deja crees' : 'Produits crees avec succes'}
+                {result.status === 'already_exists' ? 'Produits déjà crees' : 'Produits crees avec succès'}
               </p>
               <p className="text-[12px] text-emerald-600 mb-4">
                 Copiez ces Price IDs dans vos variables d'environnement Vercel :
@@ -212,11 +212,11 @@ export function AdminStripeSetupView() {
         </SectionCard>
 
         {/* Env vars reference */}
-        <SectionCard title="Variables d'environnement necessaires" icon={AlertTriangle}>
+        <SectionCard title="Variables d'environnement nécessaires" icon={AlertTriangle}>
           <div className="space-y-3">
             {ENV_VARS.map((v) => (
               <div key={v.key} className="flex items-start gap-3">
-                <code className="text-[11px] font-mono bg-[#fafafa] px-2 py-0.5 rounded flex-shrink-0 mt-0.5">{v.label}</code>
+                <code className="text-[11px] font-mono bg-surface px-2 py-0.5 rounded flex-shrink-0 mt-0.5">{v.label}</code>
                 <span className="text-[12px] text-[#71717a]">{v.description}</span>
               </div>
             ))}

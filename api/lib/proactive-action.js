@@ -6,17 +6,7 @@
  *
  * Reuses the existing SMTP infra from api/escalation/respond.js.
  */
-import Anthropic from '@anthropic-ai/sdk'
-
-const MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-4-5'
-
-let _anthropic = null
-function getAnthropic() {
-  if (_anthropic) return _anthropic
-  if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY missing')
-  _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  return _anthropic
-}
+import { chatComplete } from './llm.js'
 
 /**
  * Compose a proactive email using Claude with the detection context + brand voice.
@@ -90,14 +80,14 @@ RÈGLES :
 Tu renvoies STRICTEMENT un JSON : { "subject": "...", "body": "..." }
 Le body est du texte simple (pas de HTML), avec \\n entre paragraphes.`
 
-  const resp = await getAnthropic().messages.create({
-    model: MODEL,
-    max_tokens: 600,
+  // Passe par l'abstraction partagée, donc par OpenRouter + Sonnet 5. Ce
+  // fichier appelait le SDK Anthropic avec `claude-sonnet-4-5` par défaut —
+  // le modèle explicitement écarté lors de la bascule du 8 septembre.
+  const { text } = await chatComplete({
     system: systemMsg,
     messages: [{ role: 'user', content: prompt + '\n\nRéponds UNIQUEMENT avec le JSON demandé.' }],
+    maxTokens: 600,
   })
-
-  const text = (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('')
   // Extract JSON
   const match = text.match(/\{[\s\S]*\}/)
   if (!match) throw new Error('No JSON in LLM output')

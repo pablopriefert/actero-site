@@ -108,6 +108,50 @@ def _fetch(url: str) -> tuple[str, int]:
     return (resp.text or ""), resp.status_code
 
 
+# --- Contrôle au navigateur -------------------------------------------------
+#
+# Le contrôle statique répond « la balise <script> est-elle dans le HTML ? ».
+# Ce n'est pas la question du marchand. La sienne est « la bulle apparaît-elle
+# sur ma boutique ? », et les deux se séparent dès que quelque chose casse
+# APRÈS le chargement de la page : widget.js qui part en 404, une erreur JS
+# dans le script, une Content-Security-Policy du thème qui bloque le domaine.
+# Dans ces trois cas la balise est bien là — et le client ne voit rien.
+#
+# Playwright n'est installé que si api/jobs/widget-qa.js le demande. S'il
+# manque, si Chromium n'a pas pu s'installer, ou si la page met trop longtemps,
+# on renvoie None et l'appelant garde le verdict statique. Un contrôle dégradé
+# vaut mieux qu'un contrôle absent ; un contrôle qui MENT ne vaut rien.
+
+WIDGET_SELECTOR = "#actero-widget-btn"   # public/widget.js:386
+
+
+def _verifier_au_navigateur(url: str):
+    """La bulle est-elle réellement rendue ? True / False / None (indécidable)."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except Exception:
+        return None
+
+    try:
+        with sync_playwright() as pw:
+            navigateur = pw.chromium.launch(args=["--no-sandbox"])
+            try:
+                page = navigateur.new_page(user_agent=USER_AGENT)
+                page.goto(url, wait_until="domcontentloaded", timeout=30_000)
+                # La bulle s'injecte après le chargement du script : on lui
+                # laisse le temps d'apparaître plutôt que de regarder trop tôt.
+                try:
+                    page.wait_for_selector(WIDGET_SELECTOR, state="attached", timeout=15_000)
+                except Exception:
+                    return False
+                return bool(page.is_visible(WIDGET_SELECTOR))
+            finally:
+                navigateur.close()
+    except Exception as exc:
+        print(f"[widget_qa] contrôle navigateur indisponible : {exc}", file=sys.stderr)
+        return None
+
+
 def _patch_health(health_id: str, fields: dict) -> None:
     fields = dict(fields)
     fields["checked_at"] = datetime.now(timezone.utc).isoformat()
@@ -199,6 +243,16 @@ def main() -> None:
 
     job_progress(80, "Analyse du widget…")
 
+    # La balise est là : reste à savoir si la bulle APPARAÎT. C'est la seule
+    # question qui intéresse le marchand, et le HTML ne peut pas y répondre.
+    methode = "html"
+    if found:
+        job_progress(85, "Vérification du rendu dans un navigateur…")
+        rendu = _verifier_au_navigateur(checked_url)
+        if rendu is not None:
+            methode = "navigateur"
+            visible = rendu
+
     # If we never found it but every fetch errored, surface that as the error.
     error_msg = None
     if not found and last_error:
@@ -222,16 +276,22 @@ def main() -> None:
         )
         return
 
-    summary = (
-        "Widget installé et visible" if (found and visible)
-        else "Widget présent mais désactivé/commenté" if found
-        else "Widget introuvable sur la boutique"
-    )
+    if found and visible:
+        summary = "Bulle présente et affichée"
+    elif found and methode == "navigateur":
+        # Le cas que le contrôle statique ne savait pas voir : la balise est
+        # dans la page, la bulle n'apparaît pas. Script en 404, erreur JS, ou
+        # CSP du thème.
+        summary = "Balise présente mais la bulle ne s’affiche pas"
+    elif found:
+        summary = "Widget présent mais désactivé/commenté"
+    else:
+        summary = "Widget introuvable sur la boutique"
     job_progress(
         100,
         summary,
         final_status="completed",
-        result={"found": found, "visible": visible, "url": checked_url},
+        result={"found": found, "visible": visible, "url": checked_url, "methode": methode},
     )
 
 

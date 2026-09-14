@@ -1,5 +1,5 @@
 import React from 'react'
-import { Euro, Zap, Shield, ShoppingBag, Sparkles, Phone } from 'lucide-react'
+import { Euro, Zap, Shield, ShoppingBag, Sparkles } from 'lucide-react'
 import { AlternativeTemplate } from '../components/alternative/AlternativeTemplate'
 
 /**
@@ -17,14 +17,14 @@ export const AlternativeIntercom = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Intercom Fin pour Shopify — Actero | SAV IA FR',
       description:
-        "Intercom Fin facture 0,99 $ par résolution + 29 $/seat. Actero forfaitise tout dès 99 €/mois — agent IA, vocal, paniers abandonnés inclus, hébergé UE. Migration en 1 jour.",
+        "Intercom Fin facture 0,99 $ par résolution + 29 $/seat. Actero forfaitise tout dès 99 €/mois — agent IA, paniers abandonnés inclus, hébergé UE. Migration en 1 jour.",
       keywords:
         'alternative intercom, intercom fin alternative, intercom vs actero, alternative intercom français, sav ia shopify, helpdesk français rgpd',
     },
 
     hero: {
       subtitle:
-        "Intercom Fin facture 0,99 $ chaque résolution en plus du seat à 29 $. À 5 000 résolutions/mois, la facture dépasse 4 950 $ — sans plafond, imprévisible chaque mois. Actero forfaitise tout — agent IA, vocal, relance panier et dashboard ROI inclus — pour une fraction du prix.",
+        "Intercom Fin facture 0,99 $ chaque résolution en plus du seat à 29 $. À 5 000 résolutions/mois, la facture dépasse 4 950 $ — sans plafond, imprévisible chaque mois. Actero forfaitise tout — agent IA, relance panier et dashboard ROI inclus — pour une fraction du prix.",
     },
 
     comparison: [
@@ -47,11 +47,6 @@ export const AlternativeIntercom = ({ onNavigate }) => {
         label: 'Spécialisation e-commerce Shopify',
         actero: { main: 'Native', sub: 'OAuth + catalogue + commandes' },
         competitor: 'partial',
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
-        competitor: false,
       },
       {
         label: 'Relance panier abandonné conversationnelle',
@@ -96,14 +91,6 @@ export const AlternativeIntercom = ({ onNavigate }) => {
         title: 'Pensé e-commerce, pas SaaS B2B',
         desc:
           "Intercom est conçu pour le SaaS B2B et n'a quasiment aucune action native Shopify — vous bricolez des macros pour chaque cas e-commerce. Actero lit votre catalogue, traite vos commandes, suit les livraisons et déclenche des refunds — tout depuis l'agent, sans macros à coder.",
-      },
-      {
-        icon: Phone,
-        stat: 'Voice',
-        statLabel: 'inclus + numéro FR',
-        title: 'Un agent vocal, pas juste du chat',
-        desc:
-          "Intercom n'a pas de voice agent natif. Actero inclut un agent ElevenLabs avec numéro FR, 200 minutes incluses sur Pro, voix custom sur Enterprise. Vos clients appellent, l'agent répond comme un humain.",
       },
       {
         icon: Shield,

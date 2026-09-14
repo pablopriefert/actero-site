@@ -8,7 +8,7 @@ import {
 import { supabase } from '../../lib/supabase'
 
 const STAGES = [
-  { id: 'draft', label: 'Brouillon', icon: FileText, iconClass: 'text-[#71717a]', bgClass: 'bg-[#fafafa]/10 border-gray-500/20', badgeClass: 'bg-[#fafafa]/10 text-[#71717a]' },
+  { id: 'draft', label: 'Brouillon', icon: FileText, iconClass: 'text-[#71717a]', bgClass: 'bg-surface/10 border-gray-500/20', badgeClass: 'bg-surface/10 text-[#71717a]' },
   { id: 'sent', label: 'Email envoyé', icon: Mail, iconClass: 'text-blue-400', bgClass: 'bg-blue-500/10 border-blue-500/20', badgeClass: 'bg-blue-500/10 text-blue-400' },
   { id: 'paid', label: 'Payé', icon: CreditCard, iconClass: 'text-emerald-500', bgClass: 'bg-emerald-500/10 border-emerald-500/20', badgeClass: 'bg-emerald-500/10 text-emerald-500' },
   { id: 'app_installed', label: 'App installée', icon: Download, iconClass: 'text-violet-400', bgClass: 'bg-violet-500/10 border-violet-500/20', badgeClass: 'bg-violet-500/10 text-violet-400' },
@@ -146,7 +146,7 @@ export const AdminPipelineView = () => {
               </div>
 
               {items.length === 0 ? (
-                <div className="bg-[#ffffff] rounded-xl border border-[#f0f0f0] p-4 text-center">
+                <div className="bg-surface rounded-xl border border-[#f0f0f0] p-4 text-center">
                   <p className="text-[10px] text-[#71717a]">Aucun</p>
                 </div>
               ) : (
@@ -156,7 +156,7 @@ export const AdminPipelineView = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="bg-[#ffffff] rounded-xl border border-[#f0f0f0] p-3 hover:border-gray-300 transition-colors"
+                    className="bg-surface rounded-xl border border-[#f0f0f0] p-3 hover:border-gray-300 transition-colors"
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <User className="w-3 h-3 text-[#71717a]" />

@@ -69,7 +69,7 @@ async function handler(req, res) {
 
     const proProduct = await stripe.products.create({
       name: 'Actero Pro',
-      description: 'Automatisation complète + agent vocal — 5 000 tickets/mois, workflows illimités, toutes intégrations',
+      description: 'Automatisation complète — 5 000 tickets/mois, workflows illimités, toutes intégrations',
       metadata: { actero_plan: 'pro' },
     })
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Euro, Languages, Shield, Zap, Phone, ShoppingBag } from 'lucide-react'
+import { Euro, Languages, Shield, Zap, ShoppingBag } from 'lucide-react'
 import { AlternativeTemplate } from '../components/alternative/AlternativeTemplate'
 
 /**
@@ -16,14 +16,14 @@ export const AlternativeSiena = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Siena AI pour e-commerce FR — Actero | SAV IA',
       description:
-        "Siena AI demande 750 $/mois plateforme + 0,90 $/ticket et un appel commercial. Actero affiche ses prix, parle français et héberge en UE — agent IA, vocal et relance dès 99 €/mois.",
+        "Siena AI demande 750 $/mois plateforme + 0,90 $/ticket et un appel commercial. Actero affiche ses prix, parle français et héberge en UE — agent IA et relance dès 99 €/mois.",
       keywords:
         'alternative siena, siena ai français, siena vs actero, alternative siena ai shopify, sav ia ecommerce dtc, agent ia français',
     },
 
     hero: {
       subtitle:
-        "Siena AI demande 750 $/mois de platform fee + 0,90 $/ticket et impose un appel commercial avant tout chiffrage. C'est anglophone, US-hosted, sans agent vocal et sans plan Free. Actero affiche ses prix, parle français nativement, héberge en UE et inclut un agent vocal — accessible en 1 clic dès aujourd'hui.",
+        "Siena AI demande 750 $/mois de platform fee + 0,90 $/ticket et impose un appel commercial avant tout chiffrage. C'est anglophone, US-hosted, et sans plan Free. Actero affiche ses prix, parle français nativement et héberge en UE — accessible en 1 clic dès aujourd'hui.",
     },
 
     comparison: [
@@ -45,11 +45,6 @@ export const AlternativeSiena = ({ onNavigate }) => {
       {
         label: 'Interface & support en français',
         actero: true,
-        competitor: false,
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
         competitor: false,
       },
       {
@@ -97,14 +92,6 @@ export const AlternativeSiena = ({ onNavigate }) => {
           "Siena est conçu pour le DTC US (Crocs, Selkie, Eight Sleep). Le ton, les politiques retour, les attentes RGPD sont anglo-saxons. Actero comprend les codes du e-commerce français : tutoiement vs vouvoiement, ton sobre vs casual, conformité légale FR.",
       },
       {
-        icon: Phone,
-        stat: 'Voice',
-        statLabel: 'inclus + numéro FR',
-        title: 'Inbound + outbound téléphonique inclus',
-        desc:
-          "Siena ne fait pas de voice. Actero embarque ElevenLabs avec un numéro FR offert, 200 min incluses sur Pro, voix de marque sur Enterprise. Vos clients qui préfèrent appeler trouvent un agent qui répond comme un humain.",
-      },
-      {
         icon: Shield,
         stat: 'EU',
         statLabel: 'hébergement souverain',
@@ -123,15 +110,11 @@ export const AlternativeSiena = ({ onNavigate }) => {
       },
       {
         q: 'Quelle différence d\'architecture entre Siena et Actero ?',
-        a: "Les deux sont des plateformes d'agents autonomes pour le e-commerce avec actions Shopify. Siena est plus mature sur Instagram DM ; Actero est plus mature sur la voix (ElevenLabs natif), la conformité EU, et inclut un agent vocal dans tous les plans payants.",
+        a: "Les deux sont des plateformes d'agents autonomes pour le e-commerce avec actions Shopify. Siena est plus mature sur Instagram DM ; Actero est plus mature sur la conformité EU (hébergement UE, DPA signable dès le plan Free, opt-out TDM par défaut).",
       },
       {
         q: 'Pourquoi Siena ne publie pas ses prix ?',
         a: "Siena pratique le sales-led pricing (modulé selon volume et stack). Cela rallonge le cycle d'achat (3-6 semaines de négociation typique). Actero applique le product-led pricing : prix affichés, plan Free permanent, inscription auto-service en 1 minute.",
-      },
-      {
-        q: 'Que vaut l\'agent vocal Actero face à Siena ?',
-        a: "Siena n'a pas d'agent vocal SAV intégré. Actero embarque ElevenLabs avec numéro FR, latence < 800 ms, voix premium de marque sur Enterprise. C'est un avantage net si vos clients téléphonent encore — fréquent en France et en Italie.",
       },
     ],
 

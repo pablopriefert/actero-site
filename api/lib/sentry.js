@@ -69,36 +69,41 @@ export function withSentry(handler) {
     // record a Sentry event and flush BEFORE handing the response back to the
     // runtime. A `pending` guard prevents re-entrancy, and the flush is capped
     // at 2s so a jammed transport never blocks the response.
-    const origEnd = res.end.bind(res)
-    let pending = false
-    res.end = (...args) => {
-      if (pending) return origEnd(...args)
-      pending = true
-      try {
-        if (res.statusCode >= 500) {
-          Sentry.withScope((scope) => {
-            scope.setLevel('error')
-            scope.setTag('endpoint', req.url || 'unknown')
-            scope.setTag('method', req.method || 'unknown')
-            scope.setTag('status_code', String(res.statusCode))
-            // Only emit a synthetic event if the handler swallowed the error
-            // itself (no exception propagated to capture below). The thrown
-            // path already calls captureException with the real stack.
-            if (!res.__sentryCaptured) {
-              Sentry.captureMessage(
-                `HTTP ${res.statusCode} ${req.method || ''} ${req.url || 'unknown'}`,
-              )
-            }
-          })
+    // In production `res` is a Node ServerResponse (always has `.end`). Guard
+    // against mocked/non-standard `res` objects (e.g. unit-test doubles) so the
+    // wrapper itself never throws — behaviour in production is unchanged.
+    if (typeof res.end === 'function') {
+      const origEnd = res.end.bind(res)
+      let pending = false
+      res.end = (...args) => {
+        if (pending) return origEnd(...args)
+        pending = true
+        try {
+          if (res.statusCode >= 500) {
+            Sentry.withScope((scope) => {
+              scope.setLevel('error')
+              scope.setTag('endpoint', req.url || 'unknown')
+              scope.setTag('method', req.method || 'unknown')
+              scope.setTag('status_code', String(res.statusCode))
+              // Only emit a synthetic event if the handler swallowed the error
+              // itself (no exception propagated to capture below). The thrown
+              // path already calls captureException with the real stack.
+              if (!res.__sentryCaptured) {
+                Sentry.captureMessage(
+                  `HTTP ${res.statusCode} ${req.method || ''} ${req.url || 'unknown'}`,
+                )
+              }
+            })
+          }
+        } catch {
+          // Never let error-reporting crash the real response
         }
-      } catch {
-        // Never let error-reporting crash the real response
+        // Not awaited — let origEnd fire after flush resolves (or times out).
+        Sentry.flush(2000)
+          .catch(() => {})
+          .finally(() => origEnd(...args))
+        return res
       }
-      // Not awaited — let origEnd fire after flush resolves (or times out).
-      Sentry.flush(2000)
-        .catch(() => {})
-        .finally(() => origEnd(...args))
-      return res
     }
 
     try {

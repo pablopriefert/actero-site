@@ -1,3 +1,5 @@
+import { SHOPIFY_API_VERSION } from '../../lib/shopify-api-version.js'
+
 export async function listOrdersByCustomerEmail({ shopDomain, accessToken, email }) {
   const query = `query($q: String!) {
     orders(first: 20, query: $q, sortKey: CREATED_AT, reverse: true) {
@@ -8,7 +10,7 @@ export async function listOrdersByCustomerEmail({ shopDomain, accessToken, email
       }
     }
   }`;
-  const r = await fetch(`https://${shopDomain}/admin/api/2025-01/graphql.json`, {
+  const r = await fetch(`https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
     method: 'POST',
     headers: { 'X-Shopify-Access-Token': accessToken, 'content-type': 'application/json' },
     body: JSON.stringify({ query, variables: { q: `email:${email}` } }),

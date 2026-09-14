@@ -1,10 +1,11 @@
 import { withSentry } from '../lib/sentry.js'
 import { getServiceRoleClient } from './lib/supabase.js';
 import { requirePortalSession } from './lib/session.js';
+import { decryptToken } from '../lib/crypto.js';
+import { SHOPIFY_API_VERSION } from '../lib/shopify-api-version.js'
 
 // Shopify GraphQL Admin API — required by App Store policy 2.2.4 for all
 // non-Theme/Asset endpoints in new public apps.
-const GRAPHQL_API_VERSION = '2025-01';
 
 const ORDER_BY_NAME_QUERY = `
   query OrderByName($query: String!) {
@@ -25,7 +26,7 @@ const SEND_INVOICE_MUTATION = `
 
 async function shopifyGraphql(shopDomain, token, query, variables) {
   const resp = await fetch(
-    `https://${shopDomain}/admin/api/${GRAPHQL_API_VERSION}/graphql.json`,
+    `https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`,
     {
       method: 'POST',
       headers: {
@@ -74,11 +75,14 @@ async function handler(req, res) {
   }
 
   const shopDomain = integ.extra_config?.shop_domain;
+  // Le token est stocké chiffré ; les valeurs antérieures au chiffrement
+  // traversent decryptToken telles quelles.
+  const accessToken = decryptToken(integ.access_token) || integ.access_token;
 
   // 1. Resolve order GID from its merchant-facing name (e.g. "#1042").
   const lookup = await shopifyGraphql(
     shopDomain,
-    integ.access_token,
+    accessToken,
     ORDER_BY_NAME_QUERY,
     { query: `name:${orderName}` },
   );
@@ -91,7 +95,7 @@ async function handler(req, res) {
   // 2. Trigger Shopify's native invoice email to the portal user.
   const send = await shopifyGraphql(
     shopDomain,
-    integ.access_token,
+    accessToken,
     SEND_INVOICE_MUTATION,
     {
       id: orderId,

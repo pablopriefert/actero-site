@@ -8,9 +8,14 @@
  * URL: https://actero.fr/api/engine/webhooks/gorgias?client_id=UUID
  */
 import { withSentry } from '../../lib/sentry.js'
+import { decryptToken } from '../../lib/crypto.js'
 import crypto from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
-import { processMessage } from '../process.js'
+import { normalizeEvent } from '../lib/normalizer.js'
+import { loadPlaybook } from '../lib/playbook-loader.js'
+import { runBrain } from '../brain.js'
+import { runExecutor } from '../executor.js'
+import { logRun } from '../logger.js'
 import { uploadToStorage } from '../../vision/lib/ingress.js'
 
 // Constant-time secret comparison to prevent timing-attack token recovery.
@@ -40,17 +45,22 @@ async function handler(req, res) {
   if (!providedSecret) return res.status(401).json({ error: 'Missing webhook secret' })
 
   // Per-client secret — chaque Gorgias OAuth install génère un secret de
-  // 32 bytes stocké dans client_integrations.extra_config.webhook_secret.
-  // Fallback sur GORGIAS_WEBHOOK_SECRET pour les setups legacy.
+  // 32 octets, stockés chiffrés dans client_integrations.webhook_secret_encrypted
+  // (ACT-25 — ils vivaient dans extra_config, que le navigateur peut lire).
+  // Repli sur GORGIAS_WEBHOOK_SECRET pour les installations historiques.
   const { data: integ } = await supabase
     .from('client_integrations')
-    .select('extra_config')
+    .select('extra_config, webhook_secret_encrypted')
     .eq('client_id', clientId)
     .eq('provider', 'gorgias')
     .eq('status', 'active')
     .maybeSingle()
 
-  const expectedSecret = integ?.extra_config?.webhook_secret
+  // Le secret vit dans sa propre colonne, chiffrée et fermée au navigateur.
+  // Le repli sur extra_config couvre les lignes écrites avant ACT-25 ;
+  // decryptToken laisse passer une valeur encore en clair.
+  const expectedSecret = decryptToken(integ?.webhook_secret_encrypted)
+    || integ?.extra_config?.webhook_secret
     || process.env.GORGIAS_WEBHOOK_SECRET
   if (!expectedSecret || !timingSafeEqStr(providedSecret, expectedSecret)) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -155,25 +165,136 @@ async function handler(req, res) {
     console.warn('[engine/webhooks/gorgias] image upload failed (non-fatal):', err.message)
   }
 
-  // Process
+  // Process via le pipeline V2 (Brain -> Executor -> Logger), comme le widget
+  // et l'email entrant : classification, routage vers un agent spécialisé,
+  // garde-fous d'escalade (references inventees, demande d'humain...).
+  //
+  // On réutilise normalizeGorgias (api/engine/lib/normalizer.js) — écrit et
+  // enregistré pour cette source mais encore jamais invoqué — sur l'event
+  // brut Gorgias. Il ne couvre que la forme "ticket complet"
+  // (payload.ticket.messages[...]) ; le parsing défensif ci-dessus gère en
+  // plus la forme "message seul" (event.message), l'agent-reply skip et le
+  // nettoyage HTML. On écrase donc les champs du normalisé avec cette
+  // extraction déjà validée — même pattern que webhooks/widget.js qui
+  // surcharge `normalized.first_message` / `normalized.customer_email`
+  // après coup.
   try {
-    const result = await processMessage(supabase, {
-      messageId: engineMessage.id,
-      clientId,
+    const normalized = normalizeEvent('ticket_gorgias', event)
+    normalized.customer_email = customerEmail
+    normalized.customer_name = customerName
+    normalized.subject = subject
+    normalized.message = cleanMessage
+    normalized.ticket_id = ticketId
+    normalized.images = uploadedImages
+
+    const playbook = await loadPlaybook(supabase, clientId, 'ticket_gorgias')
+    if (!playbook) {
+      return res.status(200).json({ message_id: engineMessage.id, status: 'no_playbook' })
+    }
+
+    const { data: engineEvent } = await supabase.from('engine_events').insert({
+      client_id: clientId,
+      event_type: 'ticket_gorgias',
       source: 'gorgias',
-      customerEmail,
-      customerName,
-      subject,
-      messageBody: cleanMessage,
-      externalTicketId: ticketId,
-      metadata: { gorgias_event_type: eventType },
-      images: uploadedImages,
+      payload: { ticket_id: ticketId, subject, message: cleanMessage, gorgias_event_type: eventType },
+      normalized,
+      playbook_id: playbook.id,
+      status: 'processing',
+    }).select().single()
+
+    const startTime = Date.now()
+
+    const brainResult = await runBrain(supabase, {
+      event: engineEvent || { id: engineMessage.id, source: 'gorgias' },
+      playbook,
+      clientId,
+      normalized,
     })
+
+    let executorResult = { success: true, steps: [], error: null }
+
+    if (!brainResult.needsReview) {
+      executorResult = await runExecutor(supabase, {
+        event: engineEvent || engineMessage,
+        playbook,
+        clientId,
+        normalized,
+        brainResult,
+      })
+
+      await logRun(supabase, {
+        clientId,
+        eventId: engineEvent?.id,
+        playbookId: playbook.id,
+        status: executorResult.success ? 'completed' : 'failed',
+        classification: brainResult.classification,
+        confidence: brainResult.confidence,
+        actionPlan: brainResult.actionPlan,
+        steps: executorResult.steps,
+        durationMs: Date.now() - startTime,
+        error: executorResult.error,
+        normalized,
+        aiResponse: brainResult.aiResponse,
+        agentUsed: brainResult.agentUsed || null,
+        tokensIn: brainResult.usage?.tokensIn,
+        tokensOut: brainResult.usage?.tokensOut,
+        costUsd: brainResult.usage?.costUsd,
+        modelId: brainResult.usage?.modelId,
+        errorMessage: executorResult.success
+          ? null
+          : (typeof executorResult.error === 'string'
+              ? executorResult.error
+              : executorResult.error?.message || null),
+      })
+
+      if (engineEvent) {
+        await supabase.from('engine_events').update({ status: 'completed', processed_at: new Date().toISOString() }).eq('id', engineEvent.id)
+      }
+    } else {
+      const runResult = await logRun(supabase, {
+        clientId,
+        eventId: engineEvent?.id,
+        playbookId: playbook.id,
+        status: 'needs_review',
+        classification: brainResult.classification,
+        confidence: brainResult.confidence,
+        actionPlan: brainResult.actionPlan,
+        steps: [],
+        durationMs: Date.now() - startTime,
+        normalized,
+        aiResponse: brainResult.aiResponse,
+        agentUsed: brainResult.agentUsed || null,
+        tokensIn: brainResult.usage?.tokensIn,
+        tokensOut: brainResult.usage?.tokensOut,
+        costUsd: brainResult.usage?.costUsd,
+        modelId: brainResult.usage?.modelId,
+        errorMessage: brainResult.errorMessage || null,
+      })
+
+      if (runResult?.id) {
+        try {
+          await supabase.from('engine_reviews_v2').insert({
+            run_id: runResult.id,
+            client_id: clientId,
+            event_id: engineEvent?.id,
+            proposed_action: { classification: brainResult.classification, action_plan: brainResult.actionPlan, ai_response: brainResult.aiResponse },
+            reason: brainResult.reviewReason || 'aggressive',
+            status: 'pending',
+          })
+        } catch (err) {
+          console.error('[engine/webhooks/gorgias] engine_reviews_v2 insert error:', err.message)
+        }
+      }
+
+      if (engineEvent) {
+        await supabase.from('engine_events').update({ status: 'needs_review', processed_at: new Date().toISOString() }).eq('id', engineEvent.id)
+      }
+    }
 
     return res.status(200).json({
       message_id: engineMessage.id,
-      status: result.escalated ? 'escalated' : 'processed',
-      confidence: result.confidence,
+      status: brainResult.needsReview ? 'escalated' : (executorResult.success ? 'processed' : 'failed'),
+      confidence: brainResult.confidence,
     })
   } catch (err) {
     console.error('[engine/webhooks/gorgias] Processing error:', err)

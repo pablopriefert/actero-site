@@ -17,6 +17,92 @@ import { runExecutor } from '../executor.js'
 import { logRun } from '../logger.js'
 import { uploadToStorage } from '../../vision/lib/ingress.js'
 import { checkRateLimit, getClientIp } from '../../lib/rate-limit.js'
+import { lookupOrder } from '../lib/shopify-client.js'
+import { notifyClient } from '../../lib/notify.js'
+import { checkTicketQuota } from '../../lib/plan-limits.js'
+import { maybeAlertQuota } from '../../lib/quota-alerts.js'
+
+// Order/tracking classifications that warrant a rich order-status card.
+const ORDER_CARD_CLASSES = ['suivi_commande', 'livraison', 'tracking', 'order_tracking']
+// Return/exchange classifications that warrant a 1-tap action card.
+const RETURN_CARD_CLASSES = ['retour', 'remboursement', 'echange', 'return', 'refund']
+// The brain often lumps these intents into the coarse "autre" class, so we also
+// detect intent from the message text — cards must key off what the customer
+// actually asked, not only the classifier label.
+const ORDER_INTENT_RE = /\b(commande|colis|livrais|suivi|tracking|exp[ée]di|o[uù]\s+est\b|track)/i
+const RETURN_INTENT_RE = /\b(retour|rembours|[ée]change|renvoyer|rendre|d[ée]fectueux|cass[ée])/i
+
+/**
+ * Build the additive `cards[]` array from the brain result. Backward-compatible:
+ * the widget ignores card types it doesn't know. Order-status uses an isolated
+ * Shopify lookup (order path only) so the core LLM flow is never touched.
+ */
+async function buildCards({ brainResult, clientId, message, email, isTest }) {
+  const cards = []
+
+  // NOTE: product recommendations keep their existing channel
+  // (`product_recommendations`) which the widget already renders — we don't
+  // duplicate them here. `cards[]` carries the NEW card types only.
+
+  const msg = String(message || '')
+
+  // 1. Order-status card for WISMO/tracking questions. Self-gating: only added
+  //    if a real order is actually found.
+  // Also fire on a bare order-number (e.g. after the guided "track my order"
+  // prompt the customer just types "#1234"). Self-gating: no order found → no card.
+  // Only treat as an order number when it's an EXPLICIT reference (#1234 or
+  // "commande 1234") — never a bare 4-8 digit number, which misfires on prices,
+  // years or quantities and would surface a *different* customer's order.
+  const explicitOrderRef =
+    /#\s*\d{3,8}\b/.test(msg) ||
+    /\b(?:commande|order|n[°o]|num[ée]ro)\s*#?\s*\d{3,8}\b/i.test(msg)
+  const orderIntent = ORDER_CARD_CLASSES.includes(brainResult.classification) || ORDER_INTENT_RE.test(msg) || explicitOrderRef
+  if (!isTest && orderIntent) {
+    try {
+      const orderId = explicitOrderRef ? ((String(message).match(/#?\s*(\d{3,8})/) || [])[1] || null) : null
+      const orders = await lookupOrder(supabase, { clientId, orderId, customerEmail: email || null })
+      const o = Array.isArray(orders) ? orders[0] : null
+      // Contrôle d'appartenance, seconde ligne. La première vit désormais dans
+      // `lookupOrder` (api/engine/lib/shopify-client.js), qui ne rend plus une
+      // commande cherchée par NUMÉRO à quelqu'un dont on ignore l'email.
+      //
+      // Cette version-ci disait `!email || !o.email || …` : pour un visiteur
+      // anonyme `email` est vide, donc `!email` valait true et la carte
+      // s'affichait — avec le montant, les articles, le transporteur et le
+      // lien de suivi d'un inconnu. La garde ne bloquait que le cas où le
+      // visiteur avait donné un email DIFFÉRENT, c'est-à-dire le seul cas où
+      // il ne cherchait probablement pas à tricher.
+      const ownsOrder = !!o && !!email && !!o.email
+        && String(o.email).trim().toLowerCase() === String(email).trim().toLowerCase()
+      if (o && ownsOrder) {
+        cards.push({
+          type: 'order_status',
+          orderName: o.orderName || null,
+          status: o.fulfillmentStatus || null,
+          items: (o.items || []).slice(0, 4).map((i) => ({ title: i.name, qty: i.quantity })),
+          trackingUrl: o.trackingInfo?.[0]?.trackingUrl || null,
+          carrier: o.trackingInfo?.[0]?.carrier || null,
+        })
+      }
+    } catch (err) {
+      console.error('[widget] order card lookup failed:', err.message)
+    }
+  }
+
+  // 2. Action card for return/exchange intents.
+  const returnIntent = RETURN_CARD_CLASSES.includes(brainResult.classification) || RETURN_INTENT_RE.test(msg)
+  if (returnIntent) {
+    cards.push({
+      type: 'actions',
+      items: [
+        { label: '↩️ Demander un retour', kind: 'return' },
+        { label: '🔁 Faire un échange', kind: 'exchange' },
+      ],
+    })
+  }
+
+  return cards
+}
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -39,7 +125,7 @@ async function handler(req, res) {
   // burn the merchant's ticket quota and our LLM spend. The plan quota caps
   // total damage; this blunts rapid bursts. 20 msgs/min per IP+key.
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`widget:${apiKey}:${ip}`, 20, 60_000)
+  const rl = await checkRateLimit(`widget:${apiKey}:${ip}`, 20, 60_000)
   res.setHeader('X-RateLimit-Limit', '20')
   res.setHeader('X-RateLimit-Remaining', String(rl.remaining))
   if (!rl.allowed) {
@@ -105,7 +191,7 @@ async function handler(req, res) {
   // This limits the blast radius of a leaked client UUID (see fallback above).
   const { data: client } = await supabase
     .from('clients')
-    .select('id, brand_name, client_type, status')
+    .select('id, brand_name, client_type, status, plan, trial_ends_at')
     .eq('id', clientId)
     .maybeSingle()
   if (!client) return res.status(401).json({ error: 'Invalid API key' })
@@ -117,8 +203,105 @@ async function handler(req, res) {
     })
   }
 
-  const { message, email, name, session_id, history, images: widgetImages } = req.body || {}
+  // Coupe-circuit, appliqué CÔTÉ SERVEUR.
+  //
+  // `client_settings.agent_enabled` existait déjà et n'était lu que par
+  // widget-config.js, c'est-à-dire par le navigateur : le widget se cachait,
+  // mais cet endpoint continuait de répondre. Un marchand qui coupait son agent
+  // parce qu'il disait n'importe quoi voyait le bouton disparaître pendant que
+  // l'IA répondait toujours aux pages déjà ouvertes, au cache, et à tout appel
+  // direct.
+  //
+  // Un coupe-circuit qui ne coupe rien est pire qu'aucun coupe-circuit : on
+  // croit le problème arrêté. Le pendant email (`email_agent_enabled`) est,
+  // lui, bien vérifié côté serveur dans api/lib/email.js.
+  //
+  // On ne bloque que si le drapeau vaut explicitement false — une valeur
+  // absente reste un agent actif, comme partout ailleurs dans le code.
+  const { data: reglages } = await supabase
+    .from('client_settings')
+    .select('agent_enabled')
+    .eq('client_id', clientId)
+    .maybeSingle()
+
+  if (reglages?.agent_enabled === false) {
+    console.warn(`[widget] agent désactivé par le marchand — client ${clientId}`)
+    return res.status(200).json({
+      agent_disabled: true,
+      response: 'Notre assistant est momentanément indisponible. Un membre de notre équipe vous répondra dans les meilleurs délais.',
+    })
+  }
+
+  const { message, email, name, session_id, history, images: widgetImages, handoff, feedback, rating, comment } = req.body || {}
+
+  // ── CSAT feedback (no LLM, no message needed) ──
+  if (feedback === true) {
+    if (rating !== 'up' && rating !== 'down') return res.status(400).json({ error: 'invalid rating' })
+    try {
+      await supabase.from('conversation_feedback').insert({
+        client_id: clientId,
+        session_id: session_id || null,
+        rating,
+        comment: (typeof comment === 'string' && comment.trim()) ? comment.trim().slice(0, 500) : null,
+      })
+    } catch (e) { console.warn('[widget] feedback insert failed:', e?.message) }
+    return res.status(200).json({ ok: true })
+  }
+
+  // ── Human handoff (no LLM) — escalate + notify the merchant ──
+  if (handoff === true) {
+    const contactEmail = (typeof email === 'string' && email.trim()) ? email.trim().slice(0, 200) : null
+    try {
+      await supabase.from('engine_reviews_v2').insert({
+        client_id: clientId,
+        reason: 'human_requested',
+        status: 'pending',
+        proposed_action: {
+          source: 'web_widget',
+          session_id: session_id || null,
+          customer_email: contactEmail,
+          customer_name: name || null,
+        },
+      })
+    } catch (e) { console.warn('[widget] handoff review insert failed:', e?.message) }
+    try {
+      await notifyClient(supabase, {
+        clientId,
+        eventKey: 'human_handoff',
+        title: 'Un client demande un humain',
+        message: contactEmail
+          ? `Mise en relation demandée depuis la bulle SAV (email : ${contactEmail})`
+          : 'Mise en relation demandée depuis la bulle SAV',
+        context: { session_id: session_id || null, email: contactEmail },
+      })
+    } catch (e) { console.warn('[widget] handoff notify failed:', e?.message) }
+    return res.status(200).json({
+      ok: true,
+      handoff: true,
+      needEmail: !contactEmail,
+      response: contactEmail
+        ? `C'est noté 🙌 Un membre de notre équipe vous répondra à ${contactEmail} dans les meilleurs délais.`
+        : `C'est noté 🙌 Un membre de notre équipe va prendre le relais. Laissez-moi votre email pour qu'on puisse vous recontacter.`,
+    })
+  }
+
   if (!message) return res.status(400).json({ error: 'message required' })
+
+  // ── Plan quota (hard cap — no overage). The bubble is the main ticket source
+  // and previously bypassed all quota checks. Once the monthly limit is hit the
+  // client is blocked until they upgrade; purchased credits are the only escape
+  // (consumed after a successful reply, mirroring gateway.js). ──
+  const inTrial = !!(client.trial_ends_at && new Date(client.trial_ends_at) > new Date())
+  const quota = await checkTicketQuota(supabase, { clientId: client.id, plan: client.plan, inTrial })
+  if (!quota.allowed) {
+    // The agent just refused a real customer — make sure the merchant knows
+    // (covers accounts that were already over the cap before alerts shipped).
+    await maybeAlertQuota(supabase, { clientId: client.id, plan: client.plan, inTrial })
+    return res.status(429).json({
+      limit_reached: true,
+      response: "Le chat n'est pas disponible pour le moment. Merci de réessayer plus tard.",
+    })
+  }
 
   // Conversation history: prefer from widget, but fallback to DB (in case widget.js is cached)
   let conversationHistory = Array.isArray(history) ? history.slice(-20) : []
@@ -285,6 +468,20 @@ async function handler(req, res) {
       conversationHistory,
     })
 
+    // Over-quota ticket served via a purchased credit → decrement it.
+    if (quota.useCredits) {
+      try {
+        await supabase.rpc('consume_credits', {
+          p_client_id: client.id,
+          p_amount: 1,
+          p_description: `Ticket bulle SAV (quota dépassé) — ${brainResult?.classification || 'N/A'}`,
+          p_event_id: event?.id || null,
+        })
+      } catch (err) {
+        console.error('[widget] consume_credits error:', err.message)
+      }
+    }
+
     // Execute
     if (!brainResult.needsReview) {
       const executorResult = await runExecutor(supabase, {
@@ -392,11 +589,20 @@ async function handler(req, res) {
         .eq('id', engineMessage.id)
     } catch { /* non-blocking */ }
 
+    const cards = await buildCards({
+      brainResult,
+      clientId,
+      message,
+      email,
+      isTest: normalized?._is_test === true,
+    })
+
     return res.status(200).json({
       response: cleanResponse,
       escalated: brainResult.needsReview,
       confidence: brainResult.confidence,
       product_recommendations: brainResult.productRecommendations || [],
+      cards,
     })
   } catch (err) {
     console.error('[engine/webhooks/widget] Error:', err)

@@ -10,6 +10,7 @@
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
+import { decryptToken } from '../lib/crypto.js'
 
 const N8N_API_URL = process.env.N8N_API_URL
 const N8N_API_KEY = process.env.N8N_API_KEY
@@ -53,7 +54,7 @@ async function handler(req, res) {
 
     const config = integration.extra_config || {}
     const { imap_host, imap_port, username, use_ssl } = config
-    const password = integration.api_key
+    const password = decryptToken(integration.api_key) || integration.api_key
 
     if (!imap_host || !username || !password) {
       return res.status(400).json({ error: 'Configuration IMAP incomplete' })

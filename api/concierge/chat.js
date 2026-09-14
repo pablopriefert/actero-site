@@ -77,7 +77,7 @@ async function handler(req, res) {
   // Per-user rate limit on a paid LLM endpoint — prevents a runaway client
   // (or a malicious one) from racking up Claude bills via this route.
   // 20 messages / minute is generous for genuine human chat.
-  const rl = checkRateLimit(`concierge:${user.id}`, 20, 60_000)
+  const rl = await checkRateLimit(`concierge:${user.id}`, 20, 60_000)
   res.setHeader('X-RateLimit-Limit', '20')
   res.setHeader('X-RateLimit-Remaining', String(rl.remaining))
   if (!rl.allowed) {

@@ -9,8 +9,8 @@ import { supabase } from '../../lib/supabase'
 import { RunTagFlagButton } from './RunTagFlagButton'
 
 const STATUS_BADGES = {
-  completed: { label: 'Complete', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-  error: { label: 'Echoue', color: 'bg-red-50 text-red-600 border-red-200' },
+  completed: { label: 'Complète', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+  error: { label: 'Échoué', color: 'bg-red-50 text-red-600 border-red-200' },
   needs_review: { label: 'Review', color: 'bg-amber-50 text-amber-600 border-amber-200' },
   running: { label: 'En cours', color: 'bg-blue-50 text-blue-600 border-blue-200' },
 }
@@ -80,7 +80,7 @@ export const AdminEngineRunsView = () => {
       <div className="flex gap-2">
         {['all', 'completed', 'error', 'needs_review'].map(s => (
           <button key={s} onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors ${statusFilter === s ? 'bg-cta text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-gray-200'}`}>
+            className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-colors ${statusFilter === s ? 'bg-cta text-white' : 'bg-surface text-[#71717a] hover:bg-gray-200'}`}>
             {s === 'all' ? 'Tous' : STATUS_BADGES[s]?.label || s}
           </button>
         ))}
@@ -100,7 +100,7 @@ export const AdminEngineRunsView = () => {
             return (
               <div key={run.id} className="bg-white border border-[#f0f0f0] rounded-xl overflow-hidden">
                 <button onClick={() => setExpandedRun(isExpanded ? null : run.id)}
-                  className="w-full p-4 flex items-center gap-3 text-left hover:bg-[#fafafa]">
+                  className="w-full p-4 flex items-center gap-3 text-left hover:bg-surface">
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${badge.color}`}>{badge.label}</span>
                   <span className="text-[12px] font-bold text-[#1a1a1a]">{run.clients?.brand_name || 'Client'}</span>
                   <span className="text-[12px] text-[#71717a]">{run.classification || 'N/A'}</span>
@@ -121,7 +121,7 @@ export const AdminEngineRunsView = () => {
                       <div><span className="text-[#71717a]">Classification:</span> <span className="font-bold">{run.classification}</span></div>
                     </div>
                     {run.engine_events?.normalized?.message && (
-                      <div className="p-3 bg-[#ffffff] rounded-lg">
+                      <div className="p-3 bg-surface rounded-lg">
                         <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">Message</p>
                         <p className="text-[13px] text-[#1a1a1a]">{run.engine_events.normalized.message.substring(0, 300)}</p>
                       </div>

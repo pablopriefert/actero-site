@@ -11,7 +11,11 @@
 import { withSentry } from '../../lib/sentry.js'
 import crypto from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
-import { processMessage } from '../process.js'
+import { normalizeEvent } from '../lib/normalizer.js'
+import { loadPlaybook } from '../lib/playbook-loader.js'
+import { runBrain } from '../brain.js'
+import { runExecutor } from '../executor.js'
+import { logRun } from '../logger.js'
 import { decryptToken } from '../../lib/crypto.js'
 import { uploadToStorage } from '../../vision/lib/ingress.js'
 
@@ -48,13 +52,17 @@ async function handler(req, res) {
   // auront re-OAuth'd.
   const { data: integ } = await supabase
     .from('client_integrations')
-    .select('extra_config, access_token')
+    .select('extra_config, access_token, webhook_secret_encrypted')
     .eq('client_id', clientId)
     .eq('provider', 'zendesk')
     .eq('status', 'active')
     .maybeSingle()
 
-  const expectedSecret = integ?.extra_config?.webhook_secret
+  // Le secret vit dans sa propre colonne, chiffrée et fermée au navigateur.
+  // Le repli sur extra_config couvre les lignes écrites avant ACT-25 ;
+  // decryptToken laisse passer une valeur encore en clair.
+  const expectedSecret = decryptToken(integ?.webhook_secret_encrypted)
+    || integ?.extra_config?.webhook_secret
     || process.env.ZENDESK_WEBHOOK_SECRET
   if (!expectedSecret || !timingSafeEqStr(providedSecret, expectedSecret)) {
     return res.status(401).json({ error: 'Unauthorized' })
@@ -177,25 +185,135 @@ async function handler(req, res) {
     console.warn('[engine/webhooks/zendesk] image upload failed (non-fatal):', err.message)
   }
 
-  // Process
+  // Process via le pipeline V2 (Brain -> Executor -> Logger), comme le widget
+  // et l'email entrant : classification, routage vers un agent spécialisé,
+  // garde-fous d'escalade (references inventees, demande d'humain...).
+  //
+  // On réutilise normalizeZendesk (api/engine/lib/normalizer.js) — écrit et
+  // enregistré pour cette source mais encore jamais invoqué — sur l'event
+  // brut Zendesk. Le parsing défensif ci-dessus gère en plus les formats
+  // "payload simplifié" et "format plat personnalisé" ainsi que le skip des
+  // notes internes ; on écrase donc les champs du normalisé avec cette
+  // extraction déjà validée — même pattern que webhooks/widget.js qui
+  // surcharge `normalized.first_message` / `normalized.customer_email`
+  // après coup.
   try {
-    const result = await processMessage(supabase, {
-      messageId: engineMessage.id,
-      clientId,
+    const normalized = normalizeEvent('ticket_zendesk', event)
+    normalized.customer_email = customerEmail
+    normalized.customer_name = customerName
+    normalized.subject = subject
+    normalized.message = cleanMessage
+    normalized.ticket_id = ticketId
+    normalized.images = uploadedImages
+
+    const playbook = await loadPlaybook(supabase, clientId, 'ticket_zendesk')
+    if (!playbook) {
+      return res.status(200).json({ message_id: engineMessage.id, status: 'no_playbook' })
+    }
+
+    const { data: engineEvent } = await supabase.from('engine_events').insert({
+      client_id: clientId,
+      event_type: 'ticket_zendesk',
       source: 'zendesk',
-      customerEmail,
-      customerName,
-      subject,
-      messageBody: cleanMessage,
-      externalTicketId: ticketId,
-      metadata: {},
-      images: uploadedImages,
+      payload: { ticket_id: ticketId, subject, message: cleanMessage },
+      normalized,
+      playbook_id: playbook.id,
+      status: 'processing',
+    }).select().single()
+
+    const startTime = Date.now()
+
+    const brainResult = await runBrain(supabase, {
+      event: engineEvent || { id: engineMessage.id, source: 'zendesk' },
+      playbook,
+      clientId,
+      normalized,
     })
+
+    let executorResult = { success: true, steps: [], error: null }
+
+    if (!brainResult.needsReview) {
+      executorResult = await runExecutor(supabase, {
+        event: engineEvent || engineMessage,
+        playbook,
+        clientId,
+        normalized,
+        brainResult,
+      })
+
+      await logRun(supabase, {
+        clientId,
+        eventId: engineEvent?.id,
+        playbookId: playbook.id,
+        status: executorResult.success ? 'completed' : 'failed',
+        classification: brainResult.classification,
+        confidence: brainResult.confidence,
+        actionPlan: brainResult.actionPlan,
+        steps: executorResult.steps,
+        durationMs: Date.now() - startTime,
+        error: executorResult.error,
+        normalized,
+        aiResponse: brainResult.aiResponse,
+        agentUsed: brainResult.agentUsed || null,
+        tokensIn: brainResult.usage?.tokensIn,
+        tokensOut: brainResult.usage?.tokensOut,
+        costUsd: brainResult.usage?.costUsd,
+        modelId: brainResult.usage?.modelId,
+        errorMessage: executorResult.success
+          ? null
+          : (typeof executorResult.error === 'string'
+              ? executorResult.error
+              : executorResult.error?.message || null),
+      })
+
+      if (engineEvent) {
+        await supabase.from('engine_events').update({ status: 'completed', processed_at: new Date().toISOString() }).eq('id', engineEvent.id)
+      }
+    } else {
+      const runResult = await logRun(supabase, {
+        clientId,
+        eventId: engineEvent?.id,
+        playbookId: playbook.id,
+        status: 'needs_review',
+        classification: brainResult.classification,
+        confidence: brainResult.confidence,
+        actionPlan: brainResult.actionPlan,
+        steps: [],
+        durationMs: Date.now() - startTime,
+        normalized,
+        aiResponse: brainResult.aiResponse,
+        agentUsed: brainResult.agentUsed || null,
+        tokensIn: brainResult.usage?.tokensIn,
+        tokensOut: brainResult.usage?.tokensOut,
+        costUsd: brainResult.usage?.costUsd,
+        modelId: brainResult.usage?.modelId,
+        errorMessage: brainResult.errorMessage || null,
+      })
+
+      if (runResult?.id) {
+        try {
+          await supabase.from('engine_reviews_v2').insert({
+            run_id: runResult.id,
+            client_id: clientId,
+            event_id: engineEvent?.id,
+            proposed_action: { classification: brainResult.classification, action_plan: brainResult.actionPlan, ai_response: brainResult.aiResponse },
+            reason: brainResult.reviewReason || 'aggressive',
+            status: 'pending',
+          })
+        } catch (err) {
+          console.error('[engine/webhooks/zendesk] engine_reviews_v2 insert error:', err.message)
+        }
+      }
+
+      if (engineEvent) {
+        await supabase.from('engine_events').update({ status: 'needs_review', processed_at: new Date().toISOString() }).eq('id', engineEvent.id)
+      }
+    }
 
     return res.status(200).json({
       message_id: engineMessage.id,
-      status: result.escalated ? 'escalated' : 'processed',
-      confidence: result.confidence,
+      status: brainResult.needsReview ? 'escalated' : (executorResult.success ? 'processed' : 'failed'),
+      confidence: brainResult.confidence,
     })
   } catch (err) {
     console.error('[engine/webhooks/zendesk] Processing error:', err)

@@ -71,7 +71,11 @@ import { SkipToMain } from '../components/ui/SkipToMain'
 import { AdminKanbanBoard } from '../components/admin/AdminKanbanBoard'
 import { AnimatedCounter } from '../components/ui/animated-counter'
 import { IntelligenceView } from '../components/dashboard/IntelligenceView'
-import { CallNotesWizard } from '../components/admin/CallNotesWizard'
+// Paresseux — c'est un outil interne, ouvert en modale par le staff.
+// Statique, il embarquait dans le morceau principal un champ d'exemple
+// « monstore.myshopify.com ». Sans rapport avec un flux d'installation, mais
+// autant qu'un marchand ne télécharge pas l'outil commercial d'Actero.
+const CallNotesWizard = lazy(() => import('../components/admin/CallNotesWizard').then(m => ({ default: m.CallNotesWizard })))
 import { DeploymentProgress } from '../components/admin/DeploymentProgress'
 
 // Lazy-loaded admin views — only pulled when admin opens the tab.
@@ -98,6 +102,8 @@ const AdminCostTrackerView = lazy(() => import('../components/admin/AdminCostTra
 const AdminConnectorHealthView = lazy(() => import('../components/admin/AdminConnectorHealthView').then(m => ({ default: m.AdminConnectorHealthView })))
 const AdminClientsListView = lazy(() => import('../components/admin/AdminClientsListView').then(m => ({ default: m.AdminClientsListView })))
 const AdminMRRView = lazy(() => import('../components/admin/AdminMRRView').then(m => ({ default: m.AdminMRRView })))
+const AdminCsatPanel = lazy(() => import('../components/admin/AdminCsatPanel').then(m => ({ default: m.AdminCsatPanel })))
+const AdminQuotaWatchPanel = lazy(() => import('../components/admin/AdminQuotaWatchPanel').then(m => ({ default: m.AdminQuotaWatchPanel })))
 const AdminChurnCohortView = lazy(() => import('../components/admin/AdminChurnCohortView').then(m => ({ default: m.AdminChurnCohortView })))
 const AdminROILeaderboardView = lazy(() => import('../components/admin/AdminROILeaderboardView').then(m => ({ default: m.AdminROILeaderboardView })))
 const AdminTokensView = lazy(() => import('../components/admin/AdminTokensView').then(m => ({ default: m.AdminTokensView })))
@@ -150,7 +156,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
           <h3 className="text-[15px] font-semibold text-[#1a1a1a]">Ajouter un client</h3>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#fafafa] text-[#71717a]"
+            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-surface text-[#71717a]"
             aria-label="Fermer"
           >
             <X className="w-4 h-4" />
@@ -164,7 +170,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={brandName}
               onChange={(e) => setBrandName(e.target.value)}
               placeholder="Nom commercial de la marque..."
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
               autoFocus
               required
             />
@@ -176,7 +182,7 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
               placeholder="contact@exemple.com"
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
             />
           </div>
           <div>
@@ -188,14 +194,14 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
               value={monthlyPrice}
               onChange={(e) => setMonthlyPrice(e.target.value)}
               placeholder="490"
-              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-[#fafafa] text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
+              className="w-full px-3 py-2 rounded-xl border border-[#f0f0f0] bg-surface text-[13px] text-[#1a1a1a] focus:outline-none focus:border-cta/40 focus:bg-white"
             />
           </div>
           <div className="flex items-center justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-[13px] font-semibold text-[#71717a] hover:bg-[#fafafa]"
+              className="px-4 py-2 rounded-xl text-[13px] font-semibold text-[#71717a] hover:bg-surface"
             >
               Annuler
             </button>
@@ -218,6 +224,42 @@ const QuickAddClientModal = ({ onClose, onSubmit }) => {
 // Stays in sync with billing/stripe setup; free = 0 intentionally (not counted in MRR).
 const PLAN_PRICES = { free: 0, starter: 99, pro: 399, enterprise: 999 };
 
+// Tabs reachable by deep link / drill-down but absent from the sidebar. Every
+// other page title is derived from `sidebarItems` below, so a nav label and its
+// page title can no longer drift apart (this used to be a duplicated 35-entry map).
+const EXTRA_TAB_LABELS = {
+  'client-detail': 'Fiche client',
+  'add-enterprise': 'Ajout client Enterprise',
+  'engine-reviews': 'Review manuelle',
+  'engine-playbooks': 'Playbooks',
+  requests: 'Demandes IA',
+  leads: 'Leads capturés',
+  intelligence: 'Intelligence clients',
+};
+
+function resolveTabTitle(items, tabId) {
+  for (const item of items) {
+    if (item.id === tabId) return item.label;
+    if (item.children) {
+      const hit = item.children.find((c) => c.id === tabId);
+      if (hit) return hit.label;
+    }
+  }
+  return EXTRA_TAB_LABELS[tabId] || String(tabId).replace(/-/g, ' ');
+}
+
+// The group a tab belongs to (section header, or the expandable it lives in),
+// rendered as an eyebrow above the title so you always know where you are.
+function resolveTabSection(items, tabId) {
+  let section = null;
+  for (const item of items) {
+    if (item.type === 'section') { section = item.label; continue; }
+    if (item.id === tabId) return section;
+    if (item.children?.some((c) => c.id === tabId)) return item.label;
+  }
+  return null;
+}
+
 // Recent-events feed category styling. Hoisted to avoid re-allocating on every render
 // (6+ events render in overview tab's live feed — recreated 6 times per render prior).
 const EVENT_CATEGORY_LABELS = {
@@ -230,7 +272,7 @@ const EVENT_CATEGORY_LABELS = {
   visit_reply_sent: { label: 'Réponse visite', color: 'text-purple-400', bg: 'bg-purple-500/10' },
   match_found: { label: 'Match trouvé', color: 'text-pink-400', bg: 'bg-pink-500/10' },
 };
-const EVENT_CATEGORY_FALLBACK = { color: 'text-[#71717a]', bg: 'bg-[#fafafa]' };
+const EVENT_CATEGORY_FALLBACK = { color: 'text-[#71717a]', bg: 'bg-surface' };
 
 export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   const toast = useToast();
@@ -298,7 +340,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   };
 
   // Command-K hotkey centralise dans useCommandPalette
-  const { open: cmdkOpen, close: closeCmdk, isMac } = useCommandPalette();
+  const { open: cmdkOpen, close: closeCmdk, toggle: toggleCmdk, isMac } = useCommandPalette();
 
   // Fetching Data with React Query
   // staleTime: 60s across admin overview queries — admin tab-switches within 1 minute
@@ -590,7 +632,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col md:flex-row font-sans text-[#1a1a1a]">
+    <div className="min-h-screen bg-surface flex flex-col md:flex-row font-sans text-[#1a1a1a]">
       <SkipToMain />
       {/* Mobile Header */}
       <div className="md:hidden h-16 bg-white border-b border-[#f0f0f0] flex items-center justify-between px-4">
@@ -629,7 +671,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
-              className="relative w-4/5 max-w-xs bg-[#ffffff] h-full shadow-2xl"
+              className="relative w-4/5 max-w-xs bg-surface h-full shadow-2xl"
             >
               <Sidebar 
                 title="Actero Admin"
@@ -654,59 +696,39 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
       />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="hidden md:flex h-16 bg-white border-b border-[#f0f0f0] items-center px-8 justify-between">
-          <h1 className="text-[18px] font-semibold tracking-tight text-[#1a1a1a]">
-            {{
-              briefing: 'Briefing matin',
-              overview: 'Stats détaillées',
-              clients: 'Tous les clients',
-              'add-enterprise': 'Ajout client Enterprise',
-              'client-detail': 'Fiche client',
-              health: 'Santé clients',
-              funnel: 'Nouveau client',
-              'live-runs': 'Live runs',
-              'agent-heatmap': 'Heatmap agents',
-              'top-errors': 'Top erreurs',
-              'connector-health': 'Santé connecteurs',
-              'engine-runs': 'Historique runs',
-              hallucination: 'Hallucinations IA',
-              'manual-review': 'Review manuelle',
-              playbooks: 'Playbooks',
-              ratings: 'Notations IA',
-              engine: 'Webhook test',
-              'ai-terminal': 'AI Terminal',
-              'error-reports': 'Erreurs clients',
-              mrr: 'MRR et revenus',
-              'churn-cohort': 'Cohortes de rétention',
-              'roi-leaderboard': 'Classement ROI',
-              'cost-tracker': 'Coûts Claude',
-              tokens: 'Consommation tokens',
-              pipeline: 'Pipeline commercial',
-              'conversion-pipeline': 'Conversion free → paid',
-              billing: 'Facturation',
-              'stripe-setup': 'Config Stripe',
-              'alert-builder': 'Alertes Slack',
-              'action-logs': 'Journal audit',
-              monitoring: 'Monitoring',
-              shopify: 'App Shopify',
-              referrals: 'Parrainages',
-              partners: 'Partenaires',
-              'partner-tokens': 'Liens partenaires',
-              'startup-applications': 'Candidatures Startup',
-              requests: 'Demandes IA',
-              leads: 'Leads captures',
-              intelligence: 'Intelligence clients',
-            }[activeTab] || activeTab.replace('-', ' ')}
-          </h1>
-          {/* Quick-add menu — remplaces l'ancien onglet "Ajout Enterprise"
-             dans la sidebar. Une seule entrée pour les actions de création
-             les plus fréquentes (client standard ou enterprise, test engine).
-             Le Cmd+K reste l'autre point d'entrée global. */}
-          <div className="flex items-center gap-2">
+        <header className="hidden md:flex h-16 shrink-0 bg-white/95 backdrop-blur-sm border-b border-black/[0.06] items-center px-8 justify-between">
+          <div className="min-w-0">
+            {resolveTabSection(sidebarItems, activeTab) && (
+              <div className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#9ca3af] leading-none mb-1.5">
+                {resolveTabSection(sidebarItems, activeTab)}
+              </div>
+            )}
+            <h1 className="text-[19px] font-semibold tracking-[-0.015em] text-[#1a1a1a] leading-none truncate">
+              {resolveTabTitle(sidebarItems, activeTab)}
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            {/* The command palette existed but had no visible entry point. */}
+            <button
+              type="button"
+              onClick={toggleCmdk}
+              className="inline-flex items-center gap-2 h-9 pl-3 pr-2 rounded-full bg-surface border border-[#EDEFF2] text-[13px] text-[#716D5C] hover:text-[#1a1a1a] hover:border-[#8B7A50]/40 transition-colors"
+              title="Recherche globale"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Rechercher</span>
+              <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-white border border-[#EDEFF2] text-[10.5px] font-medium text-[#9ca3af]">
+                {isMac ? '⌘' : 'Ctrl'}K
+              </kbd>
+            </button>
+
+            <div className="w-px h-6 bg-black/[0.07]" />
+
             <button
               type="button"
               onClick={handleAddClient}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium bg-cta text-white hover:bg-[#003725] transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold bg-cta text-white hover:bg-cta-hover transition-colors"
               title="Ajouter un client (Cmd+N)"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -715,7 +737,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
             <button
               type="button"
               onClick={() => setActiveTab('add-enterprise')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium bg-white border border-[#f0f0f0] text-[#1a1a1a] hover:bg-zinc-50 transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-semibold bg-white border border-[#E7E1D2] text-[#1a1a1a] hover:border-[#1a1a1a]/25 transition-colors"
               title="Ajouter un client Enterprise"
             >
               <Building2 className="w-3.5 h-3.5" />
@@ -805,7 +827,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
               <KpiRow>
                 <KpiCard
                   label="MRR"
-                  value={`${mrr.toLocaleString('fr-FR')} EUR`}
+                  value={`${mrr.toLocaleString('fr-FR')} €`}
                   sublabel="Revenus mensuels recurrents"
                   icon={DollarSign}
                   color="brand"
@@ -846,13 +868,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     return (
                       <div key={plan} className="flex items-center gap-3">
                         <StatusPill variant={variant} size="md">{plan}</StatusPill>
-                        <div className="flex-1 h-2 bg-[#fafafa] rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all ${
                               variant === 'neutral' ? 'bg-[#9ca3af]' :
                               variant === 'info' ? 'bg-[#3b82f6]' :
                               variant === 'success' ? 'bg-cta' :
-                              'bg-[#f59e0b]'
+                              'bg-warn'
                             }`}
                             style={{ width: `${pct}%` }}
                           />
@@ -863,6 +885,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   })}
                 </div>
               </SectionCard>
+
+              {/* Satisfaction client — donnée collectée par la bulle SAV, jusqu'ici
+                  jamais affichée nulle part. */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <AdminQuotaWatchPanel />
+                <AdminCsatPanel />
+              </div>
 
               {/* Row 2: Activity chart + Recent events */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -891,7 +920,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                             className={`w-full h-full rounded-md transition-colors ${
                               day.events > 0
                                 ? 'bg-emerald-500/60 hover:bg-emerald-500/80'
-                                : 'bg-[#fafafa]'
+                                : 'bg-surface'
                             }`}
                           />
                           <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white text-[#1a1a1a] text-[10px] font-bold px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
@@ -972,7 +1001,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: i * 0.05 }}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] hover:bg-[#ffffff] transition-colors cursor-pointer"
+                          className="flex items-center gap-3 p-3 rounded-xl bg-surface hover:bg-surface transition-colors cursor-pointer"
                           onClick={() => setSelectedClient(client)}
                         >
                           <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[13px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
@@ -1035,12 +1064,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                               <span className="text-[12px] text-[#71717a]">{labels[cat] || cat}</span>
                               <span className="text-[12px] font-mono text-[#71717a]">{count} ({pct}%)</span>
                             </div>
-                            <div className="h-1.5 bg-[#fafafa] rounded-full overflow-hidden">
+                            <div className="h-1.5 bg-surface rounded-full overflow-hidden">
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${pct}%` }}
                                 transition={{ delay: i * 0.05, duration: 0.5 }}
-                                className={`h-full rounded-full ${colors[cat] || 'bg-[#fafafa]'}`}
+                                className={`h-full rounded-full ${colors[cat] || 'bg-surface'}`}
                               />
                             </div>
                           </div>
@@ -1070,7 +1099,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: i * 0.05 }}
-                        className="p-3 rounded-xl bg-[#fafafa] border border-[#f0f0f0]"
+                        className="p-3 rounded-xl bg-surface border border-[#f0f0f0]"
                       >
                         <p className="text-[13px] font-medium text-[#1a1a1a]">{lead.brand_name}</p>
                         <p className="text-[12px] text-[#71717a] mt-0.5">{lead.email}</p>
@@ -1133,12 +1162,12 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                   <Sparkles className="w-8 h-8 animate-pulse text-[#71717a]" />
                 </div>
               ) : leads.length === 0 ? (
-                <div className="text-center py-20 bg-[#ffffff] rounded-2xl border border-[#f0f0f0]">
+                <div className="text-center py-20 bg-surface rounded-2xl border border-[#f0f0f0]">
                   <Users className="w-12 h-12 text-[#71717a] mx-auto mb-4" />
                   <p className="text-[#71717a]">Aucun lead pour le moment.</p>
                 </div>
               ) : (
-                <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-x-auto">
+                <div className="bg-surface border border-[#f0f0f0] rounded-2xl overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead>
                       <tr className="border-b border-[#f0f0f0] bg-white">
@@ -1149,7 +1178,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
                     </thead>
                     <tbody className="divide-y divide-white/5 text-[13px]">
                       {leads.map((lead) => (
-                        <tr key={lead.id} className="hover:bg-[#fafafa] transition-colors">
+                        <tr key={lead.id} className="hover:bg-surface transition-colors">
                           <td className="px-6 py-4 font-bold">{lead.brand_name}</td>
                           <td className="px-6 py-4 text-[#71717a]">{lead.email}</td>
                           <td className="px-6 py-4 text-[#71717a]">
@@ -1186,11 +1215,13 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
 
       <AnimatePresence>
         {callNotesClient && (
-          <CallNotesWizard
-            client={callNotesClient}
-            onClose={() => setCallNotesClient(null)}
-            onDeployReady={handleDeployReady}
-          />
+          <Suspense fallback={null}>
+            <CallNotesWizard
+              client={callNotesClient}
+              onClose={() => setCallNotesClient(null)}
+              onDeployReady={handleDeployReady}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 

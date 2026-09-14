@@ -1,0 +1,84 @@
+# Vérifier que chaque commit compile et passe les tests.
+#
+# Pourquoi ce fichier existe, précisément.
+#
+# Le 10 septembre 2026, le commit a13caac a atterri sur `main` sans compiler :
+# il supprimait des fichiers dont un autre fichier gardait l'import. Le build
+# local passait — l'arbre de travail contenait les deux moitiés du chantier —
+# et `git rm` avait déjà mis les suppressions en attente de commit, si bien
+# qu'un commit voulu « partiel » ne l'était pas.
+#
+# Rien n'a cassé en production : Vercel ne promeut pas un build raté, et le
+# commit suivant a réparé l'arbre. Mais pendant sept minutes, la branche
+# principale portait une révision impossible à déployer, et **rien ne l'a
+# signalé**. Le dépôt avait 317 tests et personne pour les lancer : la seule
+# chose entre un commit cassé et `main` était la discipline de celui qui
+# pousse.
+#
+# Ce workflow ne remplace pas cette discipline, il la rend vérifiable — et il
+# vaut surtout pour la suite : le jour où Gaspard pousse, il n'aura pas à
+# deviner ce qu'il fallait lancer avant.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Une seule exécution par branche : un push qui en suit un autre annule le
+# précédent plutôt que de faire la queue.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    name: Tests et build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Aligné sur le runtime Vercel du projet (24.x). Une version
+          # différente ici validerait un build que la production ne fait pas.
+          node-version: '24'
+          cache: npm
+
+      # `npm ci` plutôt que `npm install` : il installe exactement le
+      # package-lock, donc l'échec porte sur le code et pas sur une dépendance
+      # qui aurait glissé entre-temps.
+      - name: Installer les dépendances
+        run: npm ci
+
+      # ESLint était installé, configuré, déclaré dans package.json — et rien
+      # ne le lançait. Le 10 septembre il trouvait 23 problèmes dont DEUX
+      # plantages certains en production :
+      #
+      #   `encryptToken is not defined`  api/integrations/lib/webhook-provisioner.js
+      #   `règles is not defined`        AujourdhuiHome.jsx, sur le chemin normal
+      #
+      # Le second venait d'un remplacement d'accents qui avait renommé un
+      # identifiant à ses usages mais pas à sa déclaration. Le build passait :
+      # un identifiant accentué est du JavaScript valide, et les tests
+      # n'atteignaient pas cette branche.
+      #
+      # Ni les tests ni le build ne voient ça. Le linter, si — depuis des
+      # semaines, sans que personne ne le lui demande.
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+
+      # L'étape qui aurait attrapé a13caac. Les tests passaient : ils
+      # n'importent pas ClientDashboard.jsx, donc l'import cassé leur était
+      # invisible. Seul le build résout le graphe complet des modules.
+      #
+      # C'est la même leçon que le 9 septembre, quand un commentaire JSX mal
+      # fermé avait cassé la page d'accueil sans qu'un seul test bronche :
+      # lancer les tests ne remplace pas lancer le build.
+      - name: Build
+        run: npm run build

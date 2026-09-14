@@ -8,7 +8,7 @@ const STEPS = [
     icon: MessageSquare,
     color: 'text-amber-500',
     bg: 'bg-amber-50 border-amber-200',
-    title: 'Ticket recu',
+    title: 'Ticket reçu',
     subtitle: 'Webhook Shopify',
     detail: '"Bonjour, ma commande #4821 est arrivee cassee. Je voudrais un remboursement ou un renvoi."',
     time: '0s',
@@ -18,9 +18,9 @@ const STEPS = [
     icon: Search,
     color: 'text-blue-500',
     bg: 'bg-blue-50 border-blue-200',
-    title: 'Extraction des donnees',
+    title: 'Extraction des données',
     subtitle: 'Analyse IA du message',
-    detail: 'Intent : reclamation produit endommage | Commande : #4821 | Client : Marie D. | Priorite : haute',
+    detail: 'Intent : réclamation produit endommage | Commande : #4821 | Client : Marie D. | Priorité : haute',
     time: '0.3s',
   },
   {
@@ -30,14 +30,14 @@ const STEPS = [
     bg: 'bg-violet-50 border-violet-200',
     title: 'Recuperation commande Shopify',
     subtitle: 'API Shopify',
-    detail: 'Commande #4821 | Livree le 18/03 | Montant : 89.90EUR | Produit : Lampe Artisanale XL | Transporteur : Colissimo',
+    detail: 'Commande #4821 | Livrée le 18/03 | Montant : 89.90EUR | Produit : Lampe Artisanale XL | Transporteur : Colissimo',
     time: '0.8s',
   },
   {
     id: 3,
     icon: Brain,
     color: 'text-[#003725]',
-    bg: 'bg-[#F9F7F1] border-[#003725]/20',
+    bg: 'bg-surface border-[#003725]/20',
     title: 'Génération réponse IA',
     subtitle: 'Gemini + contexte client',
     detail: 'Réponse personnalisée générée avec excuses, proposition de renvoi gratuit, et code promo -15% pour le prochain achat.',
@@ -57,7 +57,7 @@ const STEPS = [
     id: 5,
     icon: CheckCircle2,
     color: 'text-[#003725]',
-    bg: 'bg-[#F9F7F1] border-[#003725]/20',
+    bg: 'bg-surface border-[#003725]/20',
     title: 'Résolution livrée',
     subtitle: 'Automatiquement',
     detail: 'Temps total : 1.5 secondes | Temps économisé : 8 minutes | Satisfaction client préservée',
@@ -116,7 +116,7 @@ export const TicketReplay = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F9F7F1] border border-gray-200 text-[#716D5C] text-xs font-bold mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-gray-200 text-[#716D5C] text-xs font-bold mb-6">
             <Zap className="w-3.5 h-3.5" />
             Demo en direct
           </div>
@@ -131,7 +131,7 @@ export const TicketReplay = () => {
         {/* Replay container */}
         <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 relative overflow-hidden">
           {/* Progress bar */}
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#F9F7F1]">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-surface">
             <motion.div
               className="h-full bg-cta"
               animate={{ width: `${((activeStep + 1) / STEPS.length) * 100}%` }}
@@ -149,7 +149,7 @@ export const TicketReplay = () => {
             </div>
             <button
               onClick={startReplay}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F9F7F1] hover:bg-[#F9F7F1] text-[#716D5C] hover:text-[#262626] text-xs font-medium transition-all border border-gray-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface hover:bg-surface text-[#716D5C] hover:text-[#262626] text-xs font-medium transition-all border border-gray-200"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Rejouer
@@ -173,11 +173,11 @@ export const TicketReplay = () => {
                       className={`flex gap-4 p-4 rounded-2xl border transition-all duration-300 ${
                         isCurrent
                           ? `${step.bg} shadow-sm`
-                          : 'bg-[#F9F7F1] border-gray-200'
+                          : 'bg-surface border-gray-200'
                       }`}
                     >
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        isCurrent ? step.bg : 'bg-[#F9F7F1]'
+                        isCurrent ? step.bg : 'bg-surface'
                       }`}>
                         <Icon className={`w-5 h-5 ${isCurrent ? step.color : 'text-gray-400'}`} />
                       </div>
@@ -217,7 +217,7 @@ export const TicketReplay = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="mt-6 p-5 rounded-2xl bg-[#F9F7F1] border border-gray-200 text-center"
+                className="mt-6 p-5 rounded-2xl bg-surface border border-gray-200 text-center"
               >
                 <div className="flex items-center justify-center gap-6 text-sm">
                   <div>

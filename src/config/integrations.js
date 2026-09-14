@@ -13,7 +13,7 @@ export const INTEGRATION_CATEGORIES = [
     id: 'helpdesk',
     label: 'Helpdesk',
     description: 'Votre IA gère les tickets directement dans votre outil de support',
-    ids: ['gorgias', 'zendesk', 'intercom'],
+    ids: ['gorgias', 'zendesk'],
   },
   {
     id: 'messaging',
@@ -55,7 +55,7 @@ export const CONFLICT_GROUPS = {
   helpdesk: {
     label: 'Helpdesk',
     message: 'Vous ne pouvez connecter qu\'un seul helpdesk à la fois.',
-    ids: ['gorgias', 'zendesk', 'intercom'],
+    ids: ['gorgias', 'zendesk'],
   },
   email_sending: {
     label: 'Envoi d\'emails',
@@ -81,14 +81,21 @@ export const INTEGRATIONS = {
       id: 'shopify',
       name: 'Shopify',
       description: 'Synchronisation commandes, clients et produits',
-      icon: '/integrations/shopify.png',
+      icon: '/intégrations/shopify.png',
       authType: 'oauth',
-      oauthPrompt: 'shop',
-      oauthPromptLabel: 'Votre domaine Shopify',
-      oauthPromptPlaceholder: 'ma-boutique.myshopify.com',
-      oauthPromptHint: 'Trouvez-le dans Shopify Admin → Settings → Domains',
-      oauthUrl: (params) => `/api/shopify/install?shop=${encodeURIComponent(params.shop)}&token=${encodeURIComponent(params.token || '')}`,
-      category: 'ecommerce',
+      // PAS D'`oauthPrompt` ICI, ET C'EST UNE EXIGENCE, PAS UN CHOIX.
+      //
+      // Ce bloc réclamait « Votre domaine Shopify » avec un champ de saisie.
+      // App Store 2.3.1 l'interdit : une installation doit partir d'une
+      // surface appartenant à Shopify, jamais d'un domaine que le marchand
+      // tape. C'est un motif de refus classique, et la consigne de
+      // vérification de Shopify dit explicitement de chercher ce genre de
+      // champ dans le code.
+      //
+      // Sans `shop`, /api/shopify/install pose le cookie de session et
+      // redirige vers la fiche App Store. Le marchand installe depuis là ;
+      // Shopify fournit le domaine au retour.
+      oauthUrl: (params) => `/api/shopify/install?token=${encodeURIComponent(params.token || '')}`,
       docsUrl: 'https://help.shopify.com/en/manual/apps',
       color: '#96BF48',
       popular: true,
@@ -104,7 +111,6 @@ export const INTEGRATIONS = {
       oauthPromptPlaceholder: 'ma-boutique',
       oauthPromptHint: 'L\'URL de votre compte est ma-boutique.gorgias.com',
       oauthUrl: (params) => `/api/integrations/oauth/gorgias/install?subdomain=${encodeURIComponent(params.subdomain)}&token=${encodeURIComponent(params.token)}`,
-      category: 'ecommerce',
       docsUrl: 'https://developers.gorgias.com/docs/authentication',
       color: '#1F1F1F',
       popular: true,
@@ -113,28 +119,15 @@ export const INTEGRATIONS = {
       id: 'zendesk',
       name: 'Zendesk',
       description: 'Helpdesk — tickets, chat, base de connaissances',
-      icon: '/integrations/zendesk.svg',
+      icon: '/intégrations/zendesk.svg',
       authType: 'oauth',
       oauthPrompt: 'subdomain',
       oauthPromptLabel: 'Votre sous-domaine Zendesk',
       oauthPromptPlaceholder: 'ma-boutique',
       oauthPromptHint: "L'URL de votre compte est ma-boutique.zendesk.com",
       oauthUrl: (params) => `/api/integrations/oauth/zendesk/install?subdomain=${encodeURIComponent(params.subdomain)}&token=${encodeURIComponent(params.token)}`,
-      category: 'ecommerce',
       docsUrl: 'https://developer.zendesk.com/api-reference/',
       color: '#03363D',
-    },
-    {
-      id: 'intercom',
-      name: 'Intercom',
-      description: 'Helpdesk & messaging — conversations, tickets, base de connaissances',
-      icon: 'https://logo.clearbit.com/intercom.com',
-      authType: 'oauth',
-      oauthUrl: (params) => `/api/integrations/intercom/authorize?client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
-      category: 'ecommerce',
-      docsUrl: 'https://developers.intercom.com/docs',
-      color: '#1F8DED',
-      popular: true,
     },
     {
       id: 'webflow',
@@ -143,7 +136,6 @@ export const INTEGRATIONS = {
       icon: 'https://ejgdwjjcpjtwaqcxptke.supabase.co/storage/v1/object/public/logo/WebFlow.png',
       authType: 'oauth',
       oauthUrl: (params) => `/api/integrations/webflow/authorize?client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
-      category: 'ecommerce',
       docsUrl: 'https://developers.webflow.com/docs/getting-started',
       color: '#4353FF',
       popular: true,
@@ -159,7 +151,6 @@ export const INTEGRATIONS = {
       oauthPromptPlaceholder: 'https://ma-boutique.com',
       oauthPromptHint: 'L\'adresse de votre site WordPress avec WooCommerce installé',
       oauthUrl: (params) => `/api/integrations/woocommerce/authorize?store_url=${encodeURIComponent(params.store_url)}&client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
-      category: 'ecommerce',
       docsUrl: 'https://woocommerce.github.io/woocommerce-rest-api-docs/',
       color: '#96588A',
       popular: true,
@@ -173,7 +164,6 @@ export const INTEGRATIONS = {
       icon: 'https://a.slack-edge.com/80588/marketing/img/icons/icon_slack_hash_colored.png',
       authType: 'oauth',
       oauthUrl: (params) => `/api/integrations/oauth/slack/install?token=${encodeURIComponent(params.token)}`,
-      category: 'general',
       docsUrl: 'https://api.slack.com/messaging/webhooks',
       color: '#4A154B',
       popular: true,
@@ -185,7 +175,6 @@ export const INTEGRATIONS = {
       icon: 'https://cdn.simpleicons.org/linear/5E6AD2',
       authType: 'oauth',
       oauthUrl: (params) => `/api/integrations/oauth/linear/install?token=${encodeURIComponent(params.token)}`,
-      category: 'general',
       docsUrl: 'https://developers.linear.app/docs',
       color: '#5E6AD2',
       popular: true,
@@ -199,7 +188,6 @@ export const INTEGRATIONS = {
       apiKeyLabel: 'Clé API Resend',
       apiKeyPlaceholder: 're_xxxxxxxxxxxxxxxx',
       apiKeyHint: 'Trouvez-la dans Resend → API Keys → Create API Key',
-      category: 'general',
       docsUrl: 'https://resend.com/docs',
       color: '#000000',
       popular: true,
@@ -211,7 +199,6 @@ export const INTEGRATIONS = {
       icon: 'https://upload.wikimedia.org/wikipedia/commons/0/01/Google_Docs_logo_%282014-2020%29.svg',
       authType: 'oauth',
       oauthUrl: (params) => `/api/integrations/google-docs/authorize?client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
-      category: 'general',
       docsUrl: 'https://developers.google.com/docs/api',
       color: '#4285F4',
       knowledgeBase: true,
@@ -224,7 +211,6 @@ export const INTEGRATIONS = {
       icon: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png',
       authType: 'oauth',
       oauthUrl: (params) => `/api/integrations/notion/authorize?client_id=${encodeURIComponent(params.client_id || '')}&token=${encodeURIComponent(params.token || '')}`,
-      category: 'general',
       docsUrl: 'https://developers.notion.com',
       color: '#000000',
       knowledgeBase: true,
@@ -246,7 +232,6 @@ export const INTEGRATIONS = {
         { key: 'password', label: 'Mot de passe', type: 'password', placeholder: '••••••••', required: true },
         { key: 'use_ssl', label: 'Utiliser SSL/TLS', type: 'toggle', defaultValue: true },
       ],
-      category: 'general',
       color: '#6366f1',
       popular: true,
     },

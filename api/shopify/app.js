@@ -91,10 +91,11 @@ async function handler(req, res) {
   }
 
   // Already connected → forward to the dashboard, carrying the shop context
-  // so the SPA can pre-select the right tenant.
+  // so the SPA can pre-select the right tenant. The dashboard route is
+  // `/client` (mounted via DashboardGate) — `/dashboard` does not exist.
   if (clientId) {
     const params = new URLSearchParams({ shop })
-    return res.redirect(302, `/dashboard?${params.toString()}`)
+    return res.redirect(302, `/client?${params.toString()}`)
   }
 
   // Not connected → kick the merchant into the OAuth install flow. install.js

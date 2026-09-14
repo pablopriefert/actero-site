@@ -15,7 +15,7 @@ const statusConfig = {
   active_ok: { label: 'Actif', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20', dot: 'bg-emerald-500', icon: CheckCircle2 },
   active_error: { label: 'Erreur', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20', dot: 'bg-red-400', icon: AlertTriangle },
   active_idle: { label: 'Inactif', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20', dot: 'bg-amber-400', icon: Clock },
-  inactive: { label: 'Désactivé', color: 'text-[#71717a]', bg: 'bg-[#fafafa]/10 border-gray-500/20', dot: 'bg-[#fafafa]', icon: Pause },
+  inactive: { label: 'Désactivé', color: 'text-[#71717a]', bg: 'bg-surface/10 border-gray-500/20', dot: 'bg-surface', icon: Pause },
 }
 
 const CATEGORIES = [
@@ -25,7 +25,7 @@ const CATEGORIES = [
   { id: 'metrics', label: 'Métriques', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
   { id: 'prospection', label: 'Prospection', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
   { id: 'immobilier', label: 'Immobilier', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
-  { id: 'autre', label: 'Autre', color: 'bg-[#fafafa]/10 text-[#71717a] border-gray-500/20' },
+  { id: 'autre', label: 'Autre', color: 'bg-surface/10 text-[#71717a] border-gray-500/20' },
 ]
 
 function getStatus(wf) {
@@ -81,16 +81,16 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={e => e.stopPropagation()}
-        className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
+        className="bg-surface border border-[#f0f0f0] rounded-2xl p-6 max-w-lg w-full shadow-2xl"
       >
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-[14px] font-bold text-[#1a1a1a]">Associer à un client</h3>
-          <button onClick={onClose} className="p-1 hover:bg-[#fafafa] rounded-lg transition-colors">
+          <button onClick={onClose} className="p-1 hover:bg-surface rounded-lg transition-colors">
             <X className="w-4 h-4 text-[#71717a]" />
           </button>
         </div>
 
-        <div className="mb-4 p-3 bg-[#ffffff] rounded-xl border border-[#f0f0f0]">
+        <div className="mb-4 p-3 bg-surface rounded-xl border border-[#f0f0f0]">
           <p className="text-[12px] text-[#71717a]">Workflow</p>
           <p className="text-[13px] text-[#1a1a1a] font-medium">{workflow.name}</p>
           <p className="text-[10px] text-[#71717a] font-mono">{workflow.id}</p>
@@ -105,7 +105,7 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
                 const client = clients.find(c => c.id === a.client_id)
                 const catConfig = CATEGORIES.find(c => c.id === a.category)
                 return (
-                  <div key={a.id} className="flex items-center justify-between p-2.5 bg-[#ffffff] rounded-lg border border-[#f0f0f0]">
+                  <div key={a.id} className="flex items-center justify-between p-2.5 bg-surface rounded-lg border border-[#f0f0f0]">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded bg-violet-500/10 flex items-center justify-center text-[10px] font-bold text-violet-400">
                         {client?.brand_name?.charAt(0) || '?'}
@@ -141,11 +141,11 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
             <select
               value={selectedClient}
               onChange={e => setSelectedClient(e.target.value)}
-              className="w-full bg-[#fafafa] border border-[#f0f0f0] rounded-lg px-3 py-2 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-violet-500/30"
+              className="w-full bg-surface border border-[#f0f0f0] rounded-lg px-3 py-2 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-violet-500/30"
             >
               <option value="">Sélectionner un client...</option>
               {clients.map(c => (
-                <option key={c.id} value={c.id} className="bg-[#ffffff]">{c.brand_name} ({c.client_type})</option>
+                <option key={c.id} value={c.id} className="bg-surface">{c.brand_name} ({c.client_type})</option>
               ))}
             </select>
           </div>
@@ -155,7 +155,7 @@ const AssociateModal = ({ workflow, clients, associations, onClose, onAssociate,
               type="text"
               value={label}
               onChange={e => setLabel(e.target.value)}
-              className="w-full bg-[#fafafa] border border-[#f0f0f0] rounded-lg px-3 py-2 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-violet-500/30"
+              className="w-full bg-surface border border-[#f0f0f0] rounded-lg px-3 py-2 text-[12px] text-[#1a1a1a] focus:outline-none focus:border-violet-500/30"
               placeholder="Ex: SAV Support Client"
             />
           </div>
@@ -283,12 +283,12 @@ export const AdminMonitoringView = () => {
         {[
           { label: 'Total workflows', value: workflows.length, icon: Wifi, color: 'text-blue-400', bg: 'bg-blue-500/10' },
           { label: 'Actifs', value: activeCount, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-          { label: 'En erreur', value: errorCount, icon: AlertTriangle, color: errorCount > 0 ? 'text-red-400' : 'text-[#71717a]', bg: errorCount > 0 ? 'bg-red-500/10' : 'bg-[#fafafa]/10' },
-          { label: 'Désactivés', value: inactiveCount, icon: Pause, color: 'text-[#71717a]', bg: 'bg-[#fafafa]/10' },
+          { label: 'En erreur', value: errorCount, icon: AlertTriangle, color: errorCount > 0 ? 'text-red-400' : 'text-[#71717a]', bg: errorCount > 0 ? 'bg-red-500/10' : 'bg-surface/10' },
+          { label: 'Désactivés', value: inactiveCount, icon: Pause, color: 'text-[#71717a]', bg: 'bg-surface/10' },
           { label: 'Exécutions', value: totalExecs, icon: Activity, color: 'text-violet-400', bg: 'bg-violet-500/10' },
           { label: 'Taux succès', value: `${successRate}%`, icon: ShieldCheck, color: successRate >= 90 ? 'text-emerald-500' : 'text-amber-400', bg: successRate >= 90 ? 'bg-emerald-500/10' : 'bg-amber-500/10' },
         ].map(kpi => (
-          <div key={kpi.label} className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl p-4">
+          <div key={kpi.label} className="bg-surface border border-[#f0f0f0] rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className={`w-7 h-7 rounded-lg ${kpi.bg} flex items-center justify-center`}>
                 <kpi.icon className={`w-3.5 h-3.5 ${kpi.color}`} />
@@ -330,12 +330,12 @@ export const AdminMonitoringView = () => {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Rechercher..."
-              className="pl-8 pr-3 py-1.5 bg-[#fafafa] border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] placeholder-gray-600 focus:outline-none focus:border-violet-500/30 w-48"
+              className="pl-8 pr-3 py-1.5 bg-surface border border-[#f0f0f0] rounded-lg text-[12px] text-[#1a1a1a] placeholder-gray-600 focus:outline-none focus:border-violet-500/30 w-48"
             />
           </div>
           <button
             onClick={() => refetch()}
-            className="p-1.5 rounded-lg bg-[#fafafa] border border-[#f0f0f0] text-[#71717a] hover:text-[#1a1a1a] hover:border-gray-300 transition-all"
+            className="p-1.5 rounded-lg bg-surface border border-[#f0f0f0] text-[#71717a] hover:text-[#1a1a1a] hover:border-gray-300 transition-all"
             title="Rafraîchir"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
@@ -344,7 +344,7 @@ export const AdminMonitoringView = () => {
       </div>
 
       {/* Workflow table */}
-      <div className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl overflow-hidden">
+      <div className="bg-surface border border-[#f0f0f0] rounded-2xl overflow-hidden">
         {/* Table header */}
         <div className="grid grid-cols-12 gap-4 px-5 py-3 border-b border-[#f0f0f0] text-[10px] uppercase tracking-wider text-[#71717a] font-bold">
           <div className="col-span-1">Statut</div>
@@ -369,8 +369,8 @@ export const AdminMonitoringView = () => {
           return (
             <div key={wf.id}>
               <div
-                className={`grid grid-cols-12 gap-4 px-5 py-3.5 border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors items-center cursor-pointer ${
-                  isExpanded ? 'bg-[#fafafa]' : ''
+                className={`grid grid-cols-12 gap-4 px-5 py-3.5 border-b border-[#f0f0f0] hover:bg-surface transition-colors items-center cursor-pointer ${
+                  isExpanded ? 'bg-surface' : ''
                 }`}
                 onClick={() => setExpanded(isExpanded ? null : wf.id)}
               >
@@ -490,7 +490,7 @@ export const AdminMonitoringView = () => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden border-b border-[#f0f0f0]"
                   >
-                    <div className="px-5 py-4 bg-[#ffffff] grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="px-5 py-4 bg-surface grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
                         <p className="text-[10px] text-[#71717a] uppercase tracking-wider mb-1">ID Workflow</p>
                         <p className="text-[12px] text-[#1a1a1a] font-mono">{wf.id}</p>

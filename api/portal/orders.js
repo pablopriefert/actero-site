@@ -2,6 +2,7 @@ import { withSentry } from '../lib/sentry.js'
 import { getServiceRoleClient } from './lib/supabase.js';
 import { requirePortalSession } from './lib/session.js';
 import { listOrdersByCustomerEmail } from './lib/shopify.js';
+import { decryptToken } from '../lib/crypto.js';
 
 async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'method_not_allowed' });
@@ -22,7 +23,7 @@ async function handler(req, res) {
   try {
     const orders = await listOrdersByCustomerEmail({
       shopDomain: integ.extra_config?.shop_domain,
-      accessToken: integ.access_token,
+      accessToken: decryptToken(integ.access_token) || integ.access_token,
       email: session.customerEmail,
     });
     return res.status(200).json({ orders });

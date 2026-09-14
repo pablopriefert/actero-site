@@ -19,6 +19,7 @@ import { searchShopifyProducts } from './lib/shopify-products.js'
 import { getAgentForClassification } from './agents/index.js'
 import { calculateCost } from './lib/claude-pricing.js'
 import { canAccessFeature } from '../lib/plan-limits.js'
+import { asksForHuman as detectAsksForHuman } from './lib/escalation-signals.js'
 
 // Keywords hinting the customer is asking for a product recommendation.
 const PRODUCT_INTENT_PATTERNS = /\b(recommand|suggest|conseill(?:e|ez|er)|cherch(?:e|es|ez|er)|besoin d[eu'’]|je veux|j'aimerais|j'?ai envie|je voudrais|acheter|commander|similaire|equivalent|alternative|montre-?moi|montrez-?moi|propose[rz]?|avez-?vous.*(produit|article|modele|reference))\b/i
@@ -139,6 +140,10 @@ async function _runBrainInner(supabase, { event, playbook, clientId, normalized,
     try {
       const period = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
       await supabase.rpc('increment_ticket_usage', { p_client_id: clientId, p_period: period })
+      // Warn the merchant at 80% / 100% of their monthly quota. Idempotent and
+      // fail-soft; placed here so every channel (widget, gateway, email…) is covered.
+      const { maybeAlertQuota } = await import('../lib/quota-alerts.js')
+      await maybeAlertQuota(supabase, { clientId })
     } catch (err) {
       // Don't block the Brain if the counter fails (table/function may not exist yet)
       console.warn('[brain] increment_ticket_usage failed:', err.message)
@@ -150,7 +155,7 @@ async function _runBrainInner(supabase, { event, playbook, clientId, normalized,
 
   // --- Vision pre-analysis (before classification) ---
   // If the incoming event carries image paths AND the client has vision enabled,
-  // delegate to /api/vision/analyze which runs Claude Vision on the uploads and
+  // delegate to /api/vision/analyze which runs Claude Sonnet 5 on the uploads and
   // returns structured extractions. A sensitive-document detection short-circuits
   // the whole flow into a human escalation so we don't spend more tokens.
   let visionContext = null
@@ -276,25 +281,33 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
     let proposedResponse = null
     try {
       const responsePrompt = buildSystemPrompt(clientConfig) + memoryContext
-      let lowConfMessages = []
-      if (conversationHistory && conversationHistory.length > 0) {
-        const prevMessages = conversationHistory.slice(0, -1)
-        for (const msg of prevMessages) {
-          if (msg.role === 'user') {
-            lowConfMessages.push({ role: 'user', content: msg.content })
-          } else if (msg.role === 'assistant') {
-            lowConfMessages.push({ role: 'assistant', content: msg.content })
+      const lowConfMessages = []
+      {
+        const hist = Array.isArray(conversationHistory) ? conversationHistory : []
+        const last = hist[hist.length - 1]
+        // Only drop the trailing entry when it IS the current message (widget
+        // path); the DB-rebuild path doesn't include it — otherwise we'd lose a
+        // real turn and create two adjacent user turns (Anthropic 400).
+        const prev = last && last.role === 'user' && last.content === normalized.message
+          ? hist.slice(0, -1)
+          : hist
+        const seq = []
+        for (const msg of prev) {
+          if (msg.role === 'user') seq.push({ role: 'user', content: msg.content })
+          else if (msg.role === 'assistant') seq.push({ role: 'assistant', content: msg.content })
+        }
+        seq.push({ role: 'user', content: normalized.message })
+        for (const m of seq) {
+          if (lowConfMessages.length && lowConfMessages[lowConfMessages.length - 1].role === m.role) {
+            lowConfMessages[lowConfMessages.length - 1] = m
+          } else {
+            lowConfMessages.push(m)
           }
         }
-        while (lowConfMessages.length > 0 && lowConfMessages[0].role !== 'user') {
+        while (lowConfMessages.length && lowConfMessages[0].role !== 'user') {
           lowConfMessages.shift()
         }
-        lowConfMessages = lowConfMessages.filter((msg, i) => {
-          if (i === 0) return true
-          return msg.role !== lowConfMessages[i - 1].role
-        })
       }
-      lowConfMessages.push({ role: 'user', content: normalized.message })
       const respResult = await callClaude({
         systemPrompt: responsePrompt,
         messages: lowConfMessages,
@@ -369,8 +382,12 @@ SORTIE OBLIGATOIRE — JSON strict uniquement, sans markdown, sans commentaire:
   }
 
   // --- Step 4: Check escalation signals ---
-  const msgLower = (normalized?.message || '').toLowerCase()
-  const asksForHuman = /\b(parler.*humain|parler.*conseiller|parler.*responsable|parler.*agent|parler.*personne|transferer|escalad|vrai.*(humain|personne|conseiller)|besoin.*humain|responsable.*humain)\b/i.test(msgLower)
+  // La détection vit dans lib/escalation-signals.js et y est testée. La version
+  // précédente était construite autour du seul verbe « parler » et ne gérait
+  // pas les accents : sur un échantillon de douze formulations réelles, elle en
+  // reconnaissait trois. « Passez-moi un humain », « arrêtez le robot »,
+  // « transférez-moi » passaient tous à travers.
+  const asksForHuman = detectAsksForHuman(normalized?.message)
 
   const shouldForceEscalate =
     asksForHuman ||

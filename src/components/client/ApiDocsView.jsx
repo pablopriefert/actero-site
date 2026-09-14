@@ -192,7 +192,7 @@ export function ApiDocsView({ clientId }) {
             {!showCreateForm && (
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-[#003725] transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-cta transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" /> Nouvelle clé
               </button>
@@ -244,7 +244,7 @@ export function ApiDocsView({ clientId }) {
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                 autoFocus
               />
-              <button onClick={handleCreate} disabled={creating} className="px-4 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-[#003725] disabled:opacity-50 transition-colors">
+              <button onClick={handleCreate} disabled={creating} className="px-4 py-2.5 rounded-xl bg-cta text-white text-sm font-semibold hover:bg-cta disabled:opacity-50 transition-colors">
                 {creating ? '...' : 'Créer'}
               </button>
               <button onClick={() => { setShowCreateForm(false); setNewLabel('') }} className="px-3 py-2.5 rounded-xl text-sm text-[#71717a] hover:bg-gray-50 transition-colors">
@@ -374,7 +374,7 @@ export function ApiDocsView({ clientId }) {
           <button
             onClick={() => handleCopy('https://actero.fr/api/mcp', 'mcp')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-              copiedId === 'mcp' ? 'bg-emerald-50 text-emerald-600' : 'bg-cta text-white hover:bg-[#003725]'
+              copiedId === 'mcp' ? 'bg-emerald-50 text-emerald-600' : 'bg-cta text-white hover:bg-cta'
             }`}
           >
             {copiedId === 'mcp' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}

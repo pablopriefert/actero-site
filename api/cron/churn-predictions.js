@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { decryptToken } from '../lib/crypto.js'
 import { withCronMonitor } from '../lib/cron-monitor.js'
 import { chatComplete } from '../lib/llm.js'
+import { SHOPIFY_API_VERSION } from '../lib/shopify-api-version.js'
 
 export const maxDuration = 60;
 
@@ -263,28 +264,46 @@ function computeSignals(items, sentimentHistory) {
 
 async function fetchShopifyCustomer(shopify, email) {
   try {
-    const baseUrl = `https://${shopify.shop_domain}/admin/api/2025-01`
+    // GraphQL Admin API — new public apps are forbidden from REST (App Store
+    // requirement 2.2.4). shopify.access_token is already decrypted by the
+    // caller (see the decryptToken call at load time).
+    const endpoint = `https://${shopify.shop_domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`
     const headers = {
       'X-Shopify-Access-Token': shopify.access_token,
       'Content-Type': 'application/json',
     }
-    const res = await fetch(`${baseUrl}/orders.json?email=${encodeURIComponent(email)}&status=any&limit=50`, { headers })
+    const gql = `query CustomerOrders($q: String!) {
+      orders(first: 50, query: $q, sortKey: CREATED_AT, reverse: true) {
+        edges { node {
+          createdAt
+          totalPriceSet { shopMoney { amount currencyCode } }
+        } }
+      }
+    }`
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query: gql, variables: { q: `email:${email}` } }),
+    })
     if (!res.ok) return null
     const data = await res.json()
-    const orders = data.orders || []
+    const orders = (data?.data?.orders?.edges || []).map((e) => e.node)
     if (orders.length === 0) {
       return { last_order_at: null, total_orders: 0, total_spent: 0 }
     }
     const total_orders = orders.length
-    const total_spent = orders.reduce((s, o) => s + parseFloat(o.total_price || 0), 0)
+    const total_spent = orders.reduce(
+      (s, o) => s + parseFloat(o?.totalPriceSet?.shopMoney?.amount || 0),
+      0,
+    )
     const last_order_at = orders
-      .map(o => new Date(o.created_at).getTime())
+      .map(o => new Date(o.createdAt).getTime())
       .reduce((a, b) => Math.max(a, b), 0)
     return {
       last_order_at: new Date(last_order_at).toISOString(),
       total_orders,
       total_spent: Number(total_spent.toFixed(2)),
-      currency: orders[0]?.currency || 'EUR',
+      currency: orders[0]?.totalPriceSet?.shopMoney?.currencyCode || 'EUR',
     }
   } catch (err) {
     console.error('[cron/churn] Shopify fetch failed:', err.message)

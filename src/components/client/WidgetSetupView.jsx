@@ -100,13 +100,13 @@ export const WidgetSetupView = ({ clientId }) => {
   }, [clientId])
 
   const snippet = `<script src="https://actero.fr/widget.js" data-actero-key="${apiKey}" defer></script>`
-  // No Shopify app required: the merchant pastes the snippet into their theme
-  // code. This link opens the Themes admin — from there: ⋯ → Modifier le code
-  // → layout/theme.liquid → paste before </body>. (We can't deep-link the exact
-  // file without the theme id, but this lands them one step away and always
-  // works, whether or not the Actero app is installed.)
+  // Sur Shopify, la bulle est livrée par l'extension de thème
+  // (extensions/actero-widget) : le marchand l'active dans l'éditeur de thème,
+  // il n'édite JAMAIS layout/theme.liquid. La règle 5.1.1 de l'App Store
+  // impose ce chemin, et l'écran précédent enseignait l'inverse.
+  // `?context=apps` ouvre directement le panneau « Widgets d'application ».
   const themesUrl = shopDomain
-    ? `https://${shopDomain}/admin/themes`
+    ? `https://${shopDomain}/admin/themes/current/editor?context=apps`
     : null
 
   const update = (patch) => { setCfg((c) => ({ ...c, ...patch })); setSaved(false) }
@@ -140,6 +140,18 @@ export const WidgetSetupView = ({ clientId }) => {
     } finally {
       setSaving(false)
     }
+  }
+
+  // `loading` démarre à true et seul l'effet ci-dessus le libère — or l'effet
+  // sort immédiatement quand clientId est absent. Sans cette garde explicite,
+  // l'écran restait sur « Chargement… » indéfiniment (le dashboard rendait ses
+  // onglets avant d'avoir résolu le client).
+  if (!clientId) {
+    return (
+      <div className="flex items-center justify-center py-20 text-[#71717a]">
+        Votre espace est en cours de préparation. Rechargez la page dans un instant.
+      </div>
+    )
   }
 
   if (loading) {
@@ -264,7 +276,7 @@ export const WidgetSetupView = ({ clientId }) => {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5F35] text-white text-sm font-semibold hover:bg-[#003725] transition-colors disabled:opacity-60"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F5F35] text-white text-sm font-semibold hover:bg-cta transition-colors disabled:opacity-60"
               >
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : null}
                 {saved ? 'Enregistré' : 'Enregistrer'}
@@ -280,8 +292,8 @@ export const WidgetSetupView = ({ clientId }) => {
                 <Code2 className="w-4.5 h-4.5 text-[#0F5F35]" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-[#1a1a1a]">Votre code à copier</h2>
-                <p className="text-xs text-[#71717a]">Une seule ligne — collez-la, c'est tout.</p>
+                <h2 className="text-base font-bold text-[#1a1a1a]">Mettre la bulle en ligne</h2>
+                <p className="text-xs text-[#71717a]">Sur Shopify, un interrupteur. Ailleurs, une ligne de code.</p>
               </div>
             </div>
 
@@ -300,37 +312,37 @@ export const WidgetSetupView = ({ clientId }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              <div className="rounded-xl border border-gray-100 bg-[#FAF7F2] p-4">
+              <div className="rounded-xl border border-gray-100 bg-surface p-4">
                 <div className="flex items-center gap-2 mb-1.5">
                   <ShoppingBag className="w-4 h-4 text-[#0F5F35]" />
                   <span className="text-sm font-semibold text-[#1a1a1a]">Sur Shopify</span>
                 </div>
                 <ol className="text-[12px] text-[#71717a] leading-relaxed list-decimal pl-4 space-y-0.5 mb-2.5">
-                  <li>Copiez la ligne de code ci-dessus.</li>
-                  <li>Boutique en ligne → Thèmes → <b>⋯</b> → <b>Modifier le code</b>.</li>
-                  <li>Ouvrez <span className="font-mono">layout/theme.liquid</span>.</li>
-                  <li>Collez juste avant <span className="font-mono">{'</body>'}</span> → Enregistrer.</li>
+                  <li>Ouvrez l'éditeur de thème avec le bouton ci-dessous.</li>
+                  <li>Panneau <b>Widgets d'application</b> (App embeds), à gauche.</li>
+                  <li>Activez <b>Actero AI Support Widget</b>.</li>
+                  <li>Enregistrez. La bulle est en ligne.</li>
                 </ol>
                 {themesUrl && (
                   <a
                     href={themesUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-[#003725] transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0F5F35] text-white text-[12px] font-semibold hover:bg-cta transition-colors"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
-                    Ouvrir mes thèmes Shopify
+                    Activer la bulle sur ma boutique
                   </a>
                 )}
-                <p className="text-[11px] text-[#9ca3af] mt-2">Aucune application à installer.</p>
+                <p className="text-[11px] text-[#9ca3af] mt-2">Aucun code à coller : la bulle est livrée avec l'application.</p>
               </div>
-              <div className="rounded-xl border border-gray-100 bg-[#FAF7F2] p-4">
+              <div className="rounded-xl border border-gray-100 bg-surface p-4">
                 <div className="flex items-center gap-2 mb-1.5">
                   <Code2 className="w-4 h-4 text-[#0F5F35]" />
                   <span className="text-sm font-semibold text-[#1a1a1a]">Autre site</span>
                 </div>
                 <p className="text-[12px] text-[#71717a] leading-relaxed">
-                  Collez la ligne juste avant la balise <span className="font-mono">{'</body>'}</span> de votre site. Compatible WooCommerce, Webflow, WordPress et tout site web.
+                  Hors Shopify uniquement. Collez la ligne juste avant la balise <span className="font-mono">{'</body>'}</span> de votre site : WooCommerce, Webflow, WordPress ou tout autre site.
                 </p>
               </div>
             </div>
@@ -339,7 +351,7 @@ export const WidgetSetupView = ({ clientId }) => {
 
         {/* ── Aperçu live ── */}
         <div className="lg:sticky lg:top-6 self-start">
-          <div className="rounded-2xl border border-gray-200 bg-[#FAF7F2] p-6 h-[440px] relative overflow-hidden">
+          <div className="rounded-2xl border border-gray-200 bg-surface p-6 h-[440px] relative overflow-hidden">
             <p className="text-xs font-semibold text-[#71717a] mb-2">Aperçu</p>
             {/* Mini chat panel preview */}
             <div
@@ -357,7 +369,7 @@ export const WidgetSetupView = ({ clientId }) => {
                 </div>
               </div>
               <div className="p-3 space-y-2">
-                <div className="text-[11px] bg-[#f5f5f0] text-[#262626] rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]">
+                <div className="text-[11px] bg-surface text-[#262626] rounded-xl rounded-bl-sm px-3 py-2 max-w-[85%]">
                   {cfg.widget_greeting || 'Bonjour ! Comment puis-je vous aider ?'}
                 </div>
                 <div className="text-[11px] text-white rounded-xl rounded-br-sm px-3 py-2 max-w-[85%] ml-auto" style={{ background: cfg.widget_brand_color }}>

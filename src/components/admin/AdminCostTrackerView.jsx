@@ -141,7 +141,7 @@ export const AdminCostTrackerView = () => {
         subtitle="Coûts LLM par client (30 derniers jours)"
       />
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#fafafa]">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface">
         <KpiRow>
           <KpiCard
             label="Cout total 24h"
@@ -181,7 +181,7 @@ export const AdminCostTrackerView = () => {
           {isLoading ? (
             <div className="space-y-2">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 rounded-xl bg-[#fafafa] animate-pulse" />
+                <div key={i} className="h-12 rounded-xl bg-surface animate-pulse" />
               ))}
             </div>
           ) : stats.clientRows.length === 0 ? (
@@ -227,7 +227,7 @@ export const AdminCostTrackerView = () => {
           {chartData.length === 0 ? (
             <EmptyState
               icon={DollarSign}
-              title="Pas encore de donnees"
+              title="Pas encore de données"
               description="Le chart se remplira des qu'il y aura des runs."
             />
           ) : (
@@ -258,7 +258,7 @@ export const AdminCostTrackerView = () => {
                     tickLine={false}
                   />
                   <Tooltip
-                    cursor={{ fill: '#fafafa' }}
+                    cursor={{ fill: '#F4F5F7' }}
                     contentStyle={{
                       borderRadius: 12,
                       border: '1px solid #f0f0f0',
@@ -266,7 +266,7 @@ export const AdminCostTrackerView = () => {
                     }}
                     formatter={(val) => [`$${val}`, 'Cout 30j']}
                   />
-                  <Bar dataKey="total" fill="#0E653A" radius={[0, 6, 6, 0]} />
+                  <Bar dataKey="total" fill="#13804A" radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

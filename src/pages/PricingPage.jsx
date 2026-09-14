@@ -55,7 +55,7 @@ const CTA_LINKS = {
 const CARD_CLASSES = {
   free: "border-black/[0.08] bg-white text-[#1A1A1A]",
   starter: "border-black/[0.08] bg-white text-[#1A1A1A]",
-  pro: "border-cta bg-[#003725] text-white shadow-[0_20px_50px_-15px_rgba(0,55,37,0.35)] scale-[1.02]",
+  pro: "border-cta bg-cta text-white shadow-[0_20px_50px_-15px_rgba(0,55,37,0.35)] scale-[1.02]",
   enterprise: "border-black/[0.08] bg-white text-[#1A1A1A]",
 };
 
@@ -110,12 +110,8 @@ function buildFeatures(plan) {
       "Workflows illimités",
       "Toutes les intégrations",
       "Base de connaissances illimitée",
-      "Multi-boutiques (plusieurs Shopify)",
-      "White-label complet (suppression branding Actero)",
-      "Agent vocal — minutes illimitées",
-      "Voix custom agent vocal (clonage marque)",
+      "White-label du widget et du portail (branding Actero retiré)",
       "Agents IA spécialisés",
-      "Portail SAV avec custom domain + branding",
       "Agent Email natif Actero",
       "Rapport ROI sur mesure",
       "API avancée + intégrations custom",
@@ -136,11 +132,10 @@ function buildFeatures(plan) {
       `Shopify + ${limits.integrations - 1} intégrations`,
       `Base de connaissances ${limits.knowledge_entries} entrées`,
       `${limits.team_members} membres d'équipe`,
-      "Éditeur ton de marque",
       "Règles métier & guardrails",
       "Simulateur de conversation",
       "API REST + Webhooks",
-      "Portail SAV self-service",
+      "Relance paniers abandonnés",
       "Dashboard ROI complet",
       "Historique 90 jours",
       "Support email 48h",
@@ -157,15 +152,12 @@ function buildFeatures(plan) {
       "Toutes les intégrations",
       "Base de connaissances illimitée",
       `${limits.team_members} membres d'équipe`,
-      `Agent vocal ElevenLabs (${limits.voice_minutes} min/mois)`,
-      "Numéro FR dédié pour l'agent vocal",
       "Agents IA spécialisés (WISMO, retour, produit, proactif)",
+      "Relance paniers abandonnés (agent proactif)",
       "Agent Email natif Actero",
-      "Éditeur ton de marque",
+      "Portail client en marque blanche (suivi, retours, remboursements)",
       "Simulateur de conversation",
       "API REST + Webhooks",
-      "Portail SAV avec custom domain",
-      "Branding portail personnalisé",
       "Rapport PDF mensuel auto-envoyé",
       "Dashboard ROI complet",
       "Historique illimité",
@@ -179,11 +171,6 @@ function buildFeatures(plan) {
   lines.push(`${fmt(limits.tickets_per_month)} tickets / mois`);
   lines.push(SUPPORT_LABELS[support] || support);
   return lines;
-}
-
-function buildOverage(plan) {
-  if (plan.overage_per_ticket == null) return null;
-  return `${plan.overage_per_ticket.toFixed(2).replace(".", ",")}\u20AC / ticket`;
 }
 
 /* Build the plans array from PLANS + PLAN_ORDER */
@@ -201,7 +188,6 @@ const plans = PLAN_ORDER.map((id) => {
     highlighted: p.popular,
     cardClass: CARD_CLASSES[p.id],
     features: buildFeatures(p),
-    overage: buildOverage(p),
   };
 });
 
@@ -226,7 +212,7 @@ const comparisonCategories = [
         values: compVal(PLAN_ORDER, (p) => fmt(p.limits.workflows_active)),
       },
       {
-        label: "Membres d'equipe",
+        label: "Membres d'équipe",
         values: compVal(PLAN_ORDER, (p) => fmt(p.limits.team_members)),
       },
       {
@@ -280,13 +266,18 @@ const comparisonCategories = [
         values: compVal(PLAN_ORDER, (p) => p.features.specialized_agents),
       },
       {
-        label: "Agent vocal",
-        values: compVal(PLAN_ORDER, (p) => {
-          if (!p.features.voice_agent) return false;
-          if (p.limits.voice_minutes === Infinity) return "Custom";
-          if (p.limits.voice_minutes > 0) return `${p.limits.voice_minutes} min`;
-          return false;
-        }),
+        label: "Modèle IA",
+        // Même modèle sur les quatre plans : c'est l'argument. Un Free à 0 €
+        // tourne sur le même moteur qu'un Enterprise.
+        values: compVal(PLAN_ORDER, () => "Claude Sonnet 5"),
+      },
+      {
+        label: "Analyse photo (Claude Sonnet 5)",
+        values: compVal(PLAN_ORDER, (p) =>
+          p.limits.vision_analyses_per_month === Infinity
+            ? "Illimité"
+            : `${fmt(p.limits.vision_analyses_per_month)}/mois`
+        ),
       },
       {
         label: "Simulateur conversation",
@@ -297,10 +288,6 @@ const comparisonCategories = [
   {
     name: "Personnalisation",
     rows: [
-      {
-        label: "Éditeur ton de marque",
-        values: compVal(PLAN_ORDER, (p) => p.features.brand_editor),
-      },
       {
         label: "Règles & limites",
         values: compVal(PLAN_ORDER, (p) => p.features.guardrails),
@@ -314,13 +301,6 @@ const comparisonCategories = [
       {
         label: "White-label",
         values: compVal(PLAN_ORDER, (p) => p.features.white_label),
-      },
-      {
-        label: "Multi-boutiques",
-        values: compVal(PLAN_ORDER, (p) => {
-          if (!p.features.multi_shop) return false;
-          return "10 stores";
-        }),
       },
     ],
   },
@@ -373,19 +353,19 @@ const faqs = [
   },
   {
     q: "Que se passe-t-il si je dépasse mon quota de tickets ?",
-    a: `Au-delà de votre quota mensuel, chaque ticket supplémentaire est facturé à l'usage : ${PLANS.starter.overage_per_ticket.toFixed(2).replace(".", ",")}\u20AC/ticket sur le plan Starter, ${PLANS.pro.overage_per_ticket.toFixed(2).replace(".", ",")}\u20AC/ticket sur le plan Pro. Vous recevez une alerte à 80% et 100% de votre quota pour anticiper. Aucune coupure de service.`,
+    a: "Votre quota est un plafond : aucun dépassement n'est facturé à votre insu. Vous recevez une alerte à 80% et 100% de votre quota. Une fois le quota atteint, l'agent se met en pause — vous pouvez le réactiver immédiatement en achetant des crédits (packs ponctuels, sans engagement) ou en passant au plan supérieur.",
   },
   {
     q: "L'essai gratuit est-il sans engagement ?",
     a: "Oui, l'essai de 7 jours est 100% gratuit et sans engagement. Aucune carte bancaire requise pour le plan Free. Pour Starter et Pro, vous pouvez annuler à tout moment pendant l'essai sans être débité.",
   },
   {
-    q: "Comment fonctionne l'agent vocal ?",
-    a: `L'agent vocal utilise ElevenLabs pour une voix naturelle en français. Vous obtenez un numéro FR dédié. Le plan Pro inclut ${PLANS.pro.limits.voice_minutes} minutes/mois. Au-delà, les minutes supplémentaires sont facturées à l'usage. Le plan Enterprise permet une voix custom à votre marque.`,
+    q: "L'agent comprend-il les photos envoyées par les clients ?",
+    a: "Oui. Grâce à Claude Sonnet 5, l'agent analyse les images jointes (article endommagé, mauvais produit reçu, capture d'écran) pour comprendre la demande et répondre juste. Chaque plan inclut un quota d'analyses photo mensuel.",
   },
   {
     q: "Quelles intégrations sont disponibles ?",
-    a: "Actero se connecte nativement à Shopify, WooCommerce, Webflow, Gorgias, Zendesk, Stripe, Slack, Resend, Axonaut, Pennylane, iPaidThat et bien d'autres. Le plan Pro ajoute l'accès API et webhooks. Le plan Enterprise permet des intégrations custom sur mesure.",
+    a: "Actero se connecte nativement à Shopify (OAuth 1-clic) et répond sur le live-chat et l'email. Les helpdesks Gorgias et Zendesk sont pris en charge, et le plan Starter débloque l'API REST + webhooks pour brancher vos propres outils. Le plan Enterprise permet des intégrations custom sur mesure.",
   },
   {
     q: "Proposez-vous un discount annuel ?",
@@ -440,7 +420,7 @@ export const PricingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Tarifs Actero — Agent IA pour Shopify à partir de 99€/mois"
-        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + agent vocal). Essai 7 jours sans carte bancaire."
+        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Essai gratuit sur Starter et Pro."
         canonical="/tarifs"
         schemaData={{
           "@context": "https://schema.org",
@@ -486,7 +466,7 @@ export const PricingPage = ({ onNavigate }) => {
                 "name": "Pro",
                 "price": "399",
                 "priceCurrency": "EUR",
-                "description": "5 000 tickets/mois, workflows illimités, toutes intégrations, agent vocal, API & webhooks",
+                "description": "5 000 tickets/mois, workflows illimités, agents spécialisés, relance paniers, analyse photo Vision, API & webhooks",
                 "url": "https://actero.fr/tarifs",
                 "availability": "https://schema.org/InStock",
                 "priceSpecification": {
@@ -509,10 +489,10 @@ export const PricingPage = ({ onNavigate }) => {
         }}
       />
 
-      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-[#003725]/10">
+      <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-cta/10">
         <Navbar onNavigate={onNavigate} trackEvent={trackEvent} />
 
-        <main className="pt-32 pb-24 px-6">
+        <main className="pt-36 md:pt-40 pb-24 px-6">
           <div className="max-w-7xl mx-auto">
 
             {/* ── Hero (variation A style) ── */}
@@ -528,7 +508,7 @@ export const PricingPage = ({ onNavigate }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="font-normal leading-[1.05] text-[#1A1A1A] mb-6"
-                style={{ fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)', fontSize: 'clamp(38px, 5.2vw, 64px)', letterSpacing: '-0.02em' }}
+                style={{ fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)', fontSize: 'clamp(38px, 5.2vw, 64px)', letterSpacing: '-0.02em' }}
               >
                 Starter à 99€/mois ≈ 1 200€<br className="hidden md:block" />
                 <span className="italic text-[#716D5C]">d'heures SAV économisées.</span>
@@ -553,6 +533,24 @@ export const PricingPage = ({ onNavigate }) => {
                 <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cta" /> Garantie 30 jours satisfait ou remboursé</span>
               </motion.p>
 
+              {/* ── Le modèle, dit franchement ──
+                  Le même moteur sur les quatre plans, Free compris. À ce
+                  niveau de prix, c'est la question que le visiteur se pose :
+                  sur quel modèle tourne un agent à 99 €. Y répondre avant
+                  qu'il la pose vaut mieux que de la laisser en suspens. */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.18 }}
+                className="mx-auto mb-10 flex w-fit max-w-full items-center gap-2 rounded-full border border-[#E6E8EC] bg-white/60 px-4 py-2 text-[13px] text-[#5A5A5A]"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-cta shrink-0" />
+                <span>
+                  Propulsé par <strong className="font-semibold text-[#1A1A1A]">Claude Sonnet 5</strong> —
+                  le même modèle sur tous les plans, Free compris.
+                </span>
+              </motion.p>
+
               {/* ── Toggle Mensuel / Annuel ── */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -563,7 +561,7 @@ export const PricingPage = ({ onNavigate }) => {
                 <div
                   role="group"
                   aria-label="Facturation"
-                  className="inline-flex items-center gap-3 bg-[#F9F7F1] border border-gray-200 rounded-full px-2 py-1.5"
+                  className="inline-flex items-center gap-3 bg-surface border border-gray-200 rounded-full px-2 py-1.5"
                 >
                   <button
                     onClick={() => setIsAnnual(false)}
@@ -640,13 +638,13 @@ export const PricingPage = ({ onNavigate }) => {
                       </div>
                       <h3 className={`text-xl font-bold ${plan.highlighted ? 'text-white' : 'text-[#1A1A1A]'}`}>{plan.name}</h3>
                     </div>
-                    <p className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F0E6]/60' : 'text-[#716D5C]'}`}>{plan.tagline}</p>
+                    <p className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F5F7]/60' : 'text-[#716D5C]'}`}>{plan.tagline}</p>
                   </div>
 
                   <div className="mb-6">
                     <div className="flex items-baseline gap-2">
                       {isAnnual && plan.monthlyPrice > 0 && (
-                        <span className={`line-through text-2xl font-bold ${plan.highlighted ? 'text-[#F4F0E6]/35' : 'text-[#9ca3af]'}`}>
+                        <span className={`line-through text-2xl font-bold ${plan.highlighted ? 'text-[#F4F5F7]/35' : 'text-[#9ca3af]'}`}>
                           {plan.monthlyPrice}€
                         </span>
                       )}
@@ -662,12 +660,12 @@ export const PricingPage = ({ onNavigate }) => {
                           {getPrice(plan)}
                         </motion.span>
                       </AnimatePresence>
-                      <span className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F0E6]/60' : 'text-[#716D5C]'}`}>
+                      <span className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F5F7]/60' : 'text-[#716D5C]'}`}>
                         {getPeriod(plan)}
                       </span>
                     </div>
                     {getSubPrice(plan) && (
-                      <p className={`text-xs mt-1 ${plan.highlighted ? 'text-[#F4F0E6]/60' : 'text-[#716D5C]'}`}>{getSubPrice(plan)}</p>
+                      <p className={`text-xs mt-1 ${plan.highlighted ? 'text-[#F4F5F7]/60' : 'text-[#716D5C]'}`}>{getSubPrice(plan)}</p>
                     )}
                   </div>
 
@@ -680,7 +678,7 @@ export const PricingPage = ({ onNavigate }) => {
                     className={`w-full py-3.5 rounded-full font-bold text-sm transition-colors flex items-center justify-center gap-2 mb-8 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group ${
                       plan.highlighted
                         ? "bg-[#A8C490] text-[#003725] hover:bg-white"
-                        : "bg-[#F9F7F1] border border-gray-200 text-[#262626] hover:bg-gray-100"
+                        : "bg-surface border border-gray-200 text-[#262626] hover:bg-gray-100"
                     }`}
                   >
                     {plan.cta}
@@ -688,24 +686,18 @@ export const PricingPage = ({ onNavigate }) => {
                   </motion.button>
 
                   {/* Divider */}
-                  <div className={`border-t mb-6 ${plan.highlighted ? 'border-[#F4F0E6]/15' : 'border-gray-100'}`} />
+                  <div className={`border-t mb-6 ${plan.highlighted ? 'border-[#F4F5F7]/15' : 'border-gray-100'}`} />
 
                   {/* Features */}
                   <div className="space-y-3 flex-1">
                     {plan.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2.5">
                         <Check className={`w-4 h-4 shrink-0 mt-0.5 ${plan.highlighted ? 'text-[#A8C490]' : 'text-cta'}`} />
-                        <span className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F0E6]/90' : 'text-[#716D5C]'}`}>{feature}</span>
+                        <span className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F5F7]/90' : 'text-[#716D5C]'}`}>{feature}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Overage */}
-                  {plan.overage && (
-                    <p className={`mt-6 text-xs pt-4 border-t ${plan.highlighted ? 'text-[#F4F0E6]/60 border-[#F4F0E6]/15' : 'text-[#716D5C] border-gray-100'}`}>
-                      Overage : {plan.overage}
-                    </p>
-                  )}
                 </motion.div>
               );
               })}
@@ -724,7 +716,7 @@ export const PricingPage = ({ onNavigate }) => {
             <div className="mt-24 max-w-3xl mx-auto">
               <h2
                 className="text-center font-normal text-[#1A1A1A] mb-12 leading-[1.05]"
-                style={{ fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)', fontSize: 'clamp(32px, 4.5vw, 48px)', letterSpacing: '-0.02em' }}
+                style={{ fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)', fontSize: 'clamp(32px, 4.5vw, 48px)', letterSpacing: '-0.02em' }}
               >
                 Questions fréquentes
               </h2>
@@ -732,7 +724,7 @@ export const PricingPage = ({ onNavigate }) => {
                 {faqs.map((faq, i) => (
                   <div
                     key={i}
-                    className="bg-[#F9F7F1] border border-gray-200 rounded-2xl overflow-hidden"
+                    className="bg-surface border border-gray-200 rounded-2xl overflow-hidden"
                   >
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -769,7 +761,7 @@ export const PricingPage = ({ onNavigate }) => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-[#003725] rounded-3xl p-12 md:p-16"
+                className="bg-cta rounded-3xl p-12 md:p-16"
               >
                 <h2
                   className="text-3xl md:text-4xl font-bold text-white mb-4"
@@ -790,7 +782,7 @@ export const PricingPage = ({ onNavigate }) => {
                     whileHover={prefersReducedMotion ? {} : { scale: 1.02 }}
                     whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-[#F9F7F1] transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group"
+                    className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-surface transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group"
                   >
                     Essai gratuit 7 jours
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />

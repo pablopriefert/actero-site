@@ -53,7 +53,7 @@ export const OpportunitiesView = ({ clientId, onNavigate }) => {
       urgent: (kbCount || 0) < 5,
     },
     {
-      id: 'integrations',
+      id: 'intégrations',
       title: 'Connecter plus d\'outils',
       description: (integrationsCount || 0) < 3
         ? 'Plus d\'intégrations = plus de contexte pour l\'agent. Shopify, Gmail, Gorgias…'
@@ -61,7 +61,7 @@ export const OpportunitiesView = ({ clientId, onNavigate }) => {
       impact: 'Contexte enrichi',
       icon: Target,
       action: 'Voir les intégrations',
-      target: 'integrations',
+      target: 'intégrations',
       urgent: (integrationsCount || 0) < 2,
     },
     {

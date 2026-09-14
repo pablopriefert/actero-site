@@ -1,5 +1,5 @@
 /**
- * Actero Engine — OpenAI Client
+ * Actero Engine — OpenAI-compatible Client (OpenAI + OpenRouter)
  *
  * Mirrors the contract of claude-client.js exactly (same args, same return
  * shape) so it's a drop-in provider behind llm-client.js. Handles the GPT-5
@@ -12,8 +12,15 @@
  *   - `response_format: json_object` for structured output (the engine parses
  *     JSON). The caller's system prompt already asks for JSON.
  *
- * Wrapped in a Braintrust span ("openai.call") — fail-soft, never blocks.
+ * OpenRouter (https://openrouter.ai) exposes the exact same Chat Completions
+ * API, so `callOpenRouter` reuses this client verbatim — only the endpoint,
+ * API key, attribution headers and the (namespaced) model id differ. This lets
+ * OpenRouter is the default provider (LLM_PROVIDER), so the engine spends the
+ * OpenRouter credit pool unless told otherwise.
+ *
+ * Wrapped in a Braintrust span — fail-soft, never blocks.
  */
+import { looksLikeTruncatedEnvelope, salvageResponseText } from './salvage-json.js'
 import { trace } from './braintrust-init.js'
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
@@ -24,26 +31,62 @@ const REASONING_EFFORT = process.env.OPENAI_REASONING_EFFORT || 'none'
 const MAX_TOKENS = 512
 const TIMEOUT_MS = 8000
 
-export async function callOpenAI({ systemPrompt, messages, maxTokens = MAX_TOKENS, model }) {
-  if (!OPENAI_API_KEY) throw new Error('OPENAI_API_KEY not configured')
-  const useModel = model || MODEL
+// ── OpenRouter — OpenAI-compatible gateway (separate credit pool) ──
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY
+// OpenRouter model ids are namespaced (`vendor/model`). Sonnet 5 is the engine
+// default — $2/$10 per 1M on OpenRouter, cheaper than Sonnet 4.5 at equal tier.
+// Override with OPENROUTER_MODEL.
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-sonnet-5'
+// Optional attribution (OpenRouter rankings) — harmless if unset.
+const OPENROUTER_SITE_URL = process.env.OPENROUTER_SITE_URL || 'https://actero.fr'
+const OPENROUTER_APP_NAME = process.env.OPENROUTER_APP_NAME || 'Actero'
+
+const OPENAI_CFG = {
+  label: 'openai',
+  endpoint: 'https://api.openai.com/v1/chat/completions',
+  apiKey: OPENAI_API_KEY,
+  keyName: 'OPENAI_API_KEY',
+  defaultModel: MODEL,
+  extraHeaders: {},
+}
+
+const OPENROUTER_CFG = {
+  label: 'openrouter',
+  endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+  apiKey: OPENROUTER_API_KEY,
+  keyName: 'OPENROUTER_API_KEY',
+  defaultModel: OPENROUTER_MODEL,
+  extraHeaders: { 'HTTP-Referer': OPENROUTER_SITE_URL, 'X-Title': OPENROUTER_APP_NAME },
+}
+
+export async function callOpenAI(args) {
+  return _callProvider(OPENAI_CFG, args)
+}
+
+export async function callOpenRouter(args) {
+  return _callProvider(OPENROUTER_CFG, args)
+}
+
+async function _callProvider(cfg, { systemPrompt, messages, maxTokens = MAX_TOKENS, model }) {
+  if (!cfg.apiKey) throw new Error(`${cfg.keyName} not configured`)
+  const useModel = model || cfg.defaultModel
 
   return trace(
-    'openai.call',
+    `${cfg.label}.call`,
     {
       input: { system: systemPrompt, messages },
-      metadata: { model: useModel, max_tokens: maxTokens, reasoning_effort: REASONING_EFFORT },
+      metadata: { model: useModel, max_tokens: maxTokens, reasoning_effort: REASONING_EFFORT, provider: cfg.label },
     },
-    async (span) => _callOpenAIInner({ systemPrompt, messages, maxTokens, model: useModel }, span),
+    async (span) => _callInner(cfg, { systemPrompt, messages, maxTokens, model: useModel }, span),
   )
 }
 
-async function _callOpenAIInner({ systemPrompt, messages, maxTokens, model }, span) {
+async function _callInner(cfg, { systemPrompt, messages, maxTokens, model }, span) {
   const startTime = Date.now()
   let lastError = null
 
-  // OpenAI takes the system prompt as the first message (unlike Anthropic's
-  // top-level `system`). Everything else is the same {role, content} shape.
+  // OpenAI-compatible APIs take the system prompt as the first message (unlike
+  // Anthropic's top-level `system`). Everything else is the same {role, content}.
   const fullMessages = [{ role: 'system', content: systemPrompt }, ...(messages || [])]
 
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -51,17 +94,23 @@ async function _callOpenAIInner({ systemPrompt, messages, maxTokens, model }, sp
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const res = await fetch(cfg.endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
+          Authorization: `Bearer ${cfg.apiKey}`,
+          ...cfg.extraHeaders,
         },
         body: JSON.stringify({
           model,
           messages: fullMessages,
           max_completion_tokens: maxTokens,
-          reasoning_effort: REASONING_EFFORT,
+          // Only send reasoning_effort when it's a value the API accepts. Our
+          // default 'none' is NOT valid (OpenAI accepts minimal|low|medium|high)
+          // and 400s on some models — which would silently defeat failover.
+          ...(['minimal', 'low', 'medium', 'high'].includes(REASONING_EFFORT)
+            ? { reasoning_effort: REASONING_EFFORT }
+            : {}),
           response_format: { type: 'json_object' },
         }),
         signal: controller.signal,
@@ -71,7 +120,7 @@ async function _callOpenAIInner({ systemPrompt, messages, maxTokens, model }, sp
 
       if (!res.ok) {
         const errText = await res.text()
-        throw new Error(`OpenAI API ${res.status}: ${errText}`)
+        throw new Error(`${cfg.label} API ${res.status}: ${errText}`)
       }
 
       const data = await res.json()
@@ -100,11 +149,24 @@ async function _callOpenAIInner({ systemPrompt, messages, maxTokens, model }, sp
         try {
           parsed = JSON.parse(jsonStr)
         } catch {
+          // Le contrat JSON n'a pas tenu. Deux cas très différents :
+          //
+          //  - une enveloppe JSON TRONQUÉE (maxTokens atteint en pleine
+          //    chaîne) : mettre `rawText` dans `response` envoyait
+          //    littéralement `{ "response": "Je comprends votre…` au client.
+          //    Constaté sur le banc ACT-8, cas 13, sans revue humaine.
+          //    On récupère la dernière phrase complète et on escalade : une
+          //    réponse amputée n'est pas envoyable.
+          //
+          //  - du texte simple, sans JSON : le modèle a répondu en clair,
+          //    c'est utilisable tel quel.
+          const tronquee = looksLikeTruncatedEnvelope(rawText)
+          const recupere = tronquee ? salvageResponseText(rawText) : null
           parsed = {
-            response: rawText.replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim(),
+            response: (recupere || rawText).replace(/\*\*/g, '').replace(/\*/g, '').replace(/^#+\s/gm, '').trim(),
             confidence: 0.5,
-            should_escalate: false,
-            escalation_reason: null,
+            should_escalate: tronquee,
+            escalation_reason: tronquee ? 'reponse_tronquee' : null,
             detected_intent: 'general',
             sentiment_score: 5,
             injection_detected: false,
@@ -117,6 +179,7 @@ async function _callOpenAIInner({ systemPrompt, messages, maxTokens, model }, sp
           output: rawText,
           metadata: {
             model_id: modelId,
+            provider: cfg.label,
             tokens_in: usage.tokensIn,
             tokens_out: usage.tokensOut,
             reasoning_tokens: data?.usage?.completion_tokens_details?.reasoning_tokens ?? null,
@@ -134,14 +197,14 @@ async function _callOpenAIInner({ systemPrompt, messages, maxTokens, model }, sp
     } catch (err) {
       lastError = err
       if (err.name === 'AbortError') {
-        lastError = new Error('OpenAI API timeout (8s)')
+        lastError = new Error(`${cfg.label} API timeout (8s)`)
       }
       if (attempt === 0) await new Promise(r => setTimeout(r, 500))
     }
   }
 
   try {
-    span?.log({ output: null, metadata: { error: lastError?.message || 'unknown', failed: true } })
+    span?.log({ output: null, metadata: { error: lastError?.message || 'unknown', failed: true, provider: cfg.label } })
   } catch { /* observability never blocks */ }
 
   throw lastError

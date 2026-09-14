@@ -15,7 +15,7 @@ const MAX_SIZE = 5 * 1024 * 1024
  *  - Thumbnails grid (64×64) with Lucide CheckCircle2 overlay when uploaded.
  *  - Each thumb has an X remove button (visible ≥32px, 44px hitSlop via p-1.5).
  *  - Errors announced via role="alert" aria-live="polite".
- *  - Tailwind v4, portal cream palette (#F4F0E6), primary var(--portal-primary).
+ *  - Tailwind v4, portal cream palette (#F4F5F7), primary var(--portal-primary).
  */
 export default function AttachmentUploader({ onChange }) {
   const inputRef = useRef(null)
@@ -47,7 +47,7 @@ export default function AttachmentUploader({ onChange }) {
       const { path } = await resp.json()
       return { ...item, path, uploading: false, error: null }
     } catch (_e) {
-      return { ...item, uploading: false, error: 'Upload echoue' }
+      return { ...item, uploading: false, error: 'Upload échoué' }
     }
   }, [])
 
@@ -154,8 +154,8 @@ export default function AttachmentUploader({ onChange }) {
         aria-label={`Zone de dépôt, ${MAX} images max, 5 Mo chacune`}
         className={`w-full flex flex-col items-center justify-center gap-2 px-4 py-6 rounded-xl border-2 border-dashed transition-colors ${
           isDragging
-            ? 'border-[color:var(--portal-primary,#1F3A12)] bg-[#EAE3D1]'
-            : 'border-[#C9BFA6] bg-[#F4F0E6] hover:border-[color:var(--portal-primary,#1F3A12)] hover:bg-[#EEE7D4]'
+            ? 'border-[color:var(--portal-primary,#1F3A12)] bg-primary-tint'
+            : 'border-border-cream bg-cream hover:border-[color:var(--portal-primary,#1F3A12)] hover:bg-cream'
         } ${!canAdd ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         <Paperclip className="w-6 h-6" style={{ color: primary }} aria-hidden="true" />
@@ -183,7 +183,7 @@ export default function AttachmentUploader({ onChange }) {
         <ul className="flex flex-wrap gap-2" aria-label="Images à envoyer">
           {items.map(item => (
             <li key={item.id} className="relative">
-              <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#C9BFA6] bg-[#F4F0E6]">
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-border-cream bg-cream">
                 <img
                   src={item.preview}
                   alt={item.name}
@@ -204,7 +204,7 @@ export default function AttachmentUploader({ onChange }) {
                 type="button"
                 onClick={() => removeItem(item.id)}
                 aria-label={`Retirer ${item.name}`}
-                className="absolute -top-2 -right-2 p-1.5 rounded-full bg-white border border-[#C9BFA6] shadow-sm hover:bg-red-50 hover:border-red-200 transition-colors"
+                className="absolute -top-2 -right-2 p-1.5 rounded-full bg-white border border-border-cream shadow-sm hover:bg-red-50 hover:border-red-200 transition-colors"
                 style={{ lineHeight: 0 }}
               >
                 <X className="w-3.5 h-3.5 text-[#5A5A5A]" aria-hidden="true" />

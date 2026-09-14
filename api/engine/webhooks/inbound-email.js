@@ -106,7 +106,7 @@ async function handler(req, res) {
   // Fetch client email-agent settings up-front (used for exclusions + auto-reply logic)
   const { data: clientSettings } = await supabase
     .from('client_settings')
-    .select('email_agent_enabled, email_auto_reply_enabled, email_confidence_threshold, email_quiet_hours_start, email_quiet_hours_end, email_exclusions, email_signature, email_attach_voice, email_send_delay_seconds')
+    .select('email_agent_enabled, email_auto_reply_enabled, email_confidence_threshold, email_quiet_hours_start, email_quiet_hours_end, email_exclusions, email_signature, email_send_delay_seconds')
     .eq('client_id', resolvedClientId)
     .maybeSingle()
 
@@ -202,6 +202,40 @@ async function handler(req, res) {
     const playbook = await loadPlaybook(supabase, resolvedClientId, 'email_inbound')
     if (!playbook) {
       return res.status(200).json({ status: 'no_playbook', message: 'Aucun playbook email actif pour ce client' })
+    }
+
+    // Déjà traité ? On sort avant de payer un appel LLM et surtout avant
+    // d'envoyer une seconde réponse au même client.
+    //
+    // Deux mécanismes relèvent les emails : le cron Vercel
+    // `poll-inbound-emails` (toutes les 2 minutes) et les workflows n8n créés
+    // par `engine/setup-email-polling.js`. Rien en base ne les empêche de
+    // traiter le même message : l'index sur `ai_conversations.email_message_id`
+    // n'était pas unique, et la seule protection était la marque « lu » de la
+    // boîte — perdue si les deux pollers lisent avant que l'un ne marque.
+    //
+    // L'insertion du journal, elle, arrive trop tard : elle est enveloppée dans
+    // un try/catch « non-fatal », donc un conflit y serait avalé et l'exécuteur
+    // enverrait quand même le doublon.
+    //
+    // Ce contrôle ferme le cas courant — deux relèves à quelques secondes
+    // d'écart. Il reste une fenêtre si deux invocations passent ici en même
+    // temps ; la fermer demande une réservation atomique avant le brain, ce qui
+    // est un remaniement de ce gestionnaire (voir le ticket dédié).
+    if (messageId) {
+      const { data: dejaVu } = await supabase
+        .from('ai_conversations')
+        .select('id')
+        .eq('client_id', resolvedClientId)
+        .eq('email_message_id', messageId)
+        .maybeSingle()
+      if (dejaVu) {
+        return res.status(200).json({
+          status: 'already_processed',
+          message_id: messageId,
+          conversation_id: dejaVu.id,
+        })
+      }
     }
 
     // Store event

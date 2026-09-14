@@ -154,7 +154,7 @@ export const AdminReferralsView = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-5"
+            className="bg-surface rounded-2xl border border-[#f0f0f0] p-5"
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-semibold text-[#71717a] uppercase tracking-wider">{kpi.label}</span>
@@ -169,13 +169,13 @@ export const AdminReferralsView = () => {
 
       {/* Top referrers */}
       {topReferrers.length > 0 && (
-        <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] p-6">
+        <div className="bg-surface rounded-2xl border border-[#f0f0f0] p-6">
           <h3 className="text-[13px] font-bold text-[#1a1a1a] mb-4">Top parrains</h3>
           <div className="flex flex-wrap gap-3">
             {topReferrers.map(([name, count], i) => (
               <div
                 key={name}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#fafafa] border border-[#f0f0f0]"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface border border-[#f0f0f0]"
               >
                 <span className="text-[12px] font-bold text-emerald-500">{i + 1}.</span>
                 <span className="text-[13px] font-medium text-[#1a1a1a]">{name}</span>
@@ -195,7 +195,7 @@ export const AdminReferralsView = () => {
             placeholder="Rechercher par client ou code..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#ffffff] border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder:text-[#71717a] outline-none focus:border-gray-300"
+            className="w-full pl-10 pr-4 py-2.5 bg-surface border border-[#f0f0f0] rounded-xl text-[13px] text-[#1a1a1a] placeholder:text-[#71717a] outline-none focus:border-gray-300"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto">
@@ -205,7 +205,7 @@ export const AdminReferralsView = () => {
               onClick={() => setStatusFilter(s)}
               className={`px-3 py-2 rounded-lg text-[12px] font-bold whitespace-nowrap transition-all ${
                 statusFilter === s
-                  ? 'bg-[#fafafa] text-[#1a1a1a]'
+                  ? 'bg-surface text-[#1a1a1a]'
                   : 'text-[#71717a] hover:text-[#71717a]'
               }`}
             >
@@ -216,7 +216,7 @@ export const AdminReferralsView = () => {
       </div>
 
       {/* Referrals table */}
-      <div className="bg-[#ffffff] rounded-2xl border border-[#f0f0f0] overflow-hidden">
+      <div className="bg-surface rounded-2xl border border-[#f0f0f0] overflow-hidden">
         {filteredReferrals.length === 0 ? (
           <div className="p-12 text-center">
             <Gift className="w-10 h-10 mx-auto mb-3 text-gray-700" />
@@ -239,7 +239,7 @@ export const AdminReferralsView = () => {
                 {filteredReferrals.map((ref) => {
                   const statusConf = STATUS_CONFIG[ref.status] || STATUS_CONFIG.pending
                   return (
-                    <tr key={ref.id} className="border-t border-[#f0f0f0] hover:bg-[#fafafa]">
+                    <tr key={ref.id} className="border-t border-[#f0f0f0] hover:bg-surface">
                       <td className="px-6 py-4 text-[13px] font-medium text-[#1a1a1a]">
                         {ref.clients?.brand_name || 'Inconnu'}
                       </td>
@@ -261,16 +261,16 @@ export const AdminReferralsView = () => {
                         <div className="relative">
                           <button
                             onClick={() => setActionMenuId(actionMenuId === ref.id ? null : ref.id)}
-                            className="p-1.5 rounded-lg hover:bg-[#fafafa] transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-surface transition-colors"
                           >
                             <MoreVertical className="w-4 h-4 text-[#71717a]" />
                           </button>
                           {actionMenuId === ref.id && (
-                            <div className="absolute right-0 top-8 z-10 bg-[#ffffff] border border-[#f0f0f0] rounded-xl shadow-xl py-1 min-w-[160px]">
+                            <div className="absolute right-0 top-8 z-10 bg-surface border border-[#f0f0f0] rounded-xl shadow-xl py-1 min-w-[160px]">
                               {ref.status !== 'rewarded' && ref.status !== 'cancelled' && (
                                 <button
                                   onClick={() => validateMutation.mutate(ref.id)}
-                                  className="w-full text-left px-4 py-2 text-[13px] text-emerald-500 hover:bg-[#fafafa] flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 text-[13px] text-emerald-500 hover:bg-surface flex items-center gap-2"
                                 >
                                   <CheckCircle2 className="w-3.5 h-3.5" /> Valider
                                 </button>
@@ -278,14 +278,14 @@ export const AdminReferralsView = () => {
                               {ref.status !== 'cancelled' && ref.status !== 'rewarded' && (
                                 <button
                                   onClick={() => cancelMutation.mutate(ref.id)}
-                                  className="w-full text-left px-4 py-2 text-[13px] text-red-400 hover:bg-[#fafafa] flex items-center gap-2"
+                                  className="w-full text-left px-4 py-2 text-[13px] text-red-400 hover:bg-surface flex items-center gap-2"
                                 >
                                   <XCircle className="w-3.5 h-3.5" /> Annuler
                                 </button>
                               )}
                               <button
                                 onClick={() => setActionMenuId(null)}
-                                className="w-full text-left px-4 py-2 text-[13px] text-[#71717a] hover:bg-[#fafafa]"
+                                className="w-full text-left px-4 py-2 text-[13px] text-[#71717a] hover:bg-surface"
                               >
                                 Fermer
                               </button>

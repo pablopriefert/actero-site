@@ -50,8 +50,10 @@ Vérifie toujours sur la page d'aide officielle de ton fournisseur — les ports
 
 ## Sécurité
 
-- Le mot de passe est **chiffré au repos** dans la base Actero (Supabase, AES-256)
+- Le mot de passe est **chiffré au repos** dans la base Actero (AES-256-GCM), et il n'est déchiffré qu'au moment d'ouvrir la connexion à ta boîte
+- Il n'est **jamais lisible depuis le navigateur**, y compris depuis ton propre dashboard : la colonne est fermée à tout ce qui n'est pas le serveur Actero
 - Aucune transmission en clair : SSL/TLS obligatoire pour SMTP et IMAP
+- Tes identifiants sont **vérifiés avant d'être enregistrés** — si la connexion échoue, rien n'est stocké et le message t'indique lequel des deux (envoi ou réception) a été refusé
 - Si ton fournisseur supporte les **app passwords**, utilise-les plutôt que ton mot de passe principal — tu peux les révoquer sans changer ton mot de passe Gmail/iCloud/etc.
 
 <Warning>

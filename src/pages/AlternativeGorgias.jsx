@@ -63,11 +63,6 @@ export const AlternativeGorgias = ({ onNavigate }) => {
         competitor: 'partial',
       },
       {
-        label: 'Agent vocal ElevenLabs + numéro FR',
-        actero: { main: '200 min', sub: 'Dès le plan Pro' },
-        competitor: false,
-      },
-      {
         label: 'Relance paniers abandonnés IA',
         actero: { main: 'Inclus', sub: 'Dès le plan Free' },
         competitor: false,
@@ -99,7 +94,7 @@ export const AlternativeGorgias = ({ onNavigate }) => {
         statLabel: 'en français',
         title: 'Conçu pour le marché FR, pas traduit',
         desc:
-          "Interface, support client, copywriting et agent vocal ElevenLabs conçus nativement en français. Gorgias traduit partiellement — Actero pense en français dès le premier ticket.",
+          "Interface, support client et copywriting conçus nativement en français. Gorgias traduit partiellement — Actero pense en français dès le premier ticket.",
       },
       {
         icon: Clock,
@@ -128,11 +123,11 @@ export const AlternativeGorgias = ({ onNavigate }) => {
       },
       {
         q: 'Est-ce qu\'Actero gère les mêmes canaux que Gorgias (email, chat) ?',
-        a: "Actero couvre email (SMTP/IMAP ou Gmail), chat Shopify natif, Gorgias et Zendesk en ingestion. L'agent vocal ElevenLabs ajoute un canal téléphone (numéro FR + voix naturelle) dès le plan Pro. Si vous avez un besoin multicanal critique, le plan Pro permet d'activer toutes les intégrations et notre équipe peut ajouter un canal custom sur Enterprise.",
+        a: "Actero couvre email (SMTP/IMAP ou Gmail), chat Shopify natif, Gorgias et Zendesk en ingestion. Si vous avez un besoin multicanal critique, le plan Pro permet d'activer toutes les intégrations et notre équipe peut ajouter un canal custom sur Enterprise.",
       },
       {
         q: 'Le plan Starter à 99 €/mois couvre-t-il vraiment tout ?',
-        a: "Oui : 1 000 tickets/mois, 3 workflows actifs, 3 intégrations (Shopify + 2), 100 entrées de base de connaissances, 2 membres d'équipe, éditeur ton de marque, simulateur, API + webhooks, portail SAV self-service, dashboard ROI complet, historique 90 jours, support email 48h, essai 7 jours. Agent vocal ElevenLabs et agents IA spécialisés arrivent sur le plan Pro à 399 €/mois.",
+        a: "Oui : 1 000 tickets/mois, 3 workflows actifs, 3 intégrations (Shopify + 2), 100 entrées de base de connaissances, 2 membres d'équipe, éditeur ton de marque, simulateur, API + webhooks, portail SAV self-service, dashboard ROI complet, historique 90 jours, support email 48h, essai 7 jours. Les agents IA spécialisés arrivent sur le plan Pro à 399 €/mois.",
       },
       {
         q: 'Et si je dépasse mes 1 000 tickets/mois sur Starter ?',

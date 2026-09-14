@@ -130,7 +130,7 @@ export function RunTagFlagButton({ runId, onTagged, className }) {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="w-6 h-6 rounded-md text-[#9ca3af] hover:text-[#1a1a1a] hover:bg-[#fafafa] flex items-center justify-center transition-colors"
+                className="w-6 h-6 rounded-md text-[#9ca3af] hover:text-[#1a1a1a] hover:bg-surface flex items-center justify-center transition-colors"
                 aria-label="Fermer"
               >
                 <X className="w-3.5 h-3.5" />
@@ -144,7 +144,7 @@ export function RunTagFlagButton({ runId, onTagged, className }) {
                   <label
                     key={t.value}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors text-[12px] ${
-                      selected ? 'bg-[#fafafa]' : 'hover:bg-[#fafafa]'
+                      selected ? 'bg-surface' : 'hover:bg-surface'
                     }`}
                   >
                     <input
@@ -178,7 +178,7 @@ export function RunTagFlagButton({ runId, onTagged, className }) {
                 onChange={(e) => setNote(e.target.value.slice(0, 500))}
                 rows={3}
                 placeholder="Contexte, détails, ce qui aurait dû être fait…"
-                className="w-full text-[12px] text-[#1a1a1a] bg-[#fafafa] border border-[#f0f0f0] rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-cta/30 focus:bg-white transition-colors"
+                className="w-full text-[12px] text-[#1a1a1a] bg-surface border border-[#f0f0f0] rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-cta/30 focus:bg-white transition-colors"
               />
               <div className="text-[10px] text-[#9ca3af] text-right mt-0.5 tabular-nums">
                 {note.length}/500
@@ -193,7 +193,7 @@ export function RunTagFlagButton({ runId, onTagged, className }) {
                   resetForm()
                 }}
                 disabled={submitting}
-                className="px-3 py-1.5 rounded-lg text-[12px] font-medium text-[#71717a] hover:bg-[#fafafa] transition-colors"
+                className="px-3 py-1.5 rounded-lg text-[12px] font-medium text-[#71717a] hover:bg-surface transition-colors"
               >
                 Annuler
               </button>

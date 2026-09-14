@@ -17,17 +17,14 @@ import { canAccessFeature as planCanAccess } from './plan-limits.js'
 
 // Map feature key → Stripe lookup_key (must match lookup_keys created in Stripe Dashboard)
 export const FEATURE_MAP = {
-  brand_editor: 'actero_brand_editor',
   guardrails: 'actero_guardrails',
   simulator: 'actero_simulator',
-  voice_agent: 'actero_voice_agent',
   specialized_agents: 'actero_specialized_agents',
   api_webhooks: 'actero_api_webhooks',
   pdf_report: 'actero_pdf_report',
   multi_shop: 'actero_multi_shop',
   white_label: 'actero_white_label',
   roi_dashboard_full: 'actero_roi_full',
-  voice_minutes_200: 'actero_voice_minutes_200',
   workflows_unlimited: 'actero_workflows_unlimited',
   integrations_unlimited: 'actero_integrations_unlimited',
 }
@@ -41,7 +38,7 @@ export const REVERSE_FEATURE_MAP = Object.fromEntries(
  *
  * @param {object} supabase — Supabase client
  * @param {string} clientId
- * @param {string} featureKey — e.g. 'voice_agent'
+ * @param {string} featureKey — e.g. 'specialized_agents'
  * @returns {Promise<boolean>}
  */
 export async function clientHasEntitlement(supabase, clientId, featureKey) {

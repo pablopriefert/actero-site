@@ -24,14 +24,14 @@ export const ZendeskVsActero = ({ onNavigate }) => {
 
     hero: {
       subtitle:
-        "Zendesk facture par agent, empile les add-ons IA payants et impose des semaines voire des mois d'implementation. Actero est forfaitaire, pensé Shopify-first, démarre en 15 minutes et inclut un agent vocal natif. Pour une PME e-commerce FR, l'écart de coût et de complexité est massif.",
+        "Zendesk facture par agent, empile les add-ons IA payants et impose des semaines voire des mois d'implementation. Actero est forfaitaire, pensé Shopify-first et démarre en 15 minutes. Pour une PME e-commerce FR, l'écart de coût et de complexité est massif.",
     },
 
     verdict: {
       winner: 'actero',
       headline: 'Pour une PME Shopify française : Actero, sans hésiter.',
       body:
-        "Zendesk est une suite enterprise lourde, anglophone, facturée par agent avec des add-ons IA en supplément et des frais d'implementation. Actero divise le coût par 5 à 10, démarre en 15 minutes au lieu de 3 mois, parle français nativement, héberge en UE et inclut un agent vocal — pas un add-on Zendesk Talk vieillissant.",
+        "Zendesk est une suite enterprise lourde, anglophone, facturée par agent avec des add-ons IA en supplément et des frais d'implementation. Actero divise le coût par 5 à 10, démarre en 15 minutes au lieu de 3 mois, parle français nativement et héberge en UE.",
     },
 
     comparison: [
@@ -54,11 +54,6 @@ export const ZendeskVsActero = ({ onNavigate }) => {
         label: 'Spécialisation e-commerce Shopify',
         competitor: 'partial',
         actero: { main: 'Native', sub: 'OAuth + catalogue + commandes' },
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        competitor: { main: 'Zendesk Talk', sub: 'Add-on payant' },
-        actero: { main: '200 min', sub: 'ElevenLabs inclus dès Pro' },
       },
       {
         label: 'Relance panier abandonné conversationnelle',
@@ -105,7 +100,7 @@ export const ZendeskVsActero = ({ onNavigate }) => {
       'Vous voulez un coût mensuel forfaitaire — pas un per-agent qui grimpe.',
       'Vos clients sont francophones et vous voulez un agent qui parle vraiment FR.',
       'Vous voulez démarrer en 15 minutes, pas en 3 mois d\'implementation.',
-      'Un agent vocal natif (numéro FR) est utile pour vos clients qui appellent.',
+      'Vous voulez la relance de paniers abandonnés incluse, pas un add-on marketing.',
       'Vous voulez prouver le ROI au CFO avec un dashboard partageable.',
     ],
 
@@ -116,7 +111,7 @@ export const ZendeskVsActero = ({ onNavigate }) => {
       },
       {
         q: 'Combien coûte vraiment Zendesk pour 5 agents avec IA ?',
-        a: "Suite Growth (89 $/agent) + Advanced AI add-on (50 $/agent) = 139 $/agent/mois × 5 agents = 695 $/mois ≈ 645 €/mois. Plus implementation fees (souvent 2-10 k$ initial). Actero Pro à 399 €/mois couvre la même charge avec voice et IA illimitée.",
+        a: "Suite Growth (89 $/agent) + Advanced AI add-on (50 $/agent) = 139 $/agent/mois × 5 agents = 695 $/mois ≈ 645 €/mois. Plus implementation fees (souvent 2-10 k$ initial). Actero Pro à 399 €/mois couvre la même charge avec IA illimitée.",
       },
       {
         q: 'Migration depuis Zendesk — c\'est faisable ?',
@@ -125,10 +120,6 @@ export const ZendeskVsActero = ({ onNavigate }) => {
       {
         q: 'Zendesk a un meilleur support des langues globales ?',
         a: "Zendesk supporte 40+ langues — table-stakes pour enterprise. Actero supporte FR, EN, IT, ES, DE en qualité native (pas du Google Translate). Si vous opérez 10+ pays exotiques, Zendesk garde l'avantage. Pour FR + voisins EU, Actero suffit largement.",
-      },
-      {
-        q: 'L\'agent vocal Actero remplace-t-il Zendesk Talk ?',
-        a: "Pour la majorité des cas oui. Actero embarque ElevenLabs avec numéro FR, latence < 800 ms, voix custom Enterprise, inbound + outbound. Zendesk Talk reste plus mature côté IVR complexe et reporting d'opérateur — pertinent pour 50+ agents support téléphone, surdimensionné pour une PME Shopify.",
       },
     ],
 

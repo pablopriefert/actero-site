@@ -1,4 +1,5 @@
 import { withSentry } from './lib/sentry.js'
+import { requireClientAccess } from './lib/tenant-guard.js';
 import { createClient } from '@supabase/supabase-js';
 
 // Cap lambda runtime: LLM calls can hang and burn money otherwise.
@@ -27,6 +28,12 @@ async function handler(req, res) {
   if (!client_id) {
     return res.status(400).json({ error: 'Missing client_id' });
   }
+
+  // Authentifier l'appelant ne dit pas sur QUI il agit : le client_id vient du
+  // corps de la requête, et cette route utilise la clé service_role, donc RLS
+  // ne filtre rien. Sans ce contrôle, n'importe quel compte pouvait générer le
+  // rapport d'activité d'un autre marchand (ACT-24).
+  if (!(await requireClientAccess(supabase, { user, clientId: client_id, res }))) return;
 
   try {
     // 1. Fetch client

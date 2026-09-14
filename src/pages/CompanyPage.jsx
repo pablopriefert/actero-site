@@ -24,7 +24,7 @@ import { CONTACT } from '../config/contact'
 /**
  * CompanyPage — « Entreprise » / À propos d'Actero.
  *
- * Design variation A : Instrument Serif + italic suffix muted,
+ * Design variation A : Inter Tight + italic suffix muted,
  * cream alternatif, cards blanc rounded-[20px], CTA final dark.
  *
  * Copy 100% factuel :
@@ -41,7 +41,7 @@ export const CompanyPage = ({ onNavigate }) => {
     trackEvent('Company_Page_Viewed')
   }, [])
 
-  const serif = { fontFamily: 'var(--font-display, "Instrument Serif", Georgia, serif)' }
+  const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
   const values = [
     {
@@ -78,12 +78,16 @@ export const CompanyPage = ({ onNavigate }) => {
 
   const programs = [
     {
-      name: 'ElevenLabs Grants',
-      desc: 'Accès aux crédits ElevenLabs pour l\'agent vocal (voix naturelles FR, cloning sur Enterprise).',
+      name: 'E2B for Startups',
+      desc: '20 000 $ de crédits E2B — nos traitements sensibles (backtests sur vos vrais tickets, ingestion catalogue) tournent dans des sandboxes isolés et éphémères.',
     },
     {
-      name: 'E2B for Startups',
-      desc: '20 000 $ de crédits E2B — chaque action agentic (refund, échange, modification commande) tourne dans un sandbox sécurisé isolé. Différenciant majeur vs Gorgias, Tidio et Zendesk.',
+      name: 'Vercel for Startups',
+      desc: 'Crédits d\'hébergement + frais de plateforme offerts 12 mois — infrastructure edge scalable.',
+    },
+    {
+      name: 'OpenAI & OpenRouter',
+      desc: 'Crédits d\'inférence pour les agents IA — flexibilité multi-modèles et coûts maîtrisés.',
     },
     {
       name: 'Google for Startups',
@@ -96,6 +100,13 @@ export const CompanyPage = ({ onNavigate }) => {
     {
       name: 'Auth0 for Startups',
       desc: 'Auth0 pour la gestion identité clients — crédits startups.',
+    },
+    {
+      name: 'ElevenLabs Grants',
+      // La description ne promet plus de « brique voix pour de futures
+      // capacités » : l'agent vocal a été retiré. La bourse, elle, a bien été
+      // obtenue — c'est un soutien reçu, pas une fonctionnalité annoncée.
+      desc: 'Programme de soutien aux startups d\'ElevenLabs.',
     },
   ]
 
@@ -114,10 +125,10 @@ export const CompanyPage = ({ onNavigate }) => {
         <section className="pt-28 md:pt-32 pb-12 px-6">
           <div className="max-w-[920px] mx-auto text-center">
             <FadeInUp className="mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-[#F9F7F1] border border-[#E8DFC9]">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs text-[#716D5C] bg-surface border border-[#E3E6EA]">
                 <span className="w-1.5 h-1.5 rounded-full bg-cta" />
                 <span>Entreprise</span>
-                <span className="text-[#E8DFC9]">·</span>
+                <span className="text-[#E3E6EA]">·</span>
                 <span>Paris, France · Fondée en 2026</span>
               </div>
             </FadeInUp>
@@ -164,7 +175,7 @@ export const CompanyPage = ({ onNavigate }) => {
 
             <FadeInUp>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[#F9F7F1] rounded-[20px] p-8 border border-[#E8DFC9]">
+                <div className="bg-surface rounded-[20px] p-8 border border-[#E3E6EA]">
                   <Rocket className="w-5 h-5 text-cta mb-4" strokeWidth={2} />
                   <h3 className="text-[18px] font-bold text-[#1A1A1A] mb-3">
                     Pourquoi on existe
@@ -175,7 +186,7 @@ export const CompanyPage = ({ onNavigate }) => {
                     Ce temps vaut des milliers d'euros et n'ajoute aucune valeur concurrentielle.
                   </p>
                 </div>
-                <div className="bg-[#F9F7F1] rounded-[20px] p-8 border border-[#E8DFC9]">
+                <div className="bg-surface rounded-[20px] p-8 border border-[#E3E6EA]">
                   <Heart className="w-5 h-5 text-cta mb-4" strokeWidth={2} />
                   <h3 className="text-[18px] font-bold text-[#1A1A1A] mb-3">Ce qu'on construit</h3>
                   <p className="text-[14.5px] text-[#5A5A5A] leading-[1.6]">
@@ -190,7 +201,7 @@ export const CompanyPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ VALEURS ═══════════ */}
-        <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
+        <section className="py-24 md:py-32 bg-surface px-6">
           <div className="max-w-6xl mx-auto">
             <FadeInUp className="text-center mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -209,7 +220,7 @@ export const CompanyPage = ({ onNavigate }) => {
               {values.map((v, i) => (
                 <FadeInUp key={i}>
                   <div className="bg-white rounded-[20px] p-7 border border-black/[0.05] h-full">
-                    <div className="w-11 h-11 rounded-[12px] bg-[#F4F0E6] border border-[#E8DFC9] flex items-center justify-center mb-4">
+                    <div className="w-11 h-11 rounded-[12px] bg-cream border border-[#E3E6EA] flex items-center justify-center mb-4">
                       <v.icon className="w-5 h-5 text-cta" strokeWidth={2} />
                     </div>
                     <h3 className="text-[17px] font-bold text-[#1A1A1A] mb-2 leading-[1.25]">
@@ -255,8 +266,8 @@ export const CompanyPage = ({ onNavigate }) => {
                 },
               ].map((f, i) => (
                 <FadeInUp key={i}>
-                  <div className="bg-[#F9F7F1] rounded-[20px] p-8 border border-[#E8DFC9] flex flex-col gap-5 h-full">
-                    <div className="w-16 h-16 rounded-full bg-[#003725] text-[#F4F0E6] flex items-center justify-center font-bold text-[22px]">
+                  <div className="bg-surface rounded-[20px] p-8 border border-[#E3E6EA] flex flex-col gap-5 h-full">
+                    <div className="w-16 h-16 rounded-full bg-cta text-[#F4F5F7] flex items-center justify-center font-bold text-[22px]">
                       {f.initials}
                     </div>
                     <div>
@@ -272,7 +283,7 @@ export const CompanyPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ PROGRAMMES & SOUTIENS ═══════════ */}
-        <section className="py-24 md:py-32 bg-[#F9F7F1] px-6">
+        <section className="py-24 md:py-32 bg-surface px-6">
           <div className="max-w-[900px] mx-auto">
             <FadeInUp className="text-center mb-14">
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] mb-3.5 text-cta">
@@ -286,7 +297,7 @@ export const CompanyPage = ({ onNavigate }) => {
                 <span className="italic text-[#716D5C]">programmes startups.</span>
               </h2>
               <p className="text-[17px] text-[#5A5A5A] max-w-xl mx-auto leading-[1.5]">
-                4 programmes partenaires officiels qui nous aident à construire une
+                Les programmes partenaires qui nous aident à construire une
                 infrastructure robuste et scalable.
               </p>
             </FadeInUp>
@@ -308,7 +319,7 @@ export const CompanyPage = ({ onNavigate }) => {
         </section>
 
         {/* ═══════════ CTA FINAL (dark) ═══════════ */}
-        <section className="py-24 md:py-32 bg-[#003725] px-6">
+        <section className="py-24 md:py-32 bg-cta px-6">
           <div className="max-w-[820px] mx-auto text-center text-white">
             <FadeInUp>
               <h2
@@ -318,25 +329,25 @@ export const CompanyPage = ({ onNavigate }) => {
                 Envie de discuter<br className="hidden md:block" />
                 <span className="italic text-[#A8C490]">de votre boutique ?</span>
               </h2>
-              <p className="text-[17px] text-[#F4F0E6]/70 max-w-xl mx-auto mb-8 leading-[1.55]">
+              <p className="text-[17px] text-[#F4F5F7]/70 max-w-xl mx-auto mb-8 leading-[1.55]">
                 Réservez 30 min avec un cofondateur ou écrivez-nous à {CONTACT.email} — on
                 répond en moins de 24h.
               </p>
               <div className="flex flex-wrap gap-3.5 justify-center mb-6">
                 <button
                   onClick={() => onNavigate('/signup')}
-                  className="inline-flex items-center gap-2 bg-[#F4F0E6] text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
+                  className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                 >
                   Démarrer gratuitement <ArrowRight className="w-3.5 h-3.5" />
                 </button>
                 <TalkToHumanButton source="company_final_cta" variant="dark" />
               </div>
-              <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F0E6]/55">
+              <div className="inline-flex flex-wrap items-center justify-center gap-[18px] text-[12.5px] text-[#F4F5F7]/55">
                 <span className="inline-flex items-center gap-1.5">
                   <Check className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Paris, France
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Check className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Support FR 24h
+                  <Check className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Support en français
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Shield className="w-3 h-3 text-[#A8C490]" strokeWidth={2.5} /> Hébergé en UE

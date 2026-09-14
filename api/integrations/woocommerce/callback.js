@@ -70,9 +70,14 @@ async function handler(req, res) {
         provider: 'woocommerce',
         status: 'active',
         api_key: encryptToken(consumer_key),
+        // Le secret vit dans sa propre colonne, PAS dans extra_config :
+        // `extra_config` fait partie de la liste blanche lisible par le
+        // navigateur du marchand, la colonne dédiée non (ACT-34). Y ranger un
+        // secret, même chiffré, revient à le faire transiter par un endroit
+        // qu'on ne contrôle plus.
+        consumer_secret_encrypted: encryptToken(consumer_secret),
         extra_config: {
           store_url: storeUrl,
-          consumer_secret: encryptToken(consumer_secret),
           key_id: key_id,
           key_permissions: key_permissions,
           connected_at: new Date().toISOString(),

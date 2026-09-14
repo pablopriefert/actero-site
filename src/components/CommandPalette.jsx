@@ -162,33 +162,31 @@ export const CommandPalette = ({
     { id: 'automation',         label: 'Automatisation',          icon: Sparkles },
     // Gerer
     { id: 'escalations',        label: 'A traiter',              icon: AlertTriangle },
-    { id: 'activity',           label: 'Activite de l\'agent',    icon: Activity },
+    { id: 'activity',           label: 'Activité de l\'agent',    icon: Activity },
     // Agent IA
-    { id: 'agent-control',      label: 'Centre de controle',     icon: Bot },
+    { id: 'agent-control',      label: 'Centre de contrôle',     icon: Bot },
     { id: 'agent-config',       label: 'Configuration',          icon: Bot },
     { id: 'knowledge',          label: 'Base de connaissances',  icon: BookOpen },
-    { id: 'guardrails',         label: 'Regles metier',          icon: Shield },
+    { id: 'guardrails',         label: 'Règles metier',          icon: Shield },
     { id: 'simulator',          label: 'Tester mon agent',       icon: MessageSquare },
     // Connexions
-    { id: 'integrations',       label: 'Integrations',           icon: Plug },
+    { id: 'intégrations',       label: 'Intégrations',           icon: Plug },
     { id: 'channels',           label: 'Canaux',                 icon: Phone },
     { id: 'email-agent',        label: 'Agent Email',            icon: FileText },
     // Croissance
     { id: 'opportunities',      label: 'Opportunites',           icon: TrendingUp },
     { id: 'insights',           label: 'Insights',               icon: BarChart3 },
     // Systeme
-    { id: 'settings',           label: 'Parametres',             icon: CreditCard },
+    { id: 'settings',           label: 'Paramètres',             icon: CreditCard },
     // Sous-pages accessibles directement
-    { id: 'response-templates', label: 'Modeles de reponse',     icon: FileText },
+    { id: 'response-templates', label: 'Modèles de réponse',     icon: FileText },
     { id: 'api-docs',           label: 'API',                    icon: Code },
-    { id: 'voice-agent',        label: 'Agent vocal',            icon: Phone },
     { id: 'weekly-summary',     label: 'Performance',            icon: BarChart3 },
     { id: 'roi',                label: 'ROI',                    icon: TrendingUp },
     { id: 'peak-hours',         label: 'Heures de pic',          icon: Clock },
-    { id: 'voice-calls',        label: 'Appels vocaux',          icon: PhoneCall },
     { id: 'referral',           label: 'Parrainage',             icon: Gift },
     { id: 'profile',            label: 'Compte',                 icon: User },
-    { id: 'team',               label: 'Equipe',                 icon: Users },
+    { id: 'team',               label: 'Équipe',                 icon: Users },
     { id: 'billing',            label: 'Facturation',            icon: CreditCard },
     { id: 'support',            label: 'Aide',                   icon: BookOpen },
   ]), [])
@@ -259,13 +257,13 @@ export const CommandPalette = ({
     },
     {
       id: 'qa-activity',
-      label: "Voir l'activite du jour",
+      label: "Voir l'activité du jour",
       icon: Activity,
       action: () => setActiveTab?.('activity'),
     },
     {
       id: 'qa-resolve',
-      label: 'Marquer un ticket resolu',
+      label: 'Marquer un ticket résolu',
       icon: AlertTriangle,
       action: () => setActiveTab?.('escalations'),
     },
@@ -316,7 +314,7 @@ export const CommandPalette = ({
       label: 'Connecter Shopify',
       subLabel: 'Importez vos commandes pour des réponses contextuelles',
       icon: ShoppingBag,
-      action: () => setActiveTab?.('integrations'),
+      action: () => setActiveTab?.('intégrations'),
     },
     {
       id: 'sg-escalations',
@@ -527,12 +525,12 @@ export const CommandPalette = ({
                 )}
 
                 {mode === 'client' && integrations.length > 0 && (
-                  <Command.Group heading={<GroupHeading icon={Plug} label="Integrations" />}>
+                  <Command.Group heading={<GroupHeading icon={Plug} label="Intégrations" />}>
                     {integrations.map((i) => (
                       <PaletteItem
                         key={`int-${i.id}`}
-                        value={`integration ${i.provider}`}
-                        onSelect={() => goToTab('integrations')}
+                        value={`intégration ${i.provider}`}
+                        onSelect={() => goToTab('intégrations')}
                         icon={Plug}
                         label={i.provider}
                         subLabel={i.status}

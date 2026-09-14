@@ -72,11 +72,11 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
         </div>
         <h2
           id="cost-comparator-heading"
-          className="text-[28px] md:text-[36px] font-bold tracking-tight text-[#262626]"
+          className="text-[28px] md:text-[36px] font-bold tracking-tight text-ink"
         >
           Combien tu paies vraiment chez {competitorMeta?.name || 'la concurrence'} ?
         </h2>
-        <p className="mt-3 text-[15px] text-[#71717a] max-w-2xl mx-auto">
+        <p className="mt-3 text-[15px] text-[#716D5C] max-w-2xl mx-auto">
           Tarifs publics {competitorMeta ? 'mai 2026' : ''}. Bouge les curseurs, tu verras la facture
           réelle face au forfait fixe Actero.
         </p>
@@ -84,9 +84,9 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sliders */}
-        <div className="rounded-2xl border border-[#f0f0f0] bg-white p-6 md:p-8">
+        <div className="rounded-2xl border border-[#E6E8EC] bg-white p-6 md:p-8">
           {/* Competitor select */}
-          <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#71717a] mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#716D5C] mb-2">
             Concurrent
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
@@ -96,8 +96,8 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
                 onClick={() => handleCompetitorChange(opt.key)}
                 className={`px-3 py-2 rounded-lg text-[12px] font-medium transition-colors ${
                   competitor === opt.key
-                    ? 'bg-[#262626] text-white'
-                    : 'bg-zinc-50 text-[#71717a] hover:bg-zinc-100'
+                    ? 'bg-primary text-white'
+                    : 'bg-cream text-[#716D5C] hover:bg-primary-tint'
                 }`}
               >
                 {opt.name}
@@ -106,14 +106,14 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
           </div>
 
           {/* Volume slider */}
-          <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#71717a] mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#716D5C] mb-2">
             Volume tickets / mois
           </label>
           <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-[36px] font-bold tracking-tight text-[#262626] tabular-nums">
+            <span className="text-[36px] font-bold tracking-tight text-ink tabular-nums">
               {volume.toLocaleString('fr-FR')}
             </span>
-            <span className="text-[14px] text-[#71717a]">tickets/mois</span>
+            <span className="text-[14px] text-[#716D5C]">tickets/mois</span>
           </div>
           <input
             type="range"
@@ -131,7 +131,7 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
                 key={v}
                 onClick={() => setVolume(v)}
                 className={`px-2 py-1 rounded text-[11px] font-medium transition-colors ${
-                  volume === v ? 'bg-cta text-white' : 'bg-zinc-50 text-[#71717a] hover:bg-zinc-100'
+                  volume === v ? 'bg-cta text-white' : 'bg-cream text-[#716D5C] hover:bg-primary-tint'
                 }`}
               >
                 {v.toLocaleString('fr-FR')}
@@ -140,14 +140,14 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
           </div>
 
           {/* AI rate slider */}
-          <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#71717a] mt-6 mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-wider text-[#716D5C] mt-6 mb-2">
             % résolutions automatisées par l'IA
           </label>
           <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-[36px] font-bold tracking-tight text-[#262626] tabular-nums">
+            <span className="text-[36px] font-bold tracking-tight text-ink tabular-nums">
               {aiRate}
             </span>
-            <span className="text-[14px] text-[#71717a]">% résolutions IA</span>
+            <span className="text-[14px] text-[#716D5C]">% résolutions IA</span>
           </div>
           <input
             type="range"
@@ -159,7 +159,7 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
             className="w-full accent-cta"
             aria-label="Pourcentage de résolutions automatisées"
           />
-          <p className="mt-2 text-[11px] text-[#a1a1aa] flex items-start gap-1">
+          <p className="mt-2 text-[11px] text-[#716D5C] flex items-start gap-1">
             <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
             <span>
               Les concurrents qui facturent à la résolution comptent ces tickets. Plus l'IA résout,
@@ -169,7 +169,7 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
         </div>
 
         {/* Result panel — dark side-by-side */}
-        <div className="rounded-2xl bg-[#0F1014] text-white p-6 md:p-8">
+        <div className="rounded-2xl bg-primary text-white p-6 md:p-8">
           <div className="grid grid-cols-2 gap-4 mb-6">
             <ResultCard
               label={competitorMeta?.name || 'Concurrent'}
@@ -201,10 +201,10 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
                 <div>
                   <div className="text-[28px] md:text-[32px] font-bold tracking-tight tabular-nums">
                     {eur(monthlySavings)}
-                    <span className="text-[14px] font-normal text-zinc-400 ml-1">/ mois</span>
+                    <span className="text-[14px] font-normal text-[#A8C490]/70 ml-1">/ mois</span>
                   </div>
                   {ratio && (
-                    <div className="text-[12px] text-zinc-400 mt-1">
+                    <div className="text-[12px] text-[#A8C490]/70 mt-1">
                       {competitorMeta?.name} = <span className="font-mono text-[#A8C490]">×{ratio}</span> plus cher
                     </div>
                   )}
@@ -212,17 +212,17 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
                 <div>
                   <div className="text-[28px] md:text-[32px] font-bold tracking-tight tabular-nums">
                     {eur(annualSavings)}
-                    <span className="text-[14px] font-normal text-zinc-400 ml-1">/ an</span>
+                    <span className="text-[14px] font-normal text-[#A8C490]/70 ml-1">/ an</span>
                   </div>
-                  <div className="text-[12px] text-zinc-400 mt-1">
+                  <div className="text-[12px] text-[#A8C490]/70 mt-1">
                     Sur 12 mois en pricing stable
                   </div>
                 </div>
               </div>
             </motion.div>
           ) : (
-            <div className="rounded-xl bg-zinc-800/40 border border-zinc-700/50 p-5">
-              <div className="text-[13px] text-zinc-300">
+            <div className="rounded-xl bg-[#A8C490]/10 border border-[#A8C490]/25 p-5">
+              <div className="text-[13px] text-[#F4F5F7]/80">
                 À ce volume, {competitorMeta?.name} est gratuit ou moins cher qu'Actero — c'est rare,
                 bouge les curseurs pour voir la cassure (généralement vers 500-1 000 tickets/mois).
               </div>
@@ -231,19 +231,19 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
 
           <button
             onClick={handleCtaClick}
-            className="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-lg bg-[#A8C490] text-[#0F1014] font-semibold text-[14px] hover:bg-[#B8D2A0] transition-colors group"
+            className="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full bg-cream text-[#003725] font-semibold text-[14px] hover:bg-white transition-colors group"
           >
             Démarrer Actero gratuitement
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
           </button>
-          <p className="mt-3 text-[11px] text-zinc-400 text-center">
+          <p className="mt-3 text-[11px] text-[#A8C490]/70 text-center">
             Plan Free à vie · Pas de carte bancaire · OAuth Shopify en 15 min
           </p>
         </div>
       </div>
 
       {competitorMeta?.notes && (
-        <p className="mt-4 text-[11px] text-[#a1a1aa] text-center max-w-3xl mx-auto">
+        <p className="mt-4 text-[11px] text-[#716D5C] text-center max-w-3xl mx-auto">
           ℹ️ {competitorMeta.notes}
         </p>
       )}
@@ -252,15 +252,15 @@ export const CostComparator = ({ defaultCompetitor = 'gorgias', onCtaClick }) =>
 }
 
 function ResultCard({ label, amount, breakdown, tone }) {
-  const labelColor = tone === 'brand' ? 'text-[#A8C490]' : 'text-zinc-400'
+  const labelColor = tone === 'brand' ? 'text-[#A8C490]' : 'text-[#A8C490]/70'
   return (
     <div>
       <div className={`text-[11px] font-semibold uppercase tracking-wider ${labelColor}`}>{label}</div>
       <div className="mt-1 text-[24px] md:text-[28px] font-bold tracking-tight tabular-nums">
         {amount}
-        <span className="text-[12px] font-normal text-zinc-400 ml-1">/ mois</span>
+        <span className="text-[12px] font-normal text-[#A8C490]/70 ml-1">/ mois</span>
       </div>
-      <div className="mt-1 text-[11px] text-zinc-400 leading-snug">{breakdown}</div>
+      <div className="mt-1 text-[11px] text-[#A8C490]/70 leading-snug">{breakdown}</div>
     </div>
   )
 }

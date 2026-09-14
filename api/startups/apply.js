@@ -26,7 +26,7 @@ async function handler(req, res) {
   }
 
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`startup-apply:${ip}`, 5, 60 * 60 * 1000)
+  const rl = await checkRateLimit(`startup-apply:${ip}`, 5, 60 * 60 * 1000)
   if (!rl.allowed) return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' })
 
   try {

@@ -19,7 +19,8 @@ export const CLAUDE_PRICING = {
   'claude-sonnet-4-20250514': { input: 3.00, output: 15.00 },
   'claude-sonnet-4-5': { input: 3.00, output: 15.00 },
   'claude-sonnet-4-5-20250929': { input: 3.00, output: 15.00 },
-  'claude-sonnet-5': { input: 3.00, output: 15.00 },
+  'claude-sonnet-5': { input: 2.00, output: 10.00 },
+  'claude-haiku-4-5': { input: 1.00, output: 5.00 },
   'claude-haiku-4-5-20251001': { input: 1.00, output: 5.00 },
   'claude-opus-4-8': { input: 15.00, output: 75.00 },
   // OpenAI (per 1M tokens). Reasoning tokens are billed as output tokens.
@@ -31,16 +32,38 @@ export const CLAUDE_PRICING = {
 }
 
 /**
+ * Model ids we might be handed, in decreasing specificity:
+ *   - as returned by the provider            "anthropic/claude-sonnet-4.5"
+ *   - without the OpenRouter vendor prefix   "claude-sonnet-4.5"
+ *   - with dotted versions dashed            "claude-sonnet-4-5"  ← our key shape
+ * OpenAI-family keys keep their dots ("gpt-5.4-mini"), which is why we try the
+ * un-dashed form first rather than rewriting unconditionally.
+ */
+function modelIdCandidates(modelId) {
+  const raw = String(modelId || '')
+  if (!raw) return []
+  const bare = raw.includes('/') ? raw.slice(raw.indexOf('/') + 1) : raw
+  const dashed = bare.replace(/(\d)\.(\d)/g, '$1-$2')
+  return [...new Set([raw, bare, dashed])]
+}
+
+/**
  * Compute total cost in USD from token counts.
  * Returns a number rounded to 6 decimals.
  */
 export function calculateCost(modelId, tokensIn, tokensOut) {
+  const ids = modelIdCandidates(modelId)
   // Exact match first; then prefix match (OpenAI returns dated snapshots like
   // "gpt-5.5-2026-04-24" — we still want the gpt-5.5 rate, not the fallback).
-  let prices = CLAUDE_PRICING[modelId]
-  if (!prices && modelId) {
-    const key = Object.keys(CLAUDE_PRICING).find((k) => modelId.startsWith(k))
-    if (key) prices = CLAUDE_PRICING[key]
+  let prices
+  for (const id of ids) {
+    if (CLAUDE_PRICING[id]) { prices = CLAUDE_PRICING[id]; break }
+  }
+  if (!prices) {
+    for (const id of ids) {
+      const key = Object.keys(CLAUDE_PRICING).find((k) => id.startsWith(k))
+      if (key) { prices = CLAUDE_PRICING[key]; break }
+    }
   }
   if (!prices) prices = CLAUDE_PRICING['claude-3-5-sonnet-latest']
   const safeIn = Number(tokensIn) || 0

@@ -5,8 +5,8 @@ import { Calculator, TrendingUp, Clock, Euro, ArrowRight, Sparkles, Check } from
 const PLAN_RECO = [
   { max: 50, plan: 'Free', price: '0', color: '#71717a', cta: 'Commencer gratuitement', href: '/signup' },
   { max: 1000, plan: 'Starter', price: '99', color: '#3b82f6', cta: 'Essai gratuit 7 jours', href: '/signup' },
-  { max: 5000, plan: 'Pro', price: '399', color: '#0E653A', cta: 'Essai gratuit 7 jours', href: '/signup' },
-  { max: Infinity, plan: 'Enterprise', price: 'Sur devis', color: '#f59e0b', cta: 'Contacter l\'equipe', href: 'mailto:contact@actero.fr' },
+  { max: 5000, plan: 'Pro', price: '399', color: '#13804A', cta: 'Essai gratuit 7 jours', href: '/signup' },
+  { max: Infinity, plan: 'Enterprise', price: 'Sur devis', color: '#f59e0b', cta: 'Contacter l\'équipe', href: 'mailto:contact@actero.fr' },
 ]
 
 function getRecommendedPlan(tickets) {
@@ -29,7 +29,7 @@ const SliderInput = ({ label, value, onChange, min, max, step: s = 1, unit, icon
       step={s}
       value={value}
       onChange={e => onChange(Number(e.target.value))}
-      className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#f0f0f0]
+      className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface
         [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5
         [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-cta
         [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(15,95,53,0.3)]
@@ -79,7 +79,7 @@ export const ROISimulator = ({ onNavigate }) => {
           viewport={{ once: true }}
           className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#fafafa] border border-[#f0f0f0] text-[#71717a] text-xs font-bold mb-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-[#f0f0f0] text-[#71717a] text-xs font-bold mb-5">
             <Calculator className="w-3.5 h-3.5" />
             Simulateur interactif
           </div>
@@ -121,7 +121,7 @@ export const ROISimulator = ({ onNavigate }) => {
             className="space-y-4"
           >
             {/* Total ROI Card */}
-            <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-2xl p-6 text-center">
+            <div className="bg-surface border border-[#f0f0f0] rounded-2xl p-6 text-center">
               <p className="text-[10px] font-bold text-cta uppercase tracking-[0.15em] mb-2">
                 ROI mensuel estime
               </p>
@@ -183,7 +183,7 @@ export const ROISimulator = ({ onNavigate }) => {
             {/* CTA */}
             <button
               onClick={() => onNavigate?.(reco.href)}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-cta hover:bg-[#003725] text-white font-semibold text-[13px] transition-all group"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-cta hover:bg-cta text-white font-semibold text-[13px] transition-all group"
             >
               {reco.cta}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

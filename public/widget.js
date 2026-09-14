@@ -17,13 +17,14 @@
   // merchant's config and apply it. If the fetch fails, the defaults stand —
   // the widget can never be broken by a config problem.
   const CFG = {
-    brandColor: '#0F5F35',
+    brandColor: '#13804A',
     accentColor: '#14A85C',
     position: 'bottom-right',
     greeting: 'Bonjour ! Comment puis-je vous aider ?',
     logoUrl: null,
     showPoweredBy: true,
     agentEnabled: true,
+    proactiveEnabled: false, // merchant opt-in; off by default (no spam)
   }
   // Data-attribute overrides let the Shopify theme app extension pass a couple
   // of hints synchronously before the server config resolves (nice for FOUC).
@@ -87,7 +88,8 @@
     }
   } catch {}
 
-  // Brand fonts (Instrument Serif for the greeting, DM Sans for the UI).
+  // Une seule famille — Inter Tight — comme le reste du produit. Le widget
+  // chargeait deux polices : un serif pour le titre, un sans pour l'interface.
   // display=swap → never blocks; falls back to system fonts if a merchant CSP
   // blocks Google Fonts. Scoped to the widget via font-family.
   try {
@@ -95,7 +97,7 @@
       const f = document.createElement('link')
       f.id = 'actero-fonts'
       f.rel = 'stylesheet'
-      f.href = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap'
+      f.href = 'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap'
       document.head.appendChild(f)
     }
   } catch {}
@@ -121,7 +123,7 @@
       background: #fff; border-radius: 24px;
       box-shadow: 0 2px 8px rgba(11,75,44,0.08), 0 24px 60px rgba(11,75,44,0.22);
       display: none; flex-direction: column; overflow: hidden;
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     @media (max-width: 480px) {
       #actero-widget-panel {
@@ -146,7 +148,7 @@
     .actero-brand-status { font-size: 12px; color: var(--actero-soft, #A8C490); display: flex; align-items: center; gap: 5px; margin-top: 1px; }
     .actero-header-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.25); flex-shrink: 0; }
     .actero-greet { margin-top: 20px; }
-    .actero-greet h3 { margin: 0; font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.01em; }
+    .actero-greet h3 { margin: 0; font-family: 'Inter Tight', -apple-system, 'Segoe UI', sans-serif; font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.01em; }
     .actero-greet p { margin: 4px 0 0; font-size: 13.5px; color: rgba(255,255,255,0.78); }
     .actero-close-btn {
       position: absolute; top: 20px; right: 20px;
@@ -158,9 +160,35 @@
     .actero-close-btn:hover { background: rgba(255,255,255,0.22); }
     .actero-close-btn:focus-visible { outline: 2px solid #4ade80; outline-offset: 1px; }
     .actero-close-btn svg { width: 15px; height: 15px; fill: white; }
+    .actero-human-btn {
+      position: absolute; top: 20px; right: 58px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.12); border: none; cursor: pointer;
+      color: white; display: flex; align-items: center; justify-content: center;
+      padding: 0; transition: background 0.15s; touch-action: manipulation;
+    }
+    .actero-human-btn:hover { background: rgba(255,255,255,0.22); }
+    .actero-human-btn:focus-visible { outline: 2px solid #4ade80; outline-offset: 1px; }
+    .actero-human-btn svg { width: 16px; height: 16px; fill: white; }
+    .actero-fb {
+      display: flex; align-items: center; gap: 6px; align-self: flex-start;
+      margin-top: -2px; padding-left: 2px; font-size: 12px; color: #9ca3af; flex-wrap: wrap;
+    }
+    .actero-fb-btn {
+      background: none; border: none; cursor: pointer; font-size: 15px; line-height: 1;
+      padding: 2px 4px; border-radius: 6px;
+    }
+    .actero-fb-btn:hover { background: #F5F5F5; }
+    .actero-fb-input {
+      border: 1px solid #e5e5e5; border-radius: 9999px; padding: 6px 12px; font-size: 12.5px; min-width: 160px;
+    }
+    .actero-fb-send {
+      background: var(--actero-primary, #0F5F35); color: #fff; border: none;
+      border-radius: 9999px; padding: 6px 12px; font-size: 12px; cursor: pointer;
+    }
     .actero-messages {
       flex: 1; overflow-y: auto; padding: 20px 18px; display: flex;
-      flex-direction: column; gap: 14px; background: #FBFAF7;
+      flex-direction: column; gap: 14px; background: #fff;
     }
     .actero-msg-row { display: flex; gap: 9px; align-items: flex-end; max-width: 88%; }
     .actero-msg-row.user { align-self: flex-end; flex-direction: row-reverse; max-width: 82%; }
@@ -223,9 +251,9 @@
       display: flex; gap: 8px; align-items: center; background: #fff;
     }
     .actero-input-area input[type="text"] {
-      flex: 1; border: 1px solid transparent; border-radius: 9999px;
+      flex: 1; border: 1px solid #e5e5e5; border-radius: 9999px;
       padding: 12px 16px; font-size: 16px; outline: none;
-      background: #F4F3EF; color: #1A1A1A;
+      background: #fff; color: #1A1A1A;
     }
     .actero-input-area input[type="text"]:focus { border-color: var(--actero-primary, #0F5F35); background: #fff; }
     .actero-input-area button#actero-send {
@@ -263,13 +291,59 @@
     .actero-product-price {
       margin: 2px 0 0; font-size: 12px; color: var(--actero-primary, #0F5F35); font-weight: 700;
     }
+    .actero-order-card {
+      align-self: flex-start; max-width: 85%;
+      background: #fff; border: 1px solid #e5e5e5; border-radius: 12px;
+      padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .actero-order-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px;
+    }
+    .actero-order-name { font-size: 13px; font-weight: 700; color: #262626; }
+    .actero-order-status {
+      font-size: 11px; font-weight: 600; color: var(--actero-primary-dark, #0B4B2C);
+      background: var(--actero-tint, #E8F5EC); padding: 3px 9px; border-radius: 9999px; white-space: nowrap;
+    }
+    .actero-order-items { margin: 0 0 10px; padding-left: 16px; }
+    .actero-order-items li { font-size: 12px; color: #5A5A5A; line-height: 1.5; }
+    .actero-order-track {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--actero-primary, #0F5F35); color: #fff; text-decoration: none;
+      font-size: 12.5px; font-weight: 600; padding: 8px 14px; border-radius: 9999px;
+    }
+    .actero-order-carrier { font-size: 12px; color: #5A5A5A; }
+    .actero-actions {
+      display: flex; flex-wrap: wrap; gap: 8px; align-self: flex-start; max-width: 85%;
+    }
+    .actero-action-btn {
+      font-size: 12.5px; font-weight: 600; color: var(--actero-primary-dark, #0B4B2C);
+      background: #fff; border: 1px solid var(--actero-soft, #A8C490); border-radius: 9999px;
+      padding: 8px 14px; cursor: pointer; transition: background 0.2s;
+    }
+    .actero-action-btn:hover { background: var(--actero-tint, #E8F5EC); }
+    .actero-peek {
+      position: fixed; bottom: 92px; right: 20px; z-index: 2147483646;
+      max-width: 240px; background: #fff; color: #262626;
+      border: 1px solid rgba(0,0,0,0.08); border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.16);
+      padding: 12px 14px; font-size: 13.5px; line-height: 1.4; cursor: pointer;
+      display: flex; align-items: flex-start; gap: 8px;
+      animation: actero-peek-in 0.3s ease;
+    }
+    @keyframes actero-peek-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .actero-peek { animation: none; } }
+    .actero-peek-text { flex: 1; }
+    .actero-peek-x {
+      background: none; border: none; cursor: pointer; color: #9ca3af;
+      font-size: 13px; line-height: 1; padding: 2px; flex-shrink: 0;
+    }
     .actero-attach-btn {
       width: 38px; height: 38px; border-radius: 10px;
-      background: #f5f5f0; border: none; cursor: pointer;
+      background: #fff; border: 1px solid #e5e5e5; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.2s; flex-shrink: 0;
     }
-    .actero-attach-btn:hover { background: #e8e8e0; }
+    .actero-attach-btn:hover { background: #F5F5F5; }
     .actero-attach-btn svg { width: 18px; height: 18px; fill: #5A5A5A; }
     .actero-attach-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .actero-pending-images {
@@ -333,6 +407,9 @@
           <div class="actero-brand-status"><span class="actero-header-dot" aria-hidden="true"></span>En ligne · répond en quelques secondes</div>
         </div>
       </div>
+      <button id="actero-human" class="actero-human-btn" type="button" aria-label="Parler à un humain" title="Parler à un humain">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/></svg>
+      </button>
       <button id="actero-close" class="actero-close-btn" type="button" aria-label="Fermer le support chat">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
@@ -366,7 +443,9 @@
   const pendingEl = document.getElementById('actero-pending')
   const attachErrEl = document.getElementById('actero-attach-err')
   const closeBtn = document.getElementById('actero-close')
+  const humanBtn = document.getElementById('actero-human')
   let sending = false
+  let awaitingHandoffEmail = false
 
   const MAX_IMAGES = 5
   const MAX_IMAGE_BYTES = 5 * 1024 * 1024
@@ -392,6 +471,13 @@
       b.textContent = label
       b.onclick = function() {
         wrap.remove()
+        // "Suivre ma commande" → guided flow: ask for the order # / email so the
+        // order-status card can populate, instead of a generic message.
+        if (label.indexOf('Suivre') !== -1) {
+          addBotMessage("Bien sûr ! Donnez-moi votre numéro de commande (ex. #1234) ou l'email utilisé, et je vérifie tout de suite. 📦")
+          inputEl.focus()
+          return
+        }
         inputEl.value = label.replace(/^\S+\s+/, '') // drop the leading emoji
         send()
       }
@@ -403,6 +489,7 @@
 
   function openPanel() {
     isOpen = true
+    markProactiveShown() // opening manually suppresses any pending proactive peek
     previouslyFocusedEl = document.activeElement
     panel.classList.add('open')
     btn.setAttribute('aria-expanded', 'true')
@@ -434,8 +521,55 @@
     else openPanel()
   }
 
+  // ── Proactive contextual peek (opt-in, off by default) ──
+  var PROACTIVE_KEY = 'actero_proactive_' + apiKey
+  function markProactiveShown() { try { sessionStorage.setItem(PROACTIVE_KEY, '1') } catch {} }
+  function proactiveAlreadyShown() { try { return !!sessionStorage.getItem(PROACTIVE_KEY) } catch { return false } }
+  function proactiveContext() {
+    var p = (location.pathname || '').toLowerCase()
+    if (/\/products\//.test(p)) return 'Une question sur ce produit ? 👋'
+    if (/\/cart|\/checkout/.test(p)) return 'Un doute avant de valider ? Je peux vous aider.'
+    return null // targeted contexts only for v1 — no generic-page nag
+  }
+  function showPeek(text) {
+    markProactiveShown()
+    var peek = document.createElement('div')
+    peek.className = 'actero-peek'
+    peek.setAttribute('role', 'button')
+    peek.tabIndex = 0
+    if (CFG.position === 'bottom-left') { peek.style.left = '20px'; peek.style.right = 'auto' }
+    peek.innerHTML = '<span class="actero-peek-text"></span><button class="actero-peek-x" type="button" aria-label="Fermer">✕</button>'
+    peek.querySelector('.actero-peek-text').textContent = text
+    function open() { peek.remove(); openPanel() }
+    peek.querySelector('.actero-peek-x').addEventListener('click', function(e) { e.stopPropagation(); peek.remove() })
+    peek.addEventListener('click', open)
+    peek.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open() } })
+    document.body.appendChild(peek)
+    // Auto-dismiss if ignored — never lingers.
+    setTimeout(function() { if (document.body.contains(peek)) peek.remove() }, 12000)
+  }
+  function maybeProactive() {
+    if (!CFG.proactiveEnabled || isOpen || proactiveAlreadyShown()) return
+    var text = proactiveContext()
+    if (!text) return
+    setTimeout(function() {
+      if (isOpen || proactiveAlreadyShown()) return
+      showPeek(text)
+    }, 15000) // dwell before nudging
+  }
+
   btn.onclick = togglePanel
   closeBtn.onclick = closePanel
+  humanBtn.onclick = function() {
+    if (!isOpen) openPanel()
+    if (customerEmail) {
+      requestHandoff(customerEmail)
+    } else {
+      addBotMessage("Bien sûr — laissez-moi votre email et un membre de l'équipe vous recontacte au plus vite. 🙌")
+      awaitingHandoffEmail = true
+      inputEl.focus()
+    }
+  }
 
   // Keyboard handling: Escape to close, Tab looping for minimal focus trap
   document.addEventListener('keydown', function(e) {
@@ -659,6 +793,113 @@
     scrollToLatest()
   }
 
+  // ── Rich cards (order status + 1-tap actions). Forward-compatible:
+  //    unknown card types are ignored. ──
+  function esc(s) { return String(s == null ? '' : s).replace(/</g, '&lt;').replace(/>/g, '&gt;') }
+
+  function addOrderCard(card) {
+    const wrap = document.createElement('div')
+    wrap.className = 'actero-order-card'
+    const items = (card.items || []).slice(0, 4).map(function(i) {
+      return '<li>' + esc(i.title) + (i.qty > 1 ? (' ×' + i.qty) : '') + '</li>'
+    }).join('')
+    const carrier = card.carrier ? (' · ' + esc(card.carrier)) : ''
+    wrap.innerHTML =
+      '<div class="actero-order-head">' +
+        '<span class="actero-order-name">' + esc(card.orderName || 'Votre commande') + '</span>' +
+        '<span class="actero-order-status">' + esc(card.status || '—') + '</span>' +
+      '</div>' +
+      (items ? '<ul class="actero-order-items">' + items + '</ul>' : '') +
+      (card.trackingUrl
+        ? '<a class="actero-order-track" href="' + String(card.trackingUrl).replace(/"/g, '&quot;') + '" target="_blank" rel="noopener noreferrer">📦 Suivre mon colis' + carrier + '</a>'
+        : (carrier ? '<div class="actero-order-carrier">Transporteur' + carrier + '</div>' : ''))
+    msgsEl.appendChild(wrap)
+    scrollToLatest()
+  }
+
+  function addActionCards(card) {
+    const wrap = document.createElement('div')
+    wrap.className = 'actero-actions'
+    ;(card.items || []).forEach(function(a) {
+      const btn = document.createElement('button')
+      btn.type = 'button'
+      btn.className = 'actero-action-btn'
+      btn.textContent = a.label || 'Action'
+      const msg = a.kind === 'exchange'
+        ? 'Je souhaite faire un échange.'
+        : (a.kind === 'return' ? 'Je souhaite faire un retour.' : (a.label || ''))
+      btn.addEventListener('click', function() {
+        if (sending || !msg) return
+        inputEl.value = msg
+        send()
+      })
+      wrap.appendChild(btn)
+    })
+    msgsEl.appendChild(wrap)
+    scrollToLatest()
+  }
+
+  function renderCards(cards) {
+    cards.forEach(function(c) {
+      if (!c || !c.type) return
+      if (c.type === 'order_status') addOrderCard(c)
+      else if (c.type === 'actions') addActionCards(c)
+    })
+  }
+
+  // ── CSAT (👍/👎) under agent answers ──
+  function sendFeedback(rating, comment) {
+    try {
+      fetch(ACTERO_URL + '/api/engine/webhooks/widget?api_key=' + encodeURIComponent(apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback: true, session_id: sessionId, rating: rating, comment: comment || null }),
+      }).catch(function() {})
+    } catch {}
+  }
+  function addFeedbackRow() {
+    const row = document.createElement('div')
+    row.className = 'actero-fb'
+    const thanks = function() { row.innerHTML = '<span>Merci pour votre retour 🙏</span>' }
+    const up = document.createElement('button')
+    up.type = 'button'; up.className = 'actero-fb-btn'; up.textContent = '👍'; up.setAttribute('aria-label', 'Réponse utile')
+    const down = document.createElement('button')
+    down.type = 'button'; down.className = 'actero-fb-btn'; down.textContent = '👎'; down.setAttribute('aria-label', 'Réponse pas utile')
+    const q = document.createElement('span'); q.textContent = 'Utile ?'
+    up.addEventListener('click', function() { sendFeedback('up'); thanks() })
+    down.addEventListener('click', function() {
+      row.innerHTML = ''
+      const inp = document.createElement('input')
+      inp.type = 'text'; inp.className = 'actero-fb-input'; inp.placeholder = "Qu'est-ce qui n'allait pas ? (optionnel)"
+      const snd = document.createElement('button')
+      snd.type = 'button'; snd.className = 'actero-fb-send'; snd.textContent = 'Envoyer'
+      const submit = function() { sendFeedback('down', inp.value.trim()); thanks() }
+      snd.addEventListener('click', submit)
+      inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') submit() })
+      row.appendChild(inp); row.appendChild(snd); inp.focus()
+    })
+    row.appendChild(q); row.appendChild(up); row.appendChild(down)
+    msgsEl.appendChild(row)
+    scrollToLatest()
+  }
+
+  // ── Human handoff — escalate + notify the merchant ──
+  async function requestHandoff(withEmail) {
+    const em = withEmail || customerEmail || null
+    try {
+      const res = await fetch(ACTERO_URL + '/api/engine/webhooks/widget?api_key=' + encodeURIComponent(apiKey), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ handoff: true, session_id: sessionId, email: em, name: customerName || null }),
+      })
+      const data = await res.json().catch(function() { return {} })
+      addBotMessage(data.response || "C'est noté 🙌 Un membre de notre équipe va prendre le relais.")
+      awaitingHandoffEmail = !!data.needEmail
+    } catch {
+      addBotMessage("C'est noté 🙌 Un membre de notre équipe va prendre le relais.")
+    }
+  }
+
   function addUserMessage(text, imageDataUrls) {
     const ts = Date.now()
     messages.push({ role: 'user', text, ts })
@@ -718,6 +959,14 @@
       } catch {}
     }
 
+    // If we're waiting on an email for a human handoff and the customer just
+    // gave one, complete the handoff instead of sending to the LLM.
+    if (awaitingHandoffEmail && foundEmail) {
+      awaitingHandoffEmail = false
+      requestHandoff(foundEmail)
+      return
+    }
+
     sending = true
     sendBtn.disabled = true
     attachBtn.disabled = true
@@ -753,6 +1002,10 @@
         if (data.product_recommendations && data.product_recommendations.length > 0) {
           addProductCards(data.product_recommendations)
         }
+        if (Array.isArray(data.cards) && data.cards.length > 0) {
+          renderCards(data.cards)
+        }
+        addFeedbackRow() // CSAT under each real answer
         messageCount++
 
         // After 2nd AI response, politely ask for email (non-blocking)
@@ -816,6 +1069,7 @@
     if (cfg.position === 'bottom-left' || cfg.position === 'bottom-right') CFG.position = cfg.position
     CFG.logoUrl = cfg.logoUrl || null
     CFG.showPoweredBy = cfg.showPoweredBy !== false
+    if (typeof cfg.proactiveEnabled === 'boolean') CFG.proactiveEnabled = cfg.proactiveEnabled
 
     // Restyle live via CSS variables.
     applyThemeVars()
@@ -841,6 +1095,9 @@
         avEl.innerHTML = '<img src="' + String(CFG.logoUrl).replace(/"/g, '&quot;') + '" alt="" />'
       }
     }
+
+    // Proactive peek is opt-in — only evaluated once the server confirms it on.
+    maybeProactive()
   }
 
   fetch(ACTERO_URL + '/api/engine/widget-config?api_key=' + encodeURIComponent(apiKey))

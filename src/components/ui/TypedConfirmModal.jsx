@@ -114,7 +114,7 @@ export function TypedConfirmModal({
               onClick={() => !loading && onClose?.()}
               disabled={loading}
               aria-label="Fermer la boîte de dialogue"
-              className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-[#9ca3af] hover:text-[#1a1a1a] hover:bg-[#fafafa] transition-colors disabled:opacity-50"
+              className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-[#9ca3af] hover:text-[#1a1a1a] hover:bg-surface transition-colors disabled:opacity-50"
             >
               <X className="w-4 h-4" />
             </button>
@@ -137,7 +137,7 @@ export function TypedConfirmModal({
               </div>
 
               <label className="block text-[12px] font-medium text-[#71717a] mb-1.5">
-                Pour confirmer, tapez <code className="font-mono text-[#1a1a1a] bg-[#fafafa] border border-[#f0f0f0] px-1.5 py-0.5 rounded text-[11px]">{confirmText}</code> ci-dessous :
+                Pour confirmer, tapez <code className="font-mono text-[#1a1a1a] bg-surface border border-[#f0f0f0] px-1.5 py-0.5 rounded text-[11px]">{confirmText}</code> ci-dessous :
               </label>
               <input
                 ref={inputRef}
@@ -166,7 +166,7 @@ export function TypedConfirmModal({
                 <button
                   onClick={() => !loading && onClose?.()}
                   disabled={loading}
-                  className="px-4 py-2 rounded-xl text-[13px] font-semibold text-[#71717a] hover:bg-[#fafafa] transition-colors disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl text-[13px] font-semibold text-[#71717a] hover:bg-surface transition-colors disabled:opacity-50"
                 >
                   {cancelLabel}
                 </button>

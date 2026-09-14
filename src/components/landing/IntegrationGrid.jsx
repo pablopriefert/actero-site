@@ -6,13 +6,11 @@ const INTEGRATIONS = {
     { name: "Shopify", icon: "shopify", color: "95BF47", desc: "Commandes & clients en temps réel" },
     { name: "Stripe", icon: "stripe", color: "635BFF", desc: "Paiements et anomalies de facturation" },
     { name: "Gorgias", icon: "gorgias", color: "EA580C", desc: "Tickets support automatisés" },
-    { name: "HubSpot", icon: "hubspot", color: "FF7A59", desc: "Synchronisation CRM et scoring clients" },
     { name: "Slack", src: "/slack.svg", desc: "Alertes temps réel dans vos channels" },
     { name: "n8n", icon: "n8n", color: "FF6D5A", desc: "Orchestration des workflows" },
     { name: "OpenAI", src: "/openai.svg", desc: "Moteur LLM pour les réponses IA" },
     { name: "Zendesk", icon: "zendesk", color: "03363D", desc: "Escalade intelligente des tickets" },
     { name: "Make", icon: "make", color: "5F4CFF", desc: "Connecteur universel" },
-    { name: "Intercom", icon: "intercom", color: "0058DD", desc: "Chat en direct augmenté IA" },
   ],
 }
 
@@ -33,7 +31,7 @@ export const IntegrationGrid = ({ vertical }) => {
         >
           <div className="flex items-center gap-3">
             <div
-              className="w-9 h-9 rounded-xl bg-[#F9F7F1] border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors text-[11px] font-bold"
+              className="w-9 h-9 rounded-xl bg-surface border border-gray-200 flex items-center justify-center flex-shrink-0 group-hover:border-gray-300 transition-colors text-[11px] font-bold"
               style={{ color: `#${integ.color || '262626'}` }}
             >
               <img

@@ -15,6 +15,8 @@
  *   })
  */
 
+import { decryptToken } from './crypto.js'
+
 /**
  * Send a client-facing notification through all enabled channels.
  * Fails silently: individual channel failures are logged, never throw.
@@ -30,7 +32,12 @@ export async function notifyClient(supabase, { clientId, eventKey, title, messag
     .maybeSingle()
 
   // Check quiet hours (skip non-critical notifications during that window)
-  const isCritical = ['escalation_alert', 'urgent_ticket_alert', 'security_alert'].includes(eventKey)
+  // Quota alerts are business-critical (the agent stops answering customers), so
+  // they bypass quiet hours like escalations do.
+  const isCritical = [
+    'escalation_alert', 'urgent_ticket_alert', 'security_alert',
+    'usage.threshold_reached', 'usage.quota_reached',
+  ].includes(eventKey)
   if (!isCritical && prefs?.quiet_hours_enabled) {
     const hour = new Date().getHours()
     const start = prefs.quiet_hours_start ?? 22
@@ -72,11 +79,6 @@ export async function notifyClient(supabase, { clientId, eventKey, title, messag
     results.skipped.push({ channel: 'push', reason: 'not_implemented' })
   }
 
-  // VOCAL — not implemented yet
-  if (channels.includes('vocal')) {
-    results.skipped.push({ channel: 'vocal', reason: 'not_implemented' })
-  }
-
   return results
 }
 
@@ -95,7 +97,7 @@ async function sendSimpleSlackMessage(supabase, clientId, { title, message, cont
   if (!integration) return { success: false, error: 'Slack non connecté' }
 
   const webhookUrl = integration.extra_config?.webhook_url
-  const accessToken = integration.access_token
+  const accessToken = decryptToken(integration.access_token) || integration.access_token
   const channelId = integration.extra_config?.channel_id
 
   // Build blocks
@@ -146,6 +148,10 @@ async function sendSimpleSlackMessage(supabase, clientId, { title, message, cont
 /**
  * Simple client email via Resend.
  */
+export async function sendClientEmail(supabase, clientId, payload) {
+  return sendSimpleEmail(supabase, clientId, payload)
+}
+
 async function sendSimpleEmail(supabase, clientId, { title, message, context }) {
   if (!process.env.RESEND_API_KEY) return { success: false, error: 'RESEND non configuré' }
 

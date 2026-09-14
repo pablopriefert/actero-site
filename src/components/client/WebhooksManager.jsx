@@ -16,8 +16,8 @@ const EVENT_CATALOG = [
   { id: 'conversation.created', label: 'Nouvelle conversation', group: 'Conversations' },
   { id: 'conversation.sentiment_negative', label: 'Sentiment négatif', group: 'Conversations' },
   { id: 'usage.threshold_reached', label: 'Seuil de consommation atteint', group: 'Usage' },
-  { id: 'integration.connected', label: 'Intégration connectée', group: 'Intégrations' },
-  { id: 'integration.disconnected', label: 'Intégration déconnectée', group: 'Intégrations' },
+  { id: 'intégration.connected', label: 'Intégration connectée', group: 'Intégrations' },
+  { id: 'intégration.disconnected', label: 'Intégration déconnectée', group: 'Intégrations' },
   { id: 'playbook.activated', label: 'Playbook activé', group: 'Playbooks' },
 ]
 
@@ -120,7 +120,7 @@ export const WebhooksManager = ({ clientId }) => {
         {!showCreate && (
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-[#003725] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-cta transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Nouveau webhook
           </button>
@@ -152,7 +152,7 @@ export const WebhooksManager = ({ clientId }) => {
                 navigator.clipboard.writeText(newSecret.secret)
                 toast.success('Secret copié')
               }}
-              className="px-3 py-2 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-[#003725]"
+              className="px-3 py-2 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-cta"
             >
               Copier
             </button>
@@ -277,7 +277,7 @@ const CreateWebhookForm = ({ onCancel, onSubmit, loading }) => {
           <button
             onClick={() => onSubmit({ label: label.trim(), url: url.trim(), events })}
             disabled={!canSubmit || loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-[#003725] disabled:opacity-40 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cta text-white text-xs font-semibold hover:bg-cta disabled:opacity-40 transition-colors"
           >
             {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
             Créer

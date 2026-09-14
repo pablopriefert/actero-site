@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { tokens } from '../../lib/design-tokens';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -21,7 +20,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
  */
 const TONE_STYLES = {
   neutral: {
-    bg: 'bg-[#f5f5f5]',
+    bg: 'bg-surface',
     ring: 'ring-1 ring-[#e5e5e5]',
     icon: 'text-[#9ca3af]',
   },
@@ -32,7 +31,7 @@ const TONE_STYLES = {
   },
   info: {
     bg: 'bg-cream',
-    ring: 'ring-1 ring-[#E8DFC9]',
+    ring: 'ring-1 ring-[#E3E6EA]',
     icon: 'text-primary',
   },
   cta: {
@@ -65,7 +64,7 @@ function renderSecondary(action) {
   return (
     <button
       onClick={action.onClick}
-      className="px-4 py-2 rounded-full bg-white text-[#3A3A3A] text-[12px] font-semibold border border-[#e5e5e5] hover:bg-[#fafafa] transition-colors"
+      className="px-4 py-2 rounded-full bg-white text-[#3A3A3A] text-[12px] font-semibold border border-[#e5e5e5] hover:bg-surface transition-colors"
     >
       {action.label}
     </button>
@@ -143,5 +142,4 @@ export function EmptyStateInline({ icon: Icon, title, description, action, tone 
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const __EMPTY_STATE_TOKENS__ = tokens;
+ 

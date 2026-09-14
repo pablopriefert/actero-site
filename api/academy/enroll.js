@@ -61,7 +61,7 @@ async function handler(req, res) {
   res.setHeader('Vary', 'Origin');
 
   const ip = getClientIp(req)
-  const rl = checkRateLimit(`academy-enroll:${ip}`, 10, 60 * 60 * 1000)
+  const rl = await checkRateLimit(`academy-enroll:${ip}`, 10, 60 * 60 * 1000)
   if (!rl.allowed) return res.status(429).json({ error: 'Trop de requêtes. Réessayez plus tard.' })
 
   try {

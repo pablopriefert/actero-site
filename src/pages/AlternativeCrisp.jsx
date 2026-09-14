@@ -1,5 +1,5 @@
 import React from 'react'
-import { ShoppingBag, Sparkles, TrendingUp, Phone, Shield, Zap } from 'lucide-react'
+import { ShoppingBag, Sparkles, TrendingUp, Shield, Zap } from 'lucide-react'
 import { AlternativeTemplate } from '../components/alternative/AlternativeTemplate'
 
 /**
@@ -17,14 +17,14 @@ export const AlternativeCrisp = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Crisp pour Shopify — Actero | Agent IA SAV FR',
       description:
-        "Crisp est un super chat français mais l'IA est limitée par crédits. Actero est un vrai agent IA spécialisé Shopify, voix incluse, dashboard ROI. Dès 99 €/mois, hébergé UE.",
+        "Crisp est un super chat français mais l'IA est limitée par crédits. Actero est un vrai agent IA spécialisé Shopify, avec dashboard ROI. Dès 99 €/mois, hébergé UE.",
       keywords:
         'alternative crisp, crisp vs actero, crisp français alternative, crisp shopify ia, sav ia français, magicreply alternative',
     },
 
     hero: {
       subtitle:
-        "Crisp est un chat live généraliste dont l'IA fonctionne par crédits limités (~450 conversations sur Essentials). Pas de spécialisation Shopify, pas d'actions agentic, pas d'agent vocal. Actero est un agent IA autonome qui lit vos commandes, déclenche refunds et échanges, et embarque le voice — sans crédit qui s'épuise.",
+        "Crisp est un chat live généraliste dont l'IA fonctionne par crédits limités (~450 conversations sur Essentials). Pas de spécialisation Shopify, pas d'actions agentic. Actero est un agent IA autonome qui lit vos commandes, déclenche refunds et échanges — sans crédit qui s'épuise.",
     },
 
     comparison: [
@@ -47,11 +47,6 @@ export const AlternativeCrisp = ({ onNavigate }) => {
         label: 'Spécialisation Shopify (catalogue, commandes, refund)',
         actero: { main: 'Native', sub: 'OAuth + actions agentic' },
         competitor: 'partial',
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
-        competitor: false,
       },
       {
         label: 'Relance panier abandonné conversationnelle',
@@ -98,14 +93,6 @@ export const AlternativeCrisp = ({ onNavigate }) => {
           "Crisp Essentials donne ~450 conversations IA/mois en crédits — au-delà, vous payez ou l'IA s'arrête. Actero compte par tickets traités, IA illimitée incluse, overage prévisible à 0,15 €/ticket.",
       },
       {
-        icon: Phone,
-        stat: 'Voice',
-        statLabel: '+ outbound téléphonique',
-        title: 'Un agent vocal inclus, Crisp ne l\'a pas',
-        desc:
-          "Crisp ne fait pas de téléphone. Actero embarque ElevenLabs avec numéro FR, 200 min incluses sur Pro, voix custom Enterprise. Inbound (le client appelle), outbound (l'agent appelle pour relancer), unifié au reste.",
-      },
-      {
         icon: TrendingUp,
         stat: 'ROI',
         statLabel: 'CFO-grade',
@@ -120,11 +107,11 @@ export const AlternativeCrisp = ({ onNavigate }) => {
     faqs: [
       {
         q: 'Puis-je garder Crisp pour le chat live et utiliser Actero pour l\'IA ?',
-        a: "Oui. Beaucoup de clients utilisent Crisp en chat humain et brodent Actero par-dessus pour l'agent IA, le voice et la relance panier. Actero expose des webhooks et un MCP qui se branchent sur Crisp pour synchroniser les conversations.",
+        a: "Oui. Beaucoup de clients utilisent Crisp en chat humain et brodent Actero par-dessus pour l'agent IA et la relance panier. Actero expose des webhooks et un MCP qui se branchent sur Crisp pour synchroniser les conversations.",
       },
       {
         q: 'Crisp et Actero sont tous les deux français — quelle différence ?',
-        a: "Crisp est une messagerie chat généraliste avec une IA limitée par crédits qui s'épuisent. Actero est un agent IA autonome spécialisé Shopify avec actions natives (refund, échange, WISMO), voice agent inclus et dashboard ROI partageable. Pour un marchand Shopify sérieux, Actero est de plusieurs niveaux au-dessus.",
+        a: "Crisp est une messagerie chat généraliste avec une IA limitée par crédits qui s'épuisent. Actero est un agent IA autonome spécialisé Shopify avec actions natives (refund, échange, WISMO) et dashboard ROI partageable. Pour un marchand Shopify sérieux, Actero est de plusieurs niveaux au-dessus.",
       },
       {
         q: 'Mon équipe doit-elle apprendre une nouvelle interface ?',

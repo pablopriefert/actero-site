@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
 
 const STEPS = [
-  { id: 'explain', title: 'Comment ca marche' },
+  { id: 'explain', title: 'Comment ça marche' },
   { id: 'tools', title: 'Vos outils' },
   { id: 'config', title: 'Configuration' },
   { id: 'channels', title: 'Canaux' },
@@ -18,7 +18,7 @@ const STEPS = [
 
 const COMPTA_TOOLS = [
   { id: 'axonaut', name: 'Axonaut', desc: 'CRM et facturation pour PME' },
-  { id: 'pennylane', name: 'Pennylane', desc: 'Comptabilite automatisee' },
+  { id: 'pennylane', name: 'Pennylane', desc: 'Comptabilité automatisee' },
   { id: 'ipaidthat', name: 'iPaidThat', desc: 'Collecte de factures' },
   { id: 'none', name: 'Aucun pour le moment', desc: 'Je veux juste les alertes et relances par email' },
 ]
@@ -50,7 +50,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
       }, { onConflict: 'client_id' })
 
       setActivated(true)
-      toast.success('Comptabilite automatisee activee !')
+      toast.success('Comptabilité automatisee activee !')
     } catch (err) {
       toast.error(err.message)
     }
@@ -103,13 +103,13 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                   <div className="space-y-3">
                     {[
                       { icon: FileText, title: 'Relance de factures', desc: 'L\'IA detecte les factures impayees et envoie des relances automatiques a vos clients.' },
-                      { icon: AlertTriangle, title: 'Alertes de tresorerie', desc: 'Recevez une alerte quand votre tresorerie passe sous un seuil que vous definissez.' },
-                      { icon: Calendar, title: 'Rapports comptables', desc: 'Recevez un recapitulatif automatique de vos donnees comptables par email.' },
+                      { icon: AlertTriangle, title: 'Alertes de trésorerie', desc: 'Recevez une alerte quand votre trésorerie passe sous un seuil que vous définissez.' },
+                      { icon: Calendar, title: 'Rapports comptables', desc: 'Recevez un recapitulatif automatique de vos données comptables par email.' },
                       { icon: Bell, title: 'Notifications', desc: 'Soyez prevenu par email ou Slack de chaque action comptable.' },
                     ].map(item => {
                       const Icon = item.icon
                       return (
-                        <div key={item.title} className="flex items-start gap-3 p-3 bg-[#fafafa] rounded-xl">
+                        <div key={item.title} className="flex items-start gap-3 p-3 bg-surface rounded-xl">
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
                             <Icon className="w-4 h-4 text-indigo-600" />
                           </div>
@@ -153,7 +153,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                                 <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">Connecte</span>
                               )}
                               {tool.id !== 'none' && !isConnected && (
-                                <span className="text-[9px] font-bold text-[#9ca3af] bg-[#f5f5f5] px-1.5 py-0.5 rounded-full">Non connecte</span>
+                                <span className="text-[9px] font-bold text-[#9ca3af] bg-surface px-1.5 py-0.5 rounded-full">Non connecte</span>
                               )}
                             </div>
                             <p className="text-[11px] text-[#9ca3af]">{tool.desc}</p>
@@ -187,7 +187,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                         type="number"
                         value={relanceDelai}
                         onChange={(e) => setRelanceDelai(e.target.value)}
-                        className="w-24 px-3 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] outline-none focus:ring-1 focus:ring-indigo-300"
+                        className="w-24 px-3 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] outline-none focus:ring-1 focus:ring-indigo-300"
                       />
                       <span className="text-[13px] text-[#9ca3af]">jours</span>
                     </div>
@@ -201,7 +201,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                         type="number"
                         value={alerteSeuil}
                         onChange={(e) => setAlerteSeuil(e.target.value)}
-                        className="w-32 px-3 py-2.5 bg-[#fafafa] border border-[#ebebeb] rounded-lg text-[14px] outline-none focus:ring-1 focus:ring-indigo-300"
+                        className="w-32 px-3 py-2.5 bg-surface border border-[#ebebeb] rounded-lg text-[14px] outline-none focus:ring-1 focus:ring-indigo-300"
                       />
                       <span className="text-[13px] text-[#9ca3af]">€</span>
                     </div>
@@ -215,7 +215,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                           key={freq}
                           onClick={() => setExportFrequency(freq)}
                           className={`px-4 py-2 rounded-lg text-[12px] font-semibold transition-all ${
-                            exportFrequency === freq ? 'bg-indigo-600 text-white' : 'bg-[#f5f5f5] text-[#71717a] hover:bg-[#ebebeb]'
+                            exportFrequency === freq ? 'bg-indigo-600 text-white' : 'bg-surface text-[#71717a] hover:bg-[#ebebeb]'
                           }`}
                         >
                           {freq.charAt(0).toUpperCase() + freq.slice(1)}
@@ -279,7 +279,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                         <TrendingUp className="w-8 h-8 text-indigo-600" />
                       </div>
                       <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Pret a activer</h3>
-                      <div className="p-4 bg-[#fafafa] rounded-xl text-left space-y-2">
+                      <div className="p-4 bg-surface rounded-xl text-left space-y-2">
                         <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" /> <span>Outil : {COMPTA_TOOLS.find(t => t.id === selectedTool)?.name}</span></div>
                         <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" /> <span>Relance apres {relanceDelai} jours</span></div>
                         <div className="flex items-center gap-2 text-[12px]"><CheckCircle2 className="w-3.5 h-3.5 text-indigo-600" /> <span>Alerte tresorerie sous {alerteSeuil}€</span></div>
@@ -289,7 +289,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                       <button
                         onClick={handleActivate}
                         disabled={activating}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-cta text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725] disabled:opacity-50 transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-cta text-white text-[13px] font-semibold rounded-xl hover:bg-cta disabled:opacity-50 transition-colors"
                       >
                         {activating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                         Activer la comptabilite automatisee
@@ -304,7 +304,7 @@ export const ComptabiliteWizard = ({ clientId, connectedProviders, onComplete, o
                       <h3 className="text-[16px] font-semibold text-[#1a1a1a]">Comptabilite automatisee activee !</h3>
                       <p className="text-[13px] text-[#9ca3af]">Les relances, alertes et exports sont maintenant actifs.</p>
                       <button onClick={onComplete}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-xl hover:bg-[#003725]">
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cta text-white text-[13px] font-semibold rounded-xl hover:bg-cta">
                         Terminer
                       </button>
                     </>

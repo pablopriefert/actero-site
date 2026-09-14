@@ -22,8 +22,9 @@ async function handler(req, res) {
   if (error) return res.status(500).json({ error: 'lookup_failed' });
   if (!data || !data.portal_enabled) return res.status(404).json({ error: 'portal_not_found' });
 
-  const inTrial = data.trial_ends_at && new Date(data.trial_ends_at) > new Date();
-  const canCustomize = PLANS_WITH_CUSTOMIZATION.has(data.plan) || inTrial;
+  // Branding is a paid feature — a trialing merchant already carries a paid
+  // plan (set once a card is on file), matching the write path.
+  const canCustomize = PLANS_WITH_CUSTOMIZATION.has(data.plan);
 
   return res.status(200).json({
     clientId: data.id,

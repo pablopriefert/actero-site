@@ -96,7 +96,7 @@ async function handler(req, res) {
       payload: {},
       env: {
         TAVILY_API_KEY: process.env.TAVILY_API_KEY,
-        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+        OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
       },
       timeoutMinutes: 30,
     })

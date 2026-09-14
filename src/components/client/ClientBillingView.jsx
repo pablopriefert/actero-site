@@ -8,11 +8,16 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
-import { PLANS, PLAN_ORDER, getPlanConfig } from '../../lib/plans'
+import { PLANS, PLAN_ORDER, getPlanConfig, getPlanHighlights } from '../../lib/plans'
+import { resolveUpgrade } from '../../lib/billing-router'
+import { PaymentModal } from '../billing/PaymentModal'
+import { hasStripeElements } from '../../lib/stripe-client'
+import { resolveOrCreateClientId } from '../../lib/resolve-client'
 import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
 import { CreditsPurchase } from './CreditsPurchase'
+import { joursEssaiPour } from '../../../api/lib/essai-gratuit.js'
 
 // ─── Helpers ────────────────────────────────────────────────────
 const MONTH_NAMES = [
@@ -56,7 +61,7 @@ const PLAN_FEATURES_SHORT = {
   pro: [
     '5 000 tickets / mois',
     'Workflows illimités',
-    'Agent vocal (200 min)',
+    'Agent email',
     'Agents IA spécialisés',
     'Support prioritaire 24h',
   ],
@@ -87,7 +92,7 @@ function UsageBar({ used, limit, label, unit = '' }) {
           {used.toLocaleString('fr-FR')}{unit} / {isUnlimited ? '\u221E' : limit.toLocaleString('fr-FR')}{unit}
         </span>
       </div>
-      <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden">
+      <div className="h-2 rounded-full bg-surface overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500 ${color}`}
           style={{ width: `${isUnlimited ? 0 : percent}%` }}
@@ -103,6 +108,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
   const [loadingPortal, setLoadingPortal] = useState(false)
   const [upgradingPlan, setUpgradingPlan] = useState(null)
   const [billingPeriod, setBillingPeriod] = useState('monthly')
+  const [payModal, setPayModal] = useState(null)
 
   // ── Fetch client record ───────────────────────────────────────
   const { data: client, isLoading } = useQuery({
@@ -164,14 +170,45 @@ export const ClientBillingView = ({ theme: _theme }) => {
       return
     }
 
-    if (!client?.id) {
-      toast.error('Chargement en cours, réessayez dans un instant.')
-      return
-    }
-
     setUpgradingPlan(targetPlan)
     try {
       const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toast.error('Session expirée. Reconnectez-vous.')
+        setUpgradingPlan(null)
+        return
+      }
+
+      // Resolve the client_id — create it on the fly for a fresh direct signup
+      // that reached billing without a clients row yet (otherwise the upgrade
+      // would dead-end). Falls back to the already-loaded client when present.
+      let clientId = client?.id
+      if (!clientId) {
+        try {
+          clientId = await resolveOrCreateClientId(supabase, session)
+        } catch {
+          toast.error('Impossible de préparer votre compte. Contactez le support.')
+          setUpgradingPlan(null)
+          return
+        }
+      }
+
+      // Shopify-installed merchants must be billed via Shopify Billing (App
+      // Store policy 1.2); direct signups fall through to Stripe below.
+      const routed = await resolveUpgrade({
+        token: session?.access_token, clientId, targetPlan, billingPeriod,
+      })
+      if (routed.channel === 'shopify') { window.location.assign(routed.url); return }
+      if (routed.channel === 'error') { toast.error(routed.message); setUpgradingPlan(null); return }
+
+      // On-site payment (Stripe Payment Element) when the publishable key is
+      // set — otherwise fall through to the hosted Checkout redirect below.
+      if (hasStripeElements()) {
+        setPayModal({ planId: targetPlan, clientId, token: session?.access_token })
+        setUpgradingPlan(null)
+        return
+      }
+
       const res = await fetch('/api/billing/upgrade', {
         method: 'POST',
         headers: {
@@ -179,7 +216,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
           'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
-          client_id: client?.id,
+          client_id: clientId,
           target_plan: targetPlan,
           billing_period: billingPeriod,
         }),
@@ -217,9 +254,9 @@ export const ClientBillingView = ({ theme: _theme }) => {
 
   const planConfig = plan.config || getPlanConfig('free')
   const currentPrice = planConfig.price?.[billingPeriod]
-  const hasVoice = plan.voiceMinutesLimit > 0
-  const overageTickets = plan.usage?.overage_tickets || 0
-  const overageCost = overageTickets * (planConfig.overage_per_ticket || 0)
+  // Hard cap — no overage billing. Once the monthly quota is reached the agent
+  // stops answering until the merchant buys credits or upgrades.
+  const quotaReached = !!plan.isOverLimit
 
   const ticketsPct = plan.ticketsLimit === Infinity || plan.ticketsLimit === -1
     ? 0
@@ -232,7 +269,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       {/* ═══════ HEADER STRIP ═══════ */}
-      <div className="bg-white border border-[#E5E2D7] rounded-2xl p-5 md:p-6">
+      <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -276,15 +313,13 @@ export const ClientBillingView = ({ theme: _theme }) => {
               </span>
               <span className="text-[10px] text-[#9ca3af]">tickets</span>
             </div>
-            {overageTickets > 0 && (
+            {quotaReached && (
               <>
                 <div className="w-px h-10 bg-gray-200" />
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Dépass.</span>
-                  <span className="text-lg font-bold text-red-500 tabular-nums leading-tight">
-                    {overageCost.toFixed(0)}€
-                  </span>
-                  <span className="text-[10px] text-[#9ca3af]">+{overageTickets} tickets</span>
+                  <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Quota</span>
+                  <span className="text-lg font-bold text-amber-600 leading-tight">Atteint</span>
+                  <span className="text-[10px] text-[#9ca3af]">agent en pause</span>
                 </div>
               </>
             )}
@@ -342,7 +377,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
         </div>
 
         {/* Manage subscription button */}
-        <div className="mt-4 pt-4 border-t border-[#E5E2D7] flex items-center justify-between">
+        <div className="mt-4 pt-4 border-t border-[#E6E8EC] flex items-center justify-between">
           <p className="text-[12px] text-[#9ca3af]">Gerez votre abonnement via Stripe</p>
           <button
             onClick={openStripePortal}
@@ -358,7 +393,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
       {/* ━━━ Section 2 — Consommation du mois ━━━ */}
       <SectionCard
         title="Consommation du mois"
-        subtitle={`Periode : ${currentMonthLabel()}`}
+        subtitle={`Période : ${currentMonthLabel()}`}
         icon={TrendingUp}
       >
         <div className="space-y-4">
@@ -368,20 +403,12 @@ export const ClientBillingView = ({ theme: _theme }) => {
             label="Tickets utilises"
           />
 
-          {hasVoice && (
-            <UsageBar
-              used={plan.voiceMinutesUsed}
-              limit={plan.voiceMinutesLimit}
-              label="Minutes vocales"
-              unit=" min"
-            />
-          )}
-
-          {overageTickets > 0 && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
-              <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-              <p className="text-[12px] text-red-700">
-                Tickets en depassement : <span className="font-bold">{overageTickets}</span> x {planConfig.overage_per_ticket?.toFixed(2) || '0,10'}{'\u202F'}\u20AC = <span className="font-bold">{overageCost.toFixed(2)}{'\u202F'}\u20AC</span>
+          {quotaReached && (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200">
+              <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+              <p className="text-[12px] text-amber-800">
+                Quota mensuel atteint \u2014 l&apos;agent ne r\u00E9pond plus. Achetez des cr\u00E9dits ci-dessous
+                ou passez au plan sup\u00E9rieur pour le r\u00E9activer.
               </p>
             </div>
           )}
@@ -396,7 +423,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <p className="text-[12px] text-[#9ca3af] mt-0.5">Comparez les options et passez au niveau superieur</p>
           </div>
           {/* Billing period toggle */}
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-[#f0f0f0]">
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-surface">
             <button
               onClick={() => setBillingPeriod('monthly')}
               className={`px-3 py-1.5 text-[11px] font-semibold rounded-md transition-colors ${
@@ -437,14 +464,19 @@ export const ClientBillingView = ({ theme: _theme }) => {
             if (isCurrent) {
               ctaText = 'Plan actuel'
             } else if (isEnterprise) {
-              ctaText = 'Contacter l\'equipe'
+              ctaText = 'Contacter l\'équipe'
             } else if (isDowngrade) {
-              ctaText = 'Inclus dans votre plan'
+              ctaText = 'Rétrograder'
             } else {
-              const isReferred = client?.referral_first_month_free
-              ctaText = isReferred
-                ? `Passer au ${p.name} — 30 jours gratuits`
-                : `Passer au ${p.name} — Essai 7j gratuit`
+              // La durée affichée doit être celle qui sera réellement
+              // accordée : joursEssaiPour est la seule source (ACT-33). Un
+              // bouton qui annonce sept jours à quelqu'un qui en aura trente
+              // est un mensonge dans le sens gentil — celui qui annoncerait
+              // trente pour sept est un remboursement.
+              const jours = joursEssaiPour(client)
+              ctaText = jours
+                ? `Passer au ${p.name} — ${jours} jours gratuits`
+                : `Passer au ${p.name}`
             }
 
             return (
@@ -455,7 +487,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                     ? 'border-cta/30 bg-cta/5'
                     : p.popular
                     ? 'border-cta shadow-md'
-                    : 'border-[#E5E2D7] bg-white'
+                    : 'border-[#E6E8EC] bg-white'
                 }`}
               >
                 {p.popular && !isCurrent && (
@@ -467,7 +499,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isCurrent ? 'bg-cta/10' : 'bg-[#fafafa]'
+                      isCurrent ? 'bg-cta/10' : 'bg-surface'
                     }`}>
                       <PlanIcon className={`w-4 h-4 ${isCurrent ? 'text-cta' : 'text-[#71717a]'}`} />
                     </div>
@@ -496,19 +528,26 @@ export const ClientBillingView = ({ theme: _theme }) => {
                   </div>
 
                   <button
-                    onClick={() => !isCurrent && !isDowngrade && handleUpgrade(planKey)}
-                    disabled={isCurrent || isDowngrade || upgradingPlan === planKey}
+                    onClick={() => {
+                      if (isCurrent) return
+                      // Downgrade / cancel is handled in Stripe's Customer Portal
+                      // (native proration + period-end change). Upgrades + the
+                      // Enterprise "contact" case go through handleUpgrade.
+                      if (isDowngrade) { openStripePortal(); return }
+                      handleUpgrade(planKey)
+                    }}
+                    disabled={isCurrent || upgradingPlan === planKey || (isDowngrade && loadingPortal)}
                     className={`w-full py-2.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       isCurrent
-                        ? 'bg-[#f0f0f0] text-[#9ca3af] cursor-default'
+                        ? 'bg-surface text-[#9ca3af] cursor-default'
                         : isDowngrade
-                        ? 'bg-[#fafafa] text-[#9ca3af] cursor-default'
+                        ? 'bg-white border border-[#E6E8EC] text-[#71717a] hover:bg-surface hover:text-[#1a1a1a]'
                         : isEnterprise
                         ? 'bg-[#1a1a1a] text-white hover:bg-[#333]'
                         : 'bg-cta text-white hover:bg-[#0a4528]'
                     }`}
                   >
-                    {upgradingPlan === planKey ? (
+                    {(upgradingPlan === planKey || (isDowngrade && loadingPortal)) ? (
                       <Loader2 className="w-4 h-4 animate-spin mx-auto" />
                     ) : (
                       ctaText
@@ -538,7 +577,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <button
               onClick={openStripePortal}
               disabled={loadingPortal}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E5E2D7] text-[#1a1a1a] text-[12px] font-semibold rounded-lg hover:bg-[#fafafa] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E6E8EC] text-[#1a1a1a] text-[12px] font-semibold rounded-lg hover:bg-surface transition-colors"
             >
               {loadingPortal ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
               Voir mes factures
@@ -553,6 +592,17 @@ export const ClientBillingView = ({ theme: _theme }) => {
           </div>
         )}
       </SectionCard>
+
+      <PaymentModal
+        open={!!payModal}
+        onClose={() => setPayModal(null)}
+        plan={payModal ? PLANS[payModal.planId] : null}
+        billingPeriod={billingPeriod}
+        highlights={payModal ? getPlanHighlights(payModal.planId) : []}
+        clientId={payModal?.clientId}
+        token={payModal?.token}
+        onSuccess={() => window.location.assign('/client/overview?upgrade=success')}
+      />
     </div>
   )
 }

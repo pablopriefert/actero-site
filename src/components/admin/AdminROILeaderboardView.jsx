@@ -10,7 +10,7 @@ import { KpiCard, KpiRow } from '../ui/KpiCard'
 import { EmptyState } from '../ui/EmptyState'
 
 const HOURLY_RATE = 25 // € per hour default
-const BRAND = '#0E653A'
+const BRAND = '#13804A'
 
 const formatEuro = (v) =>
   new Intl.NumberFormat('fr-FR', {
@@ -192,7 +192,7 @@ export default function AdminROILeaderboardView() {
                       return (
                         <tr
                           key={row.client_id}
-                          className="border-b border-[#f0f0f0] hover:bg-[#fafafa] transition-colors"
+                          className="border-b border-[#f0f0f0] hover:bg-surface transition-colors"
                         >
                           <td className="px-5 py-3">
                             <div className="flex items-center gap-1.5">
@@ -224,7 +224,7 @@ export default function AdminROILeaderboardView() {
                             {formatEuro(row.total_savings)}
                           </td>
                           <td className="px-5 py-3">
-                            <div className="w-full h-1.5 rounded-full bg-[#f0f0f0] overflow-hidden">
+                            <div className="w-full h-1.5 rounded-full bg-surface overflow-hidden">
                               <div
                                 className="h-full rounded-full transition-all"
                                 style={{

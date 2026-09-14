@@ -21,11 +21,11 @@ const STEP_ICONS = {
 };
 
 const STATUS_STYLES = {
-  pending: { color: 'text-[#71717a]', bg: 'bg-[#fafafa]/10', border: 'border-gray-500/20', label: 'En attente' },
+  pending: { color: 'text-[#71717a]', bg: 'bg-surface/10', border: 'border-gray-500/20', label: 'En attente' },
   running: { color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', label: 'En cours' },
-  success: { color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Succes' },
+  success: { color: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Succès' },
   warning: { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', label: 'Warning' },
-  failed: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Echec' },
+  failed: { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', label: 'Échec' },
 };
 
 export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
@@ -120,7 +120,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-[#ffffff] border border-[#f0f0f0] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="bg-surface border border-[#f0f0f0] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[#f0f0f0]">
@@ -130,7 +130,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
               Deploiement — {clientName}
             </h2>
             <p className="text-[12px] text-[#71717a] mt-0.5">
-              {isRunning ? 'En cours...' : isCompleted ? 'Termine' : isFailed ? 'Echec' : 'Initialisation...'}
+              {isRunning ? 'En cours...' : isCompleted ? 'Termine' : isFailed ? 'Échec' : 'Initialisation...'}
             </p>
           </div>
           <div className="flex items-center gap-4">
@@ -139,7 +139,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
               {formatDuration(elapsed)}
             </div>
             {!isRunning && (
-              <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#fafafa] transition-colors">
+              <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface transition-colors">
                 <X className="w-5 h-5 text-[#71717a]" />
               </button>
             )}
@@ -152,7 +152,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
             <span className="text-[12px] text-[#71717a]">{completedSteps}/{totalSteps} etapes</span>
             <span className="text-[12px] text-[#71717a]">{totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0}%</span>
           </div>
-          <div className="h-2 bg-[#fafafa] rounded-full overflow-hidden">
+          <div className="h-2 bg-surface rounded-full overflow-hidden">
             <motion.div
               className={`h-full rounded-full ${isFailed ? 'bg-red-500' : 'bg-emerald-500'}`}
               animate={{ width: `${totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0}%` }}
@@ -220,7 +220,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="px-4 py-3 mx-3 mt-1 bg-[#fafafa] rounded-lg border border-[#f0f0f0]">
+                      <div className="px-4 py-3 mx-3 mt-1 bg-surface rounded-lg border border-[#f0f0f0]">
                         {step.details && (
                           <p className="text-[12px] text-[#71717a]">{step.details}</p>
                         )}
@@ -263,7 +263,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                   <div className="space-y-2">
                     <p className="text-[12px] font-medium text-[#71717a] uppercase tracking-wider">Workflows deployes</p>
                     {workflowsDeployed.map((wf, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-[#fafafa] rounded-lg border border-[#f0f0f0]">
+                      <div key={i} className="flex items-center gap-3 p-3 bg-surface rounded-lg border border-[#f0f0f0]">
                         <div className={`w-2 h-2 rounded-full ${wf.error ? 'bg-red-400' : wf.skipped ? 'bg-amber-400' : 'bg-emerald-500'}`} />
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] text-[#1a1a1a] truncate">{wf.name}</p>
@@ -273,7 +273,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                         {wf.webhook_url && (
                           <button
                             onClick={() => copyToClipboard(wf.webhook_url)}
-                            className="flex items-center gap-1 px-2 py-1 text-[10px] text-[#71717a] bg-[#fafafa] rounded-md hover:bg-[#fafafa] transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-[10px] text-[#71717a] bg-surface rounded-md hover:bg-surface transition-colors"
                           >
                             {copiedUrl === wf.webhook_url ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                             Webhook
@@ -318,7 +318,7 @@ export const DeploymentProgress = ({ deploymentId, clientName, onClose }) => {
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-full py-3 bg-[#fafafa] text-[#1a1a1a] rounded-xl text-[13px] font-bold hover:bg-[#f5f5f5] transition-colors"
+                  className="w-full py-3 bg-surface text-[#1a1a1a] rounded-xl text-[13px] font-bold hover:bg-[#f5f5f5] transition-colors"
                 >
                   Fermer
                 </button>

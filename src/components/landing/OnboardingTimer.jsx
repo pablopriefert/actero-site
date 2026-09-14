@@ -33,7 +33,7 @@ export const OnboardingTimer = ({ variant = 'full' }) => {
         <div className="flex items-center gap-1.5 ml-4">
           {steps.map((step, i) => (
             <React.Fragment key={i}>
-              <div className="w-7 h-7 rounded-lg bg-[#003725] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-cta flex items-center justify-center">
                 <step.icon className="w-3.5 h-3.5 text-white" />
               </div>
               {i < steps.length - 1 && (

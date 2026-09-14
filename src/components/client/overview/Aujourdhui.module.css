@@ -1,0 +1,679 @@
+/* ─────────────────────────────────────────────────────────────────
+   Aujourd'hui — direction « La nuit imprimée ».
+   CSS Module : les classes sont hachées au build, donc rien ne fuit
+   vers les autres vues et Tailwind ne peut rien écraser ici.
+   Les tokens vivent sur .root et cascadent vers ses enfants.
+   ───────────────────────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ACTERO — AUJOURD'HUI · « La nuit comptée »
+   Une colonne d'encre verte compte la nuit ; un pli sépare ce qu'il faut
+   décider de ce qui se lit ensuite.
+   Aucune ressource externe hors Google Fonts. Aucun JavaScript.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.root {
+  /* repris de body : la vue peint son propre fond */
+  background:var(--papier);
+  color:var(--encre-2);
+  font-family:var(--font-sans);
+  font-size:.9375rem;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+  /* la feuille couvre toute la zone de contenu, pas seulement sa hauteur de texte */
+  min-height:100vh;
+  font-variant-numeric:tabular-nums;
+
+  color-scheme: light;
+
+  /* ── Surfaces ──
+     Le papier est celui des autres onglets (cf. <main> du dashboard), passé
+     au blanc le 10 septembre en même temps que lui : cette valeur sert aussi
+     de couleur de découpe (masques, encoches), donc elle DOIT rester égale au
+     fond réel de la coquille, sinon les découpes se voient. La feuille reste
+     blanche, et la feuille grave un accent sombre assumé. */
+  --papier:#FFFFFF;
+  --feuille:#FFFFFF;
+  --grave:#0B3D25;
+  --lavis:#F5F5F5;
+
+  /* ── Encres ── */
+  --encre:#14231C;
+  --encre-2:#3B4B40;
+  --encre-3:#55625A;
+  --renverse:#F2F5EF;
+  --renverse-2:#CBD8C4;
+
+  /* ── Accents, sémantique exclusive ── */
+  --vert:#13804A;          /* le travail de l'agent, la main du marchand */
+  --vert-appuye:#0B4B2C;   /* même vert, état pressé/survol du bouton */
+  --vert-clair:#A8C490;    /* le vert transposé sur --grave */
+  --laiton:#7A6320;        /* l'instrument, jamais une alerte */
+  --laiton-clair:#C4AC6E;
+  --grenat:#6E2B27;        /* la seule alerte : un client qui rompt */
+
+  /* ── Filets ──
+     Neutres CHAUDS : sur le crème, les anciens gris-vert tiraient au froid. */
+  --filet:#E4DFD4;         /* décoratif */
+  --filet-axe:#8A8071;     /* porteur de sens ou d'affordance (~3:1) */
+
+  --focus:#13804A;
+
+  /* ombres chaudes, accordées au crème */
+  --ombre:0 1px 0 rgba(70,58,40,.04), 0 18px 34px -22px rgba(70,58,40,.18);
+  --ombre-levee:0 1px 0 rgba(70,58,40,.04), 0 12px 24px -18px rgba(70,58,40,.22);
+
+  /* La vue n'impose plus ses propres familles : elle prend celles de l'app.
+     --font-sans et --font-mono ne sont pas redéfinis ici, ils cascadent depuis
+     le :root de Tailwind. --font-serif pointe sur le token de titrage. */
+  --font-serif:var(--font-display);
+}
+
+:where(.root) :is(*,*::before,*::after){ box-sizing:border-box; }
+
+
+
+:where(.root) :is(p,h1,h2,h3,figure,blockquote,ul,ol){ margin:0; padding:0; }
+:where(.root) ul{ list-style:none; }
+:where(.root) button{ font:inherit; color:inherit; background:none; border:0; }
+:where(.root) a{ color:inherit; }
+
+:where(.root) :focus-visible{
+  outline:2px solid var(--focus);
+  outline-offset:3px;
+}
+
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap;
+}
+
+/* ───────────────────────────── COQUILLE ───────────────────────────── */
+
+.app{
+  display:grid;
+  grid-template-columns:232px 1px minmax(0,1fr);
+  min-height:100dvh;
+  background:var(--papier);
+}
+.reliure{ background:var(--filet); }
+
+/* ───────────────────────────── SIDEBAR ─────────────────────────────
+   Pas un panneau : la marge de la feuille. Aucune icône. */
+
+.marge{
+  padding:36px 24px 28px 24px;
+  display:flex; flex-direction:column;
+  gap:0;
+}
+
+.enseigne{ display:flex; align-items:center; gap:10px; margin-bottom:30px; padding-left:16px; }
+.enseigne svg{ width:22px; height:22px; color:var(--vert); flex:none; }
+.enseigne b{
+  font-family:var(--font-serif); font-weight:500;
+  font-size:1.25rem; line-height:1.5; letter-spacing:-.02em;
+  color:var(--encre);
+}
+
+.chercher{
+  display:block; width:100%;
+  height:40px; padding:0 0 2px 16px;
+  text-align:left;
+  font-family:var(--font-mono); font-size:.75rem;
+  color:var(--encre-3);
+  border-bottom:1px solid var(--filet-axe);
+  cursor:text;
+  transition:border-color 120ms ease-out, color 120ms ease-out;
+}
+.chercher:hover{ border-bottom-color:var(--encre-3); color:var(--encre-2); }
+
+.nav{ margin-top:22px; }
+
+.section-nav{
+  font-family:var(--font-sans); font-stretch:87.5%; font-weight:600;
+  font-size:.65625rem; line-height:1.2;
+  text-transform:uppercase; letter-spacing:.18em;
+  color:var(--laiton);
+  border-top:1px solid var(--filet);
+  padding-top:16px; margin-top:22px; margin-bottom:10px;
+}
+
+.item{
+  display:grid;
+  grid-template-columns:16px minmax(0,1fr) auto;
+  align-items:start;
+  column-gap:0;
+  width:calc(100% + 16px);
+  margin:0 -8px;
+  padding:7px 8px;
+  min-height:44px;
+  border-radius:2px;
+  text-align:left;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background-color 120ms ease-out, color 120ms ease-out;
+}
+.item:hover{ background:var(--lavis); }
+.item:hover .item-l{ color:var(--encre); }
+.item-signet{ grid-column:1; padding-top:3px; }
+.item-signet svg{ width:12px; height:12px; display:block; color:var(--vert); }
+.item-txt{ grid-column:2; min-width:0; }
+.item-l{
+  display:block;
+  font-family:var(--font-sans); font-weight:400;
+  font-size:.9375rem; line-height:1.3;
+  color:var(--encre-2);
+  transition:color 120ms ease-out;
+}
+.item-s{
+  display:block; margin-top:2px;
+  font-family:var(--font-mono); font-size:.65625rem; line-height:1.2;
+  color:var(--encre-3);
+}
+.item-s em{ font-style:normal; color:var(--laiton); }
+.item[aria-current="page"] .item-l{ font-weight:500; color:var(--encre); }
+
+.badge{ grid-column:3; display:flex; gap:5px; align-items:center; padding-top:7px; }
+.badge i{ width:5px; height:5px; border-radius:50%; background:var(--vert); display:block; }
+.badge i.gr{ background:var(--grenat); }
+
+.pied{
+  margin-top:auto; padding:16px 0 0 16px;
+  border-top:1px solid var(--filet);
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.pied span{
+  font-family:var(--font-mono); font-size:.6875rem; line-height:1.4;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--encre-2);
+}
+.pied b{
+  font-family:var(--font-mono); font-weight:400;
+  font-size:.625rem; line-height:1.2;
+  text-transform:uppercase; letter-spacing:.12em;
+  color:var(--laiton);
+  border:1px solid var(--laiton);
+  padding:3px 6px 2px;
+}
+
+/* ───────────────────────────── CONTENU ─────────────────────────────
+   Une page posée sur un bureau : jamais centrée, jamais étirée. */
+
+.contenu{
+  --g:88px;      /* gouttière temporelle */
+  --gap:32px;
+  --flow:640px;
+  padding:36px 48px 0 40px;
+  max-width:100%;
+}
+
+.bloc{
+  position:relative;
+  display:grid;
+  grid-template-columns:var(--g) var(--gap) minmax(0,var(--flow));
+}
+/* L'axe est dessiné par CHAQUE bloc de gouttière : l'alignement est
+   structurel, jamais mesuré. Zéro JavaScript. */
+.bloc--axe::before{
+  content:""; position:absolute;
+  left:calc(var(--g) - 1px); width:1px; top:0; bottom:0;
+  background:var(--filet-axe);
+}
+.flux{ grid-column:3; min-width:0; }
+.gout{ grid-column:1; position:relative; }
+
+/* ═══════════════════ 6.1 CARTOUCHE ═══════════════════ */
+
+.datation, .mesure{
+  grid-column:3;
+  font-family:var(--font-mono); font-size:.6875rem; line-height:1.4;
+  text-transform:uppercase; color:var(--laiton);
+}
+.datation{ letter-spacing:.16em; }
+.mesure{ letter-spacing:.14em; margin-top:16px; }
+
+.cartouche{ margin-top:22px; align-items:start; }
+.compte{
+  grid-column:1;
+  font-family:var(--font-serif); font-weight:300;
+  font-size:4.75rem; line-height:.9; letter-spacing:-.03em;
+  color:var(--encre);
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.etat{
+  grid-column:3;
+  font-family:var(--font-serif); font-weight:400;
+  font-size:2.125rem; line-height:1.26; letter-spacing:-.015em;
+  color:var(--encre-2);
+  max-width:34ch;
+  text-wrap:balance;
+  padding-top:6px;
+}
+/* la seule différence est la valeur, jamais un gras décoratif ;
+   « Trois clients » ne se coupe jamais en fin de ligne */
+.etat b{ font-weight:400; color:var(--encre); white-space:nowrap; }
+
+.clot{
+  height:1px; background:var(--filet);
+  margin:26px 0 0 0;
+  max-width:calc(var(--g) + var(--gap) + var(--flow));
+}
+
+/* ═══════════════════ 6.2 LE PEIGNE DE NUIT ═══════════════════ */
+
+.peigne{ margin-top:30px; }
+/* La hauteur suit le nombre de bandes réellement rendues (--bandes, posé
+   par le composant) : figée, l'axe débordait sur les blocs suivants. */
+.peigne .gout{ height:calc(var(--bandes, 13) * 24px); }
+
+.bande{ position:relative; height:24px; display:flex; flex-direction:column;
+        align-items:flex-end; justify-content:center; gap:1.5px; }
+.bande i{ display:block; width:22px; height:1.5px; background:var(--vert); }
+.heure{
+  position:absolute; top:6px; left:0;
+  width:calc(var(--g) - 28px);
+  text-align:right;
+  font-family:var(--font-mono); font-size:.625rem; line-height:1.2;
+  letter-spacing:.1em; margin-right:-.1em;
+  color:var(--laiton);
+}
+/* Les trois trous : l'axe s'interrompt à la minute de chaque escalade.
+   Aucune marque — la personne n'est pas là, elle est plus bas. */
+.trou{
+  position:absolute; right:0;
+  width:1px; height:10px; background:var(--papier);
+  /* La coupure tombe sur sa minute réelle DANS sa propre bande : plus aucune
+     coordonnée globale, donc aucune dérive quand la bande change de hauteur. */
+  top:clamp(0px, calc(var(--m) / 60 * 100% - 5px), calc(100% - 10px));
+}
+
+.legende{
+  grid-column:3; align-self:end;
+  font-family:var(--font-serif); font-style:italic; font-weight:400;
+  font-size:1.0625rem; line-height:1.52;
+  color:var(--encre-2);
+  max-width:34ch;
+  padding-bottom:2px;
+}
+
+/* ═══════════════════ 6.3 RUPTURE D'ÉCHELLE ═══════════════════
+   Au-dessus l'axe mesure une DURÉE ; en dessous, un ORDRE. */
+
+.rupture .gout{ height:28px; }
+.rg{
+  position:absolute; top:7px;
+  left:calc(var(--g) - 10.5px);
+  width:20px; height:14px;
+  display:block;
+}
+.rg .rg-mask{ fill:var(--papier); }
+.rg .rg-l{ stroke:var(--filet-axe); stroke-width:1; fill:none; }
+
+.sectionlabel{
+  grid-column:3; align-self:end;
+  font-family:var(--font-sans); font-stretch:87.5%; font-weight:600;
+  font-size:.65625rem; line-height:1.2;
+  text-transform:uppercase; letter-spacing:.18em;
+  color:var(--laiton);
+}
+
+/* ═══════════════════ 6.4 LES ESCALADES ═══════════════════ */
+
+.esc{ padding-top:28px; }
+
+.esc-h{
+  position:absolute; top:22px; left:0;
+  width:calc(var(--g) - 16px); text-align:right;
+  font-family:var(--font-mono); font-size:.6875rem; line-height:1.4;
+  color:var(--laiton);
+}
+.epingle{
+  position:absolute; top:26px;
+  left:calc(var(--g) - 4px);
+  width:7px; height:7px;
+  background:var(--encre);
+  transition:background-color 120ms ease-out;
+}
+.epingle--grave{ background:var(--grenat); }
+.esc:hover .epingle,
+.esc:focus-within .epingle{
+  background:var(--vert);
+  width:9px; height:9px;
+  left:calc(var(--g) - 5px);
+  top:25px;
+}
+.esc:hover::before,
+.esc:focus-within::before{ width:1.5px; }
+
+/* — la feuille — */
+.feuille{
+  grid-column:3;
+  background:var(--feuille);
+  border:1px solid var(--filet);
+  border-radius:3px;
+  box-shadow:var(--ombre);
+  padding:24px 28px 20px;
+  transition:box-shadow 120ms ease-out;
+}
+.esc:hover .feuille,
+.esc:focus-within .feuille{ box-shadow:var(--ombre-levee); }
+
+.chapeau{
+  display:flex; align-items:flex-start; gap:9px; flex-wrap:nowrap;
+  font-family:var(--font-mono); font-size:.6875rem; line-height:1.4;
+  text-transform:uppercase; letter-spacing:.14em;
+  color:var(--laiton);
+}
+.chapeau span{ min-width:0; }
+.chapeau svg{ width:12px; height:12px; flex:none; margin-top:2px; color:var(--encre);
+              stroke:currentColor; stroke-width:1.5; fill:none;
+              stroke-linejoin:miter; stroke-linecap:butt; }
+.glyphe--wa{ overflow:visible; margin-right:4px; }
+
+/* §4 — sous 720px la gouttière disparaît : l'écart depuis l'escalade
+   précédente quitte le rail et vient s'inscrire dans le chapeau. */
+.apres{ display:none; }
+
+.dit{
+  font-family:var(--font-serif); font-weight:400;
+  font-size:1.5625rem; line-height:1.44;
+  color:var(--encre);
+  margin-top:16px;
+  text-indent:-.5em;      /* guillemet ouvrant suspendu hors mesure */
+}
+.dit .guil{ color:var(--laiton); }
+
+.qui{
+  font-family:var(--font-serif); font-style:italic; font-weight:400;
+  font-size:1rem; line-height:1.4;
+  color:var(--encre-2);
+  margin-top:12px;
+}
+
+.motif{
+  display:flex; align-items:flex-start; gap:8px;
+  margin-top:20px;
+}
+.motif svg{ width:14px; height:14px; flex:none; color:var(--vert); margin-top:2px; }
+.motif p{
+  font-family:var(--font-sans); font-weight:400;
+  font-size:.84375rem; line-height:1.5;
+  color:var(--encre-2);
+}
+
+/* — les actions — */
+.actes{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 20px; margin-top:20px; }
+.acte-1{
+  font-family:var(--font-sans); font-weight:500; font-size:.8125rem;
+  line-height:16px; color:#FFFFFF;
+  background:var(--vert);
+  padding:12px 24px; border-radius:9999px;
+  cursor:pointer;
+  transition:background-color 120ms ease-out;
+}
+.acte-1:hover{ background:var(--vert-appuye); }
+.acte-2{
+  font-family:var(--font-sans); font-weight:400; font-size:.8125rem;
+  line-height:17px; color:var(--encre-2);
+  padding:12px 0; cursor:pointer;
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-decoration-color:var(--filet-axe);
+  text-underline-offset:4px;
+  transition:color 120ms ease-out, text-decoration-color 120ms ease-out;
+}
+.acte-2:hover{ color:var(--encre); text-decoration-color:var(--encre-2); }
+
+/* — LA GRAVITÉ EST UN SOL, PAS UNE COULEUR — */
+.feuille--grave{
+  --focus:#F2F5EF;
+  background:var(--grave);
+  border-color:transparent;
+}
+.feuille--grave .chapeau{ color:var(--laiton-clair); }
+.feuille--grave .chapeau svg{ color:var(--renverse-2); }
+.feuille--grave .dit{ color:var(--renverse); font-size:1.6875rem; line-height:1.42; }
+.feuille--grave .dit .guil{ color:var(--laiton-clair); }
+.feuille--grave .qui{ color:var(--renverse-2); }
+.feuille--grave .motif svg{ color:var(--vert-clair); }
+.feuille--grave .motif p{ color:var(--renverse-2); }
+.feuille--grave .acte-1{ background:var(--renverse); color:var(--grave); }
+.feuille--grave .acte-1:hover{ background:#E4E9E0; }
+.feuille--grave .acte-2{ color:var(--renverse-2); text-decoration-color:rgba(242,245,239,.35); }
+.feuille--grave .acte-2:hover{ color:var(--renverse); text-decoration-color:rgba(242,245,239,.7); }
+
+/* ═══════════════════ 6.5 MICRO-INSTRUMENTS ═══════════════════
+   Trois primitives et un état neutre. Jamais une pastille générique. */
+
+.instr{ margin-top:10px; max-width:240px; }
+
+/* P1 — Compteur */
+.p1{ display:flex; align-items:center; gap:6px; }
+.p1 .sq{ width:8px; height:8px; background:var(--renverse); flex:none; }
+.p1 .sq.mk{ outline:1px solid var(--renverse); outline-offset:3px; margin:0 4px; }
+.p1 .lb{
+  margin-left:8px;
+  font-family:var(--font-mono); font-size:.65625rem; line-height:1.4;
+  text-transform:uppercase; letter-spacing:.1em; color:var(--laiton-clair);
+}
+
+/* P2 — Réglette à seuil */
+.p2{ position:relative; width:240px; height:30px; }
+.p2 .rail{ position:absolute; left:0; top:4.25px; width:200px; height:1.5px; background:var(--filet-axe); }
+.p2 .sous{ position:absolute; left:0; top:4.25px; width:100px; height:1.5px; background:var(--laiton); }
+.p2 .sur{ position:absolute; left:100px; top:3px; width:60px; height:4px; background:var(--laiton); }
+.p2 .cran{ position:absolute; left:100px; top:0; width:1px; height:10px; background:var(--laiton); }
+.p2 .seuil{
+  position:absolute; left:100px; top:15px;
+  font-family:var(--font-mono); font-size:.625rem; line-height:1.2;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--laiton);
+}
+.p2 .val{
+  position:absolute; left:206px; top:0;
+  font-family:var(--font-mono); font-size:.65625rem; line-height:10px;
+  text-transform:uppercase; letter-spacing:.04em; color:var(--laiton);
+  white-space:nowrap;
+}
+
+/* P3 — Piste à segments */
+.p3 .piste{ display:flex; gap:3px; }
+.p3 .seg{ width:20px; height:8px; border:1px solid var(--filet-axe); flex:none; }
+.p3 .seg.on{ background:var(--laiton); border-color:var(--laiton); }
+.p3 .lb{
+  display:block; margin-top:7px;
+  font-family:var(--font-mono); font-size:.625rem; line-height:1.2;
+  text-transform:uppercase; letter-spacing:.08em; color:var(--laiton);
+}
+
+/* ═══════════════════ INTERVALLES GRAVÉS & TERMINUS ═══════════════════ */
+
+.intervalle{ height:30px; }
+.intervalle-t{
+  position:absolute; top:0; bottom:0; left:0;
+  width:calc(var(--g) + 4px);
+  display:flex; align-items:center; justify-content:flex-end;
+}
+/* le fond papier mange l'axe : l'intervalle est gravé dedans */
+.intervalle-t span{
+  background:var(--papier);
+  padding:4px 20px 4px 0;
+  font-family:var(--font-mono); font-size:.65625rem; line-height:1.2;
+  text-transform:uppercase; letter-spacing:.1em; margin-right:-.1em;
+  color:var(--laiton);
+  white-space:nowrap;
+}
+
+.terminus{ padding-top:22px; }
+.terminus .gout{ height:20px; }
+.terminus .repere{
+  position:absolute; top:0; left:calc(var(--g) - 4px);
+  width:7px; height:7px; background:var(--vert);
+}
+.maintenant{
+  grid-column:3;
+  font-family:var(--font-mono); font-size:.6875rem; line-height:1.2;
+  text-transform:uppercase; letter-spacing:.14em;
+  color:var(--vert);
+}
+
+/* ═══════════════════ 6.6 LE PLI ═══════════════════ */
+
+.pli-wrap{ margin:40px -48px 0 -40px; line-height:0; }
+.pli{ display:block; width:100%; height:6px; }
+.pli .crete{ stroke:#FFFFFF; stroke-opacity:.55; }
+.pli .creux{ stroke:#14231C; stroke-opacity:.10; }
+
+/* le versant du bas est mesurablement moins éclairé */
+.souspli{
+  background:var(--lavis);
+  margin:0 -48px 0 -40px;
+  padding:40px 48px 88px 40px;
+}
+
+/* ═══════════════════ 6.7 REGISTRE « TRAITÉ SANS VOUS » ═══════════════════ */
+
+.registre{ grid-column:3; margin-top:18px; }
+.lg{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 124px 34px;
+  align-items:center;
+  min-height:28px;
+  border-bottom:1px solid var(--filet);
+}
+/* §6.7 — un segment de 3px par conversation, 1px de blanc entre deux */
+.lg .segs i{ width:calc(var(--n) * 4px - 1px); }
+.lg .l{
+  font-family:var(--font-sans); font-weight:500;
+  font-size:.875rem; line-height:1.4; color:var(--encre);
+}
+.lg .segs{ height:10px; }
+.lg .segs i{
+  display:block; height:10px;
+  background-image:repeating-linear-gradient(90deg,var(--vert) 0 3px,transparent 3px 4px);
+}
+.lg .n{
+  font-family:var(--font-mono); font-size:.75rem; line-height:1.4;
+  color:var(--encre); text-align:right; font-variant-numeric:tabular-nums;
+}
+.somme{ border-bottom:0; min-height:30px; }
+.somme .s{ grid-column:2 / 4; }
+
+/* ═══════════════════ 6.8 LA NOTE D'APPRENTISSAGE ═══════════════════ */
+
+.note{ margin-top:38px; }
+.note::before{
+  background:none;
+  width:0;
+  border-left:1px dashed var(--filet-axe);
+}
+.note .esc-h{
+  top:24px; font-size:.625rem;
+  text-transform:uppercase; letter-spacing:.1em; margin-right:-.1em;
+}
+.note .epingle{
+  background:var(--papier);
+  border:1.5px solid var(--laiton);
+  box-sizing:border-box;
+  top:28px;
+}
+.note .feuille{ padding-bottom:22px; }
+.note-t{
+  font-family:var(--font-serif); font-weight:400;
+  font-size:1.25rem; line-height:1.5;
+  color:var(--encre); margin-top:14px;
+}
+
+/* ═══════════════════ RÉDUCTION DE MOUVEMENT ═══════════════════ */
+
+@media (prefers-reduced-motion: reduce){
+  :where(.root) :is(*,*::before,*::after){ transition:none !important; animation:none !important; }
+}
+
+/* ═══════════════════ RUPTURES — un seul composant ═══════════════════ */
+
+@media (max-width:1080px){
+  .contenu{ padding-right:32px; grid-template-columns:none; }
+  .clot{ max-width:none; }
+  .bloc{ grid-template-columns:var(--g) var(--gap) minmax(0,1fr); }
+  .pli-wrap, .souspli{ margin-right:-32px; }
+  .souspli{ padding-right:32px; }
+}
+
+@media (max-width:899px){
+  .app{ grid-template-columns:200px 1px minmax(0,1fr); }
+  .marge{ padding:32px 20px 24px 20px; }
+  .contenu{ --g:72px; --gap:24px; padding:32px 24px 0 24px; }
+  .pli-wrap, .souspli{ margin:0 -24px 0 -24px; }
+  .pli-wrap{ margin-top:40px; }
+  .souspli{ padding:40px 24px 72px 24px; }
+  .compte{ font-size:4rem; }
+  .dit{ font-size:1.375rem; }
+  .feuille--grave .dit{ font-size:1.5rem; }
+  .feuille{ padding:22px 22px 18px; }
+  .heure{ width:calc(var(--g) - 24px); }
+  .lg{ grid-template-columns:minmax(0,1fr) 124px 34px; }
+}
+
+@media (max-width:719px){
+  .app{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-rows:auto 1px minmax(0,1fr);
+  }
+  .marge{
+    flex-direction:row; align-items:center; gap:18px;
+    height:56px; padding:0 16px;
+    overflow-x:auto; overflow-y:hidden;
+    scrollbar-width:none;
+  }
+  .marge::-webkit-scrollbar{ display:none; }
+  .enseigne{ margin-bottom:0; flex:none; padding-left:0; }
+  .chercher, .section-nav, .item-s, .pied{ display:none; }
+  .nav{ margin-top:0; display:flex; align-items:center; gap:4px; }
+  .item{
+    display:flex; align-items:center; gap:8px;
+    width:auto; margin:0; padding:8px 10px; min-height:40px; flex:none;
+    white-space:nowrap;
+  }
+  .item-signet{ padding-top:0; display:flex; }
+  .item > span:empty{ display:none; }
+  .badge{ padding-top:0; }
+
+  .contenu{ --g:40px; --gap:20px; padding:26px 20px 0 20px; }
+  .pli-wrap, .souspli{ margin:0 -20px; }
+  .pli-wrap{ margin-top:36px; }
+  .souspli{ padding:36px 20px 64px 20px; }
+
+  .bande{ height:16px; }
+  .peigne .gout{ height:calc(var(--bandes, 13) * 16px); }
+  .heure, .esc-h{ display:none; }
+  .intervalle{ height:auto; padding:8px 0; }
+  .intervalle-t{
+    position:static; grid-column:3;
+    width:auto; justify-content:flex-start;
+  }
+  .intervalle-t span{ background:none; padding:0; }
+  .intervalle--greffe{ display:none; }
+  .chapeau{ flex-wrap:wrap; }
+  .chapeau .apres{ display:block; width:100%; color:var(--laiton); }
+  .feuille--grave .chapeau .apres{ color:var(--laiton-clair); }
+  .legende{ font-size:1rem; }
+  .lg{ grid-template-columns:minmax(0,1fr) 84px 30px; }
+}
+
+@media (max-width:559px){
+  .contenu{ padding-left:16px; padding-right:16px; }
+  .pli-wrap, .souspli{ margin:0 -16px; }
+  .pli-wrap{ margin-top:32px; }
+  .souspli{ padding:32px 16px 56px 16px; }
+  .etat{ font-size:1.625rem; }
+  .compte{ font-size:3.5rem; }
+  .dit{ font-size:1.25rem; }
+  .feuille--grave .dit{ font-size:1.375rem; }
+  .feuille{ padding:20px 18px 16px; }
+  .p2{ width:100%; max-width:240px; }
+  .lg{ grid-template-columns:minmax(0,1fr) 30px; }
+  .lg .segs{ display:none; }
+  .somme .s{ grid-column:1 / 3; }
+}

@@ -69,7 +69,7 @@ export function AdminActionLogsView() {
             <button
               type="button"
               onClick={() => refetch()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#f0f0f0] bg-white text-[12px] font-semibold hover:bg-[#fafafa] transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#f0f0f0] bg-white text-[12px] font-semibold hover:bg-surface transition-colors"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? 'animate-spin' : ''}`} />
               Rafraîchir
@@ -112,7 +112,7 @@ export function AdminActionLogsView() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-[12px]">
-                <thead className="bg-[#fafafa] border-b border-[#f0f0f0]">
+                <thead className="bg-surface border-b border-[#f0f0f0]">
                   <tr className="text-left text-[#71717a] uppercase tracking-wider text-[10px] font-bold">
                     <th className="px-3 py-2">When</th>
                     <th className="px-3 py-2">Actor</th>
@@ -124,7 +124,7 @@ export function AdminActionLogsView() {
                 </thead>
                 <tbody>
                   {filtered.map((l) => (
-                    <tr key={l.id} className="border-b border-[#f0f0f0] hover:bg-[#fafafa]">
+                    <tr key={l.id} className="border-b border-[#f0f0f0] hover:bg-surface">
                       <td className="px-3 py-2 text-[#71717a] tabular-nums whitespace-nowrap">
                         {new Date(l.created_at).toLocaleString('fr-FR')}
                       </td>
@@ -156,7 +156,7 @@ export function AdminActionLogsView() {
                               <FileText className="inline w-3 h-3 mr-1" />
                               {Object.keys(l.metadata).length} champ(s)
                             </summary>
-                            <pre className="mt-1 text-[10px] bg-[#fafafa] border border-[#f0f0f0] rounded p-2 max-h-32 overflow-auto whitespace-pre-wrap">
+                            <pre className="mt-1 text-[10px] bg-surface border border-[#f0f0f0] rounded p-2 max-h-32 overflow-auto whitespace-pre-wrap">
                               {JSON.stringify(l.metadata, null, 2)}
                             </pre>
                           </details>

@@ -1,6 +1,7 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
+import { getLimits } from '../lib/plan-limits.js'
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -54,25 +55,29 @@ async function handler(req, res) {
     // Load usage counters for current month
     const { data: usage } = await supabaseAdmin
       .from('usage_counters')
-      .select('tickets_used, voice_minutes_used, overage_tickets')
+      .select('tickets_used, overage_tickets')
       .eq('client_id', clientId)
       .eq('period', period)
       .maybeSingle();
 
     const ticketsUsed = usage?.tickets_used || 0;
-    const voiceMinutesUsed = usage?.voice_minutes_used || 0;
     const overageTickets = usage?.overage_tickets || 0;
 
-    // Plan limits (inline to avoid importing frontend plans.js)
-    const LIMITS = {
-      free: { tickets: 50, voice: 0, overage_rate: 0 },
-      starter: { tickets: 1000, voice: 0, overage_rate: 0.10 },
-      pro: { tickets: 5000, voice: 200, overage_rate: 0.10 },
-      enterprise: { tickets: Infinity, voice: Infinity, overage_rate: 0 },
-    };
+    // Plan limits — from the backend source of truth (api/lib/plan-limits.js),
+    // no local duplicate to drift from.
+    const limits = getLimits(plan);
 
-    const limits = LIMITS[plan] || LIMITS.free;
-    const overageCost = overageTickets * limits.overage_rate;
+    // Hard cap: no overage is billed on any plan. Past the quota the agent
+    // pauses until credits are bought or the plan is upgraded, so there is no
+    // overage cost to report.
+    const { data: creditRow } = await supabaseAdmin
+      .from('client_credits')
+      .select('balance')
+      .eq('client_id', clientId)
+      .maybeSingle();
+    const creditsBalance = creditRow?.balance || 0;
+    const quotaReached =
+      limits.tickets !== Infinity && ticketsUsed >= limits.tickets;
 
     // Next billing: first of next month (approximation)
     const now = new Date();
@@ -85,10 +90,12 @@ async function handler(req, res) {
       period,
       tickets_used: ticketsUsed,
       tickets_limit: limits.tickets === Infinity ? -1 : limits.tickets,
-      voice_minutes_used: voiceMinutesUsed,
-      voice_minutes_limit: limits.voice === Infinity ? -1 : limits.voice,
+      // Kept for backward compatibility with existing consumers — always 0 now
+      // that no plan bills overage.
       overage_tickets: overageTickets,
-      overage_cost: Math.round(overageCost * 100) / 100,
+      overage_cost: 0,
+      quota_reached: quotaReached,
+      credits_balance: creditsBalance,
       trial_ends_at: client.trial_ends_at || null,
       next_billing_date: nextBilling,
     });

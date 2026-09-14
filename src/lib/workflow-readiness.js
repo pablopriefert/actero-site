@@ -3,7 +3,7 @@
  *
  * 5 checks (avril 2026 — retrait du fallback humain) :
  *   1. Source connectée (e-commerce platform: Shopify/WooCommerce/Webflow)
- *   2. Canal d'envoi configuré (email pour la plupart, téléphone pour vocal)
+ *   2. Canal d'envoi configuré (email)
  *   3. Ton de marque défini (OPTIONNEL — warning-only, n'empêche pas l'activation)
  *   4. Canal actif (par défaut email, toujours OK à l'activation)
  *   5. Base de connaissances suffisante (≥3 entrées total templates+KB)
@@ -64,7 +64,7 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
         ? 'Votre outil de comptabilité est bien connecté.'
         : 'Connectez Axonaut, Pennylane ou iPaidThat pour activer les relances automatiques.',
       met: accountingConnected,
-      fixTab: 'integrations',
+      fixTab: 'intégrations',
       fixLabel: 'Connecter',
     })
   } else {
@@ -75,32 +75,22 @@ export async function buildReadinessChecks({ clientId, playbookName, custom_conf
         ? 'Shopify, WooCommerce ou Webflow est connecté.'
         : 'Connectez votre boutique (Shopify, WooCommerce ou Webflow) pour que l\'IA accède aux commandes.',
       met: ecommerceConnected,
-      fixTab: 'integrations',
+      fixTab: 'intégrations',
       fixLabel: 'Connecter',
     })
   }
 
-  // 2. Canal d'envoi (email pour la plupart, téléphone pour agent_vocal)
-  if (playbookName === 'agent_vocal') {
-    // Agent vocal has its own wizard, skip email check
-    checks.push({
-      id: 'channel_source',
-      label: 'Canal téléphonique configuré',
-      description: 'L\'assistant vocal se configure via le wizard dédié.',
-      met: true,
-    })
-  } else {
-    checks.push({
-      id: 'email',
-      label: 'Email d\'envoi configuré',
-      description: emailConnected
-        ? 'Votre service d\'envoi d\'emails est prêt.'
-        : 'Connectez Resend ou votre SMTP personnalisé pour que l\'IA puisse répondre.',
-      met: emailConnected,
-      fixTab: 'integrations',
-      fixLabel: 'Configurer',
-    })
-  }
+  // 2. Canal d'envoi (email)
+  checks.push({
+    id: 'email',
+    label: 'Email d\'envoi configuré',
+    description: emailConnected
+      ? 'Votre service d\'envoi d\'emails est prêt.'
+      : 'Connectez Resend ou votre SMTP personnalisé pour que l\'IA puisse répondre.',
+    met: emailConnected,
+    fixTab: 'intégrations',
+    fixLabel: 'Configurer',
+  })
 
   // 3. Politique définie (brand tone) — OPTIONNEL
   // Pas bloquant : l'agent utilise un ton neutre par défaut si non défini.

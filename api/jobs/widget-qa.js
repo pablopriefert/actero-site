@@ -119,7 +119,14 @@ async function handler(req, res) {
       scriptName: 'widget_qa.py',
       payload: { health_id: healthId },
       env: {},
-      timeoutMinutes: 10,
+      // 10 → 15 minutes : l'installation de Chromium se compte en minutes et
+      // elle a lieu DANS le bac à sable, donc elle mange le budget du travail.
+      timeoutMinutes: 15,
+      // Playwright + Chromium s'installent en ARRIÈRE-PLAN (voir e2b-runner),
+      // donc ils ne pèsent pas sur les 60 s de la fonction Vercel. S'ils
+      // échouent, widget_qa.py se rabat sur le contrôle HTML et le signale.
+      paquets: ['playwright==1.48.0'],
+      navigateur: true,
     })
 
     // Link the job back to the health row for the admin UI.

@@ -17,21 +17,21 @@ export const IntercomVsActero = ({ onNavigate }) => {
     seo: {
       title: 'Intercom vs Actero — Comparatif 2026 | Lequel choisir pour Shopify',
       description:
-        "Intercom Fin facture 0,99 $ par outcome + 29 $/seat. Actero forfaitise dès 99 €/mois — IA, voice, paniers inclus. Sur 5 000 résolutions, Actero divise par 12.",
+        "Intercom Fin facture 0,99 $ par outcome + 29 $/seat. Actero forfaitise dès 99 €/mois — IA, paniers inclus. Sur 5 000 résolutions, Actero divise par 12.",
       keywords:
         'intercom vs actero, fin ai vs actero, intercom ou actero, intercom shopify comparatif, agent ia ecommerce',
     },
 
     hero: {
       subtitle:
-        "Intercom Fin facture chaque outcome à 0,99 $ en plus du seat à 29 $ — la facture explose dès le 1 000ᵉ ticket et reste imprévisible chaque mois. Le produit est conçu pour les SaaS B2B, pas pour le e-commerce Shopify. Actero forfaitise tout, exécute des actions Shopify natives et inclut un agent vocal.",
+        "Intercom Fin facture chaque outcome à 0,99 $ en plus du seat à 29 $ — la facture explose dès le 1 000ᵉ ticket et reste imprévisible chaque mois. Le produit est conçu pour les SaaS B2B, pas pour le e-commerce Shopify. Actero forfaitise tout et exécute des actions Shopify natives.",
     },
 
     verdict: {
       winner: 'actero',
       headline: 'Pour un marchand Shopify français : Actero, sans appel.',
       body:
-        "Intercom Fin est conçu pour les SaaS B2B anglophones avec ARPU élevé. À volume e-commerce, la facture à l'outcome explose : 1 000 résolutions = ~990 $/mois, 5 000 résolutions = ~4 950 $/mois. Actero forfaitise tout dès 99 €/mois, inclut un agent vocal et exécute des actions Shopify natives — division par 8 à 12 sur la facture, en français.",
+        "Intercom Fin est conçu pour les SaaS B2B anglophones avec ARPU élevé. À volume e-commerce, la facture à l'outcome explose : 1 000 résolutions = ~990 $/mois, 5 000 résolutions = ~4 950 $/mois. Actero forfaitise tout dès 99 €/mois et exécute des actions Shopify natives — division par 8 à 12 sur la facture, en français.",
     },
 
     comparison: [
@@ -59,11 +59,6 @@ export const IntercomVsActero = ({ onNavigate }) => {
         label: 'Spécialisation Shopify (refund, échange, WISMO)',
         competitor: 'partial',
         actero: { main: 'Native', sub: 'Actions agentic OAuth' },
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        competitor: false,
-        actero: { main: '200 min', sub: 'ElevenLabs inclus dès Pro' },
       },
       {
         label: 'Relance panier abandonné conversationnelle',
@@ -102,7 +97,6 @@ export const IntercomVsActero = ({ onNavigate }) => {
     whenActero: [
       'Vous êtes marchand Shopify et avez besoin d\'actions Shopify natives (refund, échange, WISMO).',
       'Vous voulez un coût mensuel prévisible — pas de pay-per-outcome qui s\'envole.',
-      'Vos clients vous appellent et vous voulez un agent vocal inclus, pas un add-on payant.',
       'Vous opérez en France et la conformité RGPD + hébergement UE est non-négociable.',
       'Vous voulez démarrer en 15 minutes sans intégrateur ni audit préalable.',
       'Le ROI dashboard partageable au CFO est un must pour vous.',
@@ -111,7 +105,7 @@ export const IntercomVsActero = ({ onNavigate }) => {
     faqs: [
       {
         q: 'Combien coûte vraiment Intercom Fin pour 5 000 résolutions/mois ?',
-        a: "Plan Essential à 29 $/seat × 3 seats = 87 $. Fin à 0,99 $ × 5 000 = 4 950 $. Total ≈ 5 037 $/mois (~4 685 €/mois). Actero Pro couvre la même charge à 399 €/mois — environ 12× moins cher avec voice et IA illimitée incluses.",
+        a: "Plan Essential à 29 $/seat × 3 seats = 87 $. Fin à 0,99 $ × 5 000 = 4 950 $. Total ≈ 5 037 $/mois (~4 685 €/mois). Actero Pro couvre la même charge à 399 €/mois — environ 12× moins cher, avec IA illimitée incluse.",
       },
       {
         q: 'Qu\'est-ce qu\'un "outcome" chez Intercom Fin ?',

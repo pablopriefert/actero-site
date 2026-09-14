@@ -17,16 +17,21 @@ Actero est listée sur le Shopify App Store. L'installation est gratuite et pass
 
 <Steps>
   <Step title="Ouvre la fiche Actero sur le Shopify App Store">
-    Depuis le [Shopify App Store](https://apps.shopify.com), cherche **Actero** et clique **Ajouter l'app**. Tu peux aussi partir d'Actero : **Intégrations → Shopify → Connecter**, puis saisir ton domaine `ma-boutique.myshopify.com`.
+    Depuis le [Shopify App Store](https://apps.shopify.com), cherche **Actero** et clique **Ajouter l'app**. Tu peux aussi partir d'Actero : **Intégrations → Shopify → Connecter** — on te redirige vers la fiche. Tu n'as aucune adresse à saisir : Shopify sait de quelle boutique il s'agit.
   </Step>
   <Step title="Valide les scopes requis et optionnels">
     Shopify affiche deux blocs distincts : les permissions **requises** (sans elles, l'agent ne peut pas fonctionner) et les permissions **optionnelles** (tu peux les décliner — l'agent dégradera gracieusement les fonctionnalités concernées). Voir [Scopes demandés](#scopes-demand%C3%A9s).
   </Step>
   <Step title="Approuve l'installation">
-    Tu reviens automatiquement sur `actero.fr`. Aucune carte bancaire requise côté Shopify — Actero est facturée séparément depuis ton compte Actero.
+    Tu reviens automatiquement sur `actero.fr`, sur une page qui confirme que ta boutique est connectée. L'installation ne déclenche aucun paiement : tu choisis ta formule ensuite, et **elle est facturée par Shopify**, sur la même facture que le reste de tes apps.
   </Step>
-  <Step title="Le widget s'injecte tout seul">
-    Avec les scopes `read_themes` / `write_themes` accordés, Actero injecte le widget de chat dans le thème actif de ta boutique. Les 30 dernières commandes sont indexées en moins de 20 secondes.
+  <Step title="Crée ton compte Actero (première installation seulement)">
+    Si tu découvres Actero par l'App Store, tu n'as pas encore de compte : la page de confirmation te propose d'en créer un. **Ta boutique se rattache automatiquement au compte dès l'inscription** — tu n'as aucun identifiant de boutique à recopier, aucun jeton à coller.
+
+    Si tu avais déjà un compte Actero, cette étape est sautée : la boutique est rattachée immédiatement et tu arrives directement sur ton dashboard.
+  </Step>
+  <Step title="Active le widget de chat">
+    Le widget est livré comme une **extension de thème** (theme app extension) — Actero ne modifie jamais ton `theme.liquid`. Active-le en un clic depuis **Boutique en ligne → Thèmes → Personnaliser → Widgets d'application (App embeds) → Actero**. Les 30 dernières commandes sont indexées en moins de 20 secondes.
   </Step>
 </Steps>
 
@@ -39,6 +44,7 @@ Si tu n'as pas encore configuré ton agent, regarde le [quickstart](/essentials/
 Une fois installée, Actero apparaît dans **Apps** dans ton Shopify Admin. Cliquer dessus t'envoie automatiquement vers le bon endroit :
 
 - **Boutique déjà connectée** → redirection directe vers ton dashboard Actero
+- **Boutique connectée mais pas encore rattachée à un compte** → page de confirmation avec la création de compte
 - **Première fois** → relance du flow OAuth pour finaliser l'install
 
 Tu n'as donc jamais à coller manuellement une URL : Shopify Admin reste ton point d'entrée.
@@ -65,17 +71,15 @@ Actero sépare scopes **requis** et **optionnels**. Tu peux décliner les option
   <Accordion title="read_returns">
     Répondre aux questions sur la politique et le statut des retours.
   </Accordion>
-  <Accordion title="read_themes, write_themes">
-    Injecter automatiquement le widget de chat Actero dans le thème actif de ta boutique. Sans ces scopes, tu devrais coller le snippet à la main dans `theme.liquid`.
-  </Accordion>
 </AccordionGroup>
+
+<Note>
+Actero ne demande **aucun** scope de thème (`read_themes` / `write_themes`). Le widget de chat est une **extension de thème** (theme app extension) que tu actives depuis l'éditeur de thème — aucune modification de ton code n'est nécessaire.
+</Note>
 
 ### Scopes optionnels
 
 <AccordionGroup>
-  <Accordion title="write_orders (recommandé)">
-    Permet à l'agent de déclencher remboursements et annulations quand ta politique le permet. Sans ce scope, l'agent escalade systématiquement à un humain pour ces actions.
-  </Accordion>
   <Accordion title="read_draft_orders">
     Donne du contexte d'upsell dans les conversations (devis en cours, panier construit par un staff). Sans ce scope, l'agent ignore les drafts.
   </Accordion>
@@ -85,7 +89,7 @@ Actero sépare scopes **requis** et **optionnels**. Tu peux décliner les option
 </AccordionGroup>
 
 <Warning>
-Aucun scope de paiement ni de modification de stock n'est demandé. Même avec `write_orders` accordé, l'agent ne peut ni encaisser, ni modifier un produit, ni toucher à ton inventaire.
+Actero ne demande **que des scopes en lecture** — aucun scope d'écriture (commandes, produits, stock, thème) ni de paiement. Les remboursements sont proposés en **brouillon** que tu valides toi-même dans Shopify Admin ; l'agent n'encaisse jamais et ne modifie jamais une commande, un produit ou ton inventaire.
 </Warning>
 
 ## Webhooks configurés automatiquement
@@ -152,7 +156,7 @@ Les conversations passées restent dans ton historique pour des raisons RGPD (ex
     Trois choses à vérifier : (1) le playbook `panier abandonné` est **activé** dans Automatisation, (2) un service d'envoi est configuré ([Resend](/integrations/resend), [Gmail](/integrations/gmail) ou [SMTP/IMAP](/integrations/smtp-imap)), (3) le client a bien laissé son email à l'étape checkout (sans email, pas de relance possible).
   </Accordion>
   <Accordion title="Le widget ne s'affiche pas sur ma boutique">
-    Vérifie que tu as accordé `read_themes` et `write_themes` à l'install. Sinon, reconnecte Actero : Shopify te redemande ces scopes et l'injection se fait automatiquement. Tu peux aussi désactiver puis réactiver le thème pour forcer un rechargement.
+    Vérifie que l'app embed **Actero** est activée : **Boutique en ligne → Thèmes → Personnaliser → Widgets d'application (App embeds)**. Si elle est déjà activée, désactive-la puis réactive-la pour forcer un rechargement du thème.
   </Accordion>
   <Accordion title="J'ai changé de domaine Shopify (migration .myshopify.com)">
     Reconnecte l'intégration avec le nouveau domaine. Les commandes historiques restent indexées, le nouveau token prend le relais sans coupure de service.
@@ -167,6 +171,9 @@ Les conversations passées restent dans ton historique pour des raisons RGPD (ex
 <AccordionGroup>
   <Accordion title="Actero est-elle listée sur le Shopify App Store ?">
     Oui. L'installation passe par le flow OAuth officiel Shopify, ce qui te garantit que les scopes sont visibles, révocables à tout moment et auditables depuis Shopify Admin → **Apps → Actero → Voir les détails de l'app**.
+  </Accordion>
+  <Accordion title="J'ai installé l'app mais je n'ai pas créé mon compte tout de suite. C'est perdu ?">
+    Non. Le rattachement de ta boutique reste valable **30 jours** après l'installation. Reviens sur la page de confirmation depuis **Shopify Admin → Apps → Actero**, crée ton compte, et la boutique se rattache. Passé ce délai, il suffit de relancer l'installation depuis Shopify Admin.
   </Accordion>
   <Accordion title="Combien de temps pour indexer toute ma boutique ?">
     Les 30 dernières commandes sont indexées en ~20 secondes (immédiat). L'indexation complète (catalogue, clients, historique 12 mois) prend de 2 à 30 minutes selon la taille de ta boutique. Tu reçois une notification dans le dashboard quand c'est fini.

@@ -26,14 +26,14 @@ export const GorgiasVsActero = ({ onNavigate }) => {
 
     hero: {
       subtitle:
-        "Gorgias facture chaque résolution IA et empile les add-ons (voice, SMS, automation). Actero forfaitise tout, parle français nativement, héberge en UE et inclut un agent vocal. Voici les chiffres réels — pour les marchands Shopify FR, la décision est sans appel.",
+        "Gorgias facture chaque résolution IA et empile les add-ons (voice, SMS, automation). Actero forfaitise tout, parle français nativement et héberge en UE. Voici les chiffres réels — pour les marchands Shopify FR, la décision est sans appel.",
     },
 
     verdict: {
       winner: 'actero',
       headline: 'Pour un marchand Shopify français : Actero, sans hésitation.',
       body:
-        "Gorgias est anglo-centré, facture à la résolution et coûte 3 à 8 fois plus cher pour la même charge. Actero divise la facture, parle français nativement, héberge en UE, inclut un agent vocal et démarre en 15 minutes — pas en 2 à 5 jours. Le seul scénario où Gorgias tient encore : équipes anglophones de 50+ agents enfermées dans leur stack historique.",
+        "Gorgias est anglo-centré, facture à la résolution et coûte 3 à 8 fois plus cher pour la même charge. Actero divise la facture, parle français nativement, héberge en UE et démarre en 15 minutes — pas en 2 à 5 jours. Le seul scénario où Gorgias tient encore : équipes anglophones de 50+ agents enfermées dans leur stack historique.",
     },
 
     comparison: [
@@ -61,11 +61,6 @@ export const GorgiasVsActero = ({ onNavigate }) => {
         label: 'Coût réel total 5 000 tickets · 60% IA',
         competitor: { main: '~3 200 $/mois', sub: '~35 700 € / an' },
         actero: { main: '399 €/mois', sub: '4 788 € / an' },
-      },
-      {
-        label: 'Agent vocal natif (numéro FR)',
-        competitor: { main: 'Voice add-on', sub: '0,40-1,20 $/ticket' },
-        actero: { main: '200 min', sub: 'Inclus dès Pro' },
       },
       {
         label: 'Relance panier abandonné conversationnelle',
@@ -103,14 +98,14 @@ export const GorgiasVsActero = ({ onNavigate }) => {
       'Vos clients et équipes sont 100 % anglophones et vous tolérez une interface non-française.',
       'Vous acceptez de payer chaque résolution IA en plus du plan, sans plafond mensuel prévisible.',
       'Vous voulez attendre 2 à 5 jours d\'installation avec un consultant pour configurer macros et règles.',
-      'Vous n\'avez pas besoin d\'agent vocal natif et l\'opt-out TDM RGPD ne fait pas partie de vos exigences.',
+      'L\'hébergement UE et l\'opt-out TDM RGPD ne font pas partie de vos exigences.',
       'Vous êtes prêt à payer voice et SMS en add-on supplémentaire au-dessus du forfait helpdesk.',
     ],
 
     whenActero: [
       'Vous êtes marchand Shopify FR, IT ou ES et voulez un agent qui pense dans votre langue.',
       'Vous voulez un coût mensuel prévisible — pas un pricing à la résolution qui s\'envole.',
-      'Vos clients vous appellent au téléphone et vous cherchez un agent vocal natif (numéro FR).',
+      'Vous voulez la relance de paniers abandonnés dans la même conversation que le SAV.',
       'Vous valorisez l\'hébergement UE, le DPA signable, l\'opt-out TDM par défaut.',
       'Vous voulez un dashboard ROI prouvable au CFO (CA récupéré, heures économisées).',
       'Vous voulez démarrer en 15 minutes sans intégrateur ni audit préalable.',

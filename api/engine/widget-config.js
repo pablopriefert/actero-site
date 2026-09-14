@@ -41,6 +41,7 @@ const DEFAULTS = {
   logoUrl: null,
   showPoweredBy: true,
   agentEnabled: true,
+  proactiveEnabled: false,
   brandName: null,
 }
 
@@ -48,9 +49,11 @@ function applyCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-  // 5-minute browser cache — config changes propagate fast enough for
-  // merchants iterating from the dashboard and we save a lot of round trips.
-  res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=300')
+  // Short cache: a merchant iterating on colours/greeting from the dashboard
+  // must see the change on their live bubble almost immediately (a 5-min cache
+  // read as "saving does nothing"). 30s keeps round-trips low while propagating
+  // changes fast; stale-while-revalidate serves instantly then refreshes.
+  res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=30, stale-while-revalidate=120')
 }
 
 async function handler(req, res) {
@@ -116,7 +119,7 @@ async function handler(req, res) {
     const { data: s } = await supabase
       .from('client_settings')
       .select(
-        'widget_brand_color, widget_accent_color, widget_position, widget_greeting, widget_logo_url, widget_show_powered_by, agent_enabled',
+        'widget_brand_color, widget_accent_color, widget_position, widget_greeting, widget_logo_url, widget_show_powered_by, agent_enabled, widget_proactive_enabled',
       )
       .eq('client_id', clientId)
       .maybeSingle()
@@ -150,6 +153,7 @@ async function handler(req, res) {
     logoUrl: settings.widget_logo_url || null,
     showPoweredBy,
     agentEnabled: settings.agent_enabled !== false,
+    proactiveEnabled: settings.widget_proactive_enabled === true,
     brandName,
   })
 }

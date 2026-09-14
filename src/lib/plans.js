@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Actero SaaS Plans — Single source of truth
  *
@@ -24,14 +25,11 @@ export const PLANS = {
       knowledge_entries: 10,
       team_members: 1,
       history_days: 7,
-      voice_minutes: 0,
       vision_analyses_per_month: 10,
     },
     features: {
-      brand_editor: false,
       guardrails: true, // Règles & limites — dès Free
       simulator: false,
-      voice_agent: false,
       specialized_agents: false, // general-agent only
       api_webhooks: false,
       pdf_report: false,
@@ -61,34 +59,31 @@ export const PLANS = {
       knowledge_entries: 100,
       team_members: 2,
       history_days: 90,
-      voice_minutes: 0,
       vision_analyses_per_month: 200,
     },
     features: {
-      brand_editor: true,
       guardrails: true, // Règles & limites — dès Free
       simulator: true, // Simulateur — dès Starter
-      voice_agent: false,
       specialized_agents: false,
       api_webhooks: true, // API — dès Starter
       pdf_report: false,
       multi_shop: false,
       white_label: false,
       roi_dashboard: 'full',
-      portal_enabled: true,
+      portal_enabled: false,
       portal_customization: false,
       email_agent: false,
     },
     support: 'email_48h',
     onboarding: 'guided',
-    overage_per_ticket: 0.15,
+    overage_per_ticket: null, // hard cap — crédits ou upgrade, jamais de dépassement facturé
     cta: 'Essai gratuit 7 jours',
     popular: false,
   },
   pro: {
     id: 'pro',
     name: 'Pro',
-    tagline: 'Automatisation complète + agent vocal',
+    tagline: 'Automatisation complète',
     price: { monthly: 399, annual: 319 },
     trial: { days: 7, requires_card: true },
     limits: {
@@ -98,27 +93,32 @@ export const PLANS = {
       knowledge_entries: Infinity,
       team_members: 5,
       history_days: Infinity,
-      voice_minutes: 200,
       vision_analyses_per_month: 2000,
     },
     features: {
-      brand_editor: true,
       guardrails: true,
       simulator: true,
-      voice_agent: true,
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,
       multi_shop: false,
       white_label: false,
       roi_dashboard: 'full',
+      // Le portail client existe et tourne : 14 routes API (dont 6 avec
+      // tests), 8 pages, l'authentification par lien magique, les commandes,
+      // les tickets, les retours, les remboursements, les pièces jointes. Le
+      // sous-domaine générique répond (vérifié le 10 septembre :
+      // *.portal.actero.fr renvoie 200). Il était fermé sur les QUATRE plans,
+      // Enterprise compris — donc vendu et injoignable. Ouvert sur Pro et
+      // Enterprise, les deux plans où api/client/update-portal-branding.js
+      // l'autorisait déjà côté serveur.
       portal_enabled: true,
       portal_customization: true,
       email_agent: true, // Agent Email — dès Pro
     },
     support: 'priority_24h',
     onboarding: 'guided',
-    overage_per_ticket: 0.10,
+    overage_per_ticket: null, // hard cap — crédits ou upgrade, jamais de dépassement facturé
     cta: 'Essai gratuit 7 jours',
     popular: true,
   },
@@ -135,20 +135,30 @@ export const PLANS = {
       knowledge_entries: Infinity,
       team_members: Infinity,
       history_days: Infinity,
-      voice_minutes: Infinity,
       vision_analyses_per_month: Infinity,
     },
     features: {
-      brand_editor: true,
       guardrails: true,
       simulator: true,
-      voice_agent: true,
       specialized_agents: true,
       api_webhooks: true,
       pdf_report: true,
-      multi_shop: true,
+      // Aucune implémentation : chaque surface marchand lit la connexion
+      // Shopify avec .maybeSingle(), et aucune UI ne permet d'en ajouter une
+      // seconde. Le drapeau était à true et la page tarifs annonçait
+      // « 10 stores ». Le remettre à true suppose de construire la
+      // fonctionnalité d'abord.
+      multi_shop: false,
       white_label: true,
       roi_dashboard: 'custom',
+      // Le portail client existe et tourne : 14 routes API (dont 6 avec
+      // tests), 8 pages, l'authentification par lien magique, les commandes,
+      // les tickets, les retours, les remboursements, les pièces jointes. Le
+      // sous-domaine générique répond (vérifié le 10 septembre :
+      // *.portal.actero.fr renvoie 200). Il était fermé sur les QUATRE plans,
+      // Enterprise compris — donc vendu et injoignable. Ouvert sur Pro et
+      // Enterprise, les deux plans où api/client/update-portal-branding.js
+      // l'autorisait déjà côté serveur.
       portal_enabled: true,
       portal_customization: true,
       email_agent: true,
@@ -165,6 +175,28 @@ export const PLAN_ORDER = ['free', 'starter', 'pro', 'enterprise']
 
 export function getPlanConfig(planId) {
   return PLANS[planId] || PLANS.free
+}
+
+/**
+ * Three honest, one-line selling points for a plan — derived from real limits,
+ * so the payment recap never claims a feature that isn't live. Used by the
+ * on-site payment modal.
+ */
+export function getPlanHighlights(planId) {
+  const plan = getPlanConfig(planId)
+  const tickets = plan.limits.tickets_per_month
+  const workflows = plan.limits.workflows_active
+  const supportLabel = {
+    account_manager: 'Account manager dédié',
+    priority_24h: 'Support prioritaire 24h',
+    email_48h: 'Support email',
+    docs: 'Documentation',
+  }[plan.support] || 'Support'
+  return [
+    `${Number(tickets).toLocaleString('fr-FR')} tickets/mois`,
+    workflows === Infinity || workflows < 0 ? 'Workflows illimités' : `${workflows} workflows`,
+    supportLabel,
+  ]
 }
 
 export function canAccess(planId, feature) {
@@ -184,6 +216,6 @@ export function isInTrial(client) {
 
 export function getTrialDaysLeft(client) {
   if (!client?.trial_ends_at) return 0
-  const diff = new Date(client.trial_ends_at) - new Date()
+  const diff = new Date(client.trial_ends_at).getTime() - Date.now()
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 }

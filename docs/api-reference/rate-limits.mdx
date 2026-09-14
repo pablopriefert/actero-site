@@ -28,17 +28,17 @@ Un dépassement renvoie `429 Too Many Requests` :
 
 Indépendamment du rate limit court-terme, chaque plan a un quota mensuel de tickets traités :
 
-| Plan       | Tickets / mois | Voice / mois | Overage         |
-| ---------- | -------------- | ------------ | --------------- |
-| Free       | 50             | 0            | Aucun (hard cap) |
-| Starter    | 1 000          | 0            | 0,10 €/ticket    |
-| Pro        | 5 000          | 200 min      | 0,10 €/ticket    |
-| Enterprise | Illimité       | Illimité     | —                |
+| Plan       | Tickets / mois | Dépassement      |
+| ---------- | -------------- | ---------------- |
+| Free       | 50             | Aucun (hard cap) |
+| Starter    | 1 000          | Aucun (hard cap) |
+| Pro        | 5 000          | Aucun (hard cap) |
+| Enterprise | Illimité       | —                |
 
 Au-delà du quota :
 
-- **Free** : bloqué (`429`) jusqu'à achat d'un pack de crédits ou upgrade.
-- **Starter / Pro** : la requête passe, mais le compteur `overage_tickets` est incrémenté et facturé en fin de mois.
+- **Tous les plans** : bloqué (`429`) jusqu'à achat d'un pack de crédits ou upgrade. Aucun dépassement n'est facturé à l'insu du marchand.
+- Si le compte dispose de **crédits**, ils sont consommés automatiquement (1 crédit = 1 ticket) et le service continue sans interruption.
 
 ```json
 {

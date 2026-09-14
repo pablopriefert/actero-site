@@ -134,4 +134,4 @@ async function handler(req, res) {
   return res.status(200).json({ ok: true, refreshed: results.length, results })
 }
 
-export default withCronMonitor('cron-slack-canvas-update', '*/15 * * * *', handler)
+export default withCronMonitor('cron-slack-canvas-update', '0 * * * *', handler)
