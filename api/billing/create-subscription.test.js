@@ -124,6 +124,7 @@ describe('create-subscription', () => {
 
   it('no trial (already had one) → mode payment with payment-intent secret', async () => {
     h.clientRow.trial_ends_at = '2026-01-01T00:00:00Z';
+    h.clientRow.referral_first_month_free = true;
     const res = makeRes();
     await handler(post(), res);
     expect(res.statusCode).toBe(200);

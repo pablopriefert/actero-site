@@ -25,6 +25,8 @@
  * constante dédiée, désormais supprimée.
  */
 
+import { FORMULES } from './formules.js'
+
 /** Essai accordé à un marchand parrainé — « premier mois offert ». */
 export const ESSAI_PARRAINAGE_JOURS = 30
 
@@ -46,7 +48,10 @@ export const ESSAI_CAMPAGNE_JOURS = 30
 /**
  * Combien de jours d'essai accorder à ce client.
  *
- * @param {{ referral_first_month_free?: boolean, campaign_first_month_free?: boolean,
+ * Ne vaut que pour le mensuel : une formule du catalogue passe par
+ * `offreDeBienvenue`, qui n'applique cette règle que sur cette période-là.
+ *
+ * @param {{ referral_first_month_free?: boolean|null, campaign_first_month_free?: boolean|null,
  *           trial_ends_at?: string|null }} client
  * @returns {number|undefined} un nombre de jours, ou `undefined` pour « pas
  *   d'essai » — c'est ce que Stripe attend quand on ne veut pas de période
@@ -81,27 +86,41 @@ export function joursEssaiPour(client) {
  * L'avantage de bienvenue de ce client pour cette formule — une seule fois.
  *
  * Décisions du 14 septembre 2026 :
- *   mensuel      aucun, sauf le mois offert (parrainage, campagne) — règles de
- *                `joursEssaiPour`
- *   trimestriel  −50 % sur le premier mois (coupon de la formule)
- *   annuel       aucun : « 12 mois pour le prix de 11 » est dans le prix
+ *   mensuel      le mois offert (parrainage, campagne), selon `joursEssaiPour`
+ *   trimestriel  le coupon de la formule : −50 % sur le premier mois
+ *   annuel       rien : « 12 mois pour le prix de 11 » est dans le prix
  *
- * Un client qui a déjà eu un abonnement Stripe, quel qu'il soit, n'en retrouve
- * aucun. `dejaAbonne` est lu chez Stripe par la route ; s'il est inconnu, on
- * lève plutôt que d'accorder quoi que ce soit sur un « je ne sais pas ».
+ * Le coupon vient du CATALOGUE (`formule.coupon`), pas d'une règle recopiée
+ * ici : la page tarifs l'annonce et la configuration Stripe le crée à partir de
+ * la même donnée. Deux règles séparées finiraient par dériver (ACT-33).
  *
- * @param {{ client: any, periode: string, dejaAbonne: boolean }} p
- * @returns {{ essaiJours?: number, coupon?: boolean }}
+ * Un client déjà abonné chez Stripe, déjà facturé par Stripe (`billing_provider`,
+ * que la résiliation n'efface pas) ou qui a déjà eu un essai n'a droit à aucun
+ * avantage. Tout ce qui décide doit avoir été LU : `dejaAbonne` inconnu, une
+ * colonne absente du `.select()` ou une formule hors catalogue lèvent, plutôt
+ * que d'accorder quoi que ce soit sur un « je ne sais pas ».
+ *
+ * @param {{
+ *   client: { trial_ends_at: string|null, billing_provider: string|null, referral_first_month_free?: boolean|null, campaign_first_month_free?: boolean|null },
+ *   formule: import('./formules.js').Formule,
+ *   dejaAbonne: boolean,
+ * }} p
+ * @returns {{ essaiJours: number, couponId?: never } | { couponId: string, essaiJours?: never } | { essaiJours?: never, couponId?: never }}
  */
-export function offreDeBienvenue({ client, periode, dejaAbonne }) {
+export function offreDeBienvenue({ client, formule, dejaAbonne }) {
   if (typeof dejaAbonne !== 'boolean') {
     throw new TypeError('offreDeBienvenue : dejaAbonne doit être connu (true ou false)')
   }
-  if (dejaAbonne || client?.trial_ends_at) return {}
-  if (periode === 'mensuel') {
+  if (!FORMULES.includes(formule)) {
+    throw new TypeError('offreDeBienvenue : formule hors catalogue')
+  }
+  if (client?.trial_ends_at === undefined || client?.billing_provider === undefined) {
+    throw new TypeError('offreDeBienvenue : trial_ends_at et billing_provider doivent être lus (null s’ils sont vides)')
+  }
+  if (dejaAbonne || client.trial_ends_at || client.billing_provider === 'stripe') return {}
+  if (formule.periode === 'mensuel') {
     const essaiJours = joursEssaiPour(client)
     return essaiJours ? { essaiJours } : {}
   }
-  if (periode === 'trimestriel') return { coupon: true }
-  return {}
+  return formule.coupon ? { couponId: formule.coupon.id } : {}
 }

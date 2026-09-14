@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, existsSync } from 'node:fs'
 import { joursEssaiPour, offreDeBienvenue, ESSAI_PARRAINAGE_JOURS, ESSAI_CAMPAGNE_JOURS } from './essai-gratuit.js'
+import { formulePour, FORMULES } from './formules.js'
 
 /**
  * ACT-33 — un seul essai gratuit, quel que soit le bouton cliqué.
@@ -100,8 +101,9 @@ describe('durée de l\'essai gratuit', () => {
   it('les chemins qui lisent le drapeau de campagne le sélectionnent aussi', () => {
     // Le piège de gorgias.js, transposé : lire `client.campaign_first_month_free`
     // sans le ramener dans le `.select()` donnerait TOUJOURS undefined. Le
-    // marchand venu de la pub aurait sept jours au lieu de trente, et rien
-    // n'échouerait — la campagne aurait simplement l'air de ne pas marcher.
+    // marchand venu de la pub paierait dès l'inscription au lieu d'avoir
+    // trente jours, et rien n'échouerait — la campagne aurait simplement
+    // l'air de ne pas marcher.
     for (const f of ['api/billing/create-subscription.js', 'api/billing/upgrade.js']) {
       const src = readFileSync(f, 'utf8')
       if (!/client\.campaign_first_month_free/.test(src)) continue
@@ -370,38 +372,59 @@ describe('avantage de bienvenue — selon la formule, une seule fois par client'
   // avantage de bienvenue (12 mois pour le prix de 11 est dans le prix). Un
   // client déjà abonné n'y a plus droit : sans ça, résilier puis se réabonner
   // redonnerait −50 % à chaque trimestre.
+  const NEUF = { trial_ends_at: null, billing_provider: null }
+  const offre = (plan, periode, client = {}, dejaAbonne = false) =>
+    offreDeBienvenue({ client: { ...NEUF, ...client }, formule: formulePour(plan, periode), dejaAbonne })
 
   it('mensuel : rien, sauf le mois offert de la campagne ou du parrainage', () => {
-    expect(offreDeBienvenue({ client: {}, periode: 'mensuel', dejaAbonne: false })).toEqual({})
-    expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode: 'mensuel', dejaAbonne: false }))
-      .toEqual({ essaiJours: ESSAI_CAMPAGNE_JOURS })
-    expect(offreDeBienvenue({ client: { referral_first_month_free: true }, periode: 'mensuel', dejaAbonne: false }))
+    expect(offre('starter', 'mensuel')).toEqual({})
+    expect(offre('starter', 'mensuel', { campaign_first_month_free: true })).toEqual({ essaiJours: ESSAI_CAMPAGNE_JOURS })
+    expect(offre('pro', 'mensuel', { referral_first_month_free: true })).toEqual({ essaiJours: ESSAI_PARRAINAGE_JOURS })
+  })
+
+  it('parrainé et venu d’une campagne : un seul mois offert, celui du parrainage', () => {
+    expect(offre('starter', 'mensuel', { referral_first_month_free: true, campaign_first_month_free: true }))
       .toEqual({ essaiJours: ESSAI_PARRAINAGE_JOURS })
   })
 
-  it('trimestriel : le coupon du premier mois, jamais de mois offert', () => {
-    expect(offreDeBienvenue({ client: {}, periode: 'trimestriel', dejaAbonne: false })).toEqual({ coupon: true })
-    expect(offreDeBienvenue({ client: { referral_first_month_free: true }, periode: 'trimestriel', dejaAbonne: false }))
-      .toEqual({ coupon: true })
+  it('trimestriel : le coupon de la formule, jamais de mois offert', () => {
+    expect(offre('pro', 'trimestriel')).toEqual({ couponId: formulePour('pro', 'trimestriel').coupon.id })
+    expect(offre('starter', 'trimestriel', { referral_first_month_free: true }))
+      .toEqual({ couponId: formulePour('starter', 'trimestriel').coupon.id })
   })
 
   it('annuel : rien', () => {
-    expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode: 'annuel', dejaAbonne: false })).toEqual({})
+    expect(offre('starter', 'annuel', { campaign_first_month_free: true })).toEqual({})
   })
 
-  it('un client déjà abonné n’a plus rien', () => {
-    for (const periode of ['mensuel', 'trimestriel', 'annuel']) {
-      expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode, dejaAbonne: true }), periode).toEqual({})
+  it('le coupon accordé est exactement celui du catalogue, pour chaque formule', () => {
+    // Une seule source : ajouter ou retirer un coupon dans formules.js change
+    // aussi ce que le serveur accorde.
+    for (const f of FORMULES) {
+      const o = offreDeBienvenue({ client: NEUF, formule: f, dejaAbonne: false })
+      expect(o.couponId, f.lookupKey).toBe(f.coupon?.id)
     }
   })
 
-  it('un essai déjà pris ferme aussi le coupon', () => {
-    expect(offreDeBienvenue({ client: { trial_ends_at: '2026-01-01T00:00:00Z' }, periode: 'trimestriel', dejaAbonne: false }))
-      .toEqual({})
+  it('un client déjà abonné, déjà facturé par Stripe ou qui a eu un essai n’a plus rien', () => {
+    for (const f of FORMULES) {
+      expect(offreDeBienvenue({ client: { ...NEUF, campaign_first_month_free: true }, formule: f, dejaAbonne: true }), f.lookupKey).toEqual({})
+      expect(offreDeBienvenue({ client: { ...NEUF, billing_provider: 'stripe', campaign_first_month_free: true }, formule: f, dejaAbonne: false }), f.lookupKey).toEqual({})
+      expect(offreDeBienvenue({ client: { ...NEUF, trial_ends_at: '2026-01-01T00:00:00Z', referral_first_month_free: true }, formule: f, dejaAbonne: false }), f.lookupKey).toEqual({})
+    }
   })
 
-  it('« déjà abonné ? » inconnu ne vaut jamais « jamais abonné »', () => {
-    // Une erreur Stripe ne doit rien accorder : la route répond une erreur.
-    expect(() => offreDeBienvenue({ client: {}, periode: 'mensuel', dejaAbonne: undefined })).toThrow()
+  it('ce qui n’a pas été lu n’accorde jamais rien : ça lève', () => {
+    // Une panne Stripe (dejaAbonne inconnu), une colonne oubliée dans le
+    // .select() ou une formule hors catalogue ne doivent rien accorder.
+    const formule = formulePour('starter', 'trimestriel')
+    for (const dejaAbonne of [undefined, null, 'false']) {
+      expect(() => offreDeBienvenue({ client: NEUF, formule, dejaAbonne }), String(dejaAbonne)).toThrow(/dejaAbonne/)
+    }
+    expect(() => offreDeBienvenue({ client: { billing_provider: null }, formule, dejaAbonne: false })).toThrow(/trial_ends_at/)
+    expect(() => offreDeBienvenue({ client: { trial_ends_at: null }, formule, dejaAbonne: false })).toThrow(/billing_provider/)
+    expect(() => offreDeBienvenue({ client: null, formule, dejaAbonne: false })).toThrow(/trial_ends_at/)
+    expect(() => offreDeBienvenue({ client: NEUF, formule: { periode: 'trimestriel', coupon: { id: 'x' } }, dejaAbonne: false })).toThrow(/catalogue/)
+    expect(() => offreDeBienvenue({ client: NEUF, formule: undefined, dejaAbonne: false })).toThrow(/catalogue/)
   })
 })
