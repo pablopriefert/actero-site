@@ -12,7 +12,7 @@ import { PLANS } from '../../src/lib/plans.js'
  * Il remplace quatre variables d'environnement STRIPE_PRICE_* qu'il fallait
  * copier à la main dans Vercel, et plusieurs lectures de `recurring.interval`
  * qui confondaient « facturé au mois » et « un mois de service » : un prix
- * « tous les 13 mois » a lui aussi `interval: 'month'`.
+ * trimestriel a lui aussi `interval: 'month'`.
  */
 describe('le catalogue des formules', () => {
   it('six formules payantes : deux plans, trois périodes', () => {
@@ -40,13 +40,14 @@ describe('le catalogue des formules', () => {
     }
   })
 
-  it('l’annuel vaut douze mensualités moins 10 %, facturées tous les 13 mois', () => {
+  it('l’annuel vaut onze mensualités moins 10 %, pour 12 mois facturés chaque année', () => {
+    // Révision du 14 septembre : « 12 mois pour le prix de 11, à −10 % ».
     for (const plan of ['starter', 'pro']) {
       const mensuel = formulePour(plan, 'mensuel').montantCentimes
       const annuel = formulePour(plan, 'annuel')
-      expect(annuel.montantCentimes).toBe(Math.round(12 * mensuel * 0.9))
-      expect(annuel.recurring).toEqual({ interval: 'month', interval_count: 13 })
-      expect(annuel.mois).toBe(13)
+      expect(annuel.montantCentimes).toBe(Math.round(11 * mensuel * 0.9))
+      expect(annuel.recurring).toEqual({ interval: 'year', interval_count: 1 })
+      expect(annuel.mois).toBe(12)
       expect(annuel.coupon).toBeUndefined()
     }
   })
@@ -54,8 +55,8 @@ describe('le catalogue des formules', () => {
   it('les montants validés par Pablo le 14 septembre', () => {
     expect(premierPaiementCentimes(formulePour('starter', 'trimestriel'))).toBe(24750)
     expect(premierPaiementCentimes(formulePour('pro', 'trimestriel'))).toBe(99750)
-    expect(formulePour('starter', 'annuel').montantCentimes).toBe(106920)
-    expect(formulePour('pro', 'annuel').montantCentimes).toBe(430920)
+    expect(formulePour('starter', 'annuel').montantCentimes).toBe(98010)
+    expect(formulePour('pro', 'annuel').montantCentimes).toBe(395010)
     expect(premierPaiementCentimes(formulePour('pro', 'mensuel'))).toBe(39900)
   })
 
@@ -77,7 +78,7 @@ describe('le catalogue des formules', () => {
   it('la mensualité d’un prix Stripe tient compte du nombre de mois', () => {
     expect(mensualiteCentimes({ unit_amount: 9900, recurring: { interval: 'month', interval_count: 1 } })).toBe(9900)
     expect(mensualiteCentimes({ unit_amount: 29700, recurring: { interval: 'month', interval_count: 3 } })).toBe(9900)
-    expect(mensualiteCentimes({ unit_amount: 106920, recurring: { interval: 'month', interval_count: 13 } })).toBe(8225)
+    expect(mensualiteCentimes({ unit_amount: 98010, recurring: { interval: 'year', interval_count: 1 } })).toBe(8168)
     expect(mensualiteCentimes({ unit_amount: 94800, recurring: { interval: 'year', interval_count: 1 } })).toBe(7900)
     expect(mensualiteCentimes({ unit_amount: 500, recurring: { interval: 'week', interval_count: 1 } })).toBe(0)
     expect(mensualiteCentimes({ unit_amount: null, recurring: { interval: 'month' } })).toBe(0)
@@ -86,7 +87,7 @@ describe('le catalogue des formules', () => {
   it('un libellé de période lisible', () => {
     expect(libellePeriodeStripe({ interval: 'month', interval_count: 1 })).toBe('mois')
     expect(libellePeriodeStripe({ interval: 'month', interval_count: 3 })).toBe('3 mois')
-    expect(libellePeriodeStripe({ interval: 'month', interval_count: 13 })).toBe('13 mois')
+    expect(libellePeriodeStripe({ interval: 'month', interval_count: 6 })).toBe('6 mois')
     expect(libellePeriodeStripe({ interval: 'year', interval_count: 1 })).toBe('an')
   })
 

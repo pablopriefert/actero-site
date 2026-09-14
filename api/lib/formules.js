@@ -8,8 +8,9 @@
  *   mensuel      99 / 399 € par mois
  *   trimestriel  3 mensualités tous les 3 mois, −50 % sur le premier mois
  *                (un coupon Stripe au montant exact, appliqué une fois)
- *   annuel       12 mensualités −10 %, facturées TOUS LES 13 MOIS : 13 mois
- *                d'accès à chaque renouvellement
+ *   annuel       12 mois pour le prix de 11, à −10 %, facturés chaque année
+ *                (révisé le même jour : la première version donnait 13 mois
+ *                pour le prix de 12, avec un prix « tous les 13 mois »)
  *
  * Chaque prix Stripe porte une `lookup_key` : c'est par elle que le serveur
  * retrouve un prix, et que le webhook retrouve le plan d'un abonnement. Plus de
@@ -27,7 +28,7 @@
  *   periode: Periode,
  *   lookupKey: string,
  *   montantCentimes: number,
- *   recurring: { interval: 'month', interval_count: number },
+ *   recurring: { interval: 'month'|'year', interval_count: number },
  *   mois: number,
  *   coupon?: { id: string, montantCentimes: number },
  * }} Formule
@@ -45,10 +46,10 @@ export const PERIODE_DEPUIS_API = { monthly: 'mensuel', quarterly: 'trimestriel'
 export const FORMULES = [
   { plan: 'starter', periode: 'mensuel', lookupKey: 'actero_starter_mensuel', montantCentimes: 9900, recurring: { interval: 'month', interval_count: 1 }, mois: 1 },
   { plan: 'starter', periode: 'trimestriel', lookupKey: 'actero_starter_trimestriel', montantCentimes: 29700, recurring: { interval: 'month', interval_count: 3 }, mois: 3, coupon: { id: 'actero-trimestriel-starter', montantCentimes: 4950 } },
-  { plan: 'starter', periode: 'annuel', lookupKey: 'actero_starter_annuel', montantCentimes: 106920, recurring: { interval: 'month', interval_count: 13 }, mois: 13 },
+  { plan: 'starter', periode: 'annuel', lookupKey: 'actero_starter_annuel', montantCentimes: 98010, recurring: { interval: 'year', interval_count: 1 }, mois: 12 },
   { plan: 'pro', periode: 'mensuel', lookupKey: 'actero_pro_mensuel', montantCentimes: 39900, recurring: { interval: 'month', interval_count: 1 }, mois: 1 },
   { plan: 'pro', periode: 'trimestriel', lookupKey: 'actero_pro_trimestriel', montantCentimes: 119700, recurring: { interval: 'month', interval_count: 3 }, mois: 3, coupon: { id: 'actero-trimestriel-pro', montantCentimes: 19950 } },
-  { plan: 'pro', periode: 'annuel', lookupKey: 'actero_pro_annuel', montantCentimes: 430920, recurring: { interval: 'month', interval_count: 13 }, mois: 13 },
+  { plan: 'pro', periode: 'annuel', lookupKey: 'actero_pro_annuel', montantCentimes: 395010, recurring: { interval: 'year', interval_count: 1 }, mois: 12 },
 ]
 
 /**
@@ -91,9 +92,9 @@ function moisDeLaPeriode(recurring) {
 /**
  * Le montant mensuel d'un prix Stripe, en centimes — pour le MRR.
  *
- * `interval === 'month'` ne veut PAS dire « un mois » : le trimestriel et
- * l'annuel 13 mois sont eux aussi facturés « au mois ». Lire l'intervalle seul
- * comptait 1 069,20 € de MRR pour un client qui en rapporte 82,25.
+ * `interval === 'month'` ne veut PAS dire « un mois » : le trimestriel est lui
+ * aussi facturé « au mois », tous les 3 mois. Lire l'intervalle seul comptait
+ * 297 € de MRR pour un client trimestriel qui en rapporte 99.
  *
  * @param {any} price
  * @returns {number}
@@ -115,7 +116,7 @@ export function premierPaiementCentimes(formule) {
 }
 
 /**
- * « mois », « 3 mois », « 13 mois », « an » — pour l'admin.
+ * « mois », « 3 mois », « an » — pour l'admin.
  *
  * @param {any} recurring
  * @returns {string}
