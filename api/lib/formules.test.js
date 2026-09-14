@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import {
   FORMULES, PERIODES, PERIODE_API, PERIODE_DEPUIS_API,
   formulePour, formuleDuPrix, mensualiteCentimes, premierPaiementCentimes, libellePeriodeStripe,
+  periodeDepuisApi, prixConforme,
 } from './formules.js'
 import { PLANS } from '../../src/lib/plans.js'
 
@@ -60,11 +61,40 @@ describe('le catalogue des formules', () => {
     expect(premierPaiementCentimes(formulePour('pro', 'mensuel'))).toBe(39900)
   })
 
+  it('chaque formule est cohérente avec elle-même', () => {
+    const MOIS = { mensuel: 1, trimestriel: 3, annuel: 12 }
+    for (const f of FORMULES) {
+      // La clé est un contrat avec Stripe : le webhook en déduit le plan.
+      expect(f.lookupKey).toBe(`actero_${f.plan}_${f.periode}`)
+      expect(f.mois, f.lookupKey).toBe(MOIS[f.periode])
+      // `mois` (affichage) et `recurring` (Stripe, MRR) disent la même durée.
+      expect(mensualiteCentimes({ unit_amount: f.mois * 100, recurring: f.recurring }), f.lookupKey).toBe(100)
+      // Stripe refuse un unit_amount ou un amount_off non entier.
+      for (const m of [f.montantCentimes, f.coupon?.montantCentimes ?? 1]) {
+        expect(Number.isInteger(m) && m > 0, f.lookupKey).toBe(true)
+      }
+      expect(premierPaiementCentimes(f), f.lookupKey).toBeGreaterThan(0)
+      // Un coupon Stripe ne change plus de montant une fois créé : son
+      // identifiant porte le sien, pour qu'un nouveau montant crée un nouveau coupon.
+      if (f.coupon) expect(f.coupon.id).toBe(`actero-trimestriel-${f.plan}-${f.coupon.montantCentimes}`)
+    }
+  })
+
   it('clés de recherche et identifiants de coupon sont uniques', () => {
     const cles = FORMULES.map((f) => f.lookupKey)
     expect(new Set(cles).size).toBe(cles.length)
     const coupons = FORMULES.filter((f) => f.coupon).map((f) => f.coupon.id)
-    expect(new Set(coupons).size).toBe(2)
+    expect(coupons).toHaveLength(2)
+    expect(new Set(coupons).size).toBe(coupons.length)
+  })
+
+  it('le catalogue est figé : une modification lève une erreur au lieu de le corrompre', () => {
+    // Il est partagé par toutes les requêtes d'une instance Vercel et par toute
+    // la session du navigateur.
+    expect(() => { formulePour('starter', 'trimestriel').coupon.montantCentimes = 0 }).toThrow(TypeError)
+    expect(() => { FORMULES.push({}) }).toThrow(TypeError)
+    expect(() => { PERIODE_API.mensuel = 'weekly' }).toThrow(TypeError)
+    expect(formulePour('starter', 'trimestriel').coupon.montantCentimes).toBe(4950)
   })
 
   it('un prix Stripe retrouve sa formule par sa clé, et seulement par elle', () => {
@@ -75,6 +105,20 @@ describe('le catalogue des formules', () => {
     expect(formuleDuPrix(null)).toBeNull()
   })
 
+  it('un prix Stripe n’est conforme que s’il facture exactement la formule', () => {
+    // Un prix Stripe ne change plus de montant : si le catalogue évolue, la
+    // configuration doit le voir, sinon le site affiche un montant et Checkout
+    // en facture un autre.
+    const f = formulePour('pro', 'annuel')
+    const prix = { unit_amount: 395010, currency: 'eur', recurring: { interval: 'year', interval_count: 1 } }
+    expect(prixConforme(f, prix)).toBe(true)
+    expect(prixConforme(f, { ...prix, unit_amount: 382800 })).toBe(false)
+    expect(prixConforme(f, { ...prix, currency: 'usd' })).toBe(false)
+    expect(prixConforme(f, { ...prix, recurring: { interval: 'month', interval_count: 12 } })).toBe(false)
+    expect(prixConforme(f, { unit_amount: 395010, currency: 'eur' })).toBe(false)
+    expect(prixConforme(f, null)).toBe(false)
+  })
+
   it('la mensualité d’un prix Stripe tient compte du nombre de mois', () => {
     expect(mensualiteCentimes({ unit_amount: 9900, recurring: { interval: 'month', interval_count: 1 } })).toBe(9900)
     expect(mensualiteCentimes({ unit_amount: 29700, recurring: { interval: 'month', interval_count: 3 } })).toBe(9900)
@@ -82,6 +126,21 @@ describe('le catalogue des formules', () => {
     expect(mensualiteCentimes({ unit_amount: 94800, recurring: { interval: 'year', interval_count: 1 } })).toBe(7900)
     expect(mensualiteCentimes({ unit_amount: 500, recurring: { interval: 'week', interval_count: 1 } })).toBe(0)
     expect(mensualiteCentimes({ unit_amount: null, recurring: { interval: 'month' } })).toBe(0)
+  })
+
+  it('les cas limites que lisent le webhook et le MRR', () => {
+    // Un paiement ponctuel ou un prix absent ne comptent pas dans le MRR.
+    expect(mensualiteCentimes({ unit_amount: 5000 })).toBe(0)
+    expect(mensualiteCentimes(null)).toBe(0)
+    // Stripe envoie toujours interval_count ; absent, il vaut 1.
+    expect(mensualiteCentimes({ unit_amount: 9900, recurring: { interval: 'month' } })).toBe(9900)
+    // Aucune formule n'est facturée à la journée.
+    expect(mensualiteCentimes({ unit_amount: 100, recurring: { interval: 'day', interval_count: 1 } })).toBe(0)
+    // Le vocabulaire de l'API n'est pas celui du catalogue.
+    expect(formulePour('starter', 'monthly')).toBeNull()
+    // Un prix non développé (simple identifiant) ou absent : aucune formule.
+    expect(formuleDuPrix(undefined)).toBeNull()
+    expect(formuleDuPrix('price_123')).toBeNull()
   })
 
   it('un libellé de période lisible', () => {
@@ -96,9 +155,19 @@ describe('le catalogue des formules', () => {
     expect(PERIODE_DEPUIS_API).toEqual({ monthly: 'mensuel', quarterly: 'trimestriel', annual: 'annuel' })
   })
 
+  it('une période reçue de l’API est validée, sans se laisser tromper par les clés héritées', () => {
+    expect(periodeDepuisApi('quarterly')).toBe('trimestriel')
+    expect(periodeDepuisApi('toString')).toBeNull()
+    expect(periodeDepuisApi('__proto__')).toBeNull()
+    expect(periodeDepuisApi(undefined)).toBeNull()
+    expect(periodeDepuisApi(42)).toBeNull()
+  })
+
   it('le catalogue reste importable par le navigateur', () => {
-    // La page tarifs et la facturation l'importent : aucune dépendance Node.
+    // La page tarifs et la facturation l'importent : aucune dépendance, et rien
+    // qui vaudrait autre chose côté navigateur (Vite remplace process.env par {}).
     const src = readFileSync('api/lib/formules.js', 'utf8')
-    expect(src).not.toMatch(/from ['"](node:|stripe|@supabase)/)
+      .replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+    expect(src).not.toMatch(/^\s*import\s|\bimport\(|\brequire\(|\bprocess\.|\bBuffer\b/m)
   })
 })
