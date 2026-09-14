@@ -51,10 +51,12 @@ function figer(o) {
 /** @type {readonly Periode[]} */
 export const PERIODES = figer(/** @type {Periode[]} */ (['mensuel', 'trimestriel', 'annuel']))
 
-/** `billing_period` de l'API et de la base garde ses valeurs anglaises historiques. */
-export const PERIODE_API = /** @type {Readonly<Record<Periode, 'monthly'|'quarterly'|'annual'>>} */ (
-  figer({ mensuel: 'monthly', trimestriel: 'quarterly', annuel: 'annual' })
-)
+/**
+ * `billing_period` de l'API et de la base garde ses valeurs anglaises historiques.
+ *
+ * @type {Readonly<Record<Periode, 'monthly'|'quarterly'|'annual'>>}
+ */
+export const PERIODE_API = figer({ mensuel: 'monthly', trimestriel: 'quarterly', annuel: 'annual' })
 
 /** @type {Readonly<Record<'monthly'|'quarterly'|'annual', Periode>>} */
 export const PERIODE_DEPUIS_API = figer({ monthly: 'mensuel', quarterly: 'trimestriel', annual: 'annuel' })
@@ -157,7 +159,8 @@ export function mensualiteCentimes(price) {
 
 /**
  * Le premier paiement d'un client qui a droit à l'offre de bienvenue, coupon
- * déduit. Un client déjà abonné paie le montant plein.
+ * déduit. Un client déjà abonné, ou qui a eu un essai, paie le montant plein
+ * (voir offreDeBienvenue).
  *
  * @param {Formule} formule
  * @returns {number}

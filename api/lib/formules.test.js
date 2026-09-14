@@ -94,6 +94,8 @@ describe('le catalogue des formules', () => {
     expect(() => { formulePour('starter', 'trimestriel').coupon.montantCentimes = 0 }).toThrow(TypeError)
     expect(() => { FORMULES.push({}) }).toThrow(TypeError)
     expect(() => { PERIODE_API.mensuel = 'weekly' }).toThrow(TypeError)
+    expect(() => { PERIODES.push('semestriel') }).toThrow(TypeError)
+    expect(() => { PERIODE_DEPUIS_API.monthly = 'annuel' }).toThrow(TypeError)
     expect(formulePour('starter', 'trimestriel').coupon.montantCentimes).toBe(4950)
   })
 
@@ -117,6 +119,8 @@ describe('le catalogue des formules', () => {
     expect(prixConforme(f, { ...prix, recurring: { interval: 'month', interval_count: 12 } })).toBe(false)
     expect(prixConforme(f, { unit_amount: 395010, currency: 'eur' })).toBe(false)
     expect(prixConforme(f, null)).toBe(false)
+    // Même intervalle, autre fréquence : 297 € par mois ne sont pas le trimestriel.
+    expect(prixConforme(formulePour('starter', 'trimestriel'), { unit_amount: 29700, currency: 'eur', recurring: { interval: 'month', interval_count: 1 } })).toBe(false)
   })
 
   it('la mensualité d’un prix Stripe tient compte du nombre de mois', () => {
@@ -168,6 +172,6 @@ describe('le catalogue des formules', () => {
     // qui vaudrait autre chose côté navigateur (Vite remplace process.env par {}).
     const src = readFileSync('api/lib/formules.js', 'utf8')
       .replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
-    expect(src).not.toMatch(/^\s*import\s|\bimport\(|\brequire\(|\bprocess\.|\bBuffer\b/m)
+    expect(src).not.toMatch(/^\s*import\s|\bimport\(|\bimport\.meta\b|^\s*export\s[^\n]*\sfrom\s|\brequire\(|\bprocess\.|\bBuffer\b/m)
   })
 })
