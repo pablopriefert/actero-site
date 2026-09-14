@@ -24,7 +24,7 @@
 | Fichier | Rôle | Action |
 |---|---|---|
 | `api/lib/formules.js` | Catalogue des six formules, conversions de période, mensualité et conformité d'un prix Stripe | Créé (Task 1), révisé (Tasks 1 bis et 1 ter) |
-| `api/lib/essai-gratuit.js` | Plus d'essai standard ; + `offreDeBienvenue()` | Modifier |
+| `api/lib/essai-gratuit.js` | Plus d'essai standard ; + `offreDeBienvenue()` (coupon lu dans le catalogue) | Modifier (Tasks 2 et 2 bis) |
 | `api/lib/formules-stripe.js` | Deux lectures Stripe : prix d'une formule, « déjà abonné ? » | Créer |
 | `api/lib/checkout-formule.js` | Paramètres purs de la session Checkout | Créer |
 | `api/lib/configuration-stripe.js` | Crée ou retrouve prix, clés et coupons (idempotent) | Créer |
@@ -395,6 +395,12 @@ git commit -m "feat(facturation): plus d'essai de 7 jours, et un avantage de bie
 
 ---
 
+### Task 2 bis : l'avantage de bienvenue lit le coupon dans le catalogue — LIVRÉE
+
+Faite à la relecture qualité de la Task 2 : le contrat devient `offreDeBienvenue({ client, formule, dejaAbonne })` → `{ essaiJours }` (mensuel, mois offert), `{ couponId }` (le coupon de la formule, lu dans le catalogue) ou `{}`. Un client déjà facturé par Stripe (`billing_provider === 'stripe'`) n'a plus rien, comme dans la facturation du front. Lève si `dejaAbonne` n'est pas booléen, si `trial_ends_at` ou `billing_provider` n'ont pas été lus, ou si la formule n'est pas celle du catalogue. Les Tasks 4 et 5 ci-dessous utilisent ce contrat.
+
+---
+
 ### Task 3 : le plan d'un abonnement se lit dans le catalogue
 
 **Files :**
@@ -677,7 +683,7 @@ describe('parametresCheckout', () => {
   })
 
   it('trimestriel éligible : le coupon du plan, aucun essai', () => {
-    const p = params('pro', 'trimestriel', { offre: { coupon: true } })
+    const p = params('pro', 'trimestriel', { offre: { couponId: 'actero-trimestriel-pro-19950' } })
     expect(p.discounts).toEqual([{ coupon: 'actero-trimestriel-pro-19950' }])
     expect(p.subscription_data.trial_period_days).toBeUndefined()
     expect(p.allow_promotion_codes).toBeUndefined()
@@ -690,13 +696,13 @@ describe('parametresCheckout', () => {
   })
 
   it('un code promo remplace le coupon du trimestriel', () => {
-    const p = params('starter', 'trimestriel', { offre: { coupon: true }, promotionCodeId: 'promo_1' })
+    const p = params('starter', 'trimestriel', { offre: { couponId: 'actero-trimestriel-starter-4950' }, promotionCodeId: 'promo_1' })
     expect(p.discounts).toEqual([{ promotion_code: 'promo_1' }])
   })
 
   it('discounts et allow_promotion_codes ne coexistent jamais', () => {
     for (const periode of ['mensuel', 'trimestriel', 'annuel']) {
-      for (const offre of [{}, { essaiJours: 30 }, { coupon: true }]) {
+      for (const offre of [{}, { essaiJours: 30 }, { couponId: 'actero-trimestriel-pro-19950' }]) {
         for (const promotionCodeId of [null, 'promo_1']) {
           const p = params('pro', periode, { offre, promotionCodeId })
           expect(!!p.discounts && !!p.allow_promotion_codes, `${periode} ${JSON.stringify(offre)} ${promotionCodeId}`).toBe(false)
@@ -792,7 +798,7 @@ Attendu : FAIL — imports introuvables.
  *   customer: string,
  *   priceId: string,
  *   formule: import('./formules.js').Formule,
- *   offre: { essaiJours?: number, coupon?: boolean },
+ *   offre: { essaiJours?: number, couponId?: string },
  *   promotionCodeId?: string|null,
  *   planActuel: string,
  *   parrainage?: { parrainId: string, code?: string|null } | null,
@@ -823,7 +829,7 @@ export function parametresCheckout(p) {
   // Stripe n'accepte qu'une réduction : un code promo remplace le coupon.
   const remise = promotionCodeId
     ? { promotion_code: promotionCodeId }
-    : (offre.coupon && formule.coupon ? { coupon: formule.coupon.id } : null)
+    : (offre.couponId ? { coupon: offre.couponId } : null)
 
   return {
     mode: 'subscription',
@@ -952,6 +958,7 @@ const h = vi.hoisted(() => ({
   previousSubs: [],
   stripe: null,
   ecrituresClients: [],
+  selectsClients: [],
 }))
 
 vi.mock('../lib/sentry.js', () => ({ withSentry: (fn) => fn, captureError: () => {} }))
@@ -961,7 +968,8 @@ vi.mock('../lib/facturation-shopify.js', () => ({ refuserFacturationStripe: asyn
 vi.mock('@supabase/supabase-js', () => {
   function builder(table) {
     const b = {
-      select: () => b, eq: () => b, not: () => b, limit: () => b,
+      select: (colonnes) => { if (table === 'clients') h.selectsClients.push(colonnes); return b },
+      eq: () => b, not: () => b, limit: () => b,
       update: (valeur) => { if (table === 'clients') h.ecrituresClients.push(valeur); return b },
       maybeSingle: async () => {
         if (table === 'client_users') return { data: { client_id: 'c1' }, error: null }
@@ -1023,13 +1031,14 @@ beforeEach(() => {
   process.env.STRIPE_SECRET_KEY = 'sk_test_x'
   h.clientRow = {
     id: 'c1', plan: 'free', stripe_customer_id: 'cus_1', stripe_subscription_id: null,
-    contact_email: 'u@ex.com', brand_name: 'Shop', trial_ends_at: null,
+    contact_email: 'u@ex.com', brand_name: 'Shop', trial_ends_at: null, billing_provider: null,
     referral_first_month_free: false, campaign_first_month_free: false, referred_by_client_id: null,
   }
   h.existingSub = null
   h.customerCards = []
   h.previousSubs = []
   h.ecrituresClients = []
+  h.selectsClients = []
   h.stripe = baseStripe()
 })
 
@@ -1051,6 +1060,18 @@ describe('POST /api/billing/upgrade', () => {
     const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
     expect(params.line_items[0].price).toBe('price_actero_starter_mensuel')
     expect(params.subscription_data.trial_period_days).toBeUndefined()
+  })
+
+  it('la route lit tout ce que l’avantage de bienvenue exige', async () => {
+    // offreDeBienvenue lève si une colonne manque : sans ce test, un .select()
+    // incomplet ferait échouer chaque paiement en production.
+    const res = makeRes()
+    await handler(post(), res)
+    expect(res.statusCode).toBe(200)
+    const colonnes = h.selectsClients.join(',')
+    for (const c of ['trial_ends_at', 'billing_provider', 'referral_first_month_free', 'campaign_first_month_free']) {
+      expect(colonnes, c).toContain(c)
+    }
   })
 
   it('trimestriel pour un nouveau client : page Stripe avec le coupon du plan', async () => {
@@ -1216,7 +1237,7 @@ async function handler(req, res) {
   try {
     const { data: client, error: clientErr } = await supabaseAdmin
       .from('clients')
-      .select('id, plan, stripe_customer_id, stripe_subscription_id, contact_email, brand_name, trial_ends_at, referral_first_month_free, campaign_first_month_free, referred_by_client_id')
+      .select('id, plan, stripe_customer_id, stripe_subscription_id, contact_email, brand_name, trial_ends_at, billing_provider, referral_first_month_free, campaign_first_month_free, referred_by_client_id')
       .eq('id', client_id)
       .single();
 
@@ -1348,7 +1369,7 @@ async function handler(req, res) {
       console.error('[billing/upgrade] lecture des abonnements passés impossible :', err.message);
       return res.status(503).json({ error: 'Paiement indisponible pour le moment, réessayez dans un instant.' });
     }
-    const offre = offreDeBienvenue({ client, periode, dejaAbonne });
+    const offre = offreDeBienvenue({ client, formule, dejaAbonne });
 
     let parrainage = null;
     if (client.referral_first_month_free && client.referred_by_client_id) {

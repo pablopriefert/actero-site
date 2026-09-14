@@ -93,15 +93,19 @@ chaque prix par sa clé (`stripe.prices.list({ lookup_keys })`). Les quatre vari
 
 - `joursEssaiPour(client)` ne donne plus d'essai standard : 30 jours si parrainage ou
   campagne, sinon aucun (`undefined`). La constante `ESSAI_STANDARD_JOURS` disparaît.
-- Nouvelle fonction pure `offreDeBienvenue({ client, periode, dejaAbonne })` :
+- Nouvelle fonction pure `offreDeBienvenue({ client, formule, dejaAbonne })` :
 
 | Période | Client éligible | Client non éligible |
 |---|---|---|
 | mensuel | `{ essaiJours }` si parrainage ou campagne, sinon `{}` | `{}` |
-| trimestriel | `{ coupon }` | `{}` |
+| trimestriel | `{ couponId }`, le coupon de la formule lu dans le catalogue | `{}` |
 | annuel | `{}` | `{}` |
 
-Éligible = `dejaAbonne` faux **et** `client.trial_ends_at` vide. `dejaAbonne` est lu
+Éligible = `dejaAbonne` faux, `client.trial_ends_at` vide **et** `client.billing_provider`
+différent de `'stripe'` (posé par le webhook, jamais effacé à la résiliation). Le coupon
+vient du catalogue (`formule.coupon`) : une seule source pour l'affichage, Stripe et le
+serveur. Une valeur non lue (`dejaAbonne` non booléen, colonne absente du `.select()`,
+formule hors catalogue) lève. `dejaAbonne` est lu
 par la route chez Stripe (`stripe.subscriptions.list({ customer, status: 'all',
 limit: 1 })`). Si la lecture échoue, la route répond une erreur : on n'accorde rien
 sur un « je ne sais pas ».
