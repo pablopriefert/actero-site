@@ -3,9 +3,18 @@
  *
  * GET: List pending reviews
  * POST: Approve/reject/modify a review
+ *
+ * RÉSERVÉE AUX ADMINS — 14 septembre 2026.
+ *
+ * La route se contentait d'un jeton valide, que n'importe qui obtient par une
+ * inscription Google. Ce compte lisait la file de TOUS les marchands (message
+ * du client, coordonnées) et pouvait « approuver en modifiant » : son texte
+ * partait alors au client final par le canal du marchand. Seul
+ * AdminManualReviewView l'appelle. Voir reviews.test.js.
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '../lib/admin-auth.js'
 import { runExecutor } from './executor.js'
 import { logRun } from './logger.js'
 
@@ -15,11 +24,8 @@ const supabase = createClient(
 )
 
 async function handler(req, res) {
-  // Auth
-  const token = req.headers.authorization?.replace('Bearer ', '')
-  if (!token) return res.status(401).json({ error: 'Non autorise' })
-  const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-  if (authError || !user) return res.status(401).json({ error: 'Non autorise' })
+  const user = await requireAdmin(req, res, supabase)
+  if (!user) return
 
   if (req.method === 'GET') {
     // List pending reviews
