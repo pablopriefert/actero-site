@@ -1,21 +1,21 @@
-# Formules trimestrielle et annuelle 13 mois, Checkout Stripe hébergé — Plan d'implémentation
+# Formules trimestrielle et annuelle, Checkout Stripe hébergé — Plan d'implémentation
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal :** vendre Starter et Pro au mois, au trimestre (−50 % sur le premier mois) et à l'année (−10 %, 13 mois à chaque renouvellement), uniquement par la page Stripe Checkout hébergée.
+**Goal :** vendre Starter et Pro au mois (sans essai), au trimestre (−50 % sur le premier mois) et à l'année (12 mois pour le prix de 11, à −10 %), uniquement par la page Stripe Checkout hébergée, et retirer l'essai de 7 jours de tout le site.
 
-**Architecture :** un catalogue pur (`api/lib/formules.js`) décrit les six formules et leurs clés Stripe (`lookup_key`) ; il est importé par le serveur (route de paiement, webhook, MRR, configuration Stripe) et par le front (affichage des prix). L'offre de bienvenue et les paramètres de la session Checkout sont deux fonctions pures testées sans Stripe. Le formulaire de paiement intégré (Payment Element) est supprimé.
+**Architecture :** un catalogue pur (`api/lib/formules.js`) décrit les six formules et leurs clés Stripe (`lookup_key`) ; il est importé par le serveur (route de paiement, webhook, MRR, configuration Stripe) et par le front (affichage des prix). L'avantage de bienvenue et les paramètres de la session Checkout sont deux fonctions pures testées sans Stripe. Le formulaire de paiement intégré (Payment Element) est supprimé.
 
 **Tech stack :** Vercel serverless (Node, ESM), Stripe SDK v20, Supabase, React + Vite, Vitest (environnement node ; `// @vitest-environment jsdom` au besoin), ESLint.
 
-**Spec :** `docs/superpowers/specs/2026-09-14-formules-trimestrielle-annuelle-checkout-design.md`
+**Spec :** `docs/superpowers/specs/2026-09-14-formules-trimestrielle-annuelle-checkout-design.md` (révisée le 14 septembre : annuel à 12 mois pour le prix de 11, plus d'essai de 7 jours).
 
 **Règles du dépôt à respecter :**
 - Les fichiers de `api/` hors `api/lib/` deviennent des fonctions Vercel : les helpers vont dans `api/lib/`.
-- Chemins d'API en ASCII (garde `src/config/routes-integrations.test.js`).
 - Les gardes de source retirent les commentaires avant d'analyser (`sansCommentaires`).
 - Commentaires et messages en français, qui disent *pourquoi*.
-- Commit après chaque tâche, message en français, terminé par `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`. **Ne pas pousser** : le push se fait à la fin, sur décision de Pablo.
+- Commit après chaque tâche, message en français, terminé par une ligne `Co-Authored-By:` au nom du modèle qui écrit le commit. **Ne pas pousser.**
+- Branche : `feat/formules-checkout`.
 
 ---
 
@@ -23,350 +23,239 @@
 
 | Fichier | Rôle | Action |
 |---|---|---|
-| `api/lib/formules.js` | Catalogue des six formules, conversions de période, mensualité d'un prix Stripe | Créer |
+| `api/lib/formules.js` | Catalogue des six formules, conversions de période, mensualité d'un prix Stripe | Créé (Task 1), révisé (Task 1 bis) |
+| `api/lib/essai-gratuit.js` | Plus d'essai standard ; + `offreDeBienvenue()` | Modifier |
 | `api/lib/formules-stripe.js` | Deux lectures Stripe : prix d'une formule, « déjà abonné ? » | Créer |
 | `api/lib/checkout-formule.js` | Paramètres purs de la session Checkout | Créer |
 | `api/lib/configuration-stripe.js` | Crée ou retrouve prix, clés et coupons (idempotent) | Créer |
-| `api/lib/essai-gratuit.js` | + `offreDeBienvenue()` | Modifier |
 | `api/lib/subscription-plan.js` | Plan déduit de la clé du prix + carte | Modifier |
 | `api/billing/upgrade.js` | Seule route de paiement Stripe self-serve | Réécrire |
 | `api/stripe-webhook.js` | Branchement du nouveau `planUpdateFromSubscription`, période écrite | Modifier |
 | `api/stripe-billing.js` | MRR normalisé par la durée de la période | Modifier |
-| `api/admin/setup-stripe-products.js` | Appelle `configurerFormules` | Réécrire |
-| `api/admin/stripe-status.js` | État des six prix et deux coupons | Réécrire |
+| `api/admin/setup-stripe-products.js`, `api/admin/stripe-status.js` | Configuration et état Stripe | Réécrire |
 | `src/lib/affichage-formules.js` | Montants affichés, mémorisation de la formule choisie | Créer |
 | `src/components/billing/SelecteurFormule.jsx` | Sélecteur Mensuel / Trimestriel / Annuel | Créer |
-| `src/pages/PricingPage.jsx` | Sélecteur, prix, FAQ | Modifier |
-| `src/pages/PlanSelectionPage.jsx` | Formule reçue, prix, Checkout seul | Modifier |
-| `src/components/client/ClientBillingView.jsx` | Sélecteur, prix, Checkout seul | Modifier |
-| `src/components/admin/AdminStripeSetupView.jsx` | Écran de configuration des formules | Réécrire |
-| `src/components/admin/AdminBillingView.jsx` | Libellé de période | Modifier |
+| `src/pages/PricingPage.jsx`, `src/pages/PlanSelectionPage.jsx`, `src/components/client/ClientBillingView.jsx` | Formules, Checkout seul | Modifier |
+| `src/components/admin/AdminStripeSetupView.jsx`, `src/components/admin/AdminBillingView.jsx` | Admin Stripe | Modifier |
+| `src/lib/plans.js`, bandeaux et boutons (liste Task 13) | Plus d'essai de 7 jours | Modifier |
+| `docs/essentials/quickstart.mdx`, `docs/essentials/facturation.mdx`, `public/llms.txt`, `public/og-image.svg` | Documentation et textes publics : ni essai de 7 jours, ni ancien annuel | Modifier |
 | `src/components/landing/PricingA.jsx`, `src/pages/FaqPage.jsx` | Textes « −20 % » | Modifier |
-| `src/components/billing/PaymentModal.jsx`, `src/lib/stripe-client.js`, `api/billing/create-subscription.js`, `api/billing/create-subscription.test.js` | Paiement intégré | Supprimer |
-| `api/lib/essai-gratuit.test.js`, `api/lib/conformite-app-store.test.js`, `api/lib/subscription-plan.test.js` | Tests existants qui citent l'ancien chemin | Modifier |
+| `PaymentModal.jsx`, `stripe-client.js`, `create-subscription.js` (+ test) | Paiement intégré | Supprimer |
 | `api/billing/paiement-heberge.test.js` | Gardes de source du chantier | Créer |
 
 ---
 
-### Task 1 : le catalogue des formules
+### Task 1 : le catalogue des formules — LIVRÉE
+
+Livrée en `53fb816` (fichiers `api/lib/formules.js` et `api/lib/formules.test.js`), dans la version « 13 mois à chaque renouvellement ». La Task 1 bis la révise.
+
+---
+
+### Task 1 bis : l'annuel devient 12 mois pour le prix de 11, à −10 %
 
 **Files :**
-- Create : `api/lib/formules.js`
+- Modify : `api/lib/formules.js`
 - Test : `api/lib/formules.test.js`
 
-- [ ] **Step 1 : écrire le test qui échoue**
+- [ ] **Step 1 : modifier les tests (ils doivent échouer)**
 
-`api/lib/formules.test.js` :
+Dans `api/lib/formules.test.js` :
+
+1. Dans le commentaire d'en-tête, remplacer `« tous les 13 mois » a lui aussi \`interval: 'month'\`.` par `trimestriel a lui aussi \`interval: 'month'\`.`
+
+2. Remplacer tout le test `it('l’annuel vaut douze mensualités moins 10 %, facturées tous les 13 mois', …)` par :
 
 ```js
-import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
-import {
-  FORMULES, PERIODES, PERIODE_API, PERIODE_DEPUIS_API,
-  formulePour, formuleDuPrix, mensualiteCentimes, premierPaiementCentimes, libellePeriodeStripe,
-} from './formules.js'
-import { PLANS } from '../../src/lib/plans.js'
-
-/**
- * Le catalogue est la seule définition des formules payantes.
- *
- * Il remplace quatre variables d'environnement STRIPE_PRICE_* qu'il fallait
- * copier à la main dans Vercel, et plusieurs lectures de `recurring.interval`
- * qui confondaient « facturé au mois » et « un mois de service » : un prix
- * « tous les 13 mois » a lui aussi `interval: 'month'`.
- */
-describe('le catalogue des formules', () => {
-  it('six formules payantes : deux plans, trois périodes', () => {
-    expect(FORMULES).toHaveLength(6)
-    for (const plan of ['starter', 'pro']) {
-      for (const periode of PERIODES) {
-        expect(formulePour(plan, periode), `${plan} ${periode}`).not.toBeNull()
-      }
-    }
-    expect(formulePour('enterprise', 'mensuel')).toBeNull()
-  })
-
-  it('le mensuel est le prix affiché des plans', () => {
-    expect(formulePour('starter', 'mensuel').montantCentimes).toBe(PLANS.starter.price.monthly * 100)
-    expect(formulePour('pro', 'mensuel').montantCentimes).toBe(PLANS.pro.price.monthly * 100)
-  })
-
-  it('le trimestriel vaut trois mensualités, et son coupon la moitié d’une', () => {
-    for (const plan of ['starter', 'pro']) {
-      const mensuel = formulePour(plan, 'mensuel').montantCentimes
-      const trimestriel = formulePour(plan, 'trimestriel')
-      expect(trimestriel.montantCentimes).toBe(3 * mensuel)
-      expect(trimestriel.recurring).toEqual({ interval: 'month', interval_count: 3 })
-      expect(trimestriel.coupon.montantCentimes).toBe(mensuel / 2)
-    }
-  })
-
-  it('l’annuel vaut douze mensualités moins 10 %, facturées tous les 13 mois', () => {
+  it('l’annuel vaut onze mensualités moins 10 %, pour 12 mois facturés chaque année', () => {
+    // Révision du 14 septembre : « 12 mois pour le prix de 11, à −10 % ».
     for (const plan of ['starter', 'pro']) {
       const mensuel = formulePour(plan, 'mensuel').montantCentimes
       const annuel = formulePour(plan, 'annuel')
-      expect(annuel.montantCentimes).toBe(Math.round(12 * mensuel * 0.9))
-      expect(annuel.recurring).toEqual({ interval: 'month', interval_count: 13 })
-      expect(annuel.mois).toBe(13)
+      expect(annuel.montantCentimes).toBe(Math.round(11 * mensuel * 0.9))
+      expect(annuel.recurring).toEqual({ interval: 'year', interval_count: 1 })
+      expect(annuel.mois).toBe(12)
       expect(annuel.coupon).toBeUndefined()
     }
   })
-
-  it('les montants validés par Pablo le 14 septembre', () => {
-    expect(premierPaiementCentimes(formulePour('starter', 'trimestriel'))).toBe(24750)
-    expect(premierPaiementCentimes(formulePour('pro', 'trimestriel'))).toBe(99750)
-    expect(formulePour('starter', 'annuel').montantCentimes).toBe(106920)
-    expect(formulePour('pro', 'annuel').montantCentimes).toBe(430920)
-    expect(premierPaiementCentimes(formulePour('pro', 'mensuel'))).toBe(39900)
-  })
-
-  it('clés de recherche et identifiants de coupon sont uniques', () => {
-    const cles = FORMULES.map((f) => f.lookupKey)
-    expect(new Set(cles).size).toBe(cles.length)
-    const coupons = FORMULES.filter((f) => f.coupon).map((f) => f.coupon.id)
-    expect(new Set(coupons).size).toBe(2)
-  })
-
-  it('un prix Stripe retrouve sa formule par sa clé, et seulement par elle', () => {
-    expect(formuleDuPrix({ id: 'price_x', lookup_key: 'actero_pro_trimestriel' }))
-      .toMatchObject({ plan: 'pro', periode: 'trimestriel' })
-    expect(formuleDuPrix({ id: 'price_sur_mesure', lookup_key: null })).toBeNull()
-    expect(formuleDuPrix({ lookup_key: 'autre_chose' })).toBeNull()
-    expect(formuleDuPrix(null)).toBeNull()
-  })
-
-  it('la mensualité d’un prix Stripe tient compte du nombre de mois', () => {
-    expect(mensualiteCentimes({ unit_amount: 9900, recurring: { interval: 'month', interval_count: 1 } })).toBe(9900)
-    expect(mensualiteCentimes({ unit_amount: 29700, recurring: { interval: 'month', interval_count: 3 } })).toBe(9900)
-    expect(mensualiteCentimes({ unit_amount: 106920, recurring: { interval: 'month', interval_count: 13 } })).toBe(8225)
-    expect(mensualiteCentimes({ unit_amount: 94800, recurring: { interval: 'year', interval_count: 1 } })).toBe(7900)
-    expect(mensualiteCentimes({ unit_amount: 500, recurring: { interval: 'week', interval_count: 1 } })).toBe(0)
-    expect(mensualiteCentimes({ unit_amount: null, recurring: { interval: 'month' } })).toBe(0)
-  })
-
-  it('un libellé de période lisible', () => {
-    expect(libellePeriodeStripe({ interval: 'month', interval_count: 1 })).toBe('mois')
-    expect(libellePeriodeStripe({ interval: 'month', interval_count: 3 })).toBe('3 mois')
-    expect(libellePeriodeStripe({ interval: 'month', interval_count: 13 })).toBe('13 mois')
-    expect(libellePeriodeStripe({ interval: 'year', interval_count: 1 })).toBe('an')
-  })
-
-  it('périodes de l’API (anglais, historique) ↔ périodes du catalogue', () => {
-    expect(PERIODE_API).toEqual({ mensuel: 'monthly', trimestriel: 'quarterly', annuel: 'annual' })
-    expect(PERIODE_DEPUIS_API).toEqual({ monthly: 'mensuel', quarterly: 'trimestriel', annual: 'annuel' })
-  })
-
-  it('le catalogue reste importable par le navigateur', () => {
-    // La page tarifs et la facturation l'importent : aucune dépendance Node.
-    const src = readFileSync('api/lib/formules.js', 'utf8')
-    expect(src).not.toMatch(/from ['"](node:|stripe|@supabase)/)
-  })
-})
 ```
 
-- [ ] **Step 2 : lancer le test, vérifier qu'il échoue**
+3. Dans le test `les montants validés par Pablo le 14 septembre`, remplacer `.toBe(106920)` par `.toBe(98010)` et `.toBe(430920)` par `.toBe(395010)`.
 
-Run : `npx vitest run api/lib/formules.test.js`
-Attendu : FAIL — `Failed to resolve import "./formules.js"`.
-
-- [ ] **Step 3 : écrire le catalogue**
-
-`api/lib/formules.js` :
+4. Dans le test `la mensualité d’un prix Stripe tient compte du nombre de mois`, remplacer la ligne
 
 ```js
-// @ts-check
-/**
- * Les formules payantes d'Actero — une seule définition.
- *
- * Décision du 14 septembre 2026 (spec 2026-09-14-formules-trimestrielle-
- * annuelle-checkout-design.md) :
- *
- *   mensuel      99 / 399 € par mois
- *   trimestriel  3 mensualités tous les 3 mois, −50 % sur le premier mois
- *                (un coupon Stripe au montant exact, appliqué une fois)
+    expect(mensualiteCentimes({ unit_amount: 106920, recurring: { interval: 'month', interval_count: 13 } })).toBe(8225)
+```
+
+par
+
+```js
+    expect(mensualiteCentimes({ unit_amount: 98010, recurring: { interval: 'year', interval_count: 1 } })).toBe(8168)
+```
+
+5. Dans le test `un libellé de période lisible`, remplacer `interval_count: 13 })).toBe('13 mois')` par `interval_count: 6 })).toBe('6 mois')`.
+
+- [ ] **Step 2 : lancer, vérifier l'échec**
+
+Run : `npx vitest run api/lib/formules.test.js`
+Attendu : FAIL sur l'annuel (106920 reçu au lieu de 98010, `interval: 'month'` au lieu de `'year'`).
+
+- [ ] **Step 3 : modifier le catalogue**
+
+Dans `api/lib/formules.js` :
+
+1. Dans l'en-tête, remplacer
+
+```js
  *   annuel       12 mensualités −10 %, facturées TOUS LES 13 MOIS : 13 mois
  *                d'accès à chaque renouvellement
- *
- * Chaque prix Stripe porte une `lookup_key` : c'est par elle que le serveur
- * retrouve un prix, et que le webhook retrouve le plan d'un abonnement. Plus de
- * variables STRIPE_PRICE_* à copier dans Vercel — une étape manuelle est une
- * étape qu'on finit par rater.
- *
- * Ce fichier est importé par le navigateur (affichage des prix) : aucune
- * dépendance Node ici.
- */
+```
 
-/**
- * @typedef {'mensuel'|'trimestriel'|'annuel'} Periode
- * @typedef {{
- *   plan: 'starter'|'pro',
- *   periode: Periode,
- *   lookupKey: string,
- *   montantCentimes: number,
- *   recurring: { interval: 'month', interval_count: number },
- *   mois: number,
- *   coupon?: { id: string, montantCentimes: number },
- * }} Formule
- */
+par
 
-/** @type {Periode[]} */
-export const PERIODES = ['mensuel', 'trimestriel', 'annuel']
+```js
+ *   annuel       12 mois pour le prix de 11, à −10 %, facturés chaque année
+ *                (révisé le même jour : la première version donnait 13 mois
+ *                pour le prix de 12, avec un prix « tous les 13 mois »)
+```
 
-/** `billing_period` de l'API et de la base garde ses valeurs anglaises historiques. */
-export const PERIODE_API = { mensuel: 'monthly', trimestriel: 'quarterly', annuel: 'annual' }
+2. Dans le typedef, remplacer `recurring: { interval: 'month', interval_count: number },` par `recurring: { interval: 'month'|'year', interval_count: number },`.
 
-export const PERIODE_DEPUIS_API = { monthly: 'mensuel', quarterly: 'trimestriel', annual: 'annuel' }
+3. Remplacer les deux entrées annuelles :
 
-/** @type {Formule[]} */
-export const FORMULES = [
-  { plan: 'starter', periode: 'mensuel', lookupKey: 'actero_starter_mensuel', montantCentimes: 9900, recurring: { interval: 'month', interval_count: 1 }, mois: 1 },
-  { plan: 'starter', periode: 'trimestriel', lookupKey: 'actero_starter_trimestriel', montantCentimes: 29700, recurring: { interval: 'month', interval_count: 3 }, mois: 3, coupon: { id: 'actero-trimestriel-starter', montantCentimes: 4950 } },
+```js
   { plan: 'starter', periode: 'annuel', lookupKey: 'actero_starter_annuel', montantCentimes: 106920, recurring: { interval: 'month', interval_count: 13 }, mois: 13 },
-  { plan: 'pro', periode: 'mensuel', lookupKey: 'actero_pro_mensuel', montantCentimes: 39900, recurring: { interval: 'month', interval_count: 1 }, mois: 1 },
-  { plan: 'pro', periode: 'trimestriel', lookupKey: 'actero_pro_trimestriel', montantCentimes: 119700, recurring: { interval: 'month', interval_count: 3 }, mois: 3, coupon: { id: 'actero-trimestriel-pro', montantCentimes: 19950 } },
+```
+
+par
+
+```js
+  { plan: 'starter', periode: 'annuel', lookupKey: 'actero_starter_annuel', montantCentimes: 98010, recurring: { interval: 'year', interval_count: 1 }, mois: 12 },
+```
+
+et
+
+```js
   { plan: 'pro', periode: 'annuel', lookupKey: 'actero_pro_annuel', montantCentimes: 430920, recurring: { interval: 'month', interval_count: 13 }, mois: 13 },
-]
+```
 
-/**
- * @param {string} plan
- * @param {string} periode
- * @returns {Formule|null}
- */
-export function formulePour(plan, periode) {
-  return FORMULES.find((f) => f.plan === plan && f.periode === periode) || null
-}
+par
 
-/**
- * La formule d'un prix Stripe, par sa `lookup_key`. Un prix sans clé connue
- * (tarif sur mesure, ancien prix) n'est rattaché à aucune formule.
- *
- * @param {any} price — objet Price de Stripe
- * @returns {Formule|null}
- */
-export function formuleDuPrix(price) {
-  const cle = price?.lookup_key
-  if (!cle) return null
-  return FORMULES.find((f) => f.lookupKey === cle) || null
-}
+```js
+  { plan: 'pro', periode: 'annuel', lookupKey: 'actero_pro_annuel', montantCentimes: 395010, recurring: { interval: 'year', interval_count: 1 }, mois: 12 },
+```
 
-/**
- * Combien de mois couvre une période Stripe. `null` pour ce qu'Actero ne vend
- * pas (jour, semaine).
- *
- * @param {any} recurring
- * @returns {number|null}
- */
-function moisDeLaPeriode(recurring) {
-  if (!recurring) return null
-  const n = recurring.interval_count || 1
-  if (recurring.interval === 'month') return n
-  if (recurring.interval === 'year') return 12 * n
-  return null
-}
+4. Dans la docstring de `mensualiteCentimes`, remplacer
 
-/**
- * Le montant mensuel d'un prix Stripe, en centimes — pour le MRR.
- *
+```js
  * `interval === 'month'` ne veut PAS dire « un mois » : le trimestriel et
  * l'annuel 13 mois sont eux aussi facturés « au mois ». Lire l'intervalle seul
  * comptait 1 069,20 € de MRR pour un client qui en rapporte 82,25.
- *
- * @param {any} price
- * @returns {number}
- */
-export function mensualiteCentimes(price) {
-  const mois = moisDeLaPeriode(price?.recurring)
-  if (!mois || typeof price?.unit_amount !== 'number') return 0
-  return Math.round(price.unit_amount / mois)
-}
-
-/**
- * Ce que le client paie au premier passage en caisse, coupon déduit.
- *
- * @param {Formule} formule
- * @returns {number}
- */
-export function premierPaiementCentimes(formule) {
-  return formule.montantCentimes - (formule.coupon?.montantCentimes || 0)
-}
-
-/**
- * « mois », « 3 mois », « 13 mois », « an » — pour l'admin.
- *
- * @param {any} recurring
- * @returns {string}
- */
-export function libellePeriodeStripe(recurring) {
-  const n = recurring?.interval_count || 1
-  if (recurring?.interval === 'year') return n === 1 ? 'an' : `${n} ans`
-  if (recurring?.interval === 'month') return n === 1 ? 'mois' : `${n} mois`
-  return recurring?.interval || 'période inconnue'
-}
 ```
 
-- [ ] **Step 4 : lancer le test, vérifier qu'il passe**
+par
 
-Run : `npx vitest run api/lib/formules.test.js`
-Attendu : PASS (11 tests).
+```js
+ * `interval === 'month'` ne veut PAS dire « un mois » : le trimestriel est lui
+ * aussi facturé « au mois », tous les 3 mois. Lire l'intervalle seul comptait
+ * 297 € de MRR pour un client trimestriel qui en rapporte 99.
+```
+
+5. Dans la docstring de `libellePeriodeStripe`, remplacer
+
+```js
+ * « mois », « 3 mois », « 13 mois », « an » — pour l'admin.
+```
+
+par
+
+```js
+ * « mois », « 3 mois », « an » — pour l'admin.
+```
+
+- [ ] **Step 4 : lancer, vérifier que tout passe**
+
+Run : `npx vitest run api/lib/formules.test.js && npx eslint api/lib/formules.js api/lib/formules.test.js`
+Attendu : 11 tests PASS, aucune erreur ESLint.
 
 - [ ] **Step 5 : commit**
 
 ```bash
 git add api/lib/formules.js api/lib/formules.test.js
-git commit -m "feat(facturation): un catalogue unique des six formules payantes
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "fix(facturation): l'annuel devient 12 mois pour le prix de 11, à -10 %"
 ```
 
 ---
 
-### Task 2 : l'offre de bienvenue
+### Task 2 : plus d'essai standard, et l'avantage de bienvenue
 
 **Files :**
-- Modify : `api/lib/essai-gratuit.js` (ajout en fin de fichier)
-- Test : `api/lib/essai-gratuit.test.js` (nouveau `describe` en fin de fichier)
+- Modify : `api/lib/essai-gratuit.js`
+- Test : `api/lib/essai-gratuit.test.js`
+- Modify : `api/billing/create-subscription.test.js` (le fichier disparaît à la Task 14 ; d'ici là, il doit rester vert)
 
-- [ ] **Step 1 : écrire le test qui échoue**
+> `api/create-checkout-session.js` appelle aussi `joursEssaiPour` : il perd l'essai de 7 jours du même coup, et c'est voulu.
 
-Dans `api/lib/essai-gratuit.test.js`, remplacer la ligne d'import 3 par :
+- [ ] **Step 1 : modifier et ajouter les tests (ils doivent échouer)**
+
+Dans `api/lib/essai-gratuit.test.js` :
+
+1. Remplacer la ligne d'import 3 par :
 
 ```js
-import { joursEssaiPour, offreDeBienvenue, ESSAI_STANDARD_JOURS, ESSAI_PARRAINAGE_JOURS, ESSAI_CAMPAGNE_JOURS } from './essai-gratuit.js'
+import { joursEssaiPour, offreDeBienvenue, ESSAI_PARRAINAGE_JOURS, ESSAI_CAMPAGNE_JOURS } from './essai-gratuit.js'
 ```
 
-et ajouter en fin de fichier :
+2. Remplacer le test `it('celui qui trouve Actero autrement garde l\'essai standard', …)` (avec son corps) par :
 
 ```js
-describe('offre de bienvenue — une seule par client, selon la formule', () => {
-  // Décision du 14 septembre : l'essai (mensuel) et le −50 % (trimestriel) ne
-  // s'obtiennent qu'une fois. Sans ça, résilier puis se réabonner redonne −50 %
-  // à chaque trimestre — la fuite du mois gratuit, sous une autre forme.
+  it('celui qui trouve Actero autrement n’a pas d’essai', () => {
+    // Décision du 14 septembre 2026 : plus d'essai de 7 jours. Seul le mois
+    // offert (campagne publicitaire, parrainage) reste.
+    expect(joursEssaiPour({ campaign_first_month_free: false })).toBeUndefined()
+  })
+```
 
-  it('mensuel : l’essai, selon les règles actuelles', () => {
-    expect(offreDeBienvenue({ client: {}, periode: 'mensuel', dejaAbonne: false }))
-      .toEqual({ essaiJours: ESSAI_STANDARD_JOURS })
+3. Remplacer le test `it('un nouveau marchand a l\'essai standard', …)` (avec son corps) par :
+
+```js
+  it('un nouveau marchand n’a pas d’essai', () => {
+    expect(joursEssaiPour({})).toBeUndefined()
+    expect(joursEssaiPour({ trial_ends_at: null })).toBeUndefined()
+  })
+```
+
+4. Ajouter en fin de fichier :
+
+```js
+describe('avantage de bienvenue — selon la formule, une seule fois par client', () => {
+  // Décisions du 14 septembre : mensuel sans essai (mois offert gardé si
+  // campagne ou parrainage), trimestriel −50 % sur le premier mois, annuel sans
+  // avantage de bienvenue (12 mois pour le prix de 11 est dans le prix). Un
+  // client déjà abonné n'y a plus droit : sans ça, résilier puis se réabonner
+  // redonnerait −50 % à chaque trimestre.
+
+  it('mensuel : rien, sauf le mois offert de la campagne ou du parrainage', () => {
+    expect(offreDeBienvenue({ client: {}, periode: 'mensuel', dejaAbonne: false })).toEqual({})
     expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode: 'mensuel', dejaAbonne: false }))
       .toEqual({ essaiJours: ESSAI_CAMPAGNE_JOURS })
     expect(offreDeBienvenue({ client: { referral_first_month_free: true }, periode: 'mensuel', dejaAbonne: false }))
       .toEqual({ essaiJours: ESSAI_PARRAINAGE_JOURS })
   })
 
-  it('trimestriel : le coupon du premier mois, jamais d’essai', () => {
+  it('trimestriel : le coupon du premier mois, jamais de mois offert', () => {
     expect(offreDeBienvenue({ client: {}, periode: 'trimestriel', dejaAbonne: false })).toEqual({ coupon: true })
-  })
-
-  it('annuel : rien, le 13e mois est dans le prix', () => {
-    expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode: 'annuel', dejaAbonne: false })).toEqual({})
-  })
-
-  it('le mois offert (campagne, parrainage) ne concerne que le mensuel', () => {
     expect(offreDeBienvenue({ client: { referral_first_month_free: true }, periode: 'trimestriel', dejaAbonne: false }))
       .toEqual({ coupon: true })
   })
 
-  it('un client déjà abonné, même sans jamais avoir eu d’essai, n’a plus d’offre', () => {
+  it('annuel : rien', () => {
+    expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode: 'annuel', dejaAbonne: false })).toEqual({})
+  })
+
+  it('un client déjà abonné n’a plus rien', () => {
     for (const periode of ['mensuel', 'trimestriel', 'annuel']) {
-      expect(offreDeBienvenue({ client: {}, periode, dejaAbonne: true }), periode).toEqual({})
+      expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode, dejaAbonne: true }), periode).toEqual({})
     }
   })
 
@@ -376,35 +265,98 @@ describe('offre de bienvenue — une seule par client, selon la formule', () => 
   })
 
   it('« déjà abonné ? » inconnu ne vaut jamais « jamais abonné »', () => {
-    // Une erreur Stripe ne doit pas ouvrir une offre : la route répond une
-    // erreur et le marchand réessaie.
+    // Une erreur Stripe ne doit rien accorder : la route répond une erreur.
     expect(() => offreDeBienvenue({ client: {}, periode: 'mensuel', dejaAbonne: undefined })).toThrow()
   })
 })
 ```
 
-- [ ] **Step 2 : lancer le test, vérifier qu'il échoue**
+5. Dans `api/billing/create-subscription.test.js`, remplacer le début du test
 
-Run : `npx vitest run api/lib/essai-gratuit.test.js`
-Attendu : FAIL — `offreDeBienvenue is not a function`.
+```js
+  it('trial (no prior trial) → mode setup with setup-intent secret', async () => {
+    const res = makeRes();
+```
+
+par
+
+```js
+  it('mois offert (parrainage) → mode setup with setup-intent secret', async () => {
+    // Plus d'essai standard depuis le 14 septembre 2026 : seul le mois offert
+    // ouvre encore un essai sur ce chemin, supprimé à la Task 14.
+    h.clientRow.referral_first_month_free = true;
+    const res = makeRes();
+```
+
+puis, plus bas dans ce même test, `    expect(params.trial_period_days).toBe(7);` par `    expect(params.trial_period_days).toBe(30);`.
+
+- [ ] **Step 2 : lancer, vérifier l'échec**
+
+Run : `npx vitest run api/lib/essai-gratuit.test.js api/billing/create-subscription.test.js`
+Attendu : FAIL — `offreDeBienvenue is not a function`, et `joursEssaiPour({})` vaut encore 7. Le test « mois offert (parrainage) » de `create-subscription` passe déjà : un parrainé avait déjà 30 jours.
 
 - [ ] **Step 3 : implémenter**
 
-Ajouter en fin de `api/lib/essai-gratuit.js` :
+Dans `api/lib/essai-gratuit.js` :
+
+1. Remplacer le paragraphe d'en-tête
+
+```js
+ * DÉCISION QUI RESTE À PRENDRE
+ * `ESSAI_STANDARD_JOURS` vaut 7 — la valeur que deux chemins sur trois
+ * appliquaient déjà. Si la campagne annonce un mois, c'est **cette
+ * constante** qu'on change, une fois, et les trois chemins suivent. Ce
+ * fichier existe pour que ce soit une ligne et pas une chasse au trésor.
+ */
+
+/** Essai accordé à un marchand qui n'en a jamais eu. */
+export const ESSAI_STANDARD_JOURS = 7
+```
+
+par
+
+```js
+ * DÉCISION DU 14 SEPTEMBRE 2026
+ * Plus d'essai standard : le mensuel se paie dès l'inscription. Il ne reste
+ * que le mois offert — parrainage ou campagne publicitaire —, et seulement sur
+ * le mensuel (voir `offreDeBienvenue`). L'essai de 7 jours valait
+ * `ESSAI_STANDARD_JOURS`, constante supprimée.
+ */
+```
+
+2. Remplacer la dernière ligne de `joursEssaiPour`, `  return ESSAI_STANDARD_JOURS`, par :
+
+```js
+  return undefined
+```
+
+2 bis. Dans la docstring de `ESSAI_CAMPAGNE_JOURS`, remplacer
+
+```js
+ * marchand qui trouve Actero autrement garde l'essai standard.
+```
+
+par
+
+```js
+ * marchand qui trouve Actero autrement paie dès l'inscription (14 septembre 2026).
+```
+
+3. Ajouter en fin de fichier :
 
 ```js
 /**
- * L'offre de bienvenue de ce client pour cette formule — une seule, à vie.
+ * L'avantage de bienvenue de ce client pour cette formule — une seule fois.
  *
- * Décision du 14 septembre 2026 :
- *   mensuel      l'essai (7 jours, 30 si parrainage ou campagne) — règles de
- *                `joursEssaiPour`, inchangées
+ * Décisions du 14 septembre 2026 :
+ *   mensuel      aucun, sauf le mois offert (parrainage, campagne) — règles de
+ *                `joursEssaiPour`
  *   trimestriel  −50 % sur le premier mois (coupon de la formule)
- *   annuel       rien : le 13e mois est dans le prix, à chaque renouvellement
+ *   annuel       aucun : « 12 mois pour le prix de 11 » est dans le prix
  *
  * Un client qui a déjà eu un abonnement Stripe, quel qu'il soit, n'en retrouve
- * aucune. `dejaAbonne` est lu chez Stripe par la route ; s'il est inconnu, on
- * lève plutôt que d'accorder une offre sur un « je ne sais pas ».
+ * aucun. `dejaAbonne` est lu chez Stripe par la route ; s'il est inconnu, on
+ * lève plutôt que d'accorder quoi que ce soit sur un « je ne sais pas ».
  *
  * @param {{ client: any, periode: string, dejaAbonne: boolean }} p
  * @returns {{ essaiJours?: number, coupon?: boolean }}
@@ -423,18 +375,16 @@ export function offreDeBienvenue({ client, periode, dejaAbonne }) {
 }
 ```
 
-- [ ] **Step 4 : lancer le test, vérifier qu'il passe**
+- [ ] **Step 4 : lancer**
 
-Run : `npx vitest run api/lib/essai-gratuit.test.js`
-Attendu : PASS (les tests existants restent verts).
+Run : `npx vitest run api/lib/essai-gratuit.test.js api/billing/create-subscription.test.js && npx eslint api/lib/essai-gratuit.js api/lib/essai-gratuit.test.js api/billing/create-subscription.test.js`
+Attendu : PASS, aucune erreur.
 
 - [ ] **Step 5 : commit**
 
 ```bash
-git add api/lib/essai-gratuit.js api/lib/essai-gratuit.test.js
-git commit -m "feat(facturation): une seule offre de bienvenue par client, selon la formule
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git add api/lib/essai-gratuit.js api/lib/essai-gratuit.test.js api/billing/create-subscription.test.js
+git commit -m "feat(facturation): plus d'essai de 7 jours, et un avantage de bienvenue par formule"
 ```
 
 ---
@@ -443,7 +393,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 **Files :**
 - Modify : `api/lib/subscription-plan.js` (réécriture)
-- Modify : `api/stripe-webhook.js` (imports ; branche `checkout.session.completed` upgrade ; `customer.subscription.updated`)
+- Modify : `api/stripe-webhook.js`
 - Test : `api/lib/subscription-plan.test.js` (réécriture)
 
 - [ ] **Step 1 : réécrire le test**
@@ -499,7 +449,7 @@ describe('planUpdateFromSubscription', () => {
     expect(planUpdateFromSubscription(sub({ status: 'unpaid' }), CARTE).plan).toBe('free')
   })
 
-  it('un prix trimestriel et un prix 13 mois donnent leur plan, sans variable d’environnement', () => {
+  it('un prix trimestriel et un prix annuel donnent leur plan, sans variable d’environnement', () => {
     expect(planUpdateFromSubscription(sub({}, { id: 'p1', lookup_key: 'actero_starter_trimestriel' }), CARTE))
       .toMatchObject({ plan: 'starter', status: 'active', billing_period: 'quarterly', billing_provider: 'stripe' })
     expect(planUpdateFromSubscription(sub({}, { id: 'p2', lookup_key: 'actero_pro_annuel' }), CARTE))
@@ -528,10 +478,10 @@ describe('le webhook s’en sert comme prévu', () => {
 })
 ```
 
-- [ ] **Step 2 : lancer le test, vérifier qu'il échoue**
+- [ ] **Step 2 : lancer, vérifier l'échec**
 
 Run : `npx vitest run api/lib/subscription-plan.test.js`
-Attendu : FAIL (plan `undefined` pour les prix trimestriel/13 mois, `STRIPE_PRICE_` encore présent dans le webhook).
+Attendu : FAIL.
 
 - [ ] **Step 3 : réécrire `api/lib/subscription-plan.js`**
 
@@ -551,8 +501,8 @@ import { formuleDuPrix, PERIODE_API } from './formules.js'
  * 14 septembre 2026 — deux changements :
  *
  *   LE PLAN SE LIT DANS LE CATALOGUE. La table prix → plan venait de quatre
- *   variables STRIPE_PRICE_* : un prix trimestriel ou 13 mois n'y figurait
- *   pas, et le client payait sans jamais obtenir son plan.
+ *   variables STRIPE_PRICE_* : un prix trimestriel n'y figurait pas, et le
+ *   client payait sans jamais obtenir son plan.
  *
  *   LA CARTE EST RÉSOLUE PAR L'APPELANT (resolveCustomerCard : abonnement,
  *   puis client Stripe, puis ses cartes). Seul `default_payment_method`
@@ -650,18 +600,16 @@ par :
           const updateData = planUpdateFromSubscription(subscription, { aUneCarte: !!carte });
 ```
 
-- [ ] **Step 5 : lancer les tests**
+- [ ] **Step 5 : lancer**
 
-Run : `npx vitest run api/lib/subscription-plan.test.js api/lib/statut-client.test.js`
-Attendu : PASS.
+Run : `npx vitest run api/lib/subscription-plan.test.js api/lib/statut-client.test.js && npx eslint api/lib/subscription-plan.js api/lib/subscription-plan.test.js api/stripe-webhook.js`
+Attendu : PASS, aucune erreur.
 
 - [ ] **Step 6 : commit**
 
 ```bash
 git add api/lib/subscription-plan.js api/lib/subscription-plan.test.js api/stripe-webhook.js
-git commit -m "fix(facturation): le webhook retrouve le plan de toutes les formules, et la carte où qu'elle soit
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "fix(facturation): le webhook retrouve le plan de toutes les formules, et la carte où qu'elle soit"
 ```
 
 ---
@@ -682,7 +630,7 @@ import { parametresCheckout } from './checkout-formule.js'
 import { formulePour } from './formules.js'
 
 const base = {
-  clientId: 'c1', customerId: 'cus_1', priceId: 'price_1', planActuel: 'free',
+  clientId: 'c1', customer: 'cus_1', priceId: 'price_1', planActuel: 'free',
   siteUrl: 'https://actero.fr', promotionCodeId: null, parrainage: null, promoCode: null,
 }
 const params = (plan, periode, extra = {}) =>
@@ -699,11 +647,15 @@ describe('parametresCheckout', () => {
     }
   })
 
-  it('mensuel éligible : l’essai, pas de remise, le champ code promo ouvert', () => {
-    const p = params('starter', 'mensuel', { offre: { essaiJours: 7 } })
-    expect(p.subscription_data.trial_period_days).toBe(7)
+  it('mensuel sans avantage : ni essai, ni remise, le champ code promo ouvert', () => {
+    const p = params('starter', 'mensuel')
+    expect(p.subscription_data.trial_period_days).toBeUndefined()
     expect(p.discounts).toBeUndefined()
     expect(p.allow_promotion_codes).toBe(true)
+  })
+
+  it('mensuel avec mois offert : l’essai accordé par le serveur', () => {
+    expect(params('starter', 'mensuel', { offre: { essaiJours: 30 } }).subscription_data.trial_period_days).toBe(30)
   })
 
   it('trimestriel éligible : le coupon du plan, aucun essai', () => {
@@ -726,7 +678,7 @@ describe('parametresCheckout', () => {
 
   it('discounts et allow_promotion_codes ne coexistent jamais', () => {
     for (const periode of ['mensuel', 'trimestriel', 'annuel']) {
-      for (const offre of [{}, { essaiJours: 7 }, { coupon: true }]) {
+      for (const offre of [{}, { essaiJours: 30 }, { coupon: true }]) {
         for (const promotionCodeId of [null, 'promo_1']) {
           const p = params('pro', periode, { offre, promotionCodeId })
           expect(!!p.discounts && !!p.allow_promotion_codes, `${periode} ${JSON.stringify(offre)} ${promotionCodeId}`).toBe(false)
@@ -735,8 +687,8 @@ describe('parametresCheckout', () => {
     }
   })
 
-  it('la carte est demandée, même pendant l’essai', () => {
-    expect(params('pro', 'mensuel', { offre: { essaiJours: 7 } }).payment_method_collection).toBe('always')
+  it('la carte est toujours demandée, mois offert compris', () => {
+    expect(params('pro', 'mensuel', { offre: { essaiJours: 30 } }).payment_method_collection).toBe('always')
   })
 
   it('la session porte ce que la branche upgrade du webhook lit', () => {
@@ -792,7 +744,7 @@ describe('lectures Stripe des formules', () => {
 })
 ```
 
-- [ ] **Step 2 : lancer les tests, vérifier qu'ils échouent**
+- [ ] **Step 2 : lancer, vérifier l'échec**
 
 Run : `npx vitest run api/lib/checkout-formule.test.js api/lib/formules-stripe.test.js`
 Attendu : FAIL — imports introuvables.
@@ -813,7 +765,7 @@ Attendu : FAIL — imports introuvables.
  *
  * @param {{
  *   clientId: string,
- *   customerId: string,
+ *   customer: string,
  *   priceId: string,
  *   formule: import('./formules.js').Formule,
  *   offre: { essaiJours?: number, coupon?: boolean },
@@ -825,7 +777,7 @@ Attendu : FAIL — imports introuvables.
  * }} p
  */
 export function parametresCheckout(p) {
-  const { clientId, customerId, priceId, formule, offre, promotionCodeId, planActuel, parrainage, promoCode, siteUrl } = p
+  const { clientId, customer, priceId, formule, offre, promotionCodeId, planActuel, parrainage, promoCode, siteUrl } = p
   const cleFormule = `${formule.plan}_${formule.periode}`
 
   /** @type {Record<string, any>} */
@@ -851,12 +803,12 @@ export function parametresCheckout(p) {
 
   return {
     mode: 'subscription',
-    customer: customerId,
+    customer,
     line_items: [{ price: priceId, quantity: 1 }],
     subscription_data: subscriptionData,
     ...(remise ? { discounts: [remise] } : { allow_promotion_codes: true }),
-    // La carte est demandée même pendant l'essai : plus d'abonnement d'essai
-    // sans moyen de paiement.
+    // La carte est toujours demandée, mois offert compris : plus d'abonnement
+    // d'essai sans moyen de paiement.
     payment_method_collection: 'always',
     metadata: {
       actero_client_id: clientId,
@@ -913,7 +865,7 @@ export async function prixDeLaFormule(stripe, formule) {
 /**
  * Ce client Stripe a-t-il déjà eu un abonnement, quel qu'en soit le statut ?
  * Une erreur Stripe remonte : elle ne doit jamais valoir « jamais abonné »,
- * sinon une panne accorderait une offre de bienvenue.
+ * sinon une panne accorderait un avantage de bienvenue.
  *
  * @param {any} stripe
  * @param {string} customerId
@@ -926,18 +878,16 @@ export async function aDejaEuUnAbonnement(stripe, customerId) {
 }
 ```
 
-- [ ] **Step 4 : lancer les tests, vérifier qu'ils passent**
+- [ ] **Step 4 : lancer**
 
-Run : `npx vitest run api/lib/checkout-formule.test.js api/lib/formules-stripe.test.js`
-Attendu : PASS.
+Run : `npx vitest run api/lib/checkout-formule.test.js api/lib/formules-stripe.test.js && npx eslint api/lib/checkout-formule.js api/lib/formules-stripe.js api/lib/checkout-formule.test.js api/lib/formules-stripe.test.js`
+Attendu : PASS, aucune erreur.
 
 - [ ] **Step 5 : commit**
 
 ```bash
 git add api/lib/checkout-formule.js api/lib/checkout-formule.test.js api/lib/formules-stripe.js api/lib/formules-stripe.test.js
-git commit -m "feat(facturation): les paramètres de la page Stripe Checkout, en une fonction pure
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "feat(facturation): les paramètres de la page Stripe Checkout, en une fonction pure"
 ```
 
 ---
@@ -1052,6 +1002,15 @@ describe('POST /api/billing/upgrade', () => {
     expect(res.statusCode).toBe(400)
   })
 
+  it('mensuel pour un nouveau client : page Stripe, sans essai', async () => {
+    const res = makeRes()
+    await handler(post(), res)
+    expect(res.statusCode).toBe(200)
+    const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
+    expect(params.line_items[0].price).toBe('price_actero_starter_mensuel')
+    expect(params.subscription_data.trial_period_days).toBeUndefined()
+  })
+
   it('trimestriel pour un nouveau client : page Stripe avec le coupon du plan', async () => {
     const res = makeRes()
     await handler(post({ target_plan: 'pro', billing_period: 'quarterly' }), res)
@@ -1064,7 +1023,7 @@ describe('POST /api/billing/upgrade', () => {
     expect(params.subscription_data.trial_period_days).toBeUndefined()
   })
 
-  it('un client déjà abonné par le passé n’a plus d’offre', async () => {
+  it('un client déjà abonné par le passé n’a plus de coupon', async () => {
     h.previousSubs = [{ id: 'sub_ancien', status: 'canceled' }]
     const res = makeRes()
     await handler(post({ target_plan: 'pro', billing_period: 'quarterly' }), res)
@@ -1073,7 +1032,7 @@ describe('POST /api/billing/upgrade', () => {
     expect(params.allow_promotion_codes).toBe(true)
   })
 
-  it('Stripe indisponible pour « déjà abonné ? » : erreur, jamais d’offre', async () => {
+  it('Stripe indisponible pour « déjà abonné ? » : erreur, rien d’accordé', async () => {
     h.stripe.subscriptions.list = vi.fn(async () => { throw new Error('panne') })
     const res = makeRes()
     await handler(post(), res)
@@ -1136,7 +1095,7 @@ describe('POST /api/billing/upgrade', () => {
 })
 ```
 
-- [ ] **Step 2 : lancer le test, vérifier qu'il échoue**
+- [ ] **Step 2 : lancer, vérifier l'échec**
 
 Run : `npx vitest run api/billing/upgrade.test.js`
 Attendu : FAIL (période `quarterly` refusée en 400, `prices.list` jamais appelé, plan écrit en base…).
@@ -1339,7 +1298,7 @@ async function handler(req, res) {
       }
     }
 
-    // --- Offre de bienvenue : une seule par client ---
+    // --- Avantage de bienvenue : une seule fois par client ---
     let dejaAbonne;
     try {
       dejaAbonne = await aDejaEuUnAbonnement(stripe, stripeCustomerId);
@@ -1369,9 +1328,11 @@ async function handler(req, res) {
       }
     }
 
+    // `customer` : toute session Checkout dit à qui elle appartient (garde ACT-39,
+    // api/lib/client-stripe-unique.test.js).
     const session = await stripe.checkout.sessions.create(parametresCheckout({
       clientId: client_id,
-      customerId: stripeCustomerId,
+      customer: stripeCustomerId,
       priceId: prix.id,
       formule,
       offre,
@@ -1386,8 +1347,8 @@ async function handler(req, res) {
     //
     // Les drapeaux de mois offert ne sont pas remis à false à la création de la
     // session : fermer la page Stripe sans payer brûlait le mois (constaté le
-    // 10 septembre). Ce qui empêche un second essai est ailleurs : l'offre de
-    // bienvenue refuse tout client déjà abonné ou ayant eu un essai.
+    // 10 septembre). Ce qui empêche d'en réclamer un second est ailleurs :
+    // l'avantage de bienvenue refuse tout client déjà abonné ou ayant eu un essai.
 
     return res.status(200).json({ checkout_url: session.url });
   } catch (error) {
@@ -1415,18 +1376,16 @@ par :
       }
 ```
 
-- [ ] **Step 5 : lancer les tests**
+- [ ] **Step 5 : lancer**
 
-Run : `npx vitest run api/billing/upgrade.test.js api/lib/essai-gratuit.test.js api/lib/conformite-app-store.test.js`
-Attendu : PASS.
+Run : `npx vitest run api/billing/upgrade.test.js api/lib/essai-gratuit.test.js api/lib/conformite-app-store.test.js api/lib/client-stripe-unique.test.js && npx eslint api/billing/upgrade.js api/billing/upgrade.test.js`
+Attendu : PASS, aucune erreur.
 
 - [ ] **Step 6 : commit**
 
 ```bash
 git add api/billing/upgrade.js api/billing/upgrade.test.js api/lib/essai-gratuit.test.js
-git commit -m "feat(facturation): la route de paiement vend les trois formules et laisse le webhook accorder le plan
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "feat(facturation): la route de paiement vend les trois formules et laisse le webhook accorder le plan"
 ```
 
 ---
@@ -1434,9 +1393,8 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 ### Task 6 : un MRR juste dans l'admin
 
 **Files :**
-- Modify : `api/stripe-billing.js`
-- Modify : `src/components/admin/AdminBillingView.jsx:136`
-- Test : `api/lib/formules.test.js` (couvre `mensualiteCentimes`) + garde dans `api/billing/paiement-heberge.test.js`
+- Modify : `api/stripe-billing.js`, `src/components/admin/AdminBillingView.jsx`
+- Test : `api/billing/paiement-heberge.test.js` (création)
 
 - [ ] **Step 1 : écrire la garde qui échoue**
 
@@ -1456,7 +1414,7 @@ function sansCommentaires(src) {
 
 describe('le MRR de l’admin', () => {
   it('ne lit plus l’intervalle seul', () => {
-    // `interval === 'month'` comptait un annuel 13 mois comme 1 069,20 € de MRR.
+    // `interval === 'month'` comptait un trimestriel de 297 € comme 297 € de MRR.
     const src = sansCommentaires(readFileSync('api/stripe-billing.js', 'utf8'))
     expect(src).not.toMatch(/interval === 'month'\) return/)
     expect(src).toMatch(/mensualiteCentimes\(/)
@@ -1466,8 +1424,7 @@ describe('le MRR de l’admin', () => {
 
 - [ ] **Step 2 : lancer, vérifier l'échec**
 
-Run : `npx vitest run api/billing/paiement-heberge.test.js`
-Attendu : FAIL.
+Run : `npx vitest run api/billing/paiement-heberge.test.js` → FAIL.
 
 - [ ] **Step 3 : implémenter**
 
@@ -1479,7 +1436,7 @@ Dans `api/stripe-billing.js` :
 import { mensualiteCentimes, libellePeriodeStripe } from './lib/formules.js';
 ```
 
-2. Remplacer le calcul du MRR :
+2. Remplacer :
 
 ```js
     const mrr = activeSubs.reduce((sum, sub) => {
@@ -1495,8 +1452,8 @@ import { mensualiteCentimes, libellePeriodeStripe } from './lib/formules.js';
 par :
 
 ```js
-    // Mensualité = montant ÷ mois de la période : un trimestriel et un annuel
-    // 13 mois sont eux aussi « au mois » pour Stripe.
+    // Mensualité = montant ÷ mois de la période : un trimestriel est lui aussi
+    // « au mois » pour Stripe, tous les 3 mois.
     const mrr = activeSubs.reduce(
       (sum, sub) => sum + sub.items.data.reduce((s, item) => s + mensualiteCentimes(item.price), 0),
       0,
@@ -1528,29 +1485,247 @@ par :
 {(sub.amount / 100).toLocaleString('fr-FR')}€/{sub.periode || 'mois'}
 ```
 
-- [ ] **Step 4 : lancer les tests**
+- [ ] **Step 4 : lancer**
 
-Run : `npx vitest run api/billing/paiement-heberge.test.js api/lib/formules.test.js`
-Attendu : PASS.
+Run : `npx vitest run api/billing/paiement-heberge.test.js api/lib/formules.test.js && npx eslint api/stripe-billing.js src/components/admin/AdminBillingView.jsx api/billing/paiement-heberge.test.js`
+Attendu : PASS, aucune erreur.
 
 - [ ] **Step 5 : commit**
 
 ```bash
 git add api/stripe-billing.js src/components/admin/AdminBillingView.jsx api/billing/paiement-heberge.test.js
-git commit -m "fix(admin): le MRR divise par la vraie durée de la période
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "fix(admin): le MRR divise par la vraie durée de la période"
 ```
 
 ---
 
-### Task 7 : configurer Stripe depuis l'admin
+### Task 7 : l'affichage des formules et le sélecteur
+
+(Placée avant la configuration Stripe, dont l'écran admin l'importe.)
+
+**Files :**
+- Create : `src/lib/affichage-formules.js`, `src/components/billing/SelecteurFormule.jsx`
+- Test : `src/lib/affichage-formules.test.js`
+
+- [ ] **Step 1 : écrire le test qui échoue**
+
+`src/lib/affichage-formules.test.js` :
+
+```js
+// @vitest-environment jsdom
+import { describe, it, expect, beforeEach } from 'vitest'
+import { affichagePrix, equivalentMensuel, memoriserFormuleChoisie, lireFormuleChoisie, PERIODES_AFFICHEES } from './affichage-formules.js'
+
+const norme = (s) => s.replace(/[\u202f\u00a0]/g, ' ')
+
+describe('affichage des formules', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('mensuel : sans engagement, sans essai', () => {
+    const a = affichagePrix('starter', 'mensuel')
+    expect(norme(a.principal)).toBe('99 €')
+    expect(a.suffixe).toBe('/mois')
+    expect(a.detail).toBeNull()
+    expect(a.offre).toBe('Sans engagement')
+  })
+
+  it('trimestriel : prix du trimestre et premier paiement', () => {
+    const a = affichagePrix('pro', 'trimestriel')
+    expect(norme(a.principal)).toBe('1 197 €')
+    expect(a.suffixe).toBe('/3 mois')
+    expect(norme(a.detail)).toBe('1er trimestre : 997,50 €')
+    expect(a.offre).toBe('−50 % sur le premier mois')
+  })
+
+  it('annuel : 12 mois pour le prix de 11, et l’équivalent mensuel', () => {
+    const a = affichagePrix('starter', 'annuel')
+    expect(norme(a.principal)).toBe('980,10 €')
+    expect(a.suffixe).toBe('/an')
+    expect(norme(a.detail)).toBe('soit 81,68 € par mois')
+    expect(a.offre).toBe('12 mois pour le prix de 11')
+    expect(norme(equivalentMensuel('pro', 'annuel'))).toBe('329,18 €')
+    expect(norme(affichagePrix('pro', 'annuel').principal)).toBe('3 950,10 €')
+  })
+
+  it('pas de formule pour Free et Enterprise', () => {
+    expect(affichagePrix('free', 'mensuel')).toBeNull()
+    expect(affichagePrix('enterprise', 'annuel')).toBeNull()
+  })
+
+  it('trois périodes proposées, dans l’ordre', () => {
+    expect(PERIODES_AFFICHEES.map((p) => p.id)).toEqual(['mensuel', 'trimestriel', 'annuel'])
+  })
+
+  it('la formule de l’URL l’emporte', () => {
+    expect(lireFormuleChoisie(new URLSearchParams('?plan=pro&formule=annuel'))).toEqual({ plan: 'pro', periode: 'annuel' })
+  })
+
+  it('sinon, la formule choisie sur /tarifs survit à l’inscription', () => {
+    // L'inscription (code par e-mail ou Google) perd la chaîne de requête.
+    memoriserFormuleChoisie({ plan: 'starter', periode: 'trimestriel' })
+    expect(lireFormuleChoisie(new URLSearchParams(''))).toEqual({ plan: 'starter', periode: 'trimestriel' })
+  })
+
+  it('une valeur inconnue retombe sur le mensuel', () => {
+    expect(lireFormuleChoisie(new URLSearchParams('?formule=hebdo'))).toEqual({ plan: null, periode: 'mensuel' })
+  })
+})
+```
+
+- [ ] **Step 2 : lancer, vérifier l'échec**
+
+Run : `npx vitest run src/lib/affichage-formules.test.js` → FAIL (import introuvable).
+
+- [ ] **Step 3 : implémenter**
+
+`src/lib/affichage-formules.js` :
+
+```js
+import { formulePour, premierPaiementCentimes, PERIODES } from '../../api/lib/formules.js'
+
+/**
+ * Ce que le navigateur affiche des formules — dérivé du catalogue serveur,
+ * jamais recopié. La page tarifs, la page de choix du plan, la facturation et
+ * l'admin l'utilisent.
+ */
+
+export const PERIODES_AFFICHEES = [
+  { id: 'mensuel', libelle: 'Mensuel', badge: null },
+  { id: 'trimestriel', libelle: 'Trimestriel', badge: '−50 % le 1er mois' },
+  { id: 'annuel', libelle: 'Annuel', badge: '1 mois offert' },
+]
+
+/** « 99 € », « 247,50 € », « 3 950,10 € ». */
+export function euros(centimes) {
+  const valeur = centimes / 100
+  const decimales = Number.isInteger(valeur) ? 0 : 2
+  return `${new Intl.NumberFormat('fr-FR', { minimumFractionDigits: decimales, maximumFractionDigits: 2 }).format(valeur)}\u00a0€`
+}
+
+/** L'équivalent mensuel d'une formule : « 81,68 € » pour Starter annuel. */
+export function equivalentMensuel(plan, periode) {
+  const f = formulePour(plan, periode)
+  return f ? euros(Math.round(f.montantCentimes / f.mois)) : null
+}
+
+/**
+ * @returns {{ principal: string, suffixe: string, detail: string|null, offre: string } | null}
+ */
+export function affichagePrix(plan, periode) {
+  const f = formulePour(plan, periode)
+  if (!f) return null
+  if (periode === 'trimestriel') {
+    return {
+      principal: euros(f.montantCentimes),
+      suffixe: '/3 mois',
+      detail: `1er trimestre : ${euros(premierPaiementCentimes(f))}`,
+      offre: '−50 % sur le premier mois',
+    }
+  }
+  if (periode === 'annuel') {
+    return {
+      principal: euros(f.montantCentimes),
+      suffixe: '/an',
+      detail: `soit ${equivalentMensuel(plan, periode)} par mois`,
+      offre: '12 mois pour le prix de 11',
+    }
+  }
+  return { principal: euros(f.montantCentimes), suffixe: '/mois', detail: null, offre: 'Sans engagement' }
+}
+
+const CLE = 'actero_formule_choisie'
+const DUREE_MS = 7 * 86400000
+
+/** Mémorise la formule choisie : l'inscription perd la chaîne de requête. */
+export function memoriserFormuleChoisie({ plan, periode }) {
+  try {
+    localStorage.setItem(CLE, JSON.stringify({ plan, periode, le: Date.now() }))
+  } catch {
+    // stockage indisponible (navigation privée) : on retombera sur le mensuel
+  }
+}
+
+/**
+ * La formule à présélectionner : celle de l'URL (`?formule=`, `?plan=`),
+ * sinon celle mémorisée depuis moins de 7 jours, sinon le mensuel.
+ *
+ * @param {URLSearchParams} urlParams
+ * @returns {{ plan: string|null, periode: string }}
+ */
+export function lireFormuleChoisie(urlParams) {
+  const depuisUrl = urlParams?.get?.('formule')
+  if (PERIODES.includes(depuisUrl)) return { plan: urlParams.get('plan') || null, periode: depuisUrl }
+  try {
+    const brut = JSON.parse(localStorage.getItem(CLE) || 'null')
+    if (brut && PERIODES.includes(brut.periode) && Date.now() - (brut.le || 0) < DUREE_MS) {
+      return { plan: brut.plan || null, periode: brut.periode }
+    }
+  } catch {
+    // valeur illisible : on l'ignore
+  }
+  return { plan: null, periode: 'mensuel' }
+}
+```
+
+`src/components/billing/SelecteurFormule.jsx` :
+
+```jsx
+import React from 'react'
+import { PERIODES_AFFICHEES } from '../../lib/affichage-formules'
+
+/**
+ * Mensuel / Trimestriel / Annuel. Un seul sélecteur pour la page tarifs, la
+ * page de choix du plan et la facturation : trois copies finiraient par
+ * annoncer trois offres différentes.
+ */
+export function SelecteurFormule({ periode, onChange, taille = 'normale' }) {
+  const petit = taille === 'petite'
+  return (
+    <div role="group" aria-label="Formule de paiement" className="inline-flex flex-wrap items-center justify-center gap-1 p-1 rounded-full bg-surface border border-border-cream">
+      {PERIODES_AFFICHEES.map((p) => {
+        const actif = periode === p.id
+        return (
+          <button
+            key={p.id}
+            type="button"
+            aria-pressed={actif}
+            onClick={() => onChange(p.id)}
+            className={`${petit ? 'px-3 py-1.5 text-[11px]' : 'px-4 py-2 text-[13px]'} rounded-full font-semibold transition-colors flex items-center gap-1.5 ${actif ? 'bg-cta text-white' : 'text-ink-3 hover:text-ink'}`}
+          >
+            {p.libelle}
+            {p.badge && (
+              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${actif ? 'bg-white/20 text-white' : 'bg-primary-tint text-primary'}`}>
+                {p.badge}
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+```
+
+- [ ] **Step 4 : lancer**
+
+Run : `npx vitest run src/lib/affichage-formules.test.js src/lib/couleurs.test.js src/lib/typographie.test.js && npx eslint src/lib/affichage-formules.js src/lib/affichage-formules.test.js src/components/billing/SelecteurFormule.jsx`
+Attendu : PASS, aucune erreur.
+
+- [ ] **Step 5 : commit**
+
+```bash
+git add src/lib/affichage-formules.js src/lib/affichage-formules.test.js src/components/billing/SelecteurFormule.jsx
+git commit -m "feat(tarifs): un affichage des formules dérivé du catalogue, et un sélecteur partagé"
+```
+
+---
+
+### Task 8 : configurer Stripe depuis l'admin
 
 **Files :**
 - Create : `api/lib/configuration-stripe.js`
 - Test : `api/lib/configuration-stripe.test.js`
-- Modify : `api/admin/setup-stripe-products.js`, `api/admin/stripe-status.js` (réécritures)
-- Modify : `src/components/admin/AdminStripeSetupView.jsx` (réécriture)
+- Modify : `api/admin/setup-stripe-products.js`, `api/admin/stripe-status.js`, `src/components/admin/AdminStripeSetupView.jsx` (réécritures)
 
 - [ ] **Step 1 : écrire le test qui échoue**
 
@@ -1573,7 +1748,7 @@ function faux({ produits = [], prix = [], coupons = [] } = {}) {
     },
     prices: {
       list: async () => ({ data: etat.prix.filter((p) => p.active !== false), has_more: false }),
-      create: async (d) => { const p = { id: id('price'), active: true, currency: 'eur', ...d, unit_amount: d.unit_amount }; etat.prix.push(p); etat.appels.push(['prices.create', d]); return p },
+      create: async (d) => { const p = { id: id('price'), active: true, currency: 'eur', ...d }; etat.prix.push(p); etat.appels.push(['prices.create', d]); return p },
       update: async (pid, d) => { const p = etat.prix.find((x) => x.id === pid); Object.assign(p, d); etat.appels.push(['prices.update', pid, d]); return p },
     },
     coupons: {
@@ -1600,12 +1775,12 @@ describe('configurerFormules', () => {
       expect(p.recurring).toEqual(f.recurring)
     }
     expect(e.coupons.map((c) => c.id).sort()).toEqual(['actero-trimestriel-pro', 'actero-trimestriel-starter'])
-    const coupon = e.coupons.find((c) => c.id === 'actero-trimestriel-pro')
-    expect(coupon).toMatchObject({ amount_off: 19950, currency: 'eur', duration: 'once' })
+    expect(e.coupons.find((c) => c.id === 'actero-trimestriel-pro')).toMatchObject({ amount_off: 19950, currency: 'eur', duration: 'once' })
     expect(r.formules.every((x) => x.action === 'cree')).toBe(true)
+    expect(r.anciensPrixDesactives).toEqual([])
   })
 
-  it('reprend les anciens prix mensuels sans en créer de doublons, et désactive les anciens annuels', async () => {
+  it('reprend l’ancien prix mensuel sans doublon, et désactive l’ancien annuel à 948 €', async () => {
     const e = faux({
       produits: [{ id: 'prod_s', metadata: { actero_plan: 'starter' } }, { id: 'prod_p', metadata: { actero_plan: 'pro' } }],
       prix: [
@@ -1621,21 +1796,24 @@ describe('configurerFormules', () => {
     expect(e.produits).toHaveLength(2)
   })
 
-  it('deuxième passage : rien n’est créé', async () => {
+  it('deuxième passage : rien n’est créé, et les nouveaux annuels restent actifs', async () => {
     const e = faux()
     await configurerFormules(e.stripe)
     const avant = e.appels.length
     const r = await configurerFormules(e.stripe)
     expect(e.appels.slice(avant).filter(([nom]) => nom.endsWith('.create'))).toEqual([])
     expect(r.formules.every((x) => x.action === 'existant')).toBe(true)
+    expect(r.anciensPrixDesactives).toEqual([])
+    const annuels = e.prix.filter((p) => p.lookup_key?.endsWith('_annuel'))
+    expect(annuels).toHaveLength(2)
+    expect(annuels.every((p) => p.active)).toBe(true)
   })
 })
 ```
 
 - [ ] **Step 2 : lancer, vérifier l'échec**
 
-Run : `npx vitest run api/lib/configuration-stripe.test.js`
-Attendu : FAIL — import introuvable.
+Run : `npx vitest run api/lib/configuration-stripe.test.js` → FAIL (import introuvable).
 
 - [ ] **Step 3 : implémenter `api/lib/configuration-stripe.js`**
 
@@ -1653,11 +1831,12 @@ import { FORMULES } from './formules.js'
  *     (produit, montant, périodicité) — ils reçoivent alors leur clé —, sinon
  *     créés ;
  *   - les deux coupons du trimestriel, à identifiant fixe ;
- *   - les anciens prix annuels (`interval: 'year'`) désactivés : ils ne sont
- *     plus vendus, et restent réactivables.
+ *   - les ANCIENS prix annuels désactivés (948 € et 3 828 € avant le
+ *     14 septembre) : tout prix annuel d'un produit Actero qui n'est pas celui
+ *     d'une formule. Réactivables.
  *
  * L'ancien script reconnaissait « le mensuel » à `interval === 'month'`, ce que
- * les prix trimestriels et 13 mois vérifient aussi.
+ * le trimestriel vérifie aussi.
  *
  * @param {any} stripe
  */
@@ -1722,9 +1901,12 @@ export async function configurerFormules(stripe) {
     }
   }
 
+  // Les prix des formules (existants ou clé posée) ne sont JAMAIS désactivés :
+  // l'annuel du catalogue est lui aussi `interval: 'year'`.
+  const prixDesFormules = new Set(rapport.formules.map((f) => f.prixId))
   const produitsActero = new Set(Object.values(produits))
   for (const p of prixActifs) {
-    if (p.recurring?.interval === 'year' && produitsActero.has(p.product)) {
+    if (p.recurring?.interval === 'year' && produitsActero.has(p.product) && !prixDesFormules.has(p.id)) {
       await stripe.prices.update(p.id, { active: false })
       rapport.anciensPrixDesactives.push(p.id)
     }
@@ -1900,25 +2082,27 @@ export function AdminStripeSetupView() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
 
+  // Incrémenté après une configuration, pour relire le statut.
+  const [lectureStatut, setLectureStatut] = useState(0)
+
   const getToken = async () => {
     const { data } = await supabase.auth.getSession()
     return data?.session?.access_token
   }
 
-  const chargerStatut = async () => {
-    setStatusLoading(true)
-    try {
-      const token = await getToken()
-      const res = await fetch('/api/admin/stripe-status', { headers: { Authorization: `Bearer ${token}` } })
-      if (res.ok) setStatus(await res.json())
-    } catch {
-      // statut indisponible : l'écran le dit plus bas
-    } finally {
-      setStatusLoading(false)
-    }
-  }
-
-  useEffect(() => { chargerStatut() }, [])
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const token = await getToken()
+        const res = await fetch('/api/admin/stripe-status', { headers: { Authorization: `Bearer ${token}` } })
+        if (res.ok) setStatus(await res.json())
+      } catch {
+        // statut indisponible : l'écran le dit plus bas
+      } finally {
+        setStatusLoading(false)
+      }
+    })()
+  }, [lectureStatut])
 
   const handleCreate = async () => {
     if (!window.confirm('Créer ou retrouver les 6 prix et les 2 coupons des formules dans Stripe ? Les anciens prix annuels seront désactivés.')) return
@@ -1931,7 +2115,8 @@ export function AdminStripeSetupView() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`)
       setResult(data)
-      await chargerStatut()
+      setStatusLoading(true)
+      setLectureStatut((n) => n + 1)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -1990,7 +2175,7 @@ export function AdminStripeSetupView() {
                 <tr className="bg-surface border-b border-[#f0f0f0]">
                   <th className="px-4 py-2.5 text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Formule</th>
                   <th className="px-4 py-2.5 text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Prix</th>
-                  <th className="px-4 py-2.5 text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Offre</th>
+                  <th className="px-4 py-2.5 text-[11px] font-bold text-[#71717a] uppercase tracking-wider">Avantage</th>
                 </tr>
               </thead>
               <tbody>
@@ -2040,242 +2225,17 @@ export function AdminStripeSetupView() {
 }
 ```
 
-> Cet écran importe `src/lib/affichage-formules.js`, créé à la Task 8. Faire les Tasks 7 et 8 dans la même session, ou déplacer ce step après la Task 8.
+- [ ] **Step 6 : lancer**
 
-- [ ] **Step 6 : lancer les tests**
+Run : `npx vitest run api/lib/configuration-stripe.test.js src/lib/couleurs.test.js && npx eslint api/lib/configuration-stripe.js api/lib/configuration-stripe.test.js api/admin/setup-stripe-products.js api/admin/stripe-status.js src/components/admin/AdminStripeSetupView.jsx`
+Attendu : PASS, aucune erreur.
 
-Run : `npx vitest run api/lib/configuration-stripe.test.js`
-Attendu : PASS.
-
-- [ ] **Step 7 : commit** (après la Task 8 si l'écran importe déjà l'affichage)
+- [ ] **Step 7 : commit**
 
 ```bash
 git add api/lib/configuration-stripe.js api/lib/configuration-stripe.test.js api/admin/setup-stripe-products.js api/admin/stripe-status.js src/components/admin/AdminStripeSetupView.jsx
-git commit -m "feat(admin): configurer les formules dans Stripe en un clic, sans rien copier dans Vercel
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "feat(admin): configurer les formules dans Stripe en un clic, sans rien copier dans Vercel"
 ```
-
----
-
-### Task 8 : l'affichage des formules et le sélecteur
-
-**Files :**
-- Create : `src/lib/affichage-formules.js`, `src/components/billing/SelecteurFormule.jsx`
-- Test : `src/lib/affichage-formules.test.js`
-
-- [ ] **Step 1 : écrire le test qui échoue**
-
-`src/lib/affichage-formules.test.js` :
-
-```js
-// @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest'
-import { affichagePrix, equivalentMensuel, memoriserFormuleChoisie, lireFormuleChoisie, PERIODES_AFFICHEES } from './affichage-formules.js'
-
-const norme = (s) => s.replace(/[  ]/g, ' ')
-
-describe('affichage des formules', () => {
-  beforeEach(() => localStorage.clear())
-
-  it('mensuel', () => {
-    const a = affichagePrix('starter', 'mensuel')
-    expect(norme(a.principal)).toBe('99 €')
-    expect(a.suffixe).toBe('/mois')
-    expect(a.detail).toBeNull()
-  })
-
-  it('trimestriel : prix du trimestre et premier paiement', () => {
-    const a = affichagePrix('pro', 'trimestriel')
-    expect(norme(a.principal)).toBe('1 197 €')
-    expect(a.suffixe).toBe('/3 mois')
-    expect(norme(a.detail)).toBe('1er trimestre : 997,50 €')
-  })
-
-  it('annuel : prix des 13 mois et équivalent mensuel', () => {
-    const a = affichagePrix('starter', 'annuel')
-    expect(norme(a.principal)).toBe('1 069,20 €')
-    expect(a.suffixe).toBe('/13 mois')
-    expect(norme(a.detail)).toBe('soit 82,25 € par mois')
-    expect(norme(equivalentMensuel('pro', 'annuel'))).toBe('331,48 €')
-  })
-
-  it('pas de formule pour Free et Enterprise', () => {
-    expect(affichagePrix('free', 'mensuel')).toBeNull()
-    expect(affichagePrix('enterprise', 'annuel')).toBeNull()
-  })
-
-  it('trois périodes proposées, dans l’ordre', () => {
-    expect(PERIODES_AFFICHEES.map((p) => p.id)).toEqual(['mensuel', 'trimestriel', 'annuel'])
-  })
-
-  it('la formule de l’URL l’emporte', () => {
-    const url = new URLSearchParams('?plan=pro&formule=annuel')
-    expect(lireFormuleChoisie(url)).toEqual({ plan: 'pro', periode: 'annuel' })
-  })
-
-  it('sinon, la formule choisie sur /tarifs survit à l’inscription', () => {
-    // L'inscription (code par e-mail ou Google) perd la chaîne de requête.
-    memoriserFormuleChoisie({ plan: 'starter', periode: 'trimestriel' })
-    expect(lireFormuleChoisie(new URLSearchParams(''))).toEqual({ plan: 'starter', periode: 'trimestriel' })
-  })
-
-  it('une valeur inconnue retombe sur le mensuel', () => {
-    expect(lireFormuleChoisie(new URLSearchParams('?formule=hebdo'))).toEqual({ plan: null, periode: 'mensuel' })
-  })
-})
-```
-
-- [ ] **Step 2 : lancer, vérifier l'échec**
-
-Run : `npx vitest run src/lib/affichage-formules.test.js`
-Attendu : FAIL — import introuvable.
-
-- [ ] **Step 3 : implémenter**
-
-`src/lib/affichage-formules.js` :
-
-```js
-import { formulePour, premierPaiementCentimes, PERIODES } from '../../api/lib/formules.js'
-
-/**
- * Ce que le navigateur affiche des formules — dérivé du catalogue serveur,
- * jamais recopié. La page tarifs, la page de choix du plan et la facturation
- * l'utilisent toutes les trois.
- */
-
-export const PERIODES_AFFICHEES = [
-  { id: 'mensuel', libelle: 'Mensuel', badge: null },
-  { id: 'trimestriel', libelle: 'Trimestriel', badge: '−50 % le 1er mois' },
-  { id: 'annuel', libelle: 'Annuel', badge: '13 mois pour 12' },
-]
-
-/** « 99 € », « 247,50 € », « 1 069,20 € ». */
-export function euros(centimes) {
-  const valeur = centimes / 100
-  const decimales = Number.isInteger(valeur) ? 0 : 2
-  return `${new Intl.NumberFormat('fr-FR', { minimumFractionDigits: decimales, maximumFractionDigits: 2 }).format(valeur)} €`
-}
-
-/** L'équivalent mensuel d'une formule : « 82,25 € » pour Starter annuel. */
-export function equivalentMensuel(plan, periode) {
-  const f = formulePour(plan, periode)
-  return f ? euros(Math.round(f.montantCentimes / f.mois)) : null
-}
-
-/**
- * @returns {{ principal: string, suffixe: string, detail: string|null, offre: string } | null}
- */
-export function affichagePrix(plan, periode) {
-  const f = formulePour(plan, periode)
-  if (!f) return null
-  if (periode === 'trimestriel') {
-    return {
-      principal: euros(f.montantCentimes),
-      suffixe: '/3 mois',
-      detail: `1er trimestre : ${euros(premierPaiementCentimes(f))}`,
-      offre: '−50 % sur le premier mois',
-    }
-  }
-  if (periode === 'annuel') {
-    return {
-      principal: euros(f.montantCentimes),
-      suffixe: '/13 mois',
-      detail: `soit ${equivalentMensuel(plan, periode)} par mois`,
-      offre: '13 mois pour le prix de 12',
-    }
-  }
-  return { principal: euros(f.montantCentimes), suffixe: '/mois', detail: null, offre: 'Essai gratuit' }
-}
-
-const CLE = 'actero_formule_choisie'
-const DUREE_MS = 7 * 86400000
-
-/** Mémorise la formule choisie : l'inscription perd la chaîne de requête. */
-export function memoriserFormuleChoisie({ plan, periode }) {
-  try {
-    localStorage.setItem(CLE, JSON.stringify({ plan, periode, le: Date.now() }))
-  } catch {
-    // stockage indisponible (navigation privée) : on retombera sur le mensuel
-  }
-}
-
-/**
- * La formule à présélectionner : celle de l'URL (`?formule=`, `?plan=`),
- * sinon celle mémorisée depuis moins de 7 jours, sinon le mensuel.
- *
- * @param {URLSearchParams} urlParams
- * @returns {{ plan: string|null, periode: string }}
- */
-export function lireFormuleChoisie(urlParams) {
-  const depuisUrl = urlParams?.get?.('formule')
-  if (PERIODES.includes(depuisUrl)) return { plan: urlParams.get('plan') || null, periode: depuisUrl }
-  try {
-    const brut = JSON.parse(localStorage.getItem(CLE) || 'null')
-    if (brut && PERIODES.includes(brut.periode) && Date.now() - (brut.le || 0) < DUREE_MS) {
-      return { plan: brut.plan || null, periode: brut.periode }
-    }
-  } catch {
-    // valeur illisible : on l'ignore
-  }
-  return { plan: null, periode: 'mensuel' }
-}
-```
-
-`src/components/billing/SelecteurFormule.jsx` :
-
-```jsx
-import React from 'react'
-import { PERIODES_AFFICHEES } from '../../lib/affichage-formules'
-
-/**
- * Mensuel / Trimestriel / Annuel. Un seul sélecteur pour la page tarifs, la
- * page de choix du plan et la facturation : trois copies finiraient par
- * annoncer trois offres différentes.
- */
-export function SelecteurFormule({ periode, onChange, taille = 'normale' }) {
-  const petit = taille === 'petite'
-  return (
-    <div role="group" aria-label="Formule de paiement" className="inline-flex flex-wrap items-center justify-center gap-1 p-1 rounded-full bg-surface border border-border-cream">
-      {PERIODES_AFFICHEES.map((p) => {
-        const actif = periode === p.id
-        return (
-          <button
-            key={p.id}
-            type="button"
-            aria-pressed={actif}
-            onClick={() => onChange(p.id)}
-            className={`${petit ? 'px-3 py-1.5 text-[11px]' : 'px-4 py-2 text-[13px]'} rounded-full font-semibold transition-colors flex items-center gap-1.5 ${actif ? 'bg-cta text-white' : 'text-ink-3 hover:text-ink'}`}
-          >
-            {p.libelle}
-            {p.badge && (
-              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${actif ? 'bg-white/20 text-white' : 'bg-primary-tint text-primary'}`}>
-                {p.badge}
-              </span>
-            )}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-```
-
-- [ ] **Step 4 : lancer les tests**
-
-Run : `npx vitest run src/lib/affichage-formules.test.js src/lib/couleurs.test.js src/lib/typographie.test.js`
-Attendu : PASS.
-
-- [ ] **Step 5 : commit**
-
-```bash
-git add src/lib/affichage-formules.js src/lib/affichage-formules.test.js src/components/billing/SelecteurFormule.jsx
-git commit -m "feat(tarifs): un affichage des formules dérivé du catalogue, et un sélecteur partagé
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
-```
-
-(Si la Task 7 attendait l'affichage, faire maintenant son commit.)
 
 ---
 
@@ -2303,14 +2263,14 @@ Run : `npx vitest run api/billing/paiement-heberge.test.js` → FAIL.
 
 - [ ] **Step 2 : modifier `src/pages/PricingPage.jsx`**
 
-1. Imports — après `import { ComparisonTable } from "../components/landing/pricing/ComparisonTable";`, ajouter :
+1. Après `import { ComparisonTable } from "../components/landing/pricing/ComparisonTable";`, ajouter :
 
 ```js
 import { SelecteurFormule } from "../components/billing/SelecteurFormule";
 import { affichagePrix, equivalentMensuel, memoriserFormuleChoisie } from "../lib/affichage-formules";
 ```
 
-2. Supprimer entièrement la fonction `computeAnnualSavingsPct` et la constante `ANNUAL_SAVINGS_PCT` (le bloc qui commence par `/**\n * Derive the real annual savings % from plans.js.` et se termine par `const ANNUAL_SAVINGS_PCT = computeAnnualSavingsPct();`).
+2. Supprimer entièrement la fonction `computeAnnualSavingsPct` avec sa docstring, et la constante `ANNUAL_SAVINGS_PCT`.
 
 3. Dans `const plans = PLAN_ORDER.map(...)`, supprimer la ligne `annualPrice: p.price.annual,`.
 
@@ -2319,7 +2279,7 @@ import { affichagePrix, equivalentMensuel, memoriserFormuleChoisie } from "../li
 ```js
   {
     q: "Proposez-vous un discount annuel ?",
-    a: `Oui, la facturation annuelle vous fait économiser 20% par rapport au tarif mensuel. Par exemple, le plan Pro passe de ${PLANS.pro.price.monthly}€/mois à ${PLANS.pro.price.annual}€/mois (facturé annuellement).`,
+    a: `Oui, la facturation annuelle vous fait économiser 20% par rapport au tarif mensuel. Par exemple, le plan Pro passe de ${PLANS.pro.price.monthly}\u20AC/mois à ${PLANS.pro.price.annual}\u20AC/mois (facturé annuellement).`,
   },
 ```
 
@@ -2328,7 +2288,7 @@ par :
 ```js
   {
     q: "Proposez-vous des formules trimestrielles ou annuelles ?",
-    a: `Oui. Au trimestre, le premier mois est à -50 %. À l'année, le prix baisse de 10 % et vous avez 13 mois d'accès pour le prix de 12, à chaque renouvellement : ${affichagePrix("starter", "annuel").principal} pour Starter, ${affichagePrix("pro", "annuel").principal} pour Pro.`,
+    a: `Oui. Au trimestre, le premier mois est à -50 %. À l'année, vous payez 11 mois au lieu de 12, à -10 % : ${affichagePrix("starter", "annuel").principal} pour Starter, ${affichagePrix("pro", "annuel").principal} pour Pro.`,
   },
 ```
 
@@ -2345,7 +2305,7 @@ par :
 
   const getPrice = (plan) => {
     if (plan.monthlyPrice === null) return "Sur devis";
-    if (plan.monthlyPrice === 0) return "0€";
+    if (plan.monthlyPrice === 0) return "0\u20AC";
     return affichage(plan).principal;
   };
 
@@ -2359,7 +2319,7 @@ par :
   };
 ```
 
-7. Dans `handleCTA`, remplacer la première ligne :
+7. Dans `handleCTA`, remplacer :
 
 ```js
     trackEvent("Pricing_CTA_Clicked", { plan: plan.id, billing: isAnnual ? "annual" : "monthly" });
@@ -2376,13 +2336,13 @@ par :
     }
 ```
 
-8. Remplacer tout le bloc du toggle — de `<div\n                  role="group"\n                  aria-label="Facturation"` jusqu'à sa balise `</div>` fermante (juste avant `</motion.div>`) — par :
+8. Remplacer tout le bloc du toggle — de `<div` portant `role="group"` et `aria-label="Facturation"` jusqu'à sa balise `</div>` fermante (juste avant `</motion.div>`) — par :
 
 ```jsx
                 <SelecteurFormule periode={periode} onChange={setPeriode} />
 ```
 
-9. Dans le rendu du prix des cartes, supprimer le bloc barré :
+9. Dans le rendu des cartes, supprimer le bloc :
 
 ```jsx
                       {isAnnual && plan.monthlyPrice > 0 && (
@@ -2392,22 +2352,20 @@ par :
                       )}
 ```
 
-et remplacer `key={`${plan.id}-${isAnnual}`}` par `key={`${plan.id}-${periode}`}`.
+et remplacer `` key={`${plan.id}-${isAnnual}`} `` par `` key={`${plan.id}-${periode}`} ``.
 
-10. Vérifier qu'aucune occurrence ne reste : `grep -n "isAnnual\|ANNUAL_SAVINGS_PCT\|annualPrice" src/pages/PricingPage.jsx` → aucune ligne.
+10. Vérifier : `grep -n "isAnnual\|ANNUAL_SAVINGS_PCT\|annualPrice\|price.annual" src/pages/PricingPage.jsx` → aucune ligne.
 
-- [ ] **Step 3 : lancer tests et lint**
+- [ ] **Step 3 : lancer**
 
 Run : `npx vitest run api/billing/paiement-heberge.test.js api/lib/promesses-tenues.test.js && npx eslint src/pages/PricingPage.jsx`
-Attendu : PASS, aucune erreur ESLint.
+Attendu : PASS, aucune erreur.
 
 - [ ] **Step 4 : commit**
 
 ```bash
 git add src/pages/PricingPage.jsx api/billing/paiement-heberge.test.js
-git commit -m "feat(tarifs): trois formules sur la page tarifs, et le choix suit le visiteur
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "feat(tarifs): trois formules sur la page tarifs, et le choix suit le visiteur"
 ```
 
 ---
@@ -2434,7 +2392,7 @@ Run → FAIL.
 
 - [ ] **Step 2 : modifier `src/pages/PlanSelectionPage.jsx`**
 
-1. Remplacer les imports lignes 5-8 :
+1. Remplacer les imports :
 
 ```js
 import { PLANS, PLAN_ORDER, getPlanHighlights } from "../lib/plans";
@@ -2469,8 +2427,8 @@ par :
   // visiteur jusqu'ici. Avant, la page codait « monthly » en dur : choisir
   // l'annuel sur /tarifs menait à un paiement mensuel.
   const [periode, setPeriode] = useState(() => lireFormuleChoisie(urlParams).periode);
-  // Une boutique Shopify s'abonne chez Shopify (App Store 1.2.1), qui ne connaît
-  // ni le trimestriel ni le 13e mois : on ne les lui propose pas.
+  // Une boutique Shopify s'abonne chez Shopify (App Store 1.2.1), qui ne
+  // connaît pas le trimestriel : on ne le lui propose pas.
   const [boutiqueShopify, setBoutiqueShopify] = useState(false);
 ```
 
@@ -2534,7 +2492,7 @@ par :
       if (routed.channel === "error") { setError(routed.message); setLoading(null); return; }
 ```
 
-puis remplacer `billing_period: "monthly",` (dans le `JSON.stringify`) par `billing_period: PERIODE_API[periodeEffective],`, et remplacer :
+puis remplacer `billing_period: "monthly",` par `billing_period: PERIODE_API[periodeEffective],`, et remplacer :
 
 ```js
       } else if (data.error === "Stripe not configured") {
@@ -2549,7 +2507,7 @@ par :
       } else if (data.error === "Stripe not configured") {
 ```
 
-6. Remplacer `titre` et `sousTitre` :
+6. Remplacer `titre` et `sousTitre` par :
 
 ```js
   const titre = isStartupPromo
@@ -2563,10 +2521,10 @@ par :
     : periodeEffective === "trimestriel"
       ? "Au trimestre, le premier mois est à -50 %. Le premier trimestre se paie à l’inscription."
       : periodeEffective === "annuel"
-        ? "À l’année, -10 % et 13 mois d’accès pour le prix de 12, à chaque renouvellement."
+        ? "À l’année, 12 mois pour le prix de 11, à -10 %."
         : moisOffert
           ? "Choisissez la formule qui vous ressemble. Vous ne serez pas débité avant le " + dateFacturation + ", et vous pouvez annuler en un clic."
-          : "Commencez gratuitement, ou essayez une formule payante pendant sept jours.";
+          : "Commencez avec le plan Free, ou choisissez la formule qui vous convient. Sans engagement.";
 ```
 
 7. Juste après la balise fermante `</motion.div>` du bloc « Titre » (avant `{/* ---------- Formules ---------- */}`), ajouter :
@@ -2632,7 +2590,7 @@ par :
                   ? "Payer le premier trimestre"
                   : periodeEffective === "annuel"
                     ? "Payer l’année"
-                    : (moisOffert ? "30 jours gratuits" : "Essai gratuit 7 jours");
+                    : (moisOffert ? "30 jours gratuits" : "Choisir ce plan");
                 ctaStyle = "bg-cta text-white hover:bg-cta-hover";
               }
 ```
@@ -2663,25 +2621,25 @@ par :
 par :
 
 ```js
-              [CreditCard, periodeEffective === "mensuel"
-                ? "Aucun débit avant le " + dateFacturation
-                : periodeEffective === "trimestriel" ? "Premier trimestre payé à l’inscription" : "Année payée d’avance, 13 mois d’accès"],
+              [CreditCard, periodeEffective === "trimestriel"
+                ? "Premier trimestre payé à l’inscription"
+                : periodeEffective === "annuel"
+                  ? "Année payée d’avance : 12 mois pour le prix de 11"
+                  : moisOffert ? "Aucun débit avant le " + dateFacturation : "Payé à l’inscription, sans engagement"],
 ```
 
 10. Supprimer le bloc `<PaymentModal … />` en fin de composant (de `<PaymentModal` à `/>` inclus).
 
-- [ ] **Step 3 : lancer tests et lint**
+- [ ] **Step 3 : lancer**
 
 Run : `npx vitest run api/billing/paiement-heberge.test.js api/lib/essai-gratuit.test.js src/lib/campagne.test.js && npx eslint src/pages/PlanSelectionPage.jsx`
-Attendu : PASS (le test « la page de plans annonce le mois » trouve toujours `moisOffert ? "30 jours gratuits"` et `urlParams.get("offre")`), aucune erreur ESLint.
+Attendu : PASS (le test « la page de plans annonce le mois » trouve toujours `moisOffert ? "30 jours gratuits"` et `urlParams.get("offre")`), aucune erreur.
 
 - [ ] **Step 4 : commit**
 
 ```bash
 git add src/pages/PlanSelectionPage.jsx api/billing/paiement-heberge.test.js
-git commit -m "feat(tarifs): la page de choix du plan reprend la formule choisie et paie par Stripe Checkout
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "feat(tarifs): la page de choix du plan reprend la formule choisie et paie par Stripe Checkout"
 ```
 
 ---
@@ -2747,7 +2705,7 @@ par :
 
 ```js
   // Une boutique Shopify s'abonne chez Shopify (App Store 1.2.1), qui ne
-  // propose ni trimestriel ni 13e mois.
+  // propose pas le trimestriel.
   const { data: boutiqueShopify } = useQuery({
     queryKey: ['billing-shopify', client?.id],
     enabled: !!client?.id,
@@ -2837,6 +2795,28 @@ par :
   const affichageActuel = ['starter', 'pro'].includes(plan.planId) ? affichagePrix(plan.planId, periodeActuelle) : null
 ```
 
+5 bis. Dans l'en-tête de la page (le bloc « Prix »), remplacer :
+
+```jsx
+              <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">
+                {formatPrice(currentPrice)}
+              </span>
+              <span className="text-[10px] text-[#9ca3af]">
+                {currentPrice > 0 ? '/ mois' : ''}
+              </span>
+```
+
+par :
+
+```jsx
+              <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">
+                {affichageActuel ? affichageActuel.principal : formatPrice(planConfig.price?.monthly)}
+              </span>
+              <span className="text-[10px] text-[#9ca3af]">
+                {affichageActuel ? affichageActuel.suffixe.replace('/', '/ ') : ''}
+              </span>
+```
+
 6. Remplacer :
 
 ```jsx
@@ -2863,7 +2843,9 @@ par :
             )}
 ```
 
-7. Remplacer tout le bloc `{/* Billing period toggle */}` — de ce commentaire jusqu'au `</div>` qui ferme le groupe des deux boutons Mensuel/Annuel — par :
+7. Dans le bandeau d'essai, remplacer `(plan.trialDaysLeft / 7) * 100` par `(plan.trialDaysLeft / 30) * 100` (il ne sert plus que le mois offert, de 30 jours).
+
+8. Remplacer tout le bloc `{/* Billing period toggle */}` — de ce commentaire jusqu'au `</div>` qui ferme le groupe des deux boutons Mensuel/Annuel — par :
 
 ```jsx
           {!boutiqueShopify && (
@@ -2871,7 +2853,7 @@ par :
           )}
 ```
 
-8. Dans la boucle des cartes, remplacer `const price = p.price?.[billingPeriod]` par :
+9. Dans la boucle des cartes, remplacer `const price = p.price?.[billingPeriod]` par :
 
 ```js
             const affichage = isEnterprise ? null : affichagePrix(planKey, periodeEffective)
@@ -2918,11 +2900,11 @@ par :
                   </div>
 ```
 
-9. Supprimer le bloc `<PaymentModal … />` en fin de composant.
+10. Supprimer le bloc `<PaymentModal … />` en fin de composant.
 
-10. Vérifier : `grep -n "billingPeriod\|payModal\|getPlanHighlights\|hasStripeElements" src/components/client/ClientBillingView.jsx` → aucune ligne.
+11. Vérifier : `grep -nE "billingPeriod|payModal|getPlanHighlights|hasStripeElements|currentPrice" src/components/client/ClientBillingView.jsx` → seule ligne admise : `billingPeriod: PERIODE_API[periodeEffective]` dans l'appel à `resolveUpgrade`.
 
-- [ ] **Step 3 : lancer tests et lint**
+- [ ] **Step 3 : lancer**
 
 Run : `npx vitest run api/billing/paiement-heberge.test.js && npx eslint src/components/client/ClientBillingView.jsx`
 Attendu : PASS, aucune erreur.
@@ -2931,9 +2913,7 @@ Attendu : PASS, aucune erreur.
 
 ```bash
 git add src/components/client/ClientBillingView.jsx api/billing/paiement-heberge.test.js
-git commit -m "feat(facturation): trois formules dans le tableau de bord, et le plan accordé par le webhook
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "feat(facturation): trois formules dans le tableau de bord, et le plan accordé par le webhook"
 ```
 
 ---
@@ -2965,7 +2945,7 @@ Run → FAIL (PricingA, FaqPage).
 
 - [ ] **Step 2 : modifier**
 
-`src/components/landing/PricingA.jsx` — ajouter en tête des imports :
+`src/components/landing/PricingA.jsx` — ajouter aux imports :
 
 ```js
 import { equivalentMensuel } from '../../lib/affichage-formules'
@@ -2994,7 +2974,7 @@ par :
 
 ```js
           q: "Proposez-vous des formules trimestrielles ou annuelles ?",
-          a: "Oui. Au trimestre, le premier mois est à -50 %. À l'année, le prix baisse de 10 % et vous avez 13 mois d'accès pour le prix de 12, à chaque renouvellement : 1 069,20 € pour Starter, 4 309,20 € pour Pro. Le plan Enterprise se négocie au cas par cas.",
+          a: "Oui. Au trimestre, le premier mois est à -50 %. À l'année, vous payez 11 mois au lieu de 12, à -10 % : 980,10 € pour Starter, 3 950,10 € pour Pro. Le plan Enterprise se négocie au cas par cas.",
 ```
 
 - [ ] **Step 3 : lancer**
@@ -3006,37 +2986,312 @@ Attendu : PASS.
 
 ```bash
 git add src/components/landing/PricingA.jsx src/pages/FaqPage.jsx api/billing/paiement-heberge.test.js
-git commit -m "fix(tarifs): plus aucune page n'annonce l'ancien annuel à -20 %
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "fix(tarifs): plus aucune page n'annonce l'ancien annuel à -20 %"
 ```
 
 ---
 
-### Task 13 : supprimer le paiement intégré
+### Task 13 : plus aucune promesse d'essai de 7 jours
 
 **Files :**
-- Delete : `src/components/billing/PaymentModal.jsx`, `src/lib/stripe-client.js`, `api/billing/create-subscription.js`, `api/billing/create-subscription.test.js`
-- Modify : `package.json`, `package-lock.json`, `.env.example`, `api/lib/essai-gratuit.test.js`, `api/lib/conformite-app-store.test.js`, commentaires de `api/lib/essai-gratuit.js`, `api/lib/stripe-customer.js`, `api/lib/facturation-shopify.js`, `api/stripe-webhook.js`
+- Modify : `src/lib/plans.js`, `src/components/ui/StickyCTA.jsx`, `src/components/ui/UpgradeBanner.jsx`, `src/components/ui/StickyCTABar.jsx`, `src/components/landing/PricingA.jsx`, `src/components/alternative/AlternativeTemplate.jsx`, `src/components/alternative/VsTemplate.jsx`, `src/components/landing/GorgiasCostCalculator.jsx`, `src/components/landing/ROISimulator.jsx`, `src/components/client/PortalSavView.jsx`, `src/pages/PricingPage.jsx`, `src/pages/SignupPage.jsx`, `src/pages/SupportGuidePage.jsx`, `src/pages/FaqPage.jsx`, `src/pages/AlternativeGorgias.jsx`, `src/pages/LandingPage.jsx`, `scripts/prerender-routes.mjs`, `public/llms.txt`, `public/og-image.svg` (et `public/og-image.png`, régénérée), `docs/essentials/quickstart.mdx`, `docs/essentials/facturation.mdx`
 
 - [ ] **Step 1 : ajouter la garde qui échoue**
 
-Ajouter à `api/billing/paiement-heberge.test.js` :
+Ajouter à `api/billing/paiement-heberge.test.js` (et `readdirSync`, `statSync` aux imports de `node:fs`, `join` depuis `node:path`, en tête de fichier) :
 
 ```js
-import { existsSync, readdirSync, statSync } from 'node:fs'
-import { join } from 'node:path'
-
-function fichiers(dir, acc = []) {
+function fichiersSource(dir, acc = []) {
   for (const e of readdirSync(dir)) {
     if (e === 'node_modules' || e.startsWith('.')) continue
     const p = join(dir, e)
-    if (statSync(p).isDirectory()) fichiers(p, acc)
+    if (statSync(p).isDirectory()) fichiersSource(p, acc)
     else if (/\.(jsx?|mjs)$/.test(e) && !e.includes('.test.')) acc.push(p)
   }
   return acc
 }
 
+// Toutes les formes sous lesquelles le site promettait un essai de 7 jours le
+// 14 septembre 2026.
+const PROMESSE_ESSAI = /essai (gratuit )?(de )?7 jours|7 jours gratuits|7 jours d.essai|essai 7 ?j\b|jours de trial|trial gratuit|essai gratuit sur starter|p[ée]riode d.essai de 7 jours|pendant sept jours|commencer mon essai gratuit|d[ée]marrer l.essai gratuit|essai gratuit · annulable/i
+
+describe('plus d’essai gratuit de 7 jours', () => {
+  it('aucune page ne le promet encore', () => {
+    // Décision du 14 septembre 2026 : le mensuel se paie dès l'inscription. Seul
+    // le mois offert (campagne, parrainage) reste — ses bandeaux « Essai
+    // gratuit — J-x » du tableau de bord sont légitimes.
+    const fautifs = []
+    for (const f of [...fichiersSource('src'), ...fichiersSource('scripts')]) {
+      const m = sansCommentaires(readFileSync(f, 'utf8')).match(PROMESSE_ESSAI)
+      if (m) fautifs.push(`${f} : « ${m[0]} »`)
+    }
+    // Ce que lisent les assistants IA (llms.txt) et les réseaux sociaux (le
+    // texte de l'image de partage, dont og-image.png est générée).
+    for (const f of ['public/llms.txt', 'public/og-image.svg']) {
+      const m = readFileSync(f, 'utf8').match(PROMESSE_ESSAI)
+      if (m) fautifs.push(`${f} : « ${m[0]} »`)
+    }
+    expect(fautifs).toEqual([])
+  })
+
+  it('la documentation ne promet plus d’essai ni l’ancien annuel', () => {
+    const fautifs = []
+    for (const f of ['docs/essentials/quickstart.mdx', 'docs/essentials/facturation.mdx']) {
+      const src = readFileSync(f, 'utf8')
+      const m = src.match(PROMESSE_ESSAI)
+      if (m) fautifs.push(`${f} : « ${m[0]} »`)
+      if (/-\s?20\s?%/.test(src)) fautifs.push(`${f} : remise annuelle de 20 %`)
+    }
+    expect(fautifs).toEqual([])
+  })
+
+  it('les plans payants n’ont plus d’essai', () => {
+    const src = sansCommentaires(readFileSync('src/lib/plans.js', 'utf8'))
+    expect(src).not.toMatch(/\btrial:\s*\{/)
+  })
+})
+```
+
+Run : `npx vitest run api/billing/paiement-heberge.test.js` → FAIL (liste des fichiers fautifs).
+
+- [ ] **Step 2 : `src/lib/plans.js`**
+
+Dans le bloc `starter`, remplacer `    trial: { days: 7, requires_card: true },` par ces deux lignes — le commentaire sur sa propre ligne, car la garde ne retire que les commentaires qui ouvrent une ligne :
+
+```js
+    // Plus d'essai de 7 jours depuis le 14 septembre 2026 ; le mois offert passe par joursEssaiPour.
+    trial: false,
+```
+
+puis `    cta: 'Essai gratuit 7 jours',` par `    cta: 'Choisir Starter',`.
+
+Dans le bloc `pro`, mêmes remplacements, avec `    cta: 'Choisir Pro',`.
+
+Vérifier : `grep -rnE "trial: \{|requires_card:" src --include='*.js' --include='*.jsx'` → aucune ligne.
+
+- [ ] **Step 3 : boutons et bandeaux**
+
+| Fichier | Remplacer | Par |
+|---|---|---|
+| `src/components/ui/StickyCTA.jsx` | `Essai gratuit 7 jours` | `Commencer gratuitement` |
+| `src/components/ui/UpgradeBanner.jsx` | `Essai gratuit 7 jours, sans engagement` | `Sans engagement, résiliable à tout moment` |
+| `src/components/ui/StickyCTABar.jsx` | `aria-label="Action rapide : démarrer l'essai gratuit"` | `aria-label="Action rapide : commencer gratuitement"` |
+| `src/components/ui/StickyCTABar.jsx` | `Essai gratuit · Annulable en 1 clic` | `Plan gratuit · Sans carte bancaire` |
+| `src/components/landing/PricingA.jsx` | `cta: 'Essai gratuit 7 jours',` (bloc Starter) | `cta: 'Choisir Starter',` |
+| `src/components/landing/PricingA.jsx` | `cta: 'Essai gratuit 7 jours',` (bloc Pro) | `cta: 'Choisir Pro',` |
+| `src/components/landing/PricingA.jsx` | `Essai 7 jours sur Starter et Pro.` | `Sans engagement sur Starter et Pro.` |
+| `src/components/alternative/AlternativeTemplate.jsx` | `description: '1 000 tickets/mois, 3 workflows, essai 7 jours',` | `description: '1 000 tickets/mois, 3 workflows, sans engagement',` |
+| `src/components/alternative/AlternativeTemplate.jsx` | `Installé en 15 minutes · Plan Free à vie · Essai gratuit sur Starter et Pro` | `Installé en 15 minutes · Plan Free à vie · Sans engagement sur Starter et Pro` |
+| `src/components/alternative/AlternativeTemplate.jsx` (2 fois) | `Essai gratuit 7 jours` | `Commencer gratuitement` |
+| `src/components/alternative/VsTemplate.jsx` (2 fois) | `Essai gratuit 7 jours` | `Commencer gratuitement` |
+| `src/components/landing/GorgiasCostCalculator.jsx` | `Essai gratuit 7 jours` | `Commencer gratuitement` |
+| `src/components/landing/ROISimulator.jsx` | `cta: 'Essai gratuit 7 jours'` (ligne Starter) | `cta: 'Choisir Starter'` |
+| `src/components/landing/ROISimulator.jsx` | `cta: 'Essai gratuit 7 jours'` (ligne Pro) | `cta: 'Choisir Pro'` |
+| `src/components/landing/ROISimulator.jsx` | `'Essai gratuit 7 jours — Sans engagement'` | `'Sans engagement'` |
+| `src/components/client/PortalSavView.jsx` | `Essai gratuit 7 jours, sans engagement` | `Sans engagement, résiliable à tout moment` |
+| `src/pages/PricingPage.jsx` (2 fois) | `"Essai 7 jours sans engagement",` | `"Sans engagement",` |
+| `src/pages/PricingPage.jsx` | `Essai gratuit 7 jours` (bouton de fin de page) | `Commencer gratuitement` |
+| `src/pages/SignupPage.jsx` | `) : "Commencer mon essai gratuit"}` | `) : "Créer mon compte"}` |
+| `src/pages/AlternativeGorgias.jsx` | `support email 48h, essai 7 jours. Les agents` | `support email 48h, sans engagement. Les agents` |
+| `src/pages/LandingPage.jsx` (description SEO) | `Installé en 15 min, essai gratuit 7 jours."` | `Installé en 15 min, plan Free gratuit à vie."` |
+| `src/pages/LandingPage.jsx` (bouton de fin de page) | `Essai gratuit 7 jours` | `Commencer gratuitement` |
+| `scripts/prerender-routes.mjs` (route `/tarifs`) | `Essai gratuit 7 jours sans carte bancaire.` | `Formule mensuelle sans engagement, trimestrielle ou annuelle.` |
+| `public/llms.txt` | `**Essai gratuit 7 jours sans carte bancaire** sur le plan Free` | `**Plan Free gratuit à vie, sans carte bancaire** ; Starter et Pro sans engagement` |
+| `public/og-image.svg` | `Conforme RGPD · Essai gratuit 7 jours` | `Conforme RGPD · Sans engagement` |
+
+(Dans `AlternativeTemplate.jsx`, `VsTemplate.jsx` et `GorgiasCostCalculator.jsx`, garder le `<ArrowRight … />` qui suit le texte.)
+
+- [ ] **Step 4 : textes longs**
+
+`src/pages/PricingPage.jsx` — remplacer :
+
+```js
+    q: "L'essai gratuit est-il sans engagement ?",
+    a: "Oui, l'essai de 7 jours est 100% gratuit et sans engagement. Aucune carte bancaire requise pour le plan Free. Pour Starter et Pro, vous pouvez annuler à tout moment pendant l'essai sans être débité.",
+```
+
+par :
+
+```js
+    q: "Y a-t-il un engagement ?",
+    a: "Non. Le mensuel se résilie à tout moment. Le trimestriel et l'annuel sont payés d'avance pour leur période, et résiliables avant leur renouvellement. Le plan Free reste gratuit, sans carte bancaire.",
+```
+
+et, dans l'attribut `description` du composant `SEO`, remplacer `Essai gratuit sur Starter et Pro.` par `Sans engagement.`
+
+`src/pages/SupportGuidePage.jsx` — remplacer le texte :
+
+```js
+        content: "Les nouveaux inscrits beneficient d'une période d'essai de 7 jours sur les plans payants (Starter et Pro). A la fin, vous basculez vers le plan Free (pas de coupure de service) sauf si vous souscrivez. Les parraines beneficient en plus de 30 jours offerts (cumulable avec le trial).",
+```
+
+par :
+
+```js
+        content: "Les plans payants (Starter et Pro) se prennent au mois, au trimestre ou à l'année, sans essai gratuit : le mensuel se paie dès l'inscription et se résilie à tout moment. Les marchands parrainés ou venus d'une campagne bénéficient d'un mois offert sur le mensuel. Sans abonnement, vous restez sur le plan Free.",
+```
+
+`src/pages/SupportGuidePage.jsx`, encore : remplacer `title: 'Trial gratuit',` par `title: 'Formules et mois offert',` (le titre de l'entrée réécrite ci-dessus), puis, dans l'entrée « Les recompenses », remplacer `30 jours gratuits a l'inscription sur n'importe quel plan payant. Cumulable avec les 7 jours de trial standard.` par `30 jours gratuits a l'inscription sur Starter ou Pro, en formule mensuelle.`
+
+`src/pages/FaqPage.jsx` — remplacer :
+
+```js
+          q: "Comment fonctionne l'essai gratuit ?",
+          a: "Le plan Free est gratuit à vie sans carte bancaire (50 tickets/mois, 1 workflow, intégration Shopify). Les plans Starter et Pro proposent 7 jours d'essai gratuit avec accès à toutes les fonctionnalités. Carte bancaire requise pour l'essai Starter/Pro mais aucun débit pendant les 7 jours — annulation en 1 clic sans justification.",
+```
+
+par :
+
+```js
+          q: "Peut-on essayer Actero gratuitement ?",
+          a: "Oui, avec le plan Free : gratuit à vie, sans carte bancaire (50 tickets/mois, 1 workflow, intégration Shopify). Starter et Pro n'ont pas d'essai : la formule mensuelle est sans engagement et se résilie à tout moment. Les marchands parrainés ou venus d'une campagne ont leur premier mois offert.",
+```
+
+`docs/essentials/quickstart.mdx` — remplacer
+
+```mdx
+  Les essais Starter et Pro sont de 7 jours sans carte bancaire. Le plan Free reste gratuit à vie (50 tickets/mois).
+```
+
+par
+
+```mdx
+  Le plan Free reste gratuit à vie (50 tickets/mois), sans carte bancaire. Starter et Pro se prennent au mois (sans engagement), au trimestre ou à l'année.
+```
+
+`docs/essentials/facturation.mdx` — sept passages :
+
+a. Remplacer
+
+```mdx
+- **Ton plan actuel** (Free / Starter / Pro / Entreprise) et un badge "Essai" si tu es en période d'essai
+- **Le prix** actuel (€/mois ou €/an)
+```
+
+par
+
+```mdx
+- **Ton plan actuel** (Free / Starter / Pro / Entreprise) et un badge "Essai" pendant un mois offert
+- **Le prix** de ta formule (par mois, par trimestre ou par an)
+```
+
+b. Remplacer
+
+```mdx
+### Si tu es en essai
+
+Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan, sans carte bancaire.
+
+À la fin de l'essai (7 jours par défaut), tu repasses automatiquement en plan Free si tu n'as pas saisi de moyen de paiement.
+```
+
+par
+
+```mdx
+### Si ton premier mois est offert
+
+Starter et Pro n'ont pas d'essai gratuit. Si tu es arrivé par un parrainage ou une campagne, ton premier mois en formule mensuelle est offert : une bannière jaune affiche "Essai gratuit — J-X restants", et tu as accès à toutes les features de ton plan.
+
+Ta carte est demandée dès le départ. Le premier prélèvement a lieu à la fin du mois offert ; tu peux annuler avant sans être débité.
+```
+
+c. Remplacer
+
+```mdx
+### Toggle Mensuel / Annuel
+
+L'annuel donne **-20 %** sur le prix affiché. Tu paies une fois pour l'année, facturation immédiate.
+```
+
+par
+
+```mdx
+### Mensuel, trimestriel ou annuel
+
+- **Mensuel** : sans engagement, payé chaque mois.
+- **Trimestriel** : payé tous les 3 mois, avec **-50 % sur le premier mois** (premier trimestre à 247,50 € au lieu de 297 € sur Starter, 997,50 € au lieu de 1 197 € sur Pro).
+- **Annuel** : **12 mois pour le prix de 11, à -10 %** (980,10 € par an sur Starter, 3 950,10 € sur Pro).
+
+Si ta boutique passe par l'app Shopify, ton abonnement est facturé par Shopify, qui propose le mensuel et l'annuel.
+```
+
+d. Remplacer
+
+```mdx
+    Clique sur le bouton de la carte (ex : "Passer au Pro — Essai 7j gratuit").
+```
+
+par
+
+```mdx
+    Choisis ta formule, puis clique sur le bouton de la carte.
+```
+
+e. Remplacer
+
+```mdx
+    Saisis ta carte. Si c'est ton premier paiement Actero, l'essai de 7 jours démarre.
+```
+
+par
+
+```mdx
+    Saisis ta carte sur la page de paiement sécurisée de Stripe. Le paiement a lieu tout de suite, sauf si ton premier mois est offert.
+```
+
+f. Remplacer
+
+```mdx
+Si tu as déjà une carte enregistrée et que tu changes de plan sans changer ton mode de paiement, l'upgrade est instantané (pas de redirect Stripe). Le prorata est calculé automatiquement par Stripe.
+```
+
+par
+
+```mdx
+Si tu as déjà une carte enregistrée et que tu changes de plan dans la même formule, l'upgrade est instantané (pas de redirect Stripe). Le prorata est calculé automatiquement par Stripe. Pour changer de formule (par exemple passer du mensuel à l'annuel), écris à [support@actero.fr](mailto:support@actero.fr).
+```
+
+g. Remplacer
+
+```mdx
+## Référencement et 30 jours gratuits
+
+Si tu es arrivé via un lien de parrainage, ton premier mois Starter ou Pro est offert pour 30 jours au lieu de 7. Le badge change : "Passer au Pro — 30 jours gratuits".
+```
+
+par
+
+```mdx
+## Parrainage et 30 jours gratuits
+
+Si tu es arrivé via un lien de parrainage, ton premier mois Starter ou Pro est offert (30 jours) en formule mensuelle. Le bouton affiche alors "30 jours gratuits".
+```
+
+- [ ] **Step 5 : régénérer l'image de partage, puis lancer**
+
+Run : `node scripts/generate-og-image.mjs && npx vitest run api/billing/paiement-heberge.test.js api/lib/promesses-tenues.test.js && npx eslint src/lib/plans.js src/components/ui src/components/landing src/components/alternative src/components/client/PortalSavView.jsx src/pages/PricingPage.jsx src/pages/SignupPage.jsx src/pages/SupportGuidePage.jsx src/pages/FaqPage.jsx src/pages/AlternativeGorgias.jsx src/pages/LandingPage.jsx scripts/prerender-routes.mjs`
+Attendu : PASS, aucune erreur ; `public/og-image.png` a changé.
+
+- [ ] **Step 6 : commit**
+
+```bash
+git add -A src scripts public docs/essentials api/billing/paiement-heberge.test.js
+git commit -m "fix(tarifs): plus aucune page ni aucune doc ne promet un essai gratuit de 7 jours"
+```
+
+---
+
+### Task 14 : supprimer le paiement intégré
+
+**Files :**
+- Delete : `src/components/billing/PaymentModal.jsx`, `src/lib/stripe-client.js`, `api/billing/create-subscription.js`, `api/billing/create-subscription.test.js`
+- Modify : `package.json`, `package-lock.json`, `.env.example`, `src/lib/plans.js`, `api/lib/essai-gratuit.test.js`, `api/lib/conformite-app-store.test.js`, commentaires de `api/lib/essai-gratuit.js`, `api/lib/stripe-customer.js`, `api/lib/facturation-shopify.js`, `api/stripe-webhook.js`
+
+- [ ] **Step 1 : ajouter la garde qui échoue**
+
+Ajouter à `api/billing/paiement-heberge.test.js` (`existsSync` aux imports de `node:fs`) :
+
+```js
 describe('un seul chemin de paiement Stripe', () => {
   it('le formulaire intégré a disparu', () => {
     for (const f of ['src/components/billing/PaymentModal.jsx', 'src/lib/stripe-client.js', 'api/billing/create-subscription.js']) {
@@ -3046,7 +3301,7 @@ describe('un seul chemin de paiement Stripe', () => {
 
   it('plus personne ne l’importe ni ne l’appelle', () => {
     const fautifs = []
-    for (const f of [...fichiers('src'), ...fichiers('api')]) {
+    for (const f of [...fichiersSource('src'), ...fichiersSource('api')]) {
       const src = sansCommentaires(readFileSync(f, 'utf8'))
       if (/PaymentModal|stripe-client|create-subscription|@stripe\/(react-)?stripe-js/.test(src)) fautifs.push(f)
     }
@@ -3054,8 +3309,6 @@ describe('un seul chemin de paiement Stripe', () => {
   })
 })
 ```
-
-(Déplacer les deux imports `existsSync…`/`join` en tête de fichier avec les imports existants.)
 
 Run → FAIL.
 
@@ -3068,50 +3321,64 @@ npm uninstall @stripe/react-stripe-js @stripe/stripe-js
 
 - [ ] **Step 3 : `.env.example`**
 
-Remplacer :
-
-```
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
-```
-
-par rien (supprimer la ligne), puis remplacer les lignes des prix — le commentaire qui les précède et :
-
-```
-STRIPE_PRICE_STARTER_MONTHLY=price_...
-STRIPE_PRICE_STARTER_ANNUAL=price_...
-STRIPE_PRICE_PRO_MONTHLY=price_...
-STRIPE_PRICE_PRO_ANNUAL=price_...
-```
-
-par :
+Supprimer la ligne `VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...`. Remplacer les quatre lignes `STRIPE_PRICE_*=price_...` et le commentaire qui les précède par :
 
 ```
 # Les prix Stripe ne se configurent plus ici : chaque formule est retrouvée par
 # sa lookup_key (api/lib/formules.js). Admin → « Configurer Stripe » les crée.
 ```
 
-- [ ] **Step 4 : mettre à jour les tests qui citaient l'ancien chemin**
+- [ ] **Step 4 : retirer les anciens prix annuels de `src/lib/plans.js`**
 
-`api/lib/conformite-app-store.test.js` : remplacer
+Plus aucun écran ne lit `price.annual` (79 et 319 €, l'ancien annuel à −20 %). Remplacer `price: { monthly: 0, annual: 0 },` par `price: { monthly: 0 },`, `price: { monthly: 99, annual: 79 },` par `price: { monthly: 99 },`, `price: { monthly: 399, annual: 319 },` par `price: { monthly: 399 },` et `price: { monthly: null, annual: null }, // sur devis` par `price: { monthly: null }, // sur devis`.
+
+Dans l'en-tête du fichier, remplacer
 
 ```js
-const ROUTES_STRIPE = [
-  'api/billing/upgrade.js',
-  'api/billing/create-subscription.js',
-  'api/create-checkout-session.js',
-]
+ * NOTE: Stripe price_ids live on the server only (process.env.STRIPE_PRICE_*)
+ * and are resolved by /api/billing/upgrade at upgrade time. We intentionally
+ * do NOT expose them to the Vite bundle — no VITE_ duplication, no drift.
 ```
 
 par
 
 ```js
-const ROUTES_STRIPE = [
-  'api/billing/upgrade.js',
-  'api/create-checkout-session.js',
-]
+ * NOTE: Stripe prices live on the server only — each formula is looked up by
+ * its lookup_key (api/lib/formules.js) at checkout time. We intentionally do
+ * NOT expose them to the Vite bundle — no VITE_ duplication, no drift.
 ```
 
-et renommer le test `'les trois routes Stripe refusent un client ayant une boutique Shopify'` en `'les routes Stripe refusent un client ayant une boutique Shopify'`.
+Puis supprimer `getPlanHighlights` et sa docstring : plus personne ne l'importe depuis les Tasks 10 et 11.
+
+```js
+/**
+ * Three honest, one-line selling points for a plan — derived from real limits,
+ * so the payment recap never claims a feature that isn't live. Used by the
+ * on-site payment modal.
+ */
+export function getPlanHighlights(planId) {
+  const plan = getPlanConfig(planId)
+  const tickets = plan.limits.tickets_per_month
+  const workflows = plan.limits.workflows_active
+  const supportLabel = {
+    account_manager: 'Account manager dédié',
+    priority_24h: 'Support prioritaire 24h',
+    email_48h: 'Support email',
+    docs: 'Documentation',
+  }[plan.support] || 'Support'
+  return [
+    `${Number(tickets).toLocaleString('fr-FR')} tickets/mois`,
+    workflows === Infinity || workflows < 0 ? 'Workflows illimités' : `${workflows} workflows`,
+    supportLabel,
+  ]
+}
+```
+
+Vérifier : `grep -rn "price\??\.annual\|annual: 79\|annual: 319\|getPlanHighlights" src api --include='*.js' --include='*.jsx'` → aucune ligne.
+
+- [ ] **Step 5 : mettre à jour les tests qui citaient l'ancien chemin**
+
+`api/lib/conformite-app-store.test.js` : retirer `'api/billing/create-subscription.js',` de `ROUTES_STRIPE`, et renommer le test `'les trois routes Stripe refusent un client ayant une boutique Shopify'` en `'les routes Stripe refusent un client ayant une boutique Shopify'`.
 
 `api/lib/essai-gratuit.test.js` :
 
@@ -3133,47 +3400,55 @@ c. Remplacer tout le test « l'écran de paiement annonce la durée que le SERVE
     // Le formulaire intégré affichait « 7 jours » à un marchand qui en avait 30 :
     // il lisait la valeur commerciale de plans.js au lieu de la durée accordée.
     // Depuis le 14 septembre, le paiement se fait sur la page Stripe Checkout,
-    // qui affiche exactement `trial_period_days` — posé depuis l'offre calculée
-    // par le serveur, et nulle part ailleurs.
+    // qui affiche exactement `trial_period_days` — posé depuis l'avantage
+    // calculé par le serveur, et nulle part ailleurs.
     const params = sansCommentaires(readFileSync('api/lib/checkout-formule.js', 'utf8'))
-    expect(params, 'la durée d’essai ne vient plus de l’offre calculée')
+    expect(params, 'la durée d’essai ne vient plus de l’avantage calculé')
       .toMatch(/trial_period_days = offre\.essaiJours/)
     expect(existsSync('src/components/billing/PaymentModal.jsx'),
       'le formulaire intégré, qui inventait sa propre durée, est revenu').toBe(false)
   })
 ```
 
-d. Dans le test « l'email de fin d'essai ne promet pas un renouvellement qui n'aura pas lieu », remplacer le dernier paragraphe (depuis `// La prémisse.` jusqu'au `.toMatch(/missing_payment_method:\s*'cancel'/)`) par :
+d. Dans le test « l'email de fin d'essai ne promet pas un renouvellement qui n'aura pas lieu », remplacer le dernier paragraphe (depuis `// La prémisse.` jusqu'à `.toMatch(/missing_payment_method:\s*'cancel'/)`) par :
 
 ```js
-    // La prémisse a changé le 14 septembre : la page Stripe demande la carte
-    // même pendant l'essai. Les essais sans carte sont ceux créés AVANT par
-    // l'ancien formulaire intégré — la branche « ajoutez une carte » les sert.
+    // La prémisse a changé le 14 septembre : la page Stripe demande toujours
+    // la carte, mois offert compris. Les essais sans carte sont ceux créés
+    // AVANT par l'ancien formulaire intégré — la branche « ajoutez une carte »
+    // les sert.
     const params = sansCommentaires(readFileSync('api/lib/checkout-formule.js', 'utf8'))
     expect(params, 'un essai peut de nouveau démarrer sans carte : revoir l’email')
       .toMatch(/payment_method_collection:\s*'always'/)
 ```
 
-- [ ] **Step 4 bis : retirer les anciens prix annuels de `src/lib/plans.js`**
-
-Plus aucun écran ne lit `price.annual` (79 et 319 €, l'ancien annuel à −20 %) : les montants des formules viennent du catalogue. Les laisser inviterait à les réutiliser.
-
-Remplacer `price: { monthly: 0, annual: 0 },` par `price: { monthly: 0 },`, `price: { monthly: 99, annual: 79 },` par `price: { monthly: 99 },`, `price: { monthly: 399, annual: 319 },` par `price: { monthly: 399 },` et `price: { monthly: null, annual: null }, // sur devis` par `price: { monthly: null }, // sur devis`.
-
-Vérifier : `grep -rn "price\??\.annual\|annual: 79\|annual: 319" src api --include=*.js --include=*.jsx` → aucune ligne.
-
-- [ ] **Step 5 : commentaires qui citaient l'ancien chemin**
-
-- `api/lib/essai-gratuit.js`, en-tête : remplacer les trois lignes de chemins par :
+e. Dans ce même test, remplacer le commentaire d'ouverture
 
 ```js
- *   api/create-checkout-session.js   30 jours si parrainage, sinon AUCUN essai
- *   api/billing/create-subscription  30 jours si parrainage, sinon 7 jours
- *                                    (supprimé le 14 septembre 2026)
- *   api/billing/upgrade              30 jours si parrainage, sinon 7 jours
+    // Ce que devient l'abonnement à la fin dépend d'UNE chose : la carte.
+    // create-subscription.js pose `missing_payment_method: 'cancel'`, donc sans
+    // moyen de paiement l'abonnement ne démarre pas — il s'annule.
 ```
 
-- `api/lib/stripe-customer.js`, docstring de `resolveCustomerCard` : remplacer la ligne `*   - api/billing/create-subscription.js  décide d'échanger le plan ou de` et la suivante par :
+par
+
+```js
+    // Ce que devient l'abonnement à la fin dépend d'UNE chose : la carte.
+    // L'ancien create-subscription.js (supprimé le 14 septembre 2026) posait
+    // `missing_payment_method: 'cancel'` : sans moyen de paiement, les essais
+    // qu'il a créés ne démarrent pas — ils s'annulent.
+```
+
+- [ ] **Step 6 : commentaires qui citaient l'ancien chemin**
+
+- `api/lib/essai-gratuit.js`, en-tête : remplacer la ligne `*   api/billing/create-subscription  30 jours si parrainage, sinon 7 jours` par :
+
+```js
+ *   api/billing/create-subscription  30 jours si parrainage, sinon 7 jours
+ *                                    (supprimé le 14 septembre 2026)
+```
+
+- `api/lib/stripe-customer.js`, docstring de `resolveCustomerCard` : remplacer les deux lignes `*   - api/billing/create-subscription.js  décide d'échanger le plan ou de` / `*                                         redemander une carte` par :
 
 ```js
  *   - api/billing/upgrade.js              décide d'échanger le plan ou de
@@ -3198,46 +3473,45 @@ par
           // demande toujours la carte.
 ```
 
-- [ ] **Step 6 : lancer toute la suite, le lint et le build**
+- [ ] **Step 7 : toute la suite, le lint et le build**
 
 Run : `npx vitest run && npx eslint . && npm run build`
 Attendu : tous les tests PASS, 0 erreur ESLint, build OK.
 
-- [ ] **Step 7 : commit**
+- [ ] **Step 8 : commit**
 
 ```bash
 git add -A
-git commit -m "refactor(facturation): un seul chemin de paiement, la page Stripe Checkout
-
-Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+git commit -m "refactor(facturation): un seul chemin de paiement, la page Stripe Checkout"
 ```
 
 ---
 
-### Task 14 : vérification dans le navigateur
+### Task 15 : vérification dans le navigateur
 
 **Files :** aucun.
 
 - [ ] **Step 1 : lancer le serveur de dev**
 
-Outil `preview_start` avec `{ name: "site-web" }` (défini dans `.claude/launch.json`, port 5173).
+Outil `preview_start` avec `{ name: "site-web" }` (`.claude/launch.json`, port 5173).
 
 - [ ] **Step 2 : page tarifs**
 
 Ouvrir `/tarifs`. Vérifier :
-- le sélecteur Mensuel / Trimestriel / Annuel, badges « −50 % le 1er mois » et « 13 mois pour 12 » ;
+- le sélecteur Mensuel / Trimestriel / Annuel, badges « −50 % le 1er mois » et « 1 mois offert » ;
+- Mensuel : « 99 € /mois », sous-texte « ou 81,68 €/mois à l’année » ; aucun « Essai gratuit 7 jours » sur la page ;
 - Trimestriel : Starter « 297 € /3 mois » et « 1er trimestre : 247,50 € » ; Pro « 1 197 € » et « 997,50 € » ;
-- Annuel : Starter « 1 069,20 € /13 mois » et « soit 82,25 € par mois » ; Pro « 4 309,20 € » et « 331,48 € » ;
-- FAQ : « Proposez-vous des formules trimestrielles ou annuelles ? » ;
+- Annuel : Starter « 980,10 € /an » et « soit 81,68 € par mois » ; Pro « 3 950,10 € » et « 329,18 € » ;
+- FAQ : « Proposez-vous des formules trimestrielles ou annuelles ? » et « Y a-t-il un engagement ? » ;
 - aucune erreur dans la console (`read_console_messages`).
 
 - [ ] **Step 3 : la formule suit le visiteur**
 
-Sur `/tarifs`, choisir Annuel puis cliquer le bouton de Pro. Vérifier dans la console du navigateur : `localStorage.getItem('actero_formule_choisie')` contient `"periode":"annuel"`. Ouvrir `/signup/plan` : Annuel est présélectionné. Ouvrir `/signup/plan?formule=trimestriel` : Trimestriel est présélectionné.
+Sur `/tarifs`, choisir Annuel puis cliquer le bouton de Pro. Dans la console : `localStorage.getItem('actero_formule_choisie')` contient `"periode":"annuel"`. Ouvrir `/signup/plan` : Annuel est présélectionné. Ouvrir `/signup/plan?formule=trimestriel` : Trimestriel l'est.
 
 - [ ] **Step 4 : capture**
 
-`computer { action: "screenshot" }` de `/tarifs` en Annuel, à joindre au compte rendu.
+`computer { action: "screenshot" }` de `/tarifs` en Annuel, jointe au compte rendu.
 
 ---
 
@@ -3246,5 +3520,5 @@ Sur `/tarifs`, choisir Annuel puis cliquer le bouton de Pro. Vérifier dans la c
 1. Admin → Configuration Stripe → « Configurer Stripe » (mode live) : six prix, deux coupons, anciens annuels désactivés.
 2. Stripe → Portail client : ajouter les nouveaux prix si « changer de formule » est activé, sinon le désactiver.
 3. Vercel : retirer `VITE_STRIPE_PUBLISHABLE_KEY` et les quatre `STRIPE_PRICE_*`.
-4. Shopify Partner Dashboard : aligner les prix de l'abonnement Shopify (mensuel, annuel) sur la grille.
+4. Shopify Partner Dashboard : annuel à 980,10 € et 3 950,10 €, et 0 jour d'essai sur les plans.
 5. Un paiement de test par formule en mode test Stripe avant d'annoncer les formules.
