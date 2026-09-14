@@ -18,15 +18,12 @@
  * la première chose que le marchand vérifie, et le premier motif de
  * remboursement.
  *
- * DÉCISION QUI RESTE À PRENDRE
- * `ESSAI_STANDARD_JOURS` vaut 7 — la valeur que deux chemins sur trois
- * appliquaient déjà. Si la campagne annonce un mois, c'est **cette
- * constante** qu'on change, une fois, et les trois chemins suivent. Ce
- * fichier existe pour que ce soit une ligne et pas une chasse au trésor.
+ * DÉCISION DU 14 SEPTEMBRE 2026
+ * Plus d'essai standard : le mensuel se paie dès l'inscription. Il ne reste
+ * que le mois offert — parrainage ou campagne publicitaire —, et seulement sur
+ * le mensuel (voir `offreDeBienvenue`). L'essai de 7 jours reposait sur une
+ * constante dédiée, désormais supprimée.
  */
-
-/** Essai accordé à un marchand qui n'en a jamais eu. */
-export const ESSAI_STANDARD_JOURS = 7
 
 /** Essai accordé à un marchand parrainé — « premier mois offert ». */
 export const ESSAI_PARRAINAGE_JOURS = 30
@@ -36,7 +33,7 @@ export const ESSAI_PARRAINAGE_JOURS = 30
  *
  * Décision du 10 septembre : la publicité annonce « 1 mois gratuit », mais on
  * ne l'ouvre pas à tout le monde — seulement à ceux qui arrivent par elle. Le
- * marchand qui trouve Actero autrement garde l'essai standard.
+ * marchand qui trouve Actero autrement paie dès l'inscription (14 septembre 2026).
  *
  * Le drapeau `campaign_first_month_free` est posé **côté serveur** après
  * validation du code contre `CAMPAIGN_TRIAL_CODES`. Il n'est jamais déduit de
@@ -77,5 +74,34 @@ export function joursEssaiPour(client) {
   if (client?.trial_ends_at) return undefined
   if (client?.referral_first_month_free) return ESSAI_PARRAINAGE_JOURS
   if (client?.campaign_first_month_free) return ESSAI_CAMPAGNE_JOURS
-  return ESSAI_STANDARD_JOURS
+  return undefined
+}
+
+/**
+ * L'avantage de bienvenue de ce client pour cette formule — une seule fois.
+ *
+ * Décisions du 14 septembre 2026 :
+ *   mensuel      aucun, sauf le mois offert (parrainage, campagne) — règles de
+ *                `joursEssaiPour`
+ *   trimestriel  −50 % sur le premier mois (coupon de la formule)
+ *   annuel       aucun : « 12 mois pour le prix de 11 » est dans le prix
+ *
+ * Un client qui a déjà eu un abonnement Stripe, quel qu'il soit, n'en retrouve
+ * aucun. `dejaAbonne` est lu chez Stripe par la route ; s'il est inconnu, on
+ * lève plutôt que d'accorder quoi que ce soit sur un « je ne sais pas ».
+ *
+ * @param {{ client: any, periode: string, dejaAbonne: boolean }} p
+ * @returns {{ essaiJours?: number, coupon?: boolean }}
+ */
+export function offreDeBienvenue({ client, periode, dejaAbonne }) {
+  if (typeof dejaAbonne !== 'boolean') {
+    throw new TypeError('offreDeBienvenue : dejaAbonne doit être connu (true ou false)')
+  }
+  if (dejaAbonne || client?.trial_ends_at) return {}
+  if (periode === 'mensuel') {
+    const essaiJours = joursEssaiPour(client)
+    return essaiJours ? { essaiJours } : {}
+  }
+  if (periode === 'trimestriel') return { coupon: true }
+  return {}
 }

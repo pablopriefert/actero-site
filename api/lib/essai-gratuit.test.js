@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, existsSync } from 'node:fs'
-import { joursEssaiPour, ESSAI_STANDARD_JOURS, ESSAI_PARRAINAGE_JOURS, ESSAI_CAMPAGNE_JOURS } from './essai-gratuit.js'
+import { joursEssaiPour, offreDeBienvenue, ESSAI_PARRAINAGE_JOURS, ESSAI_CAMPAGNE_JOURS } from './essai-gratuit.js'
 
 /**
  * ACT-33 — un seul essai gratuit, quel que soit le bouton cliqué.
@@ -38,14 +38,15 @@ describe('durée de l\'essai gratuit', () => {
     expect(ESSAI_CAMPAGNE_JOURS).toBe(30)
   })
 
-  it('celui qui trouve Actero autrement garde l\'essai standard', () => {
-    expect(joursEssaiPour({ campaign_first_month_free: false })).toBe(ESSAI_STANDARD_JOURS)
-    expect(ESSAI_STANDARD_JOURS).toBe(7)
+  it('celui qui trouve Actero autrement n’a pas d’essai', () => {
+    // Décision du 14 septembre 2026 : plus d'essai de 7 jours. Seul le mois
+    // offert (campagne publicitaire, parrainage) reste.
+    expect(joursEssaiPour({ campaign_first_month_free: false })).toBeUndefined()
   })
 
-  it('un nouveau marchand a l\'essai standard', () => {
-    expect(joursEssaiPour({})).toBe(ESSAI_STANDARD_JOURS)
-    expect(joursEssaiPour({ trial_ends_at: null })).toBe(ESSAI_STANDARD_JOURS)
+  it('un nouveau marchand n’a pas d’essai', () => {
+    expect(joursEssaiPour({})).toBeUndefined()
+    expect(joursEssaiPour({ trial_ends_at: null })).toBeUndefined()
   })
 
   it('un marchand qui a déjà eu un essai n\'en a pas un second', () => {
@@ -360,5 +361,47 @@ describe('durée de l\'essai gratuit', () => {
     const route = sansCommentaires(readFileSync('api/billing/create-subscription.js', 'utf8'))
     expect(route, 'l\'email suppose qu\'un essai sans carte s\'annule : ce n\'est plus le cas')
       .toMatch(/missing_payment_method:\s*'cancel'/)
+  })
+})
+
+describe('avantage de bienvenue — selon la formule, une seule fois par client', () => {
+  // Décisions du 14 septembre : mensuel sans essai (mois offert gardé si
+  // campagne ou parrainage), trimestriel −50 % sur le premier mois, annuel sans
+  // avantage de bienvenue (12 mois pour le prix de 11 est dans le prix). Un
+  // client déjà abonné n'y a plus droit : sans ça, résilier puis se réabonner
+  // redonnerait −50 % à chaque trimestre.
+
+  it('mensuel : rien, sauf le mois offert de la campagne ou du parrainage', () => {
+    expect(offreDeBienvenue({ client: {}, periode: 'mensuel', dejaAbonne: false })).toEqual({})
+    expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode: 'mensuel', dejaAbonne: false }))
+      .toEqual({ essaiJours: ESSAI_CAMPAGNE_JOURS })
+    expect(offreDeBienvenue({ client: { referral_first_month_free: true }, periode: 'mensuel', dejaAbonne: false }))
+      .toEqual({ essaiJours: ESSAI_PARRAINAGE_JOURS })
+  })
+
+  it('trimestriel : le coupon du premier mois, jamais de mois offert', () => {
+    expect(offreDeBienvenue({ client: {}, periode: 'trimestriel', dejaAbonne: false })).toEqual({ coupon: true })
+    expect(offreDeBienvenue({ client: { referral_first_month_free: true }, periode: 'trimestriel', dejaAbonne: false }))
+      .toEqual({ coupon: true })
+  })
+
+  it('annuel : rien', () => {
+    expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode: 'annuel', dejaAbonne: false })).toEqual({})
+  })
+
+  it('un client déjà abonné n’a plus rien', () => {
+    for (const periode of ['mensuel', 'trimestriel', 'annuel']) {
+      expect(offreDeBienvenue({ client: { campaign_first_month_free: true }, periode, dejaAbonne: true }), periode).toEqual({})
+    }
+  })
+
+  it('un essai déjà pris ferme aussi le coupon', () => {
+    expect(offreDeBienvenue({ client: { trial_ends_at: '2026-01-01T00:00:00Z' }, periode: 'trimestriel', dejaAbonne: false }))
+      .toEqual({})
+  })
+
+  it('« déjà abonné ? » inconnu ne vaut jamais « jamais abonné »', () => {
+    // Une erreur Stripe ne doit rien accorder : la route répond une erreur.
+    expect(() => offreDeBienvenue({ client: {}, periode: 'mensuel', dejaAbonne: undefined })).toThrow()
   })
 })

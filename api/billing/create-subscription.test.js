@@ -107,7 +107,10 @@ describe('create-subscription', () => {
     expect(res.statusCode).toBe(503);
   });
 
-  it('trial (no prior trial) → mode setup with setup-intent secret', async () => {
+  it('mois offert (parrainage) → mode setup with setup-intent secret', async () => {
+    // Plus d'essai standard depuis le 14 septembre 2026 : seul le mois offert
+    // ouvre encore un essai sur ce chemin, supprimé à la Task 14.
+    h.clientRow.referral_first_month_free = true;
     const res = makeRes();
     await handler(post(), res);
     expect(res.statusCode).toBe(200);
@@ -116,7 +119,7 @@ describe('create-subscription', () => {
     // subscription must carry client_id for the webhook to map the plan
     const params = h.stripe.subscriptions.create.mock.calls[0][0];
     expect(params.metadata.client_id).toBe('c1');
-    expect(params.trial_period_days).toBe(7);
+    expect(params.trial_period_days).toBe(30);
   });
 
   it('no trial (already had one) → mode payment with payment-intent secret', async () => {
