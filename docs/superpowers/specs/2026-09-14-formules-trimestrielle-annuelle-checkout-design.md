@@ -144,6 +144,12 @@ sur un « je ne sais pas ».
   prix annuels (948 € et 3 828 €) : tout prix annuel d'un produit Actero qui n'est pas
   celui d'une formule du catalogue. L'ancien script reconnaissait « le mensuel » à
   `interval === 'month'`, ce que le trimestriel vérifie aussi.
+  Limite connue, à trancher avant le premier changement de montant : la clé passée au
+  nouveau prix, les abonnés de l'ancien deviennent « hors catalogue » pour
+  `formuleDuPrix` (fausse alerte dans le journal à chaque renouvellement, garde
+  `changement_de_formule` inopérante pour eux). Il faudra alors choisir entre migrer
+  ces abonnés vers le nouveau prix et reconnaître l'ancien prix par ses métadonnées
+  (`actero_plan`, `actero_periode`, que la configuration pose déjà).
 - `api/admin/stripe-status.js` et `AdminStripeSetupView.jsx` : état des six prix (clé
   posée et montant conforme) et des deux coupons. La route de paiement refuse un prix
   non conforme plutôt que de facturer un autre montant que celui affiché.

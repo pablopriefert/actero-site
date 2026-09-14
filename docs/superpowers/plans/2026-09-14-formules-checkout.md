@@ -2752,6 +2752,9 @@ describe('la facturation du tableau de bord', () => {
     expect(src).toMatch(/PERIODE_API\[/)
     expect(src, 'l’ancien toggle mensuel/annuel est toujours là').not.toMatch(/setBillingPeriod|billingPeriod ===|\[billingPeriod\]/)
     expect(src, 'le badge « -20% » est toujours là').not.toMatch(/-20%/)
+    // Un client résilié n'a plus de stripe_subscription_id : sans ce marqueur, il
+    // se verrait annoncer un −50 % que Checkout ne lui accordera pas.
+    expect(src).toMatch(/billing_provider !== 'stripe'/)
   })
 })
 ```
@@ -2811,9 +2814,11 @@ par :
   })
   const periodeEffective = boutiqueShopify ? 'mensuel' : periode
   // Le −50 % du premier trimestre ne vaut qu'une fois par client : ni pour un
-  // client déjà abonné, ni pour celui qui a eu un essai. Le serveur tranche
-  // (offreDeBienvenue) ; ici, on évite seulement de l'annoncer à tort.
-  const offreBienvenue = !client?.trial_ends_at && !client?.stripe_subscription_id
+  // client abonné ou qui l'a été, ni pour celui qui a eu un essai. Le serveur
+  // tranche (offreDeBienvenue) ; ici, on évite seulement de l'annoncer à tort.
+  // La résiliation remet stripe_subscription_id à null : c'est billing_provider,
+  // posé par le webhook et jamais effacé, qui garde la trace d'un ancien abonné.
+  const offreBienvenue = !client?.trial_ends_at && !client?.stripe_subscription_id && client?.billing_provider !== 'stripe'
 ```
 
 4. Dans `handleUpgrade`, remplacer :
