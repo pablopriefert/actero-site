@@ -26,7 +26,7 @@
  * Le code proposé correspond-il à un code de campagne actif ?
  *
  * Sans `CAMPAIGN_TRIAL_CODES` en environnement, aucun code n'est valide et
- * tout le monde garde l'essai standard : le défaut est fermé.
+ * personne n'a de mois offert : le défaut est fermé.
  */
 export function codeCampagneValide(code) {
   if (!code) return false
