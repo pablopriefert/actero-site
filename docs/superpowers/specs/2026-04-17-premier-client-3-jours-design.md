@@ -85,7 +85,7 @@ Mécanisme : coupon Stripe `POC_PRO_199` valable à vie, désactivé manuellemen
 - **Auto (Apollo)** : envoi T2 aux non-répondants de T1 (objection handler)
 - **Humain** : 30 LinkedIn DMs restants + relances perso aux "engaged silencieux" (opened/viewed mais pas clic)
 - **Humain** : post LinkedIn J2 (angle résultat chiffré) + 2e post communauté
-- **Humain** : support total aux trials actifs (chaque ticket bloquant débloqué en <1h)
+- **Humain** : support total aux trials actifs (chaque ticket bloquant débloqué en &lt;1h)
 
 ### Jour 3 et suivants
 

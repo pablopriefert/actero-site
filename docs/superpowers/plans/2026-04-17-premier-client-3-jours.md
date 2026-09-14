@@ -56,7 +56,7 @@ Vérifier que le welcome email existe et utilise l'identité visuelle Actero (br
 grep -rn "slack\|webhook" api/stripe-webhook.js api/auth/
 ```
 
-Tu dois être notifié dans Slack ou par email dès qu'un signup tombe pour réagir en <1h. Si ça manque, Task 7 l'ajoute.
+Tu dois être notifié dans Slack ou par email dès qu'un signup tombe pour réagir en &lt;1h. Si ça manque, Task 7 l'ajoute.
 
 - [ ] **Step 5: Commit les findings de l'audit**
 
@@ -791,7 +791,7 @@ C'est le moment le plus critique — si qqn commente "SAV" sur le post LinkedIn,
 
 - [ ] **Step 1: Monitor les notifs Slack signup (Task 7)**
 
-Dès qu'un signup arrive, réagir en <1h.
+Dès qu'un signup arrive, réagir en &lt;1h.
 
 - [ ] **Step 2: Pour chaque signup, vérifier 3 étapes**
 
