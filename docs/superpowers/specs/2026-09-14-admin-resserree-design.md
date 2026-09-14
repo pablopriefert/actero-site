@@ -165,7 +165,7 @@ La rubrique Closers arrive avec la spec B et se branche dans cette navigation.
 
 ## Tests — chacun échoue si le défaut revient
 
-1. `api/lib/revenus.test.js` : Stripe mensuel, trimestriel, 13 mois ; Shopify mensuel
+1. `api/lib/revenus.test.js` : Stripe mensuel, trimestriel, annuel ; Shopify mensuel
    et annuel ; sur mesure ; Free, résilié et essai à 0.
 2. Garde : aucun fichier de `src/components/admin/` n'appelle `supabase.from(`.
 3. Garde : chaque route de `api/admin/` vérifie l'admin avant toute lecture.

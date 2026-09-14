@@ -49,7 +49,7 @@ ses commissions. Actero valide chaque commission avant de la payer.
 | Pro | 100 € par mois payé | 250 € une fois | 600 € une fois |
 
 - **Mensuel** : une commission par mensualité réellement encaissée, tant que le client
-  reste. L'essai et le mois offert ne rapportent rien : rien n'est encaissé.
+  reste. Le mois offert (campagne, parrainage) ne rapporte rien : rien n'est encaissé.
 - **Trimestriel, annuel** : une seule fois par client. Un client qui résilie puis se
   réabonne ne génère pas de seconde commission unique.
 - **Changement de plan** : la grille suit ce qui est payé. Un client Starter passé
