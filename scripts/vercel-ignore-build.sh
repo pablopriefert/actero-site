@@ -47,13 +47,47 @@ case "${VERCEL_GIT_COMMIT_REF:-}" in
     ;;
 esac
 
-# 2. Sur toute autre branche, `main` comprise : si le commit ne touche RIEN
-#    en dehors de docs/, il ne change rien de ce qui est déployé.
+# 2. Depuis QUAND juger ce qui a changé.
+#
+#    Vercel fournit `VERCEL_GIT_PREVIOUS_SHA`, le commit du dernier déploiement
+#    réussi. C'est la bonne référence : un push peut contenir plusieurs commits.
+#    La première version comparait seulement HEAD^ et HEAD — un correctif de
+#    l'application suivi d'un commit de doc, poussés ensemble, n'étaient donc
+#    jamais déployés.
+#
+#    Si ce commit manque au clone (clone superficiel), on ne sait pas ce qui a
+#    changé depuis : on construit. Sans la variable, on retombe sur HEAD^.
+BASE="${VERCEL_GIT_PREVIOUS_SHA:-}"
+if [ -n "$BASE" ]; then
+  if ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+    echo "Dernier déploiement ($BASE) introuvable dans le clone — build lancé."
+    exit 1
+  fi
+else
+  BASE="HEAD^"
+fi
+
+# 3. Aucun fichier modifié du tout : c'est une relance volontaire (commit vide,
+#    variable d'environnement changée). On construit.
+#
+#    14 septembre 2026 : le commit vide poussé pour relancer un correctif de
+#    sécurité que Vercel n'avait pas pris a été SAUTÉ — « rien n'a changé » était
+#    lu comme « seule la doc a changé ».
+if ! CHANGEMENTS=$(git diff --name-only "$BASE" HEAD 2>/dev/null); then
+  echo "Comparaison impossible avec $BASE — build lancé."
+  exit 1
+fi
+if [ -z "$CHANGEMENTS" ]; then
+  echo "Aucun fichier modifié : relance volontaire — build lancé."
+  exit 1
+fi
+
+# 4. Si rien n'a bougé EN DEHORS de docs/, rien de déployé n'a changé.
 #
 #    `git diff --quiet` sort 0 quand il n'y a aucune différence — donc 0 ici
 #    signifie « rien n'a bougé hors docs/ », et c'est exactement le cas où il
 #    faut sauter.
-if git diff --quiet HEAD^ HEAD -- . ':(exclude)docs' 2>/dev/null; then
+if git diff --quiet "$BASE" HEAD -- . ':(exclude)docs' 2>/dev/null; then
   echo "Changement limité à docs/ — build sauté."
   exit 0
 fi
