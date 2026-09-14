@@ -72,12 +72,18 @@ Une seule définition des six formules payantes :
   `actero_starter_trimestriel`, `actero_starter_annuel`, et les mêmes pour `pro`.
 - Montants : 9 900 / 29 700 / 98 010 centimes pour Starter, 39 900 / 119 700 / 395 010
   pour Pro. Annuel : `recurring: { interval: 'year', interval_count: 1 }`, `mois: 12`.
-- Coupons à identifiant fixe : `actero-trimestriel-starter` (4 950 centimes) et
-  `actero-trimestriel-pro` (19 950 centimes), `duration: once`, `currency: eur`,
-  `applies_to.products` limité au produit du plan.
+- Coupons dont l'identifiant porte le montant : `actero-trimestriel-starter-4950`
+  (4 950 centimes) et `actero-trimestriel-pro-19950` (19 950 centimes),
+  `duration: once`, `currency: eur`, `applies_to.products` limité au produit du plan.
+  Un coupon Stripe ne change plus de montant : un nouveau montant crée un nouveau
+  coupon.
 - Fonctions : `formulePour(plan, periode)`, `formuleDuPrix(price)` (par
-  `lookup_key`), `mensualiteCentimes(price)` (montant ÷ nombre de mois de la
+  `lookup_key`), `prixConforme(formule, price)` (le prix facture-t-il exactement le
+  catalogue ?), `periodeDepuisApi(valeur)` (période reçue du navigateur, clés
+  héritées refusées), `mensualiteCentimes(price)` (montant ÷ nombre de mois de la
   période, pour le MRR), `premierPaiementCentimes`, `libellePeriodeStripe`.
+- Le catalogue est figé (gel profond) : il est partagé par toutes les requêtes d'une
+  instance et par le navigateur.
 
 **Les identifiants de prix quittent les variables Vercel.** Le serveur retrouve
 chaque prix par sa clé (`stripe.prices.list({ lookup_keys })`). Les quatre variables
@@ -119,7 +125,8 @@ sur un « je ne sais pas ».
 ### 4. Le webhook — `api/stripe-webhook.js` et `api/lib/subscription-plan.js`
 
 - `planUpdateFromSubscription(subscription, { aUneCarte })` trouve le plan par
-  `formuleDuPrix`. Un prix sans clé connue n'accorde aucun plan.
+  `formuleDuPrix`. Un prix sans clé connue n'accorde aucun plan, et laisse une trace
+  dans le journal quand l'abonnement est actif (offre sur mesure ou clé mal posée).
 - La carte se résout comme dans la route (`resolveCustomerCard`).
 - `checkout.session.completed` (branche upgrade) écrit aussi `billing_period` et
   `billing_provider: 'stripe'`.
@@ -131,12 +138,15 @@ sur un « je ne sais pas ».
 - `api/admin/setup-stripe-products.js` (via `api/lib/configuration-stripe.js`) : pour
   chaque formule, retrouve le prix par sa clé, sinon par ses caractéristiques
   (produit, montant, périodicité) — il reçoit alors sa clé —, sinon le crée, sur le
-  produit Starter ou Pro existant. Crée les deux coupons. Désactive les **anciens**
+  produit Starter ou Pro existant. Un prix qui porte la clé mais ne facture plus le
+  montant du catalogue est remplacé, la clé passant au nouveau prix. Crée les deux
+  coupons. Désactive les **anciens**
   prix annuels (948 € et 3 828 €) : tout prix annuel d'un produit Actero qui n'est pas
   celui d'une formule du catalogue. L'ancien script reconnaissait « le mensuel » à
   `interval === 'month'`, ce que le trimestriel vérifie aussi.
-- `api/admin/stripe-status.js` et `AdminStripeSetupView.jsx` : état des six prix et
-  des deux coupons.
+- `api/admin/stripe-status.js` et `AdminStripeSetupView.jsx` : état des six prix (clé
+  posée et montant conforme) et des deux coupons. La route de paiement refuse un prix
+  non conforme plutôt que de facturer un autre montant que celui affiché.
 
 ### 6. Le front
 
@@ -145,6 +155,8 @@ sur un « je ne sais pas ».
 - **La formule suit le visiteur** : `/tarifs` la mémorise, la page de choix du plan la
   relit (ou `?formule=`), et ne code plus « monthly » en dur.
 - **Marchand facturé par Shopify** : pas de trimestriel affiché.
+- **Offre de bienvenue** : « 1er trimestre à 247,50 € » et le badge −50 % ne
+  s'affichent pas dans la facturation d'un client déjà abonné ou qui a eu un essai.
 - **Paiement** : tout bouton payant appelle `/api/billing/upgrade`, puis redirige vers
   Stripe. Après un changement immédiat, le front attend que le webhook ait écrit le
   nouveau plan.

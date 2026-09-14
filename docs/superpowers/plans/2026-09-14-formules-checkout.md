@@ -23,7 +23,7 @@
 
 | Fichier | Rôle | Action |
 |---|---|---|
-| `api/lib/formules.js` | Catalogue des six formules, conversions de période, mensualité d'un prix Stripe | Créé (Task 1), révisé (Task 1 bis) |
+| `api/lib/formules.js` | Catalogue des six formules, conversions de période, mensualité et conformité d'un prix Stripe | Créé (Task 1), révisé (Tasks 1 bis et 1 ter) |
 | `api/lib/essai-gratuit.js` | Plus d'essai standard ; + `offreDeBienvenue()` | Modifier |
 | `api/lib/formules-stripe.js` | Deux lectures Stripe : prix d'une formule, « déjà abonné ? » | Créer |
 | `api/lib/checkout-formule.js` | Paramètres purs de la session Checkout | Créer |
@@ -184,6 +184,12 @@ Attendu : 11 tests PASS, aucune erreur ESLint.
 git add api/lib/formules.js api/lib/formules.test.js
 git commit -m "fix(facturation): l'annuel devient 12 mois pour le prix de 11, à -10 %"
 ```
+
+---
+
+### Task 1 ter : corrections de la relecture qualité — LIVRÉE
+
+Faites à la relecture du catalogue, avant la Task 2 : catalogue figé (`Object.freeze` profond), `periodeDepuisApi(valeur)`, `prixConforme(formule, price)`, identifiants de coupon portant leur montant (`actero-trimestriel-starter-4950`, `actero-trimestriel-pro-19950`) et tests de cohérence de chaque formule. Les tâches suivantes s'appuient sur ces fonctions.
 
 ---
 
@@ -475,6 +481,13 @@ describe('le webhook s’en sert comme prévu', () => {
     expect(bloc).toMatch(/resolveCustomerCard\(/)
     expect(bloc).toMatch(/planUpdateFromSubscription\(subscription,\s*\{\s*aUneCarte/)
   })
+
+  it('un abonnement payé hors catalogue laisse une trace', () => {
+    // Offre sur mesure ou clé mal posée : aucun plan n'est accordé, et sans
+    // trace, personne ne le verrait.
+    const bloc = webhook.slice(webhook.indexOf("case 'customer.subscription.updated'"))
+    expect(bloc).toMatch(/hors catalogue/)
+  })
 })
 ```
 
@@ -598,6 +611,11 @@ par :
           // Voir api/lib/subscription-plan.js.
           const carte = await resolveCustomerCard(stripe, subscription, subscription.customer);
           const updateData = planUpdateFromSubscription(subscription, { aUneCarte: !!carte });
+          if (['active', 'trialing'].includes(subscription.status) && !formuleDuPrix(subscription.items?.data?.[0]?.price)) {
+            // Payé mais hors catalogue : offre sur mesure, ou clé de prix mal
+            // posée. Aucun plan n'est accordé ; sans cette trace, personne ne le verrait.
+            console.warn('[stripe-webhook] abonnement hors catalogue, aucun plan accordé :', subscription.id, subscription.items?.data?.[0]?.price?.lookup_key ?? '(sans lookup_key)');
+          }
 ```
 
 - [ ] **Step 5 : lancer**
@@ -660,7 +678,7 @@ describe('parametresCheckout', () => {
 
   it('trimestriel éligible : le coupon du plan, aucun essai', () => {
     const p = params('pro', 'trimestriel', { offre: { coupon: true } })
-    expect(p.discounts).toEqual([{ coupon: 'actero-trimestriel-pro' }])
+    expect(p.discounts).toEqual([{ coupon: 'actero-trimestriel-pro-19950' }])
     expect(p.subscription_data.trial_period_days).toBeUndefined()
     expect(p.allow_promotion_codes).toBeUndefined()
   })
@@ -716,7 +734,7 @@ import { formulePour } from './formules.js'
 
 describe('lectures Stripe des formules', () => {
   it('retrouve le prix actif d’une formule par sa clé', async () => {
-    const list = vi.fn(async () => ({ data: [{ id: 'price_pa', lookup_key: 'actero_pro_annuel' }] }))
+    const list = vi.fn(async () => ({ data: [{ id: 'price_pa', lookup_key: 'actero_pro_annuel', unit_amount: 395010, currency: 'eur', recurring: { interval: 'year', interval_count: 1 } }] }))
     const prix = await prixDeLaFormule({ prices: { list } }, formulePour('pro', 'annuel'))
     expect(prix.id).toBe('price_pa')
     expect(list).toHaveBeenCalledWith({ lookup_keys: ['actero_pro_annuel'], active: true, limit: 1 })
@@ -725,6 +743,12 @@ describe('lectures Stripe des formules', () => {
   it('renvoie null quand le prix n’existe pas', async () => {
     const stripe = { prices: { list: async () => ({ data: [] }) } }
     expect(await prixDeLaFormule(stripe, formulePour('starter', 'mensuel'))).toBeNull()
+  })
+
+  it('un prix qui ne facture plus le montant du catalogue n’est pas utilisé', async () => {
+    const ancien = { id: 'price_ancien', lookup_key: 'actero_pro_annuel', unit_amount: 382800, currency: 'eur', recurring: { interval: 'year', interval_count: 1 } }
+    const stripe = { prices: { list: async () => ({ data: [ancien] }) } }
+    expect(await prixDeLaFormule(stripe, formulePour('pro', 'annuel'))).toBeNull()
   })
 
   it('« déjà abonné » regarde tous les statuts', async () => {
@@ -849,9 +873,11 @@ export function parametresCheckout(p) {
 /**
  * Les deux questions que la route de paiement pose à Stripe.
  */
+import { prixConforme } from './formules.js'
 
 /**
- * Le prix Stripe actif d'une formule, retrouvé par sa `lookup_key`.
+ * Le prix Stripe actif d'une formule, retrouvé par sa `lookup_key` — et seulement
+ * s'il facture exactement le montant du catalogue.
  *
  * @param {any} stripe
  * @param {import('./formules.js').Formule} formule
@@ -859,7 +885,15 @@ export function parametresCheckout(p) {
  */
 export async function prixDeLaFormule(stripe, formule) {
   const { data } = await stripe.prices.list({ lookup_keys: [formule.lookupKey], active: true, limit: 1 })
-  return data?.[0] || null
+  const prix = data?.[0] || null
+  if (prix && !prixConforme(formule, prix)) {
+    // Le catalogue a changé mais Stripe garde l'ancien prix sous la clé :
+    // facturer un autre montant que celui affiché serait pire qu'une erreur.
+    // « Configurer Stripe » dans l'admin crée le bon prix.
+    console.warn('[formules-stripe] prix non conforme au catalogue :', formule.lookupKey, prix.id)
+    return null
+  }
+  return prix
 }
 
 /**
@@ -950,6 +984,7 @@ vi.mock('@supabase/supabase-js', () => {
 vi.mock('stripe', () => ({ default: function Stripe() { return h.stripe } }))
 
 import handler from './upgrade.js'
+import { FORMULES } from '../lib/formules.js'
 
 function makeRes() {
   return {
@@ -966,7 +1001,12 @@ function baseStripe() {
       retrieve: vi.fn(async () => ({ id: 'cus_1', deleted: false })),
     },
     prices: {
-      list: vi.fn(async ({ lookup_keys }) => ({ data: [{ id: `price_${lookup_keys[0]}`, lookup_key: lookup_keys[0] }] })),
+      // Des prix conformes au catalogue : la route refuse un prix dont le montant
+      // ne correspond plus (prixConforme).
+      list: vi.fn(async ({ lookup_keys }) => {
+        const f = FORMULES.find((x) => x.lookupKey === lookup_keys[0])
+        return { data: f ? [{ id: `price_${f.lookupKey}`, lookup_key: f.lookupKey, unit_amount: f.montantCentimes, currency: 'eur', recurring: f.recurring }] : [] }
+      }),
     },
     subscriptions: {
       retrieve: vi.fn(async () => h.existingSub),
@@ -996,10 +1036,12 @@ beforeEach(() => {
 const post = (b) => ({ method: 'POST', headers: { authorization: 'Bearer t' }, body: { client_id: 'c1', target_plan: 'starter', billing_period: 'monthly', ...b } })
 
 describe('POST /api/billing/upgrade', () => {
-  it('refuse une période inconnue', async () => {
-    const res = makeRes()
-    await handler(post({ billing_period: 'weekly' }), res)
-    expect(res.statusCode).toBe(400)
+  it('refuse une période inconnue, clés héritées comprises', async () => {
+    for (const billing_period of ['weekly', 'toString']) {
+      const res = makeRes()
+      await handler(post({ billing_period }), res)
+      expect(res.statusCode, billing_period).toBe(400)
+    }
   })
 
   it('mensuel pour un nouveau client : page Stripe, sans essai', async () => {
@@ -1018,7 +1060,7 @@ describe('POST /api/billing/upgrade', () => {
     expect(res.body.checkout_url).toContain('checkout.stripe.com')
     const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
     expect(params.line_items[0].price).toBe('price_actero_pro_trimestriel')
-    expect(params.discounts).toEqual([{ coupon: 'actero-trimestriel-pro' }])
+    expect(params.discounts).toEqual([{ coupon: 'actero-trimestriel-pro-19950' }])
     expect(params.subscription_data.metadata.client_id).toBe('c1')
     expect(params.subscription_data.trial_period_days).toBeUndefined()
   })
@@ -1110,7 +1152,7 @@ import { isActeroAdmin } from '../lib/admin-auth.js'
 import { getOrCreateStripeCustomer, resolveCustomerCard } from '../lib/stripe-customer.js'
 import { offreDeBienvenue } from '../lib/essai-gratuit.js';
 import { refuserFacturationStripe } from '../lib/facturation-shopify.js';
-import { formulePour, formuleDuPrix, PERIODE_DEPUIS_API } from '../lib/formules.js';
+import { formulePour, formuleDuPrix, periodeDepuisApi } from '../lib/formules.js';
 import { prixDeLaFormule, aDejaEuUnAbonnement } from '../lib/formules-stripe.js';
 import { parametresCheckout } from '../lib/checkout-formule.js';
 
@@ -1154,7 +1196,7 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Missing client_id or target_plan' });
   }
 
-  const periode = PERIODE_DEPUIS_API[billing_period];
+  const periode = periodeDepuisApi(billing_period);
   if (!periode) {
     return res.status(400).json({ error: 'billing_period must be monthly, quarterly or annual' });
   }
@@ -1537,6 +1579,13 @@ describe('affichage des formules', () => {
     expect(a.offre).toBe('−50 % sur le premier mois')
   })
 
+  it('trimestriel pour un client qui n’a plus droit à l’offre de bienvenue : prix plein, sans −50 %', () => {
+    const a = affichagePrix('pro', 'trimestriel', { offreBienvenue: false })
+    expect(norme(a.principal)).toBe('1 197 €')
+    expect(a.detail).toBeNull()
+    expect(a.offre).toBe('Payé tous les 3 mois')
+  })
+
   it('annuel : 12 mois pour le prix de 11, et l’équivalent mensuel', () => {
     const a = affichagePrix('starter', 'annuel')
     expect(norme(a.principal)).toBe('980,10 €')
@@ -1591,7 +1640,8 @@ import { formulePour, premierPaiementCentimes, PERIODES } from '../../api/lib/fo
 
 export const PERIODES_AFFICHEES = [
   { id: 'mensuel', libelle: 'Mensuel', badge: null },
-  { id: 'trimestriel', libelle: 'Trimestriel', badge: '−50 % le 1er mois' },
+  // Badge de l'offre de bienvenue : masqué pour un client qui n'y a plus droit.
+  { id: 'trimestriel', libelle: 'Trimestriel', badge: '−50 % le 1er mois', bienvenue: true },
   { id: 'annuel', libelle: 'Annuel', badge: '1 mois offert' },
 ]
 
@@ -1609,12 +1659,25 @@ export function equivalentMensuel(plan, periode) {
 }
 
 /**
+ * Ce qu'une carte de prix affiche pour une formule.
+ *
+ * `offreBienvenue` : le −50 % du premier mois ne vaut qu'une fois par client.
+ * Un client déjà abonné, ou qui a eu un essai, paiera le trimestre plein : lui
+ * annoncer « 1er trimestre : 247,50 € » serait une promesse que Checkout ne
+ * tiendrait pas.
+ *
+ * @param {string} plan
+ * @param {string} periode
+ * @param {{ offreBienvenue?: boolean }} [options]
  * @returns {{ principal: string, suffixe: string, detail: string|null, offre: string } | null}
  */
-export function affichagePrix(plan, periode) {
+export function affichagePrix(plan, periode, { offreBienvenue = true } = {}) {
   const f = formulePour(plan, periode)
   if (!f) return null
   if (periode === 'trimestriel') {
+    if (!offreBienvenue) {
+      return { principal: euros(f.montantCentimes), suffixe: '/3 mois', detail: null, offre: 'Payé tous les 3 mois' }
+    }
     return {
       principal: euros(f.montantCentimes),
       suffixe: '/3 mois',
@@ -1676,14 +1739,16 @@ import { PERIODES_AFFICHEES } from '../../lib/affichage-formules'
 /**
  * Mensuel / Trimestriel / Annuel. Un seul sélecteur pour la page tarifs, la
  * page de choix du plan et la facturation : trois copies finiraient par
- * annoncer trois offres différentes.
+ * annoncer trois offres différentes. `offreBienvenue` à false masque le badge
+ * du −50 %, qui ne vaut qu'une fois par client.
  */
-export function SelecteurFormule({ periode, onChange, taille = 'normale' }) {
+export function SelecteurFormule({ periode, onChange, taille = 'normale', offreBienvenue = true }) {
   const petit = taille === 'petite'
   return (
     <div role="group" aria-label="Formule de paiement" className="inline-flex flex-wrap items-center justify-center gap-1 p-1 rounded-full bg-surface border border-border-cream">
       {PERIODES_AFFICHEES.map((p) => {
         const actif = periode === p.id
+        const badge = p.bienvenue && !offreBienvenue ? null : p.badge
         return (
           <button
             key={p.id}
@@ -1693,9 +1758,9 @@ export function SelecteurFormule({ periode, onChange, taille = 'normale' }) {
             className={`${petit ? 'px-3 py-1.5 text-[11px]' : 'px-4 py-2 text-[13px]'} rounded-full font-semibold transition-colors flex items-center gap-1.5 ${actif ? 'bg-cta text-white' : 'text-ink-3 hover:text-ink'}`}
           >
             {p.libelle}
-            {p.badge && (
+            {badge && (
               <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${actif ? 'bg-white/20 text-white' : 'bg-primary-tint text-primary'}`}>
-                {p.badge}
+                {badge}
               </span>
             )}
           </button>
@@ -1748,8 +1813,14 @@ function faux({ produits = [], prix = [], coupons = [] } = {}) {
     },
     prices: {
       list: async () => ({ data: etat.prix.filter((p) => p.active !== false), has_more: false }),
-      create: async (d) => { const p = { id: id('price'), active: true, currency: 'eur', ...d }; etat.prix.push(p); etat.appels.push(['prices.create', d]); return p },
-      update: async (pid, d) => { const p = etat.prix.find((x) => x.id === pid); Object.assign(p, d); etat.appels.push(['prices.update', pid, d]); return p },
+      create: async (d) => {
+        if (d.transfer_lookup_key) for (const x of etat.prix) if (x.lookup_key === d.lookup_key) x.lookup_key = null
+        const p = { id: id('price'), active: true, currency: 'eur', ...d }; etat.prix.push(p); etat.appels.push(['prices.create', d]); return p
+      },
+      update: async (pid, d) => {
+        if (d.transfer_lookup_key) for (const x of etat.prix) if (x.id !== pid && x.lookup_key === d.lookup_key) x.lookup_key = null
+        const p = etat.prix.find((x) => x.id === pid); Object.assign(p, d); etat.appels.push(['prices.update', pid, d]); return p
+      },
     },
     coupons: {
       retrieve: async (cid) => {
@@ -1774,8 +1845,8 @@ describe('configurerFormules', () => {
       expect(p.unit_amount).toBe(f.montantCentimes)
       expect(p.recurring).toEqual(f.recurring)
     }
-    expect(e.coupons.map((c) => c.id).sort()).toEqual(['actero-trimestriel-pro', 'actero-trimestriel-starter'])
-    expect(e.coupons.find((c) => c.id === 'actero-trimestriel-pro')).toMatchObject({ amount_off: 19950, currency: 'eur', duration: 'once' })
+    expect(e.coupons.map((c) => c.id).sort()).toEqual(['actero-trimestriel-pro-19950', 'actero-trimestriel-starter-4950'])
+    expect(e.coupons.find((c) => c.id === 'actero-trimestriel-pro-19950')).toMatchObject({ amount_off: 19950, currency: 'eur', duration: 'once' })
     expect(r.formules.every((x) => x.action === 'cree')).toBe(true)
     expect(r.anciensPrixDesactives).toEqual([])
   })
@@ -1794,6 +1865,22 @@ describe('configurerFormules', () => {
     expect(e.prix.find((p) => p.id === 'price_sa').active).toBe(false)
     expect(r.anciensPrixDesactives).toEqual(['price_sa'])
     expect(e.produits).toHaveLength(2)
+  })
+
+  it('un prix qui porte la clé mais plus le bon montant est remplacé, et la clé passe au nouveau prix', async () => {
+    // Un prix Stripe ne change plus de montant une fois créé : quand le catalogue
+    // change (l'annuel a changé deux fois le 14 septembre), il faut un nouveau prix.
+    const e = faux({
+      produits: [{ id: 'prod_s', metadata: { actero_plan: 'starter' } }, { id: 'prod_p', metadata: { actero_plan: 'pro' } }],
+      prix: [
+        { id: 'price_13mois', product: 'prod_s', unit_amount: 106920, currency: 'eur', recurring: { interval: 'month', interval_count: 13 }, lookup_key: 'actero_starter_annuel', active: true },
+      ],
+    })
+    const r = await configurerFormules(e.stripe)
+    const annuel = r.formules.find((x) => x.lookupKey === 'actero_starter_annuel')
+    expect(annuel.action).toBe('remplace')
+    expect(e.prix.find((p) => p.id === annuel.prixId)).toMatchObject({ unit_amount: 98010, lookup_key: 'actero_starter_annuel' })
+    expect(e.prix.find((p) => p.id === 'price_13mois').lookup_key).toBeNull()
   })
 
   it('deuxième passage : rien n’est créé, et les nouveaux annuels restent actifs', async () => {
@@ -1819,7 +1906,7 @@ Run : `npx vitest run api/lib/configuration-stripe.test.js` → FAIL (import int
 
 ```js
 // @ts-check
-import { FORMULES } from './formules.js'
+import { FORMULES, prixConforme } from './formules.js'
 
 /**
  * Crée ou retrouve, dans le compte Stripe, tout ce que les formules exigent.
@@ -1829,7 +1916,9 @@ import { FORMULES } from './formules.js'
  *     existent : les fonctionnalités Stripe Entitlements vivent sur le produit ;
  *   - les six prix, retrouvés par leur clé, sinon par leurs caractéristiques
  *     (produit, montant, périodicité) — ils reçoivent alors leur clé —, sinon
- *     créés ;
+ *     créés. Un prix qui porte la clé mais ne facture plus le montant du
+ *     catalogue (prixConforme) est remplacé : la clé passe au nouveau prix, et
+ *     les abonnés existants gardent l'ancien ;
  *   - les deux coupons du trimestriel, à identifiant fixe ;
  *   - les ANCIENS prix annuels désactivés (948 € et 3 828 € avant le
  *     14 septembre) : tout prix annuel d'un produit Actero qui n'est pas celui
@@ -1842,7 +1931,7 @@ import { FORMULES } from './formules.js'
  */
 export async function configurerFormules(stripe) {
   const rapport = {
-    /** @type {{ lookupKey: string, prixId: string, action: 'existant'|'cle_posee'|'cree' }[]} */
+    /** @type {{ lookupKey: string, prixId: string, action: 'existant'|'cle_posee'|'cree'|'remplace' }[]} */
     formules: [],
     /** @type {{ id: string, action: 'existant'|'cree' }[]} */
     coupons: [],
@@ -1856,16 +1945,11 @@ export async function configurerFormules(stripe) {
   for (const f of FORMULES) {
     const metadata = { actero_plan: f.plan, actero_periode: f.periode }
     const parCle = prixActifs.find((p) => p.lookup_key === f.lookupKey)
-    if (parCle) {
+    if (parCle && prixConforme(f, parCle)) {
       rapport.formules.push({ lookupKey: f.lookupKey, prixId: parCle.id, action: 'existant' })
       continue
     }
-    const semblable = prixActifs.find((p) =>
-      p.product === produits[f.plan]
-      && p.unit_amount === f.montantCentimes
-      && p.currency === 'eur'
-      && p.recurring?.interval === f.recurring.interval
-      && (p.recurring?.interval_count || 1) === f.recurring.interval_count)
+    const semblable = prixActifs.find((p) => p.product === produits[f.plan] && prixConforme(f, p))
     if (semblable) {
       await stripe.prices.update(semblable.id, { lookup_key: f.lookupKey, transfer_lookup_key: true, metadata })
       rapport.formules.push({ lookupKey: f.lookupKey, prixId: semblable.id, action: 'cle_posee' })
@@ -1877,9 +1961,11 @@ export async function configurerFormules(stripe) {
       currency: 'eur',
       recurring: f.recurring,
       lookup_key: f.lookupKey,
+      // La clé portée par un prix au mauvais montant passe au nouveau prix.
+      ...(parCle ? { transfer_lookup_key: true } : {}),
       metadata,
     })
-    rapport.formules.push({ lookupKey: f.lookupKey, prixId: cree.id, action: 'cree' })
+    rapport.formules.push({ lookupKey: f.lookupKey, prixId: cree.id, action: parCle ? 'remplace' : 'cree' })
   }
 
   for (const f of FORMULES) {
@@ -2002,13 +2088,13 @@ export default withSentry(handler)
  * GET /api/admin/stripe-status
  *
  * Clés secrètes présentes, et, dans le compte Stripe : les six prix des formules
- * (par lookup_key) et les deux coupons du trimestriel.
+ * (par lookup_key, au montant du catalogue) et les deux coupons du trimestriel.
  * Auth : admin (Bearer).
  */
 import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe'
 import { authenticateAdmin } from './_helpers.js'
-import { FORMULES } from '../lib/formules.js'
+import { FORMULES, prixConforme } from '../lib/formules.js'
 
 async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' })
@@ -2028,8 +2114,13 @@ async function handler(req, res) {
     if (status.stripe_secret_key) {
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
       const { data } = await stripe.prices.list({ lookup_keys: FORMULES.map((f) => f.lookupKey), active: true, limit: 10 })
-      const cles = new Set(data.map((p) => p.lookup_key))
-      status.formules = FORMULES.map((f) => ({ lookupKey: f.lookupKey, plan: f.plan, periode: f.periode, configuree: cles.has(f.lookupKey) }))
+      // Configurée : un prix porte la clé ET facture exactement le catalogue.
+      status.formules = FORMULES.map((f) => ({
+        lookupKey: f.lookupKey,
+        plan: f.plan,
+        periode: f.periode,
+        configuree: data.some((p) => p.lookup_key === f.lookupKey && prixConforme(f, p)),
+      }))
       for (const f of FORMULES) {
         if (!f.coupon) continue
         let configure = false
@@ -2073,7 +2164,7 @@ import { StatusPill } from '../ui/StatusPill'
 import { FORMULES } from '../../../api/lib/formules.js'
 import { affichagePrix } from '../../lib/affichage-formules'
 
-const ACTIONS = { existant: 'déjà en place', cle_posee: 'clé posée sur un prix existant', cree: 'créé' }
+const ACTIONS = { existant: 'déjà en place', cle_posee: 'clé posée sur un prix existant', cree: 'créé', remplace: 'remplacé (le montant avait changé)' }
 
 export function AdminStripeSetupView() {
   const [status, setStatus] = useState(null)
@@ -2148,7 +2239,7 @@ export function AdminStripeSetupView() {
               {status.formules.map((f) => (
                 <div key={f.lookupKey} className="flex items-center justify-between py-2 border-b border-[#f0f0f0]">
                   <code className="text-[12px] font-mono bg-surface px-2 py-0.5 rounded">{f.lookupKey}</code>
-                  {f.configuree ? <StatusPill variant="success" icon={Check}>Prix en place</StatusPill> : <StatusPill variant="danger" icon={X}>Absent</StatusPill>}
+                  {f.configuree ? <StatusPill variant="success" icon={Check}>Prix en place</StatusPill> : <StatusPill variant="danger" icon={X}>À configurer</StatusPill>}
                 </div>
               ))}
               {status.coupons.map((c) => (
@@ -2685,7 +2776,7 @@ import { PLANS, PLAN_ORDER, getPlanConfig } from '../../lib/plans'
 import { resolveUpgrade } from '../../lib/billing-router'
 import { SelecteurFormule } from '../billing/SelecteurFormule'
 import { affichagePrix } from '../../lib/affichage-formules'
-import { PERIODE_API, PERIODE_DEPUIS_API } from '../../../api/lib/formules.js'
+import { PERIODE_API, periodeDepuisApi } from '../../../api/lib/formules.js'
 ```
 
 2. Remplacer :
@@ -2719,6 +2810,10 @@ par :
     },
   })
   const periodeEffective = boutiqueShopify ? 'mensuel' : periode
+  // Le −50 % du premier trimestre ne vaut qu'une fois par client : ni pour un
+  // client déjà abonné, ni pour celui qui a eu un essai. Le serveur tranche
+  // (offreDeBienvenue) ; ici, on évite seulement de l'annoncer à tort.
+  const offreBienvenue = !client?.trial_ends_at && !client?.stripe_subscription_id
 ```
 
 4. Dans `handleUpgrade`, remplacer :
@@ -2791,8 +2886,8 @@ par :
   const planConfig = plan.config || getPlanConfig('free')
   // Le prix affiché pour le plan actuel est celui de SA formule, pas celle du
   // sélecteur.
-  const periodeActuelle = PERIODE_DEPUIS_API[client?.billing_period] || 'mensuel'
-  const affichageActuel = ['starter', 'pro'].includes(plan.planId) ? affichagePrix(plan.planId, periodeActuelle) : null
+  const periodeActuelle = periodeDepuisApi(client?.billing_period) || 'mensuel'
+  const affichageActuel = ['starter', 'pro'].includes(plan.planId) ? affichagePrix(plan.planId, periodeActuelle, { offreBienvenue: false }) : null
 ```
 
 5 bis. Dans l'en-tête de la page (le bloc « Prix »), remplacer :
@@ -2849,14 +2944,14 @@ par :
 
 ```jsx
           {!boutiqueShopify && (
-            <SelecteurFormule periode={periode} onChange={setPeriode} taille="petite" />
+            <SelecteurFormule periode={periode} onChange={setPeriode} taille="petite" offreBienvenue={offreBienvenue} />
           )}
 ```
 
 9. Dans la boucle des cartes, remplacer `const price = p.price?.[billingPeriod]` par :
 
 ```js
-            const affichage = isEnterprise ? null : affichagePrix(planKey, periodeEffective)
+            const affichage = isEnterprise ? null : affichagePrix(planKey, periodeEffective, { offreBienvenue })
 ```
 
 remplacer :
