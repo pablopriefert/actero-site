@@ -12,6 +12,17 @@ import { formuleDuPrix, PERIODE_API } from './formules.js'
  */
 
 /**
+ * Statuts Stripe d'un abonnement qui n'ouvre plus aucun droit : résilié, non
+ * payé, ou jamais abouti. `planUpdateFromSubscription` rétrograde en `free`
+ * sur ces statuts, et la branche upgrade du webhook (stripe-webhook.js) doit
+ * sortir avant d'écrire un plan payant si l'abonnement relu s'y trouve —
+ * sinon un événement Stripe rejoué (jusqu'à 3 jours plus tard) accorderait
+ * un plan payant sur un abonnement déjà résilié. Un seul tableau, gelé, pour
+ * que les deux fichiers ne puissent pas diverger silencieusement.
+ */
+export const STATUTS_TERMINES = Object.freeze(['canceled', 'unpaid', 'incomplete_expired'])
+
+/**
  * Decide the clients-row update for a Stripe subscription event.
  *
  * MRR-critical: a `trialing` subscription with NO payment method must never
@@ -47,7 +58,7 @@ export function planUpdateFromSubscription(subscription, { aUneCarte = false } =
     update.status = 'active'
     update.billing_period = PERIODE_API[formule.periode]
     update.billing_provider = 'stripe'
-  } else if (['canceled', 'unpaid', 'incomplete_expired'].includes(status)) {
+  } else if (STATUTS_TERMINES.includes(status)) {
     update.plan = 'free'
     update.status = 'inactive'
   }

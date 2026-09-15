@@ -5,6 +5,7 @@ import {
   formuleDeLAbonnement,
   doitResoudreLaCarte,
   ecritureAutorisee,
+  STATUTS_TERMINES,
 } from './subscription-plan.js'
 
 const PRO_MENSUEL = { id: 'price_pm', lookup_key: 'actero_pro_mensuel' }
@@ -15,6 +16,23 @@ const SANS_CARTE = { aUneCarte: false }
 function sansCommentaires(src) {
   return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
 }
+
+describe('STATUTS_TERMINES', () => {
+  it('contient exactement les trois statuts qui ferment tout droit', () => {
+    // Contenu exact, pas seulement « en contient au moins un » : un statut
+    // ajouté ou retiré ici change le comportement des DEUX fichiers qui s'en
+    // servent (planUpdateFromSubscription et la branche upgrade du webhook).
+    expect(STATUTS_TERMINES).toEqual(['canceled', 'unpaid', 'incomplete_expired'])
+  })
+
+  it('est gelé : y ajouter un statut lève, plutôt que de le glisser en silence', () => {
+    // Modules ES = strict mode : une écriture sur un tableau gelé lève au
+    // lieu d'échouer en silence. On vérifie le comportement, pas seulement
+    // le type — un `Object.freeze` retiré par erreur laisserait ce test rouge.
+    expect(() => STATUTS_TERMINES.push('active')).toThrow(TypeError)
+    expect(STATUTS_TERMINES).toEqual(['canceled', 'unpaid', 'incomplete_expired'])
+  })
+})
 
 describe('planUpdateFromSubscription', () => {
   it('n’accorde rien à un essai sans carte', () => {
@@ -226,20 +244,34 @@ describe('le webhook s’en sert comme prévu', () => {
     }
   })
 
-  it('la branche upgrade relit l’abonnement avant d’écrire, et connaît les trois statuts terminaux', () => {
+  it('la branche upgrade relit l’abonnement avant d’écrire, et se sert de STATUTS_TERMINES', () => {
     // Depuis e82d0e5, une erreur d'écriture vaut 500 et Stripe peut rejouer
     // l'événement jusqu'à 3 jours plus tard. Si l'abonnement a été résilié
     // entre-temps, il ne faut plus accorder le plan — voir subscription-plan.js
-    // et le commentaire de ce bloc dans stripe-webhook.js.
+    // et le commentaire de ce bloc dans stripe-webhook.js. Le contenu exact
+    // des trois statuts n'est vérifié qu'une fois, sur la constante elle-même
+    // — voir describe('STATUTS_TERMINES') plus haut : plus de liste littérale
+    // à dupliquer ici.
     const bloc = blocUpgrade()
     const idxRetrieve = bloc.indexOf('stripe.subscriptions.retrieve(session.subscription')
     const idxUpdate = bloc.indexOf('.update(updateData)')
     expect(idxRetrieve).toBeGreaterThan(-1)
     expect(idxUpdate).toBeGreaterThan(-1)
     expect(idxRetrieve).toBeLessThan(idxUpdate)
-    expect(bloc).toMatch(/canceled/)
-    expect(bloc).toMatch(/unpaid/)
-    expect(bloc).toMatch(/incomplete_expired/)
+    expect(bloc).toMatch(/STATUTS_TERMINES/)
+  })
+
+  it('la branche upgrade sort AVANT d’écrire si l’abonnement relu est terminé', () => {
+    // Une garde qui se contente de chercher les trois statuts dans le bloc
+    // reste verte même si on supprime le `return` : rien ne vérifiait qu'il
+    // mène à une sortie. On exige ici la forme précise de la garde — une
+    // sortie `return res.status(200)` entre le test des statuts terminés et
+    // l'écriture — pour qu'une régression fasse échouer CE test, pas
+    // seulement une relecture humaine.
+    const bloc = blocUpgrade()
+    expect(bloc).toMatch(
+      /STATUTS_TERMINES\.includes\(subscription\.status\)\)\s*\{[\s\S]*?return res\.status\(200\)[\s\S]*?\.update\(updateData\)/
+    )
   })
 
   it('la carte est résolue en mode strict, et c’est son résultat qui décide du plan', () => {

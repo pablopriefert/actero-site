@@ -5,7 +5,7 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/install.js';
 import { trackServerEvent } from './lib/amplitude.js';
-import { planUpdateFromSubscription, formuleDeLAbonnement, doitResoudreLaCarte, ecritureAutorisee } from './lib/subscription-plan.js';
+import { planUpdateFromSubscription, formuleDeLAbonnement, doitResoudreLaCarte, ecritureAutorisee, STATUTS_TERMINES } from './lib/subscription-plan.js';
 import { resolveCustomerCard, OPTIONS_REQUETE_COURTE } from './lib/stripe-customer.js';
 import { formuleDuPrix, PERIODE_API } from './lib/formules.js';
 
@@ -317,7 +317,7 @@ async function handler(req, res) {
               // Stripe peut dépasser les 60 s de la fonction Vercel avant
               // l'écriture ci-dessous — voir sa docstring.
               const subscription = await stripe.subscriptions.retrieve(session.subscription, {}, OPTIONS_REQUETE_COURTE);
-              if (['canceled', 'unpaid', 'incomplete_expired'].includes(subscription.status)) {
+              if (STATUTS_TERMINES.includes(subscription.status)) {
                 // Le paiement a eu lieu, mais l'abonnement a depuis été
                 // résilié — possible ici, car depuis e82d0e5 une erreur plus
                 // bas vaut 500, et Stripe peut rejouer cet événement jusqu'à
