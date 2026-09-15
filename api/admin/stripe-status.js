@@ -1,13 +1,16 @@
 /**
- * Actero Admin — Stripe Environment Variables Status
+ * Actero Admin — état de la configuration Stripe.
  *
  * GET /api/admin/stripe-status
  *
- * Returns which Stripe-related env vars are configured.
- * Auth: requires admin JWT (Bearer token)
+ * Clés secrètes présentes, et, dans le compte Stripe : les six prix des formules
+ * (par lookup_key, au montant du catalogue) et les deux coupons du trimestriel.
+ * Auth : admin (Bearer).
  */
 import { withSentry } from '../lib/sentry.js'
+import Stripe from 'stripe'
 import { authenticateAdmin } from './_helpers.js'
+import { FORMULES, prixConforme } from '../lib/formules.js'
 
 async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' })
@@ -19,13 +22,39 @@ async function handler(req, res) {
     const status = {
       stripe_secret_key: !!process.env.STRIPE_SECRET_KEY,
       stripe_webhook_secret: !!process.env.STRIPE_WEBHOOK_SECRET,
-      stripe_price_starter_monthly: !!process.env.STRIPE_PRICE_STARTER_MONTHLY,
-      stripe_price_starter_annual: !!process.env.STRIPE_PRICE_STARTER_ANNUAL,
-      stripe_price_pro_monthly: !!process.env.STRIPE_PRICE_PRO_MONTHLY,
-      stripe_price_pro_annual: !!process.env.STRIPE_PRICE_PRO_ANNUAL,
+      formules: [],
+      coupons: [],
+      all_configured: false,
     }
 
-    status.all_configured = Object.values(status).every(Boolean)
+    if (status.stripe_secret_key) {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+      const { data } = await stripe.prices.list({ lookup_keys: FORMULES.map((f) => f.lookupKey), active: true, limit: 10 })
+      // Configurée : un prix porte la clé ET facture exactement le catalogue.
+      status.formules = FORMULES.map((f) => ({
+        lookupKey: f.lookupKey,
+        plan: f.plan,
+        periode: f.periode,
+        configuree: data.some((p) => p.lookup_key === f.lookupKey && prixConforme(f, p)),
+      }))
+      for (const f of FORMULES) {
+        if (!f.coupon) continue
+        let configure = false
+        try {
+          await stripe.coupons.retrieve(f.coupon.id)
+          configure = true
+        } catch {
+          configure = false
+        }
+        status.coupons.push({ id: f.coupon.id, configure })
+      }
+    }
+
+    status.all_configured = status.stripe_secret_key
+      && status.stripe_webhook_secret
+      && status.formules.length === FORMULES.length
+      && status.formules.every((f) => f.configuree)
+      && status.coupons.every((c) => c.configure)
 
     return res.status(200).json(status)
   } catch (err) {
