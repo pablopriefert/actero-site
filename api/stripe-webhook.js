@@ -831,7 +831,17 @@ async function handler(req, res) {
 
     case 'customer.subscription.trial_will_end': {
       // Fires 3 days before trial ends
-      const subscription = event.data.object;
+      let subscription = event.data.object;
+      // L'objet de l'événement est figé à sa création : un essai neutralisé
+      // depuis par api/billing/upgrade.js y paraît encore en cours. On décide
+      // donc sur l'abonnement relu, avec un délai borné. Si Stripe ne répond
+      // pas, on retombe sur l'objet de l'événement : ce rappel se fait au
+      // mieux, comme tout ce cas, et le perdre coûterait plus qu'un email de trop.
+      try {
+        subscription = await stripe.subscriptions.retrieve(subscription.id, {}, OPTIONS_REQUETE_COURTE);
+      } catch (err) {
+        console.warn('[TRIAL_REMINDER] abonnement illisible, décision sur l’objet de l’événement :', subscription.id, err.message);
+      }
       // Un essai résilié à sa fin ne démarrera pas : c'est celui que
       // api/billing/upgrade.js neutralise quand le marchand paie une autre
       // formule par Checkout. Lui écrire « ajoutez une carte pour continuer »

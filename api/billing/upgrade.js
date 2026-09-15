@@ -36,7 +36,7 @@ import { parametresCheckout } from '../lib/checkout-formule.js';
  * | HTTP | statut / error           | champs en plus                          | quand |
  * |------|--------------------------|-----------------------------------------|-------|
  * | 200  | checkout                 | checkout_url                            | page Stripe Checkout ouverte |
- * | 200  | change_applique          | success, instant, plan_attendu, message | prix changé : différence prélevée, rien à régler, ou essai en cours |
+ * | 200  | change_applique          | success, instant, plan_attendu, message | prix changé : différence prélevée (nouvelle facture payée), rien à régler, ou essai en cours |
  * | 200  | paiement_a_valider       | facture_url, message                    | la différence attend une action sur la page de la facture (3-D Secure, règlement) |
  * | 200  | paiement_en_cours        | message, facture_url?                   | le paiement de la différence est en traitement |
  * | 400  | requete_invalide         | message                                 | client_id ou target_plan manquant, période ou plan inconnu, formule hors catalogue |
@@ -49,7 +49,7 @@ import { parametresCheckout } from '../lib/checkout-formule.js';
  * | 403  | role_non_autorise        | message                                 | rôle autre que owner ou manager |
  * | 404  | client_introuvable       | message                                 | aucune fiche `clients` pour client_id |
  * | 405  | methode_non_autorisee    | message                                 | méthode autre que POST |
- * | 409  | deja_sur_ce_plan         | message                                 | plan en base, ou prix de l'abonnement, déjà celui demandé |
+ * | 409  | deja_sur_ce_plan         | message                                 | plan en base déjà celui demandé, ou abonné avec carte déjà sur le prix demandé |
  * | 409  | changement_de_formule    | message                                 | abonné avec carte vers une autre périodicité |
  * | 409  | paiement_en_attente      | message                                 | un abonnement vivant est `past_due` |
  * | 409  | abonnement_en_cours      | message                                 | un autre abonnement vivant ; `unpaid` ou `paused` : message « suspendu » |
@@ -250,14 +250,7 @@ async function handler(req, res) {
     if (subscription && ['active', 'trialing'].includes(subscription.status)) {
       const item = subscription.items?.data?.[0];
 
-      // 1. Déjà sur le prix demandé : Stripe a basculé l'abonnement, le webhook
-      //    n'a pas encore réécrit `plan`. Refaire le changement annoncerait un
-      //    passage qui a déjà eu lieu : on s'arrête avant toute écriture Stripe.
-      if (item?.price?.id === prix.id) {
-        return erreur(res, 409, 'deja_sur_ce_plan', DEJA_SUR_CE_PLAN);
-      }
-
-      // 2. La carte, chez le client Stripe de l'abonnement : Stripe refuserait
+      // 1. La carte, chez le client Stripe de l'abonnement : Stripe refuserait
       //    celle d'un autre client. Mode strict : une panne ne vaut pas « pas de
       //    carte ». Repasser par Checkout créerait un second abonnement pendant
       //    que le premier continue de facturer.
@@ -270,7 +263,17 @@ async function handler(req, res) {
       }
 
       if (carte) {
-        // 3. Avec carte : changement immédiat, à périodicité égale seulement.
+        // 2. Avec carte, déjà sur le prix demandé : Stripe a basculé
+        //    l'abonnement, le webhook n'a pas encore réécrit `plan`. Refaire le
+        //    changement annoncerait un passage qui a déjà eu lieu : on s'arrête
+        //    avant toute écriture Stripe. Seulement avec une carte : sans elle,
+        //    l'abonnement n'a accordé aucun plan, et « déjà sur ce plan »
+        //    laisserait sans issue un marchand resté en free.
+        if (item?.price?.id === prix.id) {
+          return erreur(res, 409, 'deja_sur_ce_plan', DEJA_SUR_CE_PLAN);
+        }
+
+        // 3. Changement immédiat, à périodicité égale seulement.
         //    La périodicité RÉELLE du prix, pas sa `lookup_key` : un ancien prix
         //    sans clé n'est rattaché à aucune formule, et laissait un annuel
         //    basculer en mensuel sans passer par le support. Cette garde ne
@@ -335,9 +338,17 @@ async function handler(req, res) {
           const facture = changement?.latest_invoice && typeof changement.latest_invoice === 'object'
             ? changement.latest_invoice
             : null;
-          // « Prélevée » seulement sur preuve : une différence couverte par un
-          // avoir ou une remise ne prélève rien.
-          const preleve = (facture?.amount_paid ?? 0) > 0;
+          // « Prélevée » seulement sur preuve, et il en faut deux :
+          //   - une facture NOUVELLE. Sans proration, Stripe n'en crée aucune, et
+          //     `latest_invoice` reste celle du dernier renouvellement — payée,
+          //     mais sans rapport avec ce changement ;
+          //   - un montant payé : une différence couverte par un avoir ou une
+          //     remise ne prélève rien.
+          const factureAvant = typeof subscription.latest_invoice === 'string'
+            ? subscription.latest_invoice
+            : (subscription.latest_invoice?.id ?? null);
+          const nouvelleFacture = Boolean(facture?.id) && facture.id !== factureAvant;
+          const preleve = nouvelleFacture && (facture.amount_paid ?? 0) > 0;
           return res.status(200).json({
             statut: 'change_applique',
             success: true,
@@ -375,7 +386,8 @@ async function handler(req, res) {
       }
 
       // 4. Sans carte, en essai : l'essai de l'ancien formulaire intégré.
-      //    Checkout le remplace, et il sera neutralisé juste avant la session.
+      //    Checkout le remplace, quels que soient son prix (celui demandé
+      //    compris) et sa périodicité ; il sera neutralisé juste avant la session.
       // 5. Sans carte et actif : rien ici. Il reste vivant, et la vérification
       //    ci-dessous répond 409 abonnement_en_cours.
       if (subscription.status === 'trialing') essaiSansCarteId = subscription.id;

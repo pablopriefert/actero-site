@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { OPTIONS_REQUETE_COURTE } from './stripe-customer.js'
 import {
   planUpdateFromSubscription,
   formuleDeLAbonnement,
@@ -232,6 +233,106 @@ describe('annoncerLaFinDEssai', () => {
 
   it('cancel_at sans date de fin d’essai à comparer : on l’annonce', () => {
     expect(annoncerLaFinDEssai(essai({ cancel_at: FIN_ESSAI, trial_end: null }))).toBe(true)
+  })
+})
+
+describe('trial_will_end : le webhook relit l’abonnement avant d’annoncer la fin de l’essai', () => {
+  // L'objet d'un événement est figé à sa création. Un essai neutralisé par la
+  // route de paiement après la création de l'événement, mais avant sa
+  // livraison, y paraît encore en cours : décider dessus enverrait « ajoutez
+  // une carte pour continuer » à un marchand qui vient de payer une autre formule.
+  //
+  // Le vrai webhook est chargé, ses dépendances externes remplacées pour ce
+  // bloc seulement (vi.doMock) : Stripe, Resend, Supabase, Sentry. La décision
+  // (annoncerLaFinDEssai, resolveCustomerCard) reste la vraie.
+  const w = { stripe: null, envoyer: null }
+  const MODULES = ['./sentry.js', '../marketplace/install.js', './amplitude.js', 'resend', '@supabase/supabase-js', 'stripe']
+  const secretAvant = process.env.STRIPE_WEBHOOK_SECRET
+  let webhook
+  let avertissements
+  let traces
+
+  beforeAll(async () => {
+    // Lu au chargement du module : à poser avant l'import.
+    process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test'
+    vi.resetModules()
+    vi.doMock('./sentry.js', () => ({ withSentry: (fn) => fn, captureError: () => {} }))
+    vi.doMock('../marketplace/install.js', () => ({ finalizeInstall: async () => {} }))
+    vi.doMock('./amplitude.js', () => ({ trackServerEvent: async () => {} }))
+    vi.doMock('resend', () => ({ Resend: function Resend() { return { emails: { send: (...args) => w.envoyer(...args) } } } }))
+    // Seule écriture en base sur ce chemin : la réservation de l'événement.
+    vi.doMock('@supabase/supabase-js', () => ({ createClient: () => ({ from: () => ({ insert: async () => ({ error: null }) }) }) }))
+    // Le webhook crée son client Stripe au chargement : il délègue au faux du test en cours.
+    vi.doMock('stripe', () => ({ default: function Stripe() { return new Proxy({}, { get: (_, cle) => w.stripe[cle] }) } }))
+    ;({ default: webhook } = await import('../stripe-webhook.js'))
+  })
+
+  afterAll(() => {
+    for (const module of MODULES) vi.doUnmock(module)
+    vi.resetModules()
+    if (secretAvant === undefined) delete process.env.STRIPE_WEBHOOK_SECRET
+    else process.env.STRIPE_WEBHOOK_SECRET = secretAvant
+  })
+
+  beforeEach(() => {
+    avertissements = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    traces = vi.spyOn(console, 'log').mockImplementation(() => {})
+    w.envoyer = vi.fn(async () => ({ id: 'email_1' }))
+  })
+
+  afterEach(() => {
+    avertissements.mockRestore()
+    traces.mockRestore()
+  })
+
+  const essai = (over = {}) => ({
+    id: 'sub_essai', object: 'subscription', status: 'trialing', customer: 'cus_1',
+    trial_end: 1_900_000_000, cancel_at: null, cancel_at_period_end: false,
+    default_payment_method: null, metadata: { client_id: 'c1' }, ...over,
+  })
+
+  /** Livre un trial_will_end dont l'objet est `evenement` ; Stripe relit `relu` (ou lève si c'est une erreur). */
+  async function livrer({ evenement, relu }) {
+    w.stripe = {
+      webhooks: { constructEvent: vi.fn(() => ({ id: 'evt_1', type: 'customer.subscription.trial_will_end', data: { object: evenement } })) },
+      subscriptions: { retrieve: vi.fn(async () => { if (relu instanceof Error) throw relu; return relu }) },
+      customers: { retrieve: vi.fn(async (id) => ({ id, email: 'marchand@ex.com', deleted: false })) },
+      paymentMethods: { list: vi.fn(async () => ({ data: [] })) },
+    }
+    const res = { statusCode: 200, body: null, status(c) { this.statusCode = c; return this }, json(b) { this.body = b; return this } }
+    await webhook({
+      method: 'POST',
+      headers: { 'stripe-signature': 't=1,v1=signature' },
+      async *[Symbol.asyncIterator]() { yield Buffer.from('{}') },
+    }, res)
+    return res
+  }
+
+  it('l’événement dit « essai en cours », l’abonnement relu est résilié à sa fin : aucun email', async () => {
+    const res = await livrer({ evenement: essai(), relu: essai({ cancel_at_period_end: true }) })
+    expect(res.statusCode).toBe(200)
+    expect(w.stripe.subscriptions.retrieve).toHaveBeenCalledWith('sub_essai', {}, OPTIONS_REQUETE_COURTE)
+    expect(w.envoyer).not.toHaveBeenCalled()
+  })
+
+  it('c’est l’abonnement relu qui décide, dans les deux sens : relu sans résiliation, l’email part', async () => {
+    const res = await livrer({ evenement: essai({ cancel_at_period_end: true }), relu: essai() })
+    expect(res.statusCode).toBe(200)
+    expect(w.envoyer).toHaveBeenCalledTimes(1)
+    expect(w.envoyer.mock.calls[0][0].to).toEqual(['marchand@ex.com'])
+  })
+
+  it('relecture impossible : on retombe sur l’objet de l’événement, avec une trace', async () => {
+    let res = await livrer({ evenement: essai({ cancel_at_period_end: true }), relu: new Error('Stripe indisponible') })
+    expect(res.statusCode).toBe(200)
+    expect(w.envoyer).not.toHaveBeenCalled()
+    expect(avertissements).toHaveBeenCalled()
+
+    avertissements.mockClear()
+    res = await livrer({ evenement: essai(), relu: new Error('Stripe indisponible') })
+    expect(res.statusCode).toBe(200)
+    expect(w.envoyer).toHaveBeenCalledTimes(1)
+    expect(avertissements).toHaveBeenCalled()
   })
 })
 

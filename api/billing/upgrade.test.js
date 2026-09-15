@@ -182,13 +182,19 @@ const clientsLus = () => h.stripe.subscriptions.list.mock.calls.map(([p]) => p.c
 
 const PRIX_STARTER_MENSUEL = { id: 'price_actero_starter_mensuel', lookup_key: 'actero_starter_mensuel', recurring: { interval: 'month', interval_count: 1 } }
 
-/** Un abonné Starter mensuel, carte posée sur l'abonnement, chez le client Stripe du compte. */
+const PRIX_PRO_MENSUEL = { id: 'price_actero_pro_mensuel', lookup_key: 'actero_pro_mensuel', recurring: { interval: 'month', interval_count: 1 } }
+
+/**
+ * Un abonné Starter mensuel, carte posée sur l'abonnement, chez le client Stripe du compte.
+ * `latest_invoice` : la facture du dernier renouvellement, telle que `retrieve`
+ * la rend (un identifiant) — le changement de prix en crée une autre (`in_1`).
+ */
 function abonneStarterMensuel(surcharge = {}) {
   h.clientRow.plan = 'starter'
   h.clientRow.stripe_subscription_id = 'sub_1'
   const abonnement = {
     id: 'sub_1', status: 'active', customer: 'cus_1', default_payment_method: 'pm_1',
-    cancel_at_period_end: false, cancel_at: null,
+    cancel_at_period_end: false, cancel_at: null, latest_invoice: 'in_0',
     items: { data: [{ id: 'si_1', price: PRIX_STARTER_MENSUEL }] },
     ...surcharge,
   }
@@ -568,13 +574,17 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
     expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
   })
 
-  it('seul l’ESSAI sans carte est ignoré : un abonnement actif sans carte bloque', async () => {
-    abonneStarterMensuel({ status: 'active', default_payment_method: null })
-    const res = await envoyer(post({ target_plan: 'pro' }))
-    expect(res.statusCode).toBe(409)
-    expect(res.body.error).toBe('abonnement_en_cours')
-    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
-    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  it('seul l’ESSAI sans carte est ignoré : un abonnement actif sans carte bloque, même déjà sur le prix demandé', async () => {
+    // Sans carte, « déjà sur ce plan » ne vaut rien : aucun plan n'a été accordé.
+    for (const price of [PRIX_STARTER_MENSUEL, PRIX_PRO_MENSUEL]) {
+      reinitialiser()
+      abonneStarterMensuel({ status: 'active', default_payment_method: null, items: { data: [{ id: 'si_1', price }] } })
+      const res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode, price.id).toBe(409)
+      expect(res.body.error, price.id).toBe('abonnement_en_cours')
+      expect(h.stripe.subscriptions.update, price.id).not.toHaveBeenCalled()
+      expect(h.stripe.checkout.sessions.create, price.id).not.toHaveBeenCalled()
+    }
   })
 
   it('un nouveau clic avant le webhook : l’abonnement que Checkout vient de créer bloque', async () => {
@@ -624,6 +634,21 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
     expect(h.stripe.subscriptions.update.mock.calls).toEqual([
       ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
     ])
+  })
+
+  it('essai sans carte déjà sur le prix demandé : page Stripe et essai neutralisé, pas deja_sur_ce_plan', async () => {
+    // Sans carte, l'essai n'a accordé aucun plan : le marchand est en free et
+    // doit pouvoir payer ce prix-là. Lui répondre « déjà sur ce plan » le
+    // laissait sans issue.
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, items: { data: [{ id: 'si_1', price: PRIX_PRO_MENSUEL }] } })
+    h.clientRow.plan = 'free'
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'monthly' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('checkout')
+    expect(h.stripe.subscriptions.update.mock.calls).toEqual([
+      ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
+    ])
+    expect(h.stripe.checkout.sessions.create.mock.calls[0][0].line_items[0].price).toBe('price_actero_pro_mensuel')
   })
 
   it('essai sans carte sur un ancien prix sans clé, vers Pro trimestriel : page Stripe, pas changement_de_formule', async () => {
@@ -732,6 +757,21 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     expect(res.statusCode).toBe(200)
     expect(res.body.statut).toBe('change_applique')
     expect(res.body.message).toBe('Passage au plan pro confirmé : aucun montant à régler aujourd’hui.')
+  })
+
+  it('latest_invoice inchangée, même payée : « aucun montant », pas « prélevée »', async () => {
+    // Sans proration, Stripe ne crée aucune facture : `latest_invoice` reste
+    // celle du dernier renouvellement, payée, et ne prouve rien du changement.
+    // L'abonnement lu avant la porte en identifiant, ou en objet s'il est étendu.
+    for (const latest_invoice of ['in_1', { id: 'in_1', object: 'invoice' }]) {
+      reinitialiser()
+      abonneStarterMensuel({ latest_invoice })
+      expect(h.changement.latest_invoice).toMatchObject({ id: 'in_1', status: 'paid', amount_paid: 30000 })
+      const res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode, JSON.stringify(latest_invoice)).toBe(200)
+      expect(res.body.statut).toBe('change_applique')
+      expect(res.body.message, JSON.stringify(latest_invoice)).toBe('Passage au plan pro confirmé : aucun montant à régler aujourd’hui.')
+    }
   })
 
   it('essai avec carte : le message d’essai', async () => {
@@ -894,19 +934,16 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     }
   })
 
-  it('déjà sur le prix demandé (colonne plan en retard) : 409 deja_sur_ce_plan, sans aucun update', async () => {
+  it('abonné avec carte déjà sur le prix demandé (colonne plan en retard) : 409 deja_sur_ce_plan, sans aucun update', async () => {
     // Stripe a déjà basculé l'abonnement sur Pro, le webhook n'a pas encore
     // réécrit `plan` : refaire le changement annoncerait un succès de trop.
-    abonneStarterMensuel({
-      default_payment_method: null,
-      items: { data: [{ id: 'si_1', price: { id: 'price_actero_pro_mensuel', lookup_key: 'actero_pro_mensuel', recurring: { interval: 'month', interval_count: 1 } } }] },
-    })
+    // La carte est rangée sur le client Stripe, pas sur l'abonnement.
+    abonneStarterMensuel({ default_payment_method: null, items: { data: [{ id: 'si_1', price: PRIX_PRO_MENSUEL }] } })
     h.customerCards = [{ id: 'pm_x' }]
     const res = await envoyer(post({ target_plan: 'pro', billing_period: 'monthly' }))
     expect(res.statusCode).toBe(409)
     expect(res.body.error).toBe('deja_sur_ce_plan')
     expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
-    expect(h.stripe.paymentMethods.list).not.toHaveBeenCalled()
     expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
 
