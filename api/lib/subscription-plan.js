@@ -98,6 +98,32 @@ export function doitResoudreLaCarte(subscription) {
 }
 
 /**
+ * Faut-il envoyer l'email « votre essai se termine » pour cet abonnement ?
+ *
+ * Non quand l'essai ne démarrera pas : résilié en fin de période
+ * (`cancel_at_period_end`), ou résiliation programmée (`cancel_at`) au plus
+ * tard à la fin de l'essai. C'est le sort de l'essai sans carte que
+ * api/billing/upgrade.js neutralise avant d'ouvrir Checkout pour une autre
+ * formule : l'email dirait à ce marchand « ajoutez une carte pour continuer »,
+ * et une carte ajoutée ferait démarrer cet essai — Starter facturé en plus du
+ * Pro qu'il vient de payer.
+ *
+ * Une résiliation programmée APRÈS la fin de l'essai laisse l'abonnement
+ * démarrer d'abord : l'email reste dû. Sans `trial_end` à comparer, rien ne
+ * prouve que l'essai ne démarrera pas : l'email part aussi.
+ *
+ * @param {any} subscription — objet Subscription de Stripe
+ * @returns {boolean}
+ */
+export function annoncerLaFinDEssai(subscription) {
+  if (subscription?.cancel_at_period_end === true) return false
+  const cancelAt = subscription?.cancel_at
+  const finDEssai = subscription?.trial_end
+  if (typeof cancelAt === 'number' && typeof finDEssai === 'number' && cancelAt <= finDEssai) return false
+  return true
+}
+
+/**
  * La mise à jour à écrire pour ce client, ou `null` si rien ne doit l'être.
  *
  * Le webhook retrouve le client par `metadata.client_id`, pas par

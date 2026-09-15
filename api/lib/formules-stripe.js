@@ -10,8 +10,13 @@ import { prixConforme } from './formules.js'
  * côté d'un seul d'entre eux fait payer deux abonnements — un `past_due`
  * continue ses relances pendant que le nouveau facture.
  *
- * `incomplete` n'y figure pas : son premier paiement n'a pas abouti, et Stripe
- * l'expire seul au bout de 23 heures s'il n'aboutit pas.
+ * `incomplete` n'y figure pas, alors qu'un tel abonnement peut encore aboutir
+ * pendant 23 heures (son premier paiement attend, par exemple, un 3-D Secure).
+ * Il est ignoré pour deux raisons : expirer une session Checkout — ce que la
+ * route de paiement fait avant d'en ouvrir une autre — annule l'abonnement
+ * qu'elle portait ; et l'ancien formulaire intégré (create-subscription +
+ * PaymentModal), qui en laissait derrière lui, est supprimé avant la mise en
+ * production.
  */
 export const STATUTS_VIVANTS = Object.freeze(['active', 'past_due', 'unpaid', 'paused', 'trialing'])
 
@@ -37,64 +42,77 @@ export async function prixDeLaFormule(stripe, formule) {
 }
 
 /**
- * Ce client Stripe a-t-il déjà eu un abonnement, quel qu'en soit le statut
- * actuel — pas seulement un abonnement qui a réellement facturé : un essai
- * annulé sans qu'aucune facture n'ait été émise compte, tout comme un
- * abonnement `incomplete` pas encore expiré. Seuls les `incomplete_expired`
- * sont ignorés (voir plus bas). Une erreur Stripe remonte : elle ne doit
- * jamais valoir « jamais abonné », sinon une panne accorderait un avantage de
- * bienvenue.
+ * L'historique Stripe des abonnements d'un compte Actero, relevé en une fois
+ * chez chacun de ses clients Stripe.
  *
- * `customerId` doit être une chaîne non vide : un « je ne sais pas » ne doit
- * jamais glisser vers « jamais abonné » sans même interroger Stripe — ça
- * contredirait la promesse ci-dessus.
+ * Un compte peut en avoir plusieurs : celui de la session de paiement, et
+ * celui qui porte l'abonnement enregistré quand l'identifiant a été remplacé
+ * (changement de clé, client venu du tunnel). Ne lire que le premier laissait
+ * passer un abonnement vivant chez le second — et Checkout s'ouvrait par-dessus.
+ * La route posait aussi deux fois la même question à Stripe, une pour
+ * l'avantage de bienvenue, une pour les abonnements en cours.
  *
- * `incomplete_expired` est exclu du calcul : Stripe crée cet abonnement dès
- * l'ouverture du formulaire de paiement, avant toute carte enregistrée. Un
- * marchand qui ouvre cet écran puis l'abandonne n'a jamais rien payé, et ne
- * doit pas perdre son avantage de bienvenue pour autant.
- *
- * `has_more: true` (plus d'une page de résultats) compte prudemment comme
- * « déjà abonné » : au-delà de la première page, on ne sait plus ce que
- * contiennent les abonnements suivants, et un faux « jamais abonné » coûterait
- * plus cher qu'un faux positif.
- *
- * @param {import('stripe').Stripe} stripe
- * @param {string} customerId
- * @returns {Promise<boolean>}
- */
-export async function aDejaEuUnAbonnement(stripe, customerId) {
-  if (typeof customerId !== 'string' || !customerId) {
-    throw new TypeError('aDejaEuUnAbonnement : customerId doit être une chaîne non vide')
-  }
-  const { data, has_more } = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 100 })
-  return data.some((s) => s.status !== 'incomplete_expired') || has_more === true
-}
-
-/**
- * Les abonnements encore vivants de ce client Stripe (voir `STATUTS_VIVANTS`)
- * — ceux qu'un second abonnement viendrait doubler.
- *
- * Même prudence que `aDejaEuUnAbonnement` : ce que la route en déduit, c'est
- * « on peut ouvrir Checkout ». Aucun « je ne sais pas » ne doit donc valoir
- * « aucun abonnement » :
- *   - `customerId` doit être une chaîne non vide, sinon on lève sans même
- *     interroger Stripe ;
+ * Ce qu'on en déduit engage de l'argent : un avantage de bienvenue accordé, un
+ * second abonnement ouvert. Aucun « je ne sais pas » ne doit donc valoir « rien
+ * trouvé » :
+ *   - les identifiants vides (`null`, `undefined`, `''`) et les doublons sont
+ *     retirés ; s'il n'en reste aucun, on lève sans interroger Stripe ;
+ *   - un identifiant qui n'est pas une chaîne lève aussi : l'écarter en silence
+ *     ferait sauter la lecture d'un client ;
  *   - une erreur Stripe remonte ;
- *   - `has_more: true` lève aussi : un abonnement vivant peut se trouver sur
- *     la page qu'on n'a pas lue.
+ *   - `has_more` chez un seul client lève : l'abonnement qui compte peut se
+ *     trouver sur la page qu'on n'a pas lue.
+ *
+ * Renvoie :
+ *   - `dejaAbonne` : au moins un abonnement, quel qu'en soit le statut, sauf
+ *     `incomplete_expired`. Un essai annulé sans facture compte. Pas un
+ *     `incomplete_expired` : Stripe le crée dès l'ouverture d'un formulaire de
+ *     paiement, avant toute carte, et un marchand qui referme cet écran n'a
+ *     rien payé — il garde son avantage de bienvenue.
+ *   - `vivants` : les abonnements dont le statut est dans `STATUTS_VIVANTS`
+ *     (voir pourquoi `incomplete` n'y est pas), chacun une seule fois.
  *
  * @param {import('stripe').Stripe} stripe
- * @param {string} customerId
- * @returns {Promise<import('stripe').Stripe.Subscription[]>}
+ * @param {Array<string|null|undefined>} customerIds
+ * @returns {Promise<{ dejaAbonne: boolean, vivants: import('stripe').Stripe.Subscription[] }>}
  */
-export async function abonnementsVivants(stripe, customerId) {
-  if (typeof customerId !== 'string' || !customerId) {
-    throw new TypeError('abonnementsVivants : customerId doit être une chaîne non vide')
+export async function lireHistoriqueAbonnements(stripe, customerIds) {
+  if (!Array.isArray(customerIds)) {
+    throw new TypeError('lireHistoriqueAbonnements : customerIds doit être un tableau d’identifiants de clients Stripe')
   }
-  const { data, has_more } = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 100 })
-  if (has_more === true) {
-    throw new Error(`abonnementsVivants : plus d'une page d'abonnements pour ${customerId}, impossible de tous les vérifier`)
+  /** @type {string[]} */
+  const clients = []
+  for (const id of customerIds) {
+    if (id === null || id === undefined || id === '') continue
+    if (typeof id !== 'string') {
+      throw new TypeError('lireHistoriqueAbonnements : un identifiant de client Stripe n’est pas une chaîne')
+    }
+    if (!clients.includes(id)) clients.push(id)
   }
-  return data.filter((s) => STATUTS_VIVANTS.includes(s.status))
+  if (clients.length === 0) {
+    throw new TypeError('lireHistoriqueAbonnements : aucun identifiant de client Stripe exploitable')
+  }
+
+  const pages = await Promise.all(clients.map(async (customer) => {
+    const { data, has_more } = await stripe.subscriptions.list({ customer, status: 'all', limit: 100 })
+    if (has_more === true) {
+      throw new Error(`lireHistoriqueAbonnements : plus d'une page d'abonnements pour ${customer}, impossible de conclure`)
+    }
+    return data
+  }))
+  const abonnements = pages.flat()
+
+  const vus = new Set()
+  /** @type {import('stripe').Stripe.Subscription[]} */
+  const vivants = []
+  for (const abonnement of abonnements) {
+    if (!STATUTS_VIVANTS.includes(abonnement.status) || vus.has(abonnement.id)) continue
+    vus.add(abonnement.id)
+    vivants.push(abonnement)
+  }
+
+  return {
+    dejaAbonne: abonnements.some((s) => s.status !== 'incomplete_expired'),
+    vivants,
+  }
 }

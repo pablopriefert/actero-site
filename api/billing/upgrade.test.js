@@ -9,19 +9,25 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
  * `.select()`. L'ancien renvoyait la même ligne quelle que soit la requête :
  * un lien vers un autre client, ou un code de parrainage lu sur la mauvaise
  * fiche, passaient sans qu'aucun test ne rougisse.
+ *
+ * Le faux Stripe est INDEXÉ, pour la même raison : `subscriptions.list` et
+ * `checkout.sessions.list` ne rendent que les objets du `customer` demandé,
+ * et `subscriptions.retrieve` l'abonnement de cet identifiant — ou lève comme
+ * Stripe. L'ancien rendait la même liste pour n'importe quel client : lire
+ * l'historique du mauvais client Stripe restait vert.
  */
 
 const h = vi.hoisted(() => ({
   user: { id: 'u1', email: 'u@ex.com' },
   admin: false,
   refusShopify: false,
-  // Les lignes de la base, par table.
+  // Les lignes de la base, par table, et les tables dont la lecture échoue.
   base: {},
+  erreursBase: {},
   clientRow: null,
-  // Chez Stripe.
-  existingSub: null,
+  // Chez Stripe : TOUS les abonnements, chacun rattaché à son `customer`.
+  abonnements: [],
   customerCards: [],
-  abonnementsDuClient: [],
   sessionsOuvertes: [],
   codesPromo: {},
   changement: null,
@@ -59,6 +65,12 @@ vi.mock('@supabase/supabase-js', () => {
     const lignes = () => (h.base[table] || []).filter((ligne) => filtres.every(({ colonne, op, valeur }) => (
       op === 'eq' ? ligne[colonne] === valeur : (ligne[colonne] ?? null) !== valeur
     )))
+    // `h.erreursBase[table]` : une erreur pour toute lecture de la table, ou une
+    // fonction des filtres, pour ne faire échouer qu'une lecture précise.
+    const erreurLue = () => {
+      const erreur = h.erreursBase[table]
+      return typeof erreur === 'function' ? erreur(filtres) : erreur
+    }
     const b = {
       select: (c) => { colonnes = c; if (table === 'clients') h.selectsClients.push(c); return b },
       eq: (colonne, valeur) => { filtres.push({ colonne, op: 'eq', valeur }); return b },
@@ -66,8 +78,12 @@ vi.mock('@supabase/supabase-js', () => {
       not: (colonne, _op, valeur) => { filtres.push({ colonne, op: 'not_is', valeur }); return b },
       limit: () => b,
       update: (valeur) => { if (table === 'clients') h.ecrituresClients.push(valeur); return b },
-      maybeSingle: async () => ({ data: projeter(lignes()[0], colonnes), error: null }),
+      // Supabase ne lève pas : une lecture en échec rend `{ data: null, error }`.
+      maybeSingle: async () => (erreurLue()
+        ? { data: null, error: erreurLue() }
+        : { data: projeter(lignes()[0], colonnes), error: null }),
       single: async () => {
+        if (erreurLue()) return { data: null, error: erreurLue() }
         const [ligne] = lignes()
         return ligne ? { data: projeter(ligne, colonnes), error: null } : { data: null, error: { message: 'aucune ligne' } }
       },
@@ -77,7 +93,7 @@ vi.mock('@supabase/supabase-js', () => {
 
   return {
     createClient: () => ({
-      auth: { getUser: async () => ({ data: { user: h.user }, error: null }) },
+      auth: { getUser: async () => ({ data: { user: h.user }, error: h.user ? null : { message: 'jeton invalide' } }) },
       from: (t) => builder(t),
     }),
   }
@@ -87,6 +103,7 @@ vi.mock('stripe', () => ({ default: function Stripe() { return h.stripe } }))
 
 import handler from './upgrade.js'
 import { FORMULES } from '../lib/formules.js'
+import { OPTIONS_REQUETE_COURTE } from '../lib/stripe-customer.js'
 
 function makeRes() {
   return {
@@ -94,6 +111,23 @@ function makeRes() {
     status(c) { this.statusCode = c; return this },
     json(b) { this.body = b; return this },
   }
+}
+
+async function envoyer(requete) {
+  const res = makeRes()
+  await handler(requete, res)
+  return res
+}
+
+/** L'erreur que Stripe lève pour un identifiant qu'il ne connaît pas. */
+function introuvable(id) {
+  return Object.assign(new Error(`No such subscription: '${id}'`), { code: 'resource_missing', statusCode: 404, type: 'StripeInvalidRequestError' })
+}
+
+function abonnementIndexe(id) {
+  const abonnement = h.abonnements.find((s) => s.id === id)
+  if (!abonnement) throw introuvable(id)
+  return abonnement
 }
 
 function baseStripe() {
@@ -111,12 +145,15 @@ function baseStripe() {
       }),
     },
     subscriptions: {
-      retrieve: vi.fn(async () => h.existingSub),
-      // Un changement immédiat fait deux appels : la carte, puis le prix. Seul
-      // le second porte `payment_behavior`, et reçoit la réponse de Stripe au
-      // paiement de la différence.
-      update: vi.fn(async (id, params) => (params.payment_behavior ? h.changement : { id })),
-      list: vi.fn(async () => ({ data: h.abonnementsDuClient, has_more: false })),
+      retrieve: vi.fn(async (id) => abonnementIndexe(id)),
+      // Un changement immédiat fait jusqu'à trois appels : la carte, le prix,
+      // puis la formule. Seul le prix porte `payment_behavior`, et reçoit la
+      // réponse de Stripe au paiement de la différence.
+      update: vi.fn(async (id, params) => {
+        const abonnement = abonnementIndexe(id)
+        return params.payment_behavior ? h.changement : { ...abonnement, ...params }
+      }),
+      list: vi.fn(async ({ customer }) => ({ data: h.abonnements.filter((s) => s.customer === customer), has_more: false })),
     },
     paymentIntents: { retrieve: vi.fn(async (id) => h.intentions[id]) },
     promotionCodes: {
@@ -125,9 +162,9 @@ function baseStripe() {
     paymentMethods: { list: vi.fn(async () => ({ data: h.customerCards })) },
     checkout: {
       sessions: {
-        list: vi.fn(async () => ({ data: h.sessionsOuvertes, has_more: false })),
+        list: vi.fn(async ({ customer }) => ({ data: h.sessionsOuvertes.filter((s) => s.customer === customer), has_more: false })),
         expire: vi.fn(async (id) => ({ id, status: 'expired' })),
-        create: vi.fn(async () => ({ url: 'https://checkout.stripe.com/c/pay/cs_1' })),
+        create: vi.fn(async () => ({ id: 'cs_1', url: 'https://checkout.stripe.com/c/pay/cs_1' })),
       },
     },
   }
@@ -140,32 +177,40 @@ function appelsStripe(o = h.stripe) {
     : (v && typeof v === 'object' ? appelsStripe(v) : 0)), 0)
 }
 
+/** Les clients Stripe dont la route a lu l'historique, triés. */
+const clientsLus = () => h.stripe.subscriptions.list.mock.calls.map(([p]) => p.customer).sort()
+
+const PRIX_STARTER_MENSUEL = { id: 'price_actero_starter_mensuel', lookup_key: 'actero_starter_mensuel', recurring: { interval: 'month', interval_count: 1 } }
+
 /** Un abonné Starter mensuel, carte posée sur l'abonnement, chez le client Stripe du compte. */
 function abonneStarterMensuel(surcharge = {}) {
   h.clientRow.plan = 'starter'
   h.clientRow.stripe_subscription_id = 'sub_1'
-  h.existingSub = {
+  const abonnement = {
     id: 'sub_1', status: 'active', customer: 'cus_1', default_payment_method: 'pm_1',
-    items: { data: [{ id: 'si_1', price: { id: 'price_actero_starter_mensuel', lookup_key: 'actero_starter_mensuel', recurring: { interval: 'month', interval_count: 1 } } }] },
+    cancel_at_period_end: false, cancel_at: null,
+    items: { data: [{ id: 'si_1', price: PRIX_STARTER_MENSUEL }] },
     ...surcharge,
   }
-  h.abonnementsDuClient = [h.existingSub]
+  h.abonnements.push(abonnement)
+  return abonnement
 }
 
 /** Le changement de prix n'est pas passé : une facture de la différence reste ouverte. */
-function changementEnAttente(intention) {
+function changementEnAttente(intention, facture = {}) {
   h.changement = {
     id: 'sub_1', status: 'active',
     pending_update: { expires_at: 1_900_000_000, subscription_items: [] },
     latest_invoice: {
-      id: 'in_2', status: 'open', hosted_invoice_url: 'https://invoice.stripe.com/i/in_2',
+      id: 'in_2', status: 'open', amount_paid: 0, hosted_invoice_url: 'https://invoice.stripe.com/i/in_2',
       payments: { data: [{ is_default: true, payment: { type: 'payment_intent', payment_intent: 'pi_2' } }] },
+      ...facture,
     },
   }
-  h.intentions = { pi_2: { id: 'pi_2', ...intention } }
+  h.intentions = { pi_2: { id: 'pi_2', last_payment_error: null, ...intention } }
 }
 
-beforeEach(() => {
+function reinitialiser() {
   process.env.STRIPE_SECRET_KEY = 'sk_test_x'
   h.user = { id: 'u1', email: 'u@ex.com' }
   h.admin = false
@@ -180,28 +225,45 @@ beforeEach(() => {
     clients: [h.clientRow],
     funnel_clients: [],
   }
-  h.existingSub = null
+  h.erreursBase = {}
+  h.abonnements = []
   h.customerCards = []
-  h.abonnementsDuClient = []
   h.sessionsOuvertes = []
   h.codesPromo = {}
   h.changement = {
     id: 'sub_1', status: 'active', pending_update: null,
-    latest_invoice: { id: 'in_1', status: 'paid', hosted_invoice_url: 'https://invoice.stripe.com/i/in_1', payments: { data: [] } },
+    latest_invoice: { id: 'in_1', status: 'paid', amount_paid: 30000, hosted_invoice_url: 'https://invoice.stripe.com/i/in_1', payments: { data: [] } },
   }
   h.intentions = {}
   h.ecrituresClients = []
   h.selectsClients = []
   h.stripe = baseStripe()
-})
+}
+
+beforeEach(reinitialiser)
 
 const post = (b) => ({ method: 'POST', headers: { authorization: 'Bearer t' }, body: { client_id: 'c1', target_plan: 'starter', billing_period: 'monthly', ...b } })
 
+const INDISPONIBLE = 'Paiement indisponible pour le moment, réessayez dans un instant.'
+const PAS_ENCORE_DISPONIBLE = 'Le paiement n’est pas encore disponible. Écrivez-nous à support@actero.fr.'
+
 describe('POST /api/billing/upgrade — qui peut payer', () => {
-  it('401 sans jeton', async () => {
-    const res = makeRes()
-    await handler({ method: 'POST', headers: {}, body: { client_id: 'c1', target_plan: 'pro' } }, res)
+  it('405 pour une autre méthode que POST', async () => {
+    const res = await envoyer({ method: 'GET', headers: { authorization: 'Bearer t' }, body: {} })
+    expect(res.statusCode).toBe(405)
+    expect(res.body.error).toBe('methode_non_autorisee')
+    expect(appelsStripe()).toBe(0)
+  })
+
+  it('401 sans jeton, ou jeton refusé', async () => {
+    let res = await envoyer({ method: 'POST', headers: {}, body: { client_id: 'c1', target_plan: 'pro' } })
     expect(res.statusCode).toBe(401)
+    expect(res.body.error).toBe('non_authentifie')
+
+    h.user = null
+    res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(401)
+    expect(res.body.error).toBe('non_authentifie')
     expect(appelsStripe()).toBe(0)
   })
 
@@ -212,52 +274,143 @@ describe('POST /api/billing/upgrade — qui peut payer', () => {
       { user_id: 'u1', client_id: 'c2', role: 'owner' },
       { user_id: 'u2', client_id: 'c1', role: 'owner' },
     ]
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(403)
+    expect(res.body.error).toBe('acces_refuse')
     expect(appelsStripe()).toBe(0)
   })
 
   it('403 pour le rôle support : la carte de l’entreprise n’est pas la sienne', async () => {
     h.base.client_users = [{ user_id: 'u1', client_id: 'c1', role: 'support' }]
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(403)
-    expect(res.body.error).toBe('Seuls le propriétaire du compte ou un manager peuvent modifier l’abonnement.')
+    expect(res.body).toEqual({
+      error: 'role_non_autorise',
+      message: 'Seuls le propriétaire du compte ou un manager peuvent modifier l’abonnement.',
+    })
     expect(appelsStripe()).toBe(0)
   })
 
   it('un manager peut payer', async () => {
     h.base.client_users = [{ user_id: 'u1', client_id: 'c1', role: 'manager' }]
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('checkout')
     expect(res.body.checkout_url).toContain('checkout.stripe.com')
+  })
+
+  it('un admin Actero paie pour un compte auquel il n’est pas rattaché', async () => {
+    h.admin = true
+    h.base.client_users = []
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('checkout')
+  })
+
+  it('client_users illisible : 503 indisponible, pas 403', async () => {
+    // Une panne de la base ne dit pas que l'utilisateur n'a pas accès.
+    h.erreursBase.client_users = { message: 'connexion perdue' }
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(503)
+    expect(res.body).toEqual({ error: 'indisponible', message: INDISPONIBLE })
+    expect(appelsStripe()).toBe(0)
+  })
+
+  it('fiche client illisible : 503 ; fiche absente : 404', async () => {
+    h.erreursBase.clients = { message: 'connexion perdue' }
+    let res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(503)
+    expect(res.body.error).toBe('indisponible')
+
+    reinitialiser()
+    h.base.clients = []
+    res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(404)
+    expect(res.body.error).toBe('client_introuvable')
+    expect(appelsStripe()).toBe(0)
   })
 
   it('refus Shopify : la garde répond elle-même, aucun appel Stripe', async () => {
     h.refusShopify = true
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(409)
     expect(res.body.error).toBe('shopify_billing_required')
     expect(appelsStripe()).toBe(0)
   })
 })
 
-describe('POST /api/billing/upgrade — nouvelle page Stripe', () => {
+describe('POST /api/billing/upgrade — requête et catalogue', () => {
   it('refuse une période inconnue, clés héritées comprises', async () => {
     for (const billing_period of ['weekly', 'toString']) {
-      const res = makeRes()
-      await handler(post({ billing_period }), res)
+      const res = await envoyer(post({ billing_period }))
       expect(res.statusCode, billing_period).toBe(400)
+      expect(res.body.error, billing_period).toBe('requete_invalide')
     }
   })
 
+  it('champs manquants ou plan inconnu : 400 requete_invalide, un message précis pour chaque cas', async () => {
+    const manquant = await envoyer(post({ target_plan: undefined }))
+    const inconnu = await envoyer(post({ target_plan: 'gold' }))
+    const periode = await envoyer(post({ billing_period: 'weekly' }))
+    for (const res of [manquant, inconnu, periode]) {
+      expect(res.statusCode).toBe(400)
+      expect(res.body.error).toBe('requete_invalide')
+    }
+    expect(new Set([manquant.body.message, inconnu.body.message, periode.body.message]).size).toBe(3)
+    expect(appelsStripe()).toBe(0)
+  })
+
+  it('plan inférieur au plan actuel : 400 downgrade_non_self_serve', async () => {
+    h.clientRow.plan = 'pro'
+    const res = await envoyer(post({ target_plan: 'starter' }))
+    expect(res.statusCode).toBe(400)
+    expect(res.body.error).toBe('downgrade_non_self_serve')
+    expect(appelsStripe()).toBe(0)
+  })
+
+  it('Enterprise : 400 enterprise_contact, avec le lien Calendly', async () => {
+    const res = await envoyer(post({ target_plan: 'enterprise' }))
+    expect(res.statusCode).toBe(400)
+    expect(res.body.error).toBe('enterprise_contact')
+    expect(res.body.calendly_url).toBe('https://calendly.com/actero-fr/30min')
+    expect(typeof res.body.message).toBe('string')
+  })
+
+  it('déjà sur ce plan : 409 explicite', async () => {
+    h.clientRow.plan = 'pro'
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(409)
+    expect(res.body.error).toBe('deja_sur_ce_plan')
+  })
+
+  it('prix absent de Stripe : « Stripe not configured », message neutre, la consigne d’admin dans les journaux', async () => {
+    const journal = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      h.stripe.prices.list = vi.fn(async () => ({ data: [] }))
+      const res = await envoyer(post({ billing_period: 'annual' }))
+      expect(res.statusCode).toBe(503)
+      // La chaîne exacte : le front la compare.
+      expect(res.body).toEqual({ error: 'Stripe not configured', message: PAS_ENCORE_DISPONIBLE })
+      expect(journal.mock.calls.flat().join(' ')).toMatch(/Configurer Stripe/)
+    } finally {
+      journal.mockRestore()
+    }
+  })
+
+  it('clé Stripe absente : « Stripe not configured », sans appel Stripe', async () => {
+    delete process.env.STRIPE_SECRET_KEY
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(503)
+    expect(res.body).toEqual({ error: 'Stripe not configured', message: PAS_ENCORE_DISPONIBLE })
+    expect(appelsStripe()).toBe(0)
+  })
+})
+
+describe('POST /api/billing/upgrade — nouvelle page Stripe', () => {
   it('mensuel pour un nouveau client : page Stripe, sans essai', async () => {
-    const res = makeRes()
-    await handler(post(), res)
+    const res = await envoyer(post())
     expect(res.statusCode).toBe(200)
+    expect(res.body).toEqual({ statut: 'checkout', checkout_url: 'https://checkout.stripe.com/c/pay/cs_1' })
     const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
     expect(params.customer).toBe('cus_1')
     expect(params.line_items[0].price).toBe('price_actero_starter_mensuel')
@@ -268,8 +421,7 @@ describe('POST /api/billing/upgrade — nouvelle page Stripe', () => {
     // offreDeBienvenue lève si une colonne manque : sans ce test, un .select()
     // incomplet ferait échouer chaque paiement en production. Le mock ne rend
     // que les colonnes lues, donc un oubli ferait aussi échouer la réponse.
-    const res = makeRes()
-    await handler(post(), res)
+    const res = await envoyer(post())
     expect(res.statusCode).toBe(200)
     const colonnes = h.selectsClients.join(',')
     for (const c of ['trial_ends_at', 'billing_provider', 'stripe_subscription_id', 'referral_first_month_free', 'campaign_first_month_free']) {
@@ -278,8 +430,7 @@ describe('POST /api/billing/upgrade — nouvelle page Stripe', () => {
   })
 
   it('trimestriel pour un nouveau client : page Stripe avec le coupon du plan', async () => {
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro', billing_period: 'quarterly' }), res)
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'quarterly' }))
     expect(res.statusCode).toBe(200)
     expect(res.body.checkout_url).toContain('checkout.stripe.com')
     const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
@@ -290,9 +441,8 @@ describe('POST /api/billing/upgrade — nouvelle page Stripe', () => {
   })
 
   it('un client déjà abonné par le passé n’a plus de coupon', async () => {
-    h.abonnementsDuClient = [{ id: 'sub_ancien', status: 'canceled' }]
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro', billing_period: 'quarterly' }), res)
+    h.abonnements = [{ id: 'sub_ancien', status: 'canceled', customer: 'cus_1' }]
+    await envoyer(post({ target_plan: 'pro', billing_period: 'quarterly' }))
     const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
     expect(params.discounts).toBeUndefined()
     expect(params.allow_promotion_codes).toBe(true)
@@ -305,8 +455,7 @@ describe('POST /api/billing/upgrade — nouvelle page Stripe', () => {
     // fiche renverrait.
     h.clientRow.referral_code = 'FILLEUL1'
     h.base.clients.push({ id: 'c0', referral_code: 'PARRAIN1' })
-    const res = makeRes()
-    await handler(post(), res)
+    const res = await envoyer(post())
     expect(res.statusCode).toBe(200)
     const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
     expect(params.metadata.referral_code).toBe('PARRAIN1')
@@ -318,62 +467,88 @@ describe('POST /api/billing/upgrade — nouvelle page Stripe', () => {
     h.clientRow.referral_first_month_free = true
     h.clientRow.referred_by_client_id = 'c0'
     h.base.clients.push({ id: 'c0', referral_code: 'PARRAIN1' })
-    h.abonnementsDuClient = [{ id: 'sub_ancien', status: 'canceled' }]
-    const res = makeRes()
-    await handler(post(), res)
+    h.abonnements = [{ id: 'sub_ancien', status: 'canceled', customer: 'cus_1' }]
+    await envoyer(post())
     const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
     expect(params.metadata.referral_code).toBeUndefined()
     expect(params.subscription_data.metadata.referred_by_client_id).toBeUndefined()
   })
 
-  it('Stripe indisponible pour « déjà abonné ? » : erreur, rien d’accordé', async () => {
+  it('fiche du parrain illisible : 503, la session ne part pas sans le code du parrain', async () => {
+    // Une panne ne vaut pas « parrain sans code » : le parrain ne serait
+    // jamais récompensé, et rien ne le signalerait.
+    h.clientRow.referral_first_month_free = true
+    h.clientRow.referred_by_client_id = 'c0'
+    h.base.clients.push({ id: 'c0', referral_code: 'PARRAIN1' })
+    h.erreursBase.clients = (filtres) => (filtres.some((f) => f.valeur === 'c0') ? { message: 'connexion perdue' } : null)
+    const res = await envoyer(post())
+    expect(res.statusCode).toBe(503)
+    expect(res.body.error).toBe('indisponible')
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  })
+
+  it('historique Stripe illisible : 503, rien d’accordé, pas de page Stripe', async () => {
     h.stripe.subscriptions.list = vi.fn(async () => { throw new Error('panne') })
-    const res = makeRes()
-    await handler(post(), res)
+    const res = await envoyer(post())
     expect(res.statusCode).toBe(503)
+    expect(res.body).toEqual({ error: 'indisponible', message: INDISPONIBLE })
     expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
 
-  it('abonnements en cours illisibles : 503, pas de page Stripe', async () => {
-    // « Déjà abonné ? » répond, la liste des abonnements vivants non : une
-    // panne ne vaut pas « aucun abonnement en cours ».
-    h.stripe.subscriptions.list = vi.fn()
-      .mockResolvedValueOnce({ data: [], has_more: false })
-      .mockRejectedValueOnce(new Error('panne'))
-    const res = makeRes()
-    await handler(post(), res)
-    expect(h.stripe.subscriptions.list).toHaveBeenCalledTimes(2)
-    expect(res.statusCode).toBe(503)
-    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  it('un seul relevé Stripe : une lecture par client, pas deux', async () => {
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(h.stripe.subscriptions.list).toHaveBeenCalledTimes(1)
+    expect(h.stripe.subscriptions.list).toHaveBeenCalledWith({ customer: 'cus_1', status: 'all', limit: 100 })
   })
 
-  it('prix absent de Stripe : « Stripe not configured »', async () => {
-    h.stripe.prices.list = vi.fn(async () => ({ data: [] }))
-    const res = makeRes()
-    await handler(post({ billing_period: 'annual' }), res)
-    expect(res.statusCode).toBe(503)
-    expect(res.body.error).toBe('Stripe not configured')
+  it('client Stripe retrouvé par le tunnel : c’est son historique qui compte', async () => {
+    h.clientRow.stripe_customer_id = null
+    h.base.funnel_clients = [{ onboarded_client_id: 'c1', stripe_customer_id: 'cus_tunnel' }]
+    h.abonnements = [{ id: 'sub_ancien', status: 'canceled', customer: 'cus_tunnel' }]
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'quarterly' }))
+    expect(res.statusCode).toBe(200)
+    expect(clientsLus()).toEqual(['cus_tunnel'])
+    const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
+    expect(params.customer).toBe('cus_tunnel')
+    expect(params.discounts).toBeUndefined()
   })
 
-  it('déjà sur ce plan : 409 explicite', async () => {
-    h.clientRow.plan = 'pro'
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
-    expect(res.statusCode).toBe(409)
-    expect(res.body.error).toBe('deja_sur_ce_plan')
+  it('tunnel illisible : 503, et aucun client Stripe créé en double', async () => {
+    // Une panne ne vaut pas « aucun client Stripe connu » : on en créerait un
+    // second pour le même compte (ACT-39).
+    h.clientRow.stripe_customer_id = null
+    h.erreursBase.funnel_clients = { message: 'connexion perdue' }
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(503)
+    expect(res.body.error).toBe('indisponible')
+    expect(h.stripe.customers.create).not.toHaveBeenCalled()
   })
 })
 
 describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
   it('abonnement en retard de paiement : 409 paiement_en_attente, pas de page Stripe', async () => {
-    for (const status of ['past_due', 'unpaid']) {
-      h.stripe = baseStripe()
+    abonneStarterMensuel({ status: 'past_due' })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(409)
+    expect(res.body).toEqual({
+      error: 'paiement_en_attente',
+      message: 'Un paiement est en attente sur votre abonnement actuel : mettez à jour votre carte depuis « Gérer mon abonnement », puis réessayez.',
+    })
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+  })
+
+  it('abonnement suspendu (unpaid, paused) : 409 abonnement_en_cours — changer de carte ne le débloque pas', async () => {
+    for (const status of ['unpaid', 'paused']) {
+      reinitialiser()
       abonneStarterMensuel({ status })
-      const res = makeRes()
-      await handler(post({ target_plan: 'pro' }), res)
+      const res = await envoyer(post({ target_plan: 'pro' }))
       expect(res.statusCode, status).toBe(409)
-      expect(res.body.error, status).toBe('paiement_en_attente')
-      expect(res.body.message).toBe('Un paiement est en attente sur votre abonnement actuel : mettez à jour votre carte depuis « Gérer mon abonnement », puis réessayez.')
+      expect(res.body, status).toEqual({
+        error: 'abonnement_en_cours',
+        message: 'Votre abonnement actuel est suspendu faute de paiement : écrivez-nous à support@actero.fr, on s’en occupe.',
+      })
       expect(h.stripe.checkout.sessions.create, status).not.toHaveBeenCalled()
       expect(h.stripe.subscriptions.update, status).not.toHaveBeenCalled()
     }
@@ -381,19 +556,21 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
 
   it('l’essai sans carte est ignoré, mais un autre abonnement vivant bloque : 409 abonnement_en_cours', async () => {
     abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
-    h.abonnementsDuClient = [h.existingSub, { id: 'sub_2', status: 'active' }]
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    h.abonnements.push({ id: 'sub_2', status: 'active', customer: 'cus_1' })
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(409)
-    expect(res.body.error).toBe('abonnement_en_cours')
-    expect(res.body.message).toBe('Un abonnement est déjà en cours sur ce compte. Écrivez-nous à support@actero.fr : on s’en occupe.')
+    expect(res.body).toEqual({
+      error: 'abonnement_en_cours',
+      message: 'Un abonnement est déjà en cours sur ce compte. Écrivez-nous à support@actero.fr : on s’en occupe.',
+    })
     expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+    // Refusé avant d'y toucher : l'essai n'est pas neutralisé pour rien.
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
   })
 
   it('seul l’ESSAI sans carte est ignoré : un abonnement actif sans carte bloque', async () => {
     abonneStarterMensuel({ status: 'active', default_payment_method: null })
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(409)
     expect(res.body.error).toBe('abonnement_en_cours')
     expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
@@ -402,42 +579,94 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
 
   it('un nouveau clic avant le webhook : l’abonnement que Checkout vient de créer bloque', async () => {
     // Le webhook n'a encore rien écrit : ni plan, ni stripe_subscription_id.
-    h.abonnementsDuClient = [{ id: 'sub_2', status: 'active' }]
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    h.abonnements = [{ id: 'sub_2', status: 'active', customer: 'cus_1' }]
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(409)
     expect(res.body.error).toBe('abonnement_en_cours')
     expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
 
   it('abonnement enregistré chez un autre client Stripe, en retard : il bloque aussi', async () => {
-    // La liste du client Stripe de la session ne le voit pas.
     abonneStarterMensuel({ status: 'past_due', customer: 'cus_ancien' })
-    h.abonnementsDuClient = []
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(409)
     expect(res.body.error).toBe('paiement_en_attente')
     expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
 
-  it('abonnement d’essai sans carte : nouvelle page Stripe, aucun échange de prix', async () => {
-    abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro', billing_period: 'monthly' }), res)
-    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+  it('abonnement enregistré résilié chez l’ancien client Stripe, un autre actif chez lui : 409 abonnement_en_cours', async () => {
+    // L'abonnement enregistré ne vit plus, mais son client Stripe en porte un
+    // autre qui facture : la liste du client de la session ne le voit pas.
+    abonneStarterMensuel({ status: 'canceled', customer: 'cus_ancien' })
+    h.abonnements.push({ id: 'sub_autre', status: 'active', customer: 'cus_ancien' })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(409)
+    expect(res.body.error).toBe('abonnement_en_cours')
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  })
+
+  it('l’historique se lit chez le client Stripe de la session et chez celui de l’abonnement enregistré — nulle part ailleurs', async () => {
+    // L'identifiant en base désigne un client Stripe supprimé : la session
+    // part avec celui qui le remplace, et c'est lui qu'on lit, pas l'ancien.
+    h.clientRow.stripe_customer_id = 'cus_efface'
+    h.stripe.customers.retrieve = vi.fn(async (id) => ({ id, deleted: true }))
+    abonneStarterMensuel({ status: 'canceled', customer: 'cus_ancien' })
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
-    expect(res.body.checkout_url).toBeTruthy()
+    expect(clientsLus()).toEqual(['cus_1', 'cus_ancien'])
+  })
+
+  it('abonnement d’essai sans carte : nouvelle page Stripe, aucun échange de prix, essai neutralisé', async () => {
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'monthly' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('checkout')
+    expect(h.stripe.subscriptions.update.mock.calls).toEqual([
+      ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
+    ])
+  })
+
+  it('essai sans carte sur un ancien prix sans clé, vers Pro trimestriel : page Stripe, pas changement_de_formule', async () => {
+    // La garde de périodicité ne vaut que pour un changement immédiat, qui
+    // exige une carte. Sans carte, l'essai est remplacé par Checkout.
+    abonneStarterMensuel({
+      status: 'trialing', default_payment_method: null,
+      items: { data: [{ id: 'si_1', price: { id: 'price_ancien_starter', lookup_key: null, recurring: { interval: 'month', interval_count: 1 } } }] },
+    })
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'quarterly' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('checkout')
+    expect(h.stripe.checkout.sessions.create.mock.calls[0][0].line_items[0].price).toBe('price_actero_pro_trimestriel')
+  })
+
+  it('l’essai remplacé est neutralisé AVANT la création de la session', async () => {
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
+    await envoyer(post({ target_plan: 'pro' }))
+    const { update } = h.stripe.subscriptions
+    const { create } = h.stripe.checkout.sessions
+    expect(update).toHaveBeenCalledTimes(1)
+    expect(create).toHaveBeenCalledTimes(1)
+    expect(update.mock.invocationCallOrder[0]).toBeLessThan(create.mock.invocationCallOrder[0])
+  })
+
+  it('essai impossible à neutraliser : 503, et aucune page Stripe', async () => {
+    // Sans ça, une carte ajoutée plus tard ferait démarrer l'essai Starter en
+    // plus du Pro payé par Checkout.
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
+    h.stripe.subscriptions.update = vi.fn(async () => { throw new Error('panne') })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(503)
+    expect(res.body).toEqual({ error: 'indisponible', message: INDISPONIBLE })
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
 
   it('les pages Stripe d’abonnement encore ouvertes sont expirées avant la création', async () => {
     h.sessionsOuvertes = [
-      { id: 'cs_ancienne', mode: 'subscription' },
+      { id: 'cs_ancienne', mode: 'subscription', customer: 'cus_1' },
       // Un achat de crédits en cours dans un autre onglet : pas un abonnement.
-      { id: 'cs_credits', mode: 'payment' },
+      { id: 'cs_credits', mode: 'payment', customer: 'cus_1' },
     ]
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
     const { list, expire, create } = h.stripe.checkout.sessions
     expect(list).toHaveBeenCalledWith({ customer: 'cus_1', status: 'open', limit: 10 })
@@ -447,42 +676,40 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
   })
 
   it('ne pas pouvoir fermer les anciennes pages n’empêche pas de payer', async () => {
-    h.sessionsOuvertes = [{ id: 'cs_ancienne', mode: 'subscription' }]
+    h.sessionsOuvertes = [{ id: 'cs_ancienne', mode: 'subscription', customer: 'cus_1' }]
     h.stripe.checkout.sessions.expire = vi.fn(async () => { throw new Error('panne') })
-    let res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    let res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
     expect(res.body.checkout_url).toBeTruthy()
 
     h.stripe = baseStripe()
     h.stripe.checkout.sessions.list = vi.fn(async () => { throw new Error('panne') })
-    res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
     expect(res.body.checkout_url).toBeTruthy()
   })
 })
 
 describe('POST /api/billing/upgrade — abonné existant', () => {
-  it('changement immédiat : la carte d’abord, puis le prix facturé tout de suite — SANS écrire le plan', async () => {
+  it('changement immédiat : la carte, le prix facturé tout de suite, puis la formule — SANS écrire le plan', async () => {
     abonneStarterMensuel()
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro', billing_period: 'monthly' }), res)
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'monthly' }))
     expect(res.statusCode).toBe(200)
-    expect(res.body.success).toBe(true)
-    expect(res.body.instant).toBe(true)
-    expect(res.body.plan_attendu).toBe('pro')
-    expect(res.body.message).toContain('prélevée')
+    expect(res.body).toEqual({
+      statut: 'change_applique',
+      success: true,
+      instant: true,
+      plan_attendu: 'pro',
+      message: 'Passage au plan pro confirmé : la différence a été prélevée.',
+    })
 
-    expect(h.stripe.subscriptions.update).toHaveBeenCalledTimes(2)
-    const [[idCarte, carte], [idPrix, prix]] = h.stripe.subscriptions.update.mock.calls
-    // 1. Rien que la carte et les métadonnées : `pending_if_incomplete` n'accepte
-    //    pas `default_payment_method`.
-    expect(idCarte).toBe('sub_1')
-    expect(Object.keys(carte).sort()).toEqual(['default_payment_method', 'metadata'])
-    expect(carte.default_payment_method).toBe('pm_1')
-    expect(carte.metadata.client_id).toBe('c1')
+    const appels = h.stripe.subscriptions.update.mock.calls
+    expect(appels).toHaveLength(3)
+    // 1. La carte, et rien que l'identité du compte : Stripe refuse
+    //    `default_payment_method` dans une mise à jour en attente.
+    expect(appels[0]).toEqual(['sub_1', { default_payment_method: 'pm_1', metadata: { client_id: 'c1', actero_client_id: 'c1' } }])
     // 2. Le prix, la différence facturée et payée avant d'être appliquée.
+    const [idPrix, prix] = appels[1]
     expect(idPrix).toBe('sub_1')
     expect(Object.keys(prix).sort()).toEqual(['expand', 'items', 'payment_behavior', 'proration_behavior'])
     expect(prix.items).toEqual([{ id: 'si_1', price: 'price_actero_pro_mensuel' }])
@@ -490,35 +717,99 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     expect(prix.payment_behavior).toBe('pending_if_incomplete')
     // API 2026-02-25.clover : la facture ne porte plus `payment_intent`.
     expect(prix.expand).toEqual(['latest_invoice.payments'])
+    // 3. La formule, une fois le changement appliqué.
+    expect(appels[2]).toEqual(['sub_1', { metadata: { formule: 'pro_mensuel', upgrade_from: 'starter', upgrade_to: 'pro' } }, OPTIONS_REQUETE_COURTE])
 
     expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
     // Le webhook accorde le plan une fois Stripe à jour — pas la route.
     expect(h.ecrituresClients.filter((v) => 'plan' in v)).toEqual([])
   })
 
+  it('rien de prélevé : on ne dit pas « la différence a été prélevée »', async () => {
+    abonneStarterMensuel()
+    h.changement.latest_invoice.amount_paid = 0
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('change_applique')
+    expect(res.body.message).toBe('Passage au plan pro confirmé : aucun montant à régler aujourd’hui.')
+  })
+
+  it('essai avec carte : le message d’essai', async () => {
+    abonneStarterMensuel({ status: 'trialing' })
+    h.changement.status = 'trialing'
+    h.changement.latest_invoice.amount_paid = 0
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('change_applique')
+    expect(res.body.message).toBe('Passage au plan pro confirmé. Rien à prélever pendant votre essai : le nouveau tarif s’appliquera à sa fin.')
+  })
+
   it('paiement de la différence à authentifier : la page Stripe de la facture', async () => {
     abonneStarterMensuel()
-    changementEnAttente({ status: 'requires_action', last_payment_error: null })
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    changementEnAttente({ status: 'requires_action' })
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
-    expect(res.body.facture_url).toBe('https://invoice.stripe.com/i/in_2')
-    expect(res.body.instant).toBeUndefined()
-    expect(res.body.success).toBeUndefined()
+    expect(res.body).toEqual({
+      statut: 'paiement_a_valider',
+      facture_url: 'https://invoice.stripe.com/i/in_2',
+      message: 'Le paiement de la différence reste à valider sur la page Stripe : le plan pro s’appliquera dès qu’il sera réglé.',
+    })
     expect(h.stripe.paymentIntents.retrieve).toHaveBeenCalledWith('pi_2')
     expect(h.ecrituresClients.filter((v) => 'plan' in v)).toEqual([])
   })
 
-  it('paiement de la différence refusé : 402', async () => {
+  it('à authentifier après un premier échec (requires_action + last_payment_error) : à valider, pas refusé', async () => {
+    // Un 3-D Secure raté laisse une erreur ET une nouvelle authentification à
+    // faire : le client peut encore payer sur la page de la facture.
+    abonneStarterMensuel()
+    changementEnAttente({ status: 'requires_action', last_payment_error: { code: 'authentication_required' } })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('paiement_a_valider')
+    expect(res.body.facture_url).toBe('https://invoice.stripe.com/i/in_2')
+  })
+
+  it('paiement en cours de traitement : 200 paiement_en_cours, avec la facture si elle est ouverte', async () => {
+    abonneStarterMensuel()
+    changementEnAttente({ status: 'processing' })
+    let res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body).toEqual({
+      statut: 'paiement_en_cours',
+      message: 'Le paiement de la différence est en cours de traitement : le plan pro s’appliquera dès sa confirmation.',
+      facture_url: 'https://invoice.stripe.com/i/in_2',
+    })
+
+    reinitialiser()
+    abonneStarterMensuel()
+    changementEnAttente({ status: 'processing' }, { status: 'paid' })
+    res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('paiement_en_cours')
+    expect(res.body).not.toHaveProperty('facture_url')
+  })
+
+  it('paiement de la différence refusé, facture ouverte : 402 avec la page Stripe pour régler', async () => {
     abonneStarterMensuel()
     changementEnAttente({ status: 'requires_payment_method', last_payment_error: { code: 'card_declined' } })
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(402)
-    expect(res.body.error).toBe('paiement_refuse')
-    expect(res.body.message).toBe('Le paiement de la différence a été refusé : mettez à jour votre carte depuis « Gérer mon abonnement ».')
-    expect(res.body.facture_url).toBeUndefined()
-    expect(res.body.instant).toBeUndefined()
+    expect(res.body).toEqual({
+      error: 'paiement_refuse',
+      message: 'Le paiement de la différence a été refusé. Réglez-la avec une autre carte sur la page Stripe, ou mettez à jour votre carte depuis « Gérer mon abonnement ».',
+      facture_url: 'https://invoice.stripe.com/i/in_2',
+    })
+  })
+
+  it('paiement refusé sans facture ouverte : 402, sans page à proposer', async () => {
+    abonneStarterMensuel()
+    changementEnAttente({ status: 'requires_payment_method', last_payment_error: { code: 'card_declined' } }, { status: 'void' })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(402)
+    expect(res.body).toEqual({
+      error: 'paiement_refuse',
+      message: 'Le paiement de la différence a été refusé : mettez à jour votre carte depuis « Gérer mon abonnement ».',
+    })
   })
 
   it('changement en attente mais paiement illisible : jamais annoncé comme payé', async () => {
@@ -527,25 +818,59 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     abonneStarterMensuel()
     changementEnAttente({ status: 'requires_action' })
     h.stripe.paymentIntents.retrieve = vi.fn(async () => { throw new Error('panne') })
-    let res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    let res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('paiement_a_valider')
     expect(res.body.facture_url).toBe('https://invoice.stripe.com/i/in_2')
     expect(res.body.instant).toBeUndefined()
 
     // Rien de lisible du tout : refus plutôt qu'un succès.
     h.stripe = baseStripe()
     h.changement = { id: 'sub_1', status: 'active', pending_update: { expires_at: 1_900_000_000 }, latest_invoice: 'in_3' }
-    res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(402)
     expect(res.body.error).toBe('paiement_refuse')
   })
 
+  it('la formule ne s’écrit que si le changement est appliqué', async () => {
+    const enAttente = [
+      ['à valider', { status: 'requires_action' }],
+      ['en cours', { status: 'processing' }],
+      ['refusé', { status: 'requires_payment_method', last_payment_error: { code: 'card_declined' } }],
+    ]
+    for (const [nom, intention] of enAttente) {
+      reinitialiser()
+      abonneStarterMensuel()
+      changementEnAttente(intention)
+      await envoyer(post({ target_plan: 'pro' }))
+      const appels = h.stripe.subscriptions.update.mock.calls
+      expect(appels, nom).toHaveLength(2)
+      expect(appels.some(([, p]) => p.metadata && 'formule' in p.metadata), nom).toBe(false)
+    }
+  })
+
+  it('formule impossible à écrire : le changement reste confirmé, avec une trace', async () => {
+    const trace = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      abonneStarterMensuel()
+      const update = h.stripe.subscriptions.update
+      h.stripe.subscriptions.update = vi.fn(async (id, params, options) => {
+        if (params.metadata?.formule) throw new Error('panne')
+        return update(id, params, options)
+      })
+      const res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode).toBe(200)
+      expect(res.body.statut).toBe('change_applique')
+      expect(h.stripe.subscriptions.update).toHaveBeenCalledTimes(3)
+      expect(trace).toHaveBeenCalled()
+    } finally {
+      trace.mockRestore()
+    }
+  })
+
   it('abonné avec une autre période : 409, rien ne change chez Stripe', async () => {
     abonneStarterMensuel()
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro', billing_period: 'annual' }), res)
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'annual' }))
     expect(res.statusCode).toBe(409)
     expect(res.body.error).toBe('changement_de_formule')
     expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
@@ -559,10 +884,9 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
       { id: 'price_ancien_trimestriel', recurring: { interval: 'month', interval_count: 3 } },
     ]
     for (const price of anciensPrix) {
-      h.stripe = baseStripe()
+      reinitialiser()
       abonneStarterMensuel({ items: { data: [{ id: 'si_1', price }] } })
-      const res = makeRes()
-      await handler(post({ target_plan: 'pro', billing_period: 'monthly' }), res)
+      const res = await envoyer(post({ target_plan: 'pro', billing_period: 'monthly' }))
       expect(res.statusCode, price.id).toBe(409)
       expect(res.body.error, price.id).toBe('changement_de_formule')
       expect(h.stripe.subscriptions.update, price.id).not.toHaveBeenCalled()
@@ -570,15 +894,31 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     }
   })
 
-  it('subscriptions.retrieve en erreur 500 : ni échange ni nouvelle page Stripe', async () => {
+  it('déjà sur le prix demandé (colonne plan en retard) : 409 deja_sur_ce_plan, sans aucun update', async () => {
+    // Stripe a déjà basculé l'abonnement sur Pro, le webhook n'a pas encore
+    // réécrit `plan` : refaire le changement annoncerait un succès de trop.
+    abonneStarterMensuel({
+      default_payment_method: null,
+      items: { data: [{ id: 'si_1', price: { id: 'price_actero_pro_mensuel', lookup_key: 'actero_pro_mensuel', recurring: { interval: 'month', interval_count: 1 } } }] },
+    })
+    h.customerCards = [{ id: 'pm_x' }]
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'monthly' }))
+    expect(res.statusCode).toBe(409)
+    expect(res.body.error).toBe('deja_sur_ce_plan')
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+    expect(h.stripe.paymentMethods.list).not.toHaveBeenCalled()
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  })
+
+  it('subscriptions.retrieve en erreur 500 : 500 erreur_interne, ni échange ni nouvelle page Stripe', async () => {
     h.clientRow.plan = 'starter'
     h.clientRow.stripe_subscription_id = 'sub_1'
     h.stripe.subscriptions.retrieve = vi.fn(async () => {
       throw Object.assign(new Error('Stripe indisponible'), { type: 'StripeAPIError', statusCode: 500 })
     })
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(500)
+    expect(res.body.error).toBe('erreur_interne')
     expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
     expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
@@ -588,9 +928,9 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     // second abonnement pendant que le premier continue de facturer.
     abonneStarterMensuel({ default_payment_method: null })
     h.stripe.paymentMethods.list = vi.fn(async () => { throw new Error('panne') })
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro', billing_period: 'monthly' }), res)
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'monthly' }))
     expect(res.statusCode).toBe(503)
+    expect(res.body).toEqual({ error: 'indisponible', message: INDISPONIBLE })
     expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
     expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
@@ -599,8 +939,7 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     // stripe_customer_id désigne un autre client Stripe que celui de l'abonnement.
     abonneStarterMensuel({ customer: 'cus_abo', default_payment_method: null })
     h.customerCards = [{ id: 'pm_abo' }]
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro' }), res)
+    const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
     const clientsInterroges = h.stripe.paymentMethods.list.mock.calls.map(([p]) => p.customer)
     expect(clientsInterroges).toEqual(['cus_abo'])
@@ -609,10 +948,12 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
 })
 
 describe('POST /api/billing/upgrade — code promo', () => {
+  /** Ce que lève le SDK Stripe quand il refuse la requête. */
+  const refusStripe = (param) => Object.assign(new Error('This promotion code cannot be redeemed'), { type: 'StripeInvalidRequestError', statusCode: 400, param })
+
   it('code promo résolu : la session porte le code, et metadata.promo_code est posé', async () => {
     h.codesPromo = { BIENVENUE: 'promo_1' }
-    const res = makeRes()
-    await handler(post({ target_plan: 'pro', promo_code: 'BIENVENUE' }), res)
+    const res = await envoyer(post({ target_plan: 'pro', promo_code: 'BIENVENUE' }))
     expect(res.statusCode).toBe(200)
     expect(h.stripe.promotionCodes.list).toHaveBeenCalledWith({ code: 'BIENVENUE', active: true, limit: 1 })
     const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
@@ -623,8 +964,7 @@ describe('POST /api/billing/upgrade — code promo', () => {
   it('un code promo qui n’est pas une chaîne de 64 caractères au plus est ignoré', async () => {
     for (const promo_code of ['X'.repeat(65), 42, { code: 'BIENVENUE' }]) {
       h.stripe = baseStripe()
-      const res = makeRes()
-      await handler(post({ target_plan: 'pro', promo_code }), res)
+      const res = await envoyer(post({ target_plan: 'pro', promo_code }))
       expect(res.statusCode).toBe(200)
       expect(h.stripe.promotionCodes.list).not.toHaveBeenCalled()
       const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
@@ -633,28 +973,117 @@ describe('POST /api/billing/upgrade — code promo', () => {
     }
     // 64 caractères : encore un code.
     h.stripe = baseStripe()
-    await handler(post({ target_plan: 'pro', promo_code: 'X'.repeat(64) }), makeRes())
+    await envoyer(post({ target_plan: 'pro', promo_code: 'X'.repeat(64) }))
     expect(h.stripe.promotionCodes.list).toHaveBeenCalledTimes(1)
   })
 
-  it('Stripe refuse la session à cause du code promo : 400 code_promo_refuse, pas 500', async () => {
-    h.codesPromo = { BIENVENUE: 'promo_1' }
-    const refus = () => Object.assign(new Error('This promotion code cannot be redeemed'), { type: 'StripeInvalidRequestError', statusCode: 400 })
-    h.stripe.checkout.sessions.create = vi.fn(async () => { throw refus() })
-    let res = makeRes()
-    await handler(post({ target_plan: 'pro', promo_code: 'BIENVENUE' }), res)
-    expect(res.statusCode).toBe(400)
-    expect(res.body.error).toBe('code_promo_refuse')
-    expect(res.body.message).toBe('Ce code promo ne peut pas être appliqué à cet abonnement.')
+  it('Stripe refuse la session sur `discounts` avec un code appliqué : 400 code_promo_refuse', async () => {
+    for (const param of ['discounts', 'discounts[0][promotion_code]']) {
+      reinitialiser()
+      h.codesPromo = { BIENVENUE: 'promo_1' }
+      h.stripe.checkout.sessions.create = vi.fn(async () => { throw refusStripe(param) })
+      const res = await envoyer(post({ target_plan: 'pro', promo_code: 'BIENVENUE' }))
+      expect(res.statusCode, param).toBe(400)
+      expect(res.body, param).toEqual({ error: 'code_promo_refuse', message: 'Ce code promo ne peut pas être appliqué à cet abonnement.' })
+    }
+  })
 
-    // Une panne de Stripe n'est pas un refus du code : le marchand ne doit pas
-    // l'abandonner à tort.
-    h.stripe = baseStripe()
-    h.stripe.checkout.sessions.create = vi.fn(async () => {
-      throw Object.assign(new Error('Stripe indisponible'), { type: 'StripeAPIError', statusCode: 500 })
-    })
-    res = makeRes()
-    await handler(post({ target_plan: 'pro', promo_code: 'BIENVENUE' }), res)
-    expect(res.statusCode).toBe(500)
+  it('un refus qui ne vise pas le code, ou une panne : 500, le marchand n’abandonne pas un code valable', async () => {
+    h.codesPromo = { BIENVENUE: 'promo_1' }
+    const erreurs = [
+      refusStripe('payment_method_types'),
+      refusStripe(undefined),
+      Object.assign(new Error('Stripe indisponible'), { type: 'StripeAPIError', statusCode: 500 }),
+    ]
+    for (const erreur of erreurs) {
+      h.stripe = baseStripe()
+      h.stripe.checkout.sessions.create = vi.fn(async () => { throw erreur })
+      const res = await envoyer(post({ target_plan: 'pro', promo_code: 'BIENVENUE' }))
+      expect(res.statusCode, String(erreur.param)).toBe(500)
+      expect(res.body.error).toBe('erreur_interne')
+    }
+  })
+
+  it('StripeInvalidRequestError sur `discounts` sans code promo appliqué : 500, pas code_promo_refuse', async () => {
+    // Le coupon trimestriel passe aussi par `discounts` : sans code saisi, ce
+    // n'est pas au marchand d'y renoncer.
+    for (const promo_code of [undefined, 'INCONNU']) {
+      h.stripe = baseStripe()
+      h.stripe.checkout.sessions.create = vi.fn(async () => { throw refusStripe('discounts') })
+      const res = await envoyer(post({ target_plan: 'pro', billing_period: 'quarterly', promo_code }))
+      expect(res.statusCode, String(promo_code)).toBe(500)
+      expect(res.body.error).toBe('erreur_interne')
+    }
+  })
+})
+
+describe('POST /api/billing/upgrade — un contrat de réponse stable', () => {
+  const CODES = [
+    'methode_non_autorisee', 'non_authentifie', 'requete_invalide', 'enterprise_contact', 'downgrade_non_self_serve',
+    'code_promo_refuse', 'paiement_refuse', 'acces_refuse', 'role_non_autorise', 'client_introuvable',
+    'deja_sur_ce_plan', 'changement_de_formule', 'paiement_en_attente', 'abonnement_en_cours',
+    'Stripe not configured', 'indisponible', 'erreur_interne',
+  ]
+  const STATUTS = ['checkout', 'change_applique', 'paiement_a_valider', 'paiement_en_cours']
+  const rien = () => {}
+
+  // [nom, statut HTTP attendu, préparation, requête]
+  const SCENARIOS = [
+    ['méthode', 405, rien, { method: 'GET', headers: { authorization: 'Bearer t' }, body: {} }],
+    ['sans jeton', 401, rien, { method: 'POST', headers: {}, body: {} }],
+    ['jeton refusé', 401, () => { h.user = null }, post()],
+    ['champs manquants', 400, rien, post({ client_id: undefined })],
+    ['période inconnue', 400, rien, post({ billing_period: 'weekly' })],
+    ['plan inconnu', 400, rien, post({ target_plan: 'gold' })],
+    ['enterprise', 400, rien, post({ target_plan: 'enterprise' })],
+    ['downgrade', 400, () => { h.clientRow.plan = 'pro' }, post({ target_plan: 'starter' })],
+    ['code promo refusé', 400, () => {
+      h.codesPromo = { BIENVENUE: 'promo_1' }
+      h.stripe.checkout.sessions.create = vi.fn(async () => { throw Object.assign(new Error('refus'), { type: 'StripeInvalidRequestError', param: 'discounts' }) })
+    }, post({ target_plan: 'pro', promo_code: 'BIENVENUE' })],
+    ['refus avec facture', 402, () => { abonneStarterMensuel(); changementEnAttente({ status: 'requires_payment_method' }) }, post({ target_plan: 'pro' })],
+    ['refus sans facture', 402, () => { abonneStarterMensuel(); changementEnAttente({ status: 'requires_payment_method' }, { status: 'void' }) }, post({ target_plan: 'pro' })],
+    ['accès refusé', 403, () => { h.base.client_users = [] }, post({ target_plan: 'pro' })],
+    ['rôle', 403, () => { h.base.client_users = [{ user_id: 'u1', client_id: 'c1', role: 'finance' }] }, post({ target_plan: 'pro' })],
+    ['fiche absente', 404, () => { h.base.clients = [] }, post()],
+    ['déjà sur ce plan', 409, () => { h.clientRow.plan = 'starter' }, post()],
+    ['déjà sur le prix', 409, () => { abonneStarterMensuel({ items: { data: [{ id: 'si_1', price: { id: 'price_actero_pro_mensuel', recurring: { interval: 'month', interval_count: 1 } } }] } }) }, post({ target_plan: 'pro' })],
+    ['changement de formule', 409, () => { abonneStarterMensuel() }, post({ target_plan: 'pro', billing_period: 'annual' })],
+    ['paiement en attente', 409, () => { abonneStarterMensuel({ status: 'past_due' }) }, post({ target_plan: 'pro' })],
+    ['abonnement en cours', 409, () => { h.abonnements = [{ id: 'sub_2', status: 'active', customer: 'cus_1' }] }, post({ target_plan: 'pro' })],
+    ['abonnement suspendu', 409, () => { abonneStarterMensuel({ status: 'unpaid' }) }, post({ target_plan: 'pro' })],
+    ['clé Stripe absente', 503, () => { delete process.env.STRIPE_SECRET_KEY }, post()],
+    ['prix absent', 503, () => { h.stripe.prices.list = vi.fn(async () => ({ data: [] })) }, post()],
+    ['base illisible', 503, () => { h.erreursBase.client_users = { message: 'panne' } }, post()],
+    ['historique illisible', 503, () => { h.stripe.subscriptions.list = vi.fn(async () => { throw new Error('panne') }) }, post()],
+    ['carte illisible', 503, () => { abonneStarterMensuel({ default_payment_method: null }); h.stripe.paymentMethods.list = vi.fn(async () => { throw new Error('panne') }) }, post({ target_plan: 'pro' })],
+    ['essai non neutralisé', 503, () => { abonneStarterMensuel({ status: 'trialing', default_payment_method: null }); h.stripe.subscriptions.update = vi.fn(async () => { throw new Error('panne') }) }, post({ target_plan: 'pro' })],
+    ['erreur interne', 500, () => { h.stripe.checkout.sessions.create = vi.fn(async () => { throw new Error('panne') }) }, post()],
+    ['page Stripe', 200, rien, post()],
+    ['changement appliqué', 200, () => { abonneStarterMensuel() }, post({ target_plan: 'pro' })],
+    ['paiement à valider', 200, () => { abonneStarterMensuel(); changementEnAttente({ status: 'requires_action' }) }, post({ target_plan: 'pro' })],
+    ['paiement en cours', 200, () => { abonneStarterMensuel(); changementEnAttente({ status: 'processing' }) }, post({ target_plan: 'pro' })],
+  ]
+
+  it('toute erreur porte `error` et `message` en chaînes, toute réponse 200 porte un `statut`', async () => {
+    const journaux = ['error', 'warn', 'log'].map((m) => vi.spyOn(console, m).mockImplementation(() => {}))
+    try {
+      for (const [nom, attendu, preparer, requete] of SCENARIOS) {
+        reinitialiser()
+        preparer()
+        const res = await envoyer(requete)
+        expect(res.statusCode, nom).toBe(attendu)
+        expect(res.body, nom).not.toHaveProperty('hint')
+        if (res.statusCode === 200) {
+          expect(STATUTS, nom).toContain(res.body.statut)
+        } else {
+          expect(CODES, nom).toContain(res.body.error)
+          expect(typeof res.body.message, nom).toBe('string')
+          expect(res.body.message.length, nom).toBeGreaterThan(0)
+        }
+      }
+    } finally {
+      for (const j of journaux) j.mockRestore()
+    }
   })
 })

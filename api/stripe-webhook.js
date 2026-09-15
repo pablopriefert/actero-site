@@ -5,7 +5,7 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/install.js';
 import { trackServerEvent } from './lib/amplitude.js';
-import { planUpdateFromSubscription, formuleDeLAbonnement, doitResoudreLaCarte, ecritureAutorisee, STATUTS_TERMINES } from './lib/subscription-plan.js';
+import { planUpdateFromSubscription, formuleDeLAbonnement, doitResoudreLaCarte, ecritureAutorisee, annoncerLaFinDEssai, STATUTS_TERMINES } from './lib/subscription-plan.js';
 import { resolveCustomerCard, OPTIONS_REQUETE_COURTE } from './lib/stripe-customer.js';
 import { formuleDuPrix, PERIODE_API } from './lib/formules.js';
 
@@ -832,6 +832,14 @@ async function handler(req, res) {
     case 'customer.subscription.trial_will_end': {
       // Fires 3 days before trial ends
       const subscription = event.data.object;
+      // Un essai résilié à sa fin ne démarrera pas : c'est celui que
+      // api/billing/upgrade.js neutralise quand le marchand paie une autre
+      // formule par Checkout. Lui écrire « ajoutez une carte pour continuer »
+      // le pousserait à relancer un abonnement en double.
+      if (!annoncerLaFinDEssai(subscription)) {
+        console.log(`[TRIAL_REMINDER] Essai ${subscription.id} résilié à sa fin : aucun email (client: ${subscription.metadata?.client_id}).`);
+        break;
+      }
       try {
         const clientId = subscription.metadata?.client_id;
         // Retrieve customer email

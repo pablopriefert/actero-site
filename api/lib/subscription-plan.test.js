@@ -5,6 +5,7 @@ import {
   formuleDeLAbonnement,
   doitResoudreLaCarte,
   ecritureAutorisee,
+  annoncerLaFinDEssai,
   STATUTS_TERMINES,
 } from './subscription-plan.js'
 
@@ -205,6 +206,35 @@ describe('ecritureAutorisee', () => {
   })
 })
 
+describe('annoncerLaFinDEssai', () => {
+  const FIN_ESSAI = 1_900_000_000
+  const essai = (over = {}) => ({ status: 'trialing', trial_end: FIN_ESSAI, cancel_at: null, cancel_at_period_end: false, ...over })
+
+  it('un essai qui démarrera à sa fin : on l’annonce', () => {
+    expect(annoncerLaFinDEssai(essai())).toBe(true)
+  })
+
+  it('résilié en fin de période : il ne démarrera pas, rien à annoncer', () => {
+    // C'est l'essai sans carte que la route de paiement neutralise avant
+    // d'ouvrir Checkout : lui écrire « ajoutez une carte pour continuer »
+    // ferait payer Starter en plus du Pro que le marchand vient de prendre.
+    expect(annoncerLaFinDEssai(essai({ cancel_at_period_end: true }))).toBe(false)
+  })
+
+  it('résiliation programmée au plus tard à la fin de l’essai : rien à annoncer', () => {
+    expect(annoncerLaFinDEssai(essai({ cancel_at: FIN_ESSAI }))).toBe(false)
+    expect(annoncerLaFinDEssai(essai({ cancel_at: FIN_ESSAI - 3600 }))).toBe(false)
+  })
+
+  it('résiliation programmée APRÈS la fin de l’essai : l’abonnement démarre d’abord, on l’annonce', () => {
+    expect(annoncerLaFinDEssai(essai({ cancel_at: FIN_ESSAI + 1 }))).toBe(true)
+  })
+
+  it('cancel_at sans date de fin d’essai à comparer : on l’annonce', () => {
+    expect(annoncerLaFinDEssai(essai({ cancel_at: FIN_ESSAI, trial_end: null }))).toBe(true)
+  })
+})
+
 describe('le webhook s’en sert comme prévu', () => {
   const webhook = sansCommentaires(readFileSync('api/stripe-webhook.js', 'utf8'))
 
@@ -304,6 +334,21 @@ describe('le webhook s’en sert comme prévu', () => {
     const bloc = blocSubscriptionUpdated()
     expect(bloc).toMatch(/webhook_events_processed/)
     expect(bloc).toMatch(/status\(500\)/)
+  })
+
+  it('l’email de fin d’essai ne part pas pour un essai qui ne démarrera pas', () => {
+    // La garde doit SORTIR avant l'envoi : chercher le nom de la fonction dans
+    // le bloc resterait vert avec un `if` qui ne fait que journaliser.
+    const debut = webhook.indexOf("case 'customer.subscription.trial_will_end'")
+    expect(debut).toBeGreaterThan(-1)
+    const bloc = webhook.slice(debut, webhook.indexOf("case '", debut + 1))
+    const garde = bloc.search(/if\s*\(\s*!annoncerLaFinDEssai\(subscription\)\s*\)\s*\{/)
+    const envoi = bloc.indexOf('resend.emails.send(')
+    expect(garde).toBeGreaterThan(-1)
+    expect(envoi).toBeGreaterThan(garde)
+    // Entre la garde et l'envoi : une trace, puis la sortie du `case`.
+    const entre = bloc.slice(garde, envoi)
+    expect(entre).toMatch(/console\.\w+\([\s\S]*break;/)
   })
 
   it('décide sur l’abonnement relu, pas sur l’objet figé de l’événement', () => {
