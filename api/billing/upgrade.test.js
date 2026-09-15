@@ -148,10 +148,13 @@ function baseStripe() {
       retrieve: vi.fn(async (id) => abonnementIndexe(id)),
       // Un changement immédiat fait jusqu'à trois appels : la carte, le prix,
       // puis la formule. Seul le prix porte `payment_behavior`, et reçoit la
-      // réponse de Stripe au paiement de la différence.
+      // réponse de Stripe au paiement de la différence. Une neutralisation,
+      // elle, reste sur l'abonnement : le clic suivant la relit.
       update: vi.fn(async (id, params) => {
         const abonnement = abonnementIndexe(id)
-        return params.payment_behavior ? h.changement : { ...abonnement, ...params }
+        if (params.payment_behavior) return h.changement
+        if ('cancel_at_period_end' in params) abonnement.cancel_at_period_end = params.cancel_at_period_end
+        return { ...abonnement, ...params }
       }),
       list: vi.fn(async ({ customer }) => ({ data: h.abonnements.filter((s) => s.customer === customer), has_more: false })),
     },
@@ -560,18 +563,23 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
     }
   })
 
-  it('l’essai sans carte est ignoré, mais un autre abonnement vivant bloque : 409 abonnement_en_cours', async () => {
-    abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
-    h.abonnements.push({ id: 'sub_2', status: 'active', customer: 'cus_1' })
-    const res = await envoyer(post({ target_plan: 'pro' }))
-    expect(res.statusCode).toBe(409)
-    expect(res.body).toEqual({
-      error: 'abonnement_en_cours',
-      message: 'Un abonnement est déjà en cours sur ce compte. Écrivez-nous à support@actero.fr : on s’en occupe.',
-    })
-    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
-    // Refusé avant d'y toucher : l'essai n'est pas neutralisé pour rien.
-    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+  it('l’essai sans carte est ignoré, mais un autre abonnement vivant bloque — un second essai compris : 409 abonnement_en_cours', async () => {
+    // Seul l'essai ENREGISTRÉ est remplacé. Un second essai vivant chez le même
+    // client continuerait à côté du nouvel abonnement.
+    for (const status of ['active', 'trialing']) {
+      reinitialiser()
+      abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
+      h.abonnements.push({ id: 'sub_2', status, customer: 'cus_1' })
+      const res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode, status).toBe(409)
+      expect(res.body, status).toEqual({
+        error: 'abonnement_en_cours',
+        message: 'Un abonnement est déjà en cours sur ce compte. Écrivez-nous à support@actero.fr : on s’en occupe.',
+      })
+      expect(h.stripe.checkout.sessions.create, status).not.toHaveBeenCalled()
+      // Refusé avant d'y toucher : l'essai n'est pas neutralisé pour rien.
+      expect(h.stripe.subscriptions.update, status).not.toHaveBeenCalled()
+    }
   })
 
   it('seul l’ESSAI sans carte est ignoré : un abonnement actif sans carte bloque, même déjà sur le prix demandé', async () => {
@@ -674,6 +682,85 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
     expect(update.mock.invocationCallOrder[0]).toBeLessThan(create.mock.invocationCallOrder[0])
   })
 
+  it('essai déjà neutralisé : toujours reconnu, page Stripe, et la neutralisation est rejouée', async () => {
+    // Sans ça, un marchand qui a refermé Checkout — ou dont la session a
+    // échoué — reçoit 409 à chaque nouveau clic : il est coincé.
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, cancel_at_period_end: true })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('checkout')
+    expect(h.stripe.subscriptions.update.mock.calls).toEqual([
+      ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
+    ])
+  })
+
+  it('session en échec après la neutralisation : le clic suivant rouvre Checkout, pas 409', async () => {
+    const journal = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
+      h.stripe.checkout.sessions.create = vi.fn(async () => { throw new Error('panne') })
+      let res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode).toBe(500)
+      // Stripe a gardé la neutralisation (le faux la retient sur l'abonnement).
+      expect(h.abonnements[0].cancel_at_period_end).toBe(true)
+
+      h.stripe.checkout.sessions.create = vi.fn(async () => ({ id: 'cs_2', url: 'https://checkout.stripe.com/c/pay/cs_2' }))
+      res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode).toBe(200)
+      expect(res.body).toEqual({ statut: 'checkout', checkout_url: 'https://checkout.stripe.com/c/pay/cs_2' })
+    } finally {
+      journal.mockRestore()
+    }
+  })
+
+  it('essai neutralisé qui a retrouvé une carte : page Stripe, sans chercher la carte ni changer le prix sur place', async () => {
+    // Le marchand a refermé Checkout, puis ajouté une carte depuis le portail.
+    // Changer le prix de cet essai lui annoncerait « le nouveau tarif
+    // s'appliquera à sa fin » — alors qu'il s'éteint à sa fin, et le marchand
+    // avec, repassé en free sans prévenir.
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, cancel_at_period_end: true })
+    h.customerCards = [{ id: 'pm_portail' }]
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('checkout')
+    expect(h.stripe.subscriptions.update.mock.calls.some(([, params]) => 'items' in params)).toBe(false)
+    expect(h.stripe.subscriptions.update.mock.calls).toEqual([
+      ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
+    ])
+    expect(h.stripe.paymentMethods.list).not.toHaveBeenCalled()
+  })
+
+  it('essai neutralisé déjà sur le prix demandé, avec une carte : page Stripe, pas deja_sur_ce_plan', async () => {
+    // Sinon chaque clic répondait « déjà sur ce plan » à un marchand en free.
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, cancel_at_period_end: true, items: { data: [{ id: 'si_1', price: PRIX_PRO_MENSUEL }] } })
+    h.clientRow.plan = 'free'
+    h.customerCards = [{ id: 'pm_portail' }]
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('checkout')
+    expect(h.stripe.subscriptions.update.mock.calls.some(([, params]) => 'items' in params)).toBe(false)
+  })
+
+  it('paramètres Checkout qui lèvent : 500, et l’essai n’est pas neutralisé pour rien', async () => {
+    const journal = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
+      // Un prix dont la lookup_key ne correspond plus à la formule :
+      // parametresCheckout lève.
+      h.stripe.prices.list = vi.fn(async ({ lookup_keys }) => {
+        const f = FORMULES.find((x) => x.lookupKey === lookup_keys[0])
+        return { data: [{ id: 'price_x', lookup_key: 'autre_cle', unit_amount: f.montantCentimes, currency: 'eur', recurring: f.recurring }] }
+      })
+      const res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode).toBe(500)
+      expect(res.body.error).toBe('erreur_interne')
+      expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+      expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+    } finally {
+      journal.mockRestore()
+    }
+  })
+
   it('essai impossible à neutraliser : 503, et aucune page Stripe', async () => {
     // Sans ça, une carte ajoutée plus tard ferait démarrer l'essai Starter en
     // plus du Pro payé par Checkout.
@@ -759,6 +846,20 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     expect(res.body.message).toBe('Passage au plan pro confirmé : aucun montant à régler aujourd’hui.')
   })
 
+  it('latest_invoice non étendue ou de forme inattendue : « aucun montant », jamais un 500 après un changement payé', async () => {
+    // Le changement est déjà fait chez Stripe : une réponse 500 ferait croire
+    // au marchand qu'il n'a rien payé, et il recommencerait.
+    for (const latest_invoice of ['in_9', null, { amount_paid: 30000 }]) {
+      reinitialiser()
+      abonneStarterMensuel()
+      h.changement.latest_invoice = latest_invoice
+      const res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode, JSON.stringify(latest_invoice)).toBe(200)
+      expect(res.body.statut).toBe('change_applique')
+      expect(res.body.message, JSON.stringify(latest_invoice)).toBe('Passage au plan pro confirmé : aucun montant à régler aujourd’hui.')
+    }
+  })
+
   it('latest_invoice inchangée, même payée : « aucun montant », pas « prélevée »', async () => {
     // Sans proration, Stripe ne crée aucune facture : `latest_invoice` reste
     // celle du dernier renouvellement, payée, et ne prouve rien du changement.
@@ -827,6 +928,15 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     expect(res.statusCode).toBe(200)
     expect(res.body.statut).toBe('paiement_en_cours')
     expect(res.body).not.toHaveProperty('facture_url')
+  })
+
+  it('en traitement après un premier échec (processing + last_payment_error) : en cours, pas refusé', async () => {
+    // Le paiement est reparti : l'annoncer refusé ferait payer une seconde fois.
+    abonneStarterMensuel()
+    changementEnAttente({ status: 'processing', last_payment_error: { code: 'card_declined' } })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(200)
+    expect(res.body.statut).toBe('paiement_en_cours')
   })
 
   it('paiement de la différence refusé, facture ouverte : 402 avec la page Stripe pour régler', async () => {
@@ -905,6 +1015,23 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
       expect(trace).toHaveBeenCalled()
     } finally {
       trace.mockRestore()
+    }
+  })
+
+  it('abonnement actif dont la résiliation est programmée : 409 abonnement_en_resiliation, rien ne change chez Stripe', async () => {
+    // Avec une carte, la route prélevait la différence sur un abonnement qui
+    // s'éteint à la fin de la période.
+    for (const resiliation of [{ cancel_at_period_end: true }, { cancel_at: 1_900_000_000 }]) {
+      reinitialiser()
+      abonneStarterMensuel(resiliation)
+      const res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode, JSON.stringify(resiliation)).toBe(409)
+      expect(res.body, JSON.stringify(resiliation)).toEqual({
+        error: 'abonnement_en_resiliation',
+        message: 'Votre abonnement actuel s’arrête à la fin de la période : réactivez-le depuis « Gérer mon abonnement », puis changez de plan.',
+      })
+      expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+      expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
     }
   })
 
@@ -1058,7 +1185,7 @@ describe('POST /api/billing/upgrade — un contrat de réponse stable', () => {
   const CODES = [
     'methode_non_autorisee', 'non_authentifie', 'requete_invalide', 'enterprise_contact', 'downgrade_non_self_serve',
     'code_promo_refuse', 'paiement_refuse', 'acces_refuse', 'role_non_autorise', 'client_introuvable',
-    'deja_sur_ce_plan', 'changement_de_formule', 'paiement_en_attente', 'abonnement_en_cours',
+    'deja_sur_ce_plan', 'changement_de_formule', 'paiement_en_attente', 'abonnement_en_cours', 'abonnement_en_resiliation',
     'Stripe not configured', 'indisponible', 'erreur_interne',
   ]
   const STATUTS = ['checkout', 'change_applique', 'paiement_a_valider', 'paiement_en_cours']
@@ -1089,6 +1216,7 @@ describe('POST /api/billing/upgrade — un contrat de réponse stable', () => {
     ['paiement en attente', 409, () => { abonneStarterMensuel({ status: 'past_due' }) }, post({ target_plan: 'pro' })],
     ['abonnement en cours', 409, () => { h.abonnements = [{ id: 'sub_2', status: 'active', customer: 'cus_1' }] }, post({ target_plan: 'pro' })],
     ['abonnement suspendu', 409, () => { abonneStarterMensuel({ status: 'unpaid' }) }, post({ target_plan: 'pro' })],
+    ['abonnement en résiliation', 409, () => { abonneStarterMensuel({ cancel_at_period_end: true }) }, post({ target_plan: 'pro' })],
     ['clé Stripe absente', 503, () => { delete process.env.STRIPE_SECRET_KEY }, post()],
     ['prix absent', 503, () => { h.stripe.prices.list = vi.fn(async () => ({ data: [] })) }, post()],
     ['base illisible', 503, () => { h.erreursBase.client_users = { message: 'panne' } }, post()],

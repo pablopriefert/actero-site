@@ -8,6 +8,7 @@ import { refuserFacturationStripe } from '../lib/facturation-shopify.js';
 import { formulePour, periodeDepuisApi } from '../lib/formules.js';
 import { prixDeLaFormule, lireHistoriqueAbonnements } from '../lib/formules-stripe.js';
 import { parametresCheckout } from '../lib/checkout-formule.js';
+import { essaiResilieASaFin } from '../lib/subscription-plan.js';
 
 /**
  * POST /api/billing/upgrade — la seule route de paiement Stripe self-serve.
@@ -52,7 +53,8 @@ import { parametresCheckout } from '../lib/checkout-formule.js';
  * | 409  | deja_sur_ce_plan         | message                                 | plan en base déjà celui demandé, ou abonné avec carte déjà sur le prix demandé |
  * | 409  | changement_de_formule    | message                                 | abonné avec carte vers une autre périodicité |
  * | 409  | paiement_en_attente      | message                                 | un abonnement vivant est `past_due` |
- * | 409  | abonnement_en_cours      | message                                 | un autre abonnement vivant ; `unpaid` ou `paused` : message « suspendu » |
+ * | 409  | abonnement_en_cours      | message                                 | un autre abonnement vivant, l'abonnement enregistré actif sans carte compris ; `unpaid` ou `paused` : message « suspendu » |
+ * | 409  | abonnement_en_resiliation| message                                 | abonnement enregistré actif dont la résiliation est programmée (`cancel_at_period_end` ou `cancel_at`) |
  * | 503  | Stripe not configured    | message                                 | clé Stripe absente, ou prix du catalogue introuvable — chaîne exacte, le front la compare |
  * | 503  | indisponible             | message                                 | base illisible, carte ou historique Stripe illisible, essai remplacé non neutralisé |
  * | 500  | erreur_interne           | message                                 | toute autre erreur, Stripe compris |
@@ -242,15 +244,34 @@ async function handler(req, res) {
       ? subscription.customer
       : (subscription?.customer?.id ?? null);
 
-    // Le seul abonnement vivant qui laisse ouvrir Checkout : un essai sans carte
-    // laissé par l'ancien formulaire intégré. Il est neutralisé juste avant la
-    // création de la session.
+    // Le seul abonnement vivant qui laisse ouvrir Checkout : l'essai que Checkout
+    // remplace — un essai sans carte laissé par l'ancien formulaire intégré, ou
+    // un essai déjà résilié à sa fin par un clic précédent. Il est neutralisé
+    // juste avant la création de la session.
     let essaiSansCarteId = null;
 
-    if (subscription && ['active', 'trialing'].includes(subscription.status)) {
+    if (subscription && essaiResilieASaFin(subscription)) {
+      // 1. Essai déjà résilié à sa fin : un essai remplacé, neutralisé par un
+      //    clic précédent dont la page Stripe a été refermée, ou dont la session
+      //    a échoué. Reconnu avant toute recherche de carte : s'il en a retrouvé
+      //    une depuis (ajoutée au portail), changer son prix sur place
+      //    annoncerait « le nouveau tarif s'appliquera à sa fin » pour un
+      //    abonnement qui s'éteint à sa fin — et le marchand repasserait en free
+      //    sans prévenir. Ni carte, ni 409, ni changement immédiat : Checkout, et
+      //    la neutralisation, idempotente, est rejouée.
+      essaiSansCarteId = subscription.id;
+    } else if (subscription && ['active', 'trialing'].includes(subscription.status)) {
       const item = subscription.items?.data?.[0];
 
-      // 1. La carte, chez le client Stripe de l'abonnement : Stripe refuserait
+      // 2. Abonnement actif dont la résiliation est programmée : changer son prix
+      //    prélèverait la différence sur un abonnement qui s'éteint. Le marchand
+      //    le réactive d'abord ; on s'arrête avant toute écriture Stripe.
+      if (subscription.status === 'active'
+        && (subscription.cancel_at_period_end === true || typeof subscription.cancel_at === 'number')) {
+        return erreur(res, 409, 'abonnement_en_resiliation', 'Votre abonnement actuel s’arrête à la fin de la période : réactivez-le depuis « Gérer mon abonnement », puis changez de plan.');
+      }
+
+      // 3. La carte, chez le client Stripe de l'abonnement : Stripe refuserait
       //    celle d'un autre client. Mode strict : une panne ne vaut pas « pas de
       //    carte ». Repasser par Checkout créerait un second abonnement pendant
       //    que le premier continue de facturer.
@@ -263,7 +284,7 @@ async function handler(req, res) {
       }
 
       if (carte) {
-        // 2. Avec carte, déjà sur le prix demandé : Stripe a basculé
+        // 4. Avec carte, déjà sur le prix demandé : Stripe a basculé
         //    l'abonnement, le webhook n'a pas encore réécrit `plan`. Refaire le
         //    changement annoncerait un passage qui a déjà eu lieu : on s'arrête
         //    avant toute écriture Stripe. Seulement avec une carte : sans elle,
@@ -273,7 +294,7 @@ async function handler(req, res) {
           return erreur(res, 409, 'deja_sur_ce_plan', DEJA_SUR_CE_PLAN);
         }
 
-        // 3. Changement immédiat, à périodicité égale seulement.
+        // 5. Changement immédiat, à périodicité égale seulement.
         //    La périodicité RÉELLE du prix, pas sa `lookup_key` : un ancien prix
         //    sans clé n'est rattaché à aucune formule, et laissait un annuel
         //    basculer en mensuel sans passer par le support. Cette garde ne
@@ -385,15 +406,15 @@ async function handler(req, res) {
         return erreur(res, 402, 'paiement_refuse', 'Le paiement de la différence a été refusé : mettez à jour votre carte depuis « Gérer mon abonnement ».');
       }
 
-      // 4. Sans carte, en essai : l'essai de l'ancien formulaire intégré.
+      // 6. Sans carte, en essai : l'essai de l'ancien formulaire intégré.
       //    Checkout le remplace, quels que soient son prix (celui demandé
       //    compris) et sa périodicité ; il sera neutralisé juste avant la session.
-      // 5. Sans carte et actif : rien ici. Il reste vivant, et la vérification
+      // 7. Sans carte et actif : rien ici. Il reste vivant, et la vérification
       //    ci-dessous répond 409 abonnement_en_cours.
       if (subscription.status === 'trialing') essaiSansCarteId = subscription.id;
     }
 
-    // --- Un seul relevé Stripe, sur tous les clients Stripe du compte ---
+    // --- Un seul relevé Stripe, chez les deux clients Stripe connus du compte ---
     // Il sert deux fois : l'avantage de bienvenue (`dejaAbonne`) et les
     // abonnements en cours (`vivants`). Le client de l'abonnement enregistré y
     // est, quel que soit le statut de cet abonnement : résilié chez un ancien
@@ -496,17 +517,20 @@ async function handler(req, res) {
       siteUrl: process.env.SITE_URL || 'https://actero.fr',
     });
 
-    // --- L'essai remplacé ne doit jamais démarrer ---
+    // --- L'essai remplacé ne doit pas démarrer ---
     // Checkout pose la carte sur le NOUVEL abonnement. Si le marchand ajoute
     // ensuite une carte à son client Stripe, l'ancien essai la trouve à sa fin,
     // démarre, et facture Starter en plus du Pro. Résilié en fin de période, il
-    // s'éteint à la fin de l'essai quoi qu'il arrive — et le webhook n'envoie
-    // plus l'email « ajoutez une carte » (annoncerLaFinDEssai).
+    // s'éteint à la fin de l'essai, carte ou pas — tant que personne ne lève la
+    // résiliation — et le webhook n'envoie plus l'email « ajoutez une carte »
+    // (annoncerLaFinDEssai).
     //
-    // C'est sans perte : un essai sans carte n'accorde aucun plan
-    // (planUpdateFromSubscription exige une carte), le marchand n'a donc rien à
-    // y perdre, même s'il referme la page Stripe sans payer. C'est bloquant :
-    // sans neutralisation, pas de session.
+    // Ce que ça coûte au marchand : aucun accès, puisqu'un essai sans carte
+    // n'accorde aucun plan (planUpdateFromSubscription exige une carte). En
+    // contrepartie, s'il referme la page Stripe sans payer, il ne peut plus
+    // garder cet essai en ajoutant une carte : un nouveau clic le repasse par
+    // Checkout (essaiResilieASaFin). C'est bloquant : sans neutralisation, pas de
+    // session.
     if (essaiSansCarteId) {
       try {
         await stripe.subscriptions.update(essaiSansCarteId, { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE);

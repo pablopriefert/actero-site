@@ -98,36 +98,57 @@ export function doitResoudreLaCarte(subscription) {
 }
 
 /**
+ * Cet essai est-il résilié à sa fin — donc appelé à s'arrêter sans démarrer ?
+ *
+ * Vrai pour un abonnement `trialing` résilié en fin de période
+ * (`cancel_at_period_end`), ou dont la résiliation programmée (`cancel_at`)
+ * tombe au plus tard à la fin de l'essai. C'est la marque que
+ * api/billing/upgrade.js pose sur l'essai sans carte qu'elle remplace par
+ * Checkout, que le marchand y prenne la même formule ou une autre.
+ *
+ * Deux lecteurs, qui doivent répondre pareil :
+ *   - la route de paiement, qui reconnaît à cette marque un essai remplacé,
+ *     même s'il a retrouvé une carte depuis : il repasse par Checkout plutôt
+ *     que de changer de prix sur place, puisqu'il s'éteindra quand même ;
+ *   - le webhook, qui n'annonce pas la fin d'un essai qui ne démarrera pas
+ *     (annoncerLaFinDEssai).
+ *
+ * Faux pour ce qui n'est pas un essai : un abonnement actif en résiliation
+ * n'est pas un essai remplacé. Faux aussi quand la résiliation tombe APRÈS la
+ * fin de l'essai (l'abonnement démarre d'abord), ou sans `trial_end` à
+ * comparer : rien ne prouve alors que l'essai ne démarrera pas.
+ *
+ * @param {any} subscription — objet Subscription de Stripe
+ * @returns {boolean}
+ */
+export function essaiResilieASaFin(subscription) {
+  if (subscription?.status !== 'trialing') return false
+  if (subscription.cancel_at_period_end === true) return true
+  const cancelAt = subscription.cancel_at
+  const finDEssai = subscription.trial_end
+  return typeof cancelAt === 'number' && typeof finDEssai === 'number' && cancelAt <= finDEssai
+}
+
+/**
  * Faut-il envoyer l'email « votre essai se termine » pour cet abonnement ?
  *
- * Non quand l'essai n'est plus en cours : statut autre que `trialing`. Le
- * webhook relit l'abonnement avant de décider, et entre la création de
- * l'événement et sa livraison, l'essai a pu être résilié (`canceled`) ou se
- * terminer plus tôt (`active`, déjà facturé) : « votre essai se termine le … »
- * serait faux.
+ * Seulement pour un essai encore en cours, et qui démarrera à sa fin.
  *
- * Pas davantage quand l'essai ne démarrera pas : résilié en fin de période
- * (`cancel_at_period_end`), ou résiliation programmée (`cancel_at`) au plus
- * tard à la fin de l'essai. C'est le sort de l'essai sans carte que
- * api/billing/upgrade.js neutralise avant d'ouvrir Checkout pour une autre
- * formule : l'email dirait à ce marchand « ajoutez une carte pour continuer »,
- * et une carte ajoutée ferait démarrer cet essai — Starter facturé en plus du
- * Pro qu'il vient de payer.
+ * Pas pour un abonnement qui n'est plus en essai : le webhook relit
+ * l'abonnement avant de décider, et entre la création de l'événement et sa
+ * livraison, l'essai a pu être résilié (`canceled`) ou se terminer plus tôt
+ * (`active`, déjà facturé) — « votre essai se termine le … » serait faux.
  *
- * Une résiliation programmée APRÈS la fin de l'essai laisse l'abonnement
- * démarrer d'abord : l'email reste dû. Sans `trial_end` à comparer, rien ne
- * prouve que l'essai ne démarrera pas : l'email part aussi.
+ * Pas non plus pour un essai résilié à sa fin (essaiResilieASaFin) : c'est
+ * l'essai sans carte que la route de paiement remplace par Checkout. L'email
+ * lui dirait « ajoutez une carte pour continuer », alors qu'une carte ne le
+ * fera pas continuer : il s'arrêtera à sa fin.
  *
  * @param {any} subscription — objet Subscription de Stripe
  * @returns {boolean}
  */
 export function annoncerLaFinDEssai(subscription) {
-  if (subscription?.status !== 'trialing') return false
-  if (subscription.cancel_at_period_end === true) return false
-  const cancelAt = subscription?.cancel_at
-  const finDEssai = subscription?.trial_end
-  if (typeof cancelAt === 'number' && typeof finDEssai === 'number' && cancelAt <= finDEssai) return false
-  return true
+  return subscription?.status === 'trialing' && !essaiResilieASaFin(subscription)
 }
 
 /**

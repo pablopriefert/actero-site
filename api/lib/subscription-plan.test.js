@@ -7,6 +7,7 @@ import {
   doitResoudreLaCarte,
   ecritureAutorisee,
   annoncerLaFinDEssai,
+  essaiResilieASaFin,
   STATUTS_TERMINES,
 } from './subscription-plan.js'
 
@@ -207,6 +208,40 @@ describe('ecritureAutorisee', () => {
   })
 })
 
+describe('essaiResilieASaFin', () => {
+  const FIN_ESSAI = 1_900_000_000
+  const essai = (over = {}) => ({ status: 'trialing', trial_end: FIN_ESSAI, cancel_at: null, cancel_at_period_end: false, ...over })
+
+  it('essai résilié en fin de période : vrai', () => {
+    // C'est la marque que la route de paiement pose sur l'essai qu'elle
+    // remplace par Checkout.
+    expect(essaiResilieASaFin(essai({ cancel_at_period_end: true }))).toBe(true)
+  })
+
+  it('résiliation programmée au plus tard à la fin de l’essai : vrai', () => {
+    expect(essaiResilieASaFin(essai({ cancel_at: FIN_ESSAI }))).toBe(true)
+    expect(essaiResilieASaFin(essai({ cancel_at: FIN_ESSAI - 3600 }))).toBe(true)
+  })
+
+  it('résiliation programmée après la fin de l’essai, ou sans fin d’essai à comparer : faux', () => {
+    expect(essaiResilieASaFin(essai({ cancel_at: FIN_ESSAI + 1 }))).toBe(false)
+    expect(essaiResilieASaFin(essai({ cancel_at: FIN_ESSAI, trial_end: null }))).toBe(false)
+  })
+
+  it('essai sans résiliation : faux', () => {
+    expect(essaiResilieASaFin(essai())).toBe(false)
+  })
+
+  it('pas un essai (actif, résilié, rien) : faux, même résilié en fin de période', () => {
+    // Un abonnement actif en résiliation n'est pas un essai remplacé : la
+    // route lui répond autrement (abonnement_en_resiliation).
+    expect(essaiResilieASaFin(essai({ status: 'active', cancel_at_period_end: true }))).toBe(false)
+    expect(essaiResilieASaFin(essai({ status: 'canceled', cancel_at_period_end: true }))).toBe(false)
+    expect(essaiResilieASaFin(null)).toBe(false)
+    expect(essaiResilieASaFin(undefined)).toBe(false)
+  })
+})
+
 describe('annoncerLaFinDEssai', () => {
   const FIN_ESSAI = 1_900_000_000
   const essai = (over = {}) => ({ status: 'trialing', trial_end: FIN_ESSAI, cancel_at: null, cancel_at_period_end: false, ...over })
@@ -342,6 +377,24 @@ describe('trial_will_end : le webhook relit l’abonnement avant d’annoncer la
     expect(res.statusCode).toBe(200)
     expect(w.envoyer).toHaveBeenCalledTimes(1)
     expect(w.envoyer.mock.calls[0][0].to).toEqual(['marchand@ex.com'])
+  })
+
+  it('l’adresse du marchand se lit avec un délai borné', async () => {
+    // Vercel coupe la fonction à 60 s ; les délais par défaut du SDK Stripe
+    // vont bien au-delà.
+    await livrer({ evenement: essai(), relu: essai() })
+    expect(w.stripe.customers.retrieve).toHaveBeenCalledWith('cus_1', {}, OPTIONS_REQUETE_COURTE)
+  })
+
+  it('aucun email : la trace dit pourquoi — plus en essai, ou résilié à sa fin', async () => {
+    await livrer({ evenement: essai(), relu: essai({ status: 'active' }) })
+    expect(traces.mock.calls.flat().join(' ')).toMatch(/plus en essai/)
+    expect(traces.mock.calls.flat().join(' ')).not.toMatch(/résilié à sa fin/)
+
+    traces.mockClear()
+    await livrer({ evenement: essai(), relu: essai({ cancel_at_period_end: true }) })
+    expect(traces.mock.calls.flat().join(' ')).toMatch(/résilié à sa fin/)
+    expect(w.envoyer).not.toHaveBeenCalled()
   })
 
   it('relecture impossible : on retombe sur l’objet de l’événement, avec une trace', async () => {

@@ -842,20 +842,25 @@ async function handler(req, res) {
       } catch (err) {
         console.warn('[TRIAL_REMINDER] abonnement illisible, décision sur l’objet de l’événement :', subscription.id, err.message);
       }
-      // Un essai résilié à sa fin ne démarrera pas : c'est celui que
-      // api/billing/upgrade.js neutralise quand le marchand paie une autre
-      // formule par Checkout. Lui écrire « ajoutez une carte pour continuer »
-      // le pousserait à relancer un abonnement en double.
+      // Pas d'email pour un essai qui n'est plus en cours, ni pour un essai
+      // résilié à sa fin (annoncerLaFinDEssai). Résilié à sa fin, c'est l'essai
+      // que api/billing/upgrade.js neutralise quand le marchand passe par
+      // Checkout, pour la même formule ou une autre : lui écrire « ajoutez une
+      // carte pour continuer » serait faux, une carte ne le fera pas continuer.
       if (!annoncerLaFinDEssai(subscription)) {
-        console.log(`[TRIAL_REMINDER] Essai ${subscription.id} résilié à sa fin : aucun email (client: ${subscription.metadata?.client_id}).`);
+        const raison = subscription.status === 'trialing'
+          ? 'résilié à sa fin'
+          : `plus en essai (statut ${subscription.status})`;
+        console.log(`[TRIAL_REMINDER] Abonnement ${subscription.id} ${raison} : aucun email (client: ${subscription.metadata?.client_id}).`);
         break;
       }
       try {
         const clientId = subscription.metadata?.client_id;
-        // Retrieve customer email
+        // Retrieve customer email — délai borné : Vercel coupe la fonction à
+        // 60 s, et les délais par défaut du SDK Stripe vont bien au-delà.
         let email = null;
         if (subscription.customer) {
-          const customer = await stripe.customers.retrieve(subscription.customer);
+          const customer = await stripe.customers.retrieve(subscription.customer, {}, OPTIONS_REQUETE_COURTE);
           email = customer.email;
         }
         if (email) {

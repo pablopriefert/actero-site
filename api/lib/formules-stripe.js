@@ -43,7 +43,8 @@ export async function prixDeLaFormule(stripe, formule) {
 
 /**
  * L'historique Stripe des abonnements d'un compte Actero, relevé en une fois
- * chez chacun de ses clients Stripe.
+ * chez les clients Stripe qu'on lui passe — la route de paiement en passe deux
+ * au plus.
  *
  * Un compte peut en avoir plusieurs : celui de la session de paiement, et
  * celui qui porte l'abonnement enregistré quand l'identifiant a été remplacé

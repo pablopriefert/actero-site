@@ -38,7 +38,7 @@ function stripeAvec(abonnements, { hasMore = [] } = {}) {
   return { stripe: { subscriptions: { list } }, list }
 }
 
-describe('lireHistoriqueAbonnements — un seul relevé, sur tous les clients Stripe du compte', () => {
+describe('lireHistoriqueAbonnements — un seul relevé, chez les clients Stripe passés', () => {
   it('lit chaque client Stripe une fois, sans les identifiants vides ni les doublons', async () => {
     const { stripe, list } = stripeAvec([])
     await lireHistoriqueAbonnements(stripe, [null, 'cus_1', '', 'cus_1', undefined, 'cus_ancien'])
