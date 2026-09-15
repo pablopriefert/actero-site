@@ -125,7 +125,7 @@ function buildFeatures(plan) {
       "Dashboard ROI complet",
       "Historique 90 jours",
       "Support email 48h",
-      "Essai 7 jours sans engagement",
+      "Sans engagement",
     ];
   }
 
@@ -148,7 +148,7 @@ function buildFeatures(plan) {
       "Dashboard ROI complet",
       "Historique illimité",
       "Support prioritaire 24h",
-      "Essai 7 jours sans engagement",
+      "Sans engagement",
     ];
   }
 
@@ -341,8 +341,8 @@ const faqs = [
     a: "Votre quota est un plafond : aucun dépassement n'est facturé à votre insu. Vous recevez une alerte à 80% et 100% de votre quota. Une fois le quota atteint, l'agent se met en pause — vous pouvez le réactiver immédiatement en achetant des crédits (packs ponctuels, sans engagement) ou en passant au plan supérieur.",
   },
   {
-    q: "L'essai gratuit est-il sans engagement ?",
-    a: "Oui, l'essai de 7 jours est 100% gratuit et sans engagement. Aucune carte bancaire requise pour le plan Free. Pour Starter et Pro, vous pouvez annuler à tout moment pendant l'essai sans être débité.",
+    q: "Y a-t-il un engagement ?",
+    a: "Non. Le mensuel se résilie à tout moment. Le trimestriel et l'annuel sont payés d'avance pour leur période, et résiliables avant leur renouvellement. Le plan Free reste gratuit, sans carte bancaire.",
   },
   {
     q: "L'agent comprend-il les photos envoyées par les clients ?",
@@ -409,7 +409,7 @@ export const PricingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Tarifs Actero — Agent IA pour Shopify à partir de 99€/mois"
-        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Essai gratuit sur Starter et Pro."
+        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Sans engagement."
         canonical="/tarifs"
         schemaData={{
           "@context": "https://schema.org",
@@ -737,7 +737,7 @@ export const PricingPage = ({ onNavigate }) => {
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                     className="inline-flex items-center justify-center h-12 px-8 rounded-full bg-white text-[#003725] font-bold text-[15px] hover:bg-surface transition-colors gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 group"
                   >
-                    Essai gratuit 7 jours
+                    Commencer gratuitement
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                   </motion.button>
                   <TalkToHumanButton

@@ -68,7 +68,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
           name: 'Starter',
           price: '99',
           priceCurrency: 'EUR',
-          description: '1 000 tickets/mois, 3 workflows, essai 7 jours',
+          description: '1 000 tickets/mois, 3 workflows, sans engagement',
         },
         {
           '@type': 'Offer',
@@ -147,7 +147,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
 
               <FadeInUp delay={0.12} className="mb-8">
                 <p className="text-[13px] text-[#262626] font-medium mt-4">
-                  Installé en 15 minutes · Plan Free à vie · Essai gratuit sur Starter et Pro
+                  Installé en 15 minutes · Plan Free à vie · Sans engagement sur Starter et Pro
                 </p>
               </FadeInUp>
 
@@ -160,7 +160,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                     }}
                     className="inline-flex items-center gap-2 px-[26px] py-[14px] rounded-full bg-cta hover:bg-cta-hover text-white text-[15px] font-semibold transition-all shadow-[0_1px_2px_rgba(14,101,58,0.2),0_8px_20px_rgba(14,101,58,0.15)] hover:-translate-y-px"
                   >
-                    Essai gratuit 7 jours
+                    Commencer gratuitement
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <WatchDemoButton source={`alternative_${data.competitorKey}_hero`} variant="light" />
@@ -389,7 +389,7 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                     }}
                     className="inline-flex items-center gap-2 bg-cream text-[#003725] px-[26px] py-[14px] rounded-full text-[15px] font-semibold hover:bg-white transition-colors"
                   >
-                    Essai gratuit 7 jours <ArrowRight className="w-3.5 h-3.5" />
+                    Commencer gratuitement <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <TalkToHumanButton source={`alternative_${data.competitorKey}_final_cta`} variant="dark" />
                 </div>

@@ -127,7 +127,7 @@ export const AlternativeGorgias = ({ onNavigate }) => {
       },
       {
         q: 'Le plan Starter à 99 €/mois couvre-t-il vraiment tout ?',
-        a: "Oui : 1 000 tickets/mois, 3 workflows actifs, 3 intégrations (Shopify + 2), 100 entrées de base de connaissances, 2 membres d'équipe, éditeur ton de marque, simulateur, API + webhooks, portail SAV self-service, dashboard ROI complet, historique 90 jours, support email 48h, essai 7 jours. Les agents IA spécialisés arrivent sur le plan Pro à 399 €/mois.",
+        a: "Oui : 1 000 tickets/mois, 3 workflows actifs, 3 intégrations (Shopify + 2), 100 entrées de base de connaissances, 2 membres d'équipe, éditeur ton de marque, simulateur, API + webhooks, portail SAV self-service, dashboard ROI complet, historique 90 jours, support email 48h, sans engagement. Les agents IA spécialisés arrivent sur le plan Pro à 399 €/mois.",
       },
       {
         q: 'Et si je dépasse mes 1 000 tickets/mois sur Starter ?',

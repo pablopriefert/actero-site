@@ -51,7 +51,8 @@ export const PLANS = {
     name: 'Starter',
     tagline: 'Automatiser les premières tâches',
     price: { monthly: 99, annual: 79 },
-    trial: { days: 7, requires_card: true },
+    // Plus d'essai de 7 jours depuis le 14 septembre 2026 ; le mois offert passe par joursEssaiPour.
+    trial: false,
     limits: {
       tickets_per_month: 1000,
       workflows_active: 3,
@@ -77,7 +78,7 @@ export const PLANS = {
     support: 'email_48h',
     onboarding: 'guided',
     overage_per_ticket: null, // hard cap — crédits ou upgrade, jamais de dépassement facturé
-    cta: 'Essai gratuit 7 jours',
+    cta: 'Choisir Starter',
     popular: false,
   },
   pro: {
@@ -85,7 +86,8 @@ export const PLANS = {
     name: 'Pro',
     tagline: 'Automatisation complète',
     price: { monthly: 399, annual: 319 },
-    trial: { days: 7, requires_card: true },
+    // Plus d'essai de 7 jours depuis le 14 septembre 2026 ; le mois offert passe par joursEssaiPour.
+    trial: false,
     limits: {
       tickets_per_month: 5000,
       workflows_active: Infinity,
@@ -119,7 +121,7 @@ export const PLANS = {
     support: 'priority_24h',
     onboarding: 'guided',
     overage_per_ticket: null, // hard cap — crédits ou upgrade, jamais de dépassement facturé
-    cta: 'Essai gratuit 7 jours',
+    cta: 'Choisir Pro',
     popular: true,
   },
   enterprise: {

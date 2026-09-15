@@ -4,8 +4,8 @@ import { Calculator, TrendingUp, Clock, Euro, ArrowRight, Sparkles, Check } from
 
 const PLAN_RECO = [
   { max: 50, plan: 'Free', price: '0', color: '#71717a', cta: 'Commencer gratuitement', href: '/signup' },
-  { max: 1000, plan: 'Starter', price: '99', color: '#3b82f6', cta: 'Essai gratuit 7 jours', href: '/signup' },
-  { max: 5000, plan: 'Pro', price: '399', color: '#13804A', cta: 'Essai gratuit 7 jours', href: '/signup' },
+  { max: 1000, plan: 'Starter', price: '99', color: '#3b82f6', cta: 'Choisir Starter', href: '/signup' },
+  { max: 5000, plan: 'Pro', price: '399', color: '#13804A', cta: 'Choisir Pro', href: '/signup' },
   { max: Infinity, plan: 'Enterprise', price: 'Sur devis', color: '#f59e0b', cta: 'Contacter l\'équipe', href: 'mailto:contact@actero.fr' },
 ]
 
@@ -189,7 +189,7 @@ export const ROISimulator = ({ onNavigate }) => {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <p className="text-center text-[11px] text-[#9ca3af]">
-              {reco.plan === 'Free' ? 'Sans carte bancaire' : 'Essai gratuit 7 jours — Sans engagement'}
+              {reco.plan === 'Free' ? 'Sans carte bancaire' : 'Sans engagement'}
             </p>
           </motion.div>
         </div>

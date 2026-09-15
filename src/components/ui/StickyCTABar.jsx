@@ -64,7 +64,7 @@ export function StickyCTABar({ onNavigate }) {
     <div
       className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-xl"
       role="complementary"
-      aria-label="Action rapide : démarrer l'essai gratuit"
+      aria-label="Action rapide : commencer gratuitement"
     >
       <div className="bg-[#1a1a1a] text-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.35)] flex items-center gap-3 pl-4 pr-2 py-2 md:pl-5 md:pr-3 md:py-3 border border-white/10 backdrop-blur-sm animate-[fade-in_0.3s_ease-out]">
         <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-xl bg-cta flex items-center justify-center text-white text-sm md:text-base">
@@ -75,7 +75,7 @@ export function StickyCTABar({ onNavigate }) {
             Prêt à automatiser votre SAV Shopify ?
           </p>
           <p className="text-[11px] md:text-[12px] text-white/60 font-medium leading-tight mt-0.5 truncate">
-            Essai gratuit · Annulable en 1 clic
+            Plan gratuit · Sans carte bancaire
           </p>
         </div>
         <button

@@ -900,8 +900,8 @@ const GUIDES = [
         content: "Stripe applique une proration automatique. Exemple : vous etes au Starter (99 €), vous passez au Pro (399 €) au 15 du mois. Stripe calcule :\n- Credit restant Starter : 99 € x 15/30 = 49,50 €\n- Pro prorate : 399 € x 15/30 = 199,50 €\n- Debite maintenant : 150 €\n\nLa prochaine facture mensuelle sera le montant plein du nouveau plan.",
       },
       {
-        title: 'Trial gratuit',
-        content: "Les nouveaux inscrits beneficient d'une période d'essai de 7 jours sur les plans payants (Starter et Pro). A la fin, vous basculez vers le plan Free (pas de coupure de service) sauf si vous souscrivez. Les parraines beneficient en plus de 30 jours offerts (cumulable avec le trial).",
+        title: 'Formules et mois offert',
+        content: "Les plans payants (Starter et Pro) se prennent au mois, au trimestre ou à l'année, sans essai gratuit : le mensuel se paie dès l'inscription et se résilie à tout moment. Les marchands parrainés ou venus d'une campagne bénéficient d'un mois offert sur le mensuel. Sans abonnement, vous restez sur le plan Free.",
       },
       {
         title: 'Downgrade',
@@ -923,7 +923,7 @@ const GUIDES = [
     sections: [
       {
         title: 'Les recompenses',
-        content: "- Le parraine (nouveau client) : 30 jours gratuits a l'inscription sur n'importe quel plan payant. Cumulable avec les 7 jours de trial standard.\n- Le parrain (vous) : 1 mois d'abonnement offert sous forme de credit Stripe, applique automatiquement sur la prochaine facture.\n\nPas de limite : plus vous parrainez, plus vous cumulez de mois gratuits.",
+        content: "- Le parraine (nouveau client) : 30 jours gratuits a l'inscription sur Starter ou Pro, en formule mensuelle.\n- Le parrain (vous) : 1 mois d'abonnement offert sous forme de credit Stripe, applique automatiquement sur la prochaine facture.\n\nPas de limite : plus vous parrainez, plus vous cumulez de mois gratuits.",
       },
       {
         title: 'Trouver votre lien de parrainage',

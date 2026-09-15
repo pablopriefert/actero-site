@@ -156,7 +156,7 @@ export const LandingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Actero — Agent IA e-commerce : SAV, relance paniers, automatisations"
-        description="L'agent IA français qui gère votre SAV Shopify, relance les paniers abandonnés et automatise vos workflows e-commerce. 50 à 70% des tickets résolus seul, du CA récupéré sur les paniers abandonnés. Installé en 15 min, essai gratuit 7 jours."
+        description="L'agent IA français qui gère votre SAV Shopify, relance les paniers abandonnés et automatise vos workflows e-commerce. 50 à 70% des tickets résolus seul, du CA récupéré sur les paniers abandonnés. Installé en 15 min, plan Free gratuit à vie."
         keywords="agent IA e-commerce, SAV Shopify automatisé, relance panier abandonné IA, automatisation workflows Shopify, alternative Gorgias, agent IA français"
         canonical="/"
         ogImage="https://actero.fr/og-image.png"
@@ -286,7 +286,7 @@ export const LandingPage = ({ onNavigate }) => {
                     whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   >
-                    Essai gratuit 7 jours
+                    Commencer gratuitement
                     <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </motion.button>
                   <TalkToHumanButton source="landing_final_cta" variant="dark" />

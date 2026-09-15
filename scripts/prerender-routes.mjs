@@ -46,7 +46,7 @@ const ROUTES = [
   {
     path: '/tarifs',
     title: 'Tarifs Actero — Agent IA Shopify à partir de 99€/mois',
-    description: 'Plans SaaS transparents : Free (0€), Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + agents spécialisés). Essai gratuit 7 jours sans carte bancaire.',
+    description: 'Plans SaaS transparents : Free (0€), Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + agents spécialisés). Formule mensuelle sans engagement, trimestrielle ou annuelle.',
     h1: 'Des prix simples, transparents',
   },
   {

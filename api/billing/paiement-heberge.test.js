@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { join } from 'node:path'
 
 /**
  * Gardes du chantier « formules + Checkout hébergé » (14 septembre 2026).
@@ -58,5 +59,55 @@ describe('plus de remise annuelle de 20 %', () => {
       if (/\b(79|319)\s?€\/mois en annuel|948\s?€\/an|3\s?828\s?€\/an/.test(src)) fautifs.push(`${f} : ancien prix annuel`)
     }
     expect(fautifs).toEqual([])
+  })
+})
+
+function fichiersSource(dir, acc = []) {
+  for (const e of readdirSync(dir)) {
+    if (e === 'node_modules' || e.startsWith('.')) continue
+    const p = join(dir, e)
+    if (statSync(p).isDirectory()) fichiersSource(p, acc)
+    else if (/\.(jsx?|mjs)$/.test(e) && !e.includes('.test.')) acc.push(p)
+  }
+  return acc
+}
+
+// Toutes les formes sous lesquelles le site promettait un essai de 7 jours le
+// 14 septembre 2026.
+const PROMESSE_ESSAI = /essai (gratuit )?(de )?7 jours|7 jours gratuits|7 jours d.essai|essai 7 ?j\b|jours de trial|trial gratuit|essai gratuit sur starter|p[ée]riode d.essai de 7 jours|pendant sept jours|commencer mon essai gratuit|d[ée]marrer l.essai gratuit|essai gratuit · annulable/i
+
+describe('plus d’essai gratuit de 7 jours', () => {
+  it('aucune page ne le promet encore', () => {
+    // Décision du 14 septembre 2026 : le mensuel se paie dès l'inscription. Seul
+    // le mois offert (campagne, parrainage) reste — ses bandeaux « Essai
+    // gratuit — J-x » du tableau de bord sont légitimes.
+    const fautifs = []
+    for (const f of [...fichiersSource('src'), ...fichiersSource('scripts')]) {
+      const m = sansCommentaires(readFileSync(f, 'utf8')).match(PROMESSE_ESSAI)
+      if (m) fautifs.push(`${f} : « ${m[0]} »`)
+    }
+    // Ce que lisent les assistants IA (llms.txt) et les réseaux sociaux (le
+    // texte de l'image de partage, dont og-image.png est générée).
+    for (const f of ['public/llms.txt', 'public/og-image.svg']) {
+      const m = readFileSync(f, 'utf8').match(PROMESSE_ESSAI)
+      if (m) fautifs.push(`${f} : « ${m[0]} »`)
+    }
+    expect(fautifs).toEqual([])
+  })
+
+  it('la documentation ne promet plus d’essai ni l’ancien annuel', () => {
+    const fautifs = []
+    for (const f of ['docs/essentials/quickstart.mdx', 'docs/essentials/facturation.mdx']) {
+      const src = readFileSync(f, 'utf8')
+      const m = src.match(PROMESSE_ESSAI)
+      if (m) fautifs.push(`${f} : « ${m[0]} »`)
+      if (/-\s?20\s?%/.test(src)) fautifs.push(`${f} : remise annuelle de 20 %`)
+    }
+    expect(fautifs).toEqual([])
+  })
+
+  it('les plans payants n’ont plus d’essai', () => {
+    const src = sansCommentaires(readFileSync('src/lib/plans.js', 'utf8'))
+    expect(src).not.toMatch(/\btrial:\s*\{/)
   })
 })

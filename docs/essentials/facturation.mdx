@@ -9,8 +9,8 @@ Tout ce qui concerne ton abonnement Actero se passe dans **Système → Facturat
 
 En haut de la page, un bandeau résume :
 
-- **Ton plan actuel** (Free / Starter / Pro / Entreprise) et un badge "Essai" si tu es en période d'essai
-- **Le prix** actuel (€/mois ou €/an)
+- **Ton plan actuel** (Free / Starter / Pro / Entreprise) et un badge "Essai" pendant un mois offert
+- **Le prix** de ta formule (par mois, par trimestre ou par an)
 - **Ta consommation tickets** (% utilisé du quota mensuel)
 - **L'état du quota** (agent actif, ou en pause si le plafond est atteint)
 
@@ -18,11 +18,11 @@ En haut de la page, un bandeau résume :
 
 Affiche ton plan, son prix, et la date de premier paiement. Bouton **Gérer mon abonnement** : ouvre le portail Stripe (changement de carte, facture d'adresse, annulation).
 
-### Si tu es en essai
+### Si ton premier mois est offert
 
-Une bannière jaune affiche "Essai gratuit — J-X restants". Pendant l'essai, tu as accès à toutes les features de ton plan, sans carte bancaire.
+Starter et Pro n'ont pas d'essai gratuit. Si tu es arrivé par un parrainage ou une campagne, ton premier mois en formule mensuelle est offert : une bannière jaune affiche "Essai gratuit — J-X restants", et tu as accès à toutes les features de ton plan.
 
-À la fin de l'essai (7 jours par défaut), tu repasses automatiquement en plan Free si tu n'as pas saisi de moyen de paiement.
+Ta carte est demandée dès le départ. Le premier prélèvement a lieu à la fin du mois offert ; tu peux annuler avant sans être débité.
 
 ## Section 2 — Consommation du mois
 
@@ -51,18 +51,22 @@ Si tu approches systématiquement la limite, compare le coût des crédits que t
 
 Trois cartes : **Starter**, **Pro**, **Entreprise**. Chaque carte affiche les features incluses et un bouton d'action.
 
-### Toggle Mensuel / Annuel
+### Mensuel, trimestriel ou annuel
 
-L'annuel donne **-20 %** sur le prix affiché. Tu paies une fois pour l'année, facturation immédiate.
+- **Mensuel** : sans engagement, payé chaque mois.
+- **Trimestriel** : payé tous les 3 mois, avec **-50 % sur le premier mois** (premier trimestre à 247,50 € au lieu de 297 € sur Starter, 997,50 € au lieu de 1 197 € sur Pro).
+- **Annuel** : **12 mois pour le prix de 11, à -10 %** (980,10 € par an sur Starter, 3 950,10 € sur Pro).
+
+Si ta boutique passe par l'app Shopify, ton abonnement est facturé par Shopify, qui propose le mensuel et l'annuel.
 
 ### Upgrade
 
 <Steps>
   <Step title="Choisis ton nouveau plan">
-    Clique sur le bouton de la carte (ex : "Passer au Pro — Essai 7j gratuit").
+    Choisis ta formule, puis clique sur le bouton de la carte.
   </Step>
   <Step title="Tu es redirigé vers Stripe Checkout">
-    Saisis ta carte. Si c'est ton premier paiement Actero, l'essai de 7 jours démarre.
+    Saisis ta carte sur la page de paiement sécurisée de Stripe. Le paiement a lieu tout de suite, sauf si ton premier mois est offert.
   </Step>
   <Step title="Retour automatique au dashboard">
     Ton plan est mis à jour, tu débloques immédiatement les nouvelles features.
@@ -71,7 +75,7 @@ L'annuel donne **-20 %** sur le prix affiché. Tu paies une fois pour l'année, 
 
 ### Cas particulier : upgrade instantané
 
-Si tu as déjà une carte enregistrée et que tu changes de plan sans changer ton mode de paiement, l'upgrade est instantané (pas de redirect Stripe). Le prorata est calculé automatiquement par Stripe.
+Si tu as déjà une carte enregistrée et que tu changes de plan dans la même formule, l'upgrade est instantané (pas de redirect Stripe). Le prorata est calculé automatiquement par Stripe. Pour changer de formule (par exemple passer du mensuel à l'annuel), écris à [support@actero.fr](mailto:support@actero.fr).
 
 ### Downgrade
 
@@ -98,9 +102,9 @@ Si tu as un `stripe_customer_id`, le bouton **Voir mes factures** t'envoie sur l
 
 Si tu es encore en plan Free, la section affiche "Aucune facture" — c'est normal.
 
-## Référencement et 30 jours gratuits
+## Parrainage et 30 jours gratuits
 
-Si tu es arrivé via un lien de parrainage, ton premier mois Starter ou Pro est offert pour 30 jours au lieu de 7. Le badge change : "Passer au Pro — 30 jours gratuits".
+Si tu es arrivé via un lien de parrainage, ton premier mois Starter ou Pro est offert (30 jours) en formule mensuelle. Le bouton affiche alors "30 jours gratuits".
 
 Voir aussi l'onglet **Parrainage** dans la sidebar pour parrainer à ton tour.
 

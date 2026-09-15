@@ -48,7 +48,7 @@ export const PricingA = ({ onNavigate }) => {
         'API REST + Webhooks',
         'Historique 90 jours',
       ],
-      cta: 'Essai gratuit 7 jours',
+      cta: 'Choisir Starter',
       ctaStyle: 'ghost',
       onClick: () => onNavigate && onNavigate('/signup'),
     },
@@ -68,7 +68,7 @@ export const PricingA = ({ onNavigate }) => {
         'Rapport PDF mensuel',
         'Support prioritaire 24h',
       ],
-      cta: 'Essai gratuit 7 jours',
+      cta: 'Choisir Pro',
       ctaStyle: 'primary',
       onClick: () => onNavigate && onNavigate('/signup'),
     },
@@ -116,7 +116,7 @@ export const PricingA = ({ onNavigate }) => {
           </h2>
           <p className="text-[17px] text-[#5A5A5A] max-w-xl mx-auto leading-[1.5]">
             Commencez gratuitement, scalez quand vos tickets grimpent. Résiliation en 1 clic.
-            Essai 7 jours sur Starter et Pro.
+            Sans engagement sur Starter et Pro.
           </p>
         </FadeInUp>
 

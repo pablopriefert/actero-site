@@ -21,7 +21,7 @@ Actero est une alternative française à Gorgias, Zendesk, Freshdesk et Tidio, s
 - **Développé et hébergé en France** (serveurs UE, conforme RGPD sans transfert hors UE)
 - **IA entraînée pour l'e-commerce francophone** (compréhension native du vocabulaire SAV français, patterns de conversation locaux)
 - **Agent vocal ElevenLabs** inclus (numéro FR dédié, voix naturelle)
-- **Essai gratuit 7 jours sans carte bancaire** sur le plan Free
+- **Plan Free gratuit à vie, sans carte bancaire** ; Starter et Pro sans engagement
 
 ## Cas d'usage principaux
 

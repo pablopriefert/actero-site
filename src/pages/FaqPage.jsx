@@ -117,8 +117,8 @@ export const FaqPage = ({ onNavigate }) => {
           a: "Non sur les plans Free, Starter et Pro. Vous pouvez résilier à tout moment depuis votre dashboard avec effet à la fin du cycle de facturation en cours. Le plan Enterprise peut inclure un engagement annuel négocié selon la complexité du déploiement, la multi-boutique et les intégrations custom.",
         },
         {
-          q: "Comment fonctionne l'essai gratuit ?",
-          a: "Le plan Free est gratuit à vie sans carte bancaire (50 tickets/mois, 1 workflow, intégration Shopify). Les plans Starter et Pro proposent 7 jours d'essai gratuit avec accès à toutes les fonctionnalités. Carte bancaire requise pour l'essai Starter/Pro mais aucun débit pendant les 7 jours — annulation en 1 clic sans justification.",
+          q: "Peut-on essayer Actero gratuitement ?",
+          a: "Oui, avec le plan Free : gratuit à vie, sans carte bancaire (50 tickets/mois, 1 workflow, intégration Shopify). Starter et Pro n'ont pas d'essai : la formule mensuelle est sans engagement et se résilie à tout moment. Les marchands parrainés ou venus d'une campagne ont leur premier mois offert.",
         },
         {
           q: "Que se passe-t-il si je dépasse mon quota de tickets ?",

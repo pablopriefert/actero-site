@@ -167,7 +167,7 @@ export const PortalSavView = ({ client, clientId, supabase, onUpgrade, onNavigat
             >
               Passer au plan Starter
             </button>
-            <p className="text-[11px] text-[#9ca3af] mt-4">Essai gratuit 7 jours, sans engagement</p>
+            <p className="text-[11px] text-[#9ca3af] mt-4">Sans engagement, résiliable à tout moment</p>
           </div>
         </div>
       </div>
