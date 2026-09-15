@@ -54,7 +54,6 @@ function fichiersMarchand(dir = 'src', acc = []) {
 
 const ROUTES_STRIPE = [
   'api/billing/upgrade.js',
-  'api/billing/create-subscription.js',
   'api/create-checkout-session.js',
 ]
 
@@ -111,7 +110,7 @@ describe('App Store 2.3.1 — l\'installation part de chez Shopify', () => {
 })
 
 describe('App Store 1.2.1 — un marchand Shopify se facture chez Shopify', () => {
-  it('les trois routes Stripe refusent un client ayant une boutique Shopify', () => {
+  it('les routes Stripe refusent un client ayant une boutique Shopify', () => {
     const sans = []
     for (const f of ROUTES_STRIPE) {
       const src = sansCommentaires(readFileSync(f, 'utf8'))

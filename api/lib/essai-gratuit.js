@@ -7,6 +7,7 @@
  *
  *   api/create-checkout-session.js   30 jours si parrainage, sinon AUCUN essai
  *   api/billing/create-subscription  30 jours si parrainage, sinon 7 jours
+ *                                    (supprimé le 14 septembre 2026)
  *   api/billing/upgrade              30 jours si parrainage, sinon 7 jours
  *
  * Un marchand obtenait donc 30, 7 ou 0 jours selon le bouton qu'il avait

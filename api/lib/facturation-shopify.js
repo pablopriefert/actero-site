@@ -11,7 +11,7 @@
  *
  * La règle existait, mais uniquement dans le navigateur
  * (`src/lib/billing-router.js`). Les trois routes de facturation Stripe —
- * `billing/upgrade`, `billing/create-subscription`, `create-checkout-session` —
+ * `billing/upgrade`, `create-checkout-session` (et `billing/create-subscription`, supprimé depuis) —
  * ne vérifiaient rien : elles facturaient qui les appelait.
  *
  * C'est le défaut de la semaine dans sa forme la plus coûteuse : une garde

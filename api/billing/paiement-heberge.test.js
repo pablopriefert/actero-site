@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 /**
@@ -9,6 +9,13 @@ import { join } from 'node:path'
 function sansCommentaires(src) {
   return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
 }
+
+/**
+ * Tous les fichiers source (hors tests) sous `dir` — même fonction que dans
+ * api/lib/llm-provider.test.js. Les fichiers `.test.js` sont exclus : sinon ce
+ * fichier de garde, qui cite PaymentModal/stripe-client/create-subscription
+ * dans ses propres chaînes de caractères, se signalerait lui-même.
+ */
 
 describe('le MRR de l’admin', () => {
   it('ne lit plus l’intervalle seul', () => {
@@ -109,5 +116,22 @@ describe('plus d’essai gratuit de 7 jours', () => {
   it('les plans payants n’ont plus d’essai', () => {
     const src = sansCommentaires(readFileSync('src/lib/plans.js', 'utf8'))
     expect(src).not.toMatch(/\btrial:\s*\{/)
+  })
+})
+
+describe('un seul chemin de paiement Stripe', () => {
+  it('le formulaire intégré a disparu', () => {
+    for (const f of ['src/components/billing/PaymentModal.jsx', 'src/lib/stripe-client.js', 'api/billing/create-subscription.js']) {
+      expect(existsSync(f), `${f} existe encore`).toBe(false)
+    }
+  })
+
+  it('plus personne ne l’importe ni ne l’appelle', () => {
+    const fautifs = []
+    for (const f of [...fichiersSource('src'), ...fichiersSource('api')]) {
+      const src = sansCommentaires(readFileSync(f, 'utf8'))
+      if (/PaymentModal|stripe-client|create-subscription|@stripe\/(react-)?stripe-js/.test(src)) fautifs.push(f)
+    }
+    expect(fautifs).toEqual([])
   })
 })

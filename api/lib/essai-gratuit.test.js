@@ -23,7 +23,6 @@ function sansCommentaires(src) {
 
 const CHEMINS = [
   'api/create-checkout-session.js',
-  'api/billing/create-subscription.js',
   'api/billing/upgrade.js',
 ]
 
@@ -104,7 +103,7 @@ describe('durée de l\'essai gratuit', () => {
     // marchand venu de la pub paierait dès l'inscription au lieu d'avoir
     // trente jours, et rien n'échouerait — la campagne aurait simplement
     // l'air de ne pas marcher.
-    for (const f of ['api/billing/create-subscription.js', 'api/billing/upgrade.js']) {
+    for (const f of ['api/billing/upgrade.js']) {
       const src = readFileSync(f, 'utf8')
       if (!/client\.campaign_first_month_free/.test(src)) continue
       expect(src, `${f} lit le drapeau sans le sélectionner`)
@@ -125,7 +124,7 @@ describe('durée de l\'essai gratuit', () => {
     // que `trial_ends_at` existe, et cette date n'est écrite qu'une fois
     // l'abonnement réellement créé par Stripe.
     const fautifs = []
-    for (const f of ['api/billing/create-subscription.js', 'api/billing/upgrade.js']) {
+    for (const f of ['api/billing/upgrade.js']) {
       const src = sansCommentaires(readFileSync(f, 'utf8'))
       if (/campaign_first_month_free:\s*false/.test(src)) {
         fautifs.push(`${f} consomme le mois de campagne avant le paiement`)
@@ -305,28 +304,17 @@ describe('durée de l\'essai gratuit', () => {
     expect(fautifs, `Divergence des essais :\n${fautifs.join('\n')}`).toEqual([])
   })
 
-  it('l\'écran de paiement annonce la durée que le SERVEUR a accordée', () => {
-    // Le défaut du 10 septembre, deuxième couche — et le plus trompeur des deux.
-    //
-    // Le serveur accordait bien trente jours à un marchand venu de la campagne.
-    // Stripe enregistrait trente jours. Et l'écran de paiement affichait
-    // « Démarrer l'essai de 7 jours », parce que PaymentModal lisait
-    // `plan?.trial?.days || 7` — la valeur commerciale écrite en dur dans
-    // src/lib/plans.js — faute qu'on lui ait jamais transmis le vrai chiffre.
-    //
-    // Pour une publicité qui promet un mois, afficher sept revient exactement au
-    // même que de n'en donner que sept : le marchand ne vérifie pas dans Stripe,
-    // il lit l'écran et il part.
-    const modal = sansCommentaires(readFileSync('src/components/billing/PaymentModal.jsx', 'utf8'))
-
-    expect(modal, 'le modal n\'utilise pas la durée renvoyée par le serveur')
-      .toMatch(/data\.trial_days/)
-    expect(modal, 'le modal invente une durée d\'essai au lieu de la demander')
-      .not.toMatch(/trial\?\.days\s*\|\|\s*\d/)
-
-    const route = sansCommentaires(readFileSync('api/billing/create-subscription.js', 'utf8'))
-    expect(route, 'la route ne dit pas au navigateur combien de jours elle a accordés')
-      .toMatch(/trial_days:/)
+  it('la page Stripe affiche l\'essai que le SERVEUR a accordé', () => {
+    // Le formulaire intégré affichait « 7 jours » à un marchand qui en avait 30 :
+    // il lisait la valeur commerciale de plans.js au lieu de la durée accordée.
+    // Depuis le 14 septembre, le paiement se fait sur la page Stripe Checkout,
+    // qui affiche exactement `trial_period_days` — posé depuis l'avantage
+    // calculé par le serveur, et nulle part ailleurs.
+    const params = sansCommentaires(readFileSync('api/lib/checkout-formule.js', 'utf8'))
+    expect(params, 'la durée d\'essai ne vient plus de l\'avantage calculé')
+      .toMatch(/trial_period_days = offre\.essaiJours/)
+    expect(existsSync('src/components/billing/PaymentModal.jsx'),
+      'le formulaire intégré, qui inventait sa propre durée, est revenu').toBe(false)
   })
 
   it('l\'email de fin d\'essai part bien du webhook Stripe', () => {
@@ -339,8 +327,9 @@ describe('durée de l\'essai gratuit', () => {
 
   it('l\'email de fin d\'essai ne promet pas un renouvellement qui n\'aura pas lieu', () => {
     // Ce que devient l'abonnement à la fin dépend d'UNE chose : la carte.
-    // create-subscription.js pose `missing_payment_method: 'cancel'`, donc sans
-    // moyen de paiement l'abonnement ne démarre pas — il s'annule.
+    // L'ancien create-subscription.js (supprimé le 14 septembre 2026) posait
+    // `missing_payment_method: 'cancel'` : sans moyen de paiement, les essais
+    // qu'il a créés ne démarrent pas — ils s'annulent.
     //
     // L'email affirmait pourtant à tout le monde « aucune action n'est requise,
     // votre abonnement démarrera automatiquement », et proposait d'aller au
@@ -359,12 +348,13 @@ describe('durée de l\'essai gratuit', () => {
     expect(bloc, 'aucune version de l\'email ne s\'adresse au marchand sans carte')
       .toMatch(/Ajouter une carte/)
 
-    // La prémisse. Si `end_behavior` disparaissait, l'abonnement se
-    // poursuivrait sans carte et c'est ce test qu'il faudrait revoir — pas
-    // l'email, qui deviendrait alors juste pour tout le monde.
-    const route = sansCommentaires(readFileSync('api/billing/create-subscription.js', 'utf8'))
-    expect(route, 'l\'email suppose qu\'un essai sans carte s\'annule : ce n\'est plus le cas')
-      .toMatch(/missing_payment_method:\s*'cancel'/)
+    // La prémisse a changé le 14 septembre : la page Stripe demande toujours
+    // la carte, mois offert compris. Les essais sans carte sont ceux créés
+    // AVANT par l'ancien formulaire intégré — la branche « ajoutez une carte »
+    // les sert.
+    const params = sansCommentaires(readFileSync('api/lib/checkout-formule.js', 'utf8'))
+    expect(params, 'un essai peut de nouveau démarrer sans carte : revoir l’email')
+      .toMatch(/payment_method_collection:\s*'always'/)
   })
 })
 

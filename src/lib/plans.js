@@ -6,9 +6,9 @@
  * - Frontend: PricingPage, usePlan hook, PlanGate component, BillingView
  * - Backend: api/lib/plan-limits.js (mirror), brain.js (enforcement)
  *
- * NOTE: Stripe price_ids live on the server only (process.env.STRIPE_PRICE_*)
- * and are resolved by /api/billing/upgrade at upgrade time. We intentionally
- * do NOT expose them to the Vite bundle — no VITE_ duplication, no drift.
+ * NOTE: Stripe prices live on the server only — each formula is looked up by
+ * its lookup_key (api/lib/formules.js) at checkout time. We intentionally do
+ * NOT expose them to the Vite bundle — no VITE_ duplication, no drift.
  */
 
 export const PLANS = {
@@ -16,7 +16,7 @@ export const PLANS = {
     id: 'free',
     name: 'Free',
     tagline: 'Découvrir Actero sans engagement',
-    price: { monthly: 0, annual: 0 },
+    price: { monthly: 0 },
     trial: false,
     limits: {
       tickets_per_month: 50,
@@ -50,7 +50,7 @@ export const PLANS = {
     id: 'starter',
     name: 'Starter',
     tagline: 'Automatiser les premières tâches',
-    price: { monthly: 99, annual: 79 },
+    price: { monthly: 99 },
     // Plus d'essai de 7 jours depuis le 14 septembre 2026 ; le mois offert passe par joursEssaiPour.
     trial: false,
     limits: {
@@ -85,7 +85,7 @@ export const PLANS = {
     id: 'pro',
     name: 'Pro',
     tagline: 'Automatisation complète',
-    price: { monthly: 399, annual: 319 },
+    price: { monthly: 399 },
     // Plus d'essai de 7 jours depuis le 14 septembre 2026 ; le mois offert passe par joursEssaiPour.
     trial: false,
     limits: {
@@ -128,7 +128,7 @@ export const PLANS = {
     id: 'enterprise',
     name: 'Enterprise',
     tagline: 'Sur mesure pour les grands comptes',
-    price: { monthly: null, annual: null }, // sur devis
+    price: { monthly: null }, // sur devis
     trial: false,
     limits: {
       tickets_per_month: Infinity,
@@ -177,28 +177,6 @@ export const PLAN_ORDER = ['free', 'starter', 'pro', 'enterprise']
 
 export function getPlanConfig(planId) {
   return PLANS[planId] || PLANS.free
-}
-
-/**
- * Three honest, one-line selling points for a plan — derived from real limits,
- * so the payment recap never claims a feature that isn't live. Used by the
- * on-site payment modal.
- */
-export function getPlanHighlights(planId) {
-  const plan = getPlanConfig(planId)
-  const tickets = plan.limits.tickets_per_month
-  const workflows = plan.limits.workflows_active
-  const supportLabel = {
-    account_manager: 'Account manager dédié',
-    priority_24h: 'Support prioritaire 24h',
-    email_48h: 'Support email',
-    docs: 'Documentation',
-  }[plan.support] || 'Support'
-  return [
-    `${Number(tickets).toLocaleString('fr-FR')} tickets/mois`,
-    workflows === Infinity || workflows < 0 ? 'Workflows illimités' : `${workflows} workflows`,
-    supportLabel,
-  ]
 }
 
 export function canAccess(planId, feature) {

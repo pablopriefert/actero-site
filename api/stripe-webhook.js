@@ -871,8 +871,10 @@ async function handler(req, res) {
 
           // CE QUI SE PASSE À LA FIN DÉPEND D'UNE SEULE CHOSE : la carte.
           //
-          // api/billing/create-subscription.js pose
+          // L'ancien formulaire intégré (supprimé le 14 septembre 2026) posait
           // `trial_settings.end_behavior.missing_payment_method: 'cancel'`.
+          // Les essais qu'il a créés existent encore ; la page Stripe, elle,
+          // demande toujours la carte.
           // Sans moyen de paiement, l'abonnement ne démarre donc PAS : il
           // s'annule, et l'accès s'arrête.
           //

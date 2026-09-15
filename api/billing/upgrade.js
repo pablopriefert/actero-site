@@ -14,10 +14,9 @@ import { essaiRemplaceParCheckout, resiliationProgrammee } from '../lib/subscrip
  * POST /api/billing/upgrade — la seule route de paiement Stripe self-serve.
  *
  * Depuis le 14 septembre 2026, tout paiement doit passer par la page Stripe
- * Checkout hébergée. Elle remplace le formulaire intégré (create-subscription +
- * PaymentModal), encore en place : sa suppression viendra dans une tâche
- * ultérieure. Deux chemins de paiement avaient fait dériver l'essai à 30, 7 ou
- * 0 jours selon le bouton.
+ * Checkout hébergée. Elle a remplacé le formulaire intégré (create-subscription +
+ * PaymentModal), supprimé depuis. Deux chemins de paiement avaient fait dériver
+ * l'essai à 30, 7 ou 0 jours selon le bouton.
  *
  * Deux chemins, et aucun n'écrit le plan — le webhook l'accorde :
  *   - un abonné `active` ou `trialing` qui a une carte change de prix tout de

@@ -79,8 +79,8 @@ export const OPTIONS_REQUETE_COURTE = { timeout: 5000, maxNetworkRetries: 1 }
  *
  * Vit ici et non dans une route parce que DEUX choses en dépendent, et qu'elles
  * doivent répondre pareil :
- *   - api/billing/create-subscription.js  décide d'échanger le plan ou de
- *                                         redemander une carte
+ *   - api/billing/upgrade.js              décide d'échanger le plan ou de
+ *                                         repasser par la page Stripe
  *   - api/stripe-webhook.js               décide de ce que dit l'email de fin
  *                                         d'essai, et, en mode strict, si un
  *                                         abonnement obtient son plan payant
