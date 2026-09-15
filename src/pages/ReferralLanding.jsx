@@ -215,7 +215,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-[11px] font-bold uppercase tracking-widest mb-4">
               <Gift className="w-3 h-3" />
-              1er mois offert sur n'importe quel plan
+              1er mois offert sur Starter ou Pro, en mensuel
             </div>
             <h2 className="text-2xl md:text-3xl font-bold mb-3">
               Nos plans
