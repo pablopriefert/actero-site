@@ -32,3 +32,12 @@ describe('la facturation du tableau de bord', () => {
     expect(src).toMatch(/'mensuel' && offreBienvenue && boutiqueShopify === false \? joursEssaiPour\(client\)/)
   })
 })
+
+describe('la formule suit le visiteur', () => {
+  it('la page de choix du plan ne code plus la période en dur', () => {
+    const src = sansCommentaires(readFileSync('src/pages/PlanSelectionPage.jsx', 'utf8'))
+    expect(src).not.toMatch(/billingPeriod: "monthly"|billing_period: "monthly"|billingPeriod="monthly"/)
+    expect(src).toMatch(/lireFormuleChoisie\(/)
+    expect(src).toMatch(/PERIODE_API\[/)
+  })
+})

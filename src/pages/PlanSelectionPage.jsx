@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Gift, Loader2, Rocket, Sparkles, ShieldCheck, CreditCard, RefreshCw } from "lucide-react";
 import { Logo } from "../components/layout/Logo";
-import { PLANS, PLAN_ORDER, getPlanHighlights } from "../lib/plans";
+import { PLANS, PLAN_ORDER } from "../lib/plans";
 import { resolveUpgrade } from "../lib/billing-router";
-import { PaymentModal } from "../components/billing/PaymentModal";
-import { hasStripeElements } from "../lib/stripe-client";
+import { SelecteurFormule } from "../components/billing/SelecteurFormule";
+import { affichagePrix, lireFormuleChoisie } from "../lib/affichage-formules";
+import { PERIODE_API } from "../../api/lib/formules.js";
 import { resolveOrCreateClientId } from "../lib/resolve-client";
 import { SEO } from "../components/SEO";
 import { supabase } from "../lib/supabase";
@@ -138,6 +139,13 @@ export const PlanSelectionPage = ({ onNavigate }) => {
   const marqueurServeur = urlParams.get("offre") === "mois";
   const [droitAuMois, setDroitAuMois] = useState(marqueurServeur);
   const [parParrainage, setParParrainage] = useState(false);
+  // La formule choisie sur /tarifs (ou dans le lien d'un closer) suit le
+  // visiteur jusqu'ici. Avant, la page codait « monthly » en dur : choisir
+  // l'annuel sur /tarifs menait à un paiement mensuel.
+  const [periode, setPeriode] = useState(() => lireFormuleChoisie(urlParams).periode);
+  // Une boutique Shopify s'abonne chez Shopify (App Store 1.2.1), qui ne
+  // connaît pas le trimestriel : on ne le lui propose pas.
+  const [boutiqueShopify, setBoutiqueShopify] = useState(false);
 
   useEffect(() => {
     let vivant = true;
@@ -145,6 +153,12 @@ export const PlanSelectionPage = ({ onNavigate }) => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user?.id) return;
+        const { data: connexion } = await supabase
+          .from("client_shopify_connections")
+          .select("shop_domain")
+          .limit(1)
+          .maybeSingle();
+        if (vivant && connexion?.shop_domain) setBoutiqueShopify(true);
         // Pas de filtre `where` : la RLS ne renvoie déjà que les lignes que
         // cet utilisateur a le droit de voir — la sienne (clients_select) ou
         // celles de ses équipes (clients_select_member). À ce moment du
@@ -171,9 +185,10 @@ export const PlanSelectionPage = ({ onNavigate }) => {
 
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
-  const [payModal, setPayModal] = useState(null);
 
   const moisOffert = droitAuMois;
+  // Shopify et le code Startup (−50 % pendant 6 mois, au mois) restent au mensuel.
+  const periodeEffective = boutiqueShopify || isStartupPromo ? "mensuel" : periode;
 
   // Une date, pas une durée. « 30 jours » se discute, « le 10 octobre » se
   // vérifie sur un calendrier — c'est la formulation qui rassure vraiment
@@ -235,18 +250,10 @@ export const PlanSelectionPage = ({ onNavigate }) => {
       // Shopify-installed merchants must be billed via Shopify Billing (App
       // Store policy 1.2); direct signups fall through to Stripe below.
       const routed = await resolveUpgrade({
-        token: session.access_token, clientId, targetPlan: planId, billingPeriod: "monthly",
+        token: session.access_token, clientId, targetPlan: planId, billingPeriod: PERIODE_API[periodeEffective],
       });
       if (routed.channel === "shopify") { window.location.assign(routed.url); return; }
       if (routed.channel === "error") { setError(routed.message); setLoading(null); return; }
-
-      // On-site payment (Stripe Payment Element) when the publishable key is
-      // set — otherwise fall through to the hosted Checkout redirect below.
-      if (hasStripeElements()) {
-        setPayModal({ planId, clientId, token: session.access_token });
-        setLoading(null);
-        return;
-      }
 
       const res = await fetch("/api/billing/upgrade", {
         method: "POST",
@@ -257,23 +264,27 @@ export const PlanSelectionPage = ({ onNavigate }) => {
         body: JSON.stringify({
           client_id: clientId,
           target_plan: planId,
-          billing_period: "monthly",
+          billing_period: PERIODE_API[periodeEffective],
           promo_code: promoCode || undefined,
         }),
       });
 
       const data = await res.json();
-      if (data.checkout_url) {
+      // Contrat de api/billing/upgrade.js (Task 5 bis) : chaque 200 porte un
+      // `statut`, chaque erreur un code (`error`) et une phrase (`message`).
+      if (data.statut === "checkout") {
         window.location.assign(data.checkout_url);
-      } else if (data.error === "Stripe not configured") {
-        setError("Paiement indisponible. Contactez le support.");
-        setLoading(null);
-      } else if (data.error) {
-        setError(data.error);
-        setLoading(null);
-      } else {
-        // Fallback: redirect to dashboard
+      } else if (data.statut === "paiement_a_valider" || (data.error === "paiement_refuse" && data.facture_url)) {
+        // La différence se valide, ou se règle avec une autre carte, sur la
+        // facture Stripe : le plan s'applique une fois payée.
+        window.location.assign(data.facture_url);
+      } else if (data.statut === "change_applique" || data.statut === "paiement_en_cours") {
+        // Le webhook accorde le plan une fois Stripe confirmé.
         onNavigate("/client/overview");
+      } else {
+        // Jamais le code brut (`abonnement_en_cours`…) : la phrase prévue pour le marchand.
+        setError(data.message || "Paiement indisponible. Contactez le support.");
+        setLoading(null);
       }
     } catch (_err) {
       setError("Erreur réseau. Réessayez.");
@@ -283,15 +294,19 @@ export const PlanSelectionPage = ({ onNavigate }) => {
 
   const titre = isStartupPromo
     ? "Bienvenue dans Actero for Startups"
-    : moisOffert
+    : moisOffert && periodeEffective === "mensuel"
       ? "Votre premier mois est offert"
       : "Choisissez votre plan";
 
   const sousTitre = isStartupPromo
     ? "Votre code Startup est actif : -50 % pendant six mois, sur Starter ou Pro."
-    : moisOffert
-      ? "Choisissez la formule qui vous ressemble. Vous ne serez pas débité avant le " + dateFacturation + ", et vous pouvez annuler en un clic."
-      : "Commencez gratuitement, ou essayez une formule payante pendant sept jours.";
+    : periodeEffective === "trimestriel"
+      ? "Au trimestre, le premier mois est à -50 %. Le premier trimestre se paie à l’inscription."
+      : periodeEffective === "annuel"
+        ? "À l’année, 12 mois pour le prix de 11, à -10 %."
+        : moisOffert
+          ? "Choisissez la formule qui vous ressemble. Vous ne serez pas débité avant le " + dateFacturation + ", et vous pouvez annuler en un clic."
+          : "Commencez avec le plan Free, ou choisissez la formule qui vous convient. Sans engagement.";
 
   return (
     <>
@@ -353,6 +368,12 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           </p>
         </motion.div>
 
+        {!boutiqueShopify && !isStartupPromo && (
+          <div className="flex justify-center px-6 pt-10">
+            <SelecteurFormule periode={periode} onChange={setPeriode} />
+          </div>
+        )}
+
         {/* ---------- Formules ---------- */}
         <div className="max-w-6xl w-full mx-auto px-6 pt-14 md:pt-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
@@ -367,14 +388,20 @@ export const PlanSelectionPage = ({ onNavigate }) => {
               const hasDiscount = discountedPrice !== null && (planId === "starter" || planId === "pro");
 
               let prix;
-              let periode = null;
+              let suffixe = null;
+              let detail = null;
               if (plan.price.monthly === null) {
                 prix = "Sur devis";
               } else if (plan.price.monthly === 0) {
                 prix = "Gratuit";
+              } else if (hasDiscount) {
+                prix = `${discountedPrice}€`;
+                suffixe = "/mois";
               } else {
-                prix = `${hasDiscount ? discountedPrice : plan.price.monthly}€`;
-                periode = "/mois";
+                const affichage = affichagePrix(planId, periodeEffective);
+                prix = affichage.principal;
+                suffixe = affichage.suffixe;
+                detail = affichage.detail;
               }
 
               let ctaLabel;
@@ -389,7 +416,11 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                 ctaLabel = "Activer mon plan -50 %";
                 ctaStyle = "bg-cta text-white hover:bg-cta-hover";
               } else {
-                ctaLabel = moisOffert ? "30 jours gratuits" : "Essai gratuit 7 jours";
+                ctaLabel = periodeEffective === "trimestriel"
+                  ? "Payer le premier trimestre"
+                  : periodeEffective === "annuel"
+                    ? "Payer l’année"
+                    : (moisOffert ? "30 jours gratuits" : "Choisir ce plan");
                 ctaStyle = "bg-cta text-white hover:bg-cta-hover";
               }
 
@@ -430,8 +461,11 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                       )}
                       <div className="flex items-baseline gap-1">
                         <span className="text-ink text-[32px] tracking-[-0.03em] leading-none">{prix}</span>
-                        {periode && <span className="text-ink-4 text-sm">{periode}</span>}
+                        {suffixe && <span className="text-ink-4 text-sm">{suffixe}</span>}
                       </div>
+                      {detail && (
+                        <div className="text-[11px] text-ink-4 mt-1.5">{detail}</div>
+                      )}
                       {hasDiscount && (
                         <div className="text-[11px] text-cta font-medium mt-1.5">
                           pendant 6 mois, puis {plan.price.monthly}€/mois
@@ -492,7 +526,11 @@ export const PlanSelectionPage = ({ onNavigate }) => {
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8 text-center">
             {[
-              [CreditCard, "Aucun débit avant le " + dateFacturation],
+              [CreditCard, periodeEffective === "trimestriel"
+                ? "Premier trimestre payé à l’inscription"
+                : periodeEffective === "annuel"
+                  ? "Année payée d’avance : 12 mois pour le prix de 11"
+                  : moisOffert ? "Aucun débit avant le " + dateFacturation : "Payé à l’inscription, sans engagement"],
               [RefreshCw, "Changez ou annulez en un clic"],
               [ShieldCheck, "Paiement sécurisé par Stripe"],
             ].map(([Icone, texte], i) => (
@@ -513,18 +551,6 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           </p>
         </footer>
       </div>
-
-      <PaymentModal
-        open={!!payModal}
-        onClose={() => setPayModal(null)}
-        plan={payModal ? PLANS[payModal.planId] : null}
-        billingPeriod="monthly"
-        highlights={payModal ? getPlanHighlights(payModal.planId) : []}
-        clientId={payModal?.clientId}
-        token={payModal?.token}
-        promoCode={promoCode}
-        onSuccess={() => onNavigate("/client/overview?upgrade=success")}
-      />
     </>
   );
 };
