@@ -11,7 +11,7 @@ import { useToast } from '../ui/Toast'
 import { PLANS, PLAN_ORDER, getPlanConfig } from '../../lib/plans'
 import { resolveUpgrade } from '../../lib/billing-router'
 import { SelecteurFormule } from '../billing/SelecteurFormule'
-import { affichagePrix } from '../../lib/affichage-formules'
+import { affichagePrix, lireFormuleChoisie } from '../../lib/affichage-formules'
 import { PERIODE_API, periodeDepuisApi } from '../../../api/lib/formules.js'
 import { resolveOrCreateClientId } from '../../lib/resolve-client'
 import { usePlan } from '../../hooks/usePlan'
@@ -108,7 +108,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
   const toast = useToast()
   const [loadingPortal, setLoadingPortal] = useState(false)
   const [upgradingPlan, setUpgradingPlan] = useState(null)
-  const [periode, setPeriode] = useState('mensuel')
+  const [periodeChoisie, setPeriode] = useState(null)
 
   // ── Fetch client record ───────────────────────────────────────
   const { data: client, isLoading } = useQuery({
@@ -155,6 +155,16 @@ export const ClientBillingView = ({ theme: _theme }) => {
       return !!data?.shop_domain
     },
   })
+  // La formule à présélectionner : celle de l'abonnement en cours pour un
+  // abonné, sinon celle choisie sur /tarifs ou mémorisée, sinon le mensuel.
+  // Avant, la page démarrait toujours sur 'mensuel' : un visiteur qui avait
+  // choisi Annuel sur /tarifs se retrouvait facturé au mois, et un abonné
+  // Starter trimestriel qui cliquait « Passer au Pro » sans toucher au
+  // sélecteur envoyait `monthly` et recevait un 409 changement_de_formule.
+  const periodeParDefaut = (client?.stripe_subscription_id && periodeDepuisApi(client?.billing_period))
+    || lireFormuleChoisie(new URLSearchParams(window.location.search))?.periode
+    || 'mensuel'
+  const periode = periodeChoisie ?? periodeParDefaut
   const periodeEffective = boutiqueShopify ? 'mensuel' : periode
   // N'annoncer ni −50 % ni mois offert que Checkout refuserait : même règle que
   // le serveur (api/lib/essai-gratuit.js), qui vérifie en plus l'historique Stripe.

@@ -39,6 +39,17 @@ describe('la facturation du tableau de bord', () => {
     expect(src).toMatch(/peutAvoirUneOffreDeBienvenue\(client\)/)
     expect(src).toMatch(/'mensuel' && offreBienvenue && boutiqueShopify === false \? joursEssaiPour\(client\)/)
   })
+
+  it('la période présélectionnée suit l’abonnement en cours, ou la formule choisie avant l’inscription — plus jamais mensuel figé', () => {
+    // Avant : la période démarrait toujours sur 'mensuel', quoi que le marchand
+    // ait choisi sur /tarifs ou quel que soit son abonnement en cours. Un
+    // visiteur Annuel payait le mois, et un abonné Starter trimestriel qui
+    // cliquait « Passer au Pro » envoyait `monthly` et recevait un 409.
+    const src = sansCommentaires(readFileSync('src/components/client/ClientBillingView.jsx', 'utf8'))
+    expect(src).not.toMatch(/useState\('mensuel'\)/)
+    expect(src).toMatch(/lireFormuleChoisie\(/)
+    expect(src).toMatch(/periodeDepuisApi\(client\?\.billing_period\)/)
+  })
 })
 
 describe('la formule suit le visiteur', () => {
@@ -54,6 +65,15 @@ describe('la formule suit le visiteur', () => {
     expect(src).not.toMatch(/billingPeriod: "monthly"|billing_period: "monthly"|billingPeriod="monthly"/)
     expect(src).toMatch(/lireFormuleChoisie\(/)
     expect(src).toMatch(/PERIODE_API\[/)
+  })
+
+  it('la page de choix du plan ne promet -50 % ou le mois offert qu’après avoir vérifié la fiche client', () => {
+    // Un ancien abonné revenu par une campagne (`?offre=mois`) recevait quand
+    // même l’annonce du mois offert : la page ne vérifiait rien, et seul
+    // Checkout refusait ensuite le prix réduit.
+    const src = sansCommentaires(readFileSync('src/pages/PlanSelectionPage.jsx', 'utf8'))
+    expect(src).toMatch(/peutAvoirUneOffreDeBienvenue\(/)
+    expect(src).toMatch(/affichagePrix\(planId, periodeEffective, \{ offreBienvenue \}\)/)
   })
 })
 

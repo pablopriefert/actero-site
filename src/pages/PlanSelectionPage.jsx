@@ -7,6 +7,7 @@ import { resolveUpgrade } from "../lib/billing-router";
 import { SelecteurFormule } from "../components/billing/SelecteurFormule";
 import { affichagePrix, lireFormuleChoisie } from "../lib/affichage-formules";
 import { PERIODE_API } from "../../api/lib/formules.js";
+import { peutAvoirUneOffreDeBienvenue } from "../../api/lib/essai-gratuit.js";
 import { resolveOrCreateClientId } from "../lib/resolve-client";
 import { SEO } from "../components/SEO";
 import { supabase } from "../lib/supabase";
@@ -146,6 +147,12 @@ export const PlanSelectionPage = ({ onNavigate }) => {
   // Une boutique Shopify s'abonne chez Shopify (App Store 1.2.1), qui ne
   // connaît pas le trimestriel : on ne le lui propose pas.
   const [boutiqueShopify, setBoutiqueShopify] = useState(false);
+  // Même règle que le serveur (api/lib/essai-gratuit.js) : un ancien abonné
+  // redirigé ici par une campagne (`?offre=mois`) ne doit pas se voir
+  // promettre -50 % ou un mois offert que Checkout refuserait ensuite. Faux
+  // tant que la fiche n'a pas été lue, ou si la lecture échoue : on ne promet
+  // rien sans savoir.
+  const [offreBienvenue, setOffreBienvenue] = useState(false);
 
   useEffect(() => {
     let vivant = true;
@@ -165,10 +172,16 @@ export const PlanSelectionPage = ({ onNavigate }) => {
         // parcours il n'en a qu'une.
         const { data } = await supabase
           .from("clients")
-          .select("campaign_first_month_free, referral_first_month_free")
+          .select("campaign_first_month_free, referral_first_month_free, trial_ends_at, stripe_subscription_id, billing_provider")
           .limit(1)
           .maybeSingle();
-        if (!vivant || !data) return;
+        if (!vivant) return;
+        if (!data) {
+          // Aucune fiche client : compte tout neuf, donc éligible.
+          setOffreBienvenue(true);
+          return;
+        }
+        setOffreBienvenue(peutAvoirUneOffreDeBienvenue(data));
         if (data.referral_first_month_free) setParParrainage(true);
         if (data.campaign_first_month_free || data.referral_first_month_free) setDroitAuMois(true);
       } catch {
@@ -186,7 +199,12 @@ export const PlanSelectionPage = ({ onNavigate }) => {
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
 
-  const moisOffert = droitAuMois;
+  // droitAuMois dit qu'un mois a été accordé (marqueur d'URL ou drapeaux
+  // serveur) ; offreBienvenue dit si ce client peut ENCORE le recevoir. Un
+  // ancien abonné revenu par une campagne a droitAuMois=true (marqueur) et
+  // offreBienvenue=false (déjà abonné) : sans ce second garde-fou la page
+  // annonçait un mois offert que Checkout refusait.
+  const moisOffert = droitAuMois && offreBienvenue;
   // Shopify et le code Startup (−50 % pendant 6 mois, au mois) restent au mensuel.
   const periodeEffective = boutiqueShopify || isStartupPromo ? "mensuel" : periode;
 
@@ -301,7 +319,9 @@ export const PlanSelectionPage = ({ onNavigate }) => {
   const sousTitre = isStartupPromo
     ? "Votre code Startup est actif : -50 % pendant six mois, sur Starter ou Pro."
     : periodeEffective === "trimestriel"
-      ? "Au trimestre, le premier mois est à -50 %. Le premier trimestre se paie à l’inscription."
+      ? (offreBienvenue
+          ? "Au trimestre, le premier mois est à -50 %. Le premier trimestre se paie à l’inscription."
+          : "Facturé chaque trimestre. Le premier trimestre se paie à l'inscription.")
       : periodeEffective === "annuel"
         ? "À l’année, 12 mois pour le prix de 11, à -10 %."
         : moisOffert
@@ -370,7 +390,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
 
         {!boutiqueShopify && !isStartupPromo && (
           <div className="flex justify-center px-6 pt-10">
-            <SelecteurFormule periode={periode} onChange={setPeriode} />
+            <SelecteurFormule periode={periode} onChange={setPeriode} offreBienvenue={offreBienvenue} />
           </div>
         )}
 
@@ -398,7 +418,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                 prix = `${discountedPrice}€`;
                 suffixe = "/mois";
               } else {
-                const affichage = affichagePrix(planId, periodeEffective);
+                const affichage = affichagePrix(planId, periodeEffective, { offreBienvenue });
                 prix = affichage.principal;
                 suffixe = affichage.suffixe;
                 detail = affichage.detail;
