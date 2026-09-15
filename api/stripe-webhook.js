@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/install.js';
 import { trackServerEvent } from './lib/amplitude.js';
 import { planUpdateFromSubscription, formuleDeLAbonnement, doitResoudreLaCarte, ecritureAutorisee } from './lib/subscription-plan.js';
-import { resolveCustomerCard } from './lib/stripe-customer.js';
+import { resolveCustomerCard, OPTIONS_REQUETE_COURTE } from './lib/stripe-customer.js';
 import { formuleDuPrix, PERIODE_API } from './lib/formules.js';
 
 export const maxDuration = 60;
@@ -325,7 +325,20 @@ async function handler(req, res) {
               console.error('[UPGRADE] Failed to retrieve subscription (non-fatal):', subErr.message);
             }
           }
-          await supabase.from('clients').update(updateData).eq('id', clientId);
+          const { error: upgradeErr } = await supabase.from('clients').update(updateData).eq('id', clientId);
+          if (upgradeErr) {
+            // stripe_subscription_id décide ensuite de qui peut rétrograder le
+            // client (voir ecritureAutorisee) : une écriture perdue ici laisse
+            // le futur customer.subscription.updated de CET abonnement sans
+            // client à mettre à jour. On libère la réservation et on répond
+            // 500 pour que Stripe réessaie — un réessai est sans risque
+            // puisque rien d'autre (analytics, CRM, emails) n'a encore été
+            // envoyé. Même geste que la branche crédits plus haut.
+            console.error('[UPGRADE] Failed to update client:', upgradeErr.message);
+            await supabase.from('webhook_events_processed').delete()
+              .eq('provider', 'stripe').eq('event_id', event.id);
+            return res.status(500).json({ error: 'upgrade_processing_failed' });
+          }
           console.log(`[UPGRADE] Client ${clientId} upgraded to ${newPlan}`);
 
           // Analytics — fire from Stripe webhook so the event is authoritative
@@ -722,8 +735,20 @@ async function handler(req, res) {
     }
 
     case 'customer.subscription.updated': {
-      const subscription = event.data.object;
+      // L'objet de l'événement ne sert plus qu'à identifier l'abonnement :
+      // on relit son état actuel juste en dessous (voir le commentaire du try).
+      const recu = event.data.object;
       try {
+        // Un événement peut être rejoué des heures plus tard, ou arriver dans
+        // le désordre — Stripe ne garantit pas l'ordre de livraison. Décider
+        // sur l'objet figé au moment de l'événement risquait donc d'appliquer
+        // un état périmé (ex. réaccorder un plan après une résiliation, ou
+        // couper un client qui a payé entre-temps). On relit l'abonnement et
+        // on décide sur SON état actuel, comme le recommande Stripe — avec un
+        // délai borné (OPTIONS_REQUETE_COURTE) pour rester sous maxDuration.
+        // Une panne ici suit le même chemin que le reste du bloc : libération
+        // de la réservation, puis 500 pour que Stripe réessaie.
+        const subscription = await stripe.subscriptions.retrieve(recu.id, {}, OPTIONS_REQUETE_COURTE);
         const clientId = subscription.metadata?.client_id;
         if (clientId) {
           // La carte n'est cherchée que si elle peut accorder un plan. En mode

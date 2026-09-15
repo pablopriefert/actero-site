@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { getOrCreateStripeCustomer, resolveCustomerCard } from './stripe-customer.js'
+import { getOrCreateStripeCustomer, resolveCustomerCard, OPTIONS_REQUETE_COURTE } from './stripe-customer.js'
 
 function makeSupabase() {
   const updates = []
@@ -98,5 +98,33 @@ describe('resolveCustomerCard', () => {
       paymentMethods: { list: vi.fn(async () => { throw new Error('list KO') }) },
     }
     await expect(resolveCustomerCard(stripe, {}, 'cus_1')).resolves.toBeNull()
+  })
+
+  it('en mode strict, les deux appels Stripe reçoivent OPTIONS_REQUETE_COURTE', async () => {
+    // Sans ce plafond par requête, le SDK Stripe (jusqu'à 80 s par tentative,
+    // 2 réessais) peut dépasser les 60 s de la fonction Vercel : elle est
+    // tuée avant que le `catch` ne s'exécute, et la réservation dans
+    // `webhook_events_processed` reste posée pour rien — voir stripe-customer.js.
+    const stripe = {
+      customers: { retrieve: vi.fn(async () => ({ invoice_settings: {} })) },
+      paymentMethods: { list: vi.fn(async () => ({ data: [{ id: 'pm_strict' }] })) },
+    }
+    await expect(resolveCustomerCard(stripe, {}, 'cus_1', { strict: true })).resolves.toBe('pm_strict')
+    expect(stripe.customers.retrieve).toHaveBeenCalledWith('cus_1', {}, OPTIONS_REQUETE_COURTE)
+    expect(stripe.paymentMethods.list).toHaveBeenCalledWith(
+      { customer: 'cus_1', type: 'card', limit: 1 },
+      OPTIONS_REQUETE_COURTE,
+    )
+  })
+
+  it('sans le mode strict, les deux appels sont inchangés — mêmes arguments qu’avant', async () => {
+    const stripe = {
+      customers: { retrieve: vi.fn(async () => ({ invoice_settings: {} })) },
+      paymentMethods: { list: vi.fn(async () => ({ data: [{ id: 'pm_repli' }] })) },
+    }
+    await expect(resolveCustomerCard(stripe, {}, 'cus_1')).resolves.toBe('pm_repli')
+    // Un seul argument chacun : pas d'options ajoutées hors du mode strict.
+    expect(stripe.customers.retrieve).toHaveBeenCalledWith('cus_1')
+    expect(stripe.paymentMethods.list).toHaveBeenCalledWith({ customer: 'cus_1', type: 'card', limit: 1 })
   })
 })

@@ -56,6 +56,19 @@ export async function getOrCreateStripeCustomer(stripe, supabase, { clientId, cu
 }
 
 /**
+ * Options passées PAR REQUÊTE aux appels Stripe faits en mode strict.
+ *
+ * Pire cas : 2 tentatives (1 essai + 1 réessai, `maxNetworkRetries: 1`) de
+ * 5 s chacune (`timeout: 5000`) par appel — nettement sous les 60 s de
+ * `maxDuration` d'une fonction Vercel. Sans ce plafond, le SDK Stripe
+ * attend par défaut jusqu'à 80 s par tentative : Vercel tue alors la
+ * fonction avant que son `catch` ne s'exécute, la réservation dans
+ * `webhook_events_processed` reste posée, et le réessai suivant de Stripe
+ * reçoit un 200 « duplicate » — l'événement est perdu sans bruit.
+ */
+export const OPTIONS_REQUETE_COURTE = { timeout: 5000, maxNetworkRetries: 1 }
+
+/**
  * Le moyen de paiement utilisable de ce client, ou `null` s'il n'y en a aucun.
  *
  * Trois endroits peuvent le porter, et il faut les trois : l'abonnement, les
@@ -86,7 +99,14 @@ export async function resolveCustomerCard(stripe, subscription, customerId, { st
   if (subDefault) return typeof subDefault === 'string' ? subDefault : subDefault.id
 
   try {
-    const customer = await stripe.customers.retrieve(customerId)
+    // Le budget temps serré (OPTIONS_REQUETE_COURTE) n'a de sens qu'en mode
+    // strict : c'est lui dont une panne doit remonter jusqu'au webhook. En
+    // mode non strict l'erreur est de toute façon avalée juste en dessous —
+    // l'appel reste donc identique à avant, pour ne rien changer à son
+    // comportement historique.
+    const customer = strict
+      ? await stripe.customers.retrieve(customerId, {}, OPTIONS_REQUETE_COURTE)
+      : await stripe.customers.retrieve(customerId)
     if (customer && !customer.deleted) {
       const invoiceDefault = customer.invoice_settings?.default_payment_method
       if (invoiceDefault) return typeof invoiceDefault === 'string' ? invoiceDefault : invoiceDefault.id
@@ -97,7 +117,9 @@ export async function resolveCustomerCard(stripe, subscription, customerId, { st
   }
 
   try {
-    const list = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
+    const list = strict
+      ? await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 }, OPTIONS_REQUETE_COURTE)
+      : await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
     return list?.data?.[0]?.id || null
   } catch (err) {
     if (strict) throw err

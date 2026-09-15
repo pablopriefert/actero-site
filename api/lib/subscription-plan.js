@@ -92,16 +92,24 @@ export function doitResoudreLaCarte(subscription) {
  * Le webhook retrouve le client par `metadata.client_id`, pas par
  * l'abonnement : un même client peut donc avoir plusieurs abonnements Stripe
  * au fil du temps — un ancien jamais résilié, et celui qu'il paie vraiment,
- * seul enregistré dans `client.stripe_subscription_id`. Si cet ancien
- * abonnement passe `unpaid`, l'événement Stripe est légitime, mais il ne
- * concerne pas l'accès du client : le laisser rétrograder couperait un
- * marchand qui paie par ailleurs. Seul l'abonnement courant peut donc faire
- * descendre le plan.
+ * seul enregistré dans `client.stripe_subscription_id`.
  *
- * À l'inverse, un abonnement qui accorde un plan payant alors qu'aucun
- * abonnement n'est encore enregistré doit poser `stripe_subscription_id` —
- * sinon `customer.subscription.deleted` ne retrouvera jamais ce client le
- * jour où cet abonnement-là est résilié.
+ * Trois cas :
+ *   - rien à écrire (`miseAJour` vide) → `null` ;
+ *   - abonnement COURANT (`stripe_subscription_id` vide, ou égal à celui de
+ *     l'événement) : tout s'écrit tel quel, et un accord de plan payant pose
+ *     `stripe_subscription_id` s'il était vide — sinon
+ *     `customer.subscription.deleted` ne retrouvera jamais ce client le jour
+ *     où cet abonnement-là est résilié ;
+ *   - abonnement NON courant (un autre `stripe_subscription_id` est déjà
+ *     enregistré) : seul un accord de plan payant s'écrit, tel quel et sans
+ *     toucher `stripe_subscription_id`. C'est le cas légitime d'un nouvel
+ *     abonnement dont `customer.subscription.updated` arrive avant
+ *     `checkout.session.completed`, qui l'enregistrera ensuite. Tout le
+ *     reste — une rétrogradation, ou un simple `trial_ends_at` — donne
+ *     `null` : laisser rétrograder couperait un marchand qui paie par
+ *     ailleurs, et une date d'essai à elle seule ouvrirait tout le produit
+ *     sans qu'aucun plan n'ait été accordé.
  *
  * @param {MiseAJourPlan} miseAJour
  * @param {{ plan?: string|null, stripe_subscription_id?: string|null }} client — ligne `clients` lue en base
@@ -114,9 +122,13 @@ export function ecritureAutorisee(miseAJour, client, subscription) {
   if (!miseAJour || Object.keys(miseAJour).length === 0) return null
 
   const abonnementEnregistre = client?.stripe_subscription_id
-  const cetAbonnementNEstPlusLeCourant = !!abonnementEnregistre && abonnementEnregistre !== subscription?.id
+  const estLAbonnementCourant = !abonnementEnregistre || abonnementEnregistre === subscription?.id
 
-  if (miseAJour.plan === 'free' && cetAbonnementNEstPlusLeCourant) return null
+  if (!estLAbonnementCourant) {
+    // Non courant : seul un accord payant traverse, et tel quel — jamais de
+    // rétrogradation, jamais un trial_ends_at qui s'écrirait seul.
+    return miseAJour.plan && miseAJour.plan !== 'free' ? miseAJour : null
+  }
 
   if (miseAJour.plan && miseAJour.plan !== 'free' && !abonnementEnregistre) {
     return { ...miseAJour, stripe_subscription_id: subscription.id }

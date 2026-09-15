@@ -148,6 +148,21 @@ describe('ecritureAutorisee', () => {
     const miseAJour = { plan: 'pro', status: 'active' }
     expect(ecritureAutorisee(miseAJour, { stripe_subscription_id: 'sub_B' }, abonnementCourant)).toEqual(miseAJour)
   })
+
+  it('non courant avec un accord payant → écrit tel quel, sans stripe_subscription_id', () => {
+    // Cas légitime : customer.subscription.updated du NOUVEL abonnement arrive
+    // avant checkout.session.completed, qui posera stripe_subscription_id
+    // ensuite. On accorde le plan sans toucher à l'abonnement enregistré.
+    const miseAJour = { plan: 'pro', status: 'active' }
+    expect(ecritureAutorisee(miseAJour, { stripe_subscription_id: 'sub_B' }, ancienAbonnement)).toEqual(miseAJour)
+  })
+
+  it('non courant avec trial_ends_at seul → null', () => {
+    // Une date d'essai future, à elle seule, ouvre tout le produit : elle ne
+    // doit pas s'écrire pour un abonnement qui n'est pas celui enregistré.
+    const miseAJour = { trial_ends_at: '2026-01-01T00:00:00.000Z' }
+    expect(ecritureAutorisee(miseAJour, { stripe_subscription_id: 'sub_B' }, ancienAbonnement)).toBeNull()
+  })
 })
 
 describe('le webhook s’en sert comme prévu', () => {
@@ -196,5 +211,14 @@ describe('le webhook s’en sert comme prévu', () => {
     const bloc = blocSubscriptionUpdated()
     expect(bloc).toMatch(/webhook_events_processed/)
     expect(bloc).toMatch(/status\(500\)/)
+  })
+
+  it('décide sur l’abonnement relu, pas sur l’objet figé de l’événement', () => {
+    // Stripe peut rejouer un événement des heures plus tard, ou le livrer
+    // dans le désordre : décider sur `event.data.object` risquerait
+    // d'appliquer un état périmé (voir la Task 3 bis). On relit l'abonnement
+    // avec un délai borné, et c'est SON résultat qui nourrit planUpdateFromSubscription.
+    const bloc = blocSubscriptionUpdated()
+    expect(bloc).toMatch(/const subscription = await stripe\.subscriptions\.retrieve\([\s\S]*OPTIONS_REQUETE_COURTE[\s\S]*planUpdateFromSubscription\(subscription/)
   })
 })
