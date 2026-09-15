@@ -236,6 +236,9 @@ seulement l'essai standard via `joursEssaiPour`) et la facturation Shopify.
 4. Shopify Partner Dashboard : annuel à 980,10 € et 3 950,10 €, et **0 jour d'essai**
    sur les plans Shopify, pour s'aligner.
 5. En mode test Stripe : un paiement par formule et par plan avant la production.
+6. Stripe → Réglages → Moyens de paiement, en test et en live : PayPal (paiements
+   récurrents compris) et Link activés. Checkout les demande explicitement : s'il en
+   manque un, la session échoue pour tout le monde, carte comprise.
 
 ## Hors périmètre
 

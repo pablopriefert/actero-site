@@ -944,6 +944,12 @@ git commit -m "feat(facturation): les paramètres de la page Stripe Checkout, en
 
 ---
 
+### Task 4 bis : des paramètres Checkout qui refusent l'incohérence — LIVRÉE
+
+Faite à la relecture qualité de la Task 4 (`2a48e36`). `parametresCheckout` reçoit `prix` (l'objet Price) au lieu de `priceId` et lève si `prix.lookup_key` ne correspond pas à la formule, si la formule n'est pas du catalogue ou si `essaiJours` n'est pas un entier ≥ 1 ; `promo_code` n'est posé que si un code promo Stripe a été trouvé (tronqué à 500 caractères) ; `referral_first_month_free` n'est posé que si un mois est réellement offert ; `siteUrl` sans barre finale. `aDejaEuUnAbonnement` lève sur un identifiant vide et ignore les abonnements `incomplete_expired`, qui n'ont jamais rien facturé. La Task 5 ci-dessous passe `prix` et ne signale le parrain que pour le premier abonnement du filleul.
+
+---
+
 ### Task 5 : la route de paiement
 
 **Files :**
@@ -1107,6 +1113,29 @@ describe('POST /api/billing/upgrade', () => {
     expect(params.allow_promotion_codes).toBe(true)
   })
 
+  it('le premier abonnement d’un filleul signale son parrain', async () => {
+    h.clientRow.referral_first_month_free = true
+    h.clientRow.referred_by_client_id = 'c0'
+    h.clientRow.referral_code = 'PARRAIN1'
+    const res = makeRes()
+    await handler(post(), res)
+    const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
+    expect(params.metadata.referral_code).toBe('PARRAIN1')
+    expect(params.subscription_data.trial_period_days).toBe(30)
+  })
+
+  it('un filleul qui revient après avoir été abonné ne récompense pas une seconde fois son parrain', async () => {
+    h.clientRow.referral_first_month_free = true
+    h.clientRow.referred_by_client_id = 'c0'
+    h.clientRow.referral_code = 'PARRAIN1'
+    h.previousSubs = [{ id: 'sub_ancien', status: 'canceled' }]
+    const res = makeRes()
+    await handler(post(), res)
+    const params = h.stripe.checkout.sessions.create.mock.calls[0][0]
+    expect(params.metadata.referral_code).toBeUndefined()
+    expect(params.subscription_data.metadata.referred_by_client_id).toBeUndefined()
+  })
+
   it('Stripe indisponible pour « déjà abonné ? » : erreur, rien d’accordé', async () => {
     h.stripe.subscriptions.list = vi.fn(async () => { throw new Error('panne') })
     const res = makeRes()
@@ -1197,7 +1226,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
 import { getOrCreateStripeCustomer, resolveCustomerCard } from '../lib/stripe-customer.js'
-import { offreDeBienvenue } from '../lib/essai-gratuit.js';
+import { offreDeBienvenue, peutAvoirUneOffreDeBienvenue } from '../lib/essai-gratuit.js';
 import { refuserFacturationStripe } from '../lib/facturation-shopify.js';
 import { formulePour, formuleDuPrix, periodeDepuisApi } from '../lib/formules.js';
 import { prixDeLaFormule, aDejaEuUnAbonnement } from '../lib/formules-stripe.js';
@@ -1406,8 +1435,12 @@ async function handler(req, res) {
     }
     const offre = offreDeBienvenue({ client, formule, dejaAbonne });
 
+    // Le parrain n'est signalé que pour le PREMIER abonnement de son filleul :
+    // /api/referral/validate crédite le parrain à chaque session qui porte
+    // referral_code, donc un filleul qui résilie puis revient le ferait créditer
+    // à chaque retour.
     let parrainage = null;
-    if (client.referral_first_month_free && client.referred_by_client_id) {
+    if (!dejaAbonne && peutAvoirUneOffreDeBienvenue(client) && client.referral_first_month_free && client.referred_by_client_id) {
       const { data: referrerRow } = await supabaseAdmin
         .from('clients')
         .select('referral_code')
@@ -1431,7 +1464,7 @@ async function handler(req, res) {
     const session = await stripe.checkout.sessions.create(parametresCheckout({
       clientId: client_id,
       customer: stripeCustomerId,
-      priceId: prix.id,
+      prix,
       formule,
       offre,
       promotionCodeId,
@@ -3684,3 +3717,4 @@ Sur `/tarifs`, choisir Annuel puis cliquer le bouton de Pro. Dans la console : `
 3. Vercel : retirer `VITE_STRIPE_PUBLISHABLE_KEY` et les quatre `STRIPE_PRICE_*`.
 4. Shopify Partner Dashboard : annuel à 980,10 € et 3 950,10 €, et 0 jour d'essai sur les plans.
 5. Un paiement de test par formule en mode test Stripe avant d'annoncer les formules.
+6. Stripe → Réglages → Moyens de paiement, en test ET en live : PayPal (paiements récurrents compris) et Link activés. La page de paiement les demande explicitement : s'il en manque un, la création de la session échoue pour tout le monde, carte comprise.
