@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { prixDeLaFormule, aDejaEuUnAbonnement } from './formules-stripe.js'
+import { prixDeLaFormule, aDejaEuUnAbonnement, abonnementsVivants } from './formules-stripe.js'
 import { formulePour } from './formules.js'
 
 describe('lectures Stripe des formules', () => {
@@ -60,5 +60,41 @@ describe('lectures Stripe des formules', () => {
   it('une erreur Stripe remonte, elle ne vaut pas « jamais abonné »', async () => {
     const stripe = { subscriptions: { list: async () => { throw new Error('réseau') } } }
     await expect(aDejaEuUnAbonnement(stripe, 'cus_1')).rejects.toThrow('réseau')
+  })
+})
+
+describe('abonnementsVivants — ce qu’un second abonnement viendrait doubler', () => {
+  it('customerId vide ou non chaîne : lève sans interroger Stripe', async () => {
+    // Un identifiant inexploitable ne doit jamais valoir « aucun abonnement en
+    // cours » : la route ouvrirait Checkout par-dessus un abonnement vivant.
+    const stripe = { subscriptions: { list: async () => { throw new Error('ne doit jamais être appelé') } } }
+    for (const id of ['', null, undefined, 42]) {
+      await expect(abonnementsVivants(stripe, id), String(id)).rejects.toThrow(TypeError)
+    }
+  })
+
+  it('ne garde que les abonnements qui facturent encore, ou peuvent reprendre', async () => {
+    const statuts = ['active', 'past_due', 'unpaid', 'paused', 'trialing', 'canceled', 'incomplete', 'incomplete_expired']
+    const list = vi.fn(async () => ({ data: statuts.map((status) => ({ id: `sub_${status}`, status })), has_more: false }))
+    const vivants = await abonnementsVivants({ subscriptions: { list } }, 'cus_1')
+    expect(list).toHaveBeenCalledWith({ customer: 'cus_1', status: 'all', limit: 100 })
+    expect(vivants.map((s) => s.id)).toEqual(['sub_active', 'sub_past_due', 'sub_unpaid', 'sub_paused', 'sub_trialing'])
+  })
+
+  it('un client Stripe sans abonnement n’en a aucun de vivant', async () => {
+    const stripe = { subscriptions: { list: async () => ({ data: [], has_more: false }) } }
+    expect(await abonnementsVivants(stripe, 'cus_1')).toEqual([])
+  })
+
+  it('une erreur Stripe remonte, elle ne vaut pas « aucun abonnement en cours »', async () => {
+    const stripe = { subscriptions: { list: async () => { throw new Error('réseau') } } }
+    await expect(abonnementsVivants(stripe, 'cus_1')).rejects.toThrow('réseau')
+  })
+
+  it('plus d’une page d’abonnements : lève plutôt que d’affirmer qu’il n’y en a pas d’autre', async () => {
+    // Même prudence que aDejaEuUnAbonnement : un abonnement vivant peut se
+    // trouver sur la page qu'on n'a pas lue.
+    const stripe = { subscriptions: { list: async () => ({ data: [{ id: 'sub_x', status: 'canceled' }], has_more: true }) } }
+    await expect(abonnementsVivants(stripe, 'cus_1')).rejects.toThrow(/page/)
   })
 })
