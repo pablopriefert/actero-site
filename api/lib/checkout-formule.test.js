@@ -99,8 +99,25 @@ describe('parametresCheckout', () => {
       expect(() => parametresCheckout({ ...base, formule, prix, offre: {} })).toThrow(TypeError)
     })
 
-    it.each([-5, 1.5])('essaiJours %s : lève', (essaiJours) => {
+    it.each([
+      ['lookup_key absent', { id: 'price_1' }],
+      ['lookup_key: null', { id: 'price_1', lookup_key: null }],
+    ])('un prix sans lookup_key (%s) : lève', (_label, prix) => {
+      // Un prix dont la lookup_key est absente ou nulle ne peut pas être
+      // vérifié conforme à la formule : le refuser est le seul choix sûr,
+      // même si `formule` est par ailleurs valide.
+      const formule = formulePour('starter', 'mensuel')
+      expect(() => parametresCheckout({ ...base, formule, prix, offre: {} })).toThrow(TypeError)
+    })
+
+    it.each([-5, 1.5, 731])('essaiJours %s : lève', (essaiJours) => {
+      // 731 dépasse le plafond d'essai de Stripe (730 jours) : un essai plus
+      // long serait rejeté par Stripe, autant l'empêcher ici.
       expect(() => params('starter', 'mensuel', { offre: { essaiJours } })).toThrow(TypeError)
+    })
+
+    it('essaiJours 730 : accepté (plafond Stripe)', () => {
+      expect(() => params('starter', 'mensuel', { offre: { essaiJours: 730 } })).not.toThrow()
     })
   })
 

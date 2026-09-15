@@ -42,8 +42,10 @@ export function parametresCheckout(p) {
   if (prix?.lookup_key !== formule.lookupKey) {
     throw new TypeError(`parametresCheckout : le prix ${prix?.id ?? prix} (lookup_key ${prix?.lookup_key ?? 'absent'}) ne correspond pas à la formule ${formule.lookupKey}`)
   }
-  if (offre.essaiJours !== undefined && !(Number.isInteger(offre.essaiJours) && offre.essaiJours >= 1)) {
-    throw new TypeError(`parametresCheckout : offre.essaiJours doit être un entier ≥ 1, reçu ${offre.essaiJours}`)
+  // 730 jours : plafond d'essai de Stripe (trial_period_days). Au-delà,
+  // Stripe refuserait la session — autant le refuser ici avec un message clair.
+  if (offre.essaiJours !== undefined && !(Number.isInteger(offre.essaiJours) && offre.essaiJours >= 1 && offre.essaiJours <= 730)) {
+    throw new TypeError(`parametresCheckout : offre.essaiJours doit être un entier entre 1 et 730, reçu ${offre.essaiJours}`)
   }
 
   const cleFormule = `${formule.plan}_${formule.periode}`
@@ -62,9 +64,14 @@ export function parametresCheckout(p) {
       ...(parrainage ? {
         referred_by_client_id: parrainage.parrainId,
         ...(parrainage.code ? { referral_code: parrainage.code } : {}),
-        // Seulement si un mois est vraiment offert : sinon la récompense du
-        // parrain (déclenchée par ce champ côté webhook) serait accordée pour
-        // un parrainage qui n'a rien donné.
+        // Purement informatif — dit si ce filleul a vraiment eu un mois
+        // offert, mais rien ne relit ce champ. La récompense du parrain
+        // dépend de `referral_code` (ci-dessus et dans `metadata` plus bas),
+        // que le webhook lit pour appeler /api/referral/validate ; c'est la
+        // route appelante qui ne transmet `parrainage` que pour le tout
+        // premier abonnement du filleul. Un filleul qui prend directement un
+        // trimestriel ou un annuel rapporte donc aussi sa récompense au
+        // parrain : c'est voulu.
         ...(offre.essaiJours ? { referral_first_month_free: 'true' } : {}),
       } : {}),
     },

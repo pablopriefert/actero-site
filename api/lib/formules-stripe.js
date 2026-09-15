@@ -26,10 +26,13 @@ export async function prixDeLaFormule(stripe, formule) {
 }
 
 /**
- * Ce client Stripe a-t-il déjà eu un abonnement qui a réellement facturé
- * quelque chose, quel qu'en soit le statut actuel ? Une erreur Stripe remonte :
- * elle ne doit jamais valoir « jamais abonné », sinon une panne accorderait un
- * avantage de bienvenue.
+ * Ce client Stripe a-t-il déjà eu un abonnement, quel qu'en soit le statut
+ * actuel — pas seulement un abonnement qui a réellement facturé : un essai
+ * annulé sans qu'aucune facture n'ait été émise compte, tout comme un
+ * abonnement `incomplete` pas encore expiré. Seuls les `incomplete_expired`
+ * sont ignorés (voir plus bas). Une erreur Stripe remonte : elle ne doit
+ * jamais valoir « jamais abonné », sinon une panne accorderait un avantage de
+ * bienvenue.
  *
  * `customerId` doit être une chaîne non vide : un « je ne sais pas » ne doit
  * jamais glisser vers « jamais abonné » sans même interroger Stripe — ça
