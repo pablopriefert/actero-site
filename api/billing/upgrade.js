@@ -2,21 +2,32 @@ import { withSentry } from '../lib/sentry.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { isActeroAdmin } from '../lib/admin-auth.js'
-import { getOrCreateStripeCustomer } from '../lib/stripe-customer.js'
-import { joursEssaiPour } from '../lib/essai-gratuit.js';
+import { getOrCreateStripeCustomer, resolveCustomerCard } from '../lib/stripe-customer.js'
+import { offreDeBienvenue, peutAvoirUneOffreDeBienvenue } from '../lib/essai-gratuit.js';
 import { refuserFacturationStripe } from '../lib/facturation-shopify.js';
+import { formulePour, formuleDuPrix, periodeDepuisApi } from '../lib/formules.js';
+import { prixDeLaFormule, aDejaEuUnAbonnement } from '../lib/formules-stripe.js';
+import { parametresCheckout } from '../lib/checkout-formule.js';
+
+/**
+ * POST /api/billing/upgrade — la seule route de paiement Stripe self-serve.
+ *
+ * Depuis le 14 septembre 2026, tout paiement passe par la page Stripe Checkout
+ * hébergée : le formulaire intégré (create-subscription + PaymentModal) est
+ * supprimé. Deux chemins de paiement avaient fait dériver l'essai à 30, 7 ou 0
+ * jours selon le bouton.
+ *
+ * Body : { client_id, target_plan: 'starter'|'pro', billing_period:
+ *          'monthly'|'quarterly'|'annual', promo_code? }
+ *
+ * Réponses : { checkout_url } | { instant: true } | 409 changement_de_formule |
+ *            409 deja_sur_ce_plan | 400 | 401 | 403 | 503
+ */
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
-
-const PRICES = {
-  starter_monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY,
-  starter_annual: process.env.STRIPE_PRICE_STARTER_ANNUAL,
-  pro_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY,
-  pro_annual: process.env.STRIPE_PRICE_PRO_ANNUAL,
-};
 
 const PLAN_ORDER = ['free', 'starter', 'pro', 'enterprise'];
 
@@ -38,8 +49,9 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Missing client_id or target_plan' });
   }
 
-  if (!['monthly', 'annual'].includes(billing_period)) {
-    return res.status(400).json({ error: 'billing_period must be monthly or annual' });
+  const periode = periodeDepuisApi(billing_period);
+  if (!periode) {
+    return res.status(400).json({ error: 'billing_period must be monthly, quarterly or annual' });
   }
 
   // --- Verify user belongs to client ---
@@ -55,10 +67,9 @@ async function handler(req, res) {
   }
 
   try {
-    // --- Load current client ---
     const { data: client, error: clientErr } = await supabaseAdmin
       .from('clients')
-      .select('id, plan, stripe_customer_id, stripe_subscription_id, contact_email, brand_name, trial_ends_at, referral_first_month_free, campaign_first_month_free, referred_by_client_id')
+      .select('id, plan, stripe_customer_id, stripe_subscription_id, contact_email, brand_name, trial_ends_at, billing_provider, referral_first_month_free, campaign_first_month_free, referred_by_client_id')
       .eq('id', client_id)
       .single();
 
@@ -66,15 +77,11 @@ async function handler(req, res) {
       return res.status(404).json({ error: 'Client introuvable.' });
     }
 
-
     // App Store 1.2.1 — un marchand venu de Shopify se facture chez Shopify.
-    // Cette garde vivait uniquement dans le navigateur (billing-router.js) :
-    // cette route facturait qui l'appelait. Voir api/lib/facturation-shopify.js.
     if (await refuserFacturationStripe(supabaseAdmin, client_id, res)) return;
 
     const currentPlan = client.plan || 'free';
 
-    // --- Enterprise = contact sales ---
     if (target_plan === 'enterprise') {
       return res.status(400).json({
         error: 'enterprise_contact',
@@ -83,39 +90,43 @@ async function handler(req, res) {
       });
     }
 
-    // --- Validate upgrade (no downgrade) ---
     const currentIndex = PLAN_ORDER.indexOf(currentPlan);
     const targetIndex = PLAN_ORDER.indexOf(target_plan);
     if (targetIndex < 0) {
       return res.status(400).json({ error: 'Plan cible invalide.' });
     }
-    if (targetIndex <= currentIndex) {
+    if (targetIndex === currentIndex) {
+      return res.status(409).json({
+        error: 'deja_sur_ce_plan',
+        message: 'Vous êtes déjà sur ce plan. Pour changer de formule, écrivez-nous à support@actero.fr.',
+      });
+    }
+    if (targetIndex < currentIndex) {
       return res.status(400).json({ error: 'Seuls les upgrades sont autorises. Pour un downgrade, contactez le support.' });
     }
 
-    // --- Stripe failsafe ---
     if (!process.env.STRIPE_SECRET_KEY) {
-      return res.status(503).json({
-        error: 'Stripe not configured',
-        hint: 'Contact support at support@actero.fr',
-      });
+      return res.status(503).json({ error: 'Stripe not configured', hint: 'Contact support at support@actero.fr' });
     }
 
-    const priceKey = `${target_plan}_${billing_period}`;
-    const priceId = PRICES[priceKey];
-    if (!priceId) {
-      return res.status(503).json({
-        error: 'Stripe not configured',
-        hint: `Price ID manquant pour ${priceKey}. Contactez le support.`,
-      });
+    const formule = formulePour(target_plan, periode);
+    if (!formule) {
+      return res.status(400).json({ error: 'Formule invalide.' });
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+    const prix = await prixDeLaFormule(stripe, formule);
+    if (!prix) {
+      return res.status(503).json({
+        error: 'Stripe not configured',
+        hint: `Prix introuvable pour ${formule.lookupKey}. Lancez « Configurer Stripe » dans l'admin.`,
+      });
+    }
+
     // --- Get or create Stripe customer (heals orphaned ids on key/mode change) ---
     let candidateId = client.stripe_customer_id;
     if (!candidateId) {
-      // Also check funnel_clients
       const { data: funnel } = await supabaseAdmin
         .from('funnel_clients')
         .select('stripe_customer_id')
@@ -132,162 +143,120 @@ async function handler(req, res) {
       name: client.brand_name,
     });
 
-    // --- Determine trial eligibility ---
-    // Referral first month free takes priority (30 days), otherwise 7-day trial if never had one
-    const trialDays = joursEssaiPour(client);
-
-    // --- Check if client already has an active subscription (instant upgrade) ---
+    // --- Abonné existant ---
     const existingSubId = client.stripe_subscription_id;
-
     if (existingSubId) {
-      // Client already paying — instant subscription update (no checkout needed)
+      let subscription = null;
       try {
-        const subscription = await stripe.subscriptions.retrieve(existingSubId);
-        if (subscription && subscription.status !== 'canceled') {
-          // Switch the price item on the existing subscription
-          const currentItem = subscription.items.data[0];
-          if (currentItem) {
-            await stripe.subscriptions.update(existingSubId, {
-              items: [{
-                id: currentItem.id,
-                price: priceId,
-              }],
-              proration_behavior: 'create_prorations',
-              metadata: {
-                client_id: client_id, // customer.subscription.updated keys on this
-                actero_client_id: client_id,
-                upgrade_from: currentPlan,
-                upgrade_to: target_plan,
-              },
-            });
-
-            // Update plan in DB immediately
-            await supabaseAdmin.from('clients').update({
-              plan: target_plan,
-              plan_updated_at: new Date().toISOString(),
-            }).eq('id', client_id);
-
-            return res.status(200).json({
-              success: true,
-              instant: true,
-              message: `Plan mis a jour vers ${target_plan}. La proration sera appliquee sur votre prochaine facture.`,
-            });
-          }
-        }
+        subscription = await stripe.subscriptions.retrieve(existingSubId);
       } catch (subErr) {
-        // Subscription retrieval failed — fall through to checkout
-        console.warn('[billing/upgrade] Subscription update failed, falling back to checkout:', subErr.message);
+        if (subErr?.code !== 'resource_missing' && subErr?.statusCode !== 404) throw subErr;
+      }
+
+      if (subscription && ['active', 'trialing'].includes(subscription.status)) {
+        const item = subscription.items?.data?.[0];
+        const actuelle = formuleDuPrix(item?.price);
+        if (actuelle && actuelle.periode !== periode) {
+          return res.status(409).json({
+            error: 'changement_de_formule',
+            message: 'Pour passer à une autre formule, écrivez-nous à support@actero.fr : on s’en occupe.',
+          });
+        }
+
+        // Mode strict : une panne ne vaut pas « pas de carte ». Repasser par
+        // Checkout créerait un second abonnement pendant que le premier continue
+        // de facturer.
+        let carte;
+        try {
+          carte = await resolveCustomerCard(stripe, subscription, stripeCustomerId, { strict: true });
+        } catch (err) {
+          console.error('[billing/upgrade] moyen de paiement illisible :', err.message);
+          return res.status(503).json({ error: 'Paiement indisponible pour le moment, réessayez dans un instant.' });
+        }
+        if (item && carte) {
+          await stripe.subscriptions.update(existingSubId, {
+            items: [{ id: item.id, price: prix.id }],
+            proration_behavior: 'create_prorations',
+            default_payment_method: carte,
+            metadata: {
+              client_id,
+              actero_client_id: client_id,
+              formule: `${formule.plan}_${formule.periode}`,
+              upgrade_from: currentPlan,
+              upgrade_to: target_plan,
+            },
+          });
+
+          // LE PLAN N'EST PAS ÉCRIT ICI. Il l'était, avant toute confirmation
+          // de Stripe (audit du 11 septembre). customer.subscription.updated
+          // l'accorde, carte vérifiée — voir api/lib/subscription-plan.js.
+          return res.status(200).json({
+            success: true,
+            instant: true,
+            plan_attendu: target_plan,
+            message: `Passage au plan ${target_plan} en cours. La proration sera appliquée sur votre prochaine facture.`,
+          });
+        }
+        // Sans carte : un essai laissé par l'ancien formulaire intégré. On passe
+        // par la page Stripe ; l'ancien abonnement s'annule seul en fin d'essai.
       }
     }
 
-    // --- No existing subscription or update failed — Create Checkout Session ---
-    const siteUrl = process.env.SITE_URL || 'https://actero.fr';
-
-    // Build subscription_data with trial and referral metadata
-    const subscriptionData = {};
-    if (trialDays) {
-      subscriptionData.trial_period_days = trialDays;
+    // --- Avantage de bienvenue : une seule fois par client ---
+    let dejaAbonne;
+    try {
+      dejaAbonne = await aDejaEuUnAbonnement(stripe, stripeCustomerId);
+    } catch (err) {
+      console.error('[billing/upgrade] lecture des abonnements passés impossible :', err.message);
+      return res.status(503).json({ error: 'Paiement indisponible pour le moment, réessayez dans un instant.' });
     }
+    const offre = offreDeBienvenue({ client, formule, dejaAbonne });
 
-    // Resolve the referrer's referral_code so the webhook can trigger
-    // /api/referral/validate (which rewards the referrer).
-    let referrerCode = null;
-    if (client.referral_first_month_free && client.referred_by_client_id) {
+    // Le parrain n'est signalé que pour le PREMIER abonnement de son filleul :
+    // /api/referral/validate crédite le parrain à chaque session qui porte
+    // referral_code, donc un filleul qui résilie puis revient le ferait créditer
+    // à chaque retour.
+    let parrainage = null;
+    if (!dejaAbonne && peutAvoirUneOffreDeBienvenue(client) && client.referral_first_month_free && client.referred_by_client_id) {
       const { data: referrerRow } = await supabaseAdmin
         .from('clients')
         .select('referral_code')
         .eq('id', client.referred_by_client_id)
         .maybeSingle();
-      referrerCode = referrerRow?.referral_code || null;
-
-      subscriptionData.metadata = {
-        referral_first_month_free: 'true',
-        referred_by_client_id: client.referred_by_client_id,
-        ...(referrerCode ? { referral_code: referrerCode } : {}),
-      };
+      parrainage = { parrainId: client.referred_by_client_id, code: referrerRow?.referral_code || null };
     }
 
-    // Session-level metadata — stripe-webhook.js reads referral_code here.
-    const sessionMetadata = {
-      actero_client_id: client_id,
-      upgrade_from: currentPlan,
-      upgrade_to: target_plan,
-      ...(referrerCode ? { referral_code: referrerCode } : {}),
-      ...(promo_code ? { promo_code } : {}),
-    };
-
-    // Resolve the user's promo code to a Stripe promotion_code id (for Checkout discount)
-    // Handles the Actero for Startups flow (-50% 6 months) as well as any other
-    // active promotion code the user passes in the URL (?promo=XXX).
-    let resolvedDiscounts;
+    let promotionCodeId = null;
     if (promo_code) {
       try {
-        const promoList = await stripe.promotionCodes.list({
-          code: promo_code,
-          active: true,
-          limit: 1,
-        });
-        if (promoList.data.length > 0) {
-          resolvedDiscounts = [{ promotion_code: promoList.data[0].id }];
-        }
+        const promoList = await stripe.promotionCodes.list({ code: promo_code, active: true, limit: 1 });
+        promotionCodeId = promoList.data[0]?.id || null;
       } catch (e) {
         console.warn('[billing/upgrade] could not resolve promo code', promo_code, e.message);
       }
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'subscription',
+    // `customer` : toute session Checkout dit à qui elle appartient (garde ACT-39,
+    // api/lib/client-stripe-unique.test.js).
+    const session = await stripe.checkout.sessions.create(parametresCheckout({
+      clientId: client_id,
       customer: stripeCustomerId,
-      line_items: [{ price: priceId, quantity: 1 }],
-      ...(Object.keys(subscriptionData).length > 0 ? { subscription_data: subscriptionData } : {}),
-      // If we resolved the promo code, apply it automatically — otherwise let
-      // Stripe Checkout show the manual promotion code input field.
-      ...(resolvedDiscounts
-        ? { discounts: resolvedDiscounts }
-        : { allow_promotion_codes: true }),
-      metadata: sessionMetadata,
-      // Collect billing info
-      billing_address_collection: 'required',
-      tax_id_collection: { enabled: true },
-      customer_update: { name: 'auto', address: 'auto' },
-      // Payment methods (Google Pay auto with card, Klarna not supported for subscriptions)
-      payment_method_types: ['card', 'paypal', 'link'],
-      // Custom fields for company info
-      custom_fields: [
-        {
-          key: 'company_name',
-          label: { type: 'custom', custom: 'Nom de l\'entreprise (optionnel)' },
-          type: 'text',
-          optional: true,
-        },
-        {
-          key: 'siret',
-          label: { type: 'custom', custom: 'SIRET / Numero d\'entreprise (optionnel)' },
-          type: 'text',
-          optional: true,
-        },
-      ],
-      success_url: `${siteUrl}/client/overview?upgrade=success&plan=${target_plan}`,
-      cancel_url: `${siteUrl}/client/billing?upgrade=cancel`,
-    });
+      prix,
+      formule,
+      offre,
+      promotionCodeId,
+      planActuel: currentPlan,
+      parrainage,
+      promoCode: promo_code || null,
+      siteUrl: process.env.SITE_URL || 'https://actero.fr',
+    }));
 
     // ON NE CONSOMME RIEN ICI — ET C'EST DÉLIBÉRÉ.
     //
-    // Ces deux drapeaux étaient remis à false juste après la création de la
-    // session Stripe, c'est-à-dire avant que le marchand ait tapé le moindre
-    // chiffre de carte. Ouvrir l'écran de paiement puis le fermer suffisait à
-    // brûler le mois, définitivement et sans aucun moyen de le récupérer.
-    //
-    // Le cas est loin d'être théorique : c'est exactement ce qu'a vécu Pablo le
-    // 10 septembre en testant le lien de la campagne, et c'est le comportement
-    // le plus banal qui soit devant un formulaire de carte bancaire. Sur une
-    // campagne payée pour amener des gens à cet écran précis, c'est le pire
-    // endroit du parcours où poser un piège.
-    //
-    // La protection contre le réabonnement en boucle est ailleurs, et elle est
-    // plus solide : `joursEssaiPour` refuse tout essai dès que `trial_ends_at`
-    // existe, et cette date est écrite par le webhook quand l'abonnement est
-    // réellement créé. Voir api/lib/essai-gratuit.js.
+    // Les drapeaux de mois offert ne sont pas remis à false à la création de la
+    // session : fermer la page Stripe sans payer brûlait le mois (constaté le
+    // 10 septembre). Ce qui empêche d'en réclamer un second est ailleurs :
+    // l'avantage de bienvenue refuse tout client déjà abonné ou ayant eu un essai.
 
     return res.status(200).json({ checkout_url: session.url });
   } catch (error) {

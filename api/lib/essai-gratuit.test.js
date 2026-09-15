@@ -298,7 +298,9 @@ describe('durée de l\'essai gratuit', () => {
         .replace(/\/\*[\s\S]*?\*\//g, '')
         .replace(/^\s*\/\/.*$/gm, '')
       if (/trial_period_days\s*[:=]\s*\d/.test(src)) fautifs.push(`${f} : durée écrite en dur`)
-      if (!/joursEssaiPour\(/.test(src)) fautifs.push(`${f} : n'utilise pas joursEssaiPour()`)
+      if (!/joursEssaiPour\(|offreDeBienvenue\(/.test(src)) {
+        fautifs.push(`${f} : n'utilise ni joursEssaiPour() ni offreDeBienvenue()`)
+      }
     }
     expect(fautifs, `Divergence des essais :\n${fautifs.join('\n')}`).toEqual([])
   })
