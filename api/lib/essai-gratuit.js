@@ -51,6 +51,11 @@ export const ESSAI_CAMPAGNE_JOURS = 30
  * Ne vaut que pour le mensuel : une formule du catalogue passe par
  * `offreDeBienvenue`, qui n'applique cette règle que sur cette période-là.
  *
+ * Ne dit pas si le mois sera VRAIMENT accordé : un client déjà abonné chez
+ * Stripe ou déjà facturé par Stripe (`billing_provider`) n'y a plus droit,
+ * même si cette fonction renvoie un nombre de jours — voir
+ * `peutAvoirUneOffreDeBienvenue`, qui porte cette partie-là de la règle.
+ *
  * @param {{ referral_first_month_free?: boolean|null, campaign_first_month_free?: boolean|null,
  *           trial_ends_at?: string|null }} client
  * @returns {number|undefined} un nombre de jours, ou `undefined` pour « pas
@@ -82,6 +87,29 @@ export function joursEssaiPour(client) {
   return undefined
 }
 
+/** Les colonnes de `clients` dont dépend l'avantage de bienvenue. */
+const COLONNES_OFFRE = ['trial_ends_at', 'billing_provider', 'stripe_subscription_id', 'referral_first_month_free', 'campaign_first_month_free']
+
+/**
+ * D'après sa fiche, ce client peut-il encore recevoir un avantage de bienvenue ?
+ *
+ * Une seule règle pour le serveur (`offreDeBienvenue`) et pour la facturation
+ * du tableau de bord, qui ne doit annoncer ni −50 % ni mois offert que Checkout
+ * refuserait. Condition nécessaire, pas suffisante : le serveur vérifie en plus
+ * l'historique Stripe, que le navigateur ne voit pas.
+ *
+ * Fermée par un essai déjà pris, un abonnement Stripe en cours, ou une
+ * facturation Stripe passée : `billing_provider`, que la résiliation n'efface
+ * pas, contrairement à `stripe_subscription_id`.
+ *
+ * @param {{ trial_ends_at?: string|null, billing_provider?: string|null, stripe_subscription_id?: string|null } | null | undefined} client
+ * @returns {boolean}
+ */
+export function peutAvoirUneOffreDeBienvenue(client) {
+  if (!client) return false
+  return !client.trial_ends_at && !client.stripe_subscription_id && client.billing_provider !== 'stripe'
+}
+
 /**
  * L'avantage de bienvenue de ce client pour cette formule — une seule fois.
  *
@@ -94,14 +122,15 @@ export function joursEssaiPour(client) {
  * ici : la page tarifs l'annonce et la configuration Stripe le crée à partir de
  * la même donnée. Deux règles séparées finiraient par dériver (ACT-33).
  *
- * Un client déjà abonné chez Stripe, déjà facturé par Stripe (`billing_provider`,
- * que la résiliation n'efface pas) ou qui a déjà eu un essai n'a droit à aucun
- * avantage. Tout ce qui décide doit avoir été LU : `dejaAbonne` inconnu, une
- * colonne absente du `.select()` ou une formule hors catalogue lèvent, plutôt
+ * L'éligibilité elle-même est `peutAvoirUneOffreDeBienvenue` : la même règle
+ * sert ici et à la facturation du tableau de bord, pour qu'aucune des deux ne
+ * promette ce que l'autre refuse. Tout ce qui décide doit avoir été LU :
+ * `dejaAbonne` inconnu, une formule hors catalogue, ou une colonne de
+ * `COLONNES_OFFRE` absente du `.select()` — drapeaux compris — lèvent, plutôt
  * que d'accorder quoi que ce soit sur un « je ne sais pas ».
  *
  * @param {{
- *   client: { trial_ends_at: string|null, billing_provider: string|null, referral_first_month_free?: boolean|null, campaign_first_month_free?: boolean|null },
+ *   client: { trial_ends_at: string|null, billing_provider: string|null, stripe_subscription_id: string|null, referral_first_month_free: boolean|null, campaign_first_month_free: boolean|null },
  *   formule: import('./formules.js').Formule,
  *   dejaAbonne: boolean,
  * }} p
@@ -114,10 +143,12 @@ export function offreDeBienvenue({ client, formule, dejaAbonne }) {
   if (!FORMULES.includes(formule)) {
     throw new TypeError('offreDeBienvenue : formule hors catalogue')
   }
-  if (client?.trial_ends_at === undefined || client?.billing_provider === undefined) {
-    throw new TypeError('offreDeBienvenue : trial_ends_at et billing_provider doivent être lus (null s’ils sont vides)')
+  const lu = /** @type {Record<string, unknown>} */ (client ?? {})
+  const colonnesManquantes = COLONNES_OFFRE.filter((colonne) => lu[colonne] === undefined)
+  if (colonnesManquantes.length > 0) {
+    throw new TypeError(`offreDeBienvenue : colonnes non lues (${colonnesManquantes.join(', ')}) — null ou false si elles sont vides`)
   }
-  if (dejaAbonne || client.trial_ends_at || client.billing_provider === 'stripe') return {}
+  if (dejaAbonne || !peutAvoirUneOffreDeBienvenue(client)) return {}
   if (formule.periode === 'mensuel') {
     const essaiJours = joursEssaiPour(client)
     return essaiJours ? { essaiJours } : {}
