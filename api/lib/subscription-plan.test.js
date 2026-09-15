@@ -215,6 +215,28 @@ describe('annoncerLaFinDEssai', () => {
     expect(annoncerLaFinDEssai(essai())).toBe(true)
   })
 
+  it('statut trialing sans résiliation : on l’annonce', () => {
+    expect(annoncerLaFinDEssai(essai({ status: 'trialing', cancel_at: null, cancel_at_period_end: false }))).toBe(true)
+  })
+
+  it('essai déjà résilié (canceled) : plus rien à annoncer', () => {
+    // Le webhook relit l'abonnement : un essai résilié entre la création de
+    // l'événement et sa livraison n'a plus de fin à annoncer.
+    expect(annoncerLaFinDEssai(essai({ status: 'canceled' }))).toBe(false)
+  })
+
+  it('essai déjà terminé (active) : plus rien à annoncer', () => {
+    // Fin d'essai avancée ou paiement : l'abonnement facture déjà, « votre
+    // essai se termine le … » serait faux.
+    expect(annoncerLaFinDEssai(essai({ status: 'active' }))).toBe(false)
+  })
+
+  it('tout autre statut que trialing : rien à annoncer', () => {
+    for (const status of ['past_due', 'unpaid', 'paused', 'incomplete', 'incomplete_expired', undefined]) {
+      expect(annoncerLaFinDEssai(essai({ status })), String(status)).toBe(false)
+    }
+  })
+
   it('résilié en fin de période : il ne démarrera pas, rien à annoncer', () => {
     // C'est l'essai sans carte que la route de paiement neutralise avant
     // d'ouvrir Checkout : lui écrire « ajoutez une carte pour continuer »

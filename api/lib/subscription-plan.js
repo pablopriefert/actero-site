@@ -100,7 +100,13 @@ export function doitResoudreLaCarte(subscription) {
 /**
  * Faut-il envoyer l'email « votre essai se termine » pour cet abonnement ?
  *
- * Non quand l'essai ne démarrera pas : résilié en fin de période
+ * Non quand l'essai n'est plus en cours : statut autre que `trialing`. Le
+ * webhook relit l'abonnement avant de décider, et entre la création de
+ * l'événement et sa livraison, l'essai a pu être résilié (`canceled`) ou se
+ * terminer plus tôt (`active`, déjà facturé) : « votre essai se termine le … »
+ * serait faux.
+ *
+ * Pas davantage quand l'essai ne démarrera pas : résilié en fin de période
  * (`cancel_at_period_end`), ou résiliation programmée (`cancel_at`) au plus
  * tard à la fin de l'essai. C'est le sort de l'essai sans carte que
  * api/billing/upgrade.js neutralise avant d'ouvrir Checkout pour une autre
@@ -116,7 +122,8 @@ export function doitResoudreLaCarte(subscription) {
  * @returns {boolean}
  */
 export function annoncerLaFinDEssai(subscription) {
-  if (subscription?.cancel_at_period_end === true) return false
+  if (subscription?.status !== 'trialing') return false
+  if (subscription.cancel_at_period_end === true) return false
   const cancelAt = subscription?.cancel_at
   const finDEssai = subscription?.trial_end
   if (typeof cancelAt === 'number' && typeof finDEssai === 'number' && cancelAt <= finDEssai) return false
