@@ -48,3 +48,15 @@ describe('la formule suit le visiteur', () => {
     expect(src).toMatch(/PERIODE_API\[/)
   })
 })
+
+describe('plus de remise annuelle de 20 %', () => {
+  it('aucun texte n’annonce encore l’ancien annuel', () => {
+    const fautifs = []
+    for (const f of ['src/pages/PricingPage.jsx', 'src/pages/FaqPage.jsx', 'src/components/landing/PricingA.jsx', 'src/components/client/ClientBillingView.jsx']) {
+      const src = sansCommentaires(readFileSync(f, 'utf8'))
+      if (/-\s?20\s?%|20\s?% de réduction|économiser 20/.test(src)) fautifs.push(`${f} : remise de 20 %`)
+      if (/\b(79|319)\s?€\/mois en annuel|948\s?€\/an|3\s?828\s?€\/an/.test(src)) fautifs.push(`${f} : ancien prix annuel`)
+    }
+    expect(fautifs).toEqual([])
+  })
+})

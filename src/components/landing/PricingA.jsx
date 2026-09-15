@@ -1,6 +1,7 @@
 import React from 'react'
 import { Check, Sparkles, ArrowRight } from 'lucide-react'
 import { FadeInUp } from '../ui/scroll-animations'
+import { equivalentMensuel } from '../../lib/affichage-formules'
 
 /**
  * PricingA — 4 plans cards (variation A).
@@ -39,7 +40,7 @@ export const PricingA = ({ onNavigate }) => {
       name: 'Starter',
       tagline: 'Automatiser les premières tâches',
       price: '99€',
-      sub: '/mois · 79€/mois en annuel',
+      sub: `/mois · ${equivalentMensuel('starter', 'annuel')}/mois en annuel`,
       features: [
         '1 000 tickets / mois',
         '3 workflows · 3 intégrations',
@@ -55,7 +56,7 @@ export const PricingA = ({ onNavigate }) => {
       name: 'Pro',
       tagline: 'Automatisation complète',
       price: '399€',
-      sub: '/mois · 319€/mois en annuel',
+      sub: `/mois · ${equivalentMensuel('pro', 'annuel')}/mois en annuel`,
       popular: true,
       features: [
         '5 000 tickets / mois',

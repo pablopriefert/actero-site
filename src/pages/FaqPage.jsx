@@ -129,8 +129,8 @@ export const FaqPage = ({ onNavigate }) => {
           a: "Nous calculons le temps économisé par résolution auto-pilotée (basé sur votre temps de traitement moyen déclaré ou détecté dans Shopify), multiplié par le coût horaire que vous avez défini. Ajout : la valeur des paniers abandonnés récupérés par les relances IA et les ventes générées par l'agent support (upsell produit). Tout est visible en temps réel dans le dashboard ROI.",
         },
         {
-          q: "Proposez-vous un discount annuel ?",
-          a: "Oui, 20% de réduction sur la facturation annuelle. Le plan Starter passe de 99€ à 79€/mois (facturé 948€/an), le plan Pro de 399€ à 319€/mois (facturé 3 828€/an). Le plan Enterprise est négocié au cas par cas avec remises supplémentaires sur engagement pluriannuel.",
+          q: "Proposez-vous des formules trimestrielles ou annuelles ?",
+          a: "Oui. Au trimestre, le premier mois est à -50 %. À l'année, vous payez 11 mois au lieu de 12, à -10 % : 980,10 € pour Starter, 3 950,10 € pour Pro. Le plan Enterprise se négocie au cas par cas.",
         },
       ],
     },
