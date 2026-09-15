@@ -422,6 +422,9 @@ describe('avantage de bienvenue — selon la formule, une seule fois par client'
     expect(peutAvoirUneOffreDeBienvenue({ ...NEUF, billing_provider: 'stripe' })).toBe(false)
     expect(peutAvoirUneOffreDeBienvenue(null)).toBe(false)
     expect(peutAvoirUneOffreDeBienvenue(undefined)).toBe(false)
+    // Une fiche lue partiellement ne vaut jamais « éligible » : on n'annonce rien.
+    expect(peutAvoirUneOffreDeBienvenue({})).toBe(false)
+    expect(peutAvoirUneOffreDeBienvenue({ trial_ends_at: null, billing_provider: null })).toBe(false)
   })
 
   it('un client déjà abonné, déjà facturé par Stripe ou qui a eu un essai n’a plus rien', () => {

@@ -102,12 +102,26 @@ const COLONNES_OFFRE = ['trial_ends_at', 'billing_provider', 'stripe_subscriptio
  * facturation Stripe passée : `billing_provider`, que la résiliation n'efface
  * pas, contrairement à `stripe_subscription_id`.
  *
- * @param {{ trial_ends_at?: string|null, billing_provider?: string|null, stripe_subscription_id?: string|null } | null | undefined} client
+ * Une fiche lue partiellement (colonne absente du `.select()`, objet vide)
+ * renvoie `false` : on est ici dans un rendu React, pas question de lever
+ * comme `offreDeBienvenue` — mais une colonne qu'on n'a pas lue ne vaut jamais
+ * « rien à craindre », donc on n'annonce aucune offre.
+ *
+ * Limite : sur cette branche, `billing_provider` ne vaut `'stripe'` qu'à partir
+ * du webhook de la Task 3, pas encore livré. Les anciens abonnés Stripe ont
+ * `NULL`, et la facturation Shopify réécrit la colonne en `'shopify'` — pour
+ * ces clients-là, cette fonction ne voit rien ; seul l'historique Stripe
+ * (`dejaAbonne`, côté serveur) les protège encore.
+ *
+ * @param {{ trial_ends_at: string|null, billing_provider: string|null, stripe_subscription_id: string|null } | null | undefined} client
  * @returns {boolean}
  */
 export function peutAvoirUneOffreDeBienvenue(client) {
   if (!client) return false
-  return !client.trial_ends_at && !client.stripe_subscription_id && client.billing_provider !== 'stripe'
+  const { trial_ends_at, stripe_subscription_id, billing_provider } = client
+  // Une colonne non lue ne vaut jamais « jamais d'essai » : rien n'est annoncé.
+  if (trial_ends_at === undefined || stripe_subscription_id === undefined || billing_provider === undefined) return false
+  return !trial_ends_at && !stripe_subscription_id && billing_provider !== 'stripe'
 }
 
 /**
