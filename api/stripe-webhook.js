@@ -843,10 +843,11 @@ async function handler(req, res) {
         console.warn('[TRIAL_REMINDER] abonnement illisible, décision sur l’objet de l’événement :', subscription.id, err.message);
       }
       // Pas d'email pour un essai qui n'est plus en cours, ni pour un essai
-      // résilié à sa fin (annoncerLaFinDEssai). Résilié à sa fin, c'est l'essai
-      // que api/billing/upgrade.js neutralise quand le marchand passe par
-      // Checkout, pour la même formule ou une autre : lui écrire « ajoutez une
-      // carte pour continuer » serait faux, une carte ne le fera pas continuer.
+      // résilié à sa fin (annoncerLaFinDEssai) — que la résiliation vienne du
+      // marchand, ou de api/billing/upgrade.js qui remplace l'essai par Checkout,
+      // pour la même formule ou une autre. Il ne démarrera pas : lui écrire
+      // « ajoutez une carte pour continuer » serait faux, une carte ne le fera
+      // pas continuer.
       if (!annoncerLaFinDEssai(subscription)) {
         const raison = subscription.status === 'trialing'
           ? 'résilié à sa fin'

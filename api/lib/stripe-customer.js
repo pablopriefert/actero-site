@@ -56,7 +56,9 @@ export async function getOrCreateStripeCustomer(stripe, supabase, { clientId, cu
 }
 
 /**
- * Options passées PAR REQUÊTE aux appels Stripe faits en mode strict.
+ * Options passées PAR REQUÊTE aux appels Stripe qui doivent tenir dans une
+ * fonction Vercel : ceux de resolveCustomerCard, dans les deux modes, et les
+ * relectures du webhook et de la route de paiement.
  *
  * Pire cas : 2 tentatives (1 essai + 1 réessai, `maxNetworkRetries: 1`) de
  * 5 s chacune (`timeout: 5000`) par appel — nettement sous les 60 s de
@@ -86,7 +88,8 @@ export const OPTIONS_REQUETE_COURTE = { timeout: 5000, maxNetworkRetries: 1 }
  * En mode strict (options.strict), une erreur Stripe est relancée au lieu de
  * valoir « aucune carte » : une panne veut dire « impossible de savoir », pas
  * « carte absente ». Sans l'option, le comportement historique (avaler
- * l'erreur, renvoyer null) ne change pas.
+ * l'erreur, renvoyer null) ne change pas. Dans les deux modes, chaque appel
+ * Stripe a un délai borné (OPTIONS_REQUETE_COURTE).
  *
  * @param {import('stripe').Stripe} stripe
  * @param {any} subscription — objet Subscription de Stripe
@@ -99,14 +102,11 @@ export async function resolveCustomerCard(stripe, subscription, customerId, { st
   if (subDefault) return typeof subDefault === 'string' ? subDefault : subDefault.id
 
   try {
-    // Le budget temps serré (OPTIONS_REQUETE_COURTE) n'a de sens qu'en mode
-    // strict : c'est lui dont une panne doit remonter jusqu'au webhook. En
-    // mode non strict l'erreur est de toute façon avalée juste en dessous —
-    // l'appel reste donc identique à avant, pour ne rien changer à son
-    // comportement historique.
-    const customer = strict
-      ? await stripe.customers.retrieve(customerId, {}, OPTIONS_REQUETE_COURTE)
-      : await stripe.customers.retrieve(customerId)
+    // Délai borné dans les deux modes. En mode non strict, l'erreur est bien
+    // avalée juste en dessous — mais seulement si le `catch` s'exécute : avec
+    // les délais par défaut du SDK (jusqu'à 80 s par tentative), Vercel coupe
+    // la fonction à 60 s avant, et le rappel de fin d'essai était perdu.
+    const customer = await stripe.customers.retrieve(customerId, {}, OPTIONS_REQUETE_COURTE)
     if (customer && !customer.deleted) {
       const invoiceDefault = customer.invoice_settings?.default_payment_method
       if (invoiceDefault) return typeof invoiceDefault === 'string' ? invoiceDefault : invoiceDefault.id
@@ -117,9 +117,7 @@ export async function resolveCustomerCard(stripe, subscription, customerId, { st
   }
 
   try {
-    const list = strict
-      ? await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 }, OPTIONS_REQUETE_COURTE)
-      : await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
+    const list = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 }, OPTIONS_REQUETE_COURTE)
     return list?.data?.[0]?.id || null
   } catch (err) {
     if (strict) throw err

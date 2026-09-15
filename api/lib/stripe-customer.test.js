@@ -117,14 +117,20 @@ describe('resolveCustomerCard', () => {
     )
   })
 
-  it('sans le mode strict, les deux appels sont inchangés — mêmes arguments qu’avant', async () => {
+  it('sans le mode strict aussi, les deux appels reçoivent OPTIONS_REQUETE_COURTE', async () => {
+    // Le mode non strict avale l'erreur, mais une fonction coupée par Vercel à
+    // 60 s n'arrive jamais jusqu'au `catch` : avec les délais par défaut du
+    // SDK (80 s par tentative), le rappel de fin d'essai pouvait être tué en
+    // pleine lecture de la carte.
     const stripe = {
       customers: { retrieve: vi.fn(async () => ({ invoice_settings: {} })) },
       paymentMethods: { list: vi.fn(async () => ({ data: [{ id: 'pm_repli' }] })) },
     }
     await expect(resolveCustomerCard(stripe, {}, 'cus_1')).resolves.toBe('pm_repli')
-    // Un seul argument chacun : pas d'options ajoutées hors du mode strict.
-    expect(stripe.customers.retrieve).toHaveBeenCalledWith('cus_1')
-    expect(stripe.paymentMethods.list).toHaveBeenCalledWith({ customer: 'cus_1', type: 'card', limit: 1 })
+    expect(stripe.customers.retrieve).toHaveBeenCalledWith('cus_1', {}, OPTIONS_REQUETE_COURTE)
+    expect(stripe.paymentMethods.list).toHaveBeenCalledWith(
+      { customer: 'cus_1', type: 'card', limit: 1 },
+      OPTIONS_REQUETE_COURTE,
+    )
   })
 })

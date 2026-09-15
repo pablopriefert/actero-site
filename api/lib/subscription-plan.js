@@ -98,25 +98,63 @@ export function doitResoudreLaCarte(subscription) {
 }
 
 /**
+ * Une résiliation est-elle programmée sur cet abonnement, quels que soient son
+ * statut et sa date ?
+ *
+ * Stripe la représente de deux façons : `cancel_at_period_end` (le drapeau
+ * historique), ou une date `cancel_at` — c'est ce que pose le portail client
+ * quand l'abonnement est en facturation « flexible ». Ne regarder que le
+ * drapeau laisserait passer une résiliation décidée au portail.
+ *
+ * @param {any} subscription — objet Subscription de Stripe
+ * @returns {boolean}
+ */
+export function resiliationProgrammee(subscription) {
+  return subscription?.cancel_at_period_end === true || typeof subscription?.cancel_at === 'number'
+}
+
+/**
+ * Cet essai est-il celui que api/billing/upgrade.js a remplacé par Checkout ?
+ *
+ * La route le reconnaît à trois signes réunis : il est encore en essai, il
+ * porte la marque qu'elle pose en le neutralisant
+ * (`metadata.remplace_par_checkout: 'true'`), et une résiliation y est
+ * toujours programmée, sous l'une ou l'autre forme.
+ *
+ * La marque, parce qu'une résiliation seule ne dit pas qui l'a décidée. Un
+ * marchand qui résilie au portail son essai AVEC carte, puis clique sur « Pro »,
+ * paierait tout de suite par Checkout et perdrait ses jours d'essai — en
+ * gardant deux abonnements, dont un qu'un « Renouveler » au portail ferait
+ * facturer en plus. Lui, la route lui demande de réactiver d'abord.
+ *
+ * La résiliation, parce qu'un essai marqué puis réactivé au portail continue :
+ * ce n'est plus un essai remplacé.
+ *
+ * @param {any} subscription — objet Subscription de Stripe
+ * @returns {boolean}
+ */
+export function essaiRemplaceParCheckout(subscription) {
+  return subscription?.status === 'trialing'
+    && subscription.metadata?.remplace_par_checkout === 'true'
+    && resiliationProgrammee(subscription)
+}
+
+/**
  * Cet essai est-il résilié à sa fin — donc appelé à s'arrêter sans démarrer ?
  *
  * Vrai pour un abonnement `trialing` résilié en fin de période
  * (`cancel_at_period_end`), ou dont la résiliation programmée (`cancel_at`)
- * tombe au plus tard à la fin de l'essai. C'est la marque que
- * api/billing/upgrade.js pose sur l'essai sans carte qu'elle remplace par
- * Checkout, que le marchand y prenne la même formule ou une autre.
+ * tombe au plus tard à la fin de l'essai — que la résiliation vienne du
+ * marchand ou de la route de paiement, qui neutralise ainsi l'essai qu'elle
+ * remplace. Ce n'est pas la marque de la route : elle reconnaît son essai à la
+ * métadonnée qu'elle y pose (essaiRemplaceParCheckout).
  *
- * Deux lecteurs, qui doivent répondre pareil :
- *   - la route de paiement, qui reconnaît à cette marque un essai remplacé,
- *     même s'il a retrouvé une carte depuis : il repasse par Checkout plutôt
- *     que de changer de prix sur place, puisqu'il s'éteindra quand même ;
- *   - le webhook, qui n'annonce pas la fin d'un essai qui ne démarrera pas
- *     (annoncerLaFinDEssai).
+ * Lu par le webhook, qui n'annonce pas la fin d'un essai qui ne démarrera pas
+ * (annoncerLaFinDEssai).
  *
- * Faux pour ce qui n'est pas un essai : un abonnement actif en résiliation
- * n'est pas un essai remplacé. Faux aussi quand la résiliation tombe APRÈS la
- * fin de l'essai (l'abonnement démarre d'abord), ou sans `trial_end` à
- * comparer : rien ne prouve alors que l'essai ne démarrera pas.
+ * Faux pour ce qui n'est pas un essai. Faux aussi quand la résiliation tombe
+ * APRÈS la fin de l'essai (l'abonnement démarre d'abord), ou sans `trial_end`
+ * à comparer : rien ne prouve alors que l'essai ne démarrera pas.
  *
  * @param {any} subscription — objet Subscription de Stripe
  * @returns {boolean}
@@ -139,8 +177,8 @@ export function essaiResilieASaFin(subscription) {
  * livraison, l'essai a pu être résilié (`canceled`) ou se terminer plus tôt
  * (`active`, déjà facturé) — « votre essai se termine le … » serait faux.
  *
- * Pas non plus pour un essai résilié à sa fin (essaiResilieASaFin) : c'est
- * l'essai sans carte que la route de paiement remplace par Checkout. L'email
+ * Pas non plus pour un essai résilié à sa fin (essaiResilieASaFin), par le
+ * marchand ou par la route de paiement qui le remplace par Checkout. L'email
  * lui dirait « ajoutez une carte pour continuer », alors qu'une carte ne le
  * fera pas continuer : il s'arrêtera à sa fin.
  *

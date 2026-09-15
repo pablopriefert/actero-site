@@ -149,11 +149,13 @@ function baseStripe() {
       // Un changement immédiat fait jusqu'à trois appels : la carte, le prix,
       // puis la formule. Seul le prix porte `payment_behavior`, et reçoit la
       // réponse de Stripe au paiement de la différence. Une neutralisation,
-      // elle, reste sur l'abonnement : le clic suivant la relit.
+      // elle, reste sur l'abonnement — la résiliation, et les métadonnées
+      // fusionnées clé par clé comme chez Stripe : le clic suivant les relit.
       update: vi.fn(async (id, params) => {
         const abonnement = abonnementIndexe(id)
         if (params.payment_behavior) return h.changement
         if ('cancel_at_period_end' in params) abonnement.cancel_at_period_end = params.cancel_at_period_end
+        if (params.metadata) abonnement.metadata = { ...abonnement.metadata, ...params.metadata }
         return { ...abonnement, ...params }
       }),
       list: vi.fn(async ({ customer }) => ({ data: h.abonnements.filter((s) => s.customer === customer), has_more: false })),
@@ -186,6 +188,16 @@ const clientsLus = () => h.stripe.subscriptions.list.mock.calls.map(([p]) => p.c
 const PRIX_STARTER_MENSUEL = { id: 'price_actero_starter_mensuel', lookup_key: 'actero_starter_mensuel', recurring: { interval: 'month', interval_count: 1 } }
 
 const PRIX_PRO_MENSUEL = { id: 'price_actero_pro_mensuel', lookup_key: 'actero_pro_mensuel', recurring: { interval: 'month', interval_count: 1 } }
+
+const FIN_ESSAI = 1_900_000_000
+
+/** La marque que la route pose sur l'essai qu'elle remplace par Checkout. */
+const MARQUE = { remplace_par_checkout: 'true' }
+
+/** La neutralisation d'un essai remplacé : résilié en fin de période, et marqué. */
+const NEUTRALISATION = { cancel_at_period_end: true, metadata: MARQUE }
+
+const MESSAGE_RESILIATION = 'Votre abonnement actuel est résilié : réactivez-le depuis « Gérer mon abonnement », ou écrivez-nous à support@actero.fr pour changer de plan.'
 
 /**
  * Un abonné Starter mensuel, carte posée sur l'abonnement, chez le client Stripe du compte.
@@ -634,13 +646,15 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
     expect(clientsLus()).toEqual(['cus_1', 'cus_ancien'])
   })
 
-  it('abonnement d’essai sans carte : nouvelle page Stripe, aucun échange de prix, essai neutralisé', async () => {
+  it('abonnement d’essai sans carte : nouvelle page Stripe, aucun échange de prix, essai neutralisé ET marqué', async () => {
+    // La marque distingue l'essai que la route a remplacé d'une résiliation
+    // décidée par le marchand : seul le premier repassera par Checkout.
     abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
     const res = await envoyer(post({ target_plan: 'pro', billing_period: 'monthly' }))
     expect(res.statusCode).toBe(200)
     expect(res.body.statut).toBe('checkout')
     expect(h.stripe.subscriptions.update.mock.calls).toEqual([
-      ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
+      ['sub_1', { cancel_at_period_end: true, metadata: { remplace_par_checkout: 'true' } }, OPTIONS_REQUETE_COURTE],
     ])
   })
 
@@ -654,7 +668,7 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
     expect(res.statusCode).toBe(200)
     expect(res.body.statut).toBe('checkout')
     expect(h.stripe.subscriptions.update.mock.calls).toEqual([
-      ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
+      ['sub_1', NEUTRALISATION, OPTIONS_REQUETE_COURTE],
     ])
     expect(h.stripe.checkout.sessions.create.mock.calls[0][0].line_items[0].price).toBe('price_actero_pro_mensuel')
   })
@@ -682,63 +696,96 @@ describe('POST /api/billing/upgrade — jamais deux abonnements', () => {
     expect(update.mock.invocationCallOrder[0]).toBeLessThan(create.mock.invocationCallOrder[0])
   })
 
-  it('essai déjà neutralisé : toujours reconnu, page Stripe, et la neutralisation est rejouée', async () => {
+  it('un essai déjà remplacé n’est pas neutralisé à nouveau : page Stripe, sous l’une ou l’autre forme de résiliation', async () => {
     // Sans ça, un marchand qui a refermé Checkout — ou dont la session a
-    // échoué — reçoit 409 à chaque nouveau clic : il est coincé.
-    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, cancel_at_period_end: true })
-    const res = await envoyer(post({ target_plan: 'pro' }))
-    expect(res.statusCode).toBe(200)
-    expect(res.body.statut).toBe('checkout')
-    expect(h.stripe.subscriptions.update.mock.calls).toEqual([
-      ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
-    ])
+    // échoué — reçoit 409 à chaque nouveau clic : il est coincé. Et pas de
+    // seconde neutralisation : Stripe ne documente pas `cancel_at_period_end`
+    // posé par-dessus un `cancel_at`, et un refus donnerait 503 à chaque clic.
+    for (const resiliation of [{ cancel_at_period_end: true }, { cancel_at_period_end: false, cancel_at: FIN_ESSAI }]) {
+      reinitialiser()
+      abonneStarterMensuel({ status: 'trialing', trial_end: FIN_ESSAI, default_payment_method: null, metadata: MARQUE, ...resiliation })
+      const res = await envoyer(post({ target_plan: 'pro' }))
+      expect(res.statusCode, JSON.stringify(resiliation)).toBe(200)
+      expect(res.body.statut).toBe('checkout')
+      expect(h.stripe.subscriptions.update, JSON.stringify(resiliation)).not.toHaveBeenCalled()
+    }
   })
 
-  it('session en échec après la neutralisation : le clic suivant rouvre Checkout, pas 409', async () => {
+  it('session en échec après la neutralisation : le clic suivant rouvre Checkout, sans neutraliser deux fois', async () => {
     const journal = vi.spyOn(console, 'error').mockImplementation(() => {})
     try {
       abonneStarterMensuel({ status: 'trialing', default_payment_method: null })
       h.stripe.checkout.sessions.create = vi.fn(async () => { throw new Error('panne') })
       let res = await envoyer(post({ target_plan: 'pro' }))
       expect(res.statusCode).toBe(500)
-      // Stripe a gardé la neutralisation (le faux la retient sur l'abonnement).
-      expect(h.abonnements[0].cancel_at_period_end).toBe(true)
+      // Stripe a gardé la neutralisation et la marque (le faux les retient).
+      expect(h.abonnements[0]).toMatchObject({ cancel_at_period_end: true, metadata: MARQUE })
 
       h.stripe.checkout.sessions.create = vi.fn(async () => ({ id: 'cs_2', url: 'https://checkout.stripe.com/c/pay/cs_2' }))
       res = await envoyer(post({ target_plan: 'pro' }))
       expect(res.statusCode).toBe(200)
       expect(res.body).toEqual({ statut: 'checkout', checkout_url: 'https://checkout.stripe.com/c/pay/cs_2' })
+      expect(h.stripe.subscriptions.update).toHaveBeenCalledTimes(1)
     } finally {
       journal.mockRestore()
     }
   })
 
-  it('essai neutralisé qui a retrouvé une carte : page Stripe, sans chercher la carte ni changer le prix sur place', async () => {
+  it('essai déjà remplacé qui a retrouvé une carte : page Stripe, sans chercher la carte ni changer le prix sur place', async () => {
     // Le marchand a refermé Checkout, puis ajouté une carte depuis le portail.
     // Changer le prix de cet essai lui annoncerait « le nouveau tarif
     // s'appliquera à sa fin » — alors qu'il s'éteint à sa fin, et le marchand
     // avec, repassé en free sans prévenir.
-    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, cancel_at_period_end: true })
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, cancel_at_period_end: true, metadata: MARQUE })
     h.customerCards = [{ id: 'pm_portail' }]
     const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
     expect(res.body.statut).toBe('checkout')
-    expect(h.stripe.subscriptions.update.mock.calls.some(([, params]) => 'items' in params)).toBe(false)
-    expect(h.stripe.subscriptions.update.mock.calls).toEqual([
-      ['sub_1', { cancel_at_period_end: true }, OPTIONS_REQUETE_COURTE],
-    ])
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
     expect(h.stripe.paymentMethods.list).not.toHaveBeenCalled()
   })
 
-  it('essai neutralisé déjà sur le prix demandé, avec une carte : page Stripe, pas deja_sur_ce_plan', async () => {
+  it('essai déjà remplacé, déjà sur le prix demandé, avec une carte : page Stripe, pas deja_sur_ce_plan', async () => {
     // Sinon chaque clic répondait « déjà sur ce plan » à un marchand en free.
-    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, cancel_at_period_end: true, items: { data: [{ id: 'si_1', price: PRIX_PRO_MENSUEL }] } })
+    abonneStarterMensuel({ status: 'trialing', default_payment_method: null, cancel_at_period_end: true, metadata: MARQUE, items: { data: [{ id: 'si_1', price: PRIX_PRO_MENSUEL }] } })
     h.clientRow.plan = 'free'
     h.customerCards = [{ id: 'pm_portail' }]
     const res = await envoyer(post({ target_plan: 'pro' }))
     expect(res.statusCode).toBe(200)
     expect(res.body.statut).toBe('checkout')
     expect(h.stripe.subscriptions.update.mock.calls.some(([, params]) => 'items' in params)).toBe(false)
+  })
+
+  it('Checkout payé mais webhook pas encore passé : l’essai remplacé est ignoré, le nouvel abonnement bloque (409 abonnement_en_cours)', async () => {
+    abonneStarterMensuel({ status: 'trialing', trial_end: FIN_ESSAI, default_payment_method: null, cancel_at_period_end: true, metadata: MARQUE })
+    h.abonnements.push({ id: 'sub_2', status: 'active', customer: 'cus_1' })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(409)
+    expect(res.body.error).toBe('abonnement_en_cours')
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  })
+
+  it('essai AVEC carte résilié par le marchand au portail (cancel_at = fin d’essai) : 409 abonnement_en_resiliation, pas Checkout', async () => {
+    // Checkout lui ferait payer Pro tout de suite et perdre ses jours d'essai,
+    // et laisserait deux abonnements : un « Renouveler » au portail facturerait
+    // Starter en plus. Il réactive d'abord, ou passe par le support.
+    abonneStarterMensuel({ status: 'trialing', trial_end: FIN_ESSAI, cancel_at: FIN_ESSAI, cancel_at_period_end: false })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(409)
+    expect(res.body).toEqual({ error: 'abonnement_en_resiliation', message: MESSAGE_RESILIATION })
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  })
+
+  it('essai non marqué dont la résiliation tombe APRÈS la fin de l’essai : 409 abonnement_en_resiliation', async () => {
+    // Toute résiliation programmée demande de réactiver, quelle qu'en soit la date.
+    abonneStarterMensuel({ status: 'trialing', trial_end: FIN_ESSAI, cancel_at: FIN_ESSAI + 30 * 86400 })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(409)
+    expect(res.body.error).toBe('abonnement_en_resiliation')
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
 
   it('paramètres Checkout qui lèvent : 500, et l’essai n’est pas neutralisé pour rien', async () => {
@@ -1018,21 +1065,35 @@ describe('POST /api/billing/upgrade — abonné existant', () => {
     }
   })
 
-  it('abonnement actif dont la résiliation est programmée : 409 abonnement_en_resiliation, rien ne change chez Stripe', async () => {
+  it('abonnement actif dont la résiliation est programmée, avec ou sans carte : 409 abonnement_en_resiliation, rien ne change chez Stripe', async () => {
     // Avec une carte, la route prélevait la différence sur un abonnement qui
-    // s'éteint à la fin de la période.
-    for (const resiliation of [{ cancel_at_period_end: true }, { cancel_at: 1_900_000_000 }]) {
+    // s'éteint à la fin de la période. Sans carte, elle répondait
+    // « abonnement en cours » : la vraie raison est la résiliation.
+    const cas = [
+      { cancel_at_period_end: true },
+      { cancel_at: FIN_ESSAI },
+      { default_payment_method: null, cancel_at: FIN_ESSAI },
+      { default_payment_method: null, cancel_at_period_end: true },
+    ]
+    for (const resiliation of cas) {
       reinitialiser()
       abonneStarterMensuel(resiliation)
       const res = await envoyer(post({ target_plan: 'pro' }))
       expect(res.statusCode, JSON.stringify(resiliation)).toBe(409)
-      expect(res.body, JSON.stringify(resiliation)).toEqual({
-        error: 'abonnement_en_resiliation',
-        message: 'Votre abonnement actuel s’arrête à la fin de la période : réactivez-le depuis « Gérer mon abonnement », puis changez de plan.',
-      })
+      expect(res.body, JSON.stringify(resiliation)).toEqual({ error: 'abonnement_en_resiliation', message: MESSAGE_RESILIATION })
       expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
       expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
     }
+  })
+
+  it('essai sans carte résilié par le marchand lui-même (sans la marque) : 409 abonnement_en_resiliation, pas neutralisé', async () => {
+    // Seul l'essai que la route a remplacé repasse par Checkout.
+    abonneStarterMensuel({ status: 'trialing', trial_end: FIN_ESSAI, default_payment_method: null, cancel_at_period_end: true })
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(res.statusCode).toBe(409)
+    expect(res.body.error).toBe('abonnement_en_resiliation')
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
 
   it('abonné avec une autre période : 409, rien ne change chez Stripe', async () => {
