@@ -2783,7 +2783,7 @@ describe('la facturation du tableau de bord', () => {
     // trimestre et le bouton mensuel : sinon la page annoncerait un −50 % ou un
     // mois offert que Checkout refuserait.
     expect(src).toMatch(/peutAvoirUneOffreDeBienvenue\(client\)/)
-    expect(src).toMatch(/'mensuel' && offreBienvenue && !boutiqueShopify \? joursEssaiPour\(client\)/)
+    expect(src).toMatch(/'mensuel' && offreBienvenue && boutiqueShopify === false \? joursEssaiPour\(client\)/)
   })
 })
 ```
@@ -2835,11 +2835,14 @@ par :
     queryKey: ['billing-shopify', client?.id],
     enabled: !!client?.id,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('client_shopify_connections')
         .select('shop_domain')
         .eq('client_id', client.id)
         .maybeSingle()
+      // Une lecture ratée ne vaut pas « pas de boutique Shopify » : React Query
+      // laisse alors data à undefined, et rien qui dépend de Shopify n'est annoncé.
+      if (error) throw error
       return !!data?.shop_domain
     },
   })
@@ -2996,8 +2999,9 @@ remplacer :
 par :
 
 ```js
-              // Shopify facture et gère lui-même l'abonnement : aucun mois offert à annoncer.
-              const jours = periodeEffective === 'mensuel' && offreBienvenue && !boutiqueShopify ? joursEssaiPour(client) : undefined
+              // Shopify facture et gère lui-même l'abonnement : aucun mois offert à
+              // annoncer, ni tant qu'on ne sait pas encore si la boutique est sur Shopify.
+              const jours = periodeEffective === 'mensuel' && offreBienvenue && boutiqueShopify === false ? joursEssaiPour(client) : undefined
 ```
 
 et remplacer :
