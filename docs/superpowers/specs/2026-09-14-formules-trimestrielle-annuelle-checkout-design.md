@@ -130,6 +130,8 @@ serveur la refuse (historique Stripe) et Checkout affiche le vrai montant.
     (`resolveCustomerCard`) → changement de plan immédiat au prorata, qui pose aussi
     `default_payment_method`, **sans écrire le plan en base** (le webhook l'accorde) ;
   - abonnement sans moyen de paiement → nouveau Checkout ;
+  - moyen de paiement illisible (panne Stripe) → 503 : repasser par Checkout créerait
+    un second abonnement pendant que le premier continue de facturer ;
   - autre période → 409 `changement_de_formule`, renvoi vers le support.
 
 ### 4. Le webhook — `api/stripe-webhook.js` et `api/lib/subscription-plan.js`

@@ -646,7 +646,7 @@ git commit -m "fix(facturation): le webhook retrouve le plan de toutes les formu
 
 ### Task 3 bis : le webhook tient face aux pannes et aux vieux abonnements — LIVRÉE
 
-Faite à la relecture qualité de la Task 3. `resolveCustomerCard(..., { strict: true })` relance une erreur Stripe au lieu de valoir « aucune carte » ; le webhook ne cherche la carte que si elle peut accorder un plan (`doitResoudreLaCarte`), et sur erreur libère la réservation de l'événement et répond 500 pour que Stripe réessaie. `ecritureAutorisee(miseAJour, client, subscription)` : seul l'abonnement courant (`clients.stripe_subscription_id`) peut rétrograder un client ; un accord pose `stripe_subscription_id` s'il est vide. `formuleDeLAbonnement` sert à la fois au plan et à l'alerte « hors catalogue », qui se tait pour un client ayant déjà un plan payant. L'analytics d'upgrade part de `session.metadata.upgrade_from`. La route de paiement (Task 5) garde `resolveCustomerCard` en mode non strict : sur panne, elle passe par Checkout.
+Faite à la relecture qualité de la Task 3. `resolveCustomerCard(..., { strict: true })` relance une erreur Stripe au lieu de valoir « aucune carte » ; le webhook ne cherche la carte que si elle peut accorder un plan (`doitResoudreLaCarte`), et sur erreur libère la réservation de l'événement et répond 500 pour que Stripe réessaie. `ecritureAutorisee(miseAJour, client, subscription)` : seul l'abonnement courant (`clients.stripe_subscription_id`) peut rétrograder un client ; un accord pose `stripe_subscription_id` s'il est vide. `formuleDeLAbonnement` sert à la fois au plan et à l'alerte « hors catalogue », qui se tait pour un client ayant déjà un plan payant. L'analytics d'upgrade part de `session.metadata.upgrade_from`. Ensuite (même tâche) : le webhook relit l'abonnement chez Stripe avant de décider (un événement rejoué ou livré dans le désordre porte un état périmé) ; les appels Stripe du mode strict et cette relecture sont bornés par `OPTIONS_REQUETE_COURTE` (5 s, 1 nouvelle tentative), sous les 60 s d'une fonction Vercel ; un abonnement non courant ne peut écrire qu'un accord de plan payant ; l'écriture de la branche upgrade de `checkout.session.completed` est vérifiée et libère l'événement en cas d'échec. La route de paiement (Task 5) l'appelle aussi en mode strict pour un abonné existant : une panne répond 503 au lieu de créer un second abonnement pendant que le premier facture.
 
 ---
 
@@ -1150,6 +1150,20 @@ describe('POST /api/billing/upgrade', () => {
     expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
   })
 
+  it('carte d’un abonné illisible (panne Stripe) : 503, ni échange ni nouvelle page Stripe', async () => {
+    // Une panne ne vaut pas « pas de carte » : repasser par Checkout créerait un
+    // second abonnement pendant que le premier continue de facturer.
+    h.clientRow.plan = 'starter'
+    h.clientRow.stripe_subscription_id = 'sub_1'
+    h.existingSub = { id: 'sub_1', status: 'active', items: { data: [{ id: 'si_1', price: { lookup_key: 'actero_starter_mensuel' } }] } }
+    h.stripe.paymentMethods.list = vi.fn(async () => { throw new Error('panne') })
+    const res = makeRes()
+    await handler(post({ target_plan: 'pro', billing_period: 'monthly' }), res)
+    expect(res.statusCode).toBe(503)
+    expect(h.stripe.subscriptions.update).not.toHaveBeenCalled()
+    expect(h.stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  })
+
   it('abonnement d’essai sans carte : nouvelle page Stripe, aucun échange de prix', async () => {
     h.clientRow.plan = 'starter'
     h.clientRow.stripe_subscription_id = 'sub_1'
@@ -1343,7 +1357,16 @@ async function handler(req, res) {
           });
         }
 
-        const carte = await resolveCustomerCard(stripe, subscription, stripeCustomerId);
+        // Mode strict : une panne ne vaut pas « pas de carte ». Repasser par
+        // Checkout créerait un second abonnement pendant que le premier continue
+        // de facturer.
+        let carte;
+        try {
+          carte = await resolveCustomerCard(stripe, subscription, stripeCustomerId, { strict: true });
+        } catch (err) {
+          console.error('[billing/upgrade] moyen de paiement illisible :', err.message);
+          return res.status(503).json({ error: 'Paiement indisponible pour le moment, réessayez dans un instant.' });
+        }
         if (item && carte) {
           await stripe.subscriptions.update(existingSubId, {
             items: [{ id: item.id, price: prix.id }],
