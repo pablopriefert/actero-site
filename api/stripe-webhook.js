@@ -5,7 +5,7 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/install.js';
 import { trackServerEvent } from './lib/amplitude.js';
-import { planUpdateFromSubscription } from './lib/subscription-plan.js';
+import { planUpdateFromSubscription, formuleDeLAbonnement, doitResoudreLaCarte, ecritureAutorisee } from './lib/subscription-plan.js';
 import { resolveCustomerCard } from './lib/stripe-customer.js';
 import { formuleDuPrix, PERIODE_API } from './lib/formules.js';
 
@@ -282,14 +282,22 @@ async function handler(req, res) {
           const clientId = session.metadata.actero_client_id;
           const newPlan = session.metadata.upgrade_to;
 
-          // Read the previous plan so we can compute mrr_delta for the analytics event.
-          // This MUST be done BEFORE the update call.
-          let previousPlan = 'free';
-          try {
-            const { data: prior } = await supabase
-              .from('clients').select('plan').eq('id', clientId).maybeSingle();
-            if (prior?.plan) previousPlan = prior.plan;
-          } catch { /* non-blocking */ }
+          // Le plan de départ vient de la métadonnée posée par la route au
+          // moment de l'achat (upgrade_from) : elle photographie le plan tel
+          // qu'il était au clic. La lecture en base ne sert plus que de repli
+          // quand cette métadonnée manque — car la base, elle, peut avoir déjà
+          // changé : `customer.subscription.updated`, déclenché par Stripe en
+          // parallèle de cet événement, a pu écrire le nouveau plan avant que
+          // ce handler ne s'exécute, ce qui aurait donné mrr_delta = 0 et fait
+          // partir (ou manquer) la notification CRM « Paid » à tort.
+          let previousPlan = session.metadata?.upgrade_from || 'free';
+          if (!session.metadata?.upgrade_from) {
+            try {
+              const { data: prior } = await supabase
+                .from('clients').select('plan').eq('id', clientId).maybeSingle();
+              if (prior?.plan) previousPlan = prior.plan;
+            } catch { /* non-blocking */ }
+          }
 
           // Atomic-first: write the subscription_id from session.subscription
           // directly so the upgrade row is never inconsistent if the optional
@@ -718,25 +726,38 @@ async function handler(req, res) {
       try {
         const clientId = subscription.metadata?.client_id;
         if (clientId) {
-          // Le plan vient du catalogue (clé du prix) ; la carte se résout comme
-          // dans la route de paiement. Un essai sans carte n'accorde rien.
-          // Voir api/lib/subscription-plan.js.
-          const carte = await resolveCustomerCard(stripe, subscription, subscription.customer);
-          const updateData = planUpdateFromSubscription(subscription, { aUneCarte: !!carte });
-          if (['active', 'trialing'].includes(subscription.status) && !formuleDuPrix(subscription.items?.data?.[0]?.price)) {
-            // Payé mais hors catalogue : offre sur mesure, ou clé de prix mal
-            // posée. Aucun plan n'est accordé ; sans cette trace, personne ne le verrait.
-            console.warn('[stripe-webhook] abonnement hors catalogue, aucun plan accordé :', subscription.id, subscription.items?.data?.[0]?.price?.lookup_key ?? '(sans lookup_key)');
+          // La carte n'est cherchée que si elle peut accorder un plan. En mode
+          // strict, une panne Stripe lève au lieu de valoir « aucune carte ».
+          let carte = null;
+          if (doitResoudreLaCarte(subscription)) {
+            carte = await resolveCustomerCard(stripe, subscription, subscription.customer, { strict: true });
           }
+          const miseAJour = planUpdateFromSubscription(subscription, { aUneCarte: !!carte });
 
-          if (Object.keys(updateData).length > 0) {
-            await supabase.from('clients').update(updateData).eq('id', clientId);
-            console.log(`[SUB_UPDATED] Client ${clientId} updated:`, updateData);
-          }
+          const { data: ligne, error: lectureErr } = await supabase
+            .from('clients').select('plan, stripe_subscription_id').eq('id', clientId).maybeSingle();
+          if (lectureErr) throw lectureErr;
 
-          // CIO — keep profile in sync whenever subscription changes
-          if (updateData.plan || updateData.status) {
-            /* hook handled elsewhere */
+          if (ligne) {
+            if (['active', 'trialing'].includes(subscription.status) && !formuleDeLAbonnement(subscription) && (!ligne.plan || ligne.plan === 'free')) {
+              // Payé mais hors catalogue : offre sur mesure, ou clé de prix mal
+              // posée. On n'alerte que si le client n'a pas déjà un plan payant :
+              // sinon chaque renouvellement d'une offre sur mesure alerterait à tort.
+              console.warn('[stripe-webhook] abonnement hors catalogue, aucun plan accordé :', subscription.id, subscription.items?.data?.[0]?.price?.lookup_key ?? '(sans lookup_key)');
+            }
+            const ecriture = ecritureAutorisee(miseAJour, ligne, subscription);
+            if (!ecriture && Object.keys(miseAJour).length > 0) {
+              // Un ancien abonnement, qui n'est plus celui enregistré sur le
+              // client, ne doit rien écrire — voir ecritureAutorisee.
+              console.warn('[stripe-webhook] abonnement qui n’est plus le courant, rien écrit :', subscription.id, 'client', clientId);
+            }
+            if (ecriture) {
+              const { error: ecritureErr } = await supabase.from('clients').update(ecriture).eq('id', clientId);
+              if (ecritureErr) throw ecritureErr;
+              console.log(`[SUB_UPDATED] Client ${clientId} updated:`, ecriture);
+            }
+          } else {
+            console.warn('[stripe-webhook] client introuvable pour la mise à jour d’abonnement :', clientId);
           }
 
           // Sync Stripe Entitlements
@@ -750,6 +771,13 @@ async function handler(req, res) {
         }
       } catch (err) {
         console.error('[SUB_UPDATED] Error:', err.message);
+        // Libère la réservation prise plus haut (webhook_events_processed) :
+        // sinon Stripe ne réessaie jamais, et un client qui paie resterait
+        // bloqué (par ex. en Free) jusqu'au prochain événement Stripe — parfois
+        // des mois plus tard. Même geste que la branche crédits ci-dessus.
+        await supabase.from('webhook_events_processed').delete()
+          .eq('provider', 'stripe').eq('event_id', event.id);
+        return res.status(500).json({ error: 'subscription_update_failed' });
       }
       break;
     }

@@ -2,6 +2,16 @@
 import { formuleDuPrix, PERIODE_API } from './formules.js'
 
 /**
+ * @typedef {{
+ *   plan?: 'free'|'starter'|'pro',
+ *   status?: 'active'|'inactive',
+ *   trial_ends_at?: string,
+ *   billing_period?: 'monthly'|'quarterly'|'annual',
+ *   billing_provider?: 'stripe',
+ * }} MiseAJourPlan
+ */
+
+/**
  * Decide the clients-row update for a Stripe subscription event.
  *
  * MRR-critical: a `trialing` subscription with NO payment method must never
@@ -20,16 +30,16 @@ import { formuleDuPrix, PERIODE_API } from './formules.js'
  *   puis client Stripe, puis ses cartes). Seul `default_payment_method`
  *   comptait : une carte rangée sur le client n'accordait rien.
  *
- * @param {any} subscription — objet Subscription de Stripe
+ * @param {import('stripe').Stripe.Subscription} subscription — objet Subscription de Stripe
  * @param {{ aUneCarte?: boolean }} [options]
- * @returns {{ plan?: string, status?: string, trial_ends_at?: string, billing_period?: string, billing_provider?: string }}
+ * @returns {MiseAJourPlan}
  */
 export function planUpdateFromSubscription(subscription, { aUneCarte = false } = {}) {
-  /** @type {{ plan?: string, status?: string, trial_ends_at?: string, billing_period?: string, billing_provider?: string }} */
+  /** @type {MiseAJourPlan} */
   const update = {}
   if (!subscription) return update
 
-  const formule = formuleDuPrix(subscription.items?.data?.[0]?.price)
+  const formule = formuleDeLAbonnement(subscription)
   const status = subscription.status
 
   if (formule && ['active', 'trialing'].includes(status) && aUneCarte) {
@@ -47,4 +57,70 @@ export function planUpdateFromSubscription(subscription, { aUneCarte = false } =
   }
 
   return update
+}
+
+/**
+ * La formule Stripe de cet abonnement, lue dans le catalogue — `null` si le
+ * prix n'y figure pas (offre sur mesure, ou clé de prix absente/inconnue).
+ *
+ * @param {any} subscription — objet Subscription de Stripe
+ * @returns {import('./formules.js').Formule|null}
+ */
+export function formuleDeLAbonnement(subscription) {
+  return formuleDuPrix(subscription?.items?.data?.[0]?.price)
+}
+
+/**
+ * Faut-il demander à Stripe le moyen de paiement de ce client ?
+ *
+ * La carte ne sert qu'à accorder un plan (voir planUpdateFromSubscription) :
+ * un abonnement dans un statut terminal, ou sur un prix hors catalogue, ne
+ * pourra de toute façon rien accorder. Inutile alors d'appeler Stripe, avec
+ * son risque de panne (429, 5xx, délai dépassé) — surtout en mode strict, où
+ * cette panne remonterait jusqu'à faire échouer le webhook.
+ *
+ * @param {any} subscription — objet Subscription de Stripe
+ * @returns {boolean}
+ */
+export function doitResoudreLaCarte(subscription) {
+  return ['active', 'trialing'].includes(subscription?.status) && !!formuleDeLAbonnement(subscription)
+}
+
+/**
+ * La mise à jour à écrire pour ce client, ou `null` si rien ne doit l'être.
+ *
+ * Le webhook retrouve le client par `metadata.client_id`, pas par
+ * l'abonnement : un même client peut donc avoir plusieurs abonnements Stripe
+ * au fil du temps — un ancien jamais résilié, et celui qu'il paie vraiment,
+ * seul enregistré dans `client.stripe_subscription_id`. Si cet ancien
+ * abonnement passe `unpaid`, l'événement Stripe est légitime, mais il ne
+ * concerne pas l'accès du client : le laisser rétrograder couperait un
+ * marchand qui paie par ailleurs. Seul l'abonnement courant peut donc faire
+ * descendre le plan.
+ *
+ * À l'inverse, un abonnement qui accorde un plan payant alors qu'aucun
+ * abonnement n'est encore enregistré doit poser `stripe_subscription_id` —
+ * sinon `customer.subscription.deleted` ne retrouvera jamais ce client le
+ * jour où cet abonnement-là est résilié.
+ *
+ * @param {MiseAJourPlan} miseAJour
+ * @param {{ plan?: string|null, stripe_subscription_id?: string|null }} client — ligne `clients` lue en base
+ * @param {any} subscription — objet Subscription de Stripe (l'événement en cours)
+ * @returns {(MiseAJourPlan & { stripe_subscription_id?: string })|null} — porte
+ *   aussi `stripe_subscription_id` quand un plan payant vient d'être accordé
+ *   à un client qui n'en avait pas encore un d'enregistré
+ */
+export function ecritureAutorisee(miseAJour, client, subscription) {
+  if (!miseAJour || Object.keys(miseAJour).length === 0) return null
+
+  const abonnementEnregistre = client?.stripe_subscription_id
+  const cetAbonnementNEstPlusLeCourant = !!abonnementEnregistre && abonnementEnregistre !== subscription?.id
+
+  if (miseAJour.plan === 'free' && cetAbonnementNEstPlusLeCourant) return null
+
+  if (miseAJour.plan && miseAJour.plan !== 'free' && !abonnementEnregistre) {
+    return { ...miseAJour, stripe_subscription_id: subscription.id }
+  }
+
+  return miseAJour
 }

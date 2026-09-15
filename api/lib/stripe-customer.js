@@ -67,25 +67,40 @@ export async function getOrCreateStripeCustomer(stripe, supabase, { clientId, cu
  *   - api/billing/create-subscription.js  décide d'échanger le plan ou de
  *                                         redemander une carte
  *   - api/stripe-webhook.js               décide de ce que dit l'email de fin
- *                                         d'essai, qui n'est pas le même selon
- *                                         qu'une carte existe ou non
+ *                                         d'essai, et, en mode strict, si un
+ *                                         abonnement obtient son plan payant
  *
+ * En mode strict (options.strict), une erreur Stripe est relancée au lieu de
+ * valoir « aucune carte » : une panne veut dire « impossible de savoir », pas
+ * « carte absente ». Sans l'option, le comportement historique (avaler
+ * l'erreur, renvoyer null) ne change pas.
+ *
+ * @param {import('stripe').Stripe} stripe
+ * @param {any} subscription — objet Subscription de Stripe
+ * @param {string} customerId
+ * @param {{ strict?: boolean }} [options]
  * @returns {Promise<string|null>} l'identifiant du moyen de paiement, ou null
  */
-export async function resolveCustomerCard(stripe, subscription, customerId) {
+export async function resolveCustomerCard(stripe, subscription, customerId, { strict = false } = {}) {
   const subDefault = subscription?.default_payment_method
   if (subDefault) return typeof subDefault === 'string' ? subDefault : subDefault.id
 
   try {
     const customer = await stripe.customers.retrieve(customerId)
-    const invoiceDefault = customer?.invoice_settings?.default_payment_method
-    if (invoiceDefault) return typeof invoiceDefault === 'string' ? invoiceDefault : invoiceDefault.id
-  } catch { /* on tente la liste ci-dessous */ }
+    if (customer && !customer.deleted) {
+      const invoiceDefault = customer.invoice_settings?.default_payment_method
+      if (invoiceDefault) return typeof invoiceDefault === 'string' ? invoiceDefault : invoiceDefault.id
+    }
+  } catch (err) {
+    if (strict) throw err
+    // sinon, on tente la liste ci-dessous
+  }
 
   try {
     const list = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
     return list?.data?.[0]?.id || null
-  } catch {
+  } catch (err) {
+    if (strict) throw err
     return null
   }
 }

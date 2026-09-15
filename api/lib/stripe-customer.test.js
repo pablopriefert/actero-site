@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { getOrCreateStripeCustomer } from './stripe-customer.js'
+import { getOrCreateStripeCustomer, resolveCustomerCard } from './stripe-customer.js'
 
 function makeSupabase() {
   const updates = []
@@ -62,5 +62,41 @@ describe('getOrCreateStripeCustomer', () => {
       },
     }
     await expect(getOrCreateStripeCustomer(stripe, makeSupabase(), { clientId: 'c1', currentId: 'cus_x' })).rejects.toThrow('bad key')
+  })
+})
+
+describe('resolveCustomerCard', () => {
+  it('strict + customers.retrieve échoue : la promesse est rejetée', async () => {
+    const stripe = {
+      customers: { retrieve: vi.fn(async () => { throw new Error('retrieve KO') }) },
+      paymentMethods: { list: vi.fn() },
+    }
+    await expect(resolveCustomerCard(stripe, {}, 'cus_1', { strict: true })).rejects.toThrow('retrieve KO')
+    // En mode strict, on ne tente pas la liste après une panne : on relance direct.
+    expect(stripe.paymentMethods.list).not.toHaveBeenCalled()
+  })
+
+  it('strict + paymentMethods.list échoue : la promesse est rejetée', async () => {
+    const stripe = {
+      customers: { retrieve: vi.fn(async () => ({ invoice_settings: {} })) },
+      paymentMethods: { list: vi.fn(async () => { throw new Error('list KO') }) },
+    }
+    await expect(resolveCustomerCard(stripe, {}, 'cus_1', { strict: true })).rejects.toThrow('list KO')
+  })
+
+  it('sans le mode strict, customers.retrieve en échec retombe sur la liste (comportement inchangé)', async () => {
+    const stripe = {
+      customers: { retrieve: vi.fn(async () => { throw new Error('retrieve KO') }) },
+      paymentMethods: { list: vi.fn(async () => ({ data: [{ id: 'pm_repli' }] })) },
+    }
+    await expect(resolveCustomerCard(stripe, {}, 'cus_1')).resolves.toBe('pm_repli')
+  })
+
+  it('sans le mode strict, paymentMethods.list en échec renvoie null (comportement inchangé)', async () => {
+    const stripe = {
+      customers: { retrieve: vi.fn(async () => ({ invoice_settings: {} })) },
+      paymentMethods: { list: vi.fn(async () => { throw new Error('list KO') }) },
+    }
+    await expect(resolveCustomerCard(stripe, {}, 'cus_1')).resolves.toBeNull()
   })
 })
