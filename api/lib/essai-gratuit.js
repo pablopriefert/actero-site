@@ -107,11 +107,11 @@ const COLONNES_OFFRE = ['trial_ends_at', 'billing_provider', 'stripe_subscriptio
  * comme `offreDeBienvenue` — mais une colonne qu'on n'a pas lue ne vaut jamais
  * « rien à craindre », donc on n'annonce aucune offre.
  *
- * Limite : sur cette branche, `billing_provider` ne vaut `'stripe'` qu'à partir
- * du webhook de la Task 3, pas encore livré. Les anciens abonnés Stripe ont
- * `NULL`, et la facturation Shopify réécrit la colonne en `'shopify'` — pour
- * ces clients-là, cette fonction ne voit rien ; seul l'historique Stripe
- * (`dejaAbonne`, côté serveur) les protège encore.
+ * Limite : `billing_provider` vaut `'stripe'` depuis que le webhook l'écrit à
+ * chaque abonnement Stripe accordé (septembre 2026). Les anciens abonnés
+ * Stripe ont `NULL`, et la facturation Shopify réécrit la colonne en
+ * `'shopify'` — pour ces clients-là, cette fonction ne voit rien ; seul
+ * l'historique Stripe (`dejaAbonne`, côté serveur) les protège encore.
  *
  * @param {{ trial_ends_at: string|null, billing_provider: string|null, stripe_subscription_id: string|null } | null | undefined} client
  * @returns {boolean}

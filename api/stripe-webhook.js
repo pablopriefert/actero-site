@@ -7,6 +7,7 @@ import { finalizeInstall as finalizeMarketplaceInstall } from './marketplace/ins
 import { trackServerEvent } from './lib/amplitude.js';
 import { planUpdateFromSubscription } from './lib/subscription-plan.js';
 import { resolveCustomerCard } from './lib/stripe-customer.js';
+import { formuleDuPrix, PERIODE_API } from './lib/formules.js';
 
 export const maxDuration = 60;
 
@@ -305,6 +306,12 @@ async function handler(req, res) {
               const subscription = await stripe.subscriptions.retrieve(session.subscription);
               if (subscription.trial_end) {
                 updateData.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString();
+              }
+              // La formule payée, lue dans le catalogue par la clé du prix.
+              const formule = formuleDuPrix(subscription.items?.data?.[0]?.price);
+              if (formule) {
+                updateData.billing_period = PERIODE_API[formule.periode];
+                updateData.billing_provider = 'stripe';
               }
             } catch (subErr) {
               console.error('[UPGRADE] Failed to retrieve subscription (non-fatal):', subErr.message);
@@ -711,15 +718,16 @@ async function handler(req, res) {
       try {
         const clientId = subscription.metadata?.client_id;
         if (clientId) {
-          const priceToplan = {};
-          if (process.env.STRIPE_PRICE_STARTER_MONTHLY) priceToplan[process.env.STRIPE_PRICE_STARTER_MONTHLY] = 'starter';
-          if (process.env.STRIPE_PRICE_STARTER_ANNUAL) priceToplan[process.env.STRIPE_PRICE_STARTER_ANNUAL] = 'starter';
-          if (process.env.STRIPE_PRICE_PRO_MONTHLY) priceToplan[process.env.STRIPE_PRICE_PRO_MONTHLY] = 'pro';
-          if (process.env.STRIPE_PRICE_PRO_ANNUAL) priceToplan[process.env.STRIPE_PRICE_PRO_ANNUAL] = 'pro';
-          // Grant a paid plan ONLY when a real payment method is on file — a
-          // card-less trial must not unlock the plan (0 MRR bug). See
-          // api/lib/subscription-plan.js.
-          const updateData = planUpdateFromSubscription(subscription, priceToplan);
+          // Le plan vient du catalogue (clé du prix) ; la carte se résout comme
+          // dans la route de paiement. Un essai sans carte n'accorde rien.
+          // Voir api/lib/subscription-plan.js.
+          const carte = await resolveCustomerCard(stripe, subscription, subscription.customer);
+          const updateData = planUpdateFromSubscription(subscription, { aUneCarte: !!carte });
+          if (['active', 'trialing'].includes(subscription.status) && !formuleDuPrix(subscription.items?.data?.[0]?.price)) {
+            // Payé mais hors catalogue : offre sur mesure, ou clé de prix mal
+            // posée. Aucun plan n'est accordé ; sans cette trace, personne ne le verrait.
+            console.warn('[stripe-webhook] abonnement hors catalogue, aucun plan accordé :', subscription.id, subscription.items?.data?.[0]?.price?.lookup_key ?? '(sans lookup_key)');
+          }
 
           if (Object.keys(updateData).length > 0) {
             await supabase.from('clients').update(updateData).eq('id', clientId);
