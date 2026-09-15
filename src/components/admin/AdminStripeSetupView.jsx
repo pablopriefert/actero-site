@@ -5,25 +5,9 @@ import { PageHeader } from '../ui/PageHeader'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
 import { FORMULES } from '../../../api/lib/formules.js'
+import { affichagePrix } from '../../lib/affichage-formules'
 
 const ACTIONS = { existant: 'déjà en place', cle_posee: 'clé posée sur un prix existant', cree: 'créé', remplace: 'remplacé (le montant avait changé)' }
-
-// NOTE (écart au plan) : src/lib/affichage-formules.js (Task 7 du plan) n'existe
-// pas encore dans cette base — cet écran n'en dépend donc pas et formate les
-// prix lui-même à partir du catalogue serveur (api/lib/formules.js), seule
-// source de vérité commune. À réconcilier avec `affichagePrix` quand la Task 7
-// sera fusionnée.
-const formatEuros = (centimes) => {
-  const valeur = centimes / 100
-  const decimales = Number.isInteger(valeur) ? 0 : 2
-  return `${new Intl.NumberFormat('fr-FR', { minimumFractionDigits: decimales, maximumFractionDigits: 2 }).format(valeur)}\u00a0€`
-}
-
-const descriptionFormule = (f) => {
-  if (f.periode === 'trimestriel') return { prix: `${formatEuros(f.montantCentimes)} / 3 mois`, avantage: '−50 % sur le premier mois' }
-  if (f.periode === 'annuel') return { prix: `${formatEuros(f.montantCentimes)} / an`, avantage: '12 mois pour le prix de 11' }
-  return { prix: `${formatEuros(f.montantCentimes)} / mois`, avantage: 'Sans engagement' }
-}
 
 export function AdminStripeSetupView() {
   const [status, setStatus] = useState(null)
@@ -130,12 +114,12 @@ export function AdminStripeSetupView() {
               </thead>
               <tbody>
                 {FORMULES.map((f) => {
-                  const a = descriptionFormule(f)
+                  const a = affichagePrix(f.plan, f.periode)
                   return (
                     <tr key={f.lookupKey} className="border-b border-[#f0f0f0] last:border-0">
                       <td className="px-4 py-3 text-[13px] font-semibold text-[#1a1a1a]">{f.plan === 'pro' ? 'Pro' : 'Starter'} · {f.periode}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#71717a]">{a.prix}</td>
-                      <td className="px-4 py-3 text-[13px] text-[#71717a]">{a.avantage}</td>
+                      <td className="px-4 py-3 text-[13px] text-[#71717a]">{a.principal}{a.suffixe}{a.detail ? ` — ${a.detail}` : ''}</td>
+                      <td className="px-4 py-3 text-[13px] text-[#71717a]">{a.offre}</td>
                     </tr>
                   )
                 })}
