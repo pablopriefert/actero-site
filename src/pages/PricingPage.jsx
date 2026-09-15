@@ -18,6 +18,8 @@ import { PLANS, PLAN_ORDER } from "../lib/plans";
 import { CONTACT } from "../config/contact";
 import { TalkToHumanButton } from "../components/ui/TalkToHumanButton";
 import { ComparisonTable } from "../components/landing/pricing/ComparisonTable";
+import { SelecteurFormule } from "../components/billing/SelecteurFormule";
+import { affichagePrix, equivalentMensuel, memoriserFormuleChoisie } from "../lib/affichage-formules";
 import { CostComparator } from "../components/landing/CostComparator";
 
 /* ──────────────────────────────────────────────
@@ -66,22 +68,6 @@ const PLAN_ICON = {
   pro: Rocket,
   enterprise: Crown,
 };
-
-/**
- * Derive the real annual savings % from plans.js.
- * Pro: monthly 399, annual 319 → 20%. Starter: 99 → 79 → ~20%.
- * We use the largest paid tier that has both prices defined as the canonical figure.
- */
-function computeAnnualSavingsPct() {
-  const candidates = [PLANS.pro, PLANS.starter].filter(
-    (p) => p?.price?.monthly > 0 && p?.price?.annual > 0
-  );
-  if (!candidates.length) return 20;
-  const p = candidates[0];
-  const pct = Math.round(((p.price.monthly - p.price.annual) / p.price.monthly) * 100);
-  return Number.isFinite(pct) && pct > 0 ? pct : 20;
-}
-const ANNUAL_SAVINGS_PCT = computeAnnualSavingsPct();
 
 function buildFeatures(plan) {
   const { limits, features: _features, support } = plan;
@@ -181,7 +167,6 @@ const plans = PLAN_ORDER.map((id) => {
     name: p.name,
     tagline: p.tagline,
     monthlyPrice: p.price.monthly,
-    annualPrice: p.price.annual,
     trial: !!p.trial,
     cta: p.cta,
     ctaLink: CTA_LINKS[p.id],
@@ -368,8 +353,8 @@ const faqs = [
     a: "Actero se connecte nativement à Shopify (OAuth 1-clic) et répond sur le live-chat et l'email. Les helpdesks Gorgias et Zendesk sont pris en charge, et le plan Starter débloque l'API REST + webhooks pour brancher vos propres outils. Le plan Enterprise permet des intégrations custom sur mesure.",
   },
   {
-    q: "Proposez-vous un discount annuel ?",
-    a: `Oui, la facturation annuelle vous fait économiser 20% par rapport au tarif mensuel. Par exemple, le plan Pro passe de ${PLANS.pro.price.monthly}\u20AC/mois à ${PLANS.pro.price.annual}\u20AC/mois (facturé annuellement).`,
+    q: "Proposez-vous des formules trimestrielles ou annuelles ?",
+    a: `Oui. Au trimestre, le premier mois est à -50 %. À l'année, vous payez 11 mois au lieu de 12, à -10 % : ${affichagePrix("starter", "annuel").principal} pour Starter, ${affichagePrix("pro", "annuel").principal} pour Pro.`,
   },
 ];
 
@@ -382,30 +367,34 @@ export const PricingPage = ({ onNavigate }) => {
     window.scrollTo(0, 0);
   }, []);
 
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [periode, setPeriode] = useState("mensuel");
   const [openFaq, setOpenFaq] = useState(null);
   const prefersReducedMotion = useReducedMotion();
+
+  const affichage = (plan) => (plan.monthlyPrice > 0 ? affichagePrix(plan.id, periode) : null);
 
   const getPrice = (plan) => {
     if (plan.monthlyPrice === null) return "Sur devis";
     if (plan.monthlyPrice === 0) return "0\u20AC";
-    return isAnnual ? `${plan.annualPrice}\u20AC` : `${plan.monthlyPrice}\u20AC`;
+    return affichage(plan).principal;
   };
 
-  const getPeriod = (plan) => {
-    if (plan.monthlyPrice === null) return "";
-    if (plan.monthlyPrice === 0) return "";
-    return "/mois";
-  };
+  const getPeriod = (plan) => affichage(plan)?.suffixe || "";
 
   const getSubPrice = (plan) => {
-    if (plan.monthlyPrice === null || plan.monthlyPrice === 0) return null;
-    if (isAnnual) return `soit ${plan.annualPrice * 12}\u20AC facturé annuellement`;
-    return `ou ${plan.annualPrice}\u20AC/mois en annuel`;
+    const a = affichage(plan);
+    if (!a) return null;
+    if (periode === "mensuel") return `ou ${equivalentMensuel(plan.id, "annuel")}/mois à l’année`;
+    return a.detail;
   };
 
   const handleCTA = (plan) => {
-    trackEvent("Pricing_CTA_Clicked", { plan: plan.id, billing: isAnnual ? "annual" : "monthly" });
+    trackEvent("Pricing_CTA_Clicked", { plan: plan.id, billing: periode });
+    if (plan.id === "starter" || plan.id === "pro") {
+      // L'inscription perd la chaîne de requête : la page de choix du plan
+      // relira cette formule. Avant, choisir l'annuel ici menait au mensuel.
+      memoriserFormuleChoisie({ plan: plan.id, periode });
+    }
     if (plan.ctaLink.startsWith("http")) {
       // Enterprise: open Cal.com booking in new tab
       window.open(plan.ctaLink, "_blank", "noopener,noreferrer");
@@ -558,38 +547,7 @@ export const PricingPage = ({ onNavigate }) => {
                 transition={{ delay: 0.2 }}
                 className="inline-flex items-center gap-3"
               >
-                <div
-                  role="group"
-                  aria-label="Facturation"
-                  className="inline-flex items-center gap-3 bg-surface border border-gray-200 rounded-full px-2 py-1.5"
-                >
-                  <button
-                    onClick={() => setIsAnnual(false)}
-                    aria-pressed={!isAnnual}
-                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 ${
-                      !isAnnual
-                        ? "bg-white text-[#262626] shadow-sm"
-                        : "text-[#716D5C] hover:text-[#262626]"
-                    }`}
-                  >
-                    Mensuel
-                  </button>
-                  <button
-                    onClick={() => setIsAnnual(true)}
-                    aria-pressed={isAnnual}
-                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-[#14A85C] focus-visible:ring-offset-2 ${
-                      isAnnual
-                        ? "bg-white text-[#262626] shadow-sm"
-                        : "text-[#716D5C] hover:text-[#262626]"
-                    }`}
-                  >
-                    Annuel
-                    <span className="text-[10px] font-bold bg-cta text-white px-2 py-0.5 rounded-full">
-                      -{ANNUAL_SAVINGS_PCT}%
-                    </span>
-                  </button>
-                </div>
-
+                <SelecteurFormule periode={periode} onChange={setPeriode} />
               </motion.div>
             </div>
 
@@ -643,14 +601,9 @@ export const PricingPage = ({ onNavigate }) => {
 
                   <div className="mb-6">
                     <div className="flex items-baseline gap-2">
-                      {isAnnual && plan.monthlyPrice > 0 && (
-                        <span className={`line-through text-2xl font-bold ${plan.highlighted ? 'text-[#F4F5F7]/35' : 'text-[#9ca3af]'}`}>
-                          {plan.monthlyPrice}€
-                        </span>
-                      )}
                       <AnimatePresence mode="wait">
                         <motion.span
-                          key={`${plan.id}-${isAnnual}`}
+                          key={`${plan.id}-${periode}`}
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
