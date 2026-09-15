@@ -249,7 +249,10 @@ async function handler(req, res) {
           // Set trial_ends_at from subscription trial_end if available
           if (session.subscription) {
             try {
-              const subscription = await stripe.subscriptions.retrieve(session.subscription);
+              // Délai borné (OPTIONS_REQUETE_COURTE) : sans lui, une lenteur
+              // Stripe peut dépasser les 60 s de la fonction Vercel avant que
+              // ce bloc n'écrive quoi que ce soit — voir sa docstring.
+              const subscription = await stripe.subscriptions.retrieve(session.subscription, {}, OPTIONS_REQUETE_COURTE);
               if (subscription.trial_end) {
                 updateData.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString();
               }
@@ -299,10 +302,9 @@ async function handler(req, res) {
             } catch { /* non-blocking */ }
           }
 
-          // Atomic-first: write the subscription_id from session.subscription
-          // directly so the upgrade row is never inconsistent if the optional
-          // retrieve below fails. We only call retrieve to enrich with the
-          // trial_end timestamp, which is non-critical.
+          // Atomic-first : les champs essentiels sont posés tout de suite ;
+          // la relecture ci-dessous ne fait qu'ENRICHIR cette écriture — sauf
+          // sur un abonnement déjà résilié, où elle l'annule complètement.
           const updateData = {
             plan: newPlan,
             stripe_customer_id: session.customer,
@@ -311,7 +313,23 @@ async function handler(req, res) {
           };
           if (session.subscription) {
             try {
-              const subscription = await stripe.subscriptions.retrieve(session.subscription);
+              // Délai borné (OPTIONS_REQUETE_COURTE) : sinon une lenteur
+              // Stripe peut dépasser les 60 s de la fonction Vercel avant
+              // l'écriture ci-dessous — voir sa docstring.
+              const subscription = await stripe.subscriptions.retrieve(session.subscription, {}, OPTIONS_REQUETE_COURTE);
+              if (['canceled', 'unpaid', 'incomplete_expired'].includes(subscription.status)) {
+                // Le paiement a eu lieu, mais l'abonnement a depuis été
+                // résilié — possible ici, car depuis e82d0e5 une erreur plus
+                // bas vaut 500, et Stripe peut rejouer cet événement jusqu'à
+                // 3 jours plus tard. On n'accorde alors AUCUN plan : sinon
+                // `customer.subscription.deleted`, qui a cherché le client
+                // par stripe_subscription_id — pas encore posé à ce
+                // moment-là — ne pourra plus jamais le retirer. Rien à
+                // réessayer : on journalise et on répond comme la branche le
+                // fait quand elle a fini.
+                console.warn(`[UPGRADE] abonnement ${subscription.id} au statut ${subscription.status} : aucun plan accordé pour le client ${clientId}`);
+                return res.status(200).json({ received: true });
+              }
               if (subscription.trial_end) {
                 updateData.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString();
               }
@@ -322,6 +340,10 @@ async function handler(req, res) {
                 updateData.billing_provider = 'stripe';
               }
             } catch (subErr) {
+              // Relecture en échec (panne Stripe) : le paiement vient
+              // d'avoir lieu, l'état le plus probable reste « payé ». On
+              // écrit quand même les champs essentiels ci-dessus, sans
+              // enrichissement — comportement inchangé par ce correctif.
               console.error('[UPGRADE] Failed to retrieve subscription (non-fatal):', subErr.message);
             }
           }

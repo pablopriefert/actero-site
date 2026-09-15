@@ -102,14 +102,24 @@ export function doitResoudreLaCarte(subscription) {
  *     `customer.subscription.deleted` ne retrouvera jamais ce client le jour
  *     où cet abonnement-là est résilié ;
  *   - abonnement NON courant (un autre `stripe_subscription_id` est déjà
- *     enregistré) : seul un accord de plan payant s'écrit, tel quel et sans
- *     toucher `stripe_subscription_id`. C'est le cas légitime d'un nouvel
- *     abonnement dont `customer.subscription.updated` arrive avant
- *     `checkout.session.completed`, qui l'enregistrera ensuite. Tout le
- *     reste — une rétrogradation, ou un simple `trial_ends_at` — donne
+ *     enregistré) : seul un accord de plan payant peut s'écrire, tel quel et
+ *     sans toucher `stripe_subscription_id` — et seulement si le client n'a
+ *     pas déjà un plan payant (`client.plan` vide, `undefined`/`null`, ou
+ *     `'free'`). Sans cette dernière condition : un ancien essai Starter sans
+ *     carte (`sub_1`, encore `trialing`) peut se voir accorder la carte
+ *     qu'un Checkout Pro (`sub_2`) vient d'attacher au MÊME client Stripe —
+ *     `resolveCustomerCard` la trouve pour n'importe quel abonnement de ce
+ *     client — et le premier `updated` de `sub_1` écraserait alors le plan
+ *     Pro par Starter. Le cas légitime (`customer.subscription.updated` d'un
+ *     NOUVEL abonnement qui arrive avant `checkout.session.completed`, qui
+ *     posera `stripe_subscription_id` ensuite) ne concerne justement qu'un
+ *     client encore SANS plan payant : c'est exactement ce que la condition
+ *     laisse passer. Tout le reste — une rétrogradation, un simple
+ *     `trial_ends_at`, ou un accord payant sur un client déjà payant — donne
  *     `null` : laisser rétrograder couperait un marchand qui paie par
- *     ailleurs, et une date d'essai à elle seule ouvrirait tout le produit
- *     sans qu'aucun plan n'ait été accordé.
+ *     ailleurs, une date d'essai à elle seule ouvrirait tout le produit sans
+ *     qu'aucun plan n'ait été accordé, et laisser écraser reviendrait à
+ *     perdre le plan payant d'un client pour celui d'un abonnement fantôme.
  *
  * @param {MiseAJourPlan} miseAJour
  * @param {{ plan?: string|null, stripe_subscription_id?: string|null }} client — ligne `clients` lue en base
@@ -126,8 +136,11 @@ export function ecritureAutorisee(miseAJour, client, subscription) {
 
   if (!estLAbonnementCourant) {
     // Non courant : seul un accord payant traverse, et tel quel — jamais de
-    // rétrogradation, jamais un trial_ends_at qui s'écrirait seul.
-    return miseAJour.plan && miseAJour.plan !== 'free' ? miseAJour : null
+    // rétrogradation, jamais un trial_ends_at qui s'écrirait seul. Et même un
+    // accord payant ne traverse que si le client n'a pas déjà un plan payant
+    // — voir la docstring plus haut pour le scénario de la carte partagée.
+    if (!miseAJour.plan || miseAJour.plan === 'free') return null
+    return (!client?.plan || client.plan === 'free') ? miseAJour : null
   }
 
   if (miseAJour.plan && miseAJour.plan !== 'free' && !abonnementEnregistre) {

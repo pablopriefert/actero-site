@@ -153,8 +153,30 @@ describe('ecritureAutorisee', () => {
     // Cas légitime : customer.subscription.updated du NOUVEL abonnement arrive
     // avant checkout.session.completed, qui posera stripe_subscription_id
     // ensuite. On accorde le plan sans toucher à l'abonnement enregistré.
+    // Le client n'a ici aucun `plan` enregistré (undefined) : c'est justement
+    // le cas que la condition « client encore sans plan payant » doit laisser
+    // passer — voir les trois tests juste en dessous.
     const miseAJour = { plan: 'pro', status: 'active' }
     expect(ecritureAutorisee(miseAJour, { stripe_subscription_id: 'sub_B' }, ancienAbonnement)).toEqual(miseAJour)
+  })
+
+  it('non courant, accord payant, client en free → écrit tel quel', () => {
+    const miseAJour = { plan: 'pro', status: 'active' }
+    expect(ecritureAutorisee(miseAJour, { plan: 'free', stripe_subscription_id: 'sub_B' }, ancienAbonnement)).toEqual(miseAJour)
+  })
+
+  it('non courant, accord payant, client sans plan (undefined ou null) → écrit tel quel', () => {
+    const miseAJour = { plan: 'pro', status: 'active' }
+    expect(ecritureAutorisee(miseAJour, { plan: undefined, stripe_subscription_id: 'sub_B' }, ancienAbonnement)).toEqual(miseAJour)
+    expect(ecritureAutorisee(miseAJour, { plan: null, stripe_subscription_id: 'sub_B' }, ancienAbonnement)).toEqual(miseAJour)
+  })
+
+  it('non courant, accord Starter sur un client déjà en pro → null', () => {
+    // Un ancien essai Starter sans carte (sub_1, encore trialing) ne doit pas
+    // écraser le plan Pro d'un client qui a payé un nouvel abonnement (sub_2)
+    // — voir la docstring de ecritureAutorisee pour le scénario complet.
+    const miseAJour = { plan: 'starter', status: 'active' }
+    expect(ecritureAutorisee(miseAJour, { plan: 'pro', stripe_subscription_id: 'sub_B' }, ancienAbonnement)).toBeNull()
   })
 
   it('non courant avec trial_ends_at seul → null', () => {
@@ -177,8 +199,47 @@ describe('le webhook s’en sert comme prévu', () => {
     return webhook.slice(debut, webhook.indexOf("case '", debut + 1))
   }
 
+  // Bornée au bloc suivant (l'achat de template marketplace) : sans ça, une
+  // régression dans la branche upgrade pourrait passer inaperçue si un autre
+  // appel plus loin dans le fichier satisfait déjà les gardes ci-dessous.
+  function blocUpgrade() {
+    const debut = webhook.indexOf('if (session.metadata?.actero_client_id && session.metadata?.upgrade_to)')
+    expect(debut).toBeGreaterThan(-1)
+    const fin = webhook.indexOf('if (session.metadata?.template_id && session.metadata?.buyer_client_id)', debut)
+    expect(fin).toBeGreaterThan(debut)
+    return webhook.slice(debut, fin)
+  }
+
   it('plus aucune table de prix construite depuis STRIPE_PRICE_*', () => {
     expect(webhook).not.toMatch(/STRIPE_PRICE_/)
+  })
+
+  it('aucune relecture Stripe n’est laissée sans délai borné', () => {
+    // Sans OPTIONS_REQUETE_COURTE, le SDK Stripe attend jusqu'à 80 s par
+    // tentative et réessaie deux fois : Vercel coupe la fonction à 60 s avant
+    // l'écriture, la réservation de l'événement reste posée, et le réessai de
+    // Stripe reçoit "duplicate" — le client paie sans recevoir son plan.
+    const appels = webhook.match(/stripe\.subscriptions\.retrieve\([^)]*\)/g) || []
+    expect(appels.length).toBeGreaterThan(0)
+    for (const appel of appels) {
+      expect(appel).toContain('OPTIONS_REQUETE_COURTE')
+    }
+  })
+
+  it('la branche upgrade relit l’abonnement avant d’écrire, et connaît les trois statuts terminaux', () => {
+    // Depuis e82d0e5, une erreur d'écriture vaut 500 et Stripe peut rejouer
+    // l'événement jusqu'à 3 jours plus tard. Si l'abonnement a été résilié
+    // entre-temps, il ne faut plus accorder le plan — voir subscription-plan.js
+    // et le commentaire de ce bloc dans stripe-webhook.js.
+    const bloc = blocUpgrade()
+    const idxRetrieve = bloc.indexOf('stripe.subscriptions.retrieve(session.subscription')
+    const idxUpdate = bloc.indexOf('.update(updateData)')
+    expect(idxRetrieve).toBeGreaterThan(-1)
+    expect(idxUpdate).toBeGreaterThan(-1)
+    expect(idxRetrieve).toBeLessThan(idxUpdate)
+    expect(bloc).toMatch(/canceled/)
+    expect(bloc).toMatch(/unpaid/)
+    expect(bloc).toMatch(/incomplete_expired/)
   })
 
   it('la carte est résolue en mode strict, et c’est son résultat qui décide du plan', () => {
