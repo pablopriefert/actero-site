@@ -130,7 +130,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
                 {referrerName ? ` grâce a ${referrerName}` : ' grâce a votre parrain'}
               </p>
               <p className="text-sm text-[#716D5C] mt-1">
-                Inscrivez-vous et profitez d'un mois gratuit sur n'importe quel plan
+                Inscrivez-vous et profitez d'un mois gratuit sur Starter ou Pro, en formule mensuelle
               </p>
             </div>
           </motion.div>
@@ -147,7 +147,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
               Créer mon compte gratuitement
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <p className="text-sm text-[#716D5C] mt-4">Sans carte bancaire — Premier mois offert</p>
+            <p className="text-sm text-[#716D5C] mt-4">Premier mois offert — annulable avant le premier prélèvement</p>
           </motion.div>
         </div>
       </div>
@@ -350,7 +350,7 @@ export const ReferralLanding = ({ code, onNavigate }) => {
             </button>
             <div className="flex items-center justify-center gap-6 mt-6 text-sm text-[#716D5C]">
               <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Premier mois offert</span>
-              <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Sans carte bancaire</span>
+              <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Annulable avant le premier prélèvement</span>
               <span className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Sans engagement</span>
             </div>
           </motion.div>

@@ -101,7 +101,7 @@ function fichiersSource(dir, acc = []) {
 
 // Toutes les formes sous lesquelles le site promettait un essai de 7 jours le
 // 14 septembre 2026.
-const PROMESSE_ESSAI = /essai (gratuit )?(de )?7 jours|7 jours gratuits|7 jours d.essai|essai 7 ?j\b|jours de trial|trial gratuit|essai gratuit sur starter|p[ée]riode d.essai de 7 jours|pendant sept jours|commencer mon essai gratuit|d[ée]marrer l.essai gratuit|essai gratuit · annulable/i
+const PROMESSE_ESSAI = /essai (gratuit )?(de )?7 jours|7 jours gratuits|7 jours d.essai|essai 7 ?j\b|jours de trial|trial gratuit|essai gratuit sur starter|p[ée]riode d.essai de 7 jours|pendant sept jours|commencer mon essai gratuit|d[ée]marrer l.essai gratuit|essai gratuit · annulable|n.importe quel plan/i
 
 describe('plus d’essai gratuit de 7 jours', () => {
   it('aucune page ne le promet encore', () => {

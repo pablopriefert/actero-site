@@ -178,7 +178,7 @@ export const ClientReferralView = ({ clientId, theme: _theme = 'light' }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { step: '1', title: 'Partagez votre lien', desc: 'Envoyez votre lien de parrainage à vos contacts e-commerçants.' },
-            { step: '2', title: 'Ils s\'inscrivent', desc: 'Votre filleul bénéficie de 30 jours gratuits sur n\'importe quel plan.' },
+            { step: '2', title: 'Ils s\'inscrivent', desc: 'Votre filleul bénéficie de 30 jours gratuits sur Starter ou Pro, en formule mensuelle.' },
             { step: '3', title: 'Vous gagnez', desc: 'Dès qu\'il souscrit, vous recevez 1 mois de crédit sur votre abonnement.' },
           ].map((s) => (
             <div key={s.step} className="flex gap-3">

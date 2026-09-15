@@ -67,7 +67,7 @@ export const UpgradeBanner = ({ feature, requiredPlan, compact = false, onNaviga
         </button>
 
         <p className="text-[11px] text-[#9ca3af] mt-4">
-          Sans engagement, résiliable à tout moment
+          Mensuel sans engagement, résiliable à tout moment
         </p>
       </div>
     </div>

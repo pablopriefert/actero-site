@@ -170,13 +170,17 @@ serveur la refuse (historique Stripe) et Checkout affiche le vrai montant.
 
 - **Sélecteur Mensuel / Trimestriel / Annuel** sur `/tarifs`, la page de choix du
   plan et la facturation du tableau de bord ; montants dérivés du catalogue.
-- **La formule suit le visiteur** : `/tarifs` la mémorise, la page de choix du plan la
-  relit (ou `?formule=`), et ne code plus « monthly » en dur.
+- **La formule suit le visiteur** : `/tarifs` la mémorise, la page de choix du plan et la
+  facturation du tableau de bord la relisent (ou `?formule=`) — un visiteur inscrit par
+  code email ou Google arrive directement sur le tableau de bord. Aucune page ne code
+  plus « monthly » en dur. Un abonné part de la formule de son abonnement, pour
+  qu'une montée en gamme ne change pas de périodicité à son insu.
 - **Marchand facturé par Shopify** : ni trimestriel ni mois offert affichés (Shopify gère
   l'abonnement et son essai).
 - **Offre de bienvenue** : « 1er trimestre à 247,50 € », le badge −50 % et le mois
-  offert ne s'affichent pas dans la facturation d'un client qui n'y a plus droit
-  (`peutAvoirUneOffreDeBienvenue`).
+  offert ne s'affichent, sur la page de choix du plan comme dans la facturation, que
+  pour un client qui y a droit (`peutAvoirUneOffreDeBienvenue` ; un compte sans fiche
+  client est éligible). Tant que la fiche n'est pas lue, rien n'est promis.
 - **Paiement** : tout bouton payant appelle `/api/billing/upgrade`, puis redirige vers
   Stripe. Après un changement immédiat, le front attend que le webhook ait écrit le
   nouveau plan.

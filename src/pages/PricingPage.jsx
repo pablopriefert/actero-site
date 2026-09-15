@@ -409,7 +409,7 @@ export const PricingPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Tarifs Actero — Agent IA pour Shopify à partir de 99€/mois"
-        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Sans engagement."
+        description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Mensuel sans engagement."
         canonical="/tarifs"
         schemaData={{
           "@context": "https://schema.org",
@@ -517,7 +517,7 @@ export const PricingPage = ({ onNavigate }) => {
                 transition={{ delay: 0.15 }}
                 className="inline-flex items-center gap-4 text-sm text-[#716D5C] font-medium mb-10"
               >
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cta" /> Sans engagement</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cta" /> Mensuel sans engagement</span>
                 <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cta" /> Annulable en 1 clic</span>
                 <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cta" /> Garantie 30 jours satisfait ou remboursé</span>
               </motion.p>
@@ -646,7 +646,10 @@ export const PricingPage = ({ onNavigate }) => {
                     {plan.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2.5">
                         <Check className={`w-4 h-4 shrink-0 mt-0.5 ${plan.highlighted ? 'text-[#A8C490]' : 'text-cta'}`} />
-                        <span className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F5F7]/90' : 'text-[#716D5C]'}`}>{feature}</span>
+                        <span className={`text-sm font-medium ${plan.highlighted ? 'text-[#F4F5F7]/90' : 'text-[#716D5C]'}`}>
+                          {/* Le trimestriel et l'annuel se paient d'avance : « sans engagement » n'y est vrai qu'au renouvellement. */}
+                          {feature === "Sans engagement" && periode !== "mensuel" ? "Payé d’avance, résiliable avant le renouvellement" : feature}
+                        </span>
                       </div>
                     ))}
                   </div>
