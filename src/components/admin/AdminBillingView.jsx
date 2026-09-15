@@ -133,7 +133,7 @@ export const AdminBillingView = () => {
                   <p className="text-[10px] text-[#71717a]">{sub.customer_email}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[13px] font-bold text-[#1a1a1a] font-mono">{(sub.amount / 100).toLocaleString('fr-FR')}€/{sub.interval === 'month' ? 'mois' : 'an'}</p>
+                  <p className="text-[13px] font-bold text-[#1a1a1a] font-mono">{(sub.amount / 100).toLocaleString('fr-FR')}€/{sub.periode || 'mois'}</p>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${s.bg} ${s.color}`}>
                     {s.label.toUpperCase()}
                   </span>

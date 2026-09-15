@@ -2,6 +2,7 @@ import { withSentry } from './lib/sentry.js'
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from './lib/admin-auth.js';
+import { mensualiteCentimes, libellePeriodeStripe } from './lib/formules.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabase = createClient(
@@ -37,14 +38,12 @@ async function handler(req, res) {
 
     // Compute MRR
     const activeSubs = subscriptions.data.filter(s => s.status === 'active');
-    const mrr = activeSubs.reduce((sum, sub) => {
-      const amount = sub.items.data.reduce((s, item) => {
-        if (item.price.recurring?.interval === 'month') return s + item.price.unit_amount;
-        if (item.price.recurring?.interval === 'year') return s + Math.round(item.price.unit_amount / 12);
-        return s;
-      }, 0);
-      return sum + amount;
-    }, 0);
+    // Mensualité = montant ÷ mois de la période : un trimestriel est lui aussi
+    // « au mois » pour Stripe, tous les 3 mois.
+    const mrr = activeSubs.reduce(
+      (sum, sub) => sum + sub.items.data.reduce((s, item) => s + mensualiteCentimes(item.price), 0),
+      0,
+    );
 
     // Format data
     const formattedSubs = subscriptions.data.map(sub => ({
@@ -58,6 +57,7 @@ async function handler(req, res) {
       cancel_at_period_end: sub.cancel_at_period_end,
       amount: sub.items.data.reduce((s, item) => s + (item.price.unit_amount || 0), 0),
       interval: sub.items.data[0]?.price?.recurring?.interval || 'month',
+      periode: libellePeriodeStripe(sub.items.data[0]?.price?.recurring),
     }));
 
     const formattedInvoices = invoices.data.map(inv => ({
