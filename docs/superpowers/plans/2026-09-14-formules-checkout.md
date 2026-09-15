@@ -1519,6 +1519,34 @@ git add api/billing/upgrade.js api/billing/upgrade.test.js api/lib/essai-gratuit
 git commit -m "feat(facturation): la route de paiement vend les trois formules et laisse le webhook accorder le plan"
 ```
 
+### Task 5 bis : la route refuse un second abonnement, encaisse la différence et répond avec un contrat stable — LIVRÉE
+
+Faite aux deux relectures qualité de la Task 5 (`6583f09`, `b0c5aa4`, `a5aaa33`). Ce qui change par rapport au code ci-dessus :
+
+- **Qui paie** : seuls les rôles `owner` et `manager` de `client_users` (les admins Actero passent) ; une lecture en base ratée répond 503, pas 403 ou 404.
+- **Jamais deux abonnements vivants** : `aDejaEuUnAbonnement` et `abonnementsVivants` sont remplacées par `lireHistoriqueAbonnements(stripe, customerIds)` (`api/lib/formules-stripe.js`), un seul relevé chez le client Stripe de la session ET celui de l'abonnement enregistré. `past_due` → 409 `paiement_en_attente` ; tout autre abonnement vivant (`unpaid` et `paused` compris) → 409 `abonnement_en_cours`. Seule exception : l'essai sans carte de l'ancien formulaire, neutralisé (`cancel_at_period_end`) juste avant d'ouvrir Checkout ; l'email de fin d'essai n'est plus envoyé pour un essai qui ne démarrera pas (`annoncerLaFinDEssai`). Les sessions Checkout d'abonnement encore ouvertes sont expirées avant d'en créer une.
+- **Changement immédiat** (abonné avec carte, même périodicité lue dans `price.recurring`) : un `update` pose la carte, un second change le prix en `always_invoice` + `pending_if_incomplete` — la différence est prélevée tout de suite, et le prix ne change qu'une fois payée. La formule n'est écrite dans les métadonnées que si le changement est appliqué.
+- **Code promo** : `code_promo_refuse` seulement quand Stripe refuse le paramètre `discounts`.
+
+Contrat de réponse, que les Tasks 10 et 11 lisent :
+
+| HTTP | `statut` ou `error` | Champs | Quand |
+|---|---|---|---|
+| 200 | `checkout` | `checkout_url` | page Checkout ouverte |
+| 200 | `change_applique` | `success`, `instant`, `plan_attendu`, `message` | prix changé (différence prélevée, rien à régler, ou essai) |
+| 200 | `paiement_a_valider` | `facture_url`, `message` | 3-D Secure : la différence se valide sur la facture Stripe |
+| 200 | `paiement_en_cours` | `message`, `facture_url`? | paiement en cours de traitement |
+| 400 | `requete_invalide`, `enterprise_contact` (+ `calendly_url`), `downgrade_non_self_serve`, `code_promo_refuse` | `message` | |
+| 401 | `non_authentifie` | `message` | |
+| 402 | `paiement_refuse` | `message`, `facture_url`? | différence refusée ; la facture permet de la régler avec une autre carte |
+| 403 | `acces_refuse`, `role_non_autorise` | `message` | |
+| 404 | `client_introuvable` | `message` | |
+| 409 | `deja_sur_ce_plan`, `changement_de_formule`, `paiement_en_attente`, `abonnement_en_cours` | `message` | |
+| 503 | `Stripe not configured`, `indisponible` | `message` | |
+| 500 | `erreur_interne` | `message` | |
+
+Le front affiche toujours `data.message`, jamais le code.
+
 ---
 
 ### Task 6 : un MRR juste dans l'admin
@@ -2672,20 +2700,47 @@ par :
       if (routed.channel === "error") { setError(routed.message); setLoading(null); return; }
 ```
 
-puis remplacer `billing_period: "monthly",` par `billing_period: PERIODE_API[periodeEffective],`, et remplacer :
+puis remplacer `billing_period: "monthly",` par `billing_period: PERIODE_API[periodeEffective],`, et remplacer le traitement de la réponse :
 
 ```js
+      const data = await res.json();
+      if (data.checkout_url) {
+        window.location.assign(data.checkout_url);
       } else if (data.error === "Stripe not configured") {
+        setError("Paiement indisponible. Contactez le support.");
+        setLoading(null);
+      } else if (data.error) {
+        setError(data.error);
+        setLoading(null);
+      } else {
+        // Fallback: redirect to dashboard
+        onNavigate("/client/overview");
+      }
 ```
 
 par :
 
 ```js
-      } else if (data.error === "deja_sur_ce_plan" || data.error === "changement_de_formule") {
-        setError(data.message);
+      const data = await res.json();
+      // Contrat de api/billing/upgrade.js (Task 5 bis) : chaque 200 porte un
+      // `statut`, chaque erreur un code (`error`) et une phrase (`message`).
+      if (data.statut === "checkout") {
+        window.location.assign(data.checkout_url);
+      } else if (data.statut === "paiement_a_valider" || (data.error === "paiement_refuse" && data.facture_url)) {
+        // La différence se valide, ou se règle avec une autre carte, sur la
+        // facture Stripe : le plan s'applique une fois payée.
+        window.location.assign(data.facture_url);
+      } else if (data.statut === "change_applique" || data.statut === "paiement_en_cours") {
+        // Le webhook accorde le plan une fois Stripe confirmé.
+        onNavigate("/client/overview");
+      } else {
+        // Jamais le code brut (`abonnement_en_cours`…) : la phrase prévue pour le marchand.
+        setError(data.message || "Paiement indisponible. Contactez le support.");
         setLoading(null);
-      } else if (data.error === "Stripe not configured") {
+      }
 ```
+
+Les boutons de plan sont déjà tous désactivés pendant une requête (`disabled={loading === planId || !!loading}`) : une seule page Stripe à la fois.
 
 6. Remplacer `titre` et `sousTitre` par :
 
@@ -2942,34 +2997,65 @@ par :
       if (routed.channel === 'error') { toast.error(routed.message); setUpgradingPlan(null); return }
 ```
 
-remplacer `billing_period: billingPeriod,` par `billing_period: PERIODE_API[periodeEffective],`, et remplacer :
+remplacer `billing_period: billingPeriod,` par `billing_period: PERIODE_API[periodeEffective],`, et remplacer le traitement de la réponse :
 
 ```js
+      const data = await res.json()
       if (data.instant && data.success) {
         // Instant upgrade — no redirect needed, plan switched server-side
         toast.success(data.message || `Plan mis a jour vers ${targetPlan} !`)
         // Refresh plan data
         window.location.reload()
       } else if (data.checkout_url) {
+        // New subscription — redirect to Stripe Checkout
+        window.location.assign(data.checkout_url)
+      } else if (data.error === 'Stripe not configured') {
+        toast.error('Paiement indisponible. Contactez le support.')
+      } else if (data.error === 'enterprise_contact') {
+        window.open(data.calendly_url || 'https://calendly.com/actero-fr/30min', '_blank')
+      } else {
+        toast.error(data.message || data.error || 'Erreur lors de la mise a niveau')
+      }
 ```
 
 par :
 
 ```js
-      if (data.instant && data.success) {
-        toast.success(data.message || `Passage au plan ${targetPlan} en cours…`)
-        // La route n'écrit plus le plan : le webhook Stripe l'accorde une fois
-        // la carte vérifiée. On l'attend quelques secondes avant de recharger.
+      const data = await res.json()
+      // Contrat de api/billing/upgrade.js (Task 5 bis) : chaque 200 porte un
+      // `statut`, chaque erreur un code (`error`) et une phrase (`message`).
+      if (data.statut === 'checkout') {
+        window.location.assign(data.checkout_url)
+        return
+      } else if (data.statut === 'paiement_a_valider' || (data.error === 'paiement_refuse' && data.facture_url)) {
+        // La différence se valide, ou se règle avec une autre carte, sur la
+        // facture Stripe : le plan s'applique une fois payée.
+        if (data.error) toast.error(data.message)
+        else toast.info(data.message)
+        window.location.assign(data.facture_url)
+        return
+      } else if (data.statut === 'change_applique') {
+        toast.success(data.message)
+        // La route n'écrit pas le plan : le webhook Stripe l'accorde une fois le
+        // paiement confirmé. On l'attend quelques secondes avant de recharger.
         for (let i = 0; i < 10; i++) {
           await new Promise((r) => setTimeout(r, 1000))
           const { data: ligne } = await supabase.from('clients').select('plan').eq('id', clientId).maybeSingle()
           if (ligne?.plan === targetPlan) break
         }
         window.location.reload()
-      } else if (data.error === 'deja_sur_ce_plan' || data.error === 'changement_de_formule') {
-        toast.error(data.message)
-      } else if (data.checkout_url) {
+        return
+      } else if (data.statut === 'paiement_en_cours') {
+        toast.info(data.message)
+      } else if (data.error === 'enterprise_contact') {
+        window.open(data.calendly_url || 'https://calendly.com/actero-fr/30min', '_blank')
+      } else {
+        // Jamais le code brut (`abonnement_en_cours`…) : la phrase prévue pour le marchand.
+        toast.error(data.message || 'Paiement indisponible. Contactez le support.')
+      }
 ```
+
+Puis, sur le bouton de chaque plan, remplacer `disabled={isCurrent || upgradingPlan === planKey || (isDowngrade && loadingPortal)}` par `disabled={isCurrent || !!upgradingPlan || (isDowngrade && loadingPortal)}` : tant qu'une requête est en cours, aucun autre plan ne se clique, et une seule page Stripe peut s'ouvrir.
 
 5. Remplacer :
 
@@ -3717,4 +3803,5 @@ Sur `/tarifs`, choisir Annuel puis cliquer le bouton de Pro. Dans la console : `
 3. Vercel : retirer `VITE_STRIPE_PUBLISHABLE_KEY` et les quatre `STRIPE_PRICE_*`.
 4. Shopify Partner Dashboard : annuel à 980,10 € et 3 950,10 €, et 0 jour d'essai sur les plans.
 5. Un paiement de test par formule en mode test Stripe avant d'annoncer les formules.
+   Puis un changement de plan immédiat (Starter → Pro, même formule) avec chacune des cartes de test : `4242 4242 4242 4242` (différence prélevée, plan accordé par le webhook), `4000 0027 6000 3184` (redirection vers la facture Stripe pour 3-D Secure, plan accordé une fois validée), `4000 0000 0000 0341` (refus : message, puis facture Stripe pour payer avec une autre carte ; le plan ne change pas).
 6. Stripe → Réglages → Moyens de paiement, en test ET en live : PayPal (paiements récurrents compris) et Link activés. La page de paiement les demande explicitement : s'il en manque un, la création de la session échoue pour tout le monde, carte comprise.
