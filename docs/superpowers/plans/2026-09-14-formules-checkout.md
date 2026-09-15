@@ -1521,10 +1521,10 @@ git commit -m "feat(facturation): la route de paiement vend les trois formules e
 
 ### Task 5 bis : la route refuse un second abonnement, encaisse la différence et répond avec un contrat stable — LIVRÉE
 
-Faite aux deux relectures qualité de la Task 5 (`6583f09`, `b0c5aa4`, `a5aaa33`). Ce qui change par rapport au code ci-dessus :
+Faite aux deux relectures qualité de la Task 5 (`6583f09`, `b0c5aa4`, `a5aaa33`, `de04818`, `664848f`, `9232a33`). Ce qui change par rapport au code ci-dessus :
 
 - **Qui paie** : seuls les rôles `owner` et `manager` de `client_users` (les admins Actero passent) ; une lecture en base ratée répond 503, pas 403 ou 404.
-- **Jamais deux abonnements vivants** : `aDejaEuUnAbonnement` et `abonnementsVivants` sont remplacées par `lireHistoriqueAbonnements(stripe, customerIds)` (`api/lib/formules-stripe.js`), un seul relevé chez le client Stripe de la session ET celui de l'abonnement enregistré. `past_due` → 409 `paiement_en_attente` ; tout autre abonnement vivant (`unpaid` et `paused` compris) → 409 `abonnement_en_cours`. Seule exception : l'essai sans carte de l'ancien formulaire, neutralisé (`cancel_at_period_end`) juste avant d'ouvrir Checkout ; l'email de fin d'essai n'est plus envoyé pour un essai qui ne démarrera pas (`annoncerLaFinDEssai`). Les sessions Checkout d'abonnement encore ouvertes sont expirées avant d'en créer une.
+- **Jamais deux abonnements vivants** : `aDejaEuUnAbonnement` et `abonnementsVivants` sont remplacées par `lireHistoriqueAbonnements(stripe, customerIds)` (`api/lib/formules-stripe.js`), un seul relevé chez le client Stripe de la session ET celui de l'abonnement enregistré. `past_due` → 409 `paiement_en_attente` ; tout autre abonnement vivant (`unpaid` et `paused` compris) → 409 `abonnement_en_cours`. Seule exception : l'essai sans carte de l'ancien formulaire, neutralisé et marqué (`cancel_at_period_end` + `metadata.remplace_par_checkout`) juste avant d'ouvrir Checkout — un essai déjà marqué repasse par Checkout sans être neutralisé à nouveau. Toute autre résiliation programmée (actif ou essai) → 409 `abonnement_en_resiliation` : réactiver depuis le portail, ou écrire au support ; l'email de fin d'essai n'est plus envoyé pour un essai qui ne démarrera pas (`annoncerLaFinDEssai`). Les sessions Checkout d'abonnement encore ouvertes sont expirées avant d'en créer une.
 - **Changement immédiat** (abonné avec carte, même périodicité lue dans `price.recurring`) : un `update` pose la carte, un second change le prix en `always_invoice` + `pending_if_incomplete` — la différence est prélevée tout de suite, et le prix ne change qu'une fois payée. La formule n'est écrite dans les métadonnées que si le changement est appliqué.
 - **Code promo** : `code_promo_refuse` seulement quand Stripe refuse le paramètre `discounts`.
 
@@ -1541,7 +1541,7 @@ Contrat de réponse, que les Tasks 10 et 11 lisent :
 | 402 | `paiement_refuse` | `message`, `facture_url`? | différence refusée ; la facture permet de la régler avec une autre carte |
 | 403 | `acces_refuse`, `role_non_autorise` | `message` | |
 | 404 | `client_introuvable` | `message` | |
-| 409 | `deja_sur_ce_plan`, `changement_de_formule`, `paiement_en_attente`, `abonnement_en_cours` | `message` | |
+| 409 | `deja_sur_ce_plan`, `changement_de_formule`, `paiement_en_attente`, `abonnement_en_cours`, `abonnement_en_resiliation` | `message` | |
 | 503 | `Stripe not configured`, `indisponible` | `message` | |
 | 500 | `erreur_interne` | `message` | |
 
