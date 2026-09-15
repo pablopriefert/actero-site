@@ -170,7 +170,8 @@ serveur la refuse (historique Stripe) et Checkout affiche le vrai montant.
   plan et la facturation du tableau de bord ; montants dérivés du catalogue.
 - **La formule suit le visiteur** : `/tarifs` la mémorise, la page de choix du plan la
   relit (ou `?formule=`), et ne code plus « monthly » en dur.
-- **Marchand facturé par Shopify** : pas de trimestriel affiché.
+- **Marchand facturé par Shopify** : ni trimestriel ni mois offert affichés (Shopify gère
+  l'abonnement et son essai).
 - **Offre de bienvenue** : « 1er trimestre à 247,50 € », le badge −50 % et le mois
   offert ne s'affichent pas dans la facturation d'un client qui n'y a plus droit
   (`peutAvoirUneOffreDeBienvenue`).

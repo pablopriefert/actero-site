@@ -2783,7 +2783,7 @@ describe('la facturation du tableau de bord', () => {
     // trimestre et le bouton mensuel : sinon la page annoncerait un −50 % ou un
     // mois offert que Checkout refuserait.
     expect(src).toMatch(/peutAvoirUneOffreDeBienvenue\(client\)/)
-    expect(src).toMatch(/'mensuel' && offreBienvenue \? joursEssaiPour\(client\)/)
+    expect(src).toMatch(/'mensuel' && offreBienvenue && !boutiqueShopify \? joursEssaiPour\(client\)/)
   })
 })
 ```
@@ -2996,7 +2996,8 @@ remplacer :
 par :
 
 ```js
-              const jours = periodeEffective === 'mensuel' && offreBienvenue ? joursEssaiPour(client) : undefined
+              // Shopify facture et gère lui-même l'abonnement : aucun mois offert à annoncer.
+              const jours = periodeEffective === 'mensuel' && offreBienvenue && !boutiqueShopify ? joursEssaiPour(client) : undefined
 ```
 
 et remplacer :
