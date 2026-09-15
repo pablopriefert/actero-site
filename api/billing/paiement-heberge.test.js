@@ -17,3 +17,18 @@ describe('le MRR de l’admin', () => {
     expect(src).toMatch(/mensualiteCentimes\(/)
   })
 })
+
+describe('la facturation du tableau de bord', () => {
+  it('propose les trois formules et attend le webhook après un changement immédiat', () => {
+    const src = sansCommentaires(readFileSync('src/components/client/ClientBillingView.jsx', 'utf8'))
+    expect(src).toMatch(/<SelecteurFormule/)
+    expect(src).toMatch(/PERIODE_API\[/)
+    expect(src, 'l’ancien toggle mensuel/annuel est toujours là').not.toMatch(/setBillingPeriod|billingPeriod ===|\[billingPeriod\]/)
+    expect(src, 'le badge « -20% » est toujours là').not.toMatch(/-20%/)
+    // Même règle d'éligibilité que le serveur, pour le badge, le détail du
+    // trimestre et le bouton mensuel : sinon la page annoncerait un −50 % ou un
+    // mois offert que Checkout refuserait.
+    expect(src).toMatch(/peutAvoirUneOffreDeBienvenue\(client\)/)
+    expect(src).toMatch(/'mensuel' && offreBienvenue && boutiqueShopify === false \? joursEssaiPour\(client\)/)
+  })
+})

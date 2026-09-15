@@ -8,16 +8,17 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useToast } from '../ui/Toast'
-import { PLANS, PLAN_ORDER, getPlanConfig, getPlanHighlights } from '../../lib/plans'
+import { PLANS, PLAN_ORDER, getPlanConfig } from '../../lib/plans'
 import { resolveUpgrade } from '../../lib/billing-router'
-import { PaymentModal } from '../billing/PaymentModal'
-import { hasStripeElements } from '../../lib/stripe-client'
+import { SelecteurFormule } from '../billing/SelecteurFormule'
+import { affichagePrix } from '../../lib/affichage-formules'
+import { PERIODE_API, periodeDepuisApi } from '../../../api/lib/formules.js'
 import { resolveOrCreateClientId } from '../../lib/resolve-client'
 import { usePlan } from '../../hooks/usePlan'
 import { SectionCard } from '../ui/SectionCard'
 import { StatusPill } from '../ui/StatusPill'
 import { CreditsPurchase } from './CreditsPurchase'
-import { joursEssaiPour } from '../../../api/lib/essai-gratuit.js'
+import { joursEssaiPour, peutAvoirUneOffreDeBienvenue } from '../../../api/lib/essai-gratuit.js'
 
 // ─── Helpers ────────────────────────────────────────────────────
 const MONTH_NAMES = [
@@ -107,8 +108,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
   const toast = useToast()
   const [loadingPortal, setLoadingPortal] = useState(false)
   const [upgradingPlan, setUpgradingPlan] = useState(null)
-  const [billingPeriod, setBillingPeriod] = useState('monthly')
-  const [payModal, setPayModal] = useState(null)
+  const [periode, setPeriode] = useState('mensuel')
 
   // ── Fetch client record ───────────────────────────────────────
   const { data: client, isLoading } = useQuery({
@@ -137,6 +137,28 @@ export const ClientBillingView = ({ theme: _theme }) => {
 
   // ── Use plan hook ─────────────────────────────────────────────
   const plan = usePlan(client?.id)
+
+  // Une boutique Shopify s'abonne chez Shopify (App Store 1.2.1), qui ne
+  // propose pas le trimestriel.
+  const { data: boutiqueShopify } = useQuery({
+    queryKey: ['billing-shopify', client?.id],
+    enabled: !!client?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('client_shopify_connections')
+        .select('shop_domain')
+        .eq('client_id', client.id)
+        .maybeSingle()
+      // Une lecture ratée ne vaut pas « pas de boutique Shopify » : React Query
+      // laisse alors data à undefined, et rien qui dépend de Shopify n'est annoncé.
+      if (error) throw error
+      return !!data?.shop_domain
+    },
+  })
+  const periodeEffective = boutiqueShopify ? 'mensuel' : periode
+  // N'annoncer ni −50 % ni mois offert que Checkout refuserait : même règle que
+  // le serveur (api/lib/essai-gratuit.js), qui vérifie en plus l'historique Stripe.
+  const offreBienvenue = peutAvoirUneOffreDeBienvenue(client)
 
   // ── Stripe Portal ─────────────────────────────────────────────
   const openStripePortal = async () => {
@@ -196,18 +218,10 @@ export const ClientBillingView = ({ theme: _theme }) => {
       // Shopify-installed merchants must be billed via Shopify Billing (App
       // Store policy 1.2); direct signups fall through to Stripe below.
       const routed = await resolveUpgrade({
-        token: session?.access_token, clientId, targetPlan, billingPeriod,
+        token: session?.access_token, clientId, targetPlan, billingPeriod: PERIODE_API[periodeEffective],
       })
       if (routed.channel === 'shopify') { window.location.assign(routed.url); return }
       if (routed.channel === 'error') { toast.error(routed.message); setUpgradingPlan(null); return }
-
-      // On-site payment (Stripe Payment Element) when the publishable key is
-      // set — otherwise fall through to the hosted Checkout redirect below.
-      if (hasStripeElements()) {
-        setPayModal({ planId: targetPlan, clientId, token: session?.access_token })
-        setUpgradingPlan(null)
-        return
-      }
 
       const res = await fetch('/api/billing/upgrade', {
         method: 'POST',
@@ -218,24 +232,40 @@ export const ClientBillingView = ({ theme: _theme }) => {
         body: JSON.stringify({
           client_id: clientId,
           target_plan: targetPlan,
-          billing_period: billingPeriod,
+          billing_period: PERIODE_API[periodeEffective],
         }),
       })
       const data = await res.json()
-      if (data.instant && data.success) {
-        // Instant upgrade — no redirect needed, plan switched server-side
-        toast.success(data.message || `Plan mis a jour vers ${targetPlan} !`)
-        // Refresh plan data
-        window.location.reload()
-      } else if (data.checkout_url) {
-        // New subscription — redirect to Stripe Checkout
+      // Contrat de api/billing/upgrade.js (Task 5 bis) : chaque 200 porte un
+      // `statut`, chaque erreur un code (`error`) et une phrase (`message`).
+      if (data.statut === 'checkout') {
         window.location.assign(data.checkout_url)
-      } else if (data.error === 'Stripe not configured') {
-        toast.error('Paiement indisponible. Contactez le support.')
+        return
+      } else if (data.statut === 'paiement_a_valider' || (data.error === 'paiement_refuse' && data.facture_url)) {
+        // La différence se valide, ou se règle avec une autre carte, sur la
+        // facture Stripe : le plan s'applique une fois payée.
+        if (data.error) toast.error(data.message)
+        else toast.info(data.message)
+        window.location.assign(data.facture_url)
+        return
+      } else if (data.statut === 'change_applique') {
+        toast.success(data.message)
+        // La route n'écrit pas le plan : le webhook Stripe l'accorde une fois le
+        // paiement confirmé. On l'attend quelques secondes avant de recharger.
+        for (let i = 0; i < 10; i++) {
+          await new Promise((r) => setTimeout(r, 1000))
+          const { data: ligne } = await supabase.from('clients').select('plan').eq('id', clientId).maybeSingle()
+          if (ligne?.plan === targetPlan) break
+        }
+        window.location.reload()
+        return
+      } else if (data.statut === 'paiement_en_cours') {
+        toast.info(data.message)
       } else if (data.error === 'enterprise_contact') {
         window.open(data.calendly_url || 'https://calendly.com/actero-fr/30min', '_blank')
       } else {
-        toast.error(data.message || data.error || 'Erreur lors de la mise a niveau')
+        // Jamais le code brut (`abonnement_en_cours`…) : la phrase prévue pour le marchand.
+        toast.error(data.message || 'Paiement indisponible. Contactez le support.')
       }
     } catch (err) {
       toast.error('Erreur: ' + err.message)
@@ -253,7 +283,10 @@ export const ClientBillingView = ({ theme: _theme }) => {
   }
 
   const planConfig = plan.config || getPlanConfig('free')
-  const currentPrice = planConfig.price?.[billingPeriod]
+  // Le prix affiché pour le plan actuel est celui de SA formule, pas celle du
+  // sélecteur.
+  const periodeActuelle = periodeDepuisApi(client?.billing_period) || 'mensuel'
+  const affichageActuel = ['starter', 'pro'].includes(plan.planId) ? affichagePrix(plan.planId, periodeActuelle, { offreBienvenue: false }) : null
   // Hard cap — no overage billing. Once the monthly quota is reached the agent
   // stops answering until the merchant buys credits or upgrades.
   const quotaReached = !!plan.isOverLimit
@@ -295,10 +328,10 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <div className="flex flex-col">
               <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Prix</span>
               <span className="text-lg font-bold text-[#1a1a1a] tabular-nums leading-tight">
-                {formatPrice(currentPrice)}
+                {affichageActuel ? affichageActuel.principal : formatPrice(planConfig.price?.monthly)}
               </span>
               <span className="text-[10px] text-[#9ca3af]">
-                {currentPrice > 0 ? '/ mois' : ''}
+                {affichageActuel ? affichageActuel.suffixe.replace('/', '/ ') : ''}
               </span>
             </div>
             <div className="w-px h-10 bg-gray-200" />
@@ -348,7 +381,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
               <div className="mt-1.5 h-1.5 rounded-full bg-amber-200 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-amber-500 transition-all"
-                  style={{ width: `${Math.max(5, 100 - (plan.trialDaysLeft / 7) * 100)}%` }}
+                  style={{ width: `${Math.max(5, 100 - (plan.trialDaysLeft / 30) * 100)}%` }}
                 />
               </div>
             </div>
@@ -358,11 +391,11 @@ export const ClientBillingView = ({ theme: _theme }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[28px] font-bold text-[#1a1a1a] tabular-nums">
-              {formatPrice(currentPrice)}
+              {affichageActuel ? affichageActuel.principal : formatPrice(planConfig.price?.monthly)}
             </p>
-            {currentPrice > 0 && (
+            {affichageActuel && (
               <p className="text-[11px] text-[#9ca3af]">
-                par mois{billingPeriod === 'annual' ? ' (facturé annuellement)' : ''}
+                {affichageActuel.suffixe.replace('/', 'par ')}{affichageActuel.detail ? ` · ${affichageActuel.detail}` : ''}
               </p>
             )}
           </div>
@@ -422,30 +455,9 @@ export const ClientBillingView = ({ theme: _theme }) => {
             <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Changer de plan</h3>
             <p className="text-[12px] text-[#9ca3af] mt-0.5">Comparez les options et passez au niveau superieur</p>
           </div>
-          {/* Billing period toggle */}
-          <div className="flex items-center gap-1 p-1 rounded-lg bg-surface">
-            <button
-              onClick={() => setBillingPeriod('monthly')}
-              className={`px-3 py-1.5 text-[11px] font-semibold rounded-md transition-colors ${
-                billingPeriod === 'monthly'
-                  ? 'bg-white text-[#1a1a1a] shadow-sm'
-                  : 'text-[#71717a] hover:text-[#1a1a1a]'
-              }`}
-            >
-              Mensuel
-            </button>
-            <button
-              onClick={() => setBillingPeriod('annual')}
-              className={`px-3 py-1.5 text-[11px] font-semibold rounded-md transition-colors ${
-                billingPeriod === 'annual'
-                  ? 'bg-white text-[#1a1a1a] shadow-sm'
-                  : 'text-[#71717a] hover:text-[#1a1a1a]'
-              }`}
-            >
-              Annuel
-              <span className="ml-1 text-[10px] text-cta">-20%</span>
-            </button>
-          </div>
+          {!boutiqueShopify && (
+            <SelecteurFormule periode={periode} onChange={setPeriode} taille="petite" offreBienvenue={offreBienvenue} />
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -455,7 +467,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
             const isCurrent = plan.planId === planKey
             const isDowngrade = PLAN_ORDER.indexOf(planKey) <= PLAN_ORDER.indexOf(plan.planId)
             const isEnterprise = planKey === 'enterprise'
-            const price = p.price?.[billingPeriod]
+            const affichage = isEnterprise ? null : affichagePrix(planKey, periodeEffective, { offreBienvenue })
             const PlanIcon = PLAN_ICONS[planKey] || Zap
             const features = PLAN_FEATURES_SHORT[planKey] || []
 
@@ -473,7 +485,9 @@ export const ClientBillingView = ({ theme: _theme }) => {
               // bouton qui annonce sept jours à quelqu'un qui en aura trente
               // est un mensonge dans le sens gentil — celui qui annoncerait
               // trente pour sept est un remboursement.
-              const jours = joursEssaiPour(client)
+              // Shopify facture et gère lui-même l'abonnement : aucun mois offert à
+              // annoncer, ni tant qu'on ne sait pas encore si la boutique est sur Shopify.
+              const jours = periodeEffective === 'mensuel' && offreBienvenue && boutiqueShopify === false ? joursEssaiPour(client) : undefined
               ctaText = jours
                 ? `Passer au ${p.name} — ${jours} jours gratuits`
                 : `Passer au ${p.name}`
@@ -511,10 +525,13 @@ export const ClientBillingView = ({ theme: _theme }) => {
 
                   <div className="mb-4">
                     <span className="text-[24px] font-bold text-[#1a1a1a] tabular-nums">
-                      {formatPrice(price)}
+                      {affichage ? affichage.principal : formatPrice(p.price?.monthly)}
                     </span>
-                    {price > 0 && (
-                      <span className="text-[11px] text-[#9ca3af] ml-1">/mois</span>
+                    {affichage && (
+                      <span className="text-[11px] text-[#9ca3af] ml-1">{affichage.suffixe}</span>
+                    )}
+                    {affichage?.detail && (
+                      <p className="text-[11px] text-[#9ca3af] mt-0.5">{affichage.detail}</p>
                     )}
                   </div>
 
@@ -536,7 +553,7 @@ export const ClientBillingView = ({ theme: _theme }) => {
                       if (isDowngrade) { openStripePortal(); return }
                       handleUpgrade(planKey)
                     }}
-                    disabled={isCurrent || upgradingPlan === planKey || (isDowngrade && loadingPortal)}
+                    disabled={isCurrent || !!upgradingPlan || (isDowngrade && loadingPortal)}
                     className={`w-full py-2.5 rounded-lg text-[12px] font-semibold transition-colors ${
                       isCurrent
                         ? 'bg-surface text-[#9ca3af] cursor-default'
@@ -592,17 +609,6 @@ export const ClientBillingView = ({ theme: _theme }) => {
           </div>
         )}
       </SectionCard>
-
-      <PaymentModal
-        open={!!payModal}
-        onClose={() => setPayModal(null)}
-        plan={payModal ? PLANS[payModal.planId] : null}
-        billingPeriod={billingPeriod}
-        highlights={payModal ? getPlanHighlights(payModal.planId) : []}
-        clientId={payModal?.clientId}
-        token={payModal?.token}
-        onSuccess={() => window.location.assign('/client/overview?upgrade=success')}
-      />
     </div>
   )
 }
