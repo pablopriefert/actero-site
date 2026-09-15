@@ -644,6 +644,12 @@ git commit -m "fix(facturation): le webhook retrouve le plan de toutes les formu
 
 ---
 
+### Task 3 bis : le webhook tient face aux pannes et aux vieux abonnements — LIVRÉE
+
+Faite à la relecture qualité de la Task 3. `resolveCustomerCard(..., { strict: true })` relance une erreur Stripe au lieu de valoir « aucune carte » ; le webhook ne cherche la carte que si elle peut accorder un plan (`doitResoudreLaCarte`), et sur erreur libère la réservation de l'événement et répond 500 pour que Stripe réessaie. `ecritureAutorisee(miseAJour, client, subscription)` : seul l'abonnement courant (`clients.stripe_subscription_id`) peut rétrograder un client ; un accord pose `stripe_subscription_id` s'il est vide. `formuleDeLAbonnement` sert à la fois au plan et à l'alerte « hors catalogue », qui se tait pour un client ayant déjà un plan payant. L'analytics d'upgrade part de `session.metadata.upgrade_from`. La route de paiement (Task 5) garde `resolveCustomerCard` en mode non strict : sur panne, elle passe par Checkout.
+
+---
+
 ### Task 4 : les paramètres de la session Checkout, et deux lectures Stripe
 
 **Files :**
