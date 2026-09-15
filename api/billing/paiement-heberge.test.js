@@ -34,6 +34,13 @@ describe('la facturation du tableau de bord', () => {
 })
 
 describe('la formule suit le visiteur', () => {
+  it('la page tarifs mémorise la formule choisie avant l’inscription', () => {
+    const src = sansCommentaires(readFileSync('src/pages/PricingPage.jsx', 'utf8'))
+    expect(src).toMatch(/memoriserFormuleChoisie\(/)
+    expect(src).toMatch(/<SelecteurFormule/)
+    expect(src, 'le vieux toggle mensuel/annuel est toujours là').not.toMatch(/isAnnual/)
+  })
+
   it('la page de choix du plan ne code plus la période en dur', () => {
     const src = sansCommentaires(readFileSync('src/pages/PlanSelectionPage.jsx', 'utf8'))
     expect(src).not.toMatch(/billingPeriod: "monthly"|billing_period: "monthly"|billingPeriod="monthly"/)
