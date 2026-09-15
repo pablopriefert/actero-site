@@ -401,6 +401,12 @@ Faite à la relecture qualité de la Task 2 : le contrat devient `offreDeBienven
 
 ---
 
+### Task 2 ter : une seule règle d'éligibilité — LIVRÉE
+
+`peutAvoirUneOffreDeBienvenue(client)` (un essai déjà pris, un abonnement Stripe en cours ou une facturation Stripe passée ferment l'offre) est utilisée par `offreDeBienvenue` et par la facturation du tableau de bord (Task 11), bouton mensuel compris. `offreDeBienvenue` lève en nommant chaque colonne non lue : `trial_ends_at`, `billing_provider`, `stripe_subscription_id`, `referral_first_month_free`, `campaign_first_month_free`.
+
+---
+
 ### Task 3 : le plan d'un abonnement se lit dans le catalogue
 
 **Files :**
@@ -1069,7 +1075,7 @@ describe('POST /api/billing/upgrade', () => {
     await handler(post(), res)
     expect(res.statusCode).toBe(200)
     const colonnes = h.selectsClients.join(',')
-    for (const c of ['trial_ends_at', 'billing_provider', 'referral_first_month_free', 'campaign_first_month_free']) {
+    for (const c of ['trial_ends_at', 'billing_provider', 'stripe_subscription_id', 'referral_first_month_free', 'campaign_first_month_free']) {
       expect(colonnes, c).toContain(c)
     }
   })
@@ -2773,9 +2779,11 @@ describe('la facturation du tableau de bord', () => {
     expect(src).toMatch(/PERIODE_API\[/)
     expect(src, 'l’ancien toggle mensuel/annuel est toujours là').not.toMatch(/setBillingPeriod|billingPeriod ===|\[billingPeriod\]/)
     expect(src, 'le badge « -20% » est toujours là').not.toMatch(/-20%/)
-    // Un client résilié n'a plus de stripe_subscription_id : sans ce marqueur, il
-    // se verrait annoncer un −50 % que Checkout ne lui accordera pas.
-    expect(src).toMatch(/billing_provider !== 'stripe'/)
+    // Même règle d'éligibilité que le serveur, pour le badge, le détail du
+    // trimestre et le bouton mensuel : sinon la page annoncerait un −50 % ou un
+    // mois offert que Checkout refuserait.
+    expect(src).toMatch(/peutAvoirUneOffreDeBienvenue\(client\)/)
+    expect(src).toMatch(/'mensuel' && offreBienvenue \? joursEssaiPour\(client\)/)
   })
 })
 ```
@@ -2802,6 +2810,8 @@ import { SelecteurFormule } from '../billing/SelecteurFormule'
 import { affichagePrix } from '../../lib/affichage-formules'
 import { PERIODE_API, periodeDepuisApi } from '../../../api/lib/formules.js'
 ```
+
+puis `import { joursEssaiPour } from '../../../api/lib/essai-gratuit.js'` par `import { joursEssaiPour, peutAvoirUneOffreDeBienvenue } from '../../../api/lib/essai-gratuit.js'`.
 
 2. Remplacer :
 
@@ -2834,12 +2844,9 @@ par :
     },
   })
   const periodeEffective = boutiqueShopify ? 'mensuel' : periode
-  // Le −50 % du premier trimestre ne vaut qu'une fois par client : ni pour un
-  // client abonné ou qui l'a été, ni pour celui qui a eu un essai. Le serveur
-  // tranche (offreDeBienvenue) ; ici, on évite seulement de l'annoncer à tort.
-  // La résiliation remet stripe_subscription_id à null : c'est billing_provider,
-  // posé par le webhook et jamais effacé, qui garde la trace d'un ancien abonné.
-  const offreBienvenue = !client?.trial_ends_at && !client?.stripe_subscription_id && client?.billing_provider !== 'stripe'
+  // N'annoncer ni −50 % ni mois offert que Checkout refuserait : même règle que
+  // le serveur (api/lib/essai-gratuit.js), qui vérifie en plus l'historique Stripe.
+  const offreBienvenue = peutAvoirUneOffreDeBienvenue(client)
 ```
 
 4. Dans `handleUpgrade`, remplacer :
@@ -2989,7 +2996,7 @@ remplacer :
 par :
 
 ```js
-              const jours = periodeEffective === 'mensuel' ? joursEssaiPour(client) : undefined
+              const jours = periodeEffective === 'mensuel' && offreBienvenue ? joursEssaiPour(client) : undefined
 ```
 
 et remplacer :

@@ -101,14 +101,20 @@ chaque prix par sa clé (`stripe.prices.list({ lookup_keys })`). Les quatre vari
 | trimestriel | `{ couponId }`, le coupon de la formule lu dans le catalogue | `{}` |
 | annuel | `{}` | `{}` |
 
-Éligible = `dejaAbonne` faux, `client.trial_ends_at` vide **et** `client.billing_provider`
-différent de `'stripe'` (posé par le webhook, jamais effacé à la résiliation). Le coupon
+Éligible = `dejaAbonne` faux **et** `peutAvoirUneOffreDeBienvenue(client)` : pas d'essai
+déjà pris, pas de `stripe_subscription_id`, `billing_provider` différent de `'stripe'`
+(posé par le webhook, jamais effacé à la résiliation). La facturation du tableau de bord
+utilise la même fonction, bouton mensuel compris. Le coupon
 vient du catalogue (`formule.coupon`) : une seule source pour l'affichage, Stripe et le
 serveur. Une valeur non lue (`dejaAbonne` non booléen, colonne absente du `.select()`,
 formule hors catalogue) lève. `dejaAbonne` est lu
 par la route chez Stripe (`stripe.subscriptions.list({ customer, status: 'all',
 limit: 1 })`). Si la lecture échoue, la route répond une erreur : on n'accorde rien
 sur un « je ne sais pas ».
+
+Limite acceptée : un ancien abonné Stripe résilié avant que le webhook ne pose
+`billing_provider` a une fiche vide. La facturation peut lui annoncer l'offre ; le
+serveur la refuse (historique Stripe) et Checkout affiche le vrai montant.
 
 ### 3. La route — `api/billing/upgrade.js`
 
@@ -165,8 +171,9 @@ sur un « je ne sais pas ».
 - **La formule suit le visiteur** : `/tarifs` la mémorise, la page de choix du plan la
   relit (ou `?formule=`), et ne code plus « monthly » en dur.
 - **Marchand facturé par Shopify** : pas de trimestriel affiché.
-- **Offre de bienvenue** : « 1er trimestre à 247,50 € » et le badge −50 % ne
-  s'affichent pas dans la facturation d'un client déjà abonné ou qui a eu un essai.
+- **Offre de bienvenue** : « 1er trimestre à 247,50 € », le badge −50 % et le mois
+  offert ne s'affichent pas dans la facturation d'un client qui n'y a plus droit
+  (`peutAvoirUneOffreDeBienvenue`).
 - **Paiement** : tout bouton payant appelle `/api/billing/upgrade`, puis redirige vers
   Stripe. Après un changement immédiat, le front attend que le webhook ait écrit le
   nouveau plan.
