@@ -1,46 +1,56 @@
 # ─────────────────────────────────────────────────────────────
 # Actero — robots.txt
-# AI-search-friendly: inference-time crawlers ALLOWED (for citation in
-# ChatGPT / Google AI Overviews / Perplexity). Training-only crawlers
-# BLOCKED per EU Directive 2019/790 Article 4 TDM opt-out.
+# RFC 9309: consecutive "User-agent:" lines form ONE group that shares
+# the rules below them. A crawler obeys only the most specific group
+# naming it — if it has its own group, it ignores every Disallow in the
+# "*" group. So every crawler we mean to ALLOW (with the site's normal
+# Disallow list applied) must sit inside the SAME group as "*", not in
+# a separate "Allow: /" group of its own.
+#
+# Traditional search engines and AI search/citation crawlers (real-time
+# answer generation, not training) are allowed below. GPTBot and
+# ClaudeBot are TRAINING crawlers — normally opted out like the block
+# further down — but allowed here on purpose. Other training-only
+# crawlers stay BLOCKED per EU Directive 2019/790 Article 4 TDM opt-out.
 # ─────────────────────────────────────────────────────────────
 
-# AI search / citation crawlers — ALLOW (real-time answer generation)
-User-agent: GPTBot
-Allow: /
-
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Perplexity-User
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: Claude-Web
-Allow: /
-
-User-agent: Applebot-Extended
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
+# Traditional search engines
 User-agent: Googlebot
-Allow: /
-
+User-agent: Bingbot
 User-agent: DuckDuckBot
+# AI search / citation crawlers (real-time answer generation, not training)
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+# Training crawlers, allowed here voluntarily — unlike the block below
+User-agent: GPTBot
+User-agent: ClaudeBot
+# Other AI crawler extensions, allowed
+User-agent: Google-Extended
+User-agent: Claude-Web
+User-agent: Applebot-Extended
+# Everything else not named in a group of its own
+User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /client
+Disallow: /app
+Disallow: /api/
+Disallow: /ambassador/dashboard
+Disallow: /login
+Disallow: /reset-password
+Disallow: /setup-password
+Disallow: /auth/
+Disallow: /start/
+Disallow: /success
+Disallow: /cancel
+Disallow: /shopify-success
+Disallow: /payment/
+Disallow: /demo
+Disallow: /demo-prospect
 
 # Training-only crawlers — BLOCK (EU TDM opt-out per Directive 2019/790 Art. 4)
 User-agent: CCBot
@@ -63,25 +73,5 @@ Disallow: /
 
 User-agent: meta-externalagent
 Disallow: /
-
-# All other crawlers — default policy
-User-agent: *
-Allow: /
-Disallow: /admin
-Disallow: /client
-Disallow: /app
-Disallow: /api/
-Disallow: /ambassador/dashboard
-Disallow: /login
-Disallow: /reset-password
-Disallow: /setup-password
-Disallow: /auth/
-Disallow: /start/
-Disallow: /success
-Disallow: /cancel
-Disallow: /shopify-success
-Disallow: /payment/
-Disallow: /demo
-Disallow: /demo-prospect
 
 Sitemap: https://actero.fr/sitemap.xml

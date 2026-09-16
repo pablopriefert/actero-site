@@ -13,6 +13,7 @@
         { "source": "/resources", "destination": "/ressources", "permanent": true },
         { "source": "/help", "destination": "/support", "permanent": true },
         { "source": "/contact", "destination": "/support", "permanent": true },
+        { "source": "/startup", "destination": "/startups", "permanent": true },
 
         { "source": "/alternative-gorgias/", "destination": "/alternative-gorgias", "permanent": true },
         { "source": "/alternative-tidio/", "destination": "/alternative-tidio", "permanent": true },
@@ -143,9 +144,26 @@
             ]
         },
         {
+            "source": "/assets/(.*)",
+            "headers": [
+                { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+            ]
+        },
+        {
+            "source": "/(admin|client|app|api|payment|success|cancel|login|auth|reset-password|setup-password|start|signup|demo|demo-prospect)(/.*)?",
+            "headers": [
+                { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+            ]
+        },
+        {
+            "source": "/((?!(admin|client|app|api|payment|success|cancel|login|auth|reset-password|setup-password|start|signup|demo|demo-prospect)(/|$)).*)",
+            "headers": [
+                { "key": "X-Robots-Tag", "value": "index, follow" }
+            ]
+        },
+        {
             "source": "/(.*)",
             "headers": [
-                { "key": "X-Robots-Tag", "value": "index, follow" },
                 { "key": "X-Content-Type-Options", "value": "nosniff" },
                 { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
                 { "key": "Permissions-Policy", "value": "geolocation=(), camera=(), microphone=()" }

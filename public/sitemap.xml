@@ -2,9 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://actero.fr/</loc></url>
   <url><loc>https://actero.fr/tarifs</loc></url>
+  <url><loc>https://actero.fr/produit</loc></url>
   <url><loc>https://actero.fr/entreprise</loc></url>
   <url><loc>https://actero.fr/faq</loc></url>
   <url><loc>https://actero.fr/audit</loc></url>
+  <url><loc>https://actero.fr/startups</loc></url>
   <url><loc>https://actero.fr/ambassadeurs</loc></url>
   <url><loc>https://actero.fr/support</loc></url>
   <url><loc>https://actero.fr/ressources</loc></url>
@@ -20,10 +22,9 @@
   <url><loc>https://actero.fr/alternative-reamaze</loc></url>
   <url><loc>https://actero.fr/alternative-eesel</loc></url>
   <url><loc>https://actero.fr/alternative-crisp-hugo</loc></url>
-  <url><loc>https://actero.fr/gorgias-vs-actero</loc></url>
-  <url><loc>https://actero.fr/tidio-vs-actero</loc></url>
-  <url><loc>https://actero.fr/zendesk-vs-actero</loc></url>
   <url><loc>https://actero.fr/intercom-vs-actero</loc></url>
   <url><loc>https://actero.fr/eesel-vs-actero</loc></url>
   <url><loc>https://actero.fr/calculateur-gorgias</loc></url>
+  <url><loc>https://actero.fr/partners</loc></url>
+  <url><loc>https://actero.fr/partners/apply</loc></url>
 </urlset>
