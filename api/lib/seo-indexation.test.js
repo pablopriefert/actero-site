@@ -159,7 +159,7 @@ describe('sitemap.xml — seulement des pages réellement servies', () => {
 })
 
 describe('vercel.json — X-Robots-Tag suit le caractère privé de la route', () => {
-  const PRIVEES = ['/admin/x', '/client', '/signup/plan', '/start/abc']
+  const PRIVEES = ['/admin/x', '/client', '/signup/plan', '/start/abc', '/shopify-success']
   const PUBLIQUES = ['/', '/tarifs', '/startups', '/produit']
 
   it.each(PRIVEES)('%s ne reçoit que noindex', (path) => {

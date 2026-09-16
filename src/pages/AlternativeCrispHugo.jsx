@@ -23,25 +23,25 @@ export const AlternativeCrispHugo = ({ onNavigate }) => {
     seo: {
       title: 'Alternative à Crisp Hugo AI — Actero | Agent IA Shopify FR',
       description:
-        "Crisp Hugo AI séduit, mais l'usage illimité est verrouillé derrière le plan Plus 295 €/mois. Actero offre un agent IA autonome spécialisé Shopify dès 99 €/mois, IA illimitée, ROI prouvable. RGPD natif, hébergé UE.",
+        "Crisp réserve l'IA illimitée à son plan Plus à 295 €/mois. Actero est un agent IA spécialisé Shopify dès 99 €/mois, hébergé en UE, conforme RGPD.",
       keywords:
         'alternative crisp hugo, hugo ai alternative, crisp hugo ai vs actero, agent ia conversation alternative, crisp plus alternative, hugo ai français',
     },
 
     hero: {
       subtitle:
-        "Hugo AI est l'agent que Crisp a lancé le 22 avril 2026 pour rivaliser avec les agents IA spécialisés — il a fait #1 sur Product Hunt. Mais l'usage illimité est verrouillé derrière le plan Crisp Plus à 295 €/mois. Actero est un agent IA autonome spécialisé Shopify, IA illimitée incluse dès 99 €/mois, avec ROI prouvable au CFO.",
+        "Hugo AI est l'agent que Crisp a lancé le 22 avril 2026 pour rivaliser avec les agents IA spécialisés — il a fait #1 sur Product Hunt. Mais l'usage illimité est verrouillé derrière le plan Crisp Plus à 295 €/mois. Actero est un agent IA autonome spécialisé Shopify : dès 99 €/mois, 1 000 tickets inclus, sans facturation à l'usage.",
     },
 
     comparison: [
       {
-        label: 'Prix d\'entrée IA illimitée',
-        actero: { main: '99 €/mois', sub: 'Starter — IA illimitée' },
+        label: 'Prix d\'entrée de l\'agent IA',
+        actero: { main: '99 €/mois', sub: 'Starter — 1 000 tickets inclus' },
         competitor: { main: '295 €/mois', sub: 'Plus — Hugo illimité' },
       },
       {
         label: 'Plan inférieur (limites)',
-        actero: { main: '0 €/mois', sub: 'Free 50 tickets — IA illimitée' },
+        actero: { main: '0 €/mois', sub: 'Free — 50 tickets/mois' },
         competitor: { main: '95 €/mois', sub: 'Essentials — Hugo limité ~50 usages' },
       },
       {

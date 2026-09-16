@@ -151,13 +151,13 @@ const ROUTES = [
   {
     path: '/alternative-eesel',
     title: 'Alternative à eesel AI pour Shopify — Actero | Forfait fixe FR',
-    description: "eesel AI facture 0,40 $/ticket en pay-as-you-go : facture imprévisible au scaling, anglais, hébergé US. Actero est un forfait fixe en français, hébergé UE, RGPD natif, dès 99 €/mois. SMTP du marchand, lookup Shopify live et ROI prouvable inclus.",
+    description: "eesel AI facture 0,40 $ par ticket : la facture grimpe avec le volume. Actero est un forfait fixe dès 99 €/mois, en français, hébergé en UE.",
     h1: 'Alternative à eesel AI',
   },
   {
     path: '/alternative-crisp-hugo',
     title: 'Alternative à Crisp Hugo AI — Actero | Agent IA Shopify FR',
-    description: "Crisp Hugo AI séduit, mais l'usage illimité est verrouillé derrière le plan Plus 295 €/mois. Actero offre un agent IA autonome spécialisé Shopify dès 99 €/mois, IA illimitée, ROI prouvable. RGPD natif, hébergé UE.",
+    description: "Crisp réserve l'IA illimitée à son plan Plus à 295 €/mois. Actero est un agent IA spécialisé Shopify dès 99 €/mois, hébergé en UE, conforme RGPD.",
     h1: 'Alternative à Crisp Hugo AI',
   },
   {
@@ -169,7 +169,7 @@ const ROUTES = [
   {
     path: '/eesel-vs-actero',
     title: 'eesel AI vs Actero — Comparatif détaillé 2026 | Lequel choisir ?',
-    description: "Comparatif factuel eesel AI vs Actero : pricing PAYG vs forfait fixe, RGPD, langue, spécialisation Shopify. Sur 5 000 tickets/mois, eesel coûte ~2 000 $/mois, Actero 399 €/mois. Verdict détaillé pour marchands Shopify FR.",
+    description: "eesel AI ou Actero : paiement au ticket ou forfait fixe. À 5 000 tickets/mois, eesel coûte ~2 000 $, Actero 399 €. Comparatif pour marchands Shopify.",
     h1: 'eesel AI vs Actero',
   },
   {

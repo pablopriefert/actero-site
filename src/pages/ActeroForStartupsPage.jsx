@@ -69,9 +69,8 @@ export const ActeroForStartupsPage = ({ onNavigate }) => {
     <>
       <SEO
         title="Actero for Startups — -50% pendant 6 mois"
-        description="Programme Actero for Startups : automatisez votre support e-commerce des le lancement avec -50% pendant 6 mois."
+        description="Programme Actero for Startups : automatisez votre support e-commerce dès le lancement avec -50 % pendant 6 mois."
         canonical="/startups"
-        noIndex={true}
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626]">
         <Navbar onNavigate={onNavigate} />
