@@ -76,7 +76,7 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
               }}
               className="hidden sm:inline-flex items-center px-[18px] py-2 rounded-full bg-[#1A1A1A] hover:bg-black text-white text-[14px] font-medium tracking-[-0.01em] transition-colors"
             >
-              Demarrer gratuitement
+              Démarrer gratuitement
             </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -102,6 +102,17 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
             transition={{ duration: 0.2 }}
             className="mt-3 mx-auto max-w-[1320px] bg-white border border-[#E6E8EC] rounded-3xl shadow-xl p-6 space-y-1"
           >
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                trackEvent?.("Header_CTA_Clicked", { location: "mobile_menu" });
+                onNavigate('/signup');
+              }}
+              className="w-full flex items-center justify-center gap-2 mb-2 px-[18px] py-3 rounded-full bg-cta hover:bg-cta-hover text-white text-[14px] font-semibold tracking-[-0.01em] transition-colors"
+            >
+              Démarrer gratuitement
+            </button>
+
             {[
               {
                 label: "Produit",
@@ -111,7 +122,7 @@ export const Navbar = ({ onNavigate, trackEvent }) => {
                 },
               },
               {
-                label: "Tarification",
+                label: "Tarifs",
                 action: () => {
                   setIsMobileMenuOpen(false);
                   onNavigate("/tarifs");

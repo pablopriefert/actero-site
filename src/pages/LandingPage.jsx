@@ -108,39 +108,6 @@ export const LandingPage = ({ onNavigate }) => {
 
   const serif = { fontFamily: 'var(--font-display, "Inter Tight", ui-sans-serif, sans-serif)' }
 
-  const landingSchema = [
-    {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: 'Actero',
-      url: 'https://actero.fr',
-      logo: 'https://actero.fr/favicon-192.png',
-      description: "Plateforme SaaS d'automatisation IA pour e-commerce Shopify",
-      foundingDate: '2026',
-      founders: [
-        { '@type': 'Person', name: 'Pablo Priefert-Vallette' },
-        { '@type': 'Person', name: 'Gaspard Ain' },
-      ],
-      contactPoint: {
-        '@type': 'ContactPoint',
-        email: 'contact@actero.fr',
-        contactType: 'sales',
-      },
-      sameAs: ['https://www.linkedin.com/company/actero'],
-    },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: 'Actero',
-      url: 'https://actero.fr/',
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: 'https://actero.fr/?q={search_term_string}',
-        'query-input': 'required name=search_term_string',
-      },
-    },
-  ]
-
   /* ═════════════════════════════════════════════════════════════════
      RENDER — Funnel order :
        1. Hero (3 piliers + announcement + gradient)
@@ -160,7 +127,6 @@ export const LandingPage = ({ onNavigate }) => {
         keywords="agent IA e-commerce, SAV Shopify automatisé, relance panier abandonné IA, automatisation workflows Shopify, alternative Gorgias, agent IA français"
         canonical="/"
         ogImage="https://actero.fr/og-image.png"
-        schemaData={landingSchema}
       />
 
       <div className="relative min-h-screen bg-white font-sans text-[#262626] overflow-x-hidden">

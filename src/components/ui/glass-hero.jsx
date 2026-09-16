@@ -34,7 +34,7 @@ export const GlassHero = ({ onNavigate }) => {
               className="inline-flex items-center gap-2 rounded-full bg-surface border border-[#E6E8EC] py-1.5 pl-1.5 pr-3.5 text-[13px] font-semibold text-[#1A1A1A] hover:border-[#8B7A50]/40 transition-colors"
             >
               <span className="rounded-full bg-white border border-[#E6E8EC] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[#8B7A50]">
-                Soutenu par
+                Basé à
               </span>
               <img
                 src="/stationf-logo.png"
@@ -61,7 +61,7 @@ export const GlassHero = ({ onNavigate }) => {
               <br />
               client pour{' '}
               <span className="font-normal italic text-[#8B7A50]" style={fontDisplay}>
-                le e-commerce
+                l&apos;e-commerce
               </span>
             </h1>
           </FadeInUp>
@@ -73,6 +73,24 @@ export const GlassHero = ({ onNavigate }) => {
               suit les commandes et relance les paniers abandonnés — dans votre ton de
               marque, 24/7.
             </p>
+          </FadeInUp>
+
+          {/* Primary signup CTA — visible dès le premier écran, mobile compris.
+              Le CTA de la démo ci-dessous (HeroPrompt) ne s'affiche qu'après une
+              réponse : sans ce bouton, le premier lien d'inscription arrivait à
+              58 % de la page sur téléphone. Même destination que le bouton de
+              l'en-tête. */}
+          <FadeInUp delay={0.1} className="mb-10">
+            <button
+              onClick={() => {
+                trackEvent('Hero_Primary_CTA_Clicked')
+                onNavigate && onNavigate('/signup')
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-cta hover:bg-cta-hover text-white px-7 py-3.5 text-[15px] font-semibold transition-colors"
+            >
+              Démarrer gratuitement
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </FadeInUp>
 
           {/* AI prompt box */}

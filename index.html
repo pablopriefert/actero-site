@@ -11,8 +11,8 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://actero.fr/" />
 
-  <!-- Mona Sans — GitHub open source font -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/github/mona-sans@v1.0.1/dist/mona-sans.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- Structured Data — Organization -->
   <script type="application/ld+json">
@@ -32,10 +32,7 @@
         "@type": "ContactPoint",
         "email": "contact@actero.fr",
         "contactType": "sales"
-      },
-      "sameAs": [
-        "https://www.linkedin.com/company/actero"
-      ]
+      }
     }
   </script>
 
@@ -53,8 +50,6 @@
   <title>Actero — Automatisation IA pour E-commerce Shopify</title>
   <meta name="description"
     content="Actero automatise le support client e-commerce avec des agents IA. Commencez gratuitement, sans carte bancaire." />
-  <meta name="keywords"
-    content="agent IA e-commerce, automatisation Shopify, agent SAV IA, SaaS IA France, support client IA" />
 
   <!-- Open Graph / Facebook / LinkedIn -->
   <meta property="og:type" content="website" />
@@ -85,10 +80,12 @@
   </script>
 
   <!-- Amplitude Setup -->
-  <script src="https://cdn.eu.amplitude.com/script/8d23fc0b05efe38b235cb209e32af315.js"></script>
+  <script src="https://cdn.eu.amplitude.com/script/8d23fc0b05efe38b235cb209e32af315.js" defer></script>
   <script>
-    window.amplitude.add(window.sessionReplay.plugin({ sampleRate: 1 }));
-    window.amplitude.init('8d23fc0b05efe38b235cb209e32af315', { "fetchRemoteConfig": true, "serverZone": "EU", "autocapture": true });
+    document.addEventListener('DOMContentLoaded', function () {
+      window.amplitude.add(window.sessionReplay.plugin({ sampleRate: 1 }));
+      window.amplitude.init('8d23fc0b05efe38b235cb209e32af315', { "fetchRemoteConfig": true, "serverZone": "EU", "autocapture": true });
+    });
   </script>
 </head>
 
