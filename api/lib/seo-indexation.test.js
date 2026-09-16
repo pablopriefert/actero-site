@@ -106,7 +106,8 @@ function sourceToRegExp(source) {
   try {
     return pathToRegexp(source).regexp
   } catch {
-    if (source.includes(':')) {
+    // Un paramètre nommé s'écrit « :nom » ; « (?: » est un groupe non capturant.
+    if (/(^|[^?]):[A-Za-z_]/.test(source)) {
       throw new Error(`motif avec :paramètre nommé — conversion manuelle non fiable : ${source}`)
     }
     return new RegExp(`^${source}$`)
@@ -155,6 +156,56 @@ describe('sitemap.xml — seulement des pages réellement servies', () => {
     const redirectSources = new Set(VERCEL.redirects.map((r) => r.source))
     const redirigees = sitemapPaths(SITEMAP_XML).filter((p) => redirectSources.has(p))
     expect(redirigees, `Dans le sitemap ET redirigées (jamais servies) : ${redirigees.join(', ')}`).toEqual([])
+  })
+})
+
+// Vercel valide chaque `source` avec path-to-regexp 6 et refuse TOUT le
+// déploiement si un motif est invalide (« invalid-route-source-pattern »).
+// C'est arrivé le 16 septembre 2026 : un lookahead contenait des groupes
+// capturants imbriqués, la CI était verte, et la production est restée sur
+// l'ancienne version sans que rien ne le signale. Ces règles reprennent le
+// lexer de path-to-regexp 6 : un groupe ne commence pas par « ? », et un
+// groupe imbriqué doit être non capturant (« (?: », « (?! », « (?= »).
+function erreurMotifVercel(source) {
+  for (let i = 0; i < source.length; i++) {
+    if (source[i] === '\\') { i++; continue }
+    if (source[i] !== '(') continue
+    let profondeur = 1
+    let j = i + 1
+    if (source[j] === '?') return `un groupe commence par « ? » (position ${j})`
+    let contenu = ''
+    while (j < source.length && profondeur > 0) {
+      const c = source[j]
+      if (c === '\\') { contenu += c + (source[j + 1] ?? ''); j += 2; continue }
+      if (c === ')') { profondeur--; if (profondeur === 0) { j++; break } }
+      if (c === '(') {
+        profondeur++
+        if (source[j + 1] !== '?') return `groupe capturant imbriqué (position ${j})`
+      }
+      contenu += c
+      j++
+    }
+    if (profondeur > 0) return `groupe non fermé (position ${i})`
+    if (contenu === '') return `groupe vide (position ${i})`
+    i = j - 1
+  }
+  return null
+}
+
+describe('vercel.json — des motifs que Vercel accepte', () => {
+  const sources = [
+    ...(VERCEL.redirects ?? []),
+    ...(VERCEL.rewrites ?? []),
+    ...(VERCEL.headers ?? []),
+  ].map((r) => r.source)
+
+  it('reconnaît le motif qui a fait échouer le déploiement du 16 septembre', () => {
+    expect(erreurMotifVercel('/((?!(admin|client)(/|$)).*)')).toMatch(/imbriqué/)
+    expect(erreurMotifVercel('/((?!(?:admin|client)(?:/|$)).*)')).toBeNull()
+  })
+
+  it.each(sources)('%s est un motif valide pour Vercel', (source) => {
+    expect(erreurMotifVercel(source)).toBeNull()
   })
 })
 
