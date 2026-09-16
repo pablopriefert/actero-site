@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Check, X, Minus, Plus, Sparkles, Clock, Shield, Zap } from 'lucide-react'
 import { SEO } from '../SEO'
 import { Navbar } from '../layout/Navbar'
@@ -55,29 +54,13 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
       operatingSystem: 'Web',
       description:
         "Plateforme SaaS française d'automatisation IA du SAV e-commerce Shopify. Agent IA qui résout 50 à 70% des tickets automatiquement, installation OAuth en 15 minutes, hébergement UE RGPD.",
-      offers: [
-        {
-          '@type': 'Offer',
-          name: 'Free',
-          price: '0',
-          priceCurrency: 'EUR',
-          description: '50 tickets/mois, sans carte bancaire, à vie',
-        },
-        {
-          '@type': 'Offer',
-          name: 'Starter',
-          price: '99',
-          priceCurrency: 'EUR',
-          description: '1 000 tickets/mois, 3 workflows, sans engagement',
-        },
-        {
-          '@type': 'Offer',
-          name: 'Pro',
-          price: '399',
-          priceCurrency: 'EUR',
-          description: '5 000 tickets/mois, agents spécialisés, relance paniers, workflows illimités',
-        },
-      ],
+      offers: {
+        '@type': 'AggregateOffer',
+        lowPrice: '0',
+        highPrice: '3950.10',
+        priceCurrency: 'EUR',
+        url: 'https://actero.fr/tarifs',
+      },
       url: `https://actero.fr/alternative-${data.competitorKey}`,
       provider: {
         '@type': 'Organization',
@@ -90,10 +73,9 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://actero.fr/' },
-        { '@type': 'ListItem', position: 2, name: 'Comparaisons', item: 'https://actero.fr/tarifs' },
         {
           '@type': 'ListItem',
-          position: 3,
+          position: 2,
           name: `Alternative à ${competitor}`,
           item: `https://actero.fr/alternative-${data.competitorKey}`,
         },
@@ -427,12 +409,14 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
               <div>
                 {data.faqs.map((f, i) => {
                   const isOpen = openFaq === i
+                  const answerId = `alt-faq-answer-${data.competitorKey}-${i}`
                   return (
                     <div key={i} className="border-b border-black/[0.08]">
                       <button
                         onClick={() => setOpenFaq(isOpen ? null : i)}
                         className="w-full text-left bg-transparent border-none py-[22px] cursor-pointer flex justify-between items-center gap-4"
                         aria-expanded={isOpen}
+                        aria-controls={answerId}
                       >
                         <h3 className="text-[16.5px] font-semibold text-[#1A1A1A] m-0">{f.q}</h3>
                         <div
@@ -443,21 +427,20 @@ export const AlternativeTemplate = ({ onNavigate, data, children }) => {
                           {isOpen ? '−' : '+'}
                         </div>
                       </button>
-                      <AnimatePresence initial={false}>
-                        {isOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.25 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="pr-[60px] pb-[22px] text-[15px] text-[#5A5A5A] leading-[1.6]">
-                              {f.a}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                      {/* Réponse toujours dans le DOM (Google ne clique pas), fermeture en
+                          CSS pur — voir la même logique dans FaqPage.jsx. */}
+                      <div
+                        id={answerId}
+                        className={`grid transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none ${
+                          isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                        }`}
+                      >
+                        <div className="overflow-hidden">
+                          <div className="pr-[60px] pb-[22px] text-[15px] text-[#5A5A5A] leading-[1.6]">
+                            {f.a}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )
                 })}

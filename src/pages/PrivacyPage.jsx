@@ -52,19 +52,19 @@ export const PrivacyPage = ({ onNavigate }) => {
     },
     {
       title: "11. Modifications",
-      content: `Nous nous reservons le droit de modifier la presente politique de confidentialite. Toute modification substantielle sera notifiee par email ou via votre dashboard. La date de dernière mise a jour est indiquee en haut de cette page.`,
+      content: `Nous nous réservons le droit de modifier la présente politique de confidentialité. Toute modification substantielle sera notifiée par email ou via votre dashboard. La date de dernière mise à jour est indiquée en haut de cette page.`,
     },
     {
       title: "12. Contact et réclamation",
-      content: `Pour toute question relative a la protection de vos données, contactez-nous :\n\nEmail : contact@actero.fr\n\nSi vous estimez que le traitement de vos données constitue une violation du RGPD, vous avez le droit d'introduire une réclamation aupres de la CNIL (Commission Nationale de l'Informatique et des Libertes) : www.cnil.fr`,
+      content: `Pour toute question relative à la protection de vos données, contactez-nous :\n\nEmail : contact@actero.fr\n\nSi vous estimez que le traitement de vos données constitue une violation du RGPD, vous avez le droit d'introduire une réclamation auprès de la CNIL (Commission Nationale de l'Informatique et des Libertés) : www.cnil.fr`,
     },
   ];
 
   return (
     <>
       <SEO
-        title="Politique de confidentialite — Actero"
-        description="Decouvrez comment Actero collecte, utilise et protégé vos données personnelles. Politique conforme au RGPD."
+        title="Politique de confidentialité — Actero"
+        description="Découvrez comment Actero collecte, utilise et protège vos données personnelles. Politique conforme au RGPD."
         canonical="/confidentialite"
       />
       <div className="relative min-h-screen bg-white font-sans text-[#262626]">
@@ -77,19 +77,19 @@ export const PrivacyPage = ({ onNavigate }) => {
             <div className="mb-16">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface border border-gray-200 text-[#716D5C] text-xs font-bold uppercase tracking-widest mb-6">
                 <Shield className="w-3.5 h-3.5" />
-                Protection des donnees
+                Protection des données
               </div>
               <h1
                 className="text-4xl md:text-5xl lg:text-6xl font-normal text-[#262626] mb-6 leading-[1.1]"
                 style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}
               >
-                Politique de confidentialite
+                Politique de confidentialité
               </h1>
               <p className="text-lg text-[#716D5C] leading-relaxed">
-                Actero s'engage a proteger la vie privee de ses utilisateurs. Cette politique decrit comment nous collectons, utilisons et protegeons vos données personnelles, conformement au Règlement Général sur la Protection des Données (RGPD).
+                Actero s'engage à protéger la vie privée de ses utilisateurs. Cette politique décrit comment nous collectons, utilisons et protégeons vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD).
               </p>
               <p className="text-sm text-[#716D5C] mt-4">
-                Derniere mise a jour : 5 avril 2026
+                Dernière mise à jour : 5 avril 2026
               </p>
             </div>
 

@@ -107,12 +107,60 @@ export const ProductPage = ({ onNavigate }) => {
     'Notifications': ['Slack', 'Resend', 'Gmail', 'SMTP/IMAP'],
   }
 
+  /* Données structurées — chaque ligne de featureList vérifiée dans le code
+     et/ou api/lib/promesses-tenues.test.js (le registre de preuves des
+     fonctionnalités vendues). Pas de WhatsApp : src/config/features.js a
+     `multiChannelHub: false` — c'est justement le hub "tous les canaux" qui
+     l'inclurait, jamais livré. highPrice 3950,10 € = Pro annuel (api/lib/formules.js). */
+  const schema = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Actero',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      description:
+        "Agent IA pour l'e-commerce Shopify : support client automatisé (email, chat, Gorgias, Zendesk), relance des paniers abandonnés et workflows, connecté en OAuth, hébergé en Union Européenne.",
+      featureList: [
+        'Agent IA de support client sur email, chat Shopify, Gorgias et Zendesk',
+        'Connexion Shopify en OAuth (catalogue, commandes, politiques)',
+        'Relance automatique des paniers abandonnés',
+        'Règles métier et guardrails configurables',
+        'Simulateur de conversation et backtest sur historique réel',
+        'Agents IA spécialisés (WISMO, retours, produit)',
+        'Analyse des photos envoyées par les clients (Claude Sonnet 5)',
+        'API REST et webhooks',
+        'Rapport PDF mensuel automatique',
+        'Portail client en marque blanche',
+        'Agent Email natif',
+        'Dashboard ROI en temps réel',
+      ],
+      offers: {
+        '@type': 'AggregateOffer',
+        lowPrice: '0',
+        highPrice: '3950.10',
+        priceCurrency: 'EUR',
+        url: 'https://actero.fr/tarifs',
+      },
+      provider: { '@type': 'Organization', name: 'Actero', url: 'https://actero.fr' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://actero.fr/' },
+        { '@type': 'ListItem', position: 2, name: 'Produit', item: 'https://actero.fr/produit' },
+      ],
+    },
+  ]
+
   return (
     <>
       <SEO
         title="Produit Actero — Agent IA e-commerce : SAV, relance paniers, automatisations"
         description="Comment fonctionne Actero : agent IA qui gère le SAV Shopify (email, chat, Gorgias, Zendesk), relance les paniers abandonnés et automatise vos workflows e-commerce. Installation OAuth 15 min. RGPD, hébergé UE."
         canonical="/produit"
+        schemaData={schema}
       />
 
       <div className="min-h-screen bg-white text-[#262626]">

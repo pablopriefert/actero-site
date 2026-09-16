@@ -21,6 +21,7 @@ import { ComparisonTable } from "../components/landing/pricing/ComparisonTable";
 import { SelecteurFormule } from "../components/billing/SelecteurFormule";
 import { affichagePrix, equivalentMensuel, memoriserFormuleChoisie } from "../lib/affichage-formules";
 import { CostComparator } from "../components/landing/CostComparator";
+import { FORMULES } from "../../api/lib/formules.js";
 
 /* ──────────────────────────────────────────────
    HELPERS — derive display data from PLANS
@@ -359,6 +360,77 @@ const faqs = [
 ];
 
 /* ──────────────────────────────────────────────
+   DONNÉES STRUCTURÉES — dérivées de FORMULES (api/lib/formules.js), pas
+   recopiées : un prix Stripe qui change ne doit pas se désynchroniser d'un
+   JSON-LD tarifé à la main. Pas d'offre Enterprise : elle n'a pas de prix
+   (sur devis), Google Rich Results refuse une Offer sans `price`.
+   ────────────────────────────────────────────── */
+
+/** Euros pour schema.org : "99" (entier) si le compte tombe rond, sinon
+ * "980.10" — jamais de division flottante imprécise affichée telle quelle. */
+function centimesVersPrixSchema(centimes) {
+  return centimes % 100 === 0 ? String(centimes / 100) : (centimes / 100).toFixed(2);
+}
+
+const LIBELLE_PERIODE = { mensuel: "Mensuel", trimestriel: "Trimestriel", annuel: "Annuel" };
+const BILLING_DURATION = { mensuel: "P1M", trimestriel: "P3M", annuel: "P1Y" };
+
+const DESCRIPTION_FORMULE = {
+  starter: "1 000 tickets/mois, 3 workflows, 3 intégrations, éditeur ton de marque",
+  pro: "5 000 tickets/mois, workflows illimités, agents spécialisés, relance paniers, analyse photo Vision, API & webhooks",
+};
+
+const OFFRES_TARIFS = [
+  {
+    "@type": "Offer",
+    name: "Free",
+    price: "0",
+    priceCurrency: "EUR",
+    description: "50 tickets/mois, 1 workflow, intégration Shopify, sans carte bancaire",
+    url: "https://actero.fr/tarifs",
+    availability: "https://schema.org/InStock",
+  },
+  ...FORMULES.map((f) => ({
+    "@type": "Offer",
+    name: `${PLANS[f.plan].name} — ${LIBELLE_PERIODE[f.periode]}`,
+    price: centimesVersPrixSchema(f.montantCentimes),
+    priceCurrency: "EUR",
+    description: DESCRIPTION_FORMULE[f.plan],
+    url: "https://actero.fr/tarifs",
+    availability: "https://schema.org/InStock",
+    priceSpecification: {
+      "@type": "UnitPriceSpecification",
+      price: centimesVersPrixSchema(f.montantCentimes),
+      priceCurrency: "EUR",
+      billingDuration: BILLING_DURATION[f.periode],
+    },
+  })),
+];
+
+const SCHEMA_TARIFS = [
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Actero — Agent IA pour service client Shopify",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description:
+      "Plateforme SaaS française d'automatisation du support client e-commerce. Agents IA spécialisés pour Shopify (SAV, WISMO, retours, paniers abandonnés). Un plan Enterprise sur devis (multi-boutiques, white-label, SLA 99,9%) est proposé aux boutiques à fort volume, en plus des offres ci-dessous.",
+    image: "https://actero.fr/og-image.png",
+    provider: { "@type": "Organization", name: "Actero", url: "https://actero.fr" },
+    offers: OFFRES_TARIFS,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://actero.fr/" },
+      { "@type": "ListItem", position: 2, name: "Tarifs", item: "https://actero.fr/tarifs" },
+    ],
+  },
+];
+
+/* ──────────────────────────────────────────────
    PAGE
    ────────────────────────────────────────────── */
 
@@ -411,71 +483,7 @@ export const PricingPage = ({ onNavigate }) => {
         title="Tarifs Actero — Agent IA pour Shopify à partir de 99€/mois"
         description="Des prix simples et transparents. Plan gratuit à 0€, Starter 99€/mois (1 000 tickets), Pro 399€/mois (5 000 tickets + relance paniers + analyse photo). Mensuel sans engagement."
         canonical="/tarifs"
-        schemaData={{
-          "@context": "https://schema.org",
-          "@type": "Product",
-          "name": "Actero — Agent IA pour service client Shopify",
-          "description": "Plateforme SaaS française d'automatisation du support client e-commerce. Agents IA spécialisés pour Shopify (SAV, WISMO, retours, paniers abandonnés).",
-          "brand": { "@type": "Brand", "name": "Actero" },
-          "image": "https://actero.fr/og-image.png",
-          "offers": {
-            "@type": "AggregateOffer",
-            "priceCurrency": "EUR",
-            "lowPrice": "0",
-            "highPrice": "399",
-            "offerCount": "4",
-            "offers": [
-              {
-                "@type": "Offer",
-                "name": "Free",
-                "price": "0",
-                "priceCurrency": "EUR",
-                "description": "50 tickets/mois, 1 workflow, intégration Shopify, sans carte bancaire",
-                "url": "https://actero.fr/tarifs",
-                "availability": "https://schema.org/InStock"
-              },
-              {
-                "@type": "Offer",
-                "name": "Starter",
-                "price": "99",
-                "priceCurrency": "EUR",
-                "description": "1 000 tickets/mois, 3 workflows, 3 intégrations, éditeur ton de marque",
-                "url": "https://actero.fr/tarifs",
-                "availability": "https://schema.org/InStock",
-                "priceSpecification": {
-                  "@type": "UnitPriceSpecification",
-                  "price": "99",
-                  "priceCurrency": "EUR",
-                  "billingIncrement": "1",
-                  "unitCode": "MON"
-                }
-              },
-              {
-                "@type": "Offer",
-                "name": "Pro",
-                "price": "399",
-                "priceCurrency": "EUR",
-                "description": "5 000 tickets/mois, workflows illimités, agents spécialisés, relance paniers, analyse photo Vision, API & webhooks",
-                "url": "https://actero.fr/tarifs",
-                "availability": "https://schema.org/InStock",
-                "priceSpecification": {
-                  "@type": "UnitPriceSpecification",
-                  "price": "399",
-                  "priceCurrency": "EUR",
-                  "billingIncrement": "1",
-                  "unitCode": "MON"
-                }
-              },
-              {
-                "@type": "Offer",
-                "name": "Enterprise",
-                "description": "Tickets illimités, multi-boutiques, white-label, SLA 99.9%, account manager dédié — sur devis",
-                "url": "mailto:contact@actero.fr",
-                "availability": "https://schema.org/InStock"
-              }
-            ]
-          }
-        }}
+        schemaData={SCHEMA_TARIFS}
       />
 
       <div className="min-h-screen bg-white text-[#262626] font-sans selection:bg-cta/10">

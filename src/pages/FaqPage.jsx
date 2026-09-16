@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   HelpCircle,
@@ -21,7 +20,11 @@ export const FaqPage = ({ onNavigate }) => {
     window.scrollTo(0, 0);
   }, []);
 
-  const [openFaq, setOpenFaq] = useState(0);
+  // Id composite ("catIdx-i", voir uniqueId plus bas) : "0-0" ouvre la toute
+  // première question au chargement. `useState(0)` (un nombre) ne pouvait
+  // jamais être === à un uniqueId (une chaîne) : aucune question ne s'ouvrait
+  // par défaut malgré l'intention.
+  const [openFaq, setOpenFaq] = useState("0-0");
   const [searchQuery, setSearchQuery] = useState("");
 
   const categories = [
@@ -30,7 +33,7 @@ export const FaqPage = ({ onNavigate }) => {
       questions: [
         {
           q: "Qu'est-ce qu'Actero exactement ?",
-          a: "Actero est une plateforme SaaS française d'automatisation du service client e-commerce. Nos agents IA résolvent automatiquement les questions récurrentes (suivi de commande, retours, changements d'adresse, disponibilité produit) sur les canaux email et chat — en moyenne 60% du volume de tickets SAV d'une boutique Shopify. Les cas complexes sont automatiquement escaladés à votre équipe humaine avec tout le contexte nécessaire.",
+          a: "Actero est une plateforme SaaS française d'automatisation du service client e-commerce. Nos agents IA résolvent automatiquement les questions récurrentes (suivi de commande, retours, changements d'adresse, disponibilité produit) sur les canaux email et chat. Selon la boutique, l'agent prend en charge une large part des demandes répétitives (suivi de commande, retours, questions produit) ; le simulateur calcule ce taux sur votre propre historique avant tout engagement. Les cas complexes sont automatiquement escaladés à votre équipe humaine avec tout le contexte nécessaire.",
         },
         {
           q: "En quoi Actero est-il différent de Gorgias, Zendesk ou Tidio ?",
@@ -67,7 +70,7 @@ export const FaqPage = ({ onNavigate }) => {
         },
         {
           q: "Actero peut-il remplacer entièrement mon équipe SAV ?",
-          a: "Non, et ce n'est pas notre recommandation. Actero automatise typiquement 50 à 70% des tickets (WISMO, retours simples, disponibilité produit, FAQ produit). Votre équipe humaine gère les 30 à 50% restants — cas complexes, réclamations, relations clients VIP. L'objectif : libérer votre équipe pour la valeur ajoutée, pas la remplacer.",
+          a: "Non, et ce n'est pas notre recommandation. Selon la boutique, l'agent prend en charge une large part des demandes répétitives (suivi de commande, retours, questions produit) ; le simulateur calcule ce taux sur votre propre historique avant tout engagement. Votre équipe humaine reste nécessaire pour les cas complexes, les réclamations et les relations clients VIP. L'objectif : libérer votre équipe pour la valeur ajoutée, pas la remplacer.",
         },
       ],
     },
@@ -164,8 +167,8 @@ export const FaqPage = ({ onNavigate }) => {
   return (
     <>
       <SEO
-        title="FAQ Actero — Questions frequentes sur nos agents IA"
-        description="Réponses a vos questions sur les agents IA Actero : fonctionnement, intégration Shopify, tarifs, délais de deploiement, support."
+        title="FAQ Actero — Questions fréquentes sur l'agent IA Shopify"
+        description="Réponses complètes sur le fonctionnement d'Actero : installation Shopify, conformité RGPD, intégrations Gorgias/Zendesk, tarifs, ROI, sécurité des données."
         canonical="/faq"
         schemaData={faqSchema}
       />
@@ -203,34 +206,44 @@ export const FaqPage = ({ onNavigate }) => {
                 <div className="space-y-3">
                   {category.questions.map((faq, i) => {
                     const uniqueId = `${catIdx}-${i}`;
+                    const isOpen = openFaq === uniqueId;
+                    const answerId = `faq-answer-${uniqueId}`;
                     return (
                       <div
                         key={i}
                         className="bg-surface border border-gray-200 rounded-2xl overflow-hidden group hover:border-gray-300 transition-colors"
                       >
                         <button
-                          onClick={() => setOpenFaq(openFaq === uniqueId ? null : uniqueId)}
+                          onClick={() => setOpenFaq(isOpen ? null : uniqueId)}
                           className="w-full flex items-center justify-between p-6 text-left"
+                          aria-expanded={isOpen}
+                          aria-controls={answerId}
                         >
                           <span className="font-bold text-lg text-[#262626]">{faq.q}</span>
-                          <div className={`transition-transform duration-300 ${openFaq === uniqueId ? 'rotate-45' : ''}`}>
+                          <div className={`transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}>
                             <Plus className="w-5 h-5 text-[#716D5C]" />
                           </div>
                         </button>
-                        <AnimatePresence>
-                          {openFaq === uniqueId && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              className="px-6 pb-6 overflow-hidden"
-                            >
-                              <p className="text-[#716D5C] leading-relaxed font-medium">
-                                {faq.a}
-                              </p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                        {/*
+                          La réponse reste toujours dans le DOM — Google ne clique pas sur
+                          l'accordéon, il ne lirait donc presque aucune réponse si elle n'était
+                          montée qu'à l'ouverture. Fermeture en CSS pur (grid-template-rows
+                          0fr → 1fr) : pas de framer-motion, pas de hauteur figée qui tronquerait
+                          une réponse longue, et `motion-reduce:` respecte prefers-reduced-motion
+                          sans JS.
+                        */}
+                        <div
+                          id={answerId}
+                          className={`grid transition-[grid-template-rows] duration-300 ease-in-out motion-reduce:transition-none ${
+                            isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                          }`}
+                        >
+                          <div className="overflow-hidden">
+                            <p className="px-6 pb-6 text-[#716D5C] leading-relaxed font-medium">
+                              {faq.a}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
