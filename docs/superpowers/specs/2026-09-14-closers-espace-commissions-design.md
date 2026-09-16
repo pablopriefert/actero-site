@@ -34,12 +34,10 @@ ses commissions. Actero valide chaque commission avant de la payer.
 6. **Le programme ambassadeurs disparaît** : ses routes sont supprimées ; ses tables,
    vides, restent en base jusqu'à un nettoyage ultérieur.
 
-### Choix par défaut, à confirmer à la relecture
-
-- **Un closer inscrit est actif tout de suite** : son lien fonctionne dès
-  l'inscription. Actero peut le suspendre. Le risque d'un inconnu tombé sur la page
-  est borné par la validation manuelle de chaque commission.
-- **Cookie d'attribution valable 60 jours.**
+7. **Un closer inscrit est actif tout de suite** (confirmé par Pablo le 16 septembre) :
+   son lien fonctionne dès l'inscription. Actero peut le suspendre. Le risque d'un
+   inconnu tombé sur la page est borné par la validation manuelle de chaque commission.
+8. **Cookie d'attribution valable 60 jours** (confirmé le 16 septembre).
 
 ## Grille de commission (note de Pablo)
 
