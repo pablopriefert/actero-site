@@ -96,4 +96,15 @@ describe('configurerFormules', () => {
     expect(annuels).toHaveLength(2)
     expect(annuels.every((p) => p.active)).toBe(true)
   })
+
+  it('le nom des coupons tient dans la limite de Stripe', async () => {
+    // Stripe refuse un nom de plus de 40 caractères : « Trimestriel Starter —
+    // premier mois à −50 % » en faisait 42, et la configuration s'arrêtait là,
+    // sans créer le second coupon ni désactiver les anciens prix.
+    const e = faux()
+    await configurerFormules(e.stripe)
+    const crees = e.appels.filter(([type]) => type === 'coupons.create')
+    expect(crees.length).toBe(FORMULES.filter((f) => f.coupon).length)
+    for (const [, d] of crees) expect(d.name.length, d.name).toBeLessThanOrEqual(40)
+  })
 })

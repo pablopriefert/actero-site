@@ -70,7 +70,10 @@ export async function configurerFormules(stripe) {
       if (err?.code !== 'resource_missing' && err?.statusCode !== 404) throw err
       await stripe.coupons.create({
         id: f.coupon.id,
-        name: `Trimestriel ${f.plan === 'pro' ? 'Pro' : 'Starter'} — premier mois à −50 %`,
+        // Stripe refuse un nom de coupon au-delà de 40 caractères, et
+        // « Trimestriel Starter — premier mois à −50 % » en fait 42 : la
+        // configuration échouait sur le coupon Starter, en live comme en test.
+        name: `Trimestriel ${f.plan === 'pro' ? 'Pro' : 'Starter'} — 1er mois −50 %`,
         amount_off: f.coupon.montantCentimes,
         currency: 'eur',
         duration: 'once',
