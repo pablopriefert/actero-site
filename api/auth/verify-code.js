@@ -16,7 +16,9 @@ import crypto from 'crypto'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
 import { appliquerCampagne } from '../lib/campagne.js'
-import { estCodeCloser } from '../lib/code-verification.js'
+import {
+  estCodeCloser, UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
+} from '../lib/code-verification.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -24,6 +26,7 @@ const supabase = createClient(
 )
 
 const MAX_ATTEMPTS = 5
+const TROP_DE_TENTATIVES = { error: 'Trop de tentatives. Réessayez plus tard.' }
 
 function hashCode(code) {
   return crypto.createHash('sha256').update(String(code)).digest('hex')
@@ -33,8 +36,8 @@ async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   const ip = getClientIp(req)
-  const rl = await checkRateLimit(`verify-code-check:${ip}`, 15, 60 * 60 * 1000)
-  if (!rl.allowed) return res.status(429).json({ error: 'Trop de tentatives. Réessayez plus tard.' })
+  const rl = await checkRateLimit(`verify-code-check:${ip}`, 15, UNE_HEURE_MS)
+  if (!rl.allowed) return res.status(429).json(TROP_DE_TENTATIVES)
 
   const { email, code } = req.body || {}
   if (!email || !code) return res.status(400).json({ error: 'Email et code requis.' })
@@ -42,6 +45,10 @@ async function handler(req, res) {
   const normalizedEmail = String(email).trim().toLowerCase()
   const codeStr = String(code).replace(/\s/g, '')
   if (!/^\d{6}$/.test(codeStr)) return res.status(400).json({ error: 'Code invalide (6 chiffres requis).' })
+
+  // Le même quota pour une adresse, d'où que viennent les essais.
+  const rlAdresse = await checkRateLimit(cleVerificationsParAdresse(normalizedEmail), VERIFICATIONS_PAR_ADRESSE, UNE_HEURE_MS)
+  if (!rlAdresse.allowed) return res.status(429).json(TROP_DE_TENTATIVES)
 
   // Fetch the most recent valid verification rows
   const { data: rows } = await supabase

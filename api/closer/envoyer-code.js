@@ -3,13 +3,18 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { encryptToken } from '../lib/crypto.js'
-import { genererCodeVerification, empreinteCode, TYPE_CODE_CLOSER, DUREE_CODE_MS } from '../lib/code-verification.js'
+import {
+  genererCodeVerification, empreinteCode, TYPE_CODE_CLOSER, DUREE_CODE_MS,
+  UNE_HEURE_MS, ENVOIS_PAR_ADRESSE, cleEnvoisParAdresse,
+} from '../lib/code-verification.js'
 import { nettoyerNom } from '../lib/fiche-closer.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
+
+const TROP_DE_DEMANDES = { error: 'trop_de_demandes', message: 'Trop de demandes. Réessayez dans une heure.' }
 
 /**
  * POST /api/closer/envoyer-code — inscription closer, étape 1 : le code par e-mail.
@@ -24,8 +29,8 @@ const supabase = createClient(
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'methode_non_autorisee' })
 
-  const limite = await checkRateLimit(`closer-envoyer-code:${getClientIp(req)}`, 5, 60 * 60 * 1000)
-  if (!limite.allowed) return res.status(429).json({ error: 'trop_de_demandes', message: 'Trop de demandes. Réessayez dans une heure.' })
+  const limite = await checkRateLimit(`closer-envoyer-code:${getClientIp(req)}`, 5, UNE_HEURE_MS)
+  if (!limite.allowed) return res.status(429).json(TROP_DE_DEMANDES)
 
   const { prenom, nom, email, password } = req.body || {}
   const prenomPropre = nettoyerNom(prenom)
@@ -36,6 +41,10 @@ async function handler(req, res) {
   if (typeof password !== 'string' || password.length < 8) {
     return res.status(400).json({ error: 'mot_de_passe_court', message: 'Le mot de passe doit contenir au moins 8 caractères.' })
   }
+
+  // Le même quota pour une adresse, d'où que viennent les demandes.
+  const limiteAdresse = await checkRateLimit(cleEnvoisParAdresse(adresse), ENVOIS_PAR_ADRESSE, UNE_HEURE_MS)
+  if (!limiteAdresse.allowed) return res.status(429).json(TROP_DE_DEMANDES)
 
   if (!process.env.RESEND_API_KEY) {
     // Jamais le code ni l'adresse dans les journaux.

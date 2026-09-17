@@ -17,12 +17,15 @@ import { Resend } from 'resend'
 import crypto from 'crypto'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { encryptToken } from '../lib/crypto.js'
+import { UNE_HEURE_MS, ENVOIS_PAR_ADRESSE, cleEnvoisParAdresse } from '../lib/code-verification.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
+
+const TROP_DE_DEMANDES = { error: 'Trop de demandes. Réessayez plus tard.' }
 
 function hashCode(code) {
   return crypto.createHash('sha256').update(String(code)).digest('hex')
@@ -38,9 +41,9 @@ async function handler(req, res) {
 
   // Rate limit: 5 verification requests per IP per hour
   const ip = getClientIp(req)
-  const rl = await checkRateLimit(`verify-code:${ip}`, 5, 60 * 60 * 1000)
+  const rl = await checkRateLimit(`verify-code:${ip}`, 5, UNE_HEURE_MS)
   if (!rl.allowed) {
-    return res.status(429).json({ error: 'Trop de demandes. Réessayez plus tard.' })
+    return res.status(429).json(TROP_DE_DEMANDES)
   }
 
   const { email, password, brand_name, shopify_url, referral_code, acquisition_source } = req.body || {}
@@ -53,6 +56,12 @@ async function handler(req, res) {
   }
   if (!brand_name || !brand_name.trim()) {
     return res.status(400).json({ error: 'Le nom de la boutique est requis.' })
+  }
+
+  // Le même quota pour une adresse, d'où que viennent les demandes.
+  const rlAdresse = await checkRateLimit(cleEnvoisParAdresse(String(email).trim().toLowerCase()), ENVOIS_PAR_ADRESSE, UNE_HEURE_MS)
+  if (!rlAdresse.allowed) {
+    return res.status(429).json(TROP_DE_DEMANDES)
   }
 
   try {

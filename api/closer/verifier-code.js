@@ -2,13 +2,18 @@ import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
-import { empreinteCode, estCodeCloser, ESSAIS_MAX } from '../lib/code-verification.js'
+import {
+  empreinteCode, estCodeCloser, ESSAIS_MAX,
+  UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
+} from '../lib/code-verification.js'
 import { creerFiche, nettoyerNom } from '../lib/fiche-closer.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 )
+
+const TROP_DE_TENTATIVES = { error: 'trop_de_demandes', message: 'Trop de tentatives. Réessayez plus tard.' }
 
 /**
  * POST /api/closer/verifier-code — inscription closer, étape 2 : le compte et la fiche.
@@ -26,13 +31,17 @@ const supabase = createClient(
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'methode_non_autorisee' })
 
-  const limite = await checkRateLimit(`closer-verifier-code:${getClientIp(req)}`, 15, 60 * 60 * 1000)
-  if (!limite.allowed) return res.status(429).json({ error: 'trop_de_demandes', message: 'Trop de tentatives. Réessayez plus tard.' })
+  const limite = await checkRateLimit(`closer-verifier-code:${getClientIp(req)}`, 15, UNE_HEURE_MS)
+  if (!limite.allowed) return res.status(429).json(TROP_DE_TENTATIVES)
 
   const { email, code } = req.body || {}
   const adresse = typeof email === 'string' ? email.trim().toLowerCase() : ''
   const saisi = String(code ?? '').replace(/\s/g, '')
   if (!adresse || !/^\d{6}$/.test(saisi)) return res.status(400).json({ error: 'code_invalide', message: 'Code invalide (6 chiffres).' })
+
+  // Le même quota pour une adresse, d'où que viennent les essais.
+  const limiteAdresse = await checkRateLimit(cleVerificationsParAdresse(adresse), VERIFICATIONS_PAR_ADRESSE, UNE_HEURE_MS)
+  if (!limiteAdresse.allowed) return res.status(429).json(TROP_DE_TENTATIVES)
 
   const { data: lignes, error: erreurLecture } = await supabase
     .from('email_verification_codes')
