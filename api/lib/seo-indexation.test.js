@@ -210,8 +210,14 @@ describe('vercel.json — des motifs que Vercel accepte', () => {
 })
 
 describe('vercel.json — X-Robots-Tag suit le caractère privé de la route', () => {
-  const PRIVEES = ['/admin/x', '/client', '/signup/plan', '/start/abc', '/shopify-success']
-  const PUBLIQUES = ['/', '/tarifs', '/startups', '/produit']
+  const PRIVEES = [
+    '/admin/x', '/client', '/signup/plan', '/start/abc', '/shopify-success',
+    // Programme closers : pages non listées (spec closers).
+    '/closer', '/closer/inscription', '/closer/connexion', '/closer/callback', '/closer/commissions',
+    '/c', '/c/ACT-AB2CD',
+  ]
+  // `/calculateur-gorgias` commence par « c » : il doit rester indexé.
+  const PUBLIQUES = ['/', '/tarifs', '/startups', '/produit', '/calculateur-gorgias']
 
   it.each(PRIVEES)('%s ne reçoit que noindex', (path) => {
     const values = headerValuesForPath(path, 'X-Robots-Tag')
@@ -221,5 +227,50 @@ describe('vercel.json — X-Robots-Tag suit le caractère privé de la route', (
   it.each(PUBLIQUES)('%s ne reçoit que index', (path) => {
     const values = headerValuesForPath(path, 'X-Robots-Tag')
     expect([...values], `X-Robots-Tag pour ${path}`).toEqual(['index, follow'])
+  })
+})
+
+describe('vercel.json — « c » ne vise que /c et /c/…', () => {
+  // Les deux règles X-Robots-Tag listent les segments privés. Retirer
+  // « client » et « cancel » de ces listes montre ce que « c » attrape à lui
+  // seul : si /client ou /cancel restaient privés, c'est que « c » les vise
+  // — et avec eux toute page publique qui commence par c.
+  const regle = (valeur) => VERCEL.headers.find((r) => r.headers.some((h) => h.key === 'X-Robots-Tag' && h.value === valeur))
+  const sansClientNiCancel = (source) => source.replace(/\bclient\|/, '').replace(/\bcancel\|/, '')
+  const noindex = sourceToRegExp(sansClientNiCancel(regle('noindex, nofollow').source))
+  const index = sourceToRegExp(sansClientNiCancel(regle('index, follow').source))
+
+  it('les deux règles listent bien closer et c', () => {
+    for (const valeur of ['noindex, nofollow', 'index, follow']) {
+      expect(regle(valeur).source, valeur).toMatch(/\|closer\|c\)/)
+    }
+  })
+
+  it.each(['/client', '/client/billing', '/cancel', '/calculateur-gorgias', '/cgu', '/closers-info'])('%s n’est pas attrapé par « c »', (path) => {
+    expect(noindex.test(path), `noindex ${path}`).toBe(false)
+    expect(index.test(path), `index ${path}`).toBe(true)
+  })
+
+  it.each(['/c', '/c/ACT-AB2CD', '/closer', '/closer/inscription'])('%s reste privé sans « client » ni « cancel »', (path) => {
+    expect(noindex.test(path), `noindex ${path}`).toBe(true)
+    expect(index.test(path), `index ${path}`).toBe(false)
+  })
+})
+
+describe('robots.txt et sitemap.xml — programme closers', () => {
+  it('robots.txt ferme /closer et /c/, avec la barre', () => {
+    const disallows = groupFor(parseRobotsGroups(ROBOTS_TXT), 'Googlebot').rules
+      .filter((r) => r.type === 'disallow').map((r) => r.value)
+    expect(disallows).toContain('/closer')
+    expect(disallows).toContain('/c/')
+    // « Disallow: /c » fermerait aussi /calculateur-gorgias, /cancel et /client.
+    expect(disallows).not.toContain('/c')
+  })
+
+  it('ni /closer, ni /c/, ni l’ancien programme ambassadeurs dans le sitemap et le pré-rendu', () => {
+    for (const chemin of [...sitemapPaths(SITEMAP_XML), ...prerenderedPaths(PRERENDER_SRC)]) {
+      expect(chemin).not.toMatch(/^\/(closer|c)(\/|$)/)
+      expect(chemin).not.toMatch(/ambassad/)
+    }
   })
 })

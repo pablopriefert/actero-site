@@ -39,7 +39,6 @@ Disallow: /admin
 Disallow: /client
 Disallow: /app
 Disallow: /api/
-Disallow: /ambassador/dashboard
 Disallow: /login
 Disallow: /reset-password
 Disallow: /setup-password
@@ -51,6 +50,10 @@ Disallow: /shopify-success
 Disallow: /payment/
 Disallow: /demo
 Disallow: /demo-prospect
+# Programme closers : pages non listées. « /c/ » avec sa barre, sinon la
+# règle couvrirait aussi /calculateur-gorgias, /cancel ou /client.
+Disallow: /closer
+Disallow: /c/
 
 # Training-only crawlers — BLOCK (EU TDM opt-out per Directive 2019/790 Art. 4)
 User-agent: CCBot

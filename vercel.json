@@ -150,13 +150,13 @@
             ]
         },
         {
-            "source": "/(admin|client|app|api|payment|success|cancel|login|auth|reset-password|setup-password|start|signup|demo|demo-prospect|shopify-success)(/.*)?",
+            "source": "/(admin|client|app|api|payment|success|cancel|login|auth|reset-password|setup-password|start|signup|demo|demo-prospect|shopify-success|closer|c)(/.*)?",
             "headers": [
                 { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
             ]
         },
         {
-            "source": "/((?!(?:admin|client|app|api|payment|success|cancel|login|auth|reset-password|setup-password|start|signup|demo|demo-prospect|shopify-success)(?:/|$)).*)",
+            "source": "/((?!(?:admin|client|app|api|payment|success|cancel|login|auth|reset-password|setup-password|start|signup|demo|demo-prospect|shopify-success|closer|c)(?:/|$)).*)",
             "headers": [
                 { "key": "X-Robots-Tag", "value": "index, follow" }
             ]

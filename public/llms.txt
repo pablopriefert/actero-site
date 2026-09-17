@@ -9,7 +9,6 @@
 - [FAQ](https://actero.fr/faq): Questions fréquentes sur l'agent IA, la sécurité, les intégrations
 - [Entreprise](https://actero.fr/entreprise): À propos d'Actero — mission, valeurs, équipe
 - [Audit gratuit](https://actero.fr/audit): Diagnostic SAV personnalisé en 15 minutes
-- [Ambassadeurs](https://actero.fr/ambassadeurs): Programme de parrainage (20% de commission récurrente)
 - [Support](https://actero.fr/support): Documentation utilisateur et guides d'intégration
 - [Ressources](https://actero.fr/ressources): Bibliothèque de prompts et templates
 

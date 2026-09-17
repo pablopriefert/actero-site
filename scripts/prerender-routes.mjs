@@ -68,12 +68,6 @@ const ROUTES = [
     h1: 'Audit stratégique offert',
   },
   {
-    path: '/ambassadeurs',
-    title: 'Programme Ambassadeurs Actero — 20% de commission récurrente',
-    description: 'Recommandez Actero à votre communauté de marchands Shopify et gagnez 20% de commission récurrente pendant toute la durée d\'abonnement du client.',
-    h1: 'Programme Ambassadeurs',
-  },
-  {
     path: '/support',
     title: 'Support Actero — Documentation & guides agent IA',
     description: 'Centre d\'aide Actero : guides d\'installation Shopify, configuration des workflows, intégration helpdesk, résolution de problèmes courants.',
