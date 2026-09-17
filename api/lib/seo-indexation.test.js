@@ -257,6 +257,26 @@ describe('vercel.json — « c » ne vise que /c et /c/…', () => {
   })
 })
 
+describe('vercel.json — /admin et /closer ne s’affichent jamais dans un cadre', () => {
+  // Un site tiers qui encadre l'admin ou l'espace closer peut faire cliquer
+  // à l'aveugle (clickjacking) : valider une commission, changer un IBAN.
+  const ANTI_CADRE = { 'X-Frame-Options': 'DENY', 'Content-Security-Policy': "frame-ancestors 'none'" }
+
+  it.each(['/admin', '/admin/', '/admin/x', '/admin/closers/commissions', '/closer', '/closer/x', '/closer/inscription'])('%s interdit tout cadre', (path) => {
+    for (const [cle, valeur] of Object.entries(ANTI_CADRE)) {
+      expect([...headerValuesForPath(path, cle)], `${cle} pour ${path}`).toEqual([valeur])
+    }
+  })
+
+  // L'application Shopify s'affiche DANS l'admin Shopify (/app, /client,
+  // /shopify-success) : un cadre interdit la casserait.
+  it.each(['/client', '/client/billing', '/app', '/app/x', '/shopify-success', '/closers-info', '/administration', '/c/ACT-AB2CD', '/'])('%s ne reçoit aucune de ces règles', (path) => {
+    for (const cle of Object.keys(ANTI_CADRE)) {
+      expect([...headerValuesForPath(path, cle)], `${cle} pour ${path}`).toEqual([])
+    }
+  })
+})
+
 describe('robots.txt et sitemap.xml — programme closers', () => {
   it('robots.txt ferme /closer et /c/, avec la barre', () => {
     const disallows = groupFor(parseRobotsGroups(ROBOTS_TXT), 'Googlebot').rules
