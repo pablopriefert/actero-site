@@ -370,6 +370,94 @@ describe('charge.refunded → commission annulée ou annotée', () => {
   })
 })
 
+describe('charge.refunded pendant une décision admin', () => {
+  const commission = (statut) => ({ id: 'kc1', source_key: 'stripe:in_100', stripe_invoice_id: 'in_100', statut, note: null, montant_centimes: 10000, closer_id: 'k1' })
+
+  /** Avant chaque écriture du remboursement, l'admin fait passer la commission au statut suivant de `suite`. */
+  function avecAdmin(statutLu, suite) {
+    const decisions = [...suite]
+    const sb = fauxSupabase({
+      commissions: [commission(statutLu)],
+      erreurs: {
+        closer_commissions: ({ operation }) => {
+          if (operation === 'update' && decisions.length) sb.base.closer_commissions[0].statut = decisions.shift()
+          return null
+        },
+      },
+    })
+    return sb
+  }
+
+  it('validée entre la lecture et l’écriture, remboursement total : annulée quand même', async () => {
+    const sb = avecAdmin('a_valider', ['validee'])
+    expect(await traiterRemboursement(fauxStripe({ charge: CHARGE_REMBOURSEE }), sb, 'ch_100')).toEqual({ touchees: 1 })
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'annulee', note: NOTE_REMBOURSEE })
+    const ecritures = sb.journal.filter((j) => j.operation === 'update')
+    expect(ecritures.map((e) => e.filtres.find(([, colonne]) => colonne === 'statut')[2])).toEqual(['a_valider', 'validee'])
+  })
+
+  it('payée entre la lecture et l’écriture : elle reste payée, avec la note', async () => {
+    const sb = avecAdmin('validee', ['payee'])
+    expect(await traiterRemboursement(fauxStripe({ charge: CHARGE_REMBOURSEE }), sb, 'ch_100')).toEqual({ touchees: 1 })
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'payee', note: NOTE_REMBOURSEE_APRES_PAIEMENT })
+  })
+
+  it('refusée entre-temps : plus rien à faire, sans erreur', async () => {
+    const sb = avecAdmin('a_valider', ['refusee'])
+    expect(await traiterRemboursement(fauxStripe({ charge: CHARGE_REMBOURSEE }), sb, 'ch_100')).toEqual({ touchees: 0 })
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'refusee', note: null })
+  })
+
+  it('remboursement partiel pendant une validation : la note arrive sur la commission validée', async () => {
+    const sb = avecAdmin('a_valider', ['validee'])
+    expect(await traiterRemboursement(fauxStripe({ charge: CHARGE_PARTIELLE }), sb, 'ch_100')).toEqual({ touchees: 1 })
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'validee', note: 'Remboursement partiel de 10,00 € par le client' })
+  })
+
+  it('une seconde course perdue lève : le webhook répondra 500 et Stripe réessaiera', async () => {
+    const sb = avecAdmin('a_valider', ['validee', 'payee'])
+    await expect(traiterRemboursement(fauxStripe({ charge: CHARGE_REMBOURSEE }), sb, 'ch_100')).rejects.toThrow(/modifiée pendant le remboursement/)
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'payee', note: null })
+  })
+})
+
+describe('charge.refunded : une panne lève, elle n’est jamais avalée', () => {
+  const commission = { id: 'kc1', source_key: 'stripe:in_100', stripe_invoice_id: 'in_100', statut: 'a_valider', note: null, montant_centimes: 10000, closer_id: 'k1' }
+  const stripe = () => fauxStripe({ charge: CHARGE_REMBOURSEE })
+
+  it('lecture des commissions', async () => {
+    const sb = fauxSupabase({ commissions: [commission], erreurs: { closer_commissions: { message: 'panne' } } })
+    await expect(traiterRemboursement(stripe(), sb, 'ch_100')).rejects.toThrow(/closer_commissions illisible : panne/)
+  })
+
+  it('écriture de la commission', async () => {
+    const sb = fauxSupabase({ commissions: [commission], erreurs: { closer_commissions: ({ operation }) => (operation === 'update' ? { message: 'disque plein' } : null) } })
+    await expect(traiterRemboursement(stripe(), sb, 'ch_100')).rejects.toThrow(/commission non mise à jour : disque plein/)
+    expect(sb.base.closer_commissions[0].statut).toBe('a_valider')
+  })
+
+  it('relecture après une course perdue', async () => {
+    let lectures = 0
+    const sb = fauxSupabase({
+      commissions: [commission],
+      erreurs: {
+        closer_commissions: ({ operation }) => {
+          if (operation === 'update') sb.base.closer_commissions[0].statut = 'validee'
+          if (operation === 'select' && ++lectures === 2) return { message: 'relecture impossible' }
+          return null
+        },
+      },
+    })
+    await expect(traiterRemboursement(stripe(), sb, 'ch_100')).rejects.toThrow(/closer_commissions illisible : relecture impossible/)
+  })
+
+  it('lecture Stripe', async () => {
+    const enPanne = stripe()
+    enPanne.invoicePayments.list.mockRejectedValueOnce(new Error('Stripe indisponible'))
+    await expect(traiterRemboursement(enPanne, fauxSupabase({ commissions: [commission] }), 'ch_100')).rejects.toThrow(/Stripe indisponible/)
+  })
+})
+
 describe('remboursé avant invoice.paid : la commission naît dans l’état du remboursement', () => {
   const monde = (charge, options) => ({
     sb: fauxSupabase(),

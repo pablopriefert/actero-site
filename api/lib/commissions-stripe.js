@@ -229,15 +229,43 @@ export async function traiterRemboursement(stripe, supabase, chargeId) {
 
   let touchees = 0
   for (const commission of commissions ?? []) {
-    const maj = effetRemboursement(commission, remboursement)
-    if (!maj) continue
-    const { error: erreurEcriture } = await supabase
-      .from('closer_commissions')
-      .update({ ...maj, updated_at: new Date().toISOString() })
-      .eq('id', commission.id)
-      .eq('statut', commission.statut)
-    if (erreurEcriture) throw new Error(`commission non mise à jour : ${erreurEcriture.message}`)
-    touchees += 1
+    if (await appliquerRemboursement(supabase, commission, remboursement)) touchees += 1
   }
   return { touchees }
+}
+
+/**
+ * Écrit l'effet du remboursement, seulement sur la commission encore dans
+ * l'état lu : une décision admin passée entre-temps n'est pas écrasée.
+ *
+ * Si l'écriture ne touche aucune ligne, l'admin a décidé entre la lecture et
+ * l'écriture. On relit et on applique la règle du nouveau statut : validée et
+ * remboursée en entier, elle est annulée ; payée, elle reçoit une note ;
+ * refusée ou annulée, plus rien à faire. Une seconde course perdue lève : le
+ * webhook répond 500 et Stripe réessaiera sur un état stable.
+ *
+ * @returns {Promise<boolean>} true si la commission a été modifiée
+ */
+async function appliquerRemboursement(supabase, commission, remboursement) {
+  let lue = commission
+  for (let essai = 1; essai <= 2; essai += 1) {
+    const maj = effetRemboursement(lue, remboursement)
+    if (!maj) return false
+    const { data: ecrites, error } = await supabase
+      .from('closer_commissions')
+      .update({ ...maj, updated_at: new Date().toISOString() })
+      .eq('id', lue.id)
+      .eq('statut', lue.statut)
+      .select('id')
+    if (error) throw new Error(`commission non mise à jour : ${error.message}`)
+    if (ecrites?.length) return true
+    if (essai === 2) break
+
+    const { data: relue, error: erreurRelecture } = await supabase
+      .from('closer_commissions').select('id, statut, note').eq('id', commission.id).maybeSingle()
+    if (erreurRelecture) throw new Error(`closer_commissions illisible : ${erreurRelecture.message}`)
+    if (!relue) return false
+    lue = relue
+  }
+  throw new Error(`commission ${commission.id} modifiée pendant le remboursement : Stripe réessaiera`)
 }
