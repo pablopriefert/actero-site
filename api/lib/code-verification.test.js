@@ -58,11 +58,12 @@ function ligneDeCode({ id, parcours, code = '123456', cree = '2026-09-17T10:00:0
 
 const autre = (parcours) => (parcours === 'closer' ? 'marchand' : 'closer')
 
-function monde({ codes = [], erreurs } = {}) {
+function monde({ codes = [], erreurs, comptes } = {}) {
   h.supabase = creerFauxSupabase({
     tables: { email_verification_codes: codes, closers: [], clients: [], client_users: [], client_settings: [] },
     uniques: { closers: ['user_id', 'code'] },
     erreurs,
+    comptes,
   })
   return h.supabase
 }
@@ -266,5 +267,51 @@ describe.each(['closer', 'marchand'])('compteur d’essais atomique — parcours
     const res = await verifier('123456')
     expect(res.statusCode).toBe(400)
     expect(comptesCrees(sb)).toEqual([])
+  })
+})
+
+describe.each(['closer', 'marchand'])('le mot de passe chiffré ne survit pas au code — parcours %s', (parcours) => {
+  const MOT_DE_PASSE = parcours === 'closer' ? 'motdepasse-closer' : 'motdepasse-marchand'
+  const RESTE = parcours === 'closer'
+    ? { kind: TYPE_CODE_CLOSER, prenom: 'Jeanne', nom: 'Martin' }
+    : { brand_name: 'Boutique Jeanne', shopify_url: null, referral_code: null, acquisition_source: null }
+  const ecrituresDUsage = (sb) => sb.journal.filter((j) => j.table === 'email_verification_codes' && j.operation === 'update' && j.charge.used_at)
+
+  it('password_enc quitte le payload dans l’écriture qui marque le code utilisé', async () => {
+    const sb = monde({ codes: [ligneDeCode({ id: 'v', parcours })] })
+    const res = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '123456' } })
+    expect(res.statusCode).toBe(200)
+    const [ecriture] = ecrituresDUsage(sb)
+    expect(ecriture.charge).toEqual({ used_at: expect.any(String), payload: RESTE })
+    expect(sb.base.email_verification_codes[0].payload).toEqual(RESTE)
+    // Le compte a bien reçu le mot de passe, lu avant l'écriture.
+    expect(comptesCrees(sb)[0].attributs.password).toBe(MOT_DE_PASSE)
+  })
+
+  it('même quand la création du compte échoue ensuite', async () => {
+    const sb = monde({ codes: [ligneDeCode({ id: 'v', parcours })], comptes: { x: { id: 'u-existant', email: EMAIL } } })
+    const res = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '123456' } })
+    expect(res.statusCode).toBe(409)
+    expect(sb.base.email_verification_codes[0].payload).toEqual(RESTE)
+    expect(JSON.stringify(sb.base.email_verification_codes)).not.toContain('enc:v1:')
+  })
+
+  it('un mauvais code laisse le payload intact', async () => {
+    const sb = monde({ codes: [ligneDeCode({ id: 'v', parcours })] })
+    await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '999999' } })
+    expect(sb.base.email_verification_codes[0].payload.password_enc).toMatch(/^enc:v1:/)
+  })
+})
+
+describe('le mot de passe en clair d’un ancien code marchand ne survit pas non plus', () => {
+  it('payload.password est retiré avec used_at', async () => {
+    const ancien = ligneDeCode({ id: 'v', parcours: 'marchand' })
+    delete ancien.payload.password_enc
+    ancien.payload.password = 'ancien-motdepasse'
+    const sb = monde({ codes: [ancien] })
+    const res = await appeler(routes.marchand.verifier, { methode: 'POST', corps: { email: EMAIL, code: '123456' } })
+    expect(res.statusCode).toBe(200)
+    expect(comptesCrees(sb)[0].attributs.password).toBe('ancien-motdepasse')
+    expect(sb.base.email_verification_codes[0].payload).not.toHaveProperty('password')
   })
 })

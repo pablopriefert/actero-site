@@ -90,10 +90,14 @@ async function handler(req, res) {
   }
 
   // Utilisé une seule fois : si une requête concurrente l'a consommé entre la
-  // lecture et ici, c'est elle qui crée le compte.
+  // lecture et ici, c'est elle qui crée le compte. Le mot de passe (chiffré,
+  // ou en clair sur les anciens codes) ne sert plus qu'à créer le compte,
+  // depuis la mémoire : il quitte la base dans cette même écriture, que la
+  // suite réussisse ou non.
+  const { password_enc: motDePasseChiffre, password: motDePasseEnClair, ...payload } = record.payload || {}
   const { data: consomme, error: erreurUsage } = await supabase
     .from('email_verification_codes')
-    .update({ used_at: new Date().toISOString() })
+    .update({ used_at: new Date().toISOString(), payload })
     .eq('id', record.id)
     .is('used_at', null)
     .select('id')
@@ -101,11 +105,10 @@ async function handler(req, res) {
   if (!consomme?.length) return res.status(400).json(CODE_EXPIRE)
 
   // Create account (replicated from api/auth/signup.js)
-  const payload = record.payload || {}
   // Support both legacy (password in clear) and encrypted (password_enc) formats.
-  const password = payload.password_enc
-    ? decryptToken(payload.password_enc)
-    : payload.password
+  const password = motDePasseChiffre
+    ? decryptToken(motDePasseChiffre)
+    : motDePasseEnClair
   const brand_name = payload.brand_name
   const shopify_url = payload.shopify_url
   const referral_code = payload.referral_code

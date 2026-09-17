@@ -84,19 +84,22 @@ async function handler(req, res) {
   }
 
   // Utilisé une seule fois : si une requête concurrente l'a consommé entre la
-  // lecture et ici, c'est elle qui crée le compte.
+  // lecture et ici, c'est elle qui crée le compte. Le mot de passe chiffré ne
+  // sert plus qu'à créer le compte, depuis la mémoire : il quitte la base dans
+  // cette même écriture, que la suite réussisse ou non.
+  const { password_enc: motDePasseChiffre, ...payloadSansSecret } = ligne.payload || {}
   const { data: consomme, error: erreurUsage } = await supabase
     .from('email_verification_codes')
-    .update({ used_at: new Date().toISOString() })
+    .update({ used_at: new Date().toISOString(), payload: payloadSansSecret })
     .eq('id', ligne.id)
     .is('used_at', null)
     .select('id')
   if (erreurUsage) return res.status(503).json(INDISPONIBLE)
   if (!consomme?.length) return res.status(400).json(CODE_EXPIRE)
 
-  const prenom = nettoyerNom(ligne.payload.prenom)
-  const nom = nettoyerNom(ligne.payload.nom)
-  const password = ligne.payload.password_enc ? decryptToken(ligne.payload.password_enc) : null
+  const prenom = nettoyerNom(payloadSansSecret.prenom)
+  const nom = nettoyerNom(payloadSansSecret.nom)
+  const password = motDePasseChiffre ? decryptToken(motDePasseChiffre) : null
   if (!prenom || !nom || !password) return res.status(400).json({ error: 'code_expire', message: 'Demandez un nouveau code.' })
 
   const { data: cree, error: erreurCompte } = await supabase.auth.admin.createUser({
