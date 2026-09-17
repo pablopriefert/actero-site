@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { SEO } from '../../components/SEO'
 import { supabase } from '../../lib/supabase'
-import { appelCloser, lireIntentionGoogle, oublierIntentionGoogle } from '../../lib/espace-closer'
+import { terminerRetourGoogleCloser } from '../../lib/espace-closer'
 import { CadreCloser } from '../../components/closer/ui'
 
 /**
  * /closer/callback — le retour de Google pour l'espace closer.
  *
- * Après une inscription, crée la fiche closer (api/closer/devenir-closer.js) ;
- * puis mène à /closer, qui propose « Devenir closer » à un compte sans fiche.
+ * Après une inscription, crée la fiche closer (api/closer/devenir-closer.js,
+ * par terminerRetourGoogleCloser, que /auth/callback partage) ; puis mène à
+ * /closer, qui propose « Devenir closer » à un compte sans fiche.
  * Ne crée JAMAIS de client marchand : ni resolveOrCreateClientId, ni écriture
  * dans `clients` (spec closers, garde src/lib/pages-closer.test.js).
  *
@@ -26,15 +27,7 @@ export function CloserCallbackPage({ onNavigate }) {
     const poursuivre = async (session) => {
       if (!session || lance.current) return
       lance.current = true
-      if (lireIntentionGoogle() === 'inscription') {
-        try {
-          await appelCloser('devenir-closer', { methode: 'POST', corps: {} })
-        } catch {
-          // L'espace proposera « Devenir closer » : rien n'est perdu.
-        }
-      }
-      oublierIntentionGoogle()
-      onNavigate('/closer')
+      onNavigate(await terminerRetourGoogleCloser())
     }
 
     supabase.auth.getSession().then(({ data }) => poursuivre(data?.session))

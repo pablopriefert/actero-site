@@ -7,6 +7,7 @@ import { codeCampagneCourant, presenterCodeCampagne } from '../lib/campagne'
 import { resolveOrCreateClientId } from '../lib/resolve-client'
 import { codeCloserCourant, destinationApresRattachement, presenterCodeCloser } from '../lib/code-closer'
 import { lireFormuleChoisie } from '../lib/affichage-formules'
+import { lireIntentionGoogle, oublierIntentionGoogle, terminerRetourGoogleCloser } from '../lib/espace-closer'
 
 const DEBUG_AUTH = false;
 const logger = (...args) => {
@@ -52,6 +53,27 @@ export function AuthCallbackPage({ onNavigate }) {
       onNavigate("/setup-password");
       return;
     }
+
+    // Le rôle d'abord. Un admin ne présente ni code closer ni code de
+    // campagne, et aucun client marchand n'est créé pour lui : la lecture du
+    // rôle passe avant ces trois étapes (elle venait en dernier).
+    const userRole = await fetchUserRole(session.user.id);
+    if (userRole === "admin") {
+      oublierIntentionGoogle();
+      onNavigate("/admin");
+      return;
+    }
+
+    // Retour Google de l'espace closer arrivé ici plutôt que sur
+    // /closer/callback : quand cette adresse n'est pas dans les adresses de
+    // retour autorisées, Supabase revient sur l'adresse du site, que
+    // l'application route vers cette page. Même suite que CloserCallbackPage,
+    // et surtout aucun client marchand.
+    if (lireIntentionGoogle()) {
+      onNavigate(await terminerRetourGoogleCloser());
+      return;
+    }
+
     // Prospect d'un closer (lien /c/:code). Le code se présente dès que le
     // compte marchand existe, AVANT la campagne et la page de paiement : un
     // client qui paie déjà n'est plus rattachable. Un compte closer n'a pas de
@@ -102,9 +124,7 @@ export function AuthCallbackPage({ onNavigate }) {
       return;
     }
 
-    // Otherwise, redirect based on role
-    const userRole = await fetchUserRole(session.user.id);
-    onNavigate(userRole === "admin" ? "/admin" : "/client");
+    onNavigate("/client");
   }, [onNavigate]);
 
   useEffect(() => {

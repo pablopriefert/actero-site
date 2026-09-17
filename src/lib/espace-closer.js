@@ -35,23 +35,41 @@ export async function appelCloser(chemin, { methode = 'GET', corps } = {}) {
   return donnees
 }
 
-/** Part vers Google ; le retour se fait sur /closer/callback, jamais sur /auth/callback. */
-export async function connexionGoogleCloser(intention) {
+/**
+ * Durée de vie de l'intention. Un aller-retour Google prend quelques minutes ;
+ * au-delà, l'intention vient d'un départ abandonné (retour arrière depuis la
+ * page de Google) et ne doit pas détourner la connexion Google suivante d'un
+ * marchand vers l'espace closer.
+ */
+const DUREE_INTENTION_MS = 15 * 60 * 1000
+
+export function memoriserIntentionGoogle(intention) {
   try {
-    sessionStorage.setItem(CLE_INTENTION_GOOGLE, intention)
+    sessionStorage.setItem(CLE_INTENTION_GOOGLE, JSON.stringify({ intention, le: Date.now() }))
   } catch {
     // navigation privée : le retour mènera à l'espace, qui proposera « Devenir closer »
   }
+}
+
+/** Part vers Google ; le retour se fait sur /closer/callback, jamais sur /auth/callback. */
+export async function connexionGoogleCloser(intention) {
+  memoriserIntentionGoogle(intention)
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: `${window.location.origin}/closer/callback` },
   })
-  if (error) throw error
+  if (error) {
+    oublierIntentionGoogle()
+    throw error
+  }
 }
 
+/** « inscription », « connexion », ou null (rien de posé, ou posé il y a trop longtemps). */
 export function lireIntentionGoogle() {
   try {
-    return sessionStorage.getItem(CLE_INTENTION_GOOGLE)
+    const brut = JSON.parse(sessionStorage.getItem(CLE_INTENTION_GOOGLE) || 'null')
+    if (!brut?.intention || Date.now() - (brut.le || 0) > DUREE_INTENTION_MS) return null
+    return brut.intention
   } catch {
     return null
   }
@@ -63,4 +81,21 @@ export function oublierIntentionGoogle() {
   } catch {
     // rien à oublier
   }
+}
+
+/**
+ * La fin d'un retour Google closer, quelle que soit la page où il arrive :
+ * crée la fiche après une inscription, oublie l'intention, et rend la page où
+ * aller. Ne crée jamais de client marchand, et ne lève jamais.
+ */
+export async function terminerRetourGoogleCloser() {
+  if (lireIntentionGoogle() === 'inscription') {
+    try {
+      await appelCloser('devenir-closer', { methode: 'POST', corps: {} })
+    } catch {
+      // L'espace proposera « Devenir closer » : rien n'est perdu.
+    }
+  }
+  oublierIntentionGoogle()
+  return '/closer'
 }

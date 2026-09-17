@@ -45,9 +45,11 @@ describe('pages closer — un closer n’est pas un marchand', () => {
   })
 
   it('le retour Google crée la fiche seulement après une inscription', () => {
-    const code = lire('src/pages/closer/CloserCallbackPage.jsx')
-    expect(code).toMatch(/lireIntentionGoogle\(\) === 'inscription'[\s\S]*devenir-closer/)
-    expect(code).toMatch(/onNavigate\('\/closer'\)/)
+    // La suite vit dans espace-closer.js : /closer/callback et /auth/callback
+    // la partagent (src/pages/AuthCallbackPage.test.js la fait tourner).
+    const suite = lire('src/lib/espace-closer.js')
+    expect(suite).toMatch(/lireIntentionGoogle\(\) === 'inscription'[\s\S]*devenir-closer[\s\S]*return '\/closer'/)
+    expect(lire('src/pages/closer/CloserCallbackPage.jsx')).toMatch(/onNavigate\(await terminerRetourGoogleCloser\(\)\)/)
   })
 })
 

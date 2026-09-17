@@ -8,6 +8,7 @@ import { useMotion } from "../lib/motion";
 import { trackEvent } from "../lib/analytics";
 import { codeCampagneCourant } from '../lib/campagne'
 import { destinationApresRattachement, formuleDuLien, presenterCodeCloser } from '../lib/code-closer'
+import { oublierIntentionGoogle } from '../lib/espace-closer'
 
 export const SignupPage = ({ onNavigate }) => {
   const m = useMotion();
@@ -250,6 +251,9 @@ export const SignupPage = ({ onNavigate }) => {
     try {
       setLoading(true);
       setError("");
+      // Une intention closer restée d'un départ Google abandonné enverrait ce
+      // marchand vers l'espace closer au retour (voir AuthCallbackPage).
+      oublierIntentionGoogle();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
