@@ -4,6 +4,7 @@ import {
   STATUTS_COMMISSION,
   LIBELLES_STATUT_COMMISSION,
   commissionPourFacture,
+  evaluerFacture,
   commissionManuelle,
   transitionCommission,
   effetRemboursement,
@@ -53,6 +54,7 @@ function facture(over = {}) {
     status: 'paid',
     amount_paid: 9900,
     billing_reason: 'subscription_cycle',
+    currency: 'eur',
     customer: 'cus_1',
     parent: { type: 'subscription_details', quote_details: null, subscription_details: { subscription: 'sub_1', metadata: { client_id: 'c1' } } },
     status_transitions: { finalized_at: 1_789_000_000, paid_at: 1_789_000_000, marked_uncollectible_at: null, voided_at: null },
@@ -91,11 +93,13 @@ describe('la grille de commission — note de Pablo', () => {
 })
 
 describe('commissionPourFacture', () => {
-  it('une mensualité : clé stripe:<facture>, statut a_valider, date de paiement', () => {
-    expect(pourFacture(facture(), [ligne('actero_pro_mensuel')])).toEqual({
+  it('une mensualité : clé stripe:<facture>, statut a_valider, date et montant du paiement', () => {
+    expect(pourFacture(facture({ amount_paid: 39900 }), [ligne('actero_pro_mensuel')])).toEqual({
       closer_id: 'k1',
       client_id: 'c1',
       montant_centimes: 10000,
+      montant_facture_centimes: 39900,
+      note: null,
       plan: 'pro',
       formule: 'mensuel',
       type: 'mensuelle',
@@ -152,10 +156,64 @@ describe('commissionPourFacture', () => {
     expect(pourFacture(facture(), [ligne('actero_pro_mensuel')]).montant_centimes).toBe(10000)
   })
 
-  it('seules la première facture et les renouvellements rapportent', () => {
-    for (const billing_reason of ['subscription_update', 'manual', 'subscription_threshold', 'upcoming', null]) {
+  it('seules la première facture, les renouvellements et les changements de formule rapportent', () => {
+    for (const billing_reason of ['subscription_create', 'subscription_cycle', 'subscription_update']) {
+      expect(pourFacture(facture({ billing_reason }), [ligne('actero_pro_mensuel')]), billing_reason).not.toBeNull()
+    }
+    for (const billing_reason of ['manual', 'subscription_threshold', 'subscription', 'upcoming', 'quote_accept', null]) {
       expect(pourFacture(facture({ billing_reason }), [ligne('actero_pro_mensuel')]), String(billing_reason)).toBeNull()
     }
+  })
+
+  it('passage du mensuel à l’annuel facturé tout de suite : la commission unique, le prorata ne compte pas', () => {
+    // Facture de subscription_update : le crédit du mois non consommé (prorata)
+    // et l'année entière du nouveau prix (hors prorata).
+    const bascule = facture({ billing_reason: 'subscription_update', amount_paid: 392010 })
+    const lignes = [{ ...ligne('actero_pro_mensuel', { proration: true }), amount: -13300 }, ligne('actero_pro_annuel')]
+    expect(pourFacture(bascule, lignes)).toMatchObject({ type: 'unique', formule: 'annuel', montant_centimes: 60000, source_key: 'unique:c1' })
+    // L'unique est déjà là (versée à la souscription, ou par un premier envoi) : rien de plus.
+    expect(evaluerFacture({ facture: bascule, lignes, client: CLIENT, uniqueDejaVersee: true })).toEqual({ raison: 'unique_deja_versee' })
+  })
+
+  it('une facture de pur prorata ne crée rien', () => {
+    const prorata = facture({ billing_reason: 'subscription_update', amount_paid: 10000 })
+    const lignes = [
+      { ...ligne('actero_starter_mensuel', { proration: true }), amount: -3300 },
+      { ...ligne('actero_pro_mensuel', { proration: true }), amount: 13300 },
+    ]
+    expect(evaluerFacture({ facture: prorata, lignes, client: CLIENT, uniqueDejaVersee: false })).toEqual({ raison: 'hors_grille' })
+  })
+
+  it('une facture qui n’est pas en euros : rien, raison « devise »', () => {
+    for (const currency of ['usd', 'EUR', undefined]) {
+      expect(evaluerFacture({ facture: facture({ currency }), lignes: [ligne('actero_pro_mensuel')], client: CLIENT, uniqueDejaVersee: false }), String(currency))
+        .toEqual({ raison: 'devise' })
+    }
+  })
+
+  it('evaluerFacture nomme la raison de chaque absence de commission', () => {
+    const evaluer = (f, lignes, over = {}) => evaluerFacture({ facture: f, lignes, client: CLIENT, uniqueDejaVersee: false, ...over })
+    expect(evaluer(facture(), [ligne('actero_pro_annuel')], { uniqueDejaVersee: true })).toEqual({ raison: 'unique_deja_versee' })
+    expect(evaluer(facture(), [ligne('actero_enterprise_sur_mesure')])).toEqual({ raison: 'hors_grille' })
+    expect(evaluer(facture({ billing_reason: 'manual' }), [ligne('actero_pro_mensuel')])).toEqual({ raison: 'hors_grille' })
+    expect(evaluer(facture({ amount_paid: 0 }), [ligne('actero_pro_mensuel')])).toEqual({ raison: 'rien_encaisse' })
+    expect(evaluer(facture({ status: 'open' }), [ligne('actero_pro_mensuel')])).toEqual({ raison: 'rien_encaisse' })
+    expect(evaluer(facture({ parent: null }), [ligne('actero_pro_mensuel')])).toEqual({ raison: 'hors_abonnement' })
+    expect(evaluer(facture(), [ligne('actero_pro_mensuel')], { client: { id: 'c1', closer_id: null } })).toEqual({ raison: 'sans_closer' })
+    expect(evaluer(facture(), [ligne('actero_pro_mensuel')]).commission).toMatchObject({ source_key: 'stripe:in_1' })
+  })
+
+  it('le montant payé est gardé ; une commission qui le dépasse porte une note à vérifier', () => {
+    // Pro mensuel à 399 €, code promo à −90 % : 39,90 € payés, 100 € de commission.
+    const promo = pourFacture(facture({ amount_paid: 3990 }), [ligne('actero_pro_mensuel')])
+    expect(promo).toMatchObject({
+      montant_centimes: 10000,
+      montant_facture_centimes: 3990,
+      statut: 'a_valider',
+      note: 'Commission supérieure au montant payé (39,90 €) : à vérifier',
+    })
+    expect(pourFacture(facture({ amount_paid: 10000 }), [ligne('actero_pro_mensuel')])).toMatchObject({ montant_facture_centimes: 10000, note: null })
+    expect(pourFacture(facture({ amount_paid: 9999 }), [ligne('actero_pro_mensuel')]).note).toBe('Commission supérieure au montant payé (99,99 €) : à vérifier')
   })
 
   it('une facture hors abonnement, ou un client sans closer : rien', () => {

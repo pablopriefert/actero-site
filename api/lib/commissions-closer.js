@@ -36,11 +36,19 @@ export const LIBELLES_STATUT_COMMISSION = Object.freeze({
 export const PLANS_COMMISSIONNABLES = Object.freeze(['starter', 'pro', 'enterprise'])
 
 /**
- * Les seules factures d'abonnement qui rapportent : la première, puis chaque
- * renouvellement. Une facture de prorata (`subscription_update`, changement de
- * plan en cours de mois) n'est pas une mensualité.
+ * Les seules factures d'abonnement qui rapportent : la première, chaque
+ * renouvellement, et un changement de formule facturé tout de suite
+ * (`subscription_update`, par exemple du mensuel à l'annuel).
+ *
+ * Une facture de changement porte surtout du prorata : ces lignes sont
+ * écartées par formuleDesLignes, et une facture de pur prorata ne crée rien.
+ * Seule compte la période neuve facturée en entier. La clé unique
+ * (`unique:<client>`) empêche une seconde commission unique.
  */
-export const RAISONS_FACTURE_COMMISSIONNEES = Object.freeze(['subscription_create', 'subscription_cycle'])
+export const RAISONS_FACTURE_COMMISSIONNEES = Object.freeze(['subscription_create', 'subscription_cycle', 'subscription_update'])
+
+/** Les commissions se versent en euros : une facture dans une autre devise ne rapporte rien. */
+export const DEVISE_COMMISSIONS = 'eur'
 
 /** « Remboursable jusqu'au » : paiement + 30 jours, affiché à l'admin à titre d'information. */
 export const DELAI_REMBOURSEMENT_JOURS = 30
@@ -159,49 +167,71 @@ function formuleDesLignes(lignes) {
   return formule
 }
 
+/** La note posée quand la commission dépasse ce que le client a payé (code promo, remise). */
+export function noteCommissionSuperieure(montantPayeCentimes) {
+  return `Commission supérieure au montant payé (${eurosTexte(montantPayeCentimes)}) : à vérifier`
+}
+
 /**
- * La commission née d'une facture Stripe payée, ou null.
+ * La commission née d'une facture Stripe payée, ou la raison de son absence.
  *
  * `facture` et `lignes` ont la forme de l'API 2026-02-25.clover (celle du SDK) :
  * l'abonnement se lit dans `facture.parent.subscription_details`, le prix de
  * chaque ligne dans `ligne.pricing.price_details.price` (étendu). Une facture
  * n'y porte plus `subscription`, ni une ligne `price`.
  *
+ * Raisons : rien_encaisse, hors_abonnement, sans_closer, devise, hors_grille
+ * (facture, formule ou plan hors de la grille), unique_deja_versee.
+ *
+ * La commission garde le montant réellement payé (`montant_facture_centimes`) ;
+ * si elle le dépasse, une note le signale à Actero, qui décide.
+ *
  * @param {{ facture: any, lignes: any[], client: { id: string, closer_id: string|null }, uniqueDejaVersee: boolean }} p
+ * @returns {{ commission: object } | { raison: string }}
  */
-export function commissionPourFacture({ facture, lignes, client, uniqueDejaVersee }) {
+export function evaluerFacture({ facture, lignes, client, uniqueDejaVersee }) {
   if (typeof uniqueDejaVersee !== 'boolean') {
     // « Je ne sais pas » ne vaut jamais « pas encore versée » : ce serait une
     // seconde commission unique sur une lecture ratée.
     throw new TypeError('commissionPourFacture : uniqueDejaVersee doit être connu (true ou false)')
   }
-  if (!facture || facture.status !== 'paid') return null
-  if (!Number.isInteger(facture.amount_paid) || facture.amount_paid <= 0) return null
-  if (!RAISONS_FACTURE_COMMISSIONNEES.includes(facture.billing_reason)) return null
-  if (facture.parent?.type !== 'subscription_details') return null
-  if (!client?.id || !client.closer_id) return null
+  if (!facture || facture.status !== 'paid') return { raison: 'rien_encaisse' }
+  if (!Number.isInteger(facture.amount_paid) || facture.amount_paid <= 0) return { raison: 'rien_encaisse' }
+  if (facture.parent?.type !== 'subscription_details') return { raison: 'hors_abonnement' }
+  if (!client?.id || !client.closer_id) return { raison: 'sans_closer' }
+  if (facture.currency !== DEVISE_COMMISSIONS) return { raison: 'devise' }
+  if (!RAISONS_FACTURE_COMMISSIONNEES.includes(facture.billing_reason)) return { raison: 'hors_grille' }
 
   const formule = formuleDesLignes(lignes)
-  if (!formule) return null
+  if (!formule) return { raison: 'hors_grille' }
   const montant = montantDeLaGrille(formule.plan, formule.periode)
-  if (!montant) return null
+  if (!montant) return { raison: 'hors_grille' }
   const type = typeDeCommission(formule.periode)
-  if (type === 'unique' && uniqueDejaVersee) return null
+  if (type === 'unique' && uniqueDejaVersee) return { raison: 'unique_deja_versee' }
 
   const payeLe = facture.status_transitions?.paid_at
   return {
-    closer_id: client.closer_id,
-    client_id: client.id,
-    montant_centimes: montant,
-    plan: formule.plan,
-    formule: formule.periode,
-    type,
-    source: 'stripe',
-    source_key: type === 'unique' ? cleUnique(client.id) : cleMensuelleStripe(facture.id),
-    stripe_invoice_id: facture.id,
-    payee_par_client_le: Number.isInteger(payeLe) ? new Date(payeLe * 1000).toISOString() : null,
-    statut: 'a_valider',
+    commission: {
+      closer_id: client.closer_id,
+      client_id: client.id,
+      montant_centimes: montant,
+      montant_facture_centimes: facture.amount_paid,
+      note: montant > facture.amount_paid ? noteCommissionSuperieure(facture.amount_paid) : null,
+      plan: formule.plan,
+      formule: formule.periode,
+      type,
+      source: 'stripe',
+      source_key: type === 'unique' ? cleUnique(client.id) : cleMensuelleStripe(facture.id),
+      stripe_invoice_id: facture.id,
+      payee_par_client_le: Number.isInteger(payeLe) ? new Date(payeLe * 1000).toISOString() : null,
+      statut: 'a_valider',
+    },
   }
+}
+
+/** La commission née d'une facture Stripe payée, ou null (voir evaluerFacture). */
+export function commissionPourFacture(p) {
+  return evaluerFacture(p).commission ?? null
 }
 
 /**
