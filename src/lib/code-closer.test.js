@@ -7,6 +7,8 @@ import {
   FORMAT_CODE_CLOSER,
   memoriserCodeCloser,
   codeCloserCourant,
+  visiteCloserCourante,
+  signalerOuvertureDuLien,
   oublierCodeCloser,
   presenterCodeCloser,
   reinitialiserAdjudicationCloser,
@@ -33,8 +35,14 @@ vi.mock('@supabase/supabase-js', () => ({
   createClient: () => new Proxy({}, { get: (_, cle) => h.supabase[cle] }),
 }))
 const { default: routeAttribuer } = await import('../../api/closer/attribuer.js')
+const { default: routeClic } = await import('../../api/closer/clic.js')
 
 let ecritures = []
+
+/** Le nom du cookie d'une écriture de `document.cookie`. */
+const nomEcrit = (ecriture) => ecriture.split('=')[0].trim()
+
+const FORMAT_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 function installerCookies(valeurInitiale = '') {
   ecritures = []
@@ -86,7 +94,7 @@ describe('mémoriser le code du lien', () => {
     memoriserCodeCloser('ACT-AAAAA')
     expect(memoriserCodeCloser('ACT-BBBBB')).toBe('ACT-AAAAA')
     memoriserCodeCloser('ACT-AAAAA')
-    expect(ecritures).toHaveLength(1)
+    expect(ecritures.map(nomEcrit)).toEqual(['closer_code', 'closer_visite'])
     expect(codeCloserCourant()).toBe('ACT-AAAAA')
   })
 
@@ -105,7 +113,7 @@ describe('le cookie ne part qu’en https quand la page est en https', () => {
     allerSur('https://actero.fr/c/ACT-AAAAA')
     memoriserCodeCloser('ACT-AAAAA')
     oublierCodeCloser()
-    expect(ecritures).toHaveLength(2)
+    expect(ecritures.map(nomEcrit)).toEqual(['closer_code', 'closer_visite', 'closer_code'])
     for (const ecriture of ecritures) {
       expect(ecriture).toMatch(/;\s*Secure(;|$)/)
       expect(ecriture).toMatch(/;\s*SameSite=Lax(;|$)/)
@@ -117,6 +125,153 @@ describe('le cookie ne part qu’en https quand la page est en https', () => {
     memoriserCodeCloser('ACT-AAAAA')
     oublierCodeCloser()
     for (const ecriture of ecritures) expect(ecriture).not.toMatch(/secure/i)
+  })
+})
+
+describe('la visite du lien', () => {
+  it('le code mémorisé pose une visite aléatoire : 60 jours, mêmes attributs que le code', () => {
+    memoriserCodeCloser('ACT-AAAAA')
+    const visite = visiteCloserCourante()
+    expect(visite).toMatch(FORMAT_UUID)
+    const [code, ecriture] = ecritures
+    // Les attributs du code, date d'expiration à part : deux calculs peuvent tomber de part et d'autre d'une seconde.
+    const attributs = (e) => e.split('; ').slice(1).filter((a) => !a.startsWith('expires='))
+    expect(ecriture.split('; ')[0]).toBe(`closer_visite=${visite}`)
+    expect(attributs(ecriture)).toEqual(attributs(code))
+    const expire = Date.parse(ecriture.match(/expires=([^;]+)/)[1])
+    expect(Math.abs(expire - (Date.now() + 60 * 86_400_000))).toBeLessThan(5_000)
+  })
+
+  it('un second passage réutilise la visite, sans repousser son expiration', () => {
+    memoriserCodeCloser('ACT-AAAAA')
+    const visite = visiteCloserCourante()
+    memoriserCodeCloser('ACT-AAAAA')
+    memoriserCodeCloser('ACT-BBBBB')
+    expect(visiteCloserCourante()).toBe(visite)
+    expect(ecritures.filter((e) => nomEcrit(e) === 'closer_visite')).toHaveLength(1)
+  })
+
+  it('un code mémorisé avant le fil, sans visite : la visite est créée au passage suivant', () => {
+    installerCookies('closer_code=ACT-AAAAA')
+    expect(memoriserCodeCloser('ACT-AAAAA')).toBe('ACT-AAAAA')
+    expect(visiteCloserCourante()).toMatch(FORMAT_UUID)
+    expect(ecritures.map(nomEcrit)).toEqual(['closer_visite'])
+  })
+
+  it('aucun code gardé : aucune visite', () => {
+    expect(memoriserCodeCloser('pas un code')).toBeNull()
+    expect(visiteCloserCourante()).toBeNull()
+    expect(ecritures).toEqual([])
+  })
+
+  it('une visite illisible ne sert pas', () => {
+    installerCookies('closer_code=ACT-AAAAA; closer_visite=abc')
+    expect(visiteCloserCourante()).toBeNull()
+  })
+
+  it('sans crypto.randomUUID : le code est gardé quand même, sans visite', () => {
+    const randomUUID = vi.spyOn(globalThis.crypto, 'randomUUID').mockImplementation(() => { throw new Error('indisponible') })
+    try {
+      expect(memoriserCodeCloser('ACT-AAAAA')).toBe('ACT-AAAAA')
+      expect(codeCloserCourant()).toBe('ACT-AAAAA')
+      expect(visiteCloserCourante()).toBeNull()
+    } finally {
+      randomUUID.mockRestore()
+    }
+  })
+})
+
+describe('signaler l’ouverture du lien', () => {
+  let balise
+
+  function installerBalise(implementation) {
+    balise = vi.fn(implementation)
+    Object.defineProperty(navigator, 'sendBeacon', { configurable: true, writable: true, value: balise })
+  }
+
+  afterEach(() => {
+    delete navigator.sendBeacon
+  })
+
+  it('une balise vers /api/closer/clic, avec le code du lien et la visite ; rien d’autre', () => {
+    memoriserCodeCloser('ACT-AAAAA')
+    installerBalise(() => true)
+    repond(204)
+    expect(signalerOuvertureDuLien(' act-aaaaa ')).toBe(true)
+    expect(balise).toHaveBeenCalledTimes(1)
+    const [url, corps] = balise.mock.calls[0]
+    expect(url).toBe('/api/closer/clic')
+    expect(JSON.parse(corps)).toEqual({ code: 'ACT-AAAAA', visite: visiteCloserCourante() })
+    expect(globalThis.fetch).not.toHaveBeenCalled()
+  })
+
+  it('le code envoyé est celui du lien ouvert, même si un premier code reste mémorisé', () => {
+    memoriserCodeCloser('ACT-AAAAA')
+    memoriserCodeCloser('ACT-BBBBB')
+    installerBalise(() => true)
+    signalerOuvertureDuLien('ACT-BBBBB')
+    expect(JSON.parse(balise.mock.calls[0][1]).code).toBe('ACT-BBBBB')
+    expect(codeCloserCourant()).toBe('ACT-AAAAA')
+  })
+
+  it.each([
+    ['sans sendBeacon', null],
+    ['balise refusée', () => false],
+    ['balise qui lève', () => { throw new TypeError('Illegal invocation') }],
+  ])('%s : fetch en keepalive prend le relais', (_, implementation) => {
+    memoriserCodeCloser('ACT-AAAAA')
+    if (implementation) installerBalise(implementation)
+    repond(204)
+    expect(signalerOuvertureDuLien('ACT-AAAAA')).toBe(true)
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+    const [url, options] = globalThis.fetch.mock.calls[0]
+    expect(url).toBe('/api/closer/clic')
+    expect(options).toMatchObject({ method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' } })
+    expect(JSON.parse(options.body)).toEqual({ code: 'ACT-AAAAA', visite: visiteCloserCourante() })
+  })
+
+  it('une coupure ne lève pas et ne laisse aucune promesse rejetée', async () => {
+    // Vitest fait échouer la suite sur une promesse rejetée que personne n'attrape.
+    memoriserCodeCloser('ACT-AAAAA')
+    const rejetee = Promise.reject(new TypeError('Failed to fetch'))
+    const attrapee = vi.spyOn(rejetee, 'catch')
+    globalThis.fetch = vi.fn(() => rejetee)
+    expect(signalerOuvertureDuLien('ACT-AAAAA')).toBe(true)
+    expect(attrapee).toHaveBeenCalledTimes(1)
+    globalThis.fetch = vi.fn(() => { throw new TypeError('fetch indisponible') })
+    expect(signalerOuvertureDuLien('ACT-AAAAA')).toBe(false)
+    await new Promise((r) => setTimeout(r, 0))
+  })
+
+  it('code invalide, ou pas de visite : rien n’est envoyé', () => {
+    installerBalise(() => true)
+    repond(204)
+    expect(signalerOuvertureDuLien('ACT-AAAAA')).toBe(false)
+    memoriserCodeCloser('ACT-AAAAA')
+    expect(signalerOuvertureDuLien('ACT-AAAA')).toBe(false)
+    expect(signalerOuvertureDuLien(null)).toBe(false)
+    expect(balise).not.toHaveBeenCalled()
+    expect(globalThis.fetch).not.toHaveBeenCalled()
+  })
+
+  it('le navigateur et api/closer/clic.js s’accordent : la balise est lue et notée', async () => {
+    h.supabase = creerFauxSupabase({
+      tables: { closers: [{ id: 'k-a', user_id: 'u-a', statut: 'actif', code: 'ACT-AAAAA' }], closer_evenements: [] },
+      uniques: { closer_evenements: ['source_key'] },
+    })
+    memoriserCodeCloser('ACT-AAAAA')
+    installerBalise(() => true)
+    signalerOuvertureDuLien('ACT-AAAAA')
+    const res = { statusCode: 0, status(c) { this.statusCode = c; return this }, end() { return this }, json() { return this } }
+    // Une balise texte arrive comme un texte : Vercel ne le lit pas en JSON.
+    await routeClic({
+      method: 'POST',
+      headers: { 'user-agent': navigator.userAgent, 'x-forwarded-for': '203.0.113.9' },
+      body: balise.mock.calls[0][1],
+    }, res)
+    expect(res.statusCode).toBe(204)
+    expect(h.supabase.base.closer_evenements).toHaveLength(1)
+    expect(h.supabase.base.closer_evenements[0]).toMatchObject({ closer_id: 'k-a', client_id: null, visite_id: visiteCloserCourante(), type: 'lien_ouvert' })
   })
 })
 
@@ -392,5 +547,13 @@ describe('le code est présenté là où le compte est créé, avant tout paieme
     expect(page).toMatch(/memoriserCodeCloser\(/)
     expect(page).toMatch(/memoriserFormuleChoisie\(formule\)/)
     expect(page).toMatch(/<SEO[^>]*\bnoindex\b/)
+  })
+
+  it('le lien signale son ouverture après avoir mémorisé le code, sans l’attendre, avant la redirection', () => {
+    const page = lire('src/pages/LienCloserPage.jsx')
+    const signal = page.indexOf('signalerOuvertureDuLien(brut)')
+    expect(signal).toBeGreaterThan(page.indexOf('memoriserCodeCloser(brut)'))
+    expect(signal).toBeLessThan(page.indexOf('window.location.replace('))
+    expect(page).not.toMatch(/await\s+signalerOuvertureDuLien/)
   })
 })

@@ -23,13 +23,22 @@ export const DUREE_ATTRIBUTION_JOURS = 60
 
 const CLE = 'closer_code'
 
+/**
+ * L'identifiant aléatoire du visiteur du lien (fil d'activité du closer, spec
+ * 2026-09-17-closers-fil-activite-design.md). Il relie ses ouvertures du lien
+ * à son inscription, et rien d'autre : ce n'est ni un compte ni une adresse.
+ */
+const CLE_VISITE = 'closer_visite'
+
 /** Même format que api/lib/code-closer.js et que la contrainte SQL. */
 export const FORMAT_CODE_CLOSER = /^ACT-[A-Z0-9]{5}$/
 
+const FORMAT_VISITE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 const PLANS_DU_LIEN = ['starter', 'pro']
 
-function cookieExistant() {
-  const trouve = document.cookie.match(/(?:^|;\s*)closer_code=([^;]*)/)
+function cookieExistant(nom = CLE) {
+  const trouve = document.cookie.match(new RegExp(`(?:^|;\\s*)${nom}=([^;]*)`))
   return trouve ? decodeURIComponent(trouve[1]) : null
 }
 
@@ -43,10 +52,32 @@ function attributsCookie() {
   return `path=/; SameSite=Lax${https ? '; Secure' : ''}`
 }
 
+function expiration() {
+  return new Date(Date.now() + DUREE_ATTRIBUTION_JOURS * 86_400_000).toUTCString()
+}
+
+/**
+ * Pose l'identifiant de visite s'il n'y en a pas : mêmes attributs et même
+ * durée que le code, et, comme lui, un second passage ne repousse pas son
+ * expiration. Sans `crypto.randomUUID`, pas de visite : le code sert quand même.
+ */
+function memoriserVisite() {
+  try {
+    if (visiteCloserCourante()) return
+    const visite = globalThis.crypto?.randomUUID?.()
+    if (typeof visite !== 'string' || !FORMAT_VISITE.test(visite)) return
+    document.cookie = `${CLE_VISITE}=${visite}; expires=${expiration()}; ${attributsCookie()}`
+  } catch {
+    // sans visite, seules les ouvertures du lien ne seront pas reliées
+  }
+}
+
 /**
  * Mémorise le code du lien. Le premier lien cliqué gagne, comme le premier
  * closer gagne côté serveur ; et un second passage ne repousse pas
  * l'expiration (le défaut du 11 septembre sur le code de campagne).
+ *
+ * Crée aussi, ou réutilise, l'identifiant de visite (`closer_visite`).
  *
  * @returns {string|null} le code désormais mémorisé
  */
@@ -54,14 +85,65 @@ export function memoriserCodeCloser(brut) {
   if (typeof window === 'undefined') return null
   try {
     const deja = cookieExistant()
-    if (deja) return deja
+    if (deja) {
+      memoriserVisite()
+      return deja
+    }
     const code = typeof brut === 'string' ? brut.trim().toUpperCase() : ''
     if (!FORMAT_CODE_CLOSER.test(code)) return null
-    const expire = new Date(Date.now() + DUREE_ATTRIBUTION_JOURS * 86_400_000).toUTCString()
-    document.cookie = `${CLE}=${encodeURIComponent(code)}; expires=${expire}; ${attributsCookie()}`
+    document.cookie = `${CLE}=${encodeURIComponent(code)}; expires=${expiration()}; ${attributsCookie()}`
+    memoriserVisite()
     return code
   } catch {
     return null
+  }
+}
+
+/** L'identifiant de visite mémorisé, ou null. */
+export function visiteCloserCourante() {
+  if (typeof window === 'undefined') return null
+  try {
+    const visite = cookieExistant(CLE_VISITE)
+    return visite && FORMAT_VISITE.test(visite) ? visite : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Dit au serveur que le lien vient d'être ouvert (api/closer/clic.js), pour
+ * le fil du closer. Sans rien attendre : `sendBeacon` part même quand la page
+ * s'en va, sinon `fetch` en `keepalive`. Une panne ne bloque rien, et la
+ * réponse (toujours 204) n'apprend rien.
+ *
+ * Le code est celui du lien OUVERT, même si le code d'un premier lien reste
+ * mémorisé : ce closer-là voit que son lien a été ouvert, sans rien gagner
+ * d'autre (le rattachement suit le code mémorisé).
+ *
+ * @returns {boolean} true si l'envoi est parti
+ */
+export function signalerOuvertureDuLien(brut) {
+  if (typeof window === 'undefined') return false
+  try {
+    const code = typeof brut === 'string' ? brut.trim().toUpperCase() : ''
+    const visite = visiteCloserCourante()
+    if (!FORMAT_CODE_CLOSER.test(code) || !visite) return false
+    const corps = JSON.stringify({ code, visite })
+    try {
+      // Un texte : type toujours accepté par sendBeacon, lu par la route.
+      if (typeof navigator?.sendBeacon === 'function' && navigator.sendBeacon('/api/closer/clic', corps)) return true
+    } catch {
+      // sendBeacon refusé : fetch prend le relais
+    }
+    fetch('/api/closer/clic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: corps,
+      keepalive: true,
+    }).catch(() => {})
+    return true
+  } catch {
+    return false
   }
 }
 
