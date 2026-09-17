@@ -90,17 +90,24 @@ export function rejouerFacturesStripe(clientId) {
 export const LIBELLES_ISSUES_REJEU = Object.freeze({
   creee: 'Commissions créées',
   deja_creee: 'Déjà créées',
-  non_traitee: 'Non traitées faute de temps : relancez pour continuer',
-  erreur: 'En erreur : relancez ; si l’erreur persiste, voyez Sentry',
+  non_traitee: 'Non traitées faute de temps',
+  erreur: 'En erreur',
   hors_grille: 'Hors grille (facture, formule ou plan sans commission)',
   unique_deja_versee: 'Commission unique déjà versée pour ce client',
   devise: 'Facturées dans une autre devise que l’euro',
-  client_ambigu: 'Abonnement partagé par plusieurs clients : à vérifier',
+  client_ambigu: 'Abonnement partagé par plusieurs clients',
   sans_closer: 'Client sans closer au moment de la relecture',
   client_inconnu: 'Aucun client Actero ne correspond à la facture',
   rien_encaisse: 'Rien d’encaissé',
   hors_abonnement: 'Hors abonnement',
   sans_facture: 'Facture introuvable',
+})
+
+/** Ce qu'il reste à faire après certaines issues. */
+export const CONSEILS_REJEU = Object.freeze({
+  non_traitee: 'relancez pour continuer',
+  erreur: 'relancez ; si l’erreur persiste, voyez Sentry',
+  client_ambigu: 'vérifiez à quel client appartient l’abonnement',
 })
 
 /** Le résumé d'un rejeu : combien de factures, de créées, de déjà créées, et le reste par issue. */
@@ -114,13 +121,13 @@ export function resumeRejeu(resultats) {
       issue,
       nombre,
       libelle: Object.hasOwn(LIBELLES_ISSUES_REJEU, issue) ? LIBELLES_ISSUES_REJEU[issue] : `Autre issue (${issue})`,
+      conseil: Object.hasOwn(CONSEILS_REJEU, issue) ? CONSEILS_REJEU[issue] : null,
     }))
   return {
     factures: liste.length,
     creees: compte.get('creee') ?? 0,
     dejaCreees: compte.get('deja_creee') ?? 0,
     autres,
-    aRelancer: compte.has('non_traitee') || compte.has('erreur'),
   }
 }
 

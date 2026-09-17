@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { FileCommissions } from '../components/admin/closers/FileCommissions'
 import { CommissionsAPayer } from '../components/admin/closers/CommissionsAPayer'
 import { Historique } from '../components/admin/closers/Historique'
+import { Attributions, ResultatRejeu } from '../components/admin/closers/Attributions'
 import {
   alerteRemboursement, appelAdmin, lignesDeNote, messageDErreur, moisLisible, rejouerFacturesStripe, resumeRejeu,
 } from './admin-closers'
@@ -147,13 +148,12 @@ describe('affichage de l’admin closers', () => {
       creees: 1,
       dejaCreees: 2,
       autres: [
-        { issue: 'hors_grille', nombre: 1, libelle: 'Hors grille (facture, formule ou plan sans commission)' },
-        { issue: 'non_traitee', nombre: 1, libelle: 'Non traitées faute de temps : relancez pour continuer' },
-        { issue: 'inedite', nombre: 1, libelle: 'Autre issue (inedite)' },
+        { issue: 'hors_grille', nombre: 1, libelle: 'Hors grille (facture, formule ou plan sans commission)', conseil: null },
+        { issue: 'non_traitee', nombre: 1, libelle: 'Non traitées faute de temps', conseil: 'relancez pour continuer' },
+        { issue: 'inedite', nombre: 1, libelle: 'Autre issue (inedite)', conseil: null },
       ],
-      aRelancer: true,
     })
-    expect(resumeRejeu([])).toEqual({ factures: 0, creees: 0, dejaCreees: 0, autres: [], aRelancer: false })
+    expect(resumeRejeu([])).toEqual({ factures: 0, creees: 0, dejaCreees: 0, autres: [] })
   })
 
   it('chaque issue documentée du rejeu a son libellé', () => {
@@ -298,5 +298,41 @@ describe('onglet « Historique » (rendu)', () => {
   it('un historique vide le dit', () => {
     const vide = { commissions: [], tronque: false }
     expect(rendre(Historique, historique(vide, vide, vide)).texte).toContain('Aucune commission dans l’historique.')
+  })
+})
+
+describe('Attributions : rejouer les factures Stripe (rendu)', () => {
+  const texteDe = (element) => renderToStaticMarkup(element).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ')
+
+  it('le bouton n’apparaît que pour un client rattaché', () => {
+    const { texte } = rendre(Attributions, [[['admin-closer-attribution', ''], {
+      closers: [{ id: 'clo_1', prenom: 'Léa', nom: 'Martin', code: 'LEA', statut: 'actif' }],
+      clients: [
+        { id: 'cli_1', boutique: 'Rattachée', contact_email: 'a@exemple.fr', plan: 'pro', closer_id: 'clo_1', source: 'manuel', rattache_le: '2026-09-01T09:00:00Z' },
+        { id: 'cli_2', boutique: 'Libre', contact_email: 'b@exemple.fr', plan: 'starter', closer_id: null, source: null, rattache_le: null },
+      ],
+    }]])
+    expect(texte.match(/Rejouer les factures Stripe/g)).toHaveLength(1)
+    expect(texte.match(/Retirer/g)).toHaveLength(1)
+    expect(texte).toContain('Léa Martin (LEA)')
+  })
+
+  it('résume les issues : créées, déjà créées, puis le reste en français', () => {
+    const texte = texteDe(h(ResultatRejeu, { rejeu: { resultats: [
+      { facture: 'in_1', issue: 'creee' },
+      { facture: 'in_2', issue: 'deja_creee' },
+      { facture: 'in_3', issue: 'unique_deja_versee' },
+      { facture: 'in_4', issue: 'erreur' },
+    ] } }))
+    expect(texte).toContain('4 factures payées relues chez Stripe.')
+    expect(texte).toMatch(/Commissions créées : 1 · déjà créées : 1/)
+    expect(texte).toContain('Commission unique déjà versée pour ce client : 1')
+    expect(texte).toContain('En erreur : 1 — relancez ; si l’erreur persiste, voyez Sentry')
+  })
+
+  it('dit quand il n’y a rien à rejouer, et affiche l’erreur de l’API telle quelle', () => {
+    expect(texteDe(h(ResultatRejeu, { rejeu: { resultats: [] } }))).toContain('Aucune facture payée chez Stripe pour ce client')
+    const erreur = texteDe(h(ResultatRejeu, { rejeu: { erreur: 'Stripe n’est pas configuré sur ce déploiement.' } }))
+    expect(erreur).toContain('Stripe n’est pas configuré sur ce déploiement.')
   })
 })
