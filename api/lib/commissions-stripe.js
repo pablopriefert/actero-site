@@ -269,3 +269,69 @@ async function appliquerRemboursement(supabase, commission, remboursement) {
   }
   throw new Error(`commission ${commission.id} modifiée pendant le remboursement : Stripe réessaiera`)
 }
+
+/** Une page Stripe : au plus 100 factures relues par rejeu. */
+export const FACTURES_REJOUEES_MAX = 100
+/**
+ * Chaque facture coûte plusieurs lectures Stripe (environ une seconde) et
+ * Vercel coupe la fonction à 60 s : passé ce budget, les factures restantes
+ * sont rendues `non_traitee` et attendent l'appel suivant.
+ */
+export const BUDGET_REJEU_MS = 45_000
+
+/**
+ * Rejoue `invoice.paid` sur les factures payées d'un client (action admin) :
+ * le recours quand un client est rattaché à un closer après avoir payé, ou
+ * quand un événement Stripe s'est perdu.
+ *
+ * Les factures se lisent par l'abonnement du client, sinon par son client
+ * Stripe, et se traitent de la plus ancienne à la plus récente : la commission
+ * unique revient à la première facture qui y ouvre droit.
+ *
+ * Rejouer ne crée jamais de doublon (clés uniques de traiterFacturePayee). Une
+ * facture qui a déjà sa commission n'est même pas relue (`deja_creee`) : un
+ * appel suivant reprend donc là où le budget a arrêté le précédent. Une
+ * facture en panne est rendue `erreur` sans arrêter les autres.
+ *
+ * @param {import('stripe').Stripe} stripe
+ * @param {any} supabase — client service_role
+ * @param {{ id: string, stripe_subscription_id?: string|null, stripe_customer_id?: string|null }} client
+ * @returns {Promise<Array<{ facture: string, issue: string }>>} issue : creee,
+ *   deja_creee, non_traitee, erreur, ou la raison de traiterFacturePayee
+ */
+export async function rejouerFactures(stripe, supabase, client, { budgetMs = BUDGET_REJEU_MS } = {}) {
+  const debut = Date.now()
+  const filtre = client.stripe_subscription_id
+    ? { subscription: client.stripe_subscription_id }
+    : client.stripe_customer_id ? { customer: client.stripe_customer_id } : null
+  if (!filtre) return []
+
+  const liste = await stripe.invoices.list({ ...filtre, status: 'paid', limit: FACTURES_REJOUEES_MAX }, OPTIONS_STRIPE_COMMISSIONS)
+  const factures = (liste?.data ?? [])
+    .filter((f) => typeof f?.id === 'string')
+    .sort((a, b) => (a.created ?? 0) - (b.created ?? 0))
+  if (factures.length === 0) return []
+
+  const { data: liees, error } = await supabase
+    .from('closer_commissions').select('stripe_invoice_id').in('stripe_invoice_id', factures.map((f) => f.id))
+  if (error) throw new Error(`closer_commissions illisible : ${error.message}`)
+  const dejaLiees = new Set((liees ?? []).map((c) => c.stripe_invoice_id))
+
+  const resultats = []
+  for (const { id } of factures) {
+    if (dejaLiees.has(id)) {
+      resultats.push({ facture: id, issue: 'deja_creee' })
+    } else if (Date.now() - debut > budgetMs) {
+      resultats.push({ facture: id, issue: 'non_traitee' })
+    } else {
+      try {
+        const issue = await traiterFacturePayee(stripe, supabase, id)
+        resultats.push({ facture: id, issue: issue.cree ? 'creee' : issue.raison })
+      } catch (err) {
+        console.error('[CLOSER] rejeu : facture non traitée', { facture: id, client: client.id, erreur: err?.message })
+        resultats.push({ facture: id, issue: 'erreur' })
+      }
+    }
+  }
+  return resultats
+}

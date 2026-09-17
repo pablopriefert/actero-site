@@ -1,20 +1,25 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { creerFauxSupabase, appeler } from './faux-supabase.js'
 import { encryptToken } from './crypto.js'
 import { STATUTS_COMMISSION, moisCourant } from './commissions-closer.js'
+import { OPTIONS_STRIPE_COMMISSIONS } from './commissions-stripe.js'
 import { FORMAT_CODE_CLOSER } from './code-closer.js'
 
 /**
  * Les routes admin du programme closers — requireAdmin, saisie manuelle,
- * validation, paiement, IBAN journalisé, attributions.
+ * validation, paiement, rejeu des factures, IBAN journalisé, attributions.
  */
 
-const h = vi.hoisted(() => ({ supabase: null }))
+const h = vi.hoisted(() => ({ supabase: null, stripe: null }))
 
 vi.mock('./sentry.js', () => ({ withSentry: (fn) => fn, captureError: () => {} }))
 vi.mock('@supabase/supabase-js', () => ({
   createClient: () => new Proxy({}, { get: (_, cle) => h.supabase[cle] }),
+}))
+// Le rejeu des factures lit Stripe : un faux, jamais le réseau.
+vi.mock('stripe', () => ({
+  default: function FauxStripe() { return new Proxy({}, { get: (_, cle) => h.stripe[cle] }) },
 }))
 
 const closersRoute = (await import('../admin/closers.js')).default
@@ -150,6 +155,55 @@ describe('/api/admin/closer-commissions', () => {
     expect((await admin(commissionsRoute, { query: { statut: 'toutes' } })).statusCode).toBe(400)
   })
 
+  it('chaque commission expose le montant payé, la note et ses signaux', async () => {
+    const sb = monde()
+    const alice = sb.base.closers.find((k) => k.id === 'k-a')
+    Object.assign(alice, { statut: 'suspendu', iban_modifie_le: new Date(Date.now() - 3_600_000).toISOString() })
+    sb.base.clients.push({ id: 'c-auto', brand_name: 'Auto Shop', contact_email: ' ALICE@ex.com', plan: 'pro', billing_provider: 'stripe', stripe_subscription_id: 'sub_9', closer_id: 'k-a' })
+    sb.base.closer_commissions.push({
+      id: 'kc-4', closer_id: 'k-a', client_id: 'c-auto', montant_centimes: 10000, montant_facture_centimes: 3990, plan: 'pro', formule: 'mensuel',
+      type: 'mensuelle', source: 'stripe', source_key: 'stripe:in_9', stripe_invoice_id: 'in_9', statut: 'a_valider',
+      note: 'Commission supérieure au montant payé (39,90 €) : à vérifier', created_at: '2026-09-06T10:00:00Z',
+    })
+
+    const res = await admin(commissionsRoute, { query: { statut: 'a_valider' } })
+    expect(res.statusCode).toBe(200)
+    expect(res.body.tronque).toBe(false)
+    const [kc4, kc1] = res.body.commissions
+    expect(kc4).toMatchObject({
+      id: 'kc-4', boutique: 'Auto Shop', montant_facture_centimes: 3990,
+      note: 'Commission supérieure au montant payé (39,90 €) : à vérifier',
+      signaux: ['meme_email', 'meme_domaine', 'iban_recent', 'closer_suspendu'],
+    })
+    expect(kc1).toMatchObject({ id: 'kc-1', montant_facture_centimes: null, note: null, signaux: ['iban_recent', 'closer_suspendu'] })
+    // Les e-mails servent au calcul : ils ne sortent pas de la route.
+    expect(JSON.stringify(res.body)).not.toMatch(/alice@ex\.com|stripe@shop\.fr/i)
+  })
+
+  it('sans signal : un tableau vide ; client effacé : aucun signal d’e-mail', async () => {
+    const sb = monde()
+    sb.base.closer_commissions.push({ id: 'kc-5', closer_id: 'k-a', client_id: null, montant_centimes: 2500, statut: 'a_valider', source_key: 'unique:efface', created_at: '2026-09-01T00:00:00Z' })
+    const { body } = await admin(commissionsRoute, { query: { statut: 'a_valider' } })
+    expect(body.commissions.map((c) => [c.id, c.boutique, c.signaux])).toEqual([
+      ['kc-1', 'Stripe Shop', []],
+      ['kc-5', 'Client supprimé', []],
+    ])
+  })
+
+  it('au-delà de 500 lignes : la liste est coupée, et le dit', async () => {
+    const sb = monde()
+    for (let i = 0; i < 500; i += 1) {
+      sb.base.closer_commissions.push({ id: `kc-x${i}`, closer_id: 'k-b', client_id: 'c-stripe', montant_centimes: 2500, statut: 'a_valider', source_key: `stripe:in_x${i}`, created_at: '2026-07-01T00:00:00Z' })
+    }
+    const coupee = await admin(commissionsRoute, { query: { statut: 'a_valider' } })
+    expect(coupee.body.commissions).toHaveLength(500)
+    expect(coupee.body.tronque).toBe(true)
+    sb.base.closer_commissions.pop()
+    const pleine = await admin(commissionsRoute, { query: { statut: 'a_valider' } })
+    expect(pleine.body.commissions).toHaveLength(500)
+    expect(pleine.body.tronque).toBe(false)
+  })
+
   it('saisie manuelle Shopify : créée, puis refusée le même mois', async () => {
     const sb = monde()
     const corps = { client_id: 'c-shopify', formule: 'mensuel', montant_centimes: 10000, mois: '2026-09', note: 'Shopify septembre' }
@@ -214,6 +268,194 @@ describe('/api/admin/closer-commissions', () => {
     monde()
     expect((await admin(commissionsRoute, { methode: 'PATCH', corps: { id: 'kc-2', action: 'valider' } })).statusCode).toBe(409)
     expect((await admin(commissionsRoute, { methode: 'PATCH', corps: { id: 'kc-z', action: 'valider' } })).statusCode).toBe(404)
+  })
+})
+
+describe('POST /api/admin/closer-commissions { action: rejouer_factures } — relire les factures d’un client', () => {
+  // Forme de l'API 2026-02-25.clover, comme dans commissions-stripe.test.js.
+  const PRIX_PRO_MENSUEL = { id: 'price_pro_m', object: 'price', lookup_key: 'actero_pro_mensuel', unit_amount: 39900, currency: 'eur', recurring: { interval: 'month', interval_count: 1 } }
+  const PRIX_SUR_MESURE = { ...PRIX_PRO_MENSUEL, id: 'price_acme', lookup_key: 'actero_enterprise_acme' }
+
+  const factureStripe = (id, created, billing_reason = 'subscription_cycle') => ({
+    id, object: 'invoice', created, status: 'paid', amount_paid: 39900, currency: 'eur', billing_reason, customer: 'cus_1',
+    parent: { type: 'subscription_details', quote_details: null, subscription_details: { subscription: 'sub_1', metadata: {} } },
+    status_transitions: { finalized_at: created, paid_at: created, marked_uncollectible_at: null, voided_at: null },
+  })
+  const lignesStripe = (prix) => ({
+    object: 'list',
+    has_more: false,
+    data: [{
+      id: `il_${prix.id}`,
+      object: 'line_item',
+      parent: { type: 'subscription_item_details', subscription_item_details: { proration: false, subscription: 'sub_1' } },
+      pricing: { type: 'price_details', price_details: { price: prix, product: 'prod_1' } },
+    }],
+  })
+
+  const FACTURES = [
+    factureStripe('in_r1', 1_788_000_000, 'subscription_create'),
+    factureStripe('in_r2', 1_790_000_000),
+    factureStripe('in_r3', 1_792_000_000),
+  ]
+  const LIGNES = { in_r1: lignesStripe(PRIX_PRO_MENSUEL), in_r2: lignesStripe(PRIX_PRO_MENSUEL), in_r3: lignesStripe(PRIX_SUR_MESURE) }
+
+  function mondeStripe(factures = FACTURES, lignes = LIGNES) {
+    h.stripe = {
+      invoices: {
+        // Stripe rend les plus récentes d'abord.
+        list: vi.fn(async () => ({ object: 'list', has_more: false, data: [...factures].reverse() })),
+        retrieve: vi.fn(async (id) => factures.find((f) => f.id === id)),
+        listLineItems: vi.fn(async (id) => lignes[id]),
+      },
+      invoicePayments: { list: vi.fn(async () => ({ object: 'list', has_more: false, data: [{ id: 'inpay_1', status: 'paid', payment: { type: 'payment_intent', payment_intent: 'pi_1' } }] })) },
+      paymentIntents: { retrieve: vi.fn(async () => ({ id: 'pi_1', object: 'payment_intent', latest_charge: { id: 'ch_1', object: 'charge', amount: 39900, amount_refunded: 0, refunded: false } })) },
+      charges: { retrieve: vi.fn() },
+    }
+    return h.stripe
+  }
+
+  const rejouer = (clientId) => admin(commissionsRoute, { methode: 'POST', corps: { action: 'rejouer_factures', client_id: clientId } })
+  const creeesParLeRejeu = (sb) => sb.base.closer_commissions.filter((c) => String(c.stripe_invoice_id).startsWith('in_r'))
+
+  beforeEach(() => {
+    vi.stubEnv('STRIPE_SECRET_KEY', 'sk_test_faux')
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.restoreAllMocks()
+  })
+
+  it('relit les factures payées de l’abonnement et les traite de la plus ancienne à la plus récente', async () => {
+    const sb = monde()
+    const stripe = mondeStripe()
+    const res = await rejouer('c-stripe')
+    expect(res.statusCode).toBe(200)
+    expect(res.body).toEqual({
+      resultats: [
+        { facture: 'in_r1', issue: 'creee' },
+        { facture: 'in_r2', issue: 'creee' },
+        { facture: 'in_r3', issue: 'hors_grille' },
+      ],
+    })
+    expect(stripe.invoices.list).toHaveBeenCalledTimes(1)
+    expect(stripe.invoices.list).toHaveBeenCalledWith({ subscription: 'sub_1', status: 'paid', limit: 100 }, OPTIONS_STRIPE_COMMISSIONS)
+    expect(creeesParLeRejeu(sb)).toEqual([
+      expect.objectContaining({ source_key: 'stripe:in_r1', closer_id: 'k-a', client_id: 'c-stripe', statut: 'a_valider', montant_centimes: 10000, montant_facture_centimes: 39900 }),
+      expect.objectContaining({ source_key: 'stripe:in_r2', statut: 'a_valider' }),
+    ])
+    expect(sb.base.admin_action_logs).toHaveLength(1)
+    expect(sb.base.admin_action_logs[0]).toMatchObject({
+      actor_id: 'admin-1', actor_email: 'pablo@actero.fr', action: 'closer_commissions_rejouees',
+      target_type: 'client', target_id: 'c-stripe', client_id: 'c-stripe', metadata: { factures: 3, creees: 2 },
+    })
+  })
+
+  it('un second appel ne crée rien de plus, et ne relit pas les factures qui ont déjà leur commission', async () => {
+    const sb = monde()
+    const stripe = mondeStripe()
+    await rejouer('c-stripe')
+    const avant = sb.base.closer_commissions.length
+    stripe.invoices.retrieve.mockClear()
+    const res = await rejouer('c-stripe')
+    expect(res.statusCode).toBe(200)
+    expect(res.body.resultats).toEqual([
+      { facture: 'in_r1', issue: 'deja_creee' },
+      { facture: 'in_r2', issue: 'deja_creee' },
+      { facture: 'in_r3', issue: 'hors_grille' },
+    ])
+    expect(sb.base.closer_commissions).toHaveLength(avant)
+    expect(stripe.invoices.retrieve.mock.calls.map(([id]) => id)).toEqual(['in_r3'])
+    expect(sb.base.admin_action_logs.at(-1).metadata).toEqual({ factures: 3, creees: 0 })
+  })
+
+  it('sans abonnement enregistré : les factures du client Stripe', async () => {
+    const sb = monde()
+    sb.base.clients.push({ id: 'c-cus', brand_name: 'Cus Shop', plan: 'pro', billing_provider: 'stripe', stripe_subscription_id: null, stripe_customer_id: 'cus_9', closer_id: 'k-a' })
+    const stripe = mondeStripe([], {})
+    const res = await rejouer('c-cus')
+    expect(res.statusCode).toBe(200)
+    expect(res.body).toEqual({ resultats: [] })
+    expect(stripe.invoices.list).toHaveBeenCalledWith({ customer: 'cus_9', status: 'paid', limit: 100 }, OPTIONS_STRIPE_COMMISSIONS)
+  })
+
+  it('une facture en panne n’arrête pas les suivantes', async () => {
+    const erreur = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const sb = monde({
+      erreurs: { closer_commissions: ({ operation, charge }) => (operation === 'insert' && charge?.stripe_invoice_id === 'in_r1' ? { message: 'disque plein' } : null) },
+    })
+    mondeStripe()
+    const res = await rejouer('c-stripe')
+    expect(res.statusCode).toBe(200)
+    expect(res.body.resultats.map((r) => r.issue)).toEqual(['erreur', 'creee', 'hors_grille'])
+    expect(creeesParLeRejeu(sb).map((c) => c.source_key)).toEqual(['stripe:in_r2'])
+    expect(erreur).toHaveBeenCalledWith('[CLOSER] rejeu : facture non traitée', expect.objectContaining({ facture: 'in_r1', client: 'c-stripe' }))
+  })
+
+  it.each([
+    ['client absent', undefined, 400, 'client_requis'],
+    ['client inconnu', 'c-inconnu', 404, 'client_introuvable'],
+    ['client sans closer', 'c-libre', 409, 'client_non_rattache'],
+    ['client sans Stripe', 'c-shopify', 409, 'client_sans_stripe'],
+  ])('%s (%s) : %i %s, sans appel à Stripe ni trace', async (_cas, clientId, statut, code) => {
+    const sb = monde()
+    const stripe = mondeStripe()
+    const res = await rejouer(clientId)
+    expect(res.statusCode).toBe(statut)
+    expect(res.body).toEqual({ error: code, message: expect.any(String) })
+    expect(stripe.invoices.list).not.toHaveBeenCalled()
+    expect(sb.base.admin_action_logs).toEqual([])
+  })
+
+  it('Stripe non configuré : 503, sans appel', async () => {
+    vi.stubEnv('STRIPE_SECRET_KEY', '')
+    monde()
+    const stripe = mondeStripe()
+    const res = await rejouer('c-stripe')
+    expect(res.statusCode).toBe(503)
+    expect(res.body).toEqual({ error: 'stripe_non_configure', message: expect.any(String) })
+    expect(stripe.invoices.list).not.toHaveBeenCalled()
+  })
+
+  it('Stripe ne répond pas : 503 indisponible, rien d’écrit ni de journalisé', async () => {
+    const sb = monde()
+    const stripe = mondeStripe()
+    stripe.invoices.list.mockRejectedValueOnce(new Error('Stripe indisponible'))
+    const res = await rejouer('c-stripe')
+    expect(res.statusCode).toBe(503)
+    expect(res.body).toEqual({ error: 'indisponible', message: 'Stripe indisponible' })
+    expect(creeesParLeRejeu(sb)).toEqual([])
+    expect(sb.base.admin_action_logs).toEqual([])
+  })
+
+  it('lecture du client impossible : 503 indisponible', async () => {
+    monde({ erreurs: { clients: { message: 'panne' } } })
+    mondeStripe()
+    const res = await rejouer('c-stripe')
+    expect(res.statusCode).toBe(503)
+    expect(res.body).toEqual({ error: 'indisponible', message: 'panne' })
+  })
+
+  it('une action POST inconnue : 400 action_inconnue ; sans action, c’est toujours la saisie manuelle', async () => {
+    const sb = monde()
+    const stripe = mondeStripe()
+    const inconnue = await admin(commissionsRoute, { methode: 'POST', corps: { action: 'tout_rejouer', client_id: 'c-stripe' } })
+    expect(inconnue.statusCode).toBe(400)
+    expect(inconnue.body).toEqual({ error: 'action_inconnue', message: 'Action inconnue.' })
+    const saisie = await admin(commissionsRoute, { methode: 'POST', corps: { client_id: 'c-shopify', formule: 'mensuel', montant_centimes: 10000, mois: '2026-09', note: 'Shopify septembre' } })
+    expect(saisie.statusCode).toBe(201)
+    expect(stripe.invoices.list).not.toHaveBeenCalled()
+    expect(sb.base.admin_action_logs.map((l) => l.action)).toEqual(['closer_commission_saisie'])
+  })
+
+  it('réservé aux admins : 401 sans jeton, 403 pour un marchand, Stripe jamais appelé', async () => {
+    const sb = monde()
+    const stripe = mondeStripe()
+    const corps = { action: 'rejouer_factures', client_id: 'c-stripe' }
+    expect((await appeler(commissionsRoute, { methode: 'POST', corps })).statusCode).toBe(401)
+    expect((await appeler(commissionsRoute, { methode: 'POST', jeton: 'jeton-marchand', corps })).statusCode).toBe(403)
+    expect(stripe.invoices.list).not.toHaveBeenCalled()
+    expect(creeesParLeRejeu(sb)).toEqual([])
   })
 })
 

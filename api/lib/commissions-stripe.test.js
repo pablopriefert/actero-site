@@ -1,7 +1,15 @@
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
 import Stripe from 'stripe'
 import { creerFauxSupabase } from './faux-supabase.js'
-import { traiterFacturePayee, traiterRemboursement, VERSION_API_COMMISSIONS, OPTIONS_STRIPE_COMMISSIONS } from './commissions-stripe.js'
+import {
+  traiterFacturePayee,
+  traiterRemboursement,
+  rejouerFactures,
+  BUDGET_REJEU_MS,
+  FACTURES_REJOUEES_MAX,
+  VERSION_API_COMMISSIONS,
+  OPTIONS_STRIPE_COMMISSIONS,
+} from './commissions-stripe.js'
 import { OPTIONS_REQUETE_COURTE } from './stripe-customer.js'
 import { NOTE_REMBOURSEE, NOTE_REMBOURSEE_APRES_PAIEMENT } from './commissions-closer.js'
 
@@ -532,6 +540,65 @@ describe('remboursé avant invoice.paid : la commission naît dans l’état du 
     stripe.paymentIntents.retrieve.mockRejectedValueOnce(Object.assign(new Error('Stripe indisponible'), { type: 'StripeConnectionError' }))
     await expect(traiterFacturePayee(stripe, sb, 'in_100')).rejects.toThrow(/Stripe indisponible/)
     expect(sb.base.closer_commissions).toEqual([])
+  })
+})
+
+describe('rejouerFactures — le rejeu admin des factures d’un client', () => {
+  const CLIENT = { id: CLIENT_ID, closer_id: 'k1', stripe_subscription_id: 'sub_100', stripe_customer_id: 'cus_100' }
+  const trois = ['in_1', 'in_2', 'in_3'].map((id, i) => ({ ...facture({ id }), created: 1_789_000_000 + i }))
+
+  function monStripe() {
+    const stripe = fauxStripe({
+      factures: Object.fromEntries(trois.map((f) => [f.id, f])),
+      lignesParFacture: Object.fromEntries(trois.map((f) => [f.id, lignes(PRIX_PRO_MENSUEL)])),
+    })
+    stripe.invoices.list = vi.fn(async () => ({ object: 'list', has_more: false, data: [...trois].reverse() }))
+    return stripe
+  }
+
+  afterEach(() => vi.restoreAllMocks())
+
+  it('au-delà du budget de temps, les factures restantes attendent l’appel suivant, qui reprend là où il s’est arrêté', async () => {
+    let horloge = 0
+    vi.spyOn(Date, 'now').mockImplementation(() => horloge)
+    const sb = fauxSupabase()
+    const stripe = monStripe()
+    // Chaque facture relue coûte 30 s ; le budget en accorde 45.
+    stripe.invoices.retrieve.mockImplementation(async (id) => { horloge += 30_000; return trois.find((f) => f.id === id) })
+
+    expect(await rejouerFactures(stripe, sb, CLIENT, { budgetMs: 45_000 })).toEqual([
+      { facture: 'in_1', issue: 'creee' },
+      { facture: 'in_2', issue: 'creee' },
+      { facture: 'in_3', issue: 'non_traitee' },
+    ])
+    horloge = 0
+    expect(await rejouerFactures(stripe, sb, CLIENT, { budgetMs: 45_000 })).toEqual([
+      { facture: 'in_1', issue: 'deja_creee' },
+      { facture: 'in_2', issue: 'deja_creee' },
+      { facture: 'in_3', issue: 'creee' },
+    ])
+    expect(sb.base.closer_commissions.map((c) => c.source_key)).toEqual(['stripe:in_1', 'stripe:in_2', 'stripe:in_3'])
+  })
+
+  it('le budget par défaut laisse de la marge sous les 60 s de Vercel, et 100 factures au plus', () => {
+    expect(BUDGET_REJEU_MS).toBeLessThanOrEqual(45_000)
+    expect(FACTURES_REJOUEES_MAX).toBe(100)
+  })
+
+  it('par l’abonnement, sinon par le client Stripe ; aucun des deux : rien à relire', async () => {
+    const stripe = monStripe()
+    await rejouerFactures(stripe, fauxSupabase(), CLIENT)
+    expect(stripe.invoices.list).toHaveBeenLastCalledWith({ subscription: 'sub_100', status: 'paid', limit: 100 }, OPTIONS_STRIPE_COMMISSIONS)
+    await rejouerFactures(stripe, fauxSupabase(), { ...CLIENT, stripe_subscription_id: null })
+    expect(stripe.invoices.list).toHaveBeenLastCalledWith({ customer: 'cus_100', status: 'paid', limit: 100 }, OPTIONS_STRIPE_COMMISSIONS)
+    stripe.invoices.list.mockClear()
+    expect(await rejouerFactures(stripe, fauxSupabase(), { ...CLIENT, stripe_subscription_id: null, stripe_customer_id: null })).toEqual([])
+    expect(stripe.invoices.list).not.toHaveBeenCalled()
+  })
+
+  it('la lecture des commissions existantes en panne lève', async () => {
+    const sb = fauxSupabase({ erreurs: { closer_commissions: { message: 'panne' } } })
+    await expect(rejouerFactures(monStripe(), sb, CLIENT)).rejects.toThrow(/closer_commissions illisible : panne/)
   })
 })
 
