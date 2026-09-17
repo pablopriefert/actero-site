@@ -213,6 +213,8 @@ export const CommandPalette = ({
     { id: 'error-reports',        label: 'Error Reports',     icon: Bug },
     { id: 'stripe-setup',         label: 'Stripe Setup',      icon: CreditCard },
     { id: 'partners',             label: 'Partners',          icon: Handshake },
+    // Retirée par erreur avec les ambassadeurs : la vue existe toujours dans l'admin.
+    { id: 'partner-tokens',       label: 'Liens partenaires', icon: Handshake },
     { id: 'closers',              label: 'Closers',           icon: Handshake },
     { id: 'referrals',            label: 'Referrals',         icon: Gift },
   ]), [])
