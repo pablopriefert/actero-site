@@ -35,6 +35,9 @@ const h = vi.hoisted(() => ({
   stripe: null,
   ecrituresClients: [],
   selectsClients: [],
+  // Le fil du closer : les étapes demandées, et ce que l'écriture répond.
+  fil: [],
+  issueFil: { enregistre: true },
 }))
 
 vi.mock('../lib/sentry.js', () => ({ withSentry: (fn) => fn, captureError: () => {} }))
@@ -100,6 +103,15 @@ vi.mock('@supabase/supabase-js', () => {
 })
 
 vi.mock('stripe', () => ({ default: function Stripe() { return h.stripe } }))
+
+// L'écriture du fil a ses propres tests (api/lib/evenements-closer.test.js) :
+// ici ne compte que l'étape demandée, et que sa réponse ne change rien.
+vi.mock('../lib/evenements-closer.js', () => ({
+  enregistrerEvenementCloser: async (_supabase, etape) => {
+    h.fil.push({ ...etape, sessionsCreees: h.stripe.checkout.sessions.create.mock.calls.length })
+    return h.issueFil
+  },
+}))
 
 import handler from './upgrade.js'
 import { FORMULES } from '../lib/formules.js'
@@ -258,6 +270,8 @@ function reinitialiser() {
   h.intentions = {}
   h.ecrituresClients = []
   h.selectsClients = []
+  h.fil = []
+  h.issueFil = { enregistre: true }
   h.stripe = baseStripe()
 }
 
@@ -1307,6 +1321,49 @@ describe('POST /api/billing/upgrade — un contrat de réponse stable', () => {
           expect(typeof res.body.message, nom).toBe('string')
           expect(res.body.message.length, nom).toBeGreaterThan(0)
         }
+      }
+    } finally {
+      for (const j of journaux) j.mockRestore()
+    }
+  })
+})
+
+describe('POST /api/billing/upgrade — fil du closer', () => {
+  it('page Stripe ouverte : paiement_ouvert, avec le plan, la formule et la plateforme, après la création de la session', async () => {
+    const res = await envoyer(post({ target_plan: 'pro', billing_period: 'annual' }))
+    expect(res.statusCode).toBe(200)
+    expect(h.fil).toEqual([{
+      clientId: 'c1',
+      type: 'paiement_ouvert',
+      details: { plan: 'pro', formule: 'annuel', plateforme: 'stripe' },
+      sourceKey: 'paiement_ouvert:cs_1',
+      sessionsCreees: 1,
+    }])
+  })
+
+  it('le fil en panne ne change rien à la réponse', async () => {
+    const attendue = await envoyer(post({ target_plan: 'pro' }))
+    reinitialiser()
+    h.issueFil = { enregistre: false, raison: 'erreur' }
+    const res = await envoyer(post({ target_plan: 'pro' }))
+    expect(h.fil).toHaveLength(1)
+    expect(res.statusCode).toBe(200)
+    expect(res.body).toEqual(attendue.body)
+  })
+
+  it('aucune page Stripe ouverte : aucune étape', async () => {
+    const journaux = ['error', 'warn', 'log'].map((m) => vi.spyOn(console, m).mockImplementation(() => {}))
+    try {
+      for (const [nom, preparer, requete] of [
+        ['changement immédiat', () => { abonneStarterMensuel() }, post({ target_plan: 'pro' })],
+        ['abonnement en cours', () => { h.abonnements = [{ id: 'sub_2', status: 'active', customer: 'cus_1' }] }, post({ target_plan: 'pro' })],
+        ['session refusée', () => { h.stripe.checkout.sessions.create = vi.fn(async () => { throw new Error('panne') }) }, post()],
+        ['déjà sur ce plan', () => { h.clientRow.plan = 'pro' }, post({ target_plan: 'pro' })],
+      ]) {
+        reinitialiser()
+        preparer()
+        await envoyer(requete)
+        expect(h.fil, nom).toEqual([])
       }
     } finally {
       for (const j of journaux) j.mockRestore()

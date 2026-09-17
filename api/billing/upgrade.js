@@ -9,6 +9,7 @@ import { formulePour, periodeDepuisApi } from '../lib/formules.js';
 import { prixDeLaFormule, lireHistoriqueAbonnements } from '../lib/formules-stripe.js';
 import { parametresCheckout } from '../lib/checkout-formule.js';
 import { essaiRemplaceParCheckout, resiliationProgrammee } from '../lib/subscription-plan.js';
+import { enregistrerEvenementCloser } from '../lib/evenements-closer.js';
 
 /**
  * POST /api/billing/upgrade — la seule route de paiement Stripe self-serve.
@@ -584,6 +585,16 @@ async function handler(req, res) {
     // session : fermer la page Stripe sans payer brûlait le mois (constaté le
     // 10 septembre). Ce qui empêche d'en réclamer un second est ailleurs :
     // l'avantage de bienvenue refuse tout client déjà abonné ou ayant eu un essai.
+
+    // Fil du closer (api/lib/evenements-closer.js) : le marchand a choisi sa
+    // formule et ouvert la page Stripe. Rien pour un client sans closer, et
+    // cette écriture ne lève jamais : la réponse reste celle ci-dessous.
+    await enregistrerEvenementCloser(supabaseAdmin, {
+      clientId: client_id,
+      type: 'paiement_ouvert',
+      details: { plan: formule.plan, formule: formule.periode, plateforme: 'stripe' },
+      sourceKey: `paiement_ouvert:${session.id}`,
+    });
 
     return res.status(200).json({ statut: 'checkout', checkout_url: session.url });
   } catch (error) {
