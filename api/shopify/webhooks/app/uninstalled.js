@@ -8,6 +8,7 @@
  *   2. Disable the storefront widget so we stop serving a bot for a
  *      merchant who no longer owns the relationship.
  *   3. Slack alert internally — uninstall is the canonical churn signal.
+ *   4. Fil d'activité du closer : app_desinstallee, une fois par jour.
  *
  * We do NOT delete data here. That waits for shop/redact (or, in practice,
  * forever, since Shopify only fires shop/redact if the merchant doesn't
@@ -26,6 +27,7 @@ import {
   logGdprEvent,
   getSupabase,
 } from '../_lib/resolve-client.js'
+import { enregistrerEvenementCloser } from '../../../lib/evenements-closer.js'
 
 export const config = rawBodyConfig
 
@@ -111,6 +113,14 @@ async function handler(req, res) {
     } catch (err) {
       console.warn(`[${WEBHOOK_TYPE}] disable widget:`, err.message)
     }
+
+    // 4. Fil du closer (api/lib/evenements-closer.js). Rien pour un client
+    //    sans closer ; ne lève jamais et ne change rien à la réponse.
+    await enregistrerEvenementCloser(supabase, {
+      clientId,
+      type: 'app_desinstallee',
+      sourceKey: `shopify:${shopDomain}:desinstallee:${new Date().toISOString().slice(0, 10)}`,
+    })
   } else {
     rowsAffected.skipped = 'unknown_shop'
   }

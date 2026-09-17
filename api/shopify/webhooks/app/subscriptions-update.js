@@ -17,6 +17,11 @@
  * App Store policy 1.2.2 requires apps to "handle acceptance, decline, and
  * resubscription approval requests". This handler is the listener that
  * makes that work end-to-end.
+ *
+ * Fil d'activité du closer (api/lib/evenements-closer.js) : ACTIVE (plan
+ * payant reconnu) → abonnement_demarre, FROZEN → paiement_echoue, CANCELLED,
+ * DECLINED et EXPIRED → abonnement_termine. Une étape par abonnement et par
+ * statut ; elle ne change rien à la réponse.
  */
 
 import { withSentry } from '../../../lib/sentry.js'
@@ -31,6 +36,7 @@ import {
   logGdprEvent,
   getSupabase,
 } from '../_lib/resolve-client.js'
+import { enregistrerEvenementCloser } from '../../../lib/evenements-closer.js'
 
 export const config = rawBodyConfig
 
@@ -46,6 +52,30 @@ function planFromSubscriptionName(name) {
   if (lower.includes('starter')) return 'starter'
   if (lower.includes('pro')) return 'pro'
   if (lower.includes('enterprise')) return 'enterprise'
+  return null
+}
+
+/** L'étape du fil du closer pour chaque statut Shopify qui en fait une. */
+const ETAPE_DU_STATUT = Object.freeze({
+  ACTIVE: 'abonnement_demarre',
+  FROZEN: 'paiement_echoue',
+  CANCELLED: 'abonnement_termine',
+  DECLINED: 'abonnement_termine',
+  EXPIRED: 'abonnement_termine',
+})
+
+/**
+ * La formule d'un abonnement Shopify, qui facture tous les 30 jours ou chaque
+ * année : l'intervalle quand le payload le porte, sinon le nom
+ * (`Actero Pro (annual)`). Null si rien ne le dit.
+ */
+function formuleFromSubscription(sub) {
+  const intervalle = String(sub?.interval || '').toLowerCase()
+  if (intervalle === 'annual') return 'annuel'
+  if (intervalle === 'every_30_days') return 'mensuel'
+  const nom = String(sub?.name || '').toLowerCase()
+  if (/\b(annual|yearly|annuel)\b/.test(nom)) return 'annuel'
+  if (/\b(monthly|mensuel)\b/.test(nom)) return 'mensuel'
   return null
 }
 
@@ -148,6 +178,18 @@ async function handler(req, res) {
   } catch (err) {
     console.error(`[${WEBHOOK_TYPE}] update failed:`, err.message)
     rowsAffected.error = err.message
+  }
+
+  // Fil du closer. ACTIVE seulement pour un plan payant reconnu, comme la
+  // promotion ci-dessus. Sans identifiant d'abonnement, pas de clé : rien.
+  const etape = Object.hasOwn(ETAPE_DU_STATUT, status) ? ETAPE_DU_STATUT[status] : null
+  if (etape && subscriptionGid && (status !== 'ACTIVE' || planTier)) {
+    await enregistrerEvenementCloser(supabase, {
+      clientId,
+      type: etape,
+      details: { plateforme: 'shopify', plan: planTier, formule: formuleFromSubscription(sub) },
+      sourceKey: `shopify:${subscriptionGid}:${status}`,
+    })
   }
 
   await logGdprEvent({

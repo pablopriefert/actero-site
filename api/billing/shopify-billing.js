@@ -16,6 +16,7 @@
  *
  * Response:
  *   200 { confirmation_url }        → redirect the merchant to Shopify
+ *                                     (et `paiement_ouvert` dans le fil du closer)
  *   409 { error: no_shopify_connection } → caller falls back to Stripe (direct,
  *                                          non-Shopify signups only)
  */
@@ -24,6 +25,8 @@ import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { isActeroAdmin } from '../lib/admin-auth.js'
 import { origineDeFacturation, urlManagedPricing } from '../lib/facturation-shopify.js'
+import { enregistrerEvenementCloser } from '../lib/evenements-closer.js'
+import { periodeDepuisApi } from '../lib/formules.js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -56,7 +59,7 @@ async function handler(req, res) {
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) return res.status(401).json({ error: 'unauthorized' })
 
-  const { client_id, target_plan } = req.body || {}
+  const { client_id, target_plan, billing_period } = req.body || {}
   if (!client_id || !target_plan) {
     return res.status(400).json({ error: 'missing_client_or_plan' })
   }
@@ -102,7 +105,20 @@ async function handler(req, res) {
     return res.status(409).json({ error: 'no_shopify_connection' })
   }
 
-  return res.status(200).json({ confirmation_url: urlManagedPricing(origine.shopDomain) })
+  const confirmationUrl = urlManagedPricing(origine.shopDomain)
+
+  // Fil du closer (api/lib/evenements-closer.js) : le marchand part choisir sa
+  // formule chez Shopify. Le plan et la formule sont ceux qu'il a cliqués ici,
+  // pas forcément ceux qu'il prendra là-bas. Clé à la minute : un double clic
+  // n'écrit qu'une étape. Ne lève jamais, et ne change rien à la réponse.
+  await enregistrerEvenementCloser(supabase, {
+    clientId: client_id,
+    type: 'paiement_ouvert',
+    details: { plan: target_plan, formule: periodeDepuisApi(billing_period) ?? undefined, plateforme: 'shopify' },
+    sourceKey: `paiement_ouvert:shopify:${client_id}:${new Date().toISOString().slice(0, 16)}`,
+  })
+
+  return res.status(200).json({ confirmation_url: confirmationUrl })
 }
 
 export default withSentry(handler)
