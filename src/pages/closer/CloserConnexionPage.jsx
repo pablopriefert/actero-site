@@ -9,6 +9,7 @@ export function CloserConnexionPage({ onNavigate }) {
   const [email, setEmail] = useState('')
   const [motDePasse, setMotDePasse] = useState('')
   const [enCours, setEnCours] = useState(false)
+  const [envoiOubli, setEnvoiOubli] = useState(false)
   const [erreur, setErreur] = useState(null)
   const [info, setInfo] = useState(null)
 
@@ -17,24 +18,46 @@ export function CloserConnexionPage({ onNavigate }) {
     setErreur(null)
     setInfo(null)
     setEnCours(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password: motDePasse })
-    setEnCours(false)
-    if (error) {
-      setErreur('E-mail ou mot de passe incorrect.')
-      return
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password: motDePasse })
+      if (error) {
+        setErreur('E-mail ou mot de passe incorrect.')
+        return
+      }
+      onNavigate('/closer')
+    } catch {
+      // Une panne réseau laissait le bouton bloqué sur « Connexion… ».
+      setErreur('Connexion impossible. Vérifiez votre réseau et réessayez.')
+    } finally {
+      setEnCours(false)
     }
-    onNavigate('/closer')
   }
 
+  // L'erreur de l'envoi était ignorée : la page annonçait un e-mail parti
+  // alors que Supabase l'avait refusé (trop de demandes, par exemple).
   const oublie = async () => {
+    if (envoiOubli) return
     setErreur(null)
     setInfo(null)
     if (!email) {
       setErreur('Indiquez votre e-mail, puis cliquez de nouveau sur « Mot de passe oublié ».')
       return
     }
-    await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` })
-    setInfo('Si un compte existe pour cette adresse, un e-mail de réinitialisation vient de partir.')
+    setEnvoiOubli(true)
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` })
+      if (error) {
+        setErreur(error.status === 429
+          ? 'Trop de demandes de réinitialisation. Réessayez dans quelques minutes.'
+          : 'L’e-mail de réinitialisation n’a pas pu partir. Réessayez.')
+        return
+      }
+      setInfo('Si un compte existe pour cette adresse, un e-mail de réinitialisation vient de partir.')
+    } catch {
+      setErreur('L’e-mail de réinitialisation n’a pas pu partir. Vérifiez votre réseau et réessayez.')
+    } finally {
+      setEnvoiOubli(false)
+    }
   }
 
   const google = async () => {
@@ -61,7 +84,14 @@ export function CloserConnexionPage({ onNavigate }) {
             {erreur && <Alerte>{erreur}</Alerte>}
             {info && <Alerte ton="info">{info}</Alerte>}
             <BoutonPrincipal type="submit" disabled={enCours}>{enCours ? 'Connexion…' : 'Se connecter'}</BoutonPrincipal>
-            <button type="button" onClick={oublie} className="block mx-auto text-[13px] text-ink-3 hover:text-ink">Mot de passe oublié ?</button>
+            <button
+              type="button"
+              onClick={oublie}
+              disabled={envoiOubli}
+              className="block mx-auto text-[13px] text-ink-3 hover:text-ink disabled:opacity-50"
+            >
+              {envoiOubli ? 'Envoi…' : 'Mot de passe oublié ?'}
+            </button>
           </form>
         </div>
         <p className="mt-6 text-center text-[13px] text-ink-3">

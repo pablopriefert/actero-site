@@ -13,7 +13,8 @@ export const CLE_INTENTION_GOOGLE = 'actero_closer_intention'
 
 /**
  * Appelle /api/closer/<chemin> avec le jeton de la session, s'il y en a une.
- * Lève une erreur portant `status`, `code` et le message du serveur.
+ * Lève une erreur portant `status`, `code`, le message du serveur et, pour un
+ * code d'inscription incorrect, `essaisRestants`.
  */
 export async function appelCloser(chemin, { methode = 'GET', corps } = {}) {
   const { data } = await supabase.auth.getSession()
@@ -30,6 +31,7 @@ export async function appelCloser(chemin, { methode = 'GET', corps } = {}) {
     const erreur = new Error(donnees?.message || 'Une erreur est survenue. Réessayez.')
     erreur.status = res.ok ? 502 : res.status
     erreur.code = donnees?.error
+    if (Number.isInteger(donnees?.essais_restants)) erreur.essaisRestants = donnees.essais_restants
     throw erreur
   }
   return donnees
