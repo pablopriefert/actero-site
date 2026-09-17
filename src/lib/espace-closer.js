@@ -38,6 +38,20 @@ export async function appelCloser(chemin, { methode = 'GET', corps } = {}) {
 }
 
 /**
+ * Le fil d'activité du closer, du plus récent au plus ancien, ou le parcours
+ * d'un de ses clients (`client`). `famille` filtre ; `avant` est le curseur
+ * `suivant` de la page précédente. Rend `{ evenements, suivant, resume }`.
+ */
+export function lireActivite({ client, famille, avant, limite } = {}) {
+  const parametres = new URLSearchParams()
+  for (const [cle, valeur] of Object.entries({ client, famille, avant, limite })) {
+    if (valeur != null && valeur !== '') parametres.set(cle, String(valeur))
+  }
+  const requete = parametres.toString()
+  return appelCloser(requete ? `activite?${requete}` : 'activite')
+}
+
+/**
  * Durée de vie de l'intention. Un aller-retour Google prend quelques minutes ;
  * au-delà, l'intention vient d'un départ abandonné (retour arrière depuis la
  * page de Google) et ne doit pas détourner la connexion Google suivante d'un
