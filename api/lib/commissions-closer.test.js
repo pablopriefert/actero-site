@@ -8,6 +8,7 @@ import {
   commissionManuelle,
   transitionCommission,
   effetRemboursement,
+  remboursementDesCharges,
   montantDeLaGrille,
   montantPreRempli,
   moisCourant,
@@ -380,6 +381,32 @@ describe('effetRemboursement — charge.refunded', () => {
   it('refusée ou annulée : rien', () => {
     expect(effetRemboursement({ statut: 'refusee' }, { total: true })).toBeNull()
     expect(effetRemboursement({ statut: 'annulee' }, { total: true })).toBeNull()
+  })
+})
+
+describe('remboursementDesCharges — ce que le client a récupéré', () => {
+  const charge = (over = {}) => ({ id: 'ch_1', object: 'charge', amount: 39900, amount_refunded: 0, refunded: false, ...over })
+
+  it('rien de remboursé : null', () => {
+    expect(remboursementDesCharges([charge()])).toBeNull()
+    expect(remboursementDesCharges([])).toBeNull()
+    expect(remboursementDesCharges(null)).toBeNull()
+  })
+
+  it('total : `refunded`, ou tout le montant rendu', () => {
+    expect(remboursementDesCharges([charge({ refunded: true, amount_refunded: 39900 })])).toEqual({ total: true, rembourseCentimes: 39900 })
+    expect(remboursementDesCharges([charge({ amount_refunded: 39900 })])).toEqual({ total: true, rembourseCentimes: 39900 })
+  })
+
+  it('partiel : le montant rendu', () => {
+    expect(remboursementDesCharges([charge({ amount_refunded: 1000 })])).toEqual({ total: false, rembourseCentimes: 1000 })
+  })
+
+  it('plusieurs paiements : total seulement si chacun est rendu en entier', () => {
+    expect(remboursementDesCharges([charge({ refunded: true, amount_refunded: 39900 }), charge({ id: 'ch_2' })]))
+      .toEqual({ total: false, rembourseCentimes: 39900 })
+    expect(remboursementDesCharges([charge({ refunded: true, amount_refunded: 39900 }), charge({ id: 'ch_2', amount: 100, amount_refunded: 100 })]))
+      .toEqual({ total: true, rembourseCentimes: 40000 })
   })
 })
 

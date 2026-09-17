@@ -1,5 +1,5 @@
 import { OPTIONS_REQUETE_COURTE } from './stripe-customer.js'
-import { evaluerFacture, effetRemboursement, cleUnique, DEVISE_COMMISSIONS } from './commissions-closer.js'
+import { evaluerFacture, effetRemboursement, remboursementDesCharges, cleUnique, DEVISE_COMMISSIONS } from './commissions-closer.js'
 
 /**
  * Les commissions des closers côté webhook Stripe : lire, appeler le calcul
@@ -85,6 +85,51 @@ async function lignesDeLaFacture(stripe, factureId) {
   throw new Error(`lignes de la facture ${factureId} illisibles en entier`)
 }
 
+const identifiant = (valeur) => (typeof valeur === 'string' ? valeur : valeur?.id) || null
+
+/** La charge elle-même : un objet étendu tel quel, un identifiant relu. */
+async function chargeLue(stripe, charge) {
+  if (charge && typeof charge === 'object') return charge
+  if (typeof charge !== 'string' || !charge) return null
+  return stripe.charges.retrieve(charge, {}, OPTIONS_STRIPE_COMMISSIONS)
+}
+
+/**
+ * La charge d'un paiement de facture : par son PaymentIntent et sa dernière
+ * charge (`latest_charge`), ou directement quand le paiement est une charge.
+ * Un `payment_record` (paiement enregistré hors Stripe) n'a pas de charge.
+ */
+async function chargeDuPaiement(stripe, paiement) {
+  if (paiement?.type === 'payment_intent') {
+    const id = identifiant(paiement.payment_intent)
+    if (!id) return null
+    const intention = await stripe.paymentIntents.retrieve(id, { expand: ['latest_charge'] }, OPTIONS_STRIPE_COMMISSIONS)
+    return chargeLue(stripe, intention?.latest_charge)
+  }
+  if (paiement?.type === 'charge') return chargeLue(stripe, paiement.charge)
+  return null
+}
+
+/**
+ * Ce que le client a déjà récupéré sur cette facture, ou null.
+ *
+ * Stripe ne garantit pas l'ordre des événements : `charge.refunded` peut
+ * arriver avant `invoice.paid` (ou avant son réessai). Il ne trouve alors
+ * aucune commission à annuler ; c'est donc à la création qu'on lit l'état du
+ * paiement. Une facture remboursée garde le statut `paid` : l'état se lit sur
+ * ses paiements, puis leur PaymentIntent, puis sa dernière charge.
+ */
+async function remboursementDeLaFacture(stripe, factureId) {
+  const paiements = await stripe.invoicePayments.list({ invoice: factureId, limit: 10 }, OPTIONS_STRIPE_COMMISSIONS)
+  const charges = []
+  for (const paiement of paiements?.data ?? []) {
+    if (paiement?.status !== 'paid') continue
+    const charge = await chargeDuPaiement(stripe, paiement.payment)
+    if (charge) charges.push(charge)
+  }
+  return remboursementDesCharges(charges)
+}
+
 /**
  * Un client rattaché dont la facture ne crée rien : on le dit dans les
  * journaux, avec des identifiants seulement (ni nom, ni e-mail, ni montant).
@@ -135,7 +180,12 @@ export async function traiterFacturePayee(stripe, supabase, factureId) {
   const { commission, raison } = evaluerFacture({ facture, lignes, client, uniqueDejaVersee: !!unique })
   if (!commission) return sansCommission(raison, reperes)
 
-  const { error } = await supabase.from('closer_commissions').insert(commission)
+  // Déjà remboursée : la commission naît comme si `charge.refunded` l'avait
+  // trouvée (annulée, ou annotée pour un remboursement partiel).
+  const remboursement = await remboursementDeLaFacture(stripe, facture.id)
+  const aEcrire = { ...commission, ...(remboursement ? effetRemboursement(commission, remboursement) : null) }
+
+  const { error } = await supabase.from('closer_commissions').insert(aEcrire)
   // 23505 : la clé existe déjà — Stripe a renvoyé l'événement, ou un second
   // événement porte la même facture. La commission est là, une seule fois.
   if (error?.code === '23505') return { cree: false, raison: 'deja_creee' }
@@ -146,6 +196,9 @@ export async function traiterFacturePayee(stripe, supabase, factureId) {
 /**
  * `charge.refunded` : annule, ou annote, les commissions de la facture remboursée.
  *
+ * Raisons quand rien n'est touché d'emblée : sans_charge, sans_remboursement,
+ * sans_paiement, hors_facture.
+ *
  * @param {import('stripe').Stripe} stripe
  * @param {any} supabase — client service_role
  * @param {string} chargeId — `event.data.object.id`
@@ -154,7 +207,10 @@ export async function traiterFacturePayee(stripe, supabase, factureId) {
 export async function traiterRemboursement(stripe, supabase, chargeId) {
   if (!chargeId) return { touchees: 0, raison: 'sans_charge' }
   const charge = await stripe.charges.retrieve(chargeId, {}, OPTIONS_STRIPE_COMMISSIONS)
-  const intention = typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id
+  // Même règle qu'à la création (remboursementDesCharges) : total ou partiel.
+  const remboursement = remboursementDesCharges([charge])
+  if (!remboursement) return { touchees: 0, raison: 'sans_remboursement' }
+  const intention = identifiant(charge.payment_intent)
   if (!intention) return { touchees: 0, raison: 'sans_paiement' }
 
   // Une charge ne porte plus sa facture : on la retrouve par le paiement.
@@ -171,10 +227,9 @@ export async function traiterRemboursement(stripe, supabase, chargeId) {
     .from('closer_commissions').select('id, statut, note').in('stripe_invoice_id', factures)
   if (error) throw new Error(`closer_commissions illisible : ${error.message}`)
 
-  const total = charge.refunded === true || charge.amount_refunded >= charge.amount
   let touchees = 0
   for (const commission of commissions ?? []) {
-    const maj = effetRemboursement(commission, { total, rembourseCentimes: charge.amount_refunded })
+    const maj = effetRemboursement(commission, remboursement)
     if (!maj) continue
     const { error: erreurEcriture } = await supabase
       .from('closer_commissions')

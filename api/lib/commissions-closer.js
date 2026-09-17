@@ -317,6 +317,27 @@ function eurosTexte(centimes) {
 }
 
 /**
+ * Ce que le client a récupéré, d'après les charges Stripe (API 2026-02-25.clover)
+ * qui ont payé une facture — ou null si rien n'a été rendu.
+ *
+ * Total : chaque charge est rendue en entier (`refunded`, ou `amount_refunded`
+ * au moins égal à `amount`). Une facture remboursée garde le statut `paid` :
+ * seules ses charges disent qu'elle l'a été.
+ *
+ * @param {any[]} charges
+ * @returns {{ total: boolean, rembourseCentimes: number } | null}
+ */
+export function remboursementDesCharges(charges) {
+  const liste = (charges || []).filter((c) => c && typeof c === 'object')
+  const rendu = (c) => (Number.isInteger(c.amount_refunded) && c.amount_refunded > 0 ? c.amount_refunded : 0)
+  const rembourseCentimes = liste.reduce((somme, c) => somme + rendu(c), 0)
+  const total = liste.length > 0
+    && liste.every((c) => c.refunded === true || (Number.isInteger(c.amount) && c.amount > 0 && rendu(c) >= c.amount))
+  if (!total && rembourseCentimes === 0) return null
+  return { total, rembourseCentimes }
+}
+
+/**
  * Ce que devient une commission quand la facture qui l'a créée est remboursée.
  *
  * Remboursement total : annulée si elle n'est pas encore payée ; si elle l'est,

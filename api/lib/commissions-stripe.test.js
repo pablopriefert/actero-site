@@ -73,10 +73,17 @@ function ligne(prix, { id = 'il_100', proration = false } = {}) {
 const page = (data, has_more = false) => ({ object: 'list', has_more, data, url: '/v1/invoices/in_100/lines' })
 const lignes = (prix) => page([ligne(prix)])
 
-const CHARGE = { id: 'ch_100', object: 'charge', amount: 39900, amount_refunded: 39900, refunded: true, payment_intent: 'pi_100', customer: 'cus_100', status: 'succeeded' }
-const PAIEMENTS = { object: 'list', has_more: false, data: [{ id: 'inpay_100', object: 'invoice_payment', invoice: 'in_100', is_default: true, status: 'paid', payment: { type: 'payment_intent', payment_intent: 'pi_100' } }] }
+const CHARGE = { id: 'ch_100', object: 'charge', amount: 39900, amount_captured: 39900, amount_refunded: 0, refunded: false, payment_intent: 'pi_100', customer: 'cus_100', status: 'succeeded' }
+const CHARGE_REMBOURSEE = { ...CHARGE, amount_refunded: 39900, refunded: true }
+const CHARGE_PARTIELLE = { ...CHARGE, amount_refunded: 1000, refunded: false }
+const paiement = (over = {}) => ({ id: 'inpay_100', object: 'invoice_payment', invoice: 'in_100', is_default: true, status: 'paid', payment: { type: 'payment_intent', payment_intent: 'pi_100' }, ...over })
+const PAIEMENTS = { object: 'list', has_more: false, data: [paiement()] }
 
-function fauxStripe({ factures = {}, lignesParFacture = {}, charge = CHARGE, paiements = PAIEMENTS } = {}) {
+/**
+ * `charge` est la seule charge du monde : celle que relit `charge.refunded`,
+ * et la dernière du PaymentIntent de la facture (`latest_charge`, étendue).
+ */
+function fauxStripe({ factures = {}, lignesParFacture = {}, charge = CHARGE, paiements = PAIEMENTS, intention } = {}) {
   return {
     invoices: {
       retrieve: vi.fn(async (id) => {
@@ -92,6 +99,7 @@ function fauxStripe({ factures = {}, lignesParFacture = {}, charge = CHARGE, pai
       }),
     },
     charges: { retrieve: vi.fn(async () => charge) },
+    paymentIntents: { retrieve: vi.fn(async (id) => intention ?? { id, object: 'payment_intent', status: 'succeeded', latest_charge: charge }) },
     invoicePayments: { list: vi.fn(async () => paiements) },
   }
 }
@@ -119,19 +127,24 @@ describe('la forme lue est celle du SDK', () => {
   })
 
   it('chaque lecture fixe la version et garde le délai borné du webhook', async () => {
-    const stripe = fauxStripe({ factures: { in_100: facture() }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
+    const stripe = fauxStripe({ factures: { in_100: facture() }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) }, charge: CHARGE_REMBOURSEE })
     await traiterFacturePayee(stripe, fauxSupabase(), 'in_100')
     await traiterRemboursement(stripe, fauxSupabase(), 'ch_100')
     expect(OPTIONS_STRIPE_COMMISSIONS).toEqual({ ...OPTIONS_REQUETE_COURTE, apiVersion: '2026-02-25.clover' })
     const appels = [
-      stripe.invoices.retrieve.mock.calls[0],
-      stripe.invoices.listLineItems.mock.calls[0],
-      stripe.charges.retrieve.mock.calls[0],
-      stripe.invoicePayments.list.mock.calls[0],
+      ...stripe.invoices.retrieve.mock.calls,
+      ...stripe.invoices.listLineItems.mock.calls,
+      ...stripe.charges.retrieve.mock.calls,
+      ...stripe.paymentIntents.retrieve.mock.calls,
+      ...stripe.invoicePayments.list.mock.calls,
     ]
+    expect(appels.length).toBeGreaterThanOrEqual(6)
     for (const appel of appels) expect(appel.at(-1), JSON.stringify(appel)).toEqual(OPTIONS_STRIPE_COMMISSIONS)
     expect(stripe.invoices.listLineItems).toHaveBeenCalledWith('in_100', { limit: 100, expand: ['data.pricing.price_details.price'] }, OPTIONS_STRIPE_COMMISSIONS)
     expect(stripe.invoicePayments.list).toHaveBeenCalledWith({ payment: { type: 'payment_intent', payment_intent: 'pi_100' }, limit: 10 }, OPTIONS_STRIPE_COMMISSIONS)
+    // L'état du paiement de la facture : ses paiements, puis le PaymentIntent et sa dernière charge.
+    expect(stripe.invoicePayments.list).toHaveBeenCalledWith({ invoice: 'in_100', limit: 10 }, OPTIONS_STRIPE_COMMISSIONS)
+    expect(stripe.paymentIntents.retrieve).toHaveBeenCalledWith('pi_100', { expand: ['latest_charge'] }, OPTIONS_STRIPE_COMMISSIONS)
   })
 })
 
@@ -312,39 +325,126 @@ describe('invoice.paid → commission', () => {
 
 describe('charge.refunded → commission annulée ou annotée', () => {
   const commission = (statut, note = null) => ({ id: 'kc1', source_key: 'stripe:in_100', stripe_invoice_id: 'in_100', statut, note, montant_centimes: 10000, closer_id: 'k1' })
+  const rembourse = (options) => fauxStripe({ charge: CHARGE_REMBOURSEE, ...options })
 
   it('avant paiement : annulée', async () => {
     for (const statut of ['a_valider', 'validee']) {
       const sb = fauxSupabase({ commissions: [commission(statut)] })
-      expect(await traiterRemboursement(fauxStripe(), sb, 'ch_100'), statut).toEqual({ touchees: 1 })
+      expect(await traiterRemboursement(rembourse(), sb, 'ch_100'), statut).toEqual({ touchees: 1 })
       expect(sb.base.closer_commissions[0], statut).toMatchObject({ statut: 'annulee', note: NOTE_REMBOURSEE })
     }
   })
 
   it('après paiement : reste payée, avec une note', async () => {
     const sb = fauxSupabase({ commissions: [commission('payee')] })
-    await traiterRemboursement(fauxStripe(), sb, 'ch_100')
+    await traiterRemboursement(rembourse(), sb, 'ch_100')
     expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'payee', note: NOTE_REMBOURSEE_APRES_PAIEMENT })
   })
 
   it('remboursement partiel : une note, le statut ne bouge pas', async () => {
     const sb = fauxSupabase({ commissions: [commission('a_valider')] })
-    await traiterRemboursement(fauxStripe({ charge: { ...CHARGE, refunded: false, amount_refunded: 1000 } }), sb, 'ch_100')
+    await traiterRemboursement(fauxStripe({ charge: CHARGE_PARTIELLE }), sb, 'ch_100')
     expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'a_valider', note: 'Remboursement partiel de 10,00 € par le client' })
+  })
+
+  it('le même remboursement partiel reçu deux fois : une seule note', async () => {
+    const sb = fauxSupabase({ commissions: [commission('a_valider')] })
+    await traiterRemboursement(fauxStripe({ charge: CHARGE_PARTIELLE }), sb, 'ch_100')
+    expect(await traiterRemboursement(fauxStripe({ charge: CHARGE_PARTIELLE }), sb, 'ch_100')).toEqual({ touchees: 0 })
+    expect(sb.base.closer_commissions[0].note).toBe('Remboursement partiel de 10,00 € par le client')
   })
 
   it('l’écriture ne touche que la commission encore dans l’état lu', async () => {
     const sb = fauxSupabase({ commissions: [commission('validee')] })
-    await traiterRemboursement(fauxStripe(), sb, 'ch_100')
+    await traiterRemboursement(rembourse(), sb, 'ch_100')
     const ecriture = sb.journal.find((j) => j.table === 'closer_commissions' && j.operation === 'update')
     expect(ecriture.filtres).toContainEqual(['eq', 'statut', 'validee'])
   })
 
-  it('une charge sans paiement ni facture : rien', async () => {
+  it('une charge sans remboursement, sans paiement ou sans facture : rien', async () => {
     const sb = fauxSupabase({ commissions: [commission('a_valider')] })
-    expect(await traiterRemboursement(fauxStripe({ charge: { ...CHARGE, payment_intent: null } }), sb, 'ch_100')).toEqual({ touchees: 0, raison: 'sans_paiement' })
-    expect(await traiterRemboursement(fauxStripe({ paiements: { data: [] } }), sb, 'ch_100')).toEqual({ touchees: 0, raison: 'hors_facture' })
-    expect(sb.base.closer_commissions[0].statut).toBe('a_valider')
+    expect(await traiterRemboursement(fauxStripe(), sb, 'ch_100')).toEqual({ touchees: 0, raison: 'sans_remboursement' })
+    expect(await traiterRemboursement(rembourse({ charge: { ...CHARGE_REMBOURSEE, payment_intent: null } }), sb, 'ch_100')).toEqual({ touchees: 0, raison: 'sans_paiement' })
+    expect(await traiterRemboursement(rembourse({ paiements: { data: [] } }), sb, 'ch_100')).toEqual({ touchees: 0, raison: 'hors_facture' })
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'a_valider', note: null })
+  })
+})
+
+describe('remboursé avant invoice.paid : la commission naît dans l’état du remboursement', () => {
+  const monde = (charge, options) => ({
+    sb: fauxSupabase(),
+    stripe: fauxStripe({ factures: { in_100: facture() }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) }, charge, ...options }),
+  })
+
+  it('charge.refunded traité avant invoice.paid, remboursement total : annulée, avec la note du remboursement', async () => {
+    const { sb, stripe } = monde(CHARGE_REMBOURSEE)
+    // Stripe livre le remboursement d'abord : aucune commission n'existe encore.
+    expect(await traiterRemboursement(stripe, sb, 'ch_100')).toEqual({ touchees: 0 })
+    expect(await traiterFacturePayee(stripe, sb, 'in_100')).toEqual({ cree: true, source_key: 'stripe:in_100' })
+    expect(sb.base.closer_commissions).toHaveLength(1)
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'annulee', note: NOTE_REMBOURSEE, montant_facture_centimes: 39900 })
+  })
+
+  it('remboursement partiel : à valider, avec la note partielle', async () => {
+    const { sb, stripe } = monde(CHARGE_PARTIELLE)
+    expect(await traiterRemboursement(stripe, sb, 'ch_100')).toEqual({ touchees: 0 })
+    await traiterFacturePayee(stripe, sb, 'in_100')
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'a_valider', note: 'Remboursement partiel de 10,00 € par le client' })
+  })
+
+  it('la note du montant payé et celle du remboursement se suivent', async () => {
+    const sb = fauxSupabase()
+    const stripe = fauxStripe({ factures: { in_100: facture({ amount_paid: 3990 }) }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) }, charge: { ...CHARGE, amount: 3990, amount_refunded: 3990, refunded: true } })
+    await traiterFacturePayee(stripe, sb, 'in_100')
+    expect(sb.base.closer_commissions[0]).toMatchObject({
+      statut: 'annulee',
+      note: `Commission supérieure au montant payé (39,90 €) : à vérifier\n${NOTE_REMBOURSEE}`,
+    })
+  })
+
+  it('le paiement se lit par la facture, son PaymentIntent, puis sa dernière charge', async () => {
+    const { sb, stripe } = monde(CHARGE_REMBOURSEE)
+    await traiterFacturePayee(stripe, sb, 'in_100')
+    expect(stripe.invoicePayments.list).toHaveBeenCalledWith({ invoice: 'in_100', limit: 10 }, OPTIONS_STRIPE_COMMISSIONS)
+    expect(stripe.paymentIntents.retrieve).toHaveBeenCalledWith('pi_100', { expand: ['latest_charge'] }, OPTIONS_STRIPE_COMMISSIONS)
+  })
+
+  it('une dernière charge non étendue est relue', async () => {
+    const { sb, stripe } = monde(CHARGE_REMBOURSEE, { intention: { id: 'pi_100', object: 'payment_intent', latest_charge: 'ch_100' } })
+    await traiterFacturePayee(stripe, sb, 'in_100')
+    expect(stripe.charges.retrieve).toHaveBeenCalledWith('ch_100', {}, OPTIONS_STRIPE_COMMISSIONS)
+    expect(sb.base.closer_commissions[0].statut).toBe('annulee')
+  })
+
+  it('un paiement par charge, sans PaymentIntent : la charge est lue directement', async () => {
+    const paiements = { data: [paiement({ payment: { type: 'charge', charge: 'ch_100' } })] }
+    const { sb, stripe } = monde(CHARGE_REMBOURSEE, { paiements })
+    await traiterFacturePayee(stripe, sb, 'in_100')
+    expect(stripe.paymentIntents.retrieve).not.toHaveBeenCalled()
+    expect(stripe.charges.retrieve).toHaveBeenCalledWith('ch_100', {}, OPTIONS_STRIPE_COMMISSIONS)
+    expect(sb.base.closer_commissions[0].statut).toBe('annulee')
+  })
+
+  it('un paiement annulé ou encore ouvert ne compte pas', async () => {
+    const paiements = { data: [paiement({ status: 'canceled' }), paiement({ id: 'inpay_2', status: 'open' })] }
+    const { sb, stripe } = monde(CHARGE_REMBOURSEE, { paiements })
+    await traiterFacturePayee(stripe, sb, 'in_100')
+    expect(sb.base.closer_commissions[0]).toMatchObject({ statut: 'a_valider', note: null })
+  })
+
+  it('pas de lecture du paiement quand la facture ne rapporte rien', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const stripe = fauxStripe({ factures: { in_100: facture({ billing_reason: 'manual' }) }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) }, charge: CHARGE_REMBOURSEE })
+    expect(await traiterFacturePayee(stripe, fauxSupabase(), 'in_100')).toEqual({ cree: false, raison: 'hors_grille' })
+    expect(stripe.invoicePayments.list).not.toHaveBeenCalled()
+    warn.mockRestore()
+  })
+
+  it('une panne de lecture du paiement lève : rien n’est écrit, Stripe réessaiera', async () => {
+    const { sb, stripe } = monde(CHARGE)
+    stripe.paymentIntents.retrieve.mockRejectedValueOnce(Object.assign(new Error('Stripe indisponible'), { type: 'StripeConnectionError' }))
+    await expect(traiterFacturePayee(stripe, sb, 'in_100')).rejects.toThrow(/Stripe indisponible/)
+    expect(sb.base.closer_commissions).toEqual([])
   })
 })
 
@@ -392,7 +492,7 @@ describe('le webhook branche invoice.paid et charge.refunded', () => {
       uniques: { closer_commissions: ['source_key'], webhook_events_processed: ['event_id'] },
       erreurs: options?.erreurs,
     })
-    const stripe = fauxStripe({ factures: { in_100: facture() }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
+    const stripe = fauxStripe({ factures: { in_100: facture() }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) }, charge: options?.charge })
     w.stripe = { ...stripe, webhooks: { constructEvent: vi.fn(() => w.evenement) } }
   }
 
@@ -433,9 +533,18 @@ describe('le webhook branche invoice.paid et charge.refunded', () => {
   })
 
   it('charge.refunded : la commission à valider passe annulée', async () => {
-    monde({ commissions: [{ id: 'kc1', source_key: 'stripe:in_100', stripe_invoice_id: 'in_100', statut: 'a_valider', note: null }] })
+    monde({ commissions: [{ id: 'kc1', source_key: 'stripe:in_100', stripe_invoice_id: 'in_100', statut: 'a_valider', note: null }], charge: CHARGE_REMBOURSEE })
     expect((await livrer(chargeRemboursee('evt_4'))).statusCode).toBe(200)
     expect(w.supabase.base.closer_commissions[0].statut).toBe('annulee')
+  })
+
+  it('charge.refunded livré avant invoice.paid : la commission naît annulée', async () => {
+    monde({ charge: CHARGE_REMBOURSEE })
+    expect((await livrer(chargeRemboursee('evt_5'))).statusCode).toBe(200)
+    expect(w.supabase.base.closer_commissions).toEqual([])
+    expect((await livrer(facturePayee('evt_6'))).statusCode).toBe(200)
+    expect(w.supabase.base.closer_commissions).toHaveLength(1)
+    expect(w.supabase.base.closer_commissions[0]).toMatchObject({ statut: 'annulee', note: NOTE_REMBOURSEE })
   })
 
   it('les deux branches libèrent l’événement et répondent 500 sur une erreur', () => {
