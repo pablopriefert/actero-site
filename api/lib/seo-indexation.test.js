@@ -104,7 +104,10 @@ function prerenderedPaths(source) {
 // un corps de regex, ancré ^...$, leur est fidèle.
 function sourceToRegExp(source) {
   try {
-    return pathToRegexp(source).regexp
+    // Vercel écrit « /:nom* » (path-to-regexp 6 : zéro segment ou plus) ;
+    // la version 8 installée l'écrit « {/*nom} ». Seule cette forme, en fin
+    // de motif, est traduite.
+    return pathToRegexp(source.replace(/\/:([A-Za-z_]\w*)\*$/, '{/*$1}')).regexp
   } catch {
     // Un paramètre nommé s'écrit « :nom » ; « (?: » est un groupe non capturant.
     if (/(^|[^?]):[A-Za-z_]/.test(source)) {
@@ -274,6 +277,29 @@ describe('vercel.json — /admin et /closer ne s’affichent jamais dans un cadr
     for (const cle of Object.keys(ANTI_CADRE)) {
       expect([...headerValuesForPath(path, cle)], `${cle} pour ${path}`).toEqual([])
     }
+  })
+})
+
+describe('vercel.json — l’ancien programme ambassadeurs mène à l’accueil', () => {
+  // Le programme est supprimé : /ambassadeurs rendait une fausse 404 (la page
+  // d'erreur de l'application, servie en 200), et l'ancien espace
+  // (/ambassador, /ambassador/login, /ambassador/overview…) n'existe plus.
+  const redirection = (path) => VERCEL.redirects.filter((r) => sourceToRegExp(r.source).test(path))
+
+  it.each(['/ambassadeurs', '/ambassador', '/ambassador/login', '/ambassador/overview', '/ambassador/commissions', '/ambassador/dashboard'])('%s redirige vers / (permanent)', (path) => {
+    const regles = redirection(path)
+    expect(regles, path).toHaveLength(1)
+    expect(regles[0]).toMatchObject({ destination: '/', permanent: true })
+  })
+
+  it.each(['/', '/closer', '/closer/inscription', '/c/ACT-AB2CD', '/tarifs', '/ambassadrice', '/api/ambassador/leads'])('%s n’est pas redirigé par ces règles', (path) => {
+    expect(redirection(path).filter((r) => /ambassad/.test(r.source)), path).toEqual([])
+  })
+
+  it('la traduction du motif Vercel « /:nom* » couvre le chemin nu et ses sous-chemins', () => {
+    const motif = sourceToRegExp('/ambassador/:path*')
+    for (const path of ['/ambassador', '/ambassador/', '/ambassador/a', '/ambassador/a/b']) expect(motif.test(path), path).toBe(true)
+    for (const path of ['/ambassadors', '/x/ambassador']) expect(motif.test(path), path).toBe(false)
   })
 })
 

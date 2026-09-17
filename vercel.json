@@ -41,7 +41,9 @@
 
         { "source": "/comparaison/gorgias", "destination": "/alternative-gorgias", "permanent": true },
         { "source": "/comparaison/tidio", "destination": "/alternative-tidio", "permanent": true },
-        { "source": "/comparaison/zendesk", "destination": "/alternative-zendesk", "permanent": true }
+        { "source": "/comparaison/zendesk", "destination": "/alternative-zendesk", "permanent": true },
+        { "source": "/ambassadeurs", "destination": "/", "permanent": true },
+        { "source": "/ambassador/:path*", "destination": "/", "permanent": true }
     ],
     "rewrites": [
         {
