@@ -17,6 +17,7 @@
  * tout le trafic. api/lib/rate-limit.test.js échoue si un appel oublie le
  * `await`.
  */
+import { isIPv6 } from 'node:net'
 import { createClient } from '@supabase/supabase-js'
 
 /* -------------------------------------------------------------------------- */
@@ -113,20 +114,63 @@ export async function checkRateLimit(key, limit = 10, windowMs = 60_000) {
   }
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Adresse du client                                                         */
+/* -------------------------------------------------------------------------- */
+
+/** Les huit groupes de 16 bits d'une IPv6 déjà validée. */
+function groupesIPv6(adresse) {
+  let texte = adresse
+  // Queue IPv4 (::ffff:1.2.3.4) : deux groupes de plus.
+  const queue = /(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(texte)
+  if (queue) {
+    const [a, b, c, d] = queue.slice(1).map(Number)
+    texte = `${texte.slice(0, queue.index)}${((a << 8) | b).toString(16)}:${((c << 8) | d).toString(16)}`
+  }
+  const [tete, fin] = texte.split('::')
+  const gauche = tete ? tete.split(':') : []
+  const droite = fin ? fin.split(':') : []
+  const zeros = fin === undefined ? [] : Array(8 - gauche.length - droite.length).fill('0')
+  return [...gauche, ...zeros, ...droite].map((g) => parseInt(g, 16))
+}
+
 /**
- * IP du client, au mieux, derrière les proxys.
+ * La clé de limitation d'une adresse. Une IPv4 reste telle quelle. Une IPv6
+ * est ramenée à son préfixe /64 : un fournisseur attribue au moins un /64 à
+ * chaque abonné, qui peut donc changer d'adresse à volonté — compter par
+ * adresse lui donnait 2^64 quotas. Une IPv4 écrite en IPv6 (::ffff:a.b.c.d,
+ * fréquent côté socket) redevient une IPv4 : sinon toutes partageraient la
+ * même clé. Ce qui n'est pas une IP est rendu tel quel.
+ */
+function cleDAdresse(ip) {
+  let brute = String(ip).trim()
+  const entreCrochets = /^\[([^\]]+)\](?::\d+)?$/.exec(brute)
+  if (entreCrochets) brute = entreCrochets[1]
+  brute = brute.replace(/%.*$/, '') // identifiant de zone : fe80::1%eth0
+  if (!isIPv6(brute)) return ip
+
+  const groupes = groupesIPv6(brute.toLowerCase())
+  if (groupes.slice(0, 5).every((g) => g === 0) && groupes[5] === 0xffff) {
+    return [groupes[6] >> 8, groupes[6] & 0xff, groupes[7] >> 8, groupes[7] & 0xff].join('.')
+  }
+  return `${groupes.slice(0, 4).map((g) => g.toString(16)).join(':')}::/64`
+}
+
+/**
+ * IP du client, au mieux, derrière les proxys — sous la forme d'une clé de
+ * limitation : une IPv6 est ramenée à son /64 (voir `cleDAdresse`).
  * @param {import('http').IncomingMessage} req
  * @returns {string}
  */
 export function getClientIp(req) {
   const xff = req.headers?.['x-forwarded-for']
   if (typeof xff === 'string' && xff.length > 0) {
-    return xff.split(',')[0].trim()
+    return cleDAdresse(xff.split(',')[0].trim())
   }
   if (Array.isArray(xff) && xff.length > 0) {
-    return String(xff[0]).split(',')[0].trim()
+    return cleDAdresse(String(xff[0]).split(',')[0].trim())
   }
-  return (
+  return cleDAdresse(
     req.headers?.['x-real-ip'] ||
     req.socket?.remoteAddress ||
     req.connection?.remoteAddress ||

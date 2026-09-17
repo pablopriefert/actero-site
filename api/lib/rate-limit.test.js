@@ -116,6 +116,42 @@ describe('getClientIp', () => {
     const { getClientIp } = await import('./rate-limit.js')
     expect(getClientIp({ headers: {} })).toBe('unknown')
   })
+
+  it('une IPv4 ne change pas, d’où qu’elle vienne', async () => {
+    const { getClientIp } = await import('./rate-limit.js')
+    expect(getClientIp({ headers: { 'x-forwarded-for': '203.0.113.7' } })).toBe('203.0.113.7')
+    expect(getClientIp({ headers: { 'x-forwarded-for': ['203.0.113.7, 10.0.0.1'] } })).toBe('203.0.113.7')
+    expect(getClientIp({ headers: { 'x-real-ip': '203.0.113.8' } })).toBe('203.0.113.8')
+    expect(getClientIp({ headers: {}, socket: { remoteAddress: '203.0.113.9' } })).toBe('203.0.113.9')
+  })
+
+  it('une IPv6 est ramenée à son préfixe /64 : un abonné ne change pas de clé en changeant d’adresse', async () => {
+    // Un fournisseur attribue un /64 (souvent plus) à chaque abonné : les 2^64
+    // adresses qui le composent sont à lui. Compter par adresse, c'était lui
+    // donner autant de quotas.
+    const { getClientIp } = await import('./rate-limit.js')
+    const ip = (xff) => getClientIp({ headers: { 'x-forwarded-for': xff } })
+    expect(ip('2001:db8:1234:5678:abcd:ef01:2345:6789')).toBe('2001:db8:1234:5678::/64')
+    expect(ip('2001:DB8:1234:5678::1')).toBe('2001:db8:1234:5678::/64')
+    expect(ip('2001:0db8:1234:5678:0:0:0:ffff, 10.0.0.1')).toBe('2001:db8:1234:5678::/64')
+    expect(ip('2001:db8::1')).toBe('2001:db8:0:0::/64')
+    expect(ip('2001:db8:1234:5679::1')).toBe('2001:db8:1234:5679::/64')
+    expect(getClientIp({ headers: { 'x-real-ip': '2001:db8:1:2::3' } })).toBe('2001:db8:1:2::/64')
+    expect(getClientIp({ headers: {}, socket: { remoteAddress: '2001:db8:1:2:3:4:5:6' } })).toBe('2001:db8:1:2::/64')
+  })
+
+  it('une IPv4 écrite en IPv6 (::ffff:…) reste une IPv4 — sinon toutes partageraient une clé', async () => {
+    const { getClientIp } = await import('./rate-limit.js')
+    expect(getClientIp({ headers: {}, socket: { remoteAddress: '::ffff:203.0.113.7' } })).toBe('203.0.113.7')
+    expect(getClientIp({ headers: { 'x-forwarded-for': '::FFFF:cb00:7107' } })).toBe('203.0.113.7')
+  })
+
+  it('crochets, port et zone sont ignorés ; une valeur qui n’est pas une IP est rendue telle quelle', async () => {
+    const { getClientIp } = await import('./rate-limit.js')
+    expect(getClientIp({ headers: { 'x-forwarded-for': '[2001:db8:1:2::3]:443' } })).toBe('2001:db8:1:2::/64')
+    expect(getClientIp({ headers: { 'x-forwarded-for': 'fe80::1%eth0' } })).toBe('fe80:0:0:0::/64')
+    expect(getClientIp({ headers: { 'x-forwarded-for': 'pas-une-ip' } })).toBe('pas-une-ip')
+  })
 })
 
 /* -------------------------------------------------------------------------- */
