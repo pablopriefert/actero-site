@@ -9,22 +9,57 @@ const supabase = createClient(
 )
 
 /**
+ * La boutique que l'appelant peut engager : celle dont il est PROPRIÉTAIRE
+ * (`owner_user_id`, ou le rôle `owner` dans client_users), la plus récente
+ * s'il en a plusieurs — le lien a mené à la dernière créée. À défaut, une
+ * boutique dont il n'est que membre : la règle la refusera
+ * (non_proprietaire), réponse définitive qui fait oublier le code.
+ *
+ * @returns {Promise<{ clientId: string | null } | { indisponible: true }>}
+ */
+async function boutiqueDeLAppelant(userId) {
+  const [liens, possedees] = await Promise.all([
+    supabase.from('client_users').select('client_id, role').eq('user_id', userId),
+    supabase.from('clients').select('id').eq('owner_user_id', userId),
+  ])
+  if (liens.error || possedees.error) return { indisponible: true }
+
+  const aLui = new Set([
+    ...(possedees.data || []).map((c) => c.id),
+    ...(liens.data || []).filter((l) => l.role === 'owner').map((l) => l.client_id),
+  ])
+  if (aLui.size > 0) {
+    const { data: recente, error } = await supabase
+      .from('clients').select('id').in('id', [...aLui])
+      .order('created_at', { ascending: false, nullsFirst: false }).limit(1).maybeSingle()
+    if (error) return { indisponible: true }
+    if (recente?.id) return { clientId: recente.id }
+  }
+  return { clientId: liens.data?.[0]?.client_id ?? null }
+}
+
+/**
  * POST /api/closer/attribuer — le marchand connecté présente le code closer
  * mémorisé par son navigateur (lien /c/:code, src/lib/code-closer.js).
  *
  * Même mécanique que le code de campagne (api/auth/apply-campaign.js) : le
  * navigateur transporte le code, le serveur décide. Le client est celui de la
  * SESSION, jamais un identifiant reçu : sinon n'importe qui rattacherait le
- * client de son choix.
+ * client de son choix. Et seul son propriétaire l'engage (voir
+ * api/lib/attribution-closer.js pour les autres règles : client récent, qui
+ * n'a jamais payé, premier closer gagnant).
  *
  * Corps : { code }
  * Réponses :
- *   200 { ok, rattache }  le serveur a tranché — rattaché, ou refusé sans dire
- *                         pourquoi (pas d'oracle pour deviner les codes ;
- *                         la raison reste dans les journaux)
- *   401                   jeton absent ou refusé
- *   404                   pas encore de client pour ce compte : rien n'est tranché
- *   429, 500, 503         rien n'est tranché, le navigateur garde le code
+ *   200 { ok, rattache }  le serveur a tranché, définitivement : rattaché, ou
+ *                         refusé sans dire pourquoi (pas d'oracle pour deviner
+ *                         les codes ; la raison reste dans les journaux). Le
+ *                         navigateur oublie le code.
+ *   400 code_requis       corps sans code
+ *   401 non_authentifie   jeton absent ou refusé
+ *   404 client_introuvable pas encore de boutique pour ce compte : rien n'est tranché
+ *   429 trop_de_demandes, 500 erreur_interne, 503 indisponible :
+ *                         rien n'est tranché, le navigateur garde le code
  */
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'methode_non_autorisee' })
@@ -40,20 +75,13 @@ async function handler(req, res) {
   const { code } = req.body || {}
   if (typeof code !== 'string' || !code.trim()) return res.status(400).json({ error: 'code_requis' })
 
-  const { data: lien, error: erreurLien } = await supabase
-    .from('client_users').select('client_id').eq('user_id', user.id).limit(1).maybeSingle()
-  if (erreurLien) return res.status(503).json({ error: 'indisponible' })
-  let clientId = lien?.client_id
-  if (!clientId) {
-    const { data: possede, error: erreurPossede } = await supabase
-      .from('clients').select('id').eq('owner_user_id', user.id).limit(1).maybeSingle()
-    if (erreurPossede) return res.status(503).json({ error: 'indisponible' })
-    clientId = possede?.id
-  }
+  const boutique = await boutiqueDeLAppelant(user.id)
+  if (boutique.indisponible) return res.status(503).json({ error: 'indisponible' })
+  const { clientId } = boutique
   if (!clientId) return res.status(404).json({ error: 'client_introuvable' })
 
   try {
-    const resultat = await rattacherCloser(supabase, { clientId, code })
+    const resultat = await rattacherCloser(supabase, { clientId, userId: user.id, code })
     if (!resultat.rattache) {
       console.warn(`[closer/attribuer] refusé pour ${clientId} : ${resultat.raison}`)
       return res.status(200).json({ ok: true, rattache: false })
