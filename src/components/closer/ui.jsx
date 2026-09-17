@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { Logo } from '../layout/Logo'
 import { DUREE_ATTRIBUTION_JOURS } from '../../lib/code-closer'
+import { boutiqueDuFil, evenementAlerte, libelleEvenement, PASTILLE_FAMILLE } from '../../lib/affichage-closer'
 
 /**
  * Les briques de l'espace closer, dans le système visuel d'Actero : Inter
@@ -194,5 +195,49 @@ export function ErreurChargement({ erreur, onReessayer }) {
         )
       )}
     </div>
+  )
+}
+
+/** La pastille de couleur d'une famille d'étapes (décorative : le libellé dit tout). */
+export function PastilleFamille({ famille }) {
+  const couleur = Object.hasOwn(PASTILLE_FAMILLE, famille ?? '') ? PASTILLE_FAMILLE[famille] : 'bg-ink-4'
+  return <span aria-hidden="true" className={`w-2 h-2 rounded-full shrink-0 ${couleur}`} />
+}
+
+/** Le libellé d'une étape en pastille ; orange quand l'étape est à surveiller. */
+export function BadgeEtape({ evenement }) {
+  const alerte = evenementAlerte(evenement.type)
+  return (
+    <span
+      data-alerte={alerte ? 'oui' : undefined}
+      className={`inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-[12px] whitespace-nowrap ${alerte ? 'bg-warn-bg text-ink' : 'bg-cream text-ink-2'}`}
+    >
+      <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full shrink-0 ${alerte ? 'bg-warn' : 'bg-ink-4'}`} />
+      {libelleEvenement(evenement)}
+    </span>
+  )
+}
+
+/**
+ * Une étape du fil : pastille de famille, libellé, boutique et moment. Une
+ * étape à surveiller a son libellé sur fond orange.
+ */
+export function LigneEtape({ evenement, moment, avecBoutique = true }) {
+  const alerte = evenementAlerte(evenement.type)
+  return (
+    <li className="px-4 py-3 flex items-center gap-3">
+      <PastilleFamille famille={evenement.famille} />
+      <div className="flex-1 min-w-0">
+        <p className="text-[14px] text-ink">
+          <span data-alerte={alerte ? 'oui' : undefined} className={alerte ? 'px-2 py-0.5 rounded-full bg-warn-bg' : undefined}>
+            {libelleEvenement(evenement)}
+          </span>
+        </p>
+        {avecBoutique && <p className="mt-0.5 text-[13px] text-ink-3 truncate">{boutiqueDuFil(evenement)}</p>}
+      </div>
+      <time dateTime={evenement.survenu_le} className="shrink-0 text-[13px] text-ink-3 tabular-nums whitespace-nowrap">
+        {moment}
+      </time>
+    </li>
   )
 }

@@ -166,6 +166,18 @@ export function dateRelative(iso, maintenant = new Date()) {
   return `le ${jourEtMois(c, ref)}`
 }
 
+/** L'heure d'une ligne du fil : relative quand elle est récente (« il y a 5 min »), sinon « 14 h 05 ». */
+export function momentDuFil(iso, maintenant = new Date()) {
+  const relative = dateRelative(iso, maintenant)
+  return /^(à l’instant|il y a )/.test(relative) ? relative : heureDuFil(iso)
+}
+
+/** La boutique d'une étape ; un clic pas encore relié vient d'un visiteur. */
+export function boutiqueDuFil({ boutique, client_id: clientId } = {}) {
+  if (boutique) return boutique
+  return clientId ? 'Boutique sans nom' : 'Visiteur, pas encore inscrit'
+}
+
 /** Le titre d'un jour du fil : « Aujourd’hui », « Hier », « Lundi 14 septembre ». */
 export function jourDuFil(iso, maintenant = new Date()) {
   const c = calendrier(iso)

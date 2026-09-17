@@ -6,6 +6,7 @@ import { Logo } from '../../components/layout/Logo'
 import { appelCloser } from '../../lib/espace-closer'
 import { Chargement, ErreurChargement } from '../../components/closer/ui'
 import { AccueilCloser } from '../../components/closer/AccueilCloser'
+import { ActiviteCloser } from '../../components/closer/ActiviteCloser'
 import { ClientsCloser } from '../../components/closer/ClientsCloser'
 import { CommissionsCloser } from '../../components/closer/CommissionsCloser'
 import { ProfilCloser } from '../../components/closer/ProfilCloser'
@@ -13,13 +14,14 @@ import { DevenirCloser } from '../../components/closer/DevenirCloser'
 
 const ONGLETS = [
   { route: '/closer', libelle: 'Accueil' },
+  { route: '/closer/activite', libelle: 'Activité' },
   { route: '/closer/clients', libelle: 'Clients' },
   { route: '/closer/commissions', libelle: 'Commissions' },
   { route: '/closer/profil', libelle: 'Profil et paiement' },
 ]
 
 /**
- * /closer — l'espace closer : accueil, clients, commissions, profil et paiement.
+ * /closer — l'espace closer : accueil, activité, clients, commissions, profil et paiement.
  *
  * Tout passe par /api/closer/* ; sans session, retour à /closer/connexion ; un
  * compte sans fiche voit « Devenir closer ».
@@ -39,6 +41,7 @@ export function CloserEspacePage({ currentRoute, onNavigate, onLogout }) {
   if (moi.isPending || statut === 401) contenu = <Chargement />
   else if (statut === 404) contenu = <DevenirCloser />
   else if (moi.error || !fiche) contenu = <ErreurChargement erreur={moi.error} onReessayer={moi.refetch} />
+  else if (route === '/closer/activite') contenu = <ActiviteCloser />
   else if (route === '/closer/clients') contenu = <ClientsCloser />
   else if (route === '/closer/commissions') contenu = <CommissionsCloser />
   else if (route === '/closer/profil') contenu = <ProfilCloser key={fiche.code} fiche={fiche} />

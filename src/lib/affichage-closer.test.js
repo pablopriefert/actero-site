@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   commissionAnnoncee, dateCourte, lienDAbonnement, montant, LIBELLES_STATUT_COMMISSION,
-  dateRelative, evenementAlerte, FILTRES_ACTIVITE, grouperParJour, heureDuFil, jourDuFil, libelleEvenement, offreEnClair, PASTILLE_FAMILLE,
+  boutiqueDuFil, dateRelative, evenementAlerte, FILTRES_ACTIVITE, grouperParJour, heureDuFil, jourDuFil, libelleEvenement,
+  momentDuFil, offreEnClair, PASTILLE_FAMILLE,
 } from './affichage-closer.js'
 import { FAMILLES, TYPES_EVENEMENT } from '../../api/lib/familles-evenements.js'
 import { euros } from './affichage-formules.js'
@@ -134,9 +135,19 @@ describe('fil d’activité — dates, à l’heure de Paris', () => {
     expect(dateRelative('2026-10-24T22:30:00Z', new Date('2026-10-25T22:30:00Z'))).toBe('il y a 24 h')
   })
 
-  it('l’heure d’une ligne du fil', () => {
+  it('l’heure d’une ligne du fil : relative quand elle est récente, sinon l’heure', () => {
     expect(heureDuFil('2026-09-16T07:05:00Z')).toBe('9 h 05')
     expect(heureDuFil(null)).toBe('—')
+    expect(momentDuFil('2026-09-17T11:55:00Z', MAINTENANT)).toBe('il y a 5 min')
+    expect(momentDuFil('2026-09-17T10:00:00Z', MAINTENANT)).toBe('il y a 2 h')
+    expect(momentDuFil('2026-09-16T12:05:00Z', MAINTENANT)).toBe('14 h 05')
+    expect(momentDuFil('2026-09-12T08:00:00Z', MAINTENANT)).toBe('10 h 00')
+  })
+
+  it('la boutique d’une ligne du fil', () => {
+    expect(boutiqueDuFil({ boutique: 'Maison Ambre', client_id: 'c1' })).toBe('Maison Ambre')
+    expect(boutiqueDuFil({ boutique: null, client_id: 'c1' })).toBe('Boutique sans nom')
+    expect(boutiqueDuFil({ boutique: null, client_id: null })).toBe('Visiteur, pas encore inscrit')
   })
 
   it('les étapes regroupées par jour, dans leur ordre', () => {
