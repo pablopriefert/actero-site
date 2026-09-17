@@ -1,7 +1,8 @@
+import crypto from 'node:crypto'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { creerFauxSupabase, appeler } from './faux-supabase.js'
 import { encryptToken } from './crypto.js'
-import { empreinteCode, TYPE_CODE_CLOSER } from './code-verification.js'
+import { empreinteCode, codeCorrespond, TYPE_CODE_CLOSER } from './code-verification.js'
 
 /**
  * Codes à 6 chiffres envoyés par e-mail — les défenses communes aux deux
@@ -187,5 +188,31 @@ describe.each(['closer', 'marchand'])('le type du code est filtré par la base �
     expect(res.statusCode).toBe(400)
     expect(sb.base.email_verification_codes[0]).toMatchObject({ attempts: 0, used_at: null })
     expect(sb.journal.filter((j) => j.operation === 'createUser')).toEqual([])
+  })
+})
+
+describe('comparaison du code en temps constant', () => {
+  it('compare les empreintes avec crypto.timingSafeEqual, sur des tampons de même longueur', () => {
+    const espion = vi.spyOn(crypto, 'timingSafeEqual')
+    expect(codeCorrespond('123456', empreinteCode('123456'))).toBe(true)
+    expect(codeCorrespond('123457', empreinteCode('123456'))).toBe(false)
+    expect(espion).toHaveBeenCalledTimes(2)
+    for (const [a, b] of espion.mock.calls) expect(a.length).toBe(b.length)
+  })
+
+  it('une empreinte de longueur différente vaut un échec, sans lever', () => {
+    const espion = vi.spyOn(crypto, 'timingSafeEqual')
+    for (const empreinte of ['abcd', '', null, undefined, `${empreinteCode('123456')}00`]) {
+      expect(codeCorrespond('123456', empreinte), String(empreinte)).toBe(false)
+    }
+    expect(espion).not.toHaveBeenCalled()
+  })
+
+  it.each(['closer', 'marchand'])('la route %s compare en temps constant', async (parcours) => {
+    monde({ codes: [ligneDeCode({ id: 'v', parcours })] })
+    const espion = vi.spyOn(crypto, 'timingSafeEqual')
+    const res = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '999999' } })
+    expect(res.statusCode).toBe(400)
+    expect(espion).toHaveBeenCalledTimes(1)
   })
 })

@@ -12,12 +12,11 @@
  */
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
-import crypto from 'crypto'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
 import { appliquerCampagne } from '../lib/campagne.js'
 import {
-  COLONNE_TYPE_CODE, UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
+  codeCorrespond, COLONNE_TYPE_CODE, UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
 } from '../lib/code-verification.js'
 
 const supabase = createClient(
@@ -27,10 +26,6 @@ const supabase = createClient(
 
 const MAX_ATTEMPTS = 5
 const TROP_DE_TENTATIVES = { error: 'Trop de tentatives. Réessayez plus tard.' }
-
-function hashCode(code) {
-  return crypto.createHash('sha256').update(String(code)).digest('hex')
-}
 
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -73,9 +68,8 @@ async function handler(req, res) {
     return res.status(429).json({ error: 'Trop de tentatives incorrectes. Demandez un nouveau code.' })
   }
 
-  // Verify code (constant-time compare via hash)
-  const valid = hashCode(codeStr) === record.code_hash
-  if (!valid) {
+  // Comparaison en temps constant (voir api/lib/code-verification.js).
+  if (!codeCorrespond(codeStr, record.code_hash)) {
     await supabase
       .from('email_verification_codes')
       .update({ attempts: record.attempts + 1 })

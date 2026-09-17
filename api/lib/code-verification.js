@@ -45,3 +45,17 @@ export function genererCodeVerification() {
 export function empreinteCode(code) {
   return crypto.createHash('sha256').update(String(code)).digest('hex')
 }
+
+/**
+ * Le code saisi correspond-il à l'empreinte enregistrée ? Comparaison en
+ * temps constant : un `===` s'arrête au premier caractère différent, et sa
+ * durée renseigne sur l'empreinte. `timingSafeEqual` exige deux tampons de
+ * même longueur (il lève sinon) : une empreinte d'une autre longueur est un
+ * échec, pas une erreur.
+ */
+export function codeCorrespond(saisi, empreinteAttendue) {
+  const recu = Buffer.from(empreinteCode(saisi), 'hex')
+  const attendu = Buffer.from(String(empreinteAttendue ?? ''), 'hex')
+  if (recu.length !== attendu.length) return false
+  return crypto.timingSafeEqual(recu, attendu)
+}
