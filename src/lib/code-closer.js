@@ -34,6 +34,16 @@ function cookieExistant() {
 }
 
 /**
+ * Attributs communs à l'écriture et à l'effacement. `Secure` sur une page
+ * https : le code ne voyage jamais en clair. Pas en http (développement
+ * local), où le navigateur refuserait le cookie.
+ */
+function attributsCookie() {
+  const https = window.location?.protocol === 'https:'
+  return `path=/; SameSite=Lax${https ? '; Secure' : ''}`
+}
+
+/**
  * Mémorise le code du lien. Le premier lien cliqué gagne, comme le premier
  * closer gagne côté serveur ; et un second passage ne repousse pas
  * l'expiration (le défaut du 11 septembre sur le code de campagne).
@@ -48,7 +58,7 @@ export function memoriserCodeCloser(brut) {
     const code = typeof brut === 'string' ? brut.trim().toUpperCase() : ''
     if (!FORMAT_CODE_CLOSER.test(code)) return null
     const expire = new Date(Date.now() + DUREE_ATTRIBUTION_JOURS * 86_400_000).toUTCString()
-    document.cookie = `${CLE}=${encodeURIComponent(code)}; path=/; expires=${expire}; SameSite=Lax`
+    document.cookie = `${CLE}=${encodeURIComponent(code)}; expires=${expire}; ${attributsCookie()}`
     return code
   } catch {
     return null
@@ -69,10 +79,30 @@ export function codeCloserCourant() {
 export function oublierCodeCloser() {
   if (typeof window === 'undefined') return
   try {
-    document.cookie = `${CLE}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`
+    document.cookie = `${CLE}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; ${attributsCookie()}`
   } catch {
     // un cookie qu'on ne peut pas effacer expirera de lui-même
   }
+}
+
+/**
+ * La réponse de api/closer/attribuer.js a-t-elle tranché, pour de bon ?
+ *
+ *   200       oui : rattaché, ou refus définitif — code inconnu, client déjà
+ *             rattaché, client payant (ou qui a déjà payé), auto-rattachement,
+ *             client trop ancien, non-propriétaire. Le serveur ne dit pas
+ *             lequel, exprès.
+ *   autre 4xx oui : la requête est refusée telle quelle (400 code_requis) ;
+ *             la représenter n'y changerait rien.
+ *   401, 404, 408, 429, 5xx
+ *             non, erreur passagère : session à rafraîchir, boutique pas
+ *             encore visible juste après l'inscription, surcharge, panne.
+ *             Une coupure réseau non plus (voir presenterCodeCloser).
+ */
+export function reponseTranchee(status) {
+  if (status === 200) return true
+  if ([401, 404, 408, 429].includes(status)) return false
+  return status >= 400 && status < 500
 }
 
 /** Ce que le serveur a répondu pendant cette vie de page (voir campagne.js). */
@@ -101,11 +131,10 @@ export async function presenterCodeCloser(supabase) {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
       body: JSON.stringify({ code }),
     })
-    // 200 : le serveur a tranché, rattaché ou refusé — le code a servi.
-    // 404 (client pas encore visible), 429, 5xx, coupure : rien n'est
-    // tranché, on garde le code pour la prochaine fois.
-    if (res.status !== 200) return false
-    const data = await res.json()
+    // Tranché (voir reponseTranchee) : le code a servi, on l'oublie. Sinon
+    // — erreur passagère ou coupure — on le garde pour la prochaine fois.
+    if (!reponseTranchee(res.status)) return false
+    const data = res.status === 200 ? await res.json() : null
     adjuge = !!data?.rattache
     oublierCodeCloser()
     return adjuge
