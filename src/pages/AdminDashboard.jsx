@@ -118,6 +118,7 @@ const AdminErrorReportsView = lazy(() => import('../components/admin/AdminErrorR
 const AdminActionLogsView = lazy(() => import('../components/admin/AdminActionLogsView').then(m => ({ default: m.AdminActionLogsView })))
 const AdminClientDetailView = lazy(() => import('../components/admin/AdminClientDetailView').then(m => ({ default: m.AdminClientDetailView })))
 const AdminMorningBriefing = lazy(() => import('../components/admin/AdminMorningBriefing').then(m => ({ default: m.AdminMorningBriefing })))
+const AdminClosersView = lazy(() => import('../components/admin/closers/AdminClosersView').then(m => ({ default: m.AdminClosersView })))
 import { KpiCard, KpiRow } from '../components/ui/KpiCard'
 import { SectionCard } from '../components/ui/SectionCard'
 import { StatusPill } from '../components/ui/StatusPill'
@@ -326,6 +327,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     if (route === "/admin/add-enterprise") return "add-enterprise";
     if (route === "/admin/stripe-setup") return "stripe-setup";
     if (route === "/admin/conversion-pipeline") return "conversion-pipeline";
+    if (route === "/admin/closers") return "closers";
     // /admin/clients/<uuid> → detail view. Pathname only, the id is parsed
     // inside AdminClientDetailView from window.location (querystring or slug).
     if (/^\/admin\/clients\/[0-9a-f-]{8,}/i.test(route)) return "client-detail";
@@ -545,6 +547,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     { type: 'section', label: 'BUSINESS' },
     { id: 'clients', label: 'Clients', icon: Users },
     { id: 'mrr', label: 'Revenus', icon: DollarSign },
+    { id: 'closers', label: 'Closers', icon: Handshake },
 
     { type: 'section', label: 'PLUS' },
     {
@@ -1142,6 +1145,7 @@ export const AdminDashboard = ({ onNavigate, onLogout, currentRoute }) => {
           {activeTab === "stripe-setup" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminStripeSetupView /></div>}
           {activeTab === "conversion-pipeline" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminConversionPipelineView /></div>}
           {activeTab === "action-logs" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminActionLogsView /></div>}
+          {activeTab === "closers" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminClosersView /></div>}
           {activeTab === "client-detail" && <div className="max-w-7xl mx-auto animate-fade-in-up"><AdminClientDetailView /></div>}
 
           {activeTab === "requests" && (

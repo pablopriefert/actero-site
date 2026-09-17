@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { fetchUserRole } from '../../lib/auth-utils'
+import { estCompteCloser } from '../../lib/code-closer'
 import { TenantContext } from '../../context/TenantContext'
 import { AdminDashboard } from '../../pages/AdminDashboard'
 import { ClientDashboard } from '../../pages/ClientDashboard'
@@ -141,6 +142,13 @@ export const DashboardGate = ({ onNavigate, onLogout, currentRoute }) => {
                 resolvedClientId = ownedClient.id;
                 setClientId(resolvedClientId);
                 setRole("client");
+              } else if (await estCompteCloser(activeSession.access_token)) {
+                // Un compte closer sans boutique n'a rien à faire dans
+                // l'espace marchand : le tableau de bord lui créerait un
+                // client (resolveOrCreateClientId). On l'envoie dans son
+                // espace sans rendre le tableau de bord (role reste vide).
+                if (mounted) onNavigate("/closer");
+                return;
               } else {
                 setClientId(null);
                 setRole("client");

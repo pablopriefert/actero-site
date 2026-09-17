@@ -16,6 +16,7 @@ import crypto from 'crypto'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
 import { appliquerCampagne } from '../lib/campagne.js'
+import { estCodeCloser } from '../lib/code-verification.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -42,7 +43,7 @@ async function handler(req, res) {
   const codeStr = String(code).replace(/\s/g, '')
   if (!/^\d{6}$/.test(codeStr)) return res.status(400).json({ error: 'Code invalide (6 chiffres requis).' })
 
-  // Fetch the most recent valid verification row
+  // Fetch the most recent valid verification rows
   const { data: rows } = await supabase
     .from('email_verification_codes')
     .select('*')
@@ -50,9 +51,11 @@ async function handler(req, res) {
     .is('used_at', null)
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
-    .limit(1)
+    .limit(5)
 
-  const record = rows?.[0]
+  // Un code envoyé par l'inscription CLOSER ne crée jamais de compte marchand
+  // (spec closers) : seuls comptent les codes de l'inscription marchand.
+  const record = rows?.find((r) => !estCodeCloser(r.payload))
   if (!record) {
     return res.status(400).json({ error: 'Code expiré ou inexistant. Demandez un nouveau code.' })
   }

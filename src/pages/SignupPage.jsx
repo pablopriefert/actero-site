@@ -7,6 +7,7 @@ import { SEO } from "../components/SEO";
 import { useMotion } from "../lib/motion";
 import { trackEvent } from "../lib/analytics";
 import { codeCampagneCourant } from '../lib/campagne'
+import { destinationApresRattachement, formuleDuLien, presenterCodeCloser } from '../lib/code-closer'
 
 export const SignupPage = ({ onNavigate }) => {
   const m = useMotion();
@@ -68,6 +69,10 @@ export const SignupPage = ({ onNavigate }) => {
   // est posé au chargement de l'application (voir main.jsx), ce qui le fait
   // survivre à l'aller-retour vers Google.
   const campaignCode = useMemo(() => codeCampagneCourant(), []);
+
+  // Le plan et la formule convenus avec un closer : le lien /c/:code les
+  // passe dans l'URL. La page de plans les présélectionnera après l'inscription.
+  const formuleCloser = useMemo(() => formuleDuLien(new URLSearchParams(window.location.search)), []);
 
   // UTM attribution — capture query string params + referrer at mount time.
   // Sent along with signup requests for server-side storage in clients.acquisition_source.
@@ -194,11 +199,19 @@ export const SignupPage = ({ onNavigate }) => {
       try {
         await supabase.auth.signInWithPassword({ email, password });
       } catch { /* fallback: user can login manually */ }
+      // Code closer (lien /c/:code) : présenté dès que le compte existe, et
+      // AVANT tout paiement — un client qui paie déjà n'est plus rattachable.
+      const rattache = await presenterCodeCloser(supabase);
       setSuccessMessage("Compte créé ! Redirection…");
       // Go straight to dashboard — Free plan is auto-provisioned on account creation.
       // Upsell to Starter/Pro happens from the dashboard (sidebar CTA + billing tab),
       // not as a forced intermediate step. Reduces signup friction by ~30s + 1 decision.
-      setTimeout(() => onNavigate(data.redirect || "/client"), 1200);
+      // Deux exceptions : le mois de campagne (le serveur renvoie la page des
+      // plans) et le prospect d'un closer venu avec une formule convenue.
+      const destination = data.redirect && data.redirect !== "/client"
+        ? data.redirect
+        : destinationApresRattachement(rattache, formuleCloser) || data.redirect || "/client";
+      setTimeout(() => onNavigate(destination), 1200);
     } catch {
       setError("Erreur réseau. Veuillez réessayer.");
       setLoading(false);

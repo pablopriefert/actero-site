@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { FEATURES } from '../config/features.js'
 import { consumeShopifyClaim } from '../lib/shopify-claim.js'
 import { resolveOrCreateClientId } from '../lib/resolve-client'
+import { codeCloserCourant, presenterCodeCloser } from '../lib/code-closer'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -263,6 +264,14 @@ export const ClientDashboard = ({ onNavigate, onLogout, currentRoute }) => {
     },
     enabled: !!supabase,
   });
+
+  // Code closer resté en mémoire (compte créé sur un autre chemin, ou
+  // présentation ratée à l'inscription) : présenté dès que la boutique est
+  // connue. Le serveur tranche ; un refus efface le code.
+  useEffect(() => {
+    if (!currentClient?.id || !codeCloserCourant()) return
+    presenterCodeCloser(supabase).catch(() => {})
+  }, [currentClient?.id])
 
   // Plan gating
   const { planId, planName, config: planConfig, inTrial, trialDaysLeft, ticketsUsed, ticketsLimit, ticketsPercent, isOverLimit, canAccess: can } = usePlan(currentClient?.id)

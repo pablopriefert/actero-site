@@ -213,7 +213,7 @@ export const CommandPalette = ({
     { id: 'error-reports',        label: 'Error Reports',     icon: Bug },
     { id: 'stripe-setup',         label: 'Stripe Setup',      icon: CreditCard },
     { id: 'partners',             label: 'Partners',          icon: Handshake },
-    { id: 'partner-tokens',       label: 'Ambassadors',       icon: Handshake },
+    { id: 'closers',              label: 'Closers',           icon: Handshake },
     { id: 'referrals',            label: 'Referrals',         icon: Gift },
   ]), [])
 

@@ -1,4 +1,5 @@
 import { presenterCodeCampagne } from './campagne'
+import { estCompteCloser } from './code-closer'
 /**
  * Resolve the caller's client_id, creating the client on first use.
  *
@@ -35,6 +36,15 @@ export async function resolveOrCreateClientId(supabase, session) {
   if (owned?.id) return owned.id
 
   // 3. First visit → create the client + link + settings.
+  //
+  // Sauf pour un compte closer : il n'a pas de boutique, et lui en créer une
+  // mélangerait les deux espaces (spec closers, « séparation des espaces »).
+  // `null` (on ne sait pas) laisse passer : une panne de l'API closer ne doit
+  // jamais empêcher un marchand d'entrer.
+  if (await estCompteCloser(session.access_token)) {
+    throw new Error('compte_closer')
+  }
+
   const userName =
     session.user.user_metadata?.full_name ||
     session.user.user_metadata?.name ||

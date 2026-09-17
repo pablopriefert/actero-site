@@ -9,6 +9,7 @@ import { affichagePrix, lireFormuleChoisie } from "../lib/affichage-formules";
 import { PERIODE_API } from "../../api/lib/formules.js";
 import { peutAvoirUneOffreDeBienvenue } from "../../api/lib/essai-gratuit.js";
 import { resolveOrCreateClientId } from "../lib/resolve-client";
+import { presenterCodeCloser } from "../lib/code-closer";
 import { SEO } from "../components/SEO";
 import { supabase } from "../lib/supabase";
 
@@ -264,6 +265,10 @@ export const PlanSelectionPage = ({ onNavigate }) => {
         setLoading(null);
         return;
       }
+
+      // Dernière occasion de rattacher le prospect d'un closer : une fois le
+      // paiement passé, le client n'est plus rattachable.
+      await presenterCodeCloser(supabase);
 
       // Shopify-installed merchants must be billed via Shopify Billing (App
       // Store policy 1.2); direct signups fall through to Stripe below.

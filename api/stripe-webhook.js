@@ -8,6 +8,7 @@ import { trackServerEvent } from './lib/amplitude.js';
 import { planUpdateFromSubscription, formuleDeLAbonnement, doitResoudreLaCarte, ecritureAutorisee, annoncerLaFinDEssai, STATUTS_TERMINES } from './lib/subscription-plan.js';
 import { resolveCustomerCard, OPTIONS_REQUETE_COURTE } from './lib/stripe-customer.js';
 import { formuleDuPrix, PERIODE_API } from './lib/formules.js';
+import { traiterFacturePayee, traiterRemboursement } from './lib/commissions-stripe.js';
 
 export const maxDuration = 60;
 
@@ -984,6 +985,39 @@ async function handler(req, res) {
     case 'invoice.payment_failed': {
       const invoice = event.data.object;
       console.log('Payment failed for invoice:', invoice.id);
+      break;
+    }
+
+    case 'invoice.paid': {
+      // Commission de closer (api/lib/commissions-stripe.js). L'objet de
+      // l'événement ne sert qu'à nommer la facture : sa forme dépend de la
+      // version d'API de l'endpoint, la facture est relue sous une version fixe.
+      try {
+        const issue = await traiterFacturePayee(stripe, supabase, event.data.object?.id);
+        if (issue.cree) console.log(`[CLOSER] commission créée : ${issue.source_key}`);
+      } catch (err) {
+        console.error('[CLOSER] facture payée non traitée :', err.message);
+        // Libère la réservation : sinon Stripe ne réessaie jamais et la
+        // commission est perdue sans bruit.
+        await supabase.from('webhook_events_processed').delete()
+          .eq('provider', 'stripe').eq('event_id', event.id);
+        return res.status(500).json({ error: 'commission_processing_failed' });
+      }
+      break;
+    }
+
+    case 'charge.refunded': {
+      // Facture remboursée : la commission liée passe « annulée » avant son
+      // paiement, ou reçoit une note après (aucune reprise automatique).
+      try {
+        const issue = await traiterRemboursement(stripe, supabase, event.data.object?.id);
+        if (issue.touchees > 0) console.log(`[CLOSER] remboursement : ${issue.touchees} commission(s) mise(s) à jour`);
+      } catch (err) {
+        console.error('[CLOSER] remboursement non traité :', err.message);
+        await supabase.from('webhook_events_processed').delete()
+          .eq('provider', 'stripe').eq('event_id', event.id);
+        return res.status(500).json({ error: 'refund_processing_failed' });
+      }
       break;
     }
 

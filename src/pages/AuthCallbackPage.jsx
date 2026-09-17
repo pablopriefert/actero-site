@@ -5,6 +5,8 @@ import { fetchUserRole } from '../lib/auth-utils'
 import { SEO } from '../components/SEO'
 import { codeCampagneCourant, presenterCodeCampagne } from '../lib/campagne'
 import { resolveOrCreateClientId } from '../lib/resolve-client'
+import { codeCloserCourant, destinationApresRattachement, presenterCodeCloser } from '../lib/code-closer'
+import { lireFormuleChoisie } from '../lib/affichage-formules'
 
 const DEBUG_AUTH = false;
 const logger = (...args) => {
@@ -50,6 +52,21 @@ export function AuthCallbackPage({ onNavigate }) {
       onNavigate("/setup-password");
       return;
     }
+    // Prospect d'un closer (lien /c/:code). Le code se présente dès que le
+    // compte marchand existe, AVANT la campagne et la page de paiement : un
+    // client qui paie déjà n'est plus rattachable. Un compte closer n'a pas de
+    // boutique, et resolveOrCreateClientId refuse de lui en créer une.
+    let suiteCloser = null;
+    try {
+      if (codeCloserCourant()) {
+        await resolveOrCreateClientId(supabase, session);
+        const rattache = await presenterCodeCloser(supabase);
+        suiteCloser = destinationApresRattachement(rattache, lireFormuleChoisie(new URLSearchParams()));
+      }
+    } catch (err) {
+      console.error("[auth-callback] closer :", err?.message);
+    }
+
     // Inscription venue d'une publicité (ACT-33).
     //
     // Le compte Google est créé ici, côté navigateur, sans passer par aucune
@@ -78,6 +95,11 @@ export function AuthCallbackPage({ onNavigate }) {
       }
     } catch (err) {
       console.error("[auth-callback] campagne :", err?.message);
+    }
+
+    if (suiteCloser) {
+      onNavigate(suiteCloser);
+      return;
     }
 
     // Otherwise, redirect based on role

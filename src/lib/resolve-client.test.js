@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { resolveOrCreateClientId } from './resolve-client.js'
 
 function makeSupabase({ link = null, owned = null, insertId = 'c_new' } = {}) {
@@ -45,6 +45,24 @@ describe('resolveOrCreateClientId', () => {
     const tables = sb._inserts.map((i) => i.table)
     expect(tables).toEqual(['clients', 'client_users', 'client_settings'])
     expect(sb._inserts[0].row.owner_user_id).toBe('u1')
+  })
+
+  it('un compte closer sans boutique : aucune création', async () => {
+    // La séparation des espaces (spec closers) : /api/closer/moi répond 200.
+    globalThis.fetch = vi.fn(async () => ({ status: 200 }))
+    const sb = makeSupabase()
+    await expect(resolveOrCreateClientId(sb, { ...session, access_token: 'jeton-closer' })).rejects.toThrow('compte_closer')
+    expect(sb._inserts).toHaveLength(0)
+    expect(globalThis.fetch).toHaveBeenCalledWith('/api/closer/moi', { headers: { Authorization: 'Bearer jeton-closer' } })
+  })
+
+  it('un compte sans fiche closer (404), ou une API closer en panne : la boutique est créée', async () => {
+    for (const reponse of [async () => ({ status: 404 }), async () => ({ status: 503 }), async () => { throw new TypeError('Failed to fetch') }]) {
+      globalThis.fetch = vi.fn(reponse)
+      const sb = makeSupabase({ insertId: 'c_marchand' })
+      expect(await resolveOrCreateClientId(sb, { ...session, access_token: 'jeton' })).toBe('c_marchand')
+      expect(sb._inserts.map((i) => i.table)).toEqual(['clients', 'client_users', 'client_settings'])
+    }
   })
 
   it('throws without a session', async () => {

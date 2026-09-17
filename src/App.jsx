@@ -58,6 +58,12 @@ const IntercomVsActero = lazy(() => import("./pages/IntercomVsActero").then(m =>
 const EeselVsActero = lazy(() => import("./pages/EeselVsActero").then(m => ({ default: m.EeselVsActero })));
 const CalculateurGorgiasPage = lazy(() => import("./pages/CalculateurGorgiasPage").then(m => ({ default: m.CalculateurGorgiasPage })));
 const PortalApp = lazy(() => import('./pages/portal/PortalApp.jsx'));
+// Programme closers : pages non listées (spec 2026-09-14-closers-espace-commissions-design.md).
+const LienCloserPage = lazy(() => import("./pages/LienCloserPage").then(m => ({ default: m.LienCloserPage })));
+const CloserInscriptionPage = lazy(() => import("./pages/closer/CloserInscriptionPage").then(m => ({ default: m.CloserInscriptionPage })));
+const CloserConnexionPage = lazy(() => import("./pages/closer/CloserConnexionPage").then(m => ({ default: m.CloserConnexionPage })));
+const CloserCallbackPage = lazy(() => import("./pages/closer/CloserCallbackPage").then(m => ({ default: m.CloserCallbackPage })));
+const CloserEspacePage = lazy(() => import("./pages/closer/CloserEspacePage").then(m => ({ default: m.CloserEspacePage })));
 import { MotionConfig } from "framer-motion";
 import { CursorGlow } from "./components/ui/cursor-glow";
 import { CommandPalette } from "./components/ui/command-palette";
@@ -98,6 +104,10 @@ function getInitialRoute() {
   const search = INITIAL_URL.search;
 
   if (hash.includes("type=recovery")) return "/reset-password";
+  // Le retour Google de l'espace closer garde sa page, même si Supabase
+  // renvoie un jeton dans le fragment : /auth/callback enverrait le compte
+  // vers /client, où un client marchand lui serait créé.
+  if (path === "/closer/callback") return "/closer/callback";
   if (path === "/auth/callback" || hash.includes("access_token=")) return "/auth/callback";
   // PKCE flow: Supabase may use a ?code= query param instead of hash
   // But if the redirect already points to a specific page (e.g. /setup-password),
@@ -255,6 +265,14 @@ function MainRouter() {
     const partnerSlug = currentRoute.replace("/partners/", "").split("?")[0];
     page = <PartnerProfilePage slug={partnerSlug} onNavigate={navigate} />;
   }
+  else if (currentRoute === "/closer/inscription") page = <CloserInscriptionPage onNavigate={navigate} />;
+  else if (currentRoute === "/closer/connexion") page = <CloserConnexionPage onNavigate={navigate} />;
+  else if (currentRoute === "/closer/callback") page = <CloserCallbackPage onNavigate={navigate} />;
+  else if (currentRoute === "/closer" || currentRoute.startsWith("/closer/")) {
+    page = <CloserEspacePage currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;
+  }
+  // « /c/ » avec sa barre : ni /client, ni /cancel, ni /calculateur-gorgias.
+  else if (currentRoute.startsWith("/c/")) page = <LienCloserPage code={currentRoute.slice("/c/".length)} />;
   else if (currentRoute === "/app" || currentRoute.startsWith("/admin") || currentRoute.startsWith("/client")) {
     page = <DashboardGate currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;
   } else if (currentRoute === "/payment/success") {

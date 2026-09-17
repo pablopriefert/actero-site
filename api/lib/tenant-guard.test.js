@@ -34,8 +34,8 @@ const DISPENSES = {
   // Routes d'administration : un admin Actero agit par conception sur
   // n'importe quel client, et ces routes vérifient le rôle.
   'admin/entitlements.js': 'vérifie profiles.role === admin',
-  'ambassador/admin/commissions.js': 'vérifie profiles.role === admin',
-  'ambassador/admin/leads.js': 'vérifie profiles.role === admin',
+  'admin/closer-attribution.js': 'requireAdmin (api/lib/admin-auth.js) avant toute lecture',
+  'admin/closer-commissions.js': 'requireAdmin (api/lib/admin-auth.js) avant toute lecture',
   'deploy/full-pipeline.js': 'vérifie profiles.role === admin',
   'deploy/resend-dns-instructions.js': 'vérifie profiles.role === admin',
 
