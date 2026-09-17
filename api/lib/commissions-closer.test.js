@@ -164,6 +164,54 @@ describe('commissionPourFacture', () => {
   })
 })
 
+describe('un prix sorti du catalogue : repli sur ses métadonnées', () => {
+  // La lookup_key a été transférée à un nouveau prix : l'ancien, que l'abonnement
+  // facture encore, n'a plus de clé. Ses métadonnées disent ce qu'il vend.
+  const MOIS = { interval: 'month', interval_count: 1 }
+  const prixSansCle = (metadata, recurring = MOIS) => ({ id: 'price_ancien', object: 'price', lookup_key: null, metadata, recurring })
+  const ligneDuPrix = (p) => ({ ...ligne('x'), pricing: { type: 'price_details', unit_amount_decimal: '9900', price_details: { price: p, product: 'prod_1' } } })
+
+  it('couple du catalogue, même rythme : la grille s’applique', () => {
+    expect(pourFacture(facture(), [ligneDuPrix(prixSansCle({ actero_plan: 'pro', actero_periode: 'mensuel' }))]))
+      .toMatchObject({ plan: 'pro', formule: 'mensuel', type: 'mensuelle', montant_centimes: 10000 })
+    const trimestriel = prixSansCle({ actero_plan: 'starter', actero_periode: 'trimestriel' }, { interval: 'month', interval_count: 3 })
+    expect(pourFacture(facture({ billing_reason: 'subscription_create' }), [ligneDuPrix(trimestriel)]))
+      .toMatchObject({ plan: 'starter', formule: 'trimestriel', type: 'unique', montant_centimes: 10000 })
+  })
+
+  it('rythme différent de celui du catalogue : rien', () => {
+    for (const [periode, recurring] of [
+      ['annuel', MOIS],
+      ['trimestriel', MOIS],
+      ['mensuel', { interval: 'month', interval_count: 3 }],
+      ['mensuel', { interval: 'year', interval_count: 1 }],
+      ['mensuel', { interval: 'month' }],
+      ['mensuel', null],
+    ]) {
+      const p = prixSansCle({ actero_plan: 'pro', actero_periode: periode }, recurring)
+      expect(pourFacture(facture(), [ligneDuPrix(p)]), `${periode} ${JSON.stringify(recurring)}`).toBeNull()
+    }
+  })
+
+  it('couple absent du catalogue : rien', () => {
+    for (const metadata of [
+      { actero_plan: 'enterprise', actero_periode: 'mensuel' },
+      { actero_plan: 'pro', actero_periode: 'hebdomadaire' },
+      { actero_plan: 'toString', actero_periode: 'mensuel' },
+      { actero_plan: 'pro' },
+      {},
+      undefined,
+    ]) {
+      expect(pourFacture(facture(), [ligneDuPrix(prixSansCle(metadata))]), JSON.stringify(metadata)).toBeNull()
+    }
+  })
+
+  it('la clé du catalogue garde la priorité sur les métadonnées', () => {
+    const p = { ...prix('actero_starter_mensuel'), metadata: { actero_plan: 'pro', actero_periode: 'mensuel' }, recurring: MOIS }
+    expect(pourFacture(facture(), [ligneDuPrix(p)])).toMatchObject({ plan: 'starter', montant_centimes: 2500 })
+  })
+})
+
 describe('commissionManuelle — Shopify, Enterprise, corrections', () => {
   const SHOPIFY = { id: 'c2', closer_id: 'k1', plan: 'pro', billing_period: 'monthly', billing_provider: 'shopify', stripe_subscription_id: null }
   const STRIPE = { id: 'c3', closer_id: 'k1', plan: 'starter', billing_period: 'monthly', billing_provider: 'stripe', stripe_subscription_id: 'sub_9' }

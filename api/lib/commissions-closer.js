@@ -9,11 +9,11 @@
  * (libellés, grille du générateur de liens) : aucune dépendance Node ici.
  *
  * CE QU'ON NE FAIT JAMAIS : deviner. Une facture dont la formule n'est pas
- * celle du catalogue (tarif Enterprise sur mesure, ancien prix, prix non
- * étendu) ne crée rien. Une commission oubliée se saisit à la main ; une
+ * celle du catalogue (tarif Enterprise sur mesure, ancien prix sans clé ni
+ * métadonnées conformes, prix non étendu) ne crée rien. Une commission oubliée se saisit à la main ; une
  * commission inventée se paie.
  */
-import { formuleDuPrix, periodeDepuisApi, PERIODES } from './formules.js'
+import { formuleDuPrix, formulePour, periodeDepuisApi, PERIODES } from './formules.js'
 
 /** Ce que rapporte chaque formule payée, en centimes (note de Pablo). */
 export const GRILLE_COMMISSIONS_CENTIMES = Object.freeze({
@@ -116,6 +116,30 @@ export function factureParStripeSurLeCatalogue(client) {
 }
 
 /**
+ * La formule d'un prix facturé. D'abord sa `lookup_key` (api/lib/formules.js,
+ * qui sert aussi au paiement et ne change pas ici).
+ *
+ * Repli : un prix dont la clé a été transférée à un nouveau prix n'en a plus,
+ * mais les abonnements existants le facturent encore. Ses métadonnées
+ * `actero_plan` et `actero_periode` disent ce qu'il vend ; on ne les croit que
+ * si le couple existe au catalogue ET si le rythme de facturation du prix est
+ * exactement celui de la formule. Un prix « annuel » facturé chaque mois n'est
+ * pas une formule annuelle.
+ */
+function formuleDuPrixFacture(prix) {
+  const parCle = formuleDuPrix(prix)
+  if (parCle) return parCle
+  const plan = prix?.metadata?.actero_plan
+  const periode = prix?.metadata?.actero_periode
+  if (typeof plan !== 'string' || typeof periode !== 'string') return null
+  const formule = formulePour(plan, periode)
+  if (!formule) return null
+  const rythme = prix.recurring
+  if (rythme?.interval !== formule.recurring.interval || rythme?.interval_count !== formule.recurring.interval_count) return null
+  return formule
+}
+
+/**
  * La formule payée d'après les lignes de la facture. Seules comptent les
  * lignes d'abonnement hors prorata ; elles doivent toutes désigner la même
  * formule du catalogue. Sinon : null, on ne devine pas.
@@ -128,7 +152,7 @@ function formuleDesLignes(lignes) {
   for (const ligne of abonnement) {
     const prix = ligne.pricing?.price_details?.price
     // Un prix non étendu n'est qu'un identifiant : sa clé est inconnue.
-    const f = prix && typeof prix === 'object' ? formuleDuPrix(prix) : null
+    const f = prix && typeof prix === 'object' ? formuleDuPrixFacture(prix) : null
     if (!f || (formule && f.lookupKey !== formule.lookupKey)) return null
     formule = f
   }
