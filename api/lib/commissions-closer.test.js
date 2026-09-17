@@ -210,6 +210,11 @@ describe('commissionManuelle — Shopify, Enterprise, corrections', () => {
     expect(saisie({ client: { ...SHOPIFY, plan: 'free' } })).toEqual({ erreur: 'plan_non_payant' })
     expect(saisie({ client: null })).toEqual({ erreur: 'client_introuvable' })
   })
+
+  it('le montant saisi est plafonné à 10 000 € : une faute de frappe ne se paie pas', () => {
+    expect(saisie({ montantCentimes: 1_000_001 })).toEqual({ erreur: 'montant_invalide' })
+    expect(saisie({ montantCentimes: 1_000_000 }).commission.montant_centimes).toBe(1_000_000)
+  })
 })
 
 describe('transitionCommission — valider, refuser, payer', () => {
@@ -257,6 +262,13 @@ describe('effetRemboursement — charge.refunded', () => {
     const maj = effetRemboursement({ statut: 'a_valider', note: null }, { total: false, rembourseCentimes: 1000 })
     expect(maj).toEqual({ note: 'Remboursement partiel de 10,00 € par le client' })
     expect(maj).not.toHaveProperty('statut')
+  })
+
+  it('remboursement partiel reçu deux fois : une seule note ; un nouveau montant s’ajoute', () => {
+    const note = 'Remboursement partiel de 10,00 € par le client'
+    expect(effetRemboursement({ statut: 'validee', note }, { total: false, rembourseCentimes: 1000 })).toBeNull()
+    expect(effetRemboursement({ statut: 'validee', note }, { total: false, rembourseCentimes: 2500 }))
+      .toEqual({ note: `${note}\nRemboursement partiel de 25,00 € par le client` })
   })
 
   it('refusée ou annulée : rien', () => {
