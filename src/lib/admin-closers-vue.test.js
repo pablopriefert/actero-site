@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { createElement as h } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { FileCommissions } from '../components/admin/closers/FileCommissions'
+import { CommissionsAPayer } from '../components/admin/closers/CommissionsAPayer'
 import {
   alerteRemboursement, appelAdmin, lignesDeNote, messageDErreur, moisLisible, rejouerFacturesStripe, resumeRejeu,
 } from './admin-closers'
@@ -175,5 +180,81 @@ describe('affichage de l’admin closers', () => {
     expect(alerteRemboursement({ statut: 'payee', note: 'Correction : voir le remboursement du mois dernier' })).toBeNull()
     expect(alerteRemboursement({ statut: 'annulee', note: 'Facture remboursée par le client' })).toBeNull()
     expect(alerteRemboursement({ statut: 'payee', note: null })).toBeNull()
+  })
+})
+
+/** Rend une vue avec des réponses d'API déjà en cache, et en rend le texte lisible. */
+function rendre(Vue, reponses) {
+  const client = new QueryClient()
+  for (const [cle, valeur] of reponses) client.setQueryData(cle, valeur)
+  const html = renderToStaticMarkup(h(QueryClientProvider, { client }, h(Vue)))
+  const texte = html.replace(/<[^>]+>/g, ' ').replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&')
+    .replace(/\u00a0/g, ' ').replace(/\s+/g, ' ')
+  return { html, texte }
+}
+
+const commission = (surcharge = {}) => ({
+  id: 'com_1',
+  montant_centimes: 10000,
+  montant_facture_centimes: 8900,
+  plan: 'pro',
+  formule: 'mensuel',
+  type: 'mensuelle',
+  source: 'stripe',
+  statut: 'a_valider',
+  payee_par_client_le: '2026-09-01T10:00:00Z',
+  validee_at: null,
+  payee_at: null,
+  created_at: '2026-09-01T10:00:01Z',
+  stripe_invoice_id: 'in_1',
+  note: 'Commission supérieure au montant payé (89,00 €) : à vérifier\nAppel du closer le 2 septembre',
+  closer: { id: 'clo_1', prenom: 'Léa', nom: 'Martin', code: 'LEA', statut: 'actif', profil_complet: true },
+  boutique: 'Maison Test',
+  remboursable_jusqu_au: '2026-10-01T10:00:00Z',
+  signaux: ['meme_domaine', 'iban_recent'],
+  ...surcharge,
+})
+
+describe('files « À valider » et « À payer » (rendu)', () => {
+  it('« À valider » montre le montant payé, chaque ligne de la note, les signaux et la coupure', () => {
+    const { texte } = rendre(FileCommissions, [[['admin-closer-commissions', 'a_valider'], { commissions: [commission()], tronque: true }]])
+    expect(texte).toContain('Payé par le client : 89 €')
+    expect(texte).toContain('Commission supérieure au montant payé (89,00 €) : à vérifier')
+    expect(texte).toContain('Appel du closer le 2 septembre')
+    expect(texte).toContain('Même domaine d’e-mail que le client')
+    expect(texte).toContain('IBAN modifié il y a moins de 72 h')
+    expect(texte).toContain('Plus de 500 commissions à valider')
+  })
+
+  it('sans montant payé connu, pas de ligne « Payé par le client »', () => {
+    const { texte } = rendre(FileCommissions, [[['admin-closer-commissions', 'a_valider'], {
+      commissions: [commission({ montant_facture_centimes: null, source: 'manuel', note: null, signaux: [] })], tronque: false,
+    }]])
+    expect(texte).not.toContain('Payé par le client')
+    expect(texte).not.toContain('Plus de 500')
+    expect(texte).toContain('Saisie manuelle')
+  })
+
+  it('« À payer » fait ressortir un IBAN récent avant le virement', () => {
+    const { html, texte } = rendre(CommissionsAPayer, [[['admin-closer-commissions', 'validee'], {
+      commissions: [commission({ statut: 'validee' }), commission({ id: 'com_2', boutique: 'Autre Boutique', signaux: ['iban_recent'], montant_facture_centimes: null })],
+      tronque: false,
+    }]])
+    expect(texte).toContain('Alerte avant virement')
+    expect(texte).toContain('Payé par le client : 89 €')
+    expect(texte).toContain('Appel du closer le 2 septembre')
+    expect(texte).toContain('Même domaine d’e-mail que le client')
+    // Le badge de l'IBAN récent est rouge dans « À payer » ; les autres restent en avertissement.
+    expect(html).toMatch(/<li class="[^"]*bg-red-50[^"]*">.*?IBAN modifié il y a moins de 72 h<\/li>/)
+    expect(html).toMatch(/<li class="[^"]*bg-warn-bg[^"]*">.*?Même domaine/)
+    expect(texte).toContain('200 €')
+  })
+
+  it('« À payer » sans IBAN récent n’affiche pas d’alerte', () => {
+    const { texte } = rendre(CommissionsAPayer, [[['admin-closer-commissions', 'validee'], {
+      commissions: [commission({ statut: 'validee', signaux: [] })], tronque: false,
+    }]])
+    expect(texte).not.toContain('Alerte avant virement')
+    expect(texte).toContain('Révéler l’IBAN')
   })
 })
