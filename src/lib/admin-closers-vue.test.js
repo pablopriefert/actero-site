@@ -8,8 +8,10 @@ import { FileCommissions } from '../components/admin/closers/FileCommissions'
 import { CommissionsAPayer } from '../components/admin/closers/CommissionsAPayer'
 import { Historique } from '../components/admin/closers/Historique'
 import { Attributions, ResultatRejeu } from '../components/admin/closers/Attributions'
+import { FormulaireSaisie, SaisieManuelle } from '../components/admin/closers/SaisieManuelle'
 import {
-  alerteRemboursement, appelAdmin, lignesDeNote, messageDErreur, moisLisible, rejouerFacturesStripe, resumeRejeu,
+  alerteRemboursement, appelAdmin, centimesSaisis, eurosDeLaGrille, lignesDeNote, messageDErreur, moisLisible,
+  rejouerFacturesStripe, resumeRejeu,
 } from './admin-closers'
 
 // supabase.js lit `window` dès l'import : l'environnement des tests n'en a pas.
@@ -334,5 +336,57 @@ describe('Attributions : rejouer les factures Stripe (rendu)', () => {
     expect(texteDe(h(ResultatRejeu, { rejeu: { resultats: [] } }))).toContain('Aucune facture payée chez Stripe pour ce client')
     const erreur = texteDe(h(ResultatRejeu, { rejeu: { erreur: 'Stripe n’est pas configuré sur ce déploiement.' } }))
     expect(erreur).toContain('Stripe n’est pas configuré sur ce déploiement.')
+  })
+})
+
+describe('saisie manuelle', () => {
+  it('le montant proposé suit la grille du plan et de la formule choisis', () => {
+    expect(eurosDeLaGrille('pro', 'mensuel')).toBe('100')
+    expect(eurosDeLaGrille('pro', 'annuel')).toBe('600')
+    expect(eurosDeLaGrille('starter', 'mensuel')).toBe('25')
+    expect(eurosDeLaGrille('enterprise', 'annuel')).toBe('')
+    expect(eurosDeLaGrille('pro', null)).toBe('')
+  })
+
+  it('lit un montant saisi à la française', () => {
+    expect(centimesSaisis('100')).toBe(10000)
+    expect(centimesSaisis('12,5')).toBe(1250)
+    expect(centimesSaisis(' 19,99 ')).toBe(1999)
+    expect(centimesSaisis('1 200')).toBe(120000)
+    for (const invalide of ['', '0', '-5', 'abc', '12,345', '1e3', null]) expect(centimesSaisis(invalide), String(invalide)).toBeNull()
+  })
+
+  const clientShopify = {
+    id: 'cli_1', boutique: 'Maison Test', closer_id: 'clo_1', plan: 'pro', formule: 'mensuel', facturation: 'shopify',
+    etat: 'actif', rattache_le: null, source: 'manuel', montant_pre_rempli: 10000, mensualite_du_mois_saisie: false,
+  }
+
+  it('la liste écrit le mois et le canal en clair', () => {
+    const { texte } = rendre(SaisieManuelle, [[['admin-closers'], {
+      closers: [{ id: 'clo_1', prenom: 'Léa', nom: 'Martin' }],
+      clients: [clientShopify, { ...clientShopify, id: 'cli_2', boutique: 'Stripe SAS', facturation: 'stripe' }],
+      mois_courant: '2026-09',
+    }]])
+    expect(texte).toContain('Mensualité de septembre 2026 à saisir')
+    expect(texte).not.toContain('2026-09')
+    expect(texte).toMatch(/Pro · Mensuel · Shopify · Léa Martin/)
+    expect(texte).toMatch(/Pro · Mensuel · Stripe · Léa Martin/)
+  })
+
+  it('le formulaire part de la grille, écrit le mois en clair et annonce la commission unique', () => {
+    const mensuel = renderToStaticMarkup(h(FormulaireSaisie, { client: clientShopify, mois: '2026-09', onFait: async () => {} }))
+    expect(mensuel).toMatch(/<input[^>]*inputMode="decimal"[^>]*value="100"/)
+    expect(mensuel).toContain('septembre 2026')
+    expect(mensuel).toContain('Grille Pro mensuel : 100 €.')
+    expect(mensuel).toContain('Shopify')
+    expect(mensuel).not.toContain('Commission unique')
+
+    const annuel = renderToStaticMarkup(h(FormulaireSaisie, { client: { ...clientShopify, formule: 'annuel' }, mois: '2026-09', onFait: async () => {} }))
+    expect(annuel).toMatch(/value="600"/)
+    expect(annuel).toContain('Commission unique : un client n’y a droit qu’une fois.')
+    expect(annuel).not.toContain('Mois concerné')
+
+    const horsGrille = renderToStaticMarkup(h(FormulaireSaisie, { client: { ...clientShopify, plan: 'enterprise' }, mois: '2026-09', onFait: async () => {} }))
+    expect(horsGrille).toContain('Hors grille (Enterprise) : saisissez le montant convenu.')
   })
 })

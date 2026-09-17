@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { NOTE_REMBOURSEE_APRES_PAIEMENT } from '../../api/lib/commissions-closer.js'
+import { montantDeLaGrille, NOTE_REMBOURSEE_APRES_PAIEMENT } from '../../api/lib/commissions-closer.js'
 
 /**
  * La section « Closers » de l'admin lit et écrit par les routes serveur
@@ -140,6 +140,24 @@ export function moisLisible(mois) {
   if (!m || Number(m[2]) < 1 || Number(m[2]) > 12) return mois || '—'
   return new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, 1))
     .toLocaleDateString('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+}
+
+/**
+ * Le montant que la saisie manuelle propose, en euros tels que l'admin les
+ * taperait (« 100 », « 12,5 »), d'après la grille du plan et de la formule
+ * choisis ; vide hors grille (Enterprise).
+ */
+export function eurosDeLaGrille(plan, formule) {
+  const centimes = montantDeLaGrille(plan, formule)
+  return centimes ? String(centimes / 100).replace('.', ',') : ''
+}
+
+/** « 12,50 » → 1250 ; null si ce n'est pas un montant positif. */
+export function centimesSaisis(euros) {
+  const texte = String(euros ?? '').trim().replace(/\s/g, '').replace(',', '.')
+  if (!/^\d+(\.\d{1,2})?$/.test(texte)) return null
+  const centimes = Math.round(Number(texte) * 100)
+  return centimes > 0 ? centimes : null
 }
 
 /** Les notes s'ajoutent ligne à ligne (ajouterNote) : une ligne par événement. */
