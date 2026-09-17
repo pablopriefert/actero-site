@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
-import { readFileSync } from 'node:fs'
 import Stripe from 'stripe'
 import { creerFauxSupabase } from './faux-supabase.js'
 import { traiterFacturePayee, traiterRemboursement, VERSION_API_COMMISSIONS, OPTIONS_STRIPE_COMMISSIONS } from './commissions-stripe.js'
@@ -539,7 +538,7 @@ describe('remboursé avant invoice.paid : la commission naît dans l’état du 
 describe('le webhook branche invoice.paid et charge.refunded', () => {
   // Le vrai webhook est chargé, ses dépendances externes remplacées pour ce
   // bloc seulement (vi.doMock) — même montage que api/lib/subscription-plan.test.js.
-  const w = { stripe: null, supabase: null, evenement: null }
+  const w = { stripe: null, supabase: null, evenement: null, captureError: null }
   const MODULES = ['./sentry.js', '../marketplace/install.js', './amplitude.js', 'resend', '@supabase/supabase-js', 'stripe']
   const secretAvant = process.env.STRIPE_WEBHOOK_SECRET
   let webhook
@@ -547,7 +546,7 @@ describe('le webhook branche invoice.paid et charge.refunded', () => {
   beforeAll(async () => {
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test'
     vi.resetModules()
-    vi.doMock('./sentry.js', () => ({ withSentry: (fn) => fn, captureError: () => {} }))
+    vi.doMock('./sentry.js', () => ({ withSentry: (fn) => fn, captureError: (...args) => w.captureError(...args) }))
     vi.doMock('../marketplace/install.js', () => ({ finalizeInstall: async () => {} }))
     vi.doMock('./amplitude.js', () => ({ trackServerEvent: async () => {} }))
     vi.doMock('resend', () => ({ Resend: function Resend() { return { emails: { send: async () => ({}) } } } }))
@@ -570,12 +569,16 @@ describe('le webhook branche invoice.paid et charge.refunded', () => {
 
   afterEach(() => vi.restoreAllMocks())
 
+  // Une réservation d'un autre événement : elle doit survivre à toute libération.
+  const AUTRE_RESERVATION = { provider: 'stripe', event_id: 'evt_autre' }
+
   function monde(options) {
+    w.captureError = vi.fn()
     w.supabase = creerFauxSupabase({
       tables: {
         clients: [{ id: CLIENT_ID, closer_id: 'k1', stripe_subscription_id: 'sub_100' }],
         closer_commissions: options?.commissions ?? [],
-        webhook_events_processed: [],
+        webhook_events_processed: [AUTRE_RESERVATION],
       },
       uniques: { closer_commissions: ['source_key'], webhook_events_processed: ['event_id'] },
       erreurs: options?.erreurs,
@@ -617,7 +620,7 @@ describe('le webhook branche invoice.paid et charge.refunded', () => {
     monde({ erreurs: { closer_commissions: ({ operation }) => (operation === 'insert' ? { message: 'disque plein' } : null) } })
     const res = await livrer(facturePayee('evt_3'))
     expect(res.statusCode).toBe(500)
-    expect(w.supabase.base.webhook_events_processed).toEqual([])
+    expect(w.supabase.base.webhook_events_processed).toEqual([AUTRE_RESERVATION])
   })
 
   it('charge.refunded : la commission à valider passe annulée', async () => {
@@ -635,15 +638,69 @@ describe('le webhook branche invoice.paid et charge.refunded', () => {
     expect(w.supabase.base.closer_commissions[0]).toMatchObject({ statut: 'annulee', note: NOTE_REMBOURSEE })
   })
 
-  it('les deux branches libèrent l’événement et répondent 500 sur une erreur', () => {
-    const source = readFileSync('api/stripe-webhook.js', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
-    for (const [evenement, appel] of [['invoice.paid', 'traiterFacturePayee('], ['charge.refunded', 'traiterRemboursement(']]) {
-      const debut = source.indexOf(`case '${evenement}'`)
-      expect(debut, evenement).toBeGreaterThan(-1)
-      const fin = source.indexOf("case '", debut + 1)
-      const bloc = source.slice(debut, fin === -1 ? undefined : fin)
-      expect(bloc, evenement).toContain(appel)
-      expect(bloc, evenement).toMatch(/webhook_events_processed[\s\S]*\.delete\(\)[\s\S]*status\(500\)/)
-    }
+  describe('une panne dans une branche closer : 500, et seule la réservation de cet événement est libérée', () => {
+    const COMMISSION = { id: 'kc1', source_key: 'stripe:in_100', stripe_invoice_id: 'in_100', statut: 'a_valider', note: null }
+    const ecritureRatee = { closer_commissions: ({ operation }) => (['insert', 'update'].includes(operation) ? { message: 'disque plein' } : null) }
+    const CAS = [
+      ['invoice.paid', facturePayee, 'commission_processing_failed'],
+      ['charge.refunded', chargeRemboursee, 'refund_processing_failed'],
+    ]
+
+    it.each(CAS)('%s', async (_type, evenement, code) => {
+      monde({ commissions: [COMMISSION], charge: CHARGE_REMBOURSEE, erreurs: ecritureRatee })
+      const res = await livrer(evenement('evt_7'))
+      expect(res.statusCode).toBe(500)
+      expect(res.body).toEqual({ error: code })
+      expect(w.supabase.base.webhook_events_processed).toEqual([AUTRE_RESERVATION])
+      const liberation = w.supabase.journal.find((j) => j.table === 'webhook_events_processed' && j.operation === 'delete')
+      expect(liberation.filtres).toEqual(expect.arrayContaining([['eq', 'event_id', 'evt_7'], ['eq', 'provider', 'stripe']]))
+      expect(w.supabase.base.closer_commissions[0]).toMatchObject({ statut: 'a_valider', note: null })
+      expect(w.captureError).not.toHaveBeenCalled()
+    })
+
+    it.each(CAS)('%s : une libération ratée est journalisée par identifiants et remontée à Sentry', async (type, evenement, code) => {
+      for (const panne of [
+        ({ operation }) => (operation === 'delete' ? { message: 'connexion perdue' } : null),
+        ({ operation }) => { if (operation === 'delete') throw new Error('réseau coupé') },
+      ]) {
+        vi.mocked(console.error).mockClear()
+        monde({ commissions: [COMMISSION], charge: CHARGE_REMBOURSEE, erreurs: { ...ecritureRatee, webhook_events_processed: panne } })
+        const res = await livrer(evenement('evt_8'))
+        expect(res.statusCode).toBe(500)
+        expect(res.body).toEqual({ error: code })
+        expect(w.captureError).toHaveBeenCalledTimes(1)
+        const [erreur, contexte] = w.captureError.mock.calls[0]
+        expect(erreur).toBeInstanceOf(Error)
+        expect(contexte).toEqual({ endpoint: '/api/stripe-webhook', event_id: 'evt_8', event_type: type })
+        expect(console.error).toHaveBeenCalledWith('[CLOSER] réservation non libérée', { event_id: 'evt_8', event_type: type })
+      }
+    })
+  })
+
+  it('un remboursement en panne n’est pas avalé : rien d’écrit, 500, et Stripe réessaie avec succès', async () => {
+    const pannes = [{ message: 'disque plein' }]
+    monde({
+      commissions: [{ id: 'kc1', source_key: 'stripe:in_100', stripe_invoice_id: 'in_100', statut: 'a_valider', note: null }],
+      charge: CHARGE_REMBOURSEE,
+      erreurs: { closer_commissions: ({ operation }) => (operation === 'update' ? pannes.shift() ?? null : null) },
+    })
+    expect((await livrer(chargeRemboursee('evt_9'))).statusCode).toBe(500)
+    expect(w.supabase.base.closer_commissions[0].statut).toBe('a_valider')
+    const reessai = await livrer(chargeRemboursee('evt_9'))
+    expect(reessai.statusCode).toBe(200)
+    expect(reessai.body).toEqual({ received: true })
+    expect(w.supabase.base.closer_commissions[0]).toMatchObject({ statut: 'annulee', note: NOTE_REMBOURSEE })
+  })
+
+  it('deux clients sur le même abonnement : 200, rien de créé, pas de réessai sans fin', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    monde()
+    w.supabase.base.clients.push({ id: '33333333-3333-4333-8333-333333333333', closer_id: 'k2', stripe_subscription_id: 'sub_100' })
+    w.stripe.invoices.retrieve.mockResolvedValueOnce(facture({ metadata: {} }))
+    const res = await livrer(facturePayee('evt_10'))
+    expect(res.statusCode).toBe(200)
+    expect(res.body).toEqual({ received: true })
+    expect(w.supabase.base.closer_commissions).toEqual([])
+    expect(warn).toHaveBeenCalledWith('[CLOSER] facture sans commission', expect.objectContaining({ raison: 'client_ambigu' }))
   })
 })

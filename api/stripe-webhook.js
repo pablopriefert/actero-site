@@ -1,4 +1,4 @@
-import { withSentry } from './lib/sentry.js'
+import { withSentry, captureError } from './lib/sentry.js'
 import crypto from 'node:crypto';
 import Stripe from 'stripe';
 import { Resend } from 'resend';
@@ -142,6 +142,25 @@ async function onboardClientAfterPayment(funnelClient) {
   console.log(`[ONBOARD] Onboarding complete for "${company_name}". Client will receive invite email.`);
 
   return client.id;
+}
+
+/**
+ * Commissions de closer : libère la réservation de CET événement (et de lui
+ * seul) après une panne, pour que Stripe réessaie. Si la libération échoue à
+ * son tour, le réessai recevrait un 200 « duplicate » et la commission serait
+ * perdue sans bruit : on le journalise (identifiants seulement) et on le
+ * remonte à Sentry. La réponse reste 500.
+ */
+async function libererReservationCloser(event) {
+  const reperes = { event_id: event.id, event_type: event.type };
+  try {
+    const { error } = await supabase.from('webhook_events_processed').delete()
+      .eq('provider', 'stripe').eq('event_id', event.id);
+    if (error) throw new Error(`réservation non libérée : ${error.message}`);
+  } catch (err) {
+    console.error('[CLOSER] réservation non libérée', reperes);
+    captureError(err instanceof Error ? err : new Error(String(err)), { endpoint: '/api/stripe-webhook', ...reperes });
+  }
 }
 
 async function handler(req, res) {
@@ -999,8 +1018,7 @@ async function handler(req, res) {
         console.error('[CLOSER] facture payée non traitée :', err.message);
         // Libère la réservation : sinon Stripe ne réessaie jamais et la
         // commission est perdue sans bruit.
-        await supabase.from('webhook_events_processed').delete()
-          .eq('provider', 'stripe').eq('event_id', event.id);
+        await libererReservationCloser(event);
         return res.status(500).json({ error: 'commission_processing_failed' });
       }
       break;
@@ -1009,13 +1027,14 @@ async function handler(req, res) {
     case 'charge.refunded': {
       // Facture remboursée : la commission liée passe « annulée » avant son
       // paiement, ou reçoit une note après (aucune reprise automatique).
+      // Une panne n'est jamais avalée : l'événement échoue, la réservation est
+      // libérée et Stripe réessaie, comme pour invoice.paid.
       try {
         const issue = await traiterRemboursement(stripe, supabase, event.data.object?.id);
         if (issue.touchees > 0) console.log(`[CLOSER] remboursement : ${issue.touchees} commission(s) mise(s) à jour`);
       } catch (err) {
         console.error('[CLOSER] remboursement non traité :', err.message);
-        await supabase.from('webhook_events_processed').delete()
-          .eq('provider', 'stripe').eq('event_id', event.id);
+        await libererReservationCloser(event);
         return res.status(500).json({ error: 'refund_processing_failed' });
       }
       break;
