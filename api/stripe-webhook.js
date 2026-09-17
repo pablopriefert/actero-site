@@ -9,6 +9,8 @@ import { planUpdateFromSubscription, formuleDeLAbonnement, doitResoudreLaCarte, 
 import { resolveCustomerCard, OPTIONS_REQUETE_COURTE } from './lib/stripe-customer.js';
 import { formuleDuPrix, PERIODE_API } from './lib/formules.js';
 import { traiterFacturePayee, traiterRemboursement } from './lib/commissions-stripe.js';
+import { enregistrerEvenementCloser } from './lib/evenements-closer.js';
+import { etapeDepuisEvenementStripe } from './lib/evenements-stripe.js';
 
 export const maxDuration = 60;
 
@@ -160,6 +162,61 @@ async function libererReservationCloser(event) {
   } catch (err) {
     console.error('[CLOSER] réservation non libérée', reperes);
     captureError(err instanceof Error ? err : new Error(String(err)), { endpoint: '/api/stripe-webhook', ...reperes });
+  }
+}
+
+const FORMAT_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** L'identifiant d'un objet Stripe, qu'il soit étendu ou non. */
+const idStripe = (valeur) => (typeof valeur === 'string' ? valeur : valeur?.id) || null;
+
+/**
+ * Fil d'activité des closers : le client Actero d'un objet Stripe. D'abord
+ * l'identifiant posé dans les métadonnées (api/lib/checkout-formule.js), puis
+ * l'abonnement et le client Stripe enregistrés sur la fiche. Deux fiches pour
+ * la même valeur : aucune, on ne choisit pas.
+ */
+async function clientPourLeFil({ metadata, abonnement = null, clientStripe = null }) {
+  const parMetadonnees = [metadata?.client_id, metadata?.actero_client_id]
+    .find((v) => typeof v === 'string' && FORMAT_UUID.test(v));
+  if (parMetadonnees) return parMetadonnees;
+  for (const [colonne, valeur] of [['stripe_subscription_id', abonnement], ['stripe_customer_id', clientStripe]]) {
+    if (!valeur) continue;
+    const { data, error } = await supabase.from('clients').select('id').eq(colonne, valeur).limit(2);
+    if (error) throw error;
+    if (data?.length) return data.length === 1 ? data[0].id : null;
+  }
+  return null;
+}
+
+/** Le client d'une facture : son abonnement sous la forme clover (`parent`) ou acacia. */
+function clientDeLaFacturePourLeFil(facture) {
+  const details = facture?.parent?.subscription_details ?? facture?.subscription_details;
+  return clientPourLeFil({
+    metadata: details?.metadata,
+    abonnement: idStripe(details?.subscription ?? facture?.subscription),
+    clientStripe: idStripe(facture?.customer),
+  });
+}
+
+/**
+ * Fil d'activité des closers (api/lib/evenements-stripe.js) : écrit l'étape
+ * de l'événement, une fois son traitement fini. Ne lève jamais et ne change
+ * rien à la réponse : un fil incomplet se rattrape, un webhook en échec à
+ * cause de lui, non. Un client sans closer n'écrit rien.
+ *
+ * @param {any} event
+ * @param {string | null | (() => Promise<string | null>)} client — l'identifiant, ou comment le retrouver
+ */
+async function noterEtapeCloser(event, client) {
+  try {
+    const etape = etapeDepuisEvenementStripe(event);
+    if (!etape) return;
+    const clientId = typeof client === 'function' ? await client() : client;
+    if (!clientId) return;
+    await enregistrerEvenementCloser(supabase, { clientId, ...etape });
+  } catch (err) {
+    console.warn('[CLOSER] fil d’activité : client illisible', { event_id: event?.id, event_type: event?.type, erreur: err?.code || err?.name || 'erreur' });
   }
 }
 
@@ -835,6 +892,10 @@ async function handler(req, res) {
           } catch (entErr) {
             console.error('[SUB_UPDATED] Entitlements sync failed:', entErr.message);
           }
+
+          // Fil du closer : résiliation programmée ou levée, lue sur l'événement
+          // lui-même (ce qui vient de changer), pas sur l'abonnement relu.
+          await noterEtapeCloser(event, clientId);
         }
       } catch (err) {
         console.error('[SUB_UPDATED] Error:', err.message);
@@ -997,6 +1058,10 @@ async function handler(req, res) {
 
         console.log(`[stripe-webhook] SaaS client ${saasClient.id} subscription canceled, downgraded to free`)
 
+        // Fil du closer : seulement l'abonnement enregistré sur la fiche, lu
+        // avant sa remise à zéro ci-dessus. Un ancien abonnement qui s'éteint
+        // n'est pas la fin de celui du client.
+        await noterEtapeCloser(event, saasClient.id)
       }
       break;
     }
@@ -1004,6 +1069,14 @@ async function handler(req, res) {
     case 'invoice.payment_failed': {
       const invoice = event.data.object;
       console.log('Payment failed for invoice:', invoice.id);
+      await noterEtapeCloser(event, () => clientDeLaFacturePourLeFil(invoice));
+      break;
+    }
+
+    case 'checkout.session.expired': {
+      // Page Stripe refermée sans payer : le fil du closer seulement, rien d'autre.
+      const session = event.data.object;
+      await noterEtapeCloser(event, () => clientPourLeFil({ metadata: session?.metadata, clientStripe: idStripe(session?.customer) }));
       break;
     }
 
@@ -1021,6 +1094,9 @@ async function handler(req, res) {
         await libererReservationCloser(event);
         return res.status(500).json({ error: 'commission_processing_failed' });
       }
+      // Fil du closer : abonnement démarré, renouvellement payé ou formule
+      // changée. Après la commission : un réessai de Stripe l'écrira sinon.
+      await noterEtapeCloser(event, () => clientDeLaFacturePourLeFil(event.data.object));
       break;
     }
 
@@ -1037,6 +1113,9 @@ async function handler(req, res) {
         await libererReservationCloser(event);
         return res.status(500).json({ error: 'refund_processing_failed' });
       }
+      // Fil du closer : remboursé, en partie ou en totalité — jamais le montant.
+      const charge = event.data.object;
+      await noterEtapeCloser(event, () => clientPourLeFil({ metadata: charge?.metadata, clientStripe: idStripe(charge?.customer) }));
       break;
     }
 
