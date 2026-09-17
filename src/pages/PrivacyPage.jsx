@@ -28,7 +28,7 @@ export const PrivacyPage = ({ onNavigate }) => {
     },
     {
       title: "5. Destinataires des données",
-      content: `Vos données peuvent être transmises aux sous-traitants suivants, tous conformes au RGPD :\n\n- Supabase (hébergement et base de données) — serveurs en Europe\n- Vercel (hébergement du site) — serveurs internationaux avec garanties adéquates\n- Stripe (paiements) — certifié PCI DSS niveau 1\n- Resend (envoi d'emails transactionnels)\n- n8n (automatisation des workflows)\n\nNous ne vendons jamais vos données à des tiers. Vos données ne sont partagées qu'avec les prestataires strictement nécessaires à la fourniture du service.`,
+      content: `Vos données peuvent être transmises aux sous-traitants suivants, tous conformes au RGPD :\n\n- Supabase (hébergement et base de données) — serveurs en Europe\n- Vercel (hébergement du site) — serveurs internationaux avec garanties adéquates\n- Stripe (paiements) — certifié PCI DSS niveau 1\n- Resend (envoi d'emails transactionnels)\n- n8n (automatisation des workflows)\n\nNous ne vendons jamais vos données à des tiers. Vos données ne sont partagées qu'avec les prestataires strictement nécessaires à la fourniture du service.\n\nSi vous créez votre compte à partir du lien d'un closer partenaire d'Actero, ce closer voit l'avancement de votre inscription et de votre abonnement (étapes et dates). Il ne voit jamais les données de votre boutique, vos conversations, ni vos montants.`,
     },
     {
       title: "6. Durée de conservation",
@@ -89,7 +89,7 @@ export const PrivacyPage = ({ onNavigate }) => {
                 Actero s'engage à protéger la vie privée de ses utilisateurs. Cette politique décrit comment nous collectons, utilisons et protégeons vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD).
               </p>
               <p className="text-sm text-[#716D5C] mt-4">
-                Dernière mise à jour : 5 avril 2026
+                Dernière mise à jour : 17 septembre 2026
               </p>
             </div>
 
