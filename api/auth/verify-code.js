@@ -4,9 +4,9 @@
  * POST /api/auth/verify-code
  * Body: { email, code }
  *
- * - Looks up the most recent non-expired code for this email
+ * - Looks up the most recent non-expired merchant code for this email
+ * - Counts the attempt first, atomically (max 5), then compares the code
  * - If code matches → creates Supabase user + client rows (same logic as signup.js)
- * - If invalid → increments attempts (max 5)
  *
  * Returns: { success, redirect }
  */
@@ -26,6 +26,8 @@ const supabase = createClient(
 
 const MAX_ATTEMPTS = 5
 const TROP_DE_TENTATIVES = { error: 'Trop de tentatives. Réessayez plus tard.' }
+const CODE_EXPIRE = { error: 'Code expiré ou inexistant. Demandez un nouveau code.' }
+const INDISPONIBLE = { error: 'Service momentanément indisponible.' }
 
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -61,27 +63,42 @@ async function handler(req, res) {
 
   const record = rows?.[0]
   if (!record) {
-    return res.status(400).json({ error: 'Code expiré ou inexistant. Demandez un nouveau code.' })
+    return res.status(400).json(CODE_EXPIRE)
   }
 
   if (record.attempts >= MAX_ATTEMPTS) {
     return res.status(429).json({ error: 'Trop de tentatives incorrectes. Demandez un nouveau code.' })
   }
 
+  // L'essai est compté AVANT la comparaison, et seulement si le compteur vaut
+  // encore ce qu'on a lu : de N essais simultanés, un seul passe cette
+  // écriture, donc un seul code est comparé. Les autres reçoivent la réponse
+  // d'un mauvais code, sans que le leur ait été regardé.
+  const { data: essaiCompte, error: erreurEssai } = await supabase
+    .from('email_verification_codes')
+    .update({ attempts: record.attempts + 1 })
+    .eq('id', record.id)
+    .eq('attempts', record.attempts)
+    .select('id')
+  if (erreurEssai) return res.status(503).json(INDISPONIBLE)
   // Comparaison en temps constant (voir api/lib/code-verification.js).
-  if (!codeCorrespond(codeStr, record.code_hash)) {
-    await supabase
-      .from('email_verification_codes')
-      .update({ attempts: record.attempts + 1 })
-      .eq('id', record.id)
+  if (!essaiCompte?.length || !codeCorrespond(codeStr, record.code_hash)) {
     return res.status(400).json({
       error: 'Code incorrect.',
       attempts_left: Math.max(0, MAX_ATTEMPTS - record.attempts - 1),
     })
   }
 
-  // Mark code as used
-  await supabase.from('email_verification_codes').update({ used_at: new Date().toISOString() }).eq('id', record.id)
+  // Utilisé une seule fois : si une requête concurrente l'a consommé entre la
+  // lecture et ici, c'est elle qui crée le compte.
+  const { data: consomme, error: erreurUsage } = await supabase
+    .from('email_verification_codes')
+    .update({ used_at: new Date().toISOString() })
+    .eq('id', record.id)
+    .is('used_at', null)
+    .select('id')
+  if (erreurUsage) return res.status(503).json(INDISPONIBLE)
+  if (!consomme?.length) return res.status(400).json(CODE_EXPIRE)
 
   // Create account (replicated from api/auth/signup.js)
   const payload = record.payload || {}

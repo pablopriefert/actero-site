@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { creerFauxSupabase, appeler } from './faux-supabase.js'
 import { encryptToken } from './crypto.js'
-import { empreinteCode, codeCorrespond, TYPE_CODE_CLOSER } from './code-verification.js'
+import { empreinteCode, codeCorrespond, TYPE_CODE_CLOSER, ESSAIS_MAX } from './code-verification.js'
 
 /**
  * Codes à 6 chiffres envoyés par e-mail — les défenses communes aux deux
@@ -58,13 +58,21 @@ function ligneDeCode({ id, parcours, code = '123456', cree = '2026-09-17T10:00:0
 
 const autre = (parcours) => (parcours === 'closer' ? 'marchand' : 'closer')
 
-function monde({ codes = [] } = {}) {
+function monde({ codes = [], erreurs } = {}) {
   h.supabase = creerFauxSupabase({
     tables: { email_verification_codes: codes, closers: [], clients: [], client_users: [], client_settings: [] },
     uniques: { closers: ['user_id', 'code'] },
+    erreurs,
   })
   return h.supabase
 }
+
+/** La réponse d'un mauvais code, sur chaque parcours, quand `lu` essais étaient déjà comptés. */
+const echecHabituel = (parcours, lu = 0) => (parcours === 'closer'
+  ? { error: 'code_incorrect', message: 'Code incorrect.', essais_restants: ESSAIS_MAX - lu - 1 }
+  : { error: 'Code incorrect.', attempts_left: ESSAIS_MAX - lu - 1 })
+
+const comptesCrees = (sb) => sb.journal.filter((j) => j.operation === 'createUser')
 
 /** Remplace le compteur partagé du faux (qui autorise tout) par un vrai compteur. */
 function compteurPartage(sb) {
@@ -209,10 +217,54 @@ describe('comparaison du code en temps constant', () => {
   })
 
   it.each(['closer', 'marchand'])('la route %s compare en temps constant', async (parcours) => {
+    // (Le compteur de comparaisons des tests « atomique » ci-dessous repose sur cet appel.)
     monde({ codes: [ligneDeCode({ id: 'v', parcours })] })
     const espion = vi.spyOn(crypto, 'timingSafeEqual')
     const res = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '999999' } })
     expect(res.statusCode).toBe(400)
     expect(espion).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe.each(['closer', 'marchand'])('compteur d’essais atomique — parcours %s', (parcours) => {
+  const verifier = (code, i = 0) => appeler(routes[parcours].verifier, {
+    methode: 'POST', corps: { email: EMAIL, code }, ip: `198.51.100.${i}`,
+  })
+
+  it('des vérifications simultanées ne comparent jamais plus de codes que le plafond', async () => {
+    const sb = monde({ codes: [ligneDeCode({ id: 'v', parcours, code: '123456' })] })
+    const comparaisons = vi.spyOn(crypto, 'timingSafeEqual')
+    // Huit vagues de dix essais simultanés, tous faux : 80 codes tentés.
+    for (let vague = 0; vague < 8; vague++) {
+      await Promise.all(Array.from({ length: 10 }, (_, i) => verifier(String(200000 + vague * 10 + i), i)))
+    }
+    expect(comparaisons.mock.calls.length).toBeGreaterThan(0)
+    expect(comparaisons.mock.calls.length).toBeLessThanOrEqual(ESSAIS_MAX)
+    expect(sb.base.email_verification_codes[0].attempts).toBe(ESSAIS_MAX)
+  })
+
+  it('un essai devancé par un autre reçoit la réponse d’échec habituelle — et un seul compte naît', async () => {
+    const sb = monde({ codes: [ligneDeCode({ id: 'v', parcours, code: '123456' })] })
+    const reponses = await Promise.all([0, 1, 2].map((i) => verifier('123456', i)))
+    expect(reponses.map((r) => r.statusCode)).toEqual([200, 400, 400])
+    expect(reponses[1].body).toEqual(echecHabituel(parcours))
+    expect(reponses[2].body).toEqual(echecHabituel(parcours))
+    expect(comptesCrees(sb)).toHaveLength(1)
+  })
+
+  it('un code consommé entre la comparaison et l’écriture ne crée pas de compte', async () => {
+    const sb = monde({
+      codes: [ligneDeCode({ id: 'v', parcours, code: '123456' })],
+      erreurs: {
+        // Juste avant que la route marque le code utilisé, une autre requête vient de le faire.
+        email_verification_codes: ({ operation, charge }) => {
+          if (operation === 'update' && charge?.used_at) sb.base.email_verification_codes[0].used_at ??= '2026-09-17T10:00:00Z'
+          return null
+        },
+      },
+    })
+    const res = await verifier('123456')
+    expect(res.statusCode).toBe(400)
+    expect(comptesCrees(sb)).toEqual([])
   })
 })

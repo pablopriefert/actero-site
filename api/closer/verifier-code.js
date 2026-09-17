@@ -14,6 +14,8 @@ const supabase = createClient(
 )
 
 const TROP_DE_TENTATIVES = { error: 'trop_de_demandes', message: 'Trop de tentatives. Réessayez plus tard.' }
+const CODE_EXPIRE = { error: 'code_expire', message: 'Code expiré ou inexistant. Demandez un nouveau code.' }
+const INDISPONIBLE = { error: 'indisponible', message: 'Service momentanément indisponible.' }
 
 /**
  * POST /api/closer/verifier-code — inscription closer, étape 2 : le compte et la fiche.
@@ -54,16 +56,26 @@ async function handler(req, res) {
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
     .limit(1)
-  if (erreurLecture) return res.status(503).json({ error: 'indisponible', message: 'Service momentanément indisponible.' })
+  if (erreurLecture) return res.status(503).json(INDISPONIBLE)
 
   const ligne = lignes?.[0]
-  if (!ligne) return res.status(400).json({ error: 'code_expire', message: 'Code expiré ou inexistant. Demandez un nouveau code.' })
+  if (!ligne) return res.status(400).json(CODE_EXPIRE)
   if (ligne.attempts >= ESSAIS_MAX) {
     return res.status(429).json({ error: 'trop_d_essais', message: 'Trop de tentatives incorrectes. Demandez un nouveau code.' })
   }
 
-  if (!codeCorrespond(saisi, ligne.code_hash)) {
-    await supabase.from('email_verification_codes').update({ attempts: ligne.attempts + 1 }).eq('id', ligne.id)
+  // L'essai est compté AVANT la comparaison, et seulement si le compteur vaut
+  // encore ce qu'on a lu : de N essais simultanés, un seul passe cette
+  // écriture, donc un seul code est comparé. Les autres reçoivent la réponse
+  // d'un mauvais code, sans que le leur ait été regardé.
+  const { data: essaiCompte, error: erreurEssai } = await supabase
+    .from('email_verification_codes')
+    .update({ attempts: ligne.attempts + 1 })
+    .eq('id', ligne.id)
+    .eq('attempts', ligne.attempts)
+    .select('id')
+  if (erreurEssai) return res.status(503).json(INDISPONIBLE)
+  if (!essaiCompte?.length || !codeCorrespond(saisi, ligne.code_hash)) {
     return res.status(400).json({
       error: 'code_incorrect',
       message: 'Code incorrect.',
@@ -71,9 +83,16 @@ async function handler(req, res) {
     })
   }
 
-  const { error: erreurUsage } = await supabase
-    .from('email_verification_codes').update({ used_at: new Date().toISOString() }).eq('id', ligne.id).is('used_at', null)
-  if (erreurUsage) return res.status(503).json({ error: 'indisponible', message: 'Service momentanément indisponible.' })
+  // Utilisé une seule fois : si une requête concurrente l'a consommé entre la
+  // lecture et ici, c'est elle qui crée le compte.
+  const { data: consomme, error: erreurUsage } = await supabase
+    .from('email_verification_codes')
+    .update({ used_at: new Date().toISOString() })
+    .eq('id', ligne.id)
+    .is('used_at', null)
+    .select('id')
+  if (erreurUsage) return res.status(503).json(INDISPONIBLE)
+  if (!consomme?.length) return res.status(400).json(CODE_EXPIRE)
 
   const prenom = nettoyerNom(ligne.payload.prenom)
   const nom = nettoyerNom(ligne.payload.nom)
