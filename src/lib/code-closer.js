@@ -157,11 +157,12 @@ export function codeCloserCourant() {
   }
 }
 
-/** Efface le code : le serveur a tranché, il ne doit plus resservir. */
+/** Efface le code et la visite : le serveur a tranché, ils ne doivent plus resservir. */
 export function oublierCodeCloser() {
   if (typeof window === 'undefined') return
   try {
     document.cookie = `${CLE}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; ${attributsCookie()}`
+    document.cookie = `${CLE_VISITE}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; ${attributsCookie()}`
   } catch {
     // un cookie qu'on ne peut pas effacer expirera de lui-même
   }
@@ -214,10 +215,12 @@ export async function presenterCodeCloser(supabase) {
     if (!session?.access_token) return false
     const compte = session.user?.id ?? session.access_token
     if (adjuge?.compte === compte && adjuge.code === code) return adjuge.rattache
+    // La visite relie au client les ouvertures du lien (fil du closer).
+    const visite = visiteCloserCourante()
     const res = await fetch('/api/closer/attribuer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify(visite ? { code, visite } : { code }),
     })
     // Tranché (voir reponseTranchee) : le code a servi, on l'oublie. Sinon
     // — erreur passagère ou coupure — on le garde pour la prochaine fois.

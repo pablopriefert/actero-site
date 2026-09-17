@@ -113,7 +113,7 @@ describe('le cookie ne part qu’en https quand la page est en https', () => {
     allerSur('https://actero.fr/c/ACT-AAAAA')
     memoriserCodeCloser('ACT-AAAAA')
     oublierCodeCloser()
-    expect(ecritures.map(nomEcrit)).toEqual(['closer_code', 'closer_visite', 'closer_code'])
+    expect(ecritures.map(nomEcrit)).toEqual(['closer_code', 'closer_visite', 'closer_code', 'closer_visite'])
     for (const ecriture of ecritures) {
       expect(ecriture).toMatch(/;\s*Secure(;|$)/)
       expect(ecriture).toMatch(/;\s*SameSite=Lax(;|$)/)
@@ -276,16 +276,25 @@ describe('signaler l’ouverture du lien', () => {
 })
 
 describe('présenter le code, puis le dépenser', () => {
-  it('rattaché : true, et le code est effacé', async () => {
+  it('rattaché : true, et le code est effacé, avec la visite', async () => {
     memoriserCodeCloser('ACT-AAAAA')
+    const visite = visiteCloserCourante()
     repond(200, { ok: true, rattache: true })
     expect(await presenterCodeCloser(supabaseConnecte)).toBe(true)
     expect(codeCloserCourant()).toBeNull()
+    expect(visiteCloserCourante()).toBeNull()
     const [url, options] = globalThis.fetch.mock.calls[0]
     expect(url).toBe('/api/closer/attribuer')
     expect(options.method).toBe('POST')
     expect(options.headers.Authorization).toBe('Bearer jeton-marchand')
-    expect(JSON.parse(options.body)).toEqual({ code: 'ACT-AAAAA' })
+    expect(JSON.parse(options.body)).toEqual({ code: 'ACT-AAAAA', visite })
+  })
+
+  it('sans visite mémorisée, le code part seul', async () => {
+    installerCookies('closer_code=ACT-AAAAA')
+    repond(200, { ok: true, rattache: false })
+    await presenterCodeCloser(supabaseConnecte)
+    expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body)).toEqual({ code: 'ACT-AAAAA' })
   })
 
   it('refusé : false, et le code est effacé quand même — il a servi', async () => {
@@ -295,11 +304,13 @@ describe('présenter le code, puis le dépenser', () => {
     expect(codeCloserCourant()).toBeNull()
   })
 
-  it.each([401, 404, 408, 429, 500, 502, 503])('réponse %i : rien n’est tranché, le code reste', async (status) => {
+  it.each([401, 404, 408, 429, 500, 502, 503])('réponse %i : rien n’est tranché, le code et la visite restent', async (status) => {
     memoriserCodeCloser('ACT-AAAAA')
+    const visite = visiteCloserCourante()
     repond(status, { error: 'x' })
     expect(await presenterCodeCloser(supabaseConnecte)).toBe(false)
     expect(codeCloserCourant()).toBe('ACT-AAAAA')
+    expect(visiteCloserCourante()).toBe(visite)
   })
 
   it.each([400, 403])('réponse %i : la requête est refusée telle quelle, la représenter n’y changerait rien — le code est oublié', async (status) => {
@@ -373,10 +384,12 @@ describe('présenter le code, puis le dépenser', () => {
     expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body)).toEqual({ code: 'ACT-BBBBB' })
   })
 
-  it('oublierCodeCloser efface vraiment', () => {
+  it('oublierCodeCloser efface vraiment, le code et la visite', () => {
     memoriserCodeCloser('ACT-AAAAA')
+    expect(visiteCloserCourante()).not.toBeNull()
     oublierCodeCloser()
     expect(codeCloserCourant()).toBeNull()
+    expect(visiteCloserCourante()).toBeNull()
   })
 })
 
@@ -442,6 +455,21 @@ describe('le navigateur et api/closer/attribuer.js s’accordent', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
   afterEach(() => vi.restoreAllMocks())
+
+  it('rattaché : la visite relie au client l’ouverture du lien, puis l’inscription entre dans le fil', async () => {
+    serveur({})
+    memoriserCodeCloser('ACT-AAAAA')
+    const visite = visiteCloserCourante()
+    h.supabase.base.closer_evenements = [
+      { id: 'e1', closer_id: 'k-a', client_id: null, visite_id: visite, type: 'lien_ouvert', details: {}, source_key: `clic:ACT-AAAAA:${visite}:2026-09-17` },
+    ]
+    expect(await presenterCodeCloser(supabaseConnecte)).toBe(true)
+    expect(h.supabase.base.closer_evenements.map(({ type, client_id }) => ({ type, client_id }))).toEqual([
+      { type: 'lien_ouvert', client_id: 'c1' },
+      { type: 'inscription', client_id: 'c1' },
+    ])
+    expect(visiteCloserCourante()).toBeNull()
+  })
 
   it.each(Object.keys(scenarios))('%s', async (nom) => {
     const { oublie, rattache = false, code = 'ACT-AAAAA', jeton = 'jeton-marchand', ...monde } = scenarios[nom]

@@ -371,3 +371,99 @@ describe('POST /api/closer/attribuer', () => {
     expect((await presenter('ACT-AAAAA')).statusCode).toBe(500)
   })
 })
+
+describe('POST /api/closer/attribuer — fil du closer', () => {
+  const MARCHAND = { id: 'u-marchand', email: 'boutique@ex.com' }
+  const VISITE = '5b0c7e2a-8d4f-4a1b-9c3e-6f7a8b9c0d1e'
+  const AUTRE_VISITE = 'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d'
+
+  const clicDe = (id, closer, visite, client = null) => ({
+    id, closer_id: closer, client_id: client, visite_id: visite, type: 'lien_ouvert', details: {}, source_key: `clic:${id}`,
+  })
+
+  function monde({ client = LIBRE, erreurs } = {}) {
+    h.supabase = creerFauxSupabase({
+      tables: {
+        closers: [ACTIF, AUTRE, SUSPENDU],
+        clients: [client, { id: 'c-autre', plan: 'free', status: 'active', closer_id: 'k-a', owner_user_id: 'u-autre', created_at: ilYA(2) }],
+        client_users: [{ client_id: 'c1', user_id: 'u-marchand', role: 'owner' }],
+        closer_evenements: [
+          clicDe('e-hier', 'k-a', VISITE),
+          clicDe('e-auj', 'k-a', VISITE),
+          clicDe('e-autre-closer', 'k-b', VISITE),
+          clicDe('e-autre-visiteur', 'k-a', AUTRE_VISITE),
+          clicDe('e-deja-relie', 'k-a', VISITE, 'c-autre'),
+        ],
+      },
+      uniques: { closer_evenements: ['source_key'] },
+      comptes: { 'jeton-marchand': MARCHAND },
+      erreurs,
+    })
+    return h.supabase
+  }
+
+  const presenter = (corps) => appeler(attribuer, { methode: 'POST', jeton: 'jeton-marchand', corps })
+  const clientDuClic = (sb, id) => sb.base.closer_evenements.find((e) => e.id === id).client_id
+  const inscriptions = (sb) => sb.base.closer_evenements.filter((e) => e.type === 'inscription')
+
+  beforeEach(() => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  it('rattaché : les ouvertures de CE visiteur pour CE closer sont reliées, puis l’inscription est écrite', async () => {
+    const sb = monde()
+    const res = await presenter({ code: 'ACT-AAAAA', visite: VISITE.toUpperCase() })
+    expect(res.body).toEqual({ ok: true, rattache: true })
+    expect(clientDuClic(sb, 'e-hier')).toBe('c1')
+    expect(clientDuClic(sb, 'e-auj')).toBe('c1')
+    // Un autre closer, un autre visiteur, un clic déjà relié : rien ne bouge.
+    expect(clientDuClic(sb, 'e-autre-closer')).toBeNull()
+    expect(clientDuClic(sb, 'e-autre-visiteur')).toBeNull()
+    expect(clientDuClic(sb, 'e-deja-relie')).toBe('c-autre')
+    expect(inscriptions(sb)).toHaveLength(1)
+    expect(inscriptions(sb)[0]).toMatchObject({ closer_id: 'k-a', client_id: 'c1', details: {}, source_key: 'inscription:c1' })
+    // L'ordre : les clics d'abord, l'inscription ensuite.
+    const operations = sb.journal.filter((j) => j.table === 'closer_evenements').map((j) => j.operation)
+    expect(operations).toEqual(['update', 'insert'])
+  })
+
+  it('sans visite, ou une visite qui n’est pas un UUID : l’inscription seule', async () => {
+    for (const corps of [{ code: 'ACT-AAAAA' }, { code: 'ACT-AAAAA', visite: 'x' }, { code: 'ACT-AAAAA', visite: { id: VISITE } }]) {
+      const sb = monde()
+      expect((await presenter(corps)).body).toEqual({ ok: true, rattache: true })
+      expect(sb.journal.filter((j) => j.table === 'closer_evenements' && j.operation === 'update')).toEqual([])
+      expect(clientDuClic(sb, 'e-hier')).toBeNull()
+      expect(inscriptions(sb)).toHaveLength(1)
+    }
+  })
+
+  it('refusé : rien n’est relié ni écrit', async () => {
+    for (const [cas, code, client] of [
+      ['autre closer déjà rattaché', 'ACT-AAAAA', { ...LIBRE, closer_id: 'k-b' }],
+      ['closer suspendu', 'ACT-SSSSS', LIBRE],
+      ['client payant', 'ACT-AAAAA', { ...LIBRE, plan: 'pro' }],
+    ]) {
+      const sb = monde({ client })
+      expect((await presenter({ code, visite: VISITE })).body, cas).toEqual({ ok: true, rattache: false })
+      expect(sb.journal.filter((j) => j.table === 'closer_evenements'), cas).toEqual([])
+      expect(clientDuClic(sb, 'e-hier'), cas).toBeNull()
+    }
+  })
+
+  it('fil en panne, à l’une ou l’autre écriture : la réponse et le rattachement restent', async () => {
+    for (const operationEnPanne of ['update', 'insert']) {
+      const sb = monde({
+        erreurs: { closer_evenements: ({ operation }) => (operation === operationEnPanne ? { code: '57014', message: 'panne' } : null) },
+      })
+      const res = await presenter({ code: 'ACT-AAAAA', visite: VISITE })
+      expect(res.statusCode, operationEnPanne).toBe(200)
+      expect(res.body, operationEnPanne).toEqual({ ok: true, rattache: true })
+      expect(sb.base.clients.find((c) => c.id === 'c1').closer_id, operationEnPanne).toBe('k-a')
+      // Une panne des clics n'empêche pas l'inscription, et inversement.
+      expect(inscriptions(sb).length, operationEnPanne).toBe(operationEnPanne === 'insert' ? 0 : 1)
+      expect(clientDuClic(sb, 'e-hier'), operationEnPanne).toBe(operationEnPanne === 'update' ? null : 'c1')
+    }
+  })
+})

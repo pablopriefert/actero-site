@@ -2,6 +2,7 @@ import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { checkRateLimit } from '../lib/rate-limit.js'
 import { rattacherCloser } from '../lib/attribution-closer.js'
+import { enregistrerEvenementCloser } from '../lib/evenements-closer.js'
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
@@ -38,6 +39,36 @@ async function boutiqueDeLAppelant(userId) {
   return { clientId: liens.data?.[0]?.client_id ?? null }
 }
 
+const FORMAT_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/**
+ * Fil d'activité du closer, après un rattachement réussi : les ouvertures du
+ * lien faites par ce visiteur (même `visite`, même closer, encore sans
+ * client) sont reliées au client, puis l'inscription est écrite. Rien ici ne
+ * change la réponse : une panne est seulement journalisée.
+ */
+async function noterInscription({ clientId, closerId, visite }) {
+  if (typeof visite === 'string' && FORMAT_UUID.test(visite)) {
+    try {
+      const { error } = await supabase
+        .from('closer_evenements')
+        .update({ client_id: clientId })
+        .eq('visite_id', visite.toLowerCase())
+        .eq('closer_id', closerId)
+        .is('client_id', null)
+      if (error) throw error
+    } catch (err) {
+      console.warn('[closer/attribuer] ouvertures du lien non reliées', { client: clientId, erreur: err?.code || err?.name || 'erreur' })
+    }
+  }
+  await enregistrerEvenementCloser(supabase, {
+    clientId,
+    closerId,
+    type: 'inscription',
+    sourceKey: `inscription:${clientId}`,
+  })
+}
+
 /**
  * POST /api/closer/attribuer — le marchand connecté présente le code closer
  * mémorisé par son navigateur (lien /c/:code, src/lib/code-closer.js).
@@ -49,7 +80,8 @@ async function boutiqueDeLAppelant(userId) {
  * api/lib/attribution-closer.js pour les autres règles : client récent, qui
  * n'a jamais payé, premier closer gagnant).
  *
- * Corps : { code }
+ * Corps : { code, visite? } — `visite` : l'identifiant du cookie closer_visite,
+ *         qui relie au client les ouvertures du lien (fil du closer)
  * Réponses :
  *   200 { ok, rattache }  le serveur a tranché, définitivement : rattaché, ou
  *                         refusé sans dire pourquoi (pas d'oracle pour deviner
@@ -72,7 +104,7 @@ async function handler(req, res) {
   const limite = await checkRateLimit(`closer-attribuer:${user.id}`, 10, 60 * 60 * 1000)
   if (!limite.allowed) return res.status(429).json({ error: 'trop_de_demandes' })
 
-  const { code } = req.body || {}
+  const { code, visite } = req.body || {}
   if (typeof code !== 'string' || !code.trim()) return res.status(400).json({ error: 'code_requis' })
 
   const boutique = await boutiqueDeLAppelant(user.id)
@@ -87,6 +119,8 @@ async function handler(req, res) {
       return res.status(200).json({ ok: true, rattache: false })
     }
     console.log(`[closer/attribuer] client ${clientId} rattaché au closer ${resultat.closerId}`)
+    // Ne lève jamais : le rattachement est fait, la réponse le dit quoi qu'il arrive au fil.
+    await noterInscription({ clientId, closerId: resultat.closerId, visite })
     return res.status(200).json({ ok: true, rattache: true })
   } catch (err) {
     console.error('[closer/attribuer]', err.message)
