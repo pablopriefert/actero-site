@@ -6,9 +6,9 @@ import { Chargement, ErreurChargement, Tableau } from './ui'
 
 /** Les commissions du closer, de la plus récente à la plus ancienne. */
 export function CommissionsCloser() {
-  const { data, isLoading, error } = useQuery({ queryKey: ['closer-commissions'], queryFn: () => appelCloser('commissions') })
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: ['closer-commissions'], queryFn: () => appelCloser('commissions') })
   if (isLoading) return <Chargement />
-  if (error) return <ErreurChargement erreur={error} />
+  if (error) return <ErreurChargement erreur={error} onReessayer={refetch} />
   const commissions = data?.commissions ?? []
   return (
     <section className="space-y-4">

@@ -38,7 +38,7 @@ export function CloserEspacePage({ currentRoute, onNavigate, onLogout }) {
   let contenu
   if (moi.isPending || statut === 401) contenu = <Chargement />
   else if (statut === 404) contenu = <DevenirCloser />
-  else if (moi.error || !fiche) contenu = <ErreurChargement erreur={moi.error} />
+  else if (moi.error || !fiche) contenu = <ErreurChargement erreur={moi.error} onReessayer={moi.refetch} />
   else if (route === '/closer/clients') contenu = <ClientsCloser />
   else if (route === '/closer/commissions') contenu = <CommissionsCloser />
   else if (route === '/closer/profil') contenu = <ProfilCloser key={fiche.code} fiche={fiche} />

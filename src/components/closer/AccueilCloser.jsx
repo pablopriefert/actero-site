@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { LienACopier } from './ui'
+import { LienACopier, RegleRattachement } from './ui'
 import { GenerateurLien } from './GenerateurLien'
 import { lienDAbonnement, montant } from '../../lib/affichage-closer'
 
@@ -19,12 +19,13 @@ export function AccueilCloser({ fiche, totaux, onNavigate }) {
     <div className="space-y-8">
       <section>
         <h1 className="text-[28px] font-normal">Bonjour {fiche.prenom}</h1>
-        <p className="mt-1 text-[15px] text-ink-3">Chaque boutique qui s’inscrit par votre lien vous est rattachée.</p>
+        <RegleRattachement debut="Une boutique vous est rattachée quand elle s’inscrit" className="mt-1 text-[15px] text-ink-3" />
       </section>
 
       {fiche.statut === 'suspendu' && (
         <div role="alert" className="p-4 rounded-2xl bg-warn-bg text-[14px] text-ink">
-          Votre lien est suspendu : il ne rattache plus de nouveaux clients. Écrivez à contact@actero.fr.
+          Votre lien est suspendu : il ne rattache plus de nouveaux clients. Écrivez à{' '}
+          <a href="mailto:contact@actero.fr" className="text-cta hover:underline">contact@actero.fr</a>.
         </div>
       )}
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Check, Copy } from 'lucide-react'
 import { Logo } from '../layout/Logo'
+import { DUREE_ATTRIBUTION_JOURS } from '../../lib/code-closer'
 
 /**
  * Les briques de l'espace closer, dans le système visuel d'Actero : Inter
@@ -76,35 +77,65 @@ export function BoutonGoogle({ onClick, libelle }) {
   )
 }
 
-/** Un lien à copier d'un clic ; reste sélectionnable si le presse-papiers est refusé. */
+/**
+ * Ce que le lien rattache, exactement. Le lien pose un cookie : il ne vaut
+ * que dans le navigateur où il a été ouvert, et pendant la durée
+ * d'attribution. Au-delà, seul Actero peut rattacher une boutique, à la main.
+ */
+export function RegleRattachement({ debut, className }) {
+  return (
+    <p className={className}>
+      {debut} par votre lien, depuis le même navigateur et dans les {DUREE_ATTRIBUTION_JOURS} jours. Sinon, écrivez à{' '}
+      <a href="mailto:contact@actero.fr" className="text-cta hover:underline">contact@actero.fr</a> : Actero peut la
+      rattacher à la main.
+    </p>
+  )
+}
+
+/**
+ * Un lien à copier d'un clic. Si le presse-papiers est refusé (ou absent hors
+ * HTTPS), le texte est sélectionné et la page dit de le copier à la main ;
+ * « Lien copié » est annoncé aux lecteurs d'écran.
+ */
 export function LienACopier({ lien }) {
-  const [copie, setCopie] = useState(false)
+  const [etat, setEtat] = useState(null)
+  const champ = useRef(null)
   const copier = async () => {
     try {
       await navigator.clipboard.writeText(lien)
-      setCopie(true)
-      setTimeout(() => setCopie(false), 2000)
+      setEtat('copie')
+      setTimeout(() => setEtat((e) => (e === 'copie' ? null : e)), 2000)
     } catch {
-      // presse-papiers refusé : le champ reste sélectionnable
+      setEtat('refuse')
+      champ.current?.focus()
+      champ.current?.select()
     }
   }
+  const copie = etat === 'copie'
   return (
-    <div className="flex gap-2">
-      <input
-        readOnly
-        value={lien}
-        onFocus={(e) => e.target.select()}
-        aria-label="Lien d’abonnement"
-        className="flex-1 min-w-0 h-11 px-3.5 rounded-xl border border-border-cream bg-white font-mono text-[14px] text-ink"
-      />
-      <button
-        type="button"
-        onClick={copier}
-        className="h-11 px-4 rounded-full bg-cta hover:bg-cta-hover text-white text-[14px] inline-flex items-center gap-1.5 shrink-0"
-      >
-        {copie ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
-        {copie ? 'Copié' : 'Copier'}
-      </button>
+    <div>
+      <div className="flex gap-2">
+        <input
+          ref={champ}
+          readOnly
+          value={lien}
+          onFocus={(e) => e.target.select()}
+          aria-label="Lien d’abonnement"
+          className="flex-1 min-w-0 h-11 px-3.5 rounded-xl border border-border-cream bg-white font-mono text-[14px] text-ink"
+        />
+        <button
+          type="button"
+          onClick={copier}
+          className="h-11 px-4 rounded-full bg-cta hover:bg-cta-hover text-white text-[14px] inline-flex items-center gap-1.5 shrink-0"
+        >
+          {copie ? <Check className="w-4 h-4" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
+          {copie ? 'Copié' : 'Copier'}
+        </button>
+      </div>
+      <p aria-live="polite" className={etat === 'refuse' ? 'mt-2 text-[13px] text-ink-2' : 'sr-only'}>
+        {copie && 'Lien copié.'}
+        {etat === 'refuse' && 'Copiez le lien à la main : il est sélectionné.'}
+      </p>
     </div>
   )
 }
@@ -130,6 +161,38 @@ export function Chargement() {
   return <p className="text-[14px] text-ink-3">Chargement…</p>
 }
 
-export function ErreurChargement({ erreur }) {
-  return <p role="alert" className="text-[14px] text-red-700">{erreur?.message || 'Chargement impossible.'}</p>
+/** Un nouvel essai peut aboutir : panne, surcharge, réponse illisible, coupure réseau. */
+function passager(erreur) {
+  const statut = erreur?.status
+  return !statut || statut >= 500 || statut === 408 || statut === 429
+}
+
+/**
+ * Une lecture ratée. Session expirée (401) : un lien vers la connexion
+ * closer. Panne passagère : « Réessayer », si la vue sait recharger.
+ */
+export function ErreurChargement({ erreur, onReessayer }) {
+  const sessionExpiree = erreur?.status === 401
+  return (
+    <div role="alert" className="space-y-3">
+      <p className="text-[14px] text-red-700">
+        {sessionExpiree ? 'Votre session a expiré. Reconnectez-vous pour continuer.' : erreur?.message || 'Chargement impossible.'}
+      </p>
+      {sessionExpiree ? (
+        <a href="/closer/connexion" className="inline-flex items-center h-9 px-4 rounded-full bg-cta hover:bg-cta-hover text-white text-[14px]">
+          Se reconnecter
+        </a>
+      ) : (
+        onReessayer && passager(erreur) && (
+          <button
+            type="button"
+            onClick={() => onReessayer()}
+            className="h-9 px-4 rounded-full border border-border-cream bg-white hover:bg-cream text-[14px] text-ink"
+          >
+            Réessayer
+          </button>
+        )
+      )}
+    </div>
+  )
 }
