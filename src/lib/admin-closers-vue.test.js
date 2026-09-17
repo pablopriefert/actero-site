@@ -9,6 +9,7 @@ import { CommissionsAPayer } from '../components/admin/closers/CommissionsAPayer
 import { Historique } from '../components/admin/closers/Historique'
 import { Attributions, ResultatRejeu } from '../components/admin/closers/Attributions'
 import { FormulaireSaisie, SaisieManuelle } from '../components/admin/closers/SaisieManuelle'
+import { ListeClosers } from '../components/admin/closers/ListeClosers'
 import {
   alerteRemboursement, appelAdmin, centimesSaisis, eurosDeLaGrille, lignesDeNote, messageDErreur, moisLisible,
   rejouerFacturesStripe, resumeRejeu,
@@ -388,5 +389,25 @@ describe('saisie manuelle', () => {
 
     const horsGrille = renderToStaticMarkup(h(FormulaireSaisie, { client: { ...clientShopify, plan: 'enterprise' }, mois: '2026-09', onFait: async () => {} }))
     expect(horsGrille).toContain('Hors grille (Enterprise) : saisissez le montant convenu.')
+  })
+})
+
+describe('liste des closers (rendu)', () => {
+  it('affiche les cinq totaux par statut, dans l’ordre, et les coordonnées', () => {
+    const { html, texte } = rendre(ListeClosers, [[['admin-closers'], {
+      closers: [{
+        id: 'clo_1', prenom: 'Léa', nom: 'Martin', email: 'lea@exemple.fr', telephone: '0600000000', siret: '12345678900011',
+        titulaire_iban: 'Léa Martin', iban_masque: 'FR76 •••• 0189', code: 'LEA', statut: 'actif', inscrit_le: '2026-09-01T09:00:00Z',
+        profil_complet: true, nb_clients: 2,
+        totaux: { a_valider: 10000, validee: 25000, payee: 60000, refusee: 2500, annulee: 1250 },
+      }],
+      clients: [],
+      mois_courant: '2026-09',
+    }]])
+    expect(texte).toMatch(/À valider Validées Payées Refusées Annulées Profil Statut/)
+    expect(texte).toMatch(/100 € 250 € 600 € 25 € 12,50 €/)
+    expect(texte).toContain('0600000000 · SIRET 12345678900011')
+    expect(texte).toContain('Suspendre')
+    expect(html.match(/<th /g)).toHaveLength(11)
   })
 })
