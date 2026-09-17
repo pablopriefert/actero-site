@@ -191,7 +191,8 @@ async function handler(req, res) {
         brand_name,
         has_referral: !!referral_code,
       }).then((r) => {
-        if (r.sent) console.log(`[verify-code] welcome email sent to ${normalizedEmail}`)
+        // Jamais l'adresse dans les journaux : l'identifiant interne suffit.
+        if (r.sent) console.log(`[verify-code] e-mail de bienvenue envoyé (client ${clientId})`)
       })
     } catch (welcomeErr) {
       console.error('[verify-code] welcome email error:', welcomeErr.message)

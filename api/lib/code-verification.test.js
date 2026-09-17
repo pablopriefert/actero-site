@@ -323,6 +323,35 @@ describe.each(['closer', 'marchand'])('le mot de passe chiffré ne survit pas au
   })
 })
 
+describe.each(['closer', 'marchand'])('journaux sans adresse e-mail — parcours %s', (parcours) => {
+  const journaux = () => [console.log, console.warn, console.error]
+    .flatMap((f) => f.mock.calls)
+    .map((args) => args.map((a) => (a instanceof Error ? `${a.message} ${a.stack}` : typeof a === 'string' ? a : JSON.stringify(a))).join(' '))
+  const panne = { code: 'XX000', message: 'panne' }
+  const scenarios = {
+    'compte créé': { statut: 200 },
+    'adresse déjà prise': { statut: 409, comptes: { x: { id: 'u-existant', email: EMAIL } } },
+    'écriture impossible après le compte': {
+      statut: 500,
+      erreurs: parcours === 'closer'
+        ? { closers: ({ operation }) => (operation === 'insert' ? panne : null) }
+        : { clients: ({ operation }) => (operation === 'insert' ? panne : null) },
+    },
+  }
+
+  it.each(Object.keys(scenarios))('%s : ni l’envoi ni la vérification n’écrivent l’adresse', async (scenario) => {
+    const { statut, ...options } = scenarios[scenario]
+    monde(options)
+    expect((await appeler(routes[parcours].envoyer, { methode: 'POST', corps: corpsEnvoi[parcours] })).statusCode).toBe(200)
+    const code = h.courriels[0].subject.slice(0, 6)
+    const res = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code } })
+    expect(res.statusCode).toBe(statut)
+    // L'e-mail de bienvenue du parcours marchand part sans être attendu.
+    await new Promise((r) => setTimeout(r, 0))
+    expect(journaux().filter((ligne) => /cible@ex\.com/i.test(ligne))).toEqual([])
+  })
+})
+
 describe('le mot de passe en clair d’un ancien code marchand ne survit pas non plus', () => {
   it('payload.password est retiré avec used_at', async () => {
     const ancien = ligneDeCode({ id: 'v', parcours: 'marchand' })
