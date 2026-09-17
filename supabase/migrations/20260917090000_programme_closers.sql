@@ -13,6 +13,11 @@
 -- REVOKE n'est pas décoratif : les privilèges par défaut du schéma public
 -- accordent tout à anon et authenticated sur chaque nouvelle table.
 
+-- Base en production : si un verrou sur `clients` ne s'obtient pas en 5
+-- secondes, la migration échoue au lieu de faire attendre tout le site derrière
+-- elle. On la relance simplement plus tard.
+set lock_timeout = '5s';
+
 -- 1. closers ------------------------------------------------------------------
 
 create table if not exists public.closers (
@@ -27,6 +32,9 @@ create table if not exists public.closers (
   -- Chiffré par encryptToken (api/lib/crypto.js). La contrainte refuse un IBAN
   -- écrit en clair, quelle que soit la route qui se tromperait.
   iban_chiffre   text check (iban_chiffre is null or iban_chiffre like 'enc:v1:%'),
+  -- Posée à chaque changement d'IBAN : l'admin voit qu'un IBAN vient de
+  -- changer avant de virer (compte volé, virement détourné).
+  iban_modifie_le timestamptz,
   code           text not null unique check (code ~ '^ACT-[A-Z0-9]{5}$'),
   statut         text not null default 'actif' check (statut in ('actif', 'suspendu')),
   created_at     timestamptz not null default now(),
@@ -63,6 +71,9 @@ create table if not exists public.closer_commissions (
   -- n'est pas bloqué par elle.
   client_id           uuid references public.clients (id) on delete set null,
   montant_centimes    integer not null check (montant_centimes > 0),
+  -- Ce que le client a réellement payé sur la facture (Stripe) : affiché dans
+  -- la file de validation, et signalé quand il est inférieur à la commission.
+  montant_facture_centimes integer check (montant_facture_centimes is null or montant_facture_centimes >= 0),
   plan                text not null check (plan in ('starter', 'pro', 'enterprise')),
   formule             text not null check (formule in ('mensuel', 'trimestriel', 'annuel')),
   type                text not null check (type in ('mensuelle', 'unique')),
@@ -158,3 +169,5 @@ begin
   return new;
 end;
 $$;
+
+reset lock_timeout;

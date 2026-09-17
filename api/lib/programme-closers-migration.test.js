@@ -40,6 +40,12 @@ describe('migration programme closers — la forme', () => {
     expect(FICHIERS).toHaveLength(1)
   })
 
+  it('attend un verrou 5 secondes au plus, puis échoue au lieu de bloquer le site', () => {
+    expect(CODE).toMatch(/^set lock_timeout = '5s';$/m)
+    expect(CODE.indexOf("set lock_timeout = '5s';")).toBeLessThan(CODE.indexOf('alter table public.clients'))
+    expect(CODE).toMatch(/^reset lock_timeout;\s*$/m)
+  })
+
   it('additive : aucune ligne existante modifiée ou supprimée, aucune table retirée', () => {
     expect(CODE).not.toMatch(/\bupdate\s+public\./i)
     expect(CODE).not.toMatch(/\bdelete\s+from\b/i)
@@ -78,12 +84,20 @@ describe('migration programme closers — les contraintes qui portent les règle
     expect(corpsDeTable('closers')).not.toMatch(/^\s*iban\s/m)
   })
 
+  it('la date du dernier changement d’IBAN est gardée, pour prévenir avant un virement', () => {
+    expect(corpsDeTable('closers')).toMatch(/\biban_modifie_le\s+timestamptz,/)
+  })
+
   it('source_key est unique : une facture rejouée ne crée qu’une commission', () => {
     expect(corpsDeTable('closer_commissions')).toMatch(/source_key\s+text not null unique/)
   })
 
   it('montant_centimes est strictement positif', () => {
     expect(corpsDeTable('closer_commissions')).toMatch(/montant_centimes\s+integer not null check \(montant_centimes > 0\)/)
+  })
+
+  it('le montant payé par le client est gardé, jamais négatif', () => {
+    expect(corpsDeTable('closer_commissions')).toMatch(/montant_facture_centimes\s+integer check \(montant_facture_centimes is null or montant_facture_centimes >= 0\)/)
   })
 
   it('les statuts sont ceux de la spec', () => {
