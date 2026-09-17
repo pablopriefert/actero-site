@@ -105,7 +105,12 @@ export function reponseTranchee(status) {
   return status >= 400 && status < 500
 }
 
-/** Ce que le serveur a répondu pendant cette vie de page (voir campagne.js). */
+/**
+ * Ce que le serveur a répondu pendant cette vie de page (voir campagne.js) :
+ * `{ compte, code, rattache }`. Il ne ressert qu'au même compte, pour le même
+ * code encore présent — jamais sans code, jamais à un autre compte connecté
+ * ensuite dans le même onglet.
+ */
 let adjuge = null
 
 /** Remet la mémoire à zéro. Réservé aux tests. */
@@ -120,12 +125,13 @@ export function reinitialiserAdjudicationCloser() {
  * `true` si le client vient d'être rattaché.
  */
 export async function presenterCodeCloser(supabase) {
-  if (adjuge !== null) return adjuge
   const code = codeCloserCourant()
   if (!code) return false
   try {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session?.access_token) return false
+    const compte = session.user?.id ?? session.access_token
+    if (adjuge?.compte === compte && adjuge.code === code) return adjuge.rattache
     const res = await fetch('/api/closer/attribuer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
@@ -135,9 +141,9 @@ export async function presenterCodeCloser(supabase) {
     // — erreur passagère ou coupure — on le garde pour la prochaine fois.
     if (!reponseTranchee(res.status)) return false
     const data = res.status === 200 ? await res.json() : null
-    adjuge = !!data?.rattache
+    adjuge = { compte, code, rattache: !!data?.rattache }
     oublierCodeCloser()
-    return adjuge
+    return adjuge.rattache
   } catch {
     return false
   }

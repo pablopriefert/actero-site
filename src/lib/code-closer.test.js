@@ -170,12 +170,52 @@ describe('présenter le code, puis le dépenser', () => {
     expect(globalThis.fetch).not.toHaveBeenCalled()
   })
 
-  it('une seconde présentation dans la même page rend la même réponse, sans rappeler', async () => {
+  const sessionDe = (id) => ({ auth: { getSession: async () => ({ data: { session: { access_token: `jeton-${id}`, user: { id } } } }) } })
+
+  it('après la décision le code est oublié : une seconde présentation ne rend rien, sans rappeler', async () => {
     memoriserCodeCloser('ACT-AAAAA')
     repond(200, { ok: true, rattache: true })
-    expect(await presenterCodeCloser(supabaseConnecte)).toBe(true)
-    expect(await presenterCodeCloser(supabaseConnecte)).toBe(true)
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(true)
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(false)
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('code toujours là (effacement impossible) : même compte, même code, même réponse sans rappeler', async () => {
+    memoriserCodeCloser('ACT-AAAAA')
+    repond(200, { ok: true, rattache: true })
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(true)
+    installerCookies('closer_code=ACT-AAAAA')
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(true)
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('le verdict d’un compte ne sert jamais à un autre compte', async () => {
+    memoriserCodeCloser('ACT-AAAAA')
+    repond(200, { ok: true, rattache: true })
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(true)
+    installerCookies('closer_code=ACT-AAAAA')
+    repond(200, { ok: true, rattache: false })
+    expect(await presenterCodeCloser(sessionDe('u-b'))).toBe(false)
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+    expect(globalThis.fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer jeton-u-b')
+  })
+
+  it('sans code, le verdict mémorisé n’est pas rendu', async () => {
+    memoriserCodeCloser('ACT-AAAAA')
+    repond(200, { ok: true, rattache: true })
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(true)
+    installerCookies('')
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(false)
+  })
+
+  it('un autre code pour le même compte est présenté au serveur', async () => {
+    memoriserCodeCloser('ACT-AAAAA')
+    repond(200, { ok: true, rattache: false })
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(false)
+    installerCookies('closer_code=ACT-BBBBB')
+    repond(200, { ok: true, rattache: true })
+    expect(await presenterCodeCloser(sessionDe('u-a'))).toBe(true)
+    expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body)).toEqual({ code: 'ACT-BBBBB' })
   })
 
   it('oublierCodeCloser efface vraiment', () => {
