@@ -39,9 +39,18 @@ import { join } from 'node:path'
  * Sans ça, cette garde a signalé son propre correctif — le commentaire qui
  * explique le défaut cite forcément l'URL fautive. Quatrième fois cette
  * semaine qu'une garde se laisse berner par du texte.
+ *
+ * Les chaînes d'une ligne sont lues AVANT les commentaires, et gardées. La
+ * première version retirait d'abord tout ce qui allait de `/*` à `*\/` : dans
+ * ClientIntegrationsView.jsx, le commentaire `// … /api/integrations/*\/callback`
+ * ouvrait un faux bloc qui avalait soixante-dix lignes de vrai code, un
+ * `fetch` compris. Une chaîne comme `accept="image/*"` faisait de même.
  */
 function sansCommentaires(src) {
-  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+  return src.replace(
+    /(['"`])(?:\\.|(?!\1)[^\\\n])*\1|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+    (jeton, guillemet) => (guillemet ? jeton : ''),
+  )
 }
 
 const CONFIG = sansCommentaires(readFileSync('src/config/integrations.js', 'utf8'))
@@ -84,24 +93,6 @@ describe('les boutons d’intégration mènent à une route qui existe', () => {
     ).toEqual([])
   })
 
-  it('aucun chemin d’API ne porte d’accent', () => {
-    // La cause exacte du 11 septembre. Le dossier `api/` est en ASCII ; un
-    // accent dans l'URL est encodé par le navigateur et ne correspond plus à
-    // rien. La règle est plus simple à tenir que la liste des routes.
-    const accentues = []
-    for (const f of ['src/config/integrations.js', 'src/components/client/ClientIntegrationsView.jsx']) {
-      const src = sansCommentaires(readFileSync(f, 'utf8'))
-      for (const m of src.matchAll(/['"`](\/api\/[^'"`\s]*[^\x20-\x7E][^'"`\s]*)/g)) {
-        accentues.push(`${f} → ${m[1]}`)
-      }
-    }
-    expect(
-      accentues,
-      'Chemin d’API contenant un caractère non ASCII — il sera encodé par le '
-      + 'navigateur et ne correspondra à aucune fonction :\n  ' + accentues.join('\n  '),
-    ).toEqual([])
-  })
-
   it('« Déconnecter » regarde la réponse avant de se déclarer satisfait', () => {
     // Le second défaut du même écran : la route était fausse ET la réponse
     // ignorée. La fenêtre se fermait, le marchand croyait avoir déconnecté, la
@@ -125,5 +116,70 @@ describe('les boutons d’intégration mènent à une route qui existe', () => {
       + 'réponse normale, la fenêtre se ferme, et le marchand croit avoir '
       + 'déconnecté une intégration toujours active.',
     ).toMatch(/\bres\.ok\b|\bresponse\.ok\b/)
+  })
+})
+
+/**
+ * Chaque chemin d'API écrit en toutes lettres dans le code, sans sa chaîne de
+ * requête ni ce qui suit un `${`.
+ */
+function cheminsLitteraux(src) {
+  return [...sansCommentaires(src).matchAll(/(['"`])(\/api\/(?:(?!\1)[^\n])*)\1/g)]
+    .map((m) => m[2].split(/[?#]|\$\{/)[0])
+}
+
+/** Ceux qui sortent de l'alphabet des dossiers de api/ : minuscules, chiffres, `/`, `_`, `-`. */
+const horsCharte = (src) => cheminsLitteraux(src).filter((c) => !/^\/api\/[a-z0-9/_-]*$/.test(c))
+
+function fichiersDuNavigateur(dir = 'src', acc = []) {
+  for (const e of readdirSync(dir)) {
+    if (e === 'node_modules' || e.startsWith('.')) continue
+    const chemin = join(dir, e)
+    if (statSync(chemin).isDirectory()) fichiersDuNavigateur(chemin, acc)
+    else if (/\.(jsx?|tsx?|mjs)$/.test(e) && !e.includes('.test.')) acc.push(chemin)
+  }
+  return acc
+}
+
+describe('aucun chemin d’API de src/ ne sort de [a-z0-9/_-]', () => {
+  // La cause exacte du 11 septembre, revenue le 17 dans SignupPage.jsx :
+  // « Renvoyer le code » appelait `send-vérification-code`, 404 en production.
+  // Le dossier `api/` est en ASCII ; un accent (ou une espace) dans l'URL est
+  // encodé par le navigateur et ne correspond plus à rien. La règle couvre
+  // désormais tout `src/`, pas deux fichiers : la faute est revenue ailleurs.
+
+  it('la règle attrape l’URL accentuée de « Renvoyer le code », et elle seule', () => {
+    const exemple = [
+      'await fetch("/api/auth/send-vérification-code", { method: "POST" })',
+      "fetch('/api/auth/send-verification-code')",
+      'fetch(`/api/closer/${chemin}?id=${id}`)',
+      "const url = '/api/admin/partner-tokens?id=' + id",
+      "fetch('/api/mauvais chemin')",
+      '// fetch("/api/commentaire-é") : un commentaire ne compte pas',
+      '<input accept="image/*" /> {/* bloc */} fetch("/api/apres-le-bloc-é")',
+    ].join('\n')
+    expect(horsCharte(exemple)).toEqual([
+      '/api/auth/send-vérification-code',
+      '/api/mauvais chemin',
+      '/api/apres-le-bloc-é',
+    ])
+  })
+
+  it('tous les chemins littéraux de src/ respectent la règle', () => {
+    const fichiers = fichiersDuNavigateur()
+    let lus = 0
+    const fautifs = []
+    for (const f of fichiers) {
+      const src = readFileSync(f, 'utf8')
+      lus += cheminsLitteraux(src).length
+      for (const c of horsCharte(src)) fautifs.push(`${f} → ${c}`)
+    }
+    // Sans ça, une lecture vide passerait pour un code propre.
+    expect(lus, 'aucun chemin d’API lu dans src/').toBeGreaterThan(150)
+    expect(
+      fautifs,
+      'Chemin d’API hors de [a-z0-9/_-] — il sera encodé par le navigateur et '
+      + 'ne correspondra à aucune fonction :\n  ' + fautifs.join('\n  '),
+    ).toEqual([])
   })
 })
