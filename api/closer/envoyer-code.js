@@ -64,8 +64,11 @@ async function handler(req, res) {
     return res.status(500).json({ error: 'erreur_interne', message: 'Erreur serveur, réessayez.' })
   }
 
+  // Resend 6 rend `{ data, error }` sans lever : une adresse refusée ou une clé
+  // invalide ne passe pas par le catch. Seule une coupure réseau lève.
+  let envoi
   try {
-    await new Resend(process.env.RESEND_API_KEY).emails.send({
+    envoi = await new Resend(process.env.RESEND_API_KEY).emails.send({
       from: 'Actero <contact@actero.fr>',
       to: adresse,
       subject: `${code} — votre code closer Actero`,
@@ -73,7 +76,11 @@ async function handler(req, res) {
       replyTo: 'contact@actero.fr',
     })
   } catch (err) {
-    console.error('[closer/envoyer-code] Resend :', err.message)
+    envoi = { error: err }
+  }
+  if (envoi?.error) {
+    // Le nom seulement : le message de Resend peut citer l'adresse.
+    console.error('[closer/envoyer-code] e-mail non envoyé :', envoi.error.name || 'erreur Resend')
     return res.status(502).json({ error: 'email_non_envoye', message: 'L’e-mail n’a pas pu partir. Réessayez.' })
   }
   return res.status(200).json({ ok: true, expires_in: DUREE_CODE_MS / 1000 })

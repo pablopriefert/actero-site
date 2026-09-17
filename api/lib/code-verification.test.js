@@ -14,14 +14,26 @@ import { empreinteCode, codeCorrespond, TYPE_CODE_CLOSER, ESSAIS_MAX } from './c
  * au nom d'une adresse qui n'est pas la sienne.
  */
 
-const h = vi.hoisted(() => ({ supabase: null, courriels: [] }))
+const h = vi.hoisted(() => ({ supabase: null, courriels: [], resend: null }))
 
 vi.mock('./sentry.js', () => ({ withSentry: (fn) => fn, captureError: () => {} }))
 vi.mock('@supabase/supabase-js', () => ({
   createClient: () => new Proxy({}, { get: (_, cle) => h.supabase[cle] }),
 }))
 vi.mock('resend', () => ({
-  Resend: function Resend() { return { emails: { send: async (courriel) => { h.courriels.push(courriel); return { id: 'e1' } } } } },
+  Resend: function Resend() {
+    return {
+      emails: {
+        send: async (courriel) => {
+          // Resend 6 rend `{ data, error }` sans lever ; une coupure réseau, elle, lève.
+          if (h.resend === 'exception') throw new Error('coupure réseau')
+          if (h.resend === 'erreur') return { data: null, error: { name: 'validation_error', message: 'adresse refusée' } }
+          h.courriels.push(courriel)
+          return { data: { id: 'e1' }, error: null }
+        },
+      },
+    }
+  },
 }))
 // Chargés par la route marchand APRÈS la création du compte.
 vi.mock('./welcome-email.js', () => ({ sendWelcomeEmail: async () => ({ sent: true }) }))
@@ -93,6 +105,7 @@ const lecturesDeCodes = (sb) => sb.journal.filter((j) => j.table === 'email_veri
 
 beforeEach(() => {
   h.courriels = []
+  h.resend = null
   process.env.RESEND_API_KEY = 're_test'
   vi.spyOn(console, 'error').mockImplementation(() => {})
   vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -362,5 +375,24 @@ describe('le mot de passe en clair d’un ancien code marchand ne survit pas non
     expect(res.statusCode).toBe(200)
     expect(comptesCrees(sb)[0].attributs.password).toBe('ancien-motdepasse')
     expect(sb.base.email_verification_codes[0].payload).not.toHaveProperty('password')
+  })
+})
+
+describe.each(['closer', 'marchand'])('un e-mail que Resend n’a pas envoyé n’est pas annoncé comme parti — parcours %s', (parcours) => {
+  it.each(['erreur', 'exception'])('Resend rend une %s : 502, jamais « code envoyé »', async (mode) => {
+    monde()
+    h.resend = mode
+    const res = await appeler(routes[parcours].envoyer, { methode: 'POST', corps: corpsEnvoi[parcours] })
+    expect(res.statusCode).toBe(502)
+    expect(res.body.ok ?? res.body.success).toBeUndefined()
+    expect(h.courriels).toHaveLength(0)
+  })
+
+  it('le journal ne cite pas l’adresse', async () => {
+    monde()
+    h.resend = 'erreur'
+    await appeler(routes[parcours].envoyer, { methode: 'POST', corps: corpsEnvoi[parcours] })
+    const lignes = console.error.mock.calls.flat().map(String).join(' ')
+    expect(lignes).not.toMatch(/ex\.com/i)
   })
 })

@@ -86,8 +86,13 @@ async function handler(req, res) {
 
     // Send email
     if (resend) {
+      // Resend 6 rend `{ data, error }` sans lever ; seule une coupure réseau
+      // lève. Annoncer « code envoyé » quand rien n'est parti laissait le
+      // prospect attendre un e-mail qui ne viendrait pas : il n'a aucun autre
+      // moyen de vérifier son adresse.
+      let envoi
       try {
-        await resend.emails.send({
+        envoi = await resend.emails.send({
           from: 'Actero <contact@actero.fr>',
           to: email.trim(),
           subject: `${code} — Votre code de vérification Actero`,
@@ -95,8 +100,12 @@ async function handler(req, res) {
           replyTo: 'contact@actero.fr',
         })
       } catch (err) {
-        console.error('[send-verification-code] Resend error:', err.message)
-        // Still return success — code is stored and user can still verify via another means
+        envoi = { error: err }
+      }
+      if (envoi?.error) {
+        // Le nom seulement : le message de Resend peut citer l'adresse.
+        console.error('[send-verification-code] e-mail non envoyé :', envoi.error.name || 'erreur Resend')
+        return res.status(502).json({ error: 'L’e-mail n’a pas pu partir. Réessayez dans un instant.' })
       }
     } else {
       // Never log the code or the email — verification codes in Vercel logs
