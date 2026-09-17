@@ -126,8 +126,22 @@ function etapeDeLObjet(event, objet) {
       const raison = objet.billing_reason
       if (typeof raison !== 'string' || !Object.hasOwn(ETAPE_DE_LA_FACTURE, raison)) return null
       if (!Number.isInteger(objet.amount_paid) || objet.amount_paid <= 0) return null
-      const type = ETAPE_DE_LA_FACTURE[raison]
       const details = formuleDeLaFacture(objet)
+      const abonnement = abonnementDeLaFacture(objet)
+      // Le premier paiement réel d'un abonnement est son démarrage, même quand
+      // il arrive au premier renouvellement : un mois offert (parrainage,
+      // campagne) facture d'abord 0 €, et ce client n'aurait sinon jamais
+      // « S'est abonné ». La clé par abonnement n'écrit ce démarrage qu'une
+      // fois ; ensuite, un renouvellement retombe sur `renouvellement_paye`.
+      if (abonnement && (raison === 'subscription_create' || raison === 'subscription_cycle')) {
+        return {
+          type: 'abonnement_demarre',
+          details: { ...details, plateforme: 'stripe' },
+          sourceKey: `demarre:stripe:${abonnement}`,
+          repli: raison === 'subscription_cycle' ? { type: 'renouvellement_paye', details } : null,
+        }
+      }
+      const type = ETAPE_DE_LA_FACTURE[raison]
       return { type, details: type === 'abonnement_demarre' ? { ...details, plateforme: 'stripe' } : details }
     }
 
@@ -172,5 +186,14 @@ export function etapeDepuisEvenementStripe(event) {
   if (typeof event?.id !== 'string' || !event.id || !objet || typeof objet !== 'object') return null
   const etape = etapeDeLObjet(event, objet)
   if (!etape) return null
-  return { ...etape, sourceKey: cleEvenementStripe(event), survenuLe: event.created }
+  const commun = { sourceKey: cleEvenementStripe(event), survenuLe: event.created }
+  const { repli, ...principale } = etape
+  return { ...commun, ...principale, ...(repli ? { repli: { ...commun, ...repli } } : {}) }
+}
+
+/** L'abonnement d'une facture : forme clover (`parent`), puis forme acacia. */
+function abonnementDeLaFacture(facture) {
+  const brut = facture?.parent?.subscription_details?.subscription ?? facture?.subscription
+  const id = typeof brut === 'string' ? brut : brut?.id
+  return typeof id === 'string' && id ? id : null
 }

@@ -107,8 +107,10 @@ const EVENEMENTS = {
 }
 
 const ATTENDU = {
-  abonnementDemarre: { type: 'abonnement_demarre', details: { plan: 'pro', formule: 'annuel', plateforme: 'stripe' } },
-  renouvellementAcacia: { type: 'renouvellement_paye', details: {} },
+  // Le démarrage est unique par abonnement : sa clé est celle de l'abonnement.
+  abonnementDemarre: { type: 'abonnement_demarre', details: { plan: 'pro', formule: 'annuel', plateforme: 'stripe' }, source_key: 'demarre:stripe:sub_1' },
+  // Premier paiement réel de l'abonnement, même au renouvellement (mois offert) : c'est son démarrage.
+  renouvellementAcacia: { type: 'abonnement_demarre', details: { plateforme: 'stripe' }, source_key: 'demarre:stripe:sub_1' },
   paiementEchoue: { type: 'paiement_echoue', details: {} },
   paiementAbandonne: { type: 'paiement_abandonne', details: { plan: 'pro', formule: 'annuel' } },
   resiliationProgrammee: { type: 'resiliation_programmee', details: {} },
@@ -148,8 +150,8 @@ describe('chaque événement écrit la bonne étape', () => {
       closer_id: 'k1',
       client_id: CLIENT,
       visite_id: null,
-      ...ATTENDU[nom],
       source_key: `stripe:${h.event.id}`,
+      ...ATTENDU[nom],
       survenu_le: new Date(CREE_LE * 1000).toISOString(),
     })
   })
@@ -159,6 +161,30 @@ describe('chaque événement écrit la bonne étape', () => {
     for (const nom of Object.keys(EVENEMENTS)) await recevoir(...EVENEMENTS[nom]())
     expect(sb.base.closer_evenements).toHaveLength(Object.keys(EVENEMENTS).length)
     expect(JSON.stringify(sb.base.closer_evenements)).not.toMatch(/395010|39900|10000|cus_|@/)
+  })
+
+  it('mois offert : le premier vrai paiement est le démarrage, le suivant un renouvellement', async () => {
+    const sb = monde()
+    await recevoir(...EVENEMENTS.renouvellementAcacia())
+    await recevoir(...EVENEMENTS.renouvellementAcacia())
+    expect(sb.base.closer_evenements.map((e) => [e.type, e.source_key])).toEqual([
+      ['abonnement_demarre', 'demarre:stripe:sub_1'],
+      ['renouvellement_paye', `stripe:${h.event.id}`],
+    ])
+  })
+
+  it('un abonnement démarré à la souscription : le renouvellement suivant reste un renouvellement', async () => {
+    const sb = monde()
+    await recevoir(...EVENEMENTS.abonnementDemarre())
+    await recevoir(...EVENEMENTS.renouvellementAcacia())
+    expect(sb.base.closer_evenements.map((e) => e.type)).toEqual(['abonnement_demarre', 'renouvellement_paye'])
+  })
+
+  it('une seconde facture de souscription du même abonnement n’écrit rien de plus', async () => {
+    const sb = monde()
+    await recevoir(...EVENEMENTS.abonnementDemarre())
+    await recevoir(...EVENEMENTS.abonnementDemarre())
+    expect(sb.base.closer_evenements).toHaveLength(1)
   })
 
   it('un événement rejoué n’écrit pas deux fois', async () => {

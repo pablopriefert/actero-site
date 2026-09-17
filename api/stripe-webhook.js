@@ -214,7 +214,11 @@ async function noterEtapeCloser(event, client) {
     if (!etape) return;
     const clientId = typeof client === 'function' ? await client() : client;
     if (!clientId) return;
-    await enregistrerEvenementCloser(supabase, { clientId, ...etape });
+    const ecrite = await enregistrerEvenementCloser(supabase, { clientId, ...etape });
+    // Un abonnement déjà démarré : ce paiement est un renouvellement.
+    if (ecrite.raison === 'deja_enregistre' && etape.repli) {
+      await enregistrerEvenementCloser(supabase, { clientId, ...etape.repli });
+    }
   } catch (err) {
     console.warn('[CLOSER] fil d’activité : client illisible', { event_id: event?.id, event_type: event?.type, erreur: err?.code || err?.name || 'erreur' });
   }
