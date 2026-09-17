@@ -134,10 +134,15 @@ function MainRouter() {
   // Wire Sentry user context to Supabase auth state — any error captured
   // after this point is tagged with the current user id/email so we can tell
   // WHICH client hit the bug, not just "someone". Cleared on sign-out.
+  //
+  // Le même écouteur vide le cache React Query à la déconnexion, Sentry ou
+  // non : une déconnexion venue d'ailleurs (autre onglet, session expirée) ne
+  // doit pas laisser les données du compte précédent servir au suivant.
   useEffect(() => {
     if (isPortal) return;
-    if (!supabase || typeof window === "undefined" || !window.Sentry) return;
+    if (!supabase || typeof window === "undefined") return;
     const applyUser = (session) => {
+      if (!window.Sentry) return;
       if (session?.user) {
         window.Sentry.setUser({
           id: session.user.id,
@@ -148,7 +153,10 @@ function MainRouter() {
       }
     };
     supabase.auth.getSession().then(({ data }) => applyUser(data?.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => applyUser(session));
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") queryClient.clear();
+      applyUser(session);
+    });
     return () => sub?.subscription?.unsubscribe();
   }, [isPortal]);
 
@@ -164,7 +172,10 @@ function MainRouter() {
     window.scrollTo(0, 0);
   };
 
-  const handleLogout = async () => {
+  // La destination est fixée ici, jamais passée à l'appel : les pages
+  // branchent `onLogout` directement sur `onClick`, et l'événement du clic
+  // prendrait sa place.
+  const deconnecterVers = (destination) => async () => {
     // Reset Amplitude identity BEFORE signOut so any final queued events land on the
     // correct user, and subsequent anonymous browsing starts a fresh device id.
     resetUser();
@@ -177,8 +188,14 @@ function MainRouter() {
     if (supabase) {
       await supabase.auth.signOut();
     }
-    navigate("/");
+    // Après la déconnexion, pas avant : une requête relancée entre les deux
+    // remplirait de nouveau le cache avec la session sortante.
+    queryClient.clear();
+    navigate(destination);
   };
+  const handleLogout = deconnecterVers("/");
+  // Un closer qui se déconnecte retrouve la connexion closer, pas l'accueil marchand.
+  const handleLogoutCloser = deconnecterVers("/closer/connexion");
 
   if (isRouting) return null;
 
@@ -269,7 +286,7 @@ function MainRouter() {
   else if (currentRoute === "/closer/connexion") page = <CloserConnexionPage onNavigate={navigate} />;
   else if (currentRoute === "/closer/callback") page = <CloserCallbackPage onNavigate={navigate} />;
   else if (currentRoute === "/closer" || currentRoute.startsWith("/closer/")) {
-    page = <CloserEspacePage currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogout} />;
+    page = <CloserEspacePage currentRoute={currentRoute} onNavigate={navigate} onLogout={handleLogoutCloser} />;
   }
   // « /c/ » avec sa barre : ni /client, ni /cancel, ni /calculateur-gorgias.
   else if (currentRoute.startsWith("/c/")) page = <LienCloserPage code={currentRoute.slice("/c/".length)} />;
@@ -283,7 +300,7 @@ function MainRouter() {
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-[#716D5C] mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Page introuvable</h2>
-          <button onClick={() => navigate("/")} className="mt-4 text-[#003725] font-bold underline underline-offset-4">Retour a l'accueil</button>
+          <button onClick={() => navigate("/")} className="mt-4 text-[#003725] font-bold underline underline-offset-4">Retour à l'accueil</button>
         </div>
       </div>
     );
