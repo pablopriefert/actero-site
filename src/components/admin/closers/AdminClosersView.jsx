@@ -16,11 +16,20 @@ const ONGLETS = [
 /**
  * Section « Closers » de l'admin — premier écran du chantier C, dans le style
  * actuel (spec 2026-09-14-closers-espace-commissions-design.md).
+ *
+ * Toute la section est masquée dans les enregistrements de session : elle
+ * affiche des e-mails, des téléphones, des SIRET et l'IBAN révélé.
+ *   Amplitude : `amp-mask` (rejeu, texte des descendants compris) et
+ *               `data-amp-mask` (texte des clics capturés, descendants compris) ;
+ *   Sentry :    `sentry-mask`, masqué par défaut même avec `maskAllText: false`,
+ *               descendants compris (options par défaut de replayIntegration).
+ * Seul le texte est masqué, pas les attributs : aucune donnée personnelle dans
+ * un `title` ou un `aria-label`. Une fenêtre en portail sortirait du masque.
  */
 export function AdminClosersView() {
   const [onglet, setOnglet] = useState('closers')
   return (
-    <div className="space-y-6 font-sans text-ink">
+    <div className="amp-mask sentry-mask space-y-6 font-sans text-ink" data-amp-mask="true" data-sentry-mask="true">
       <header>
         <h1 className="text-[28px] font-normal">Closers</h1>
         <p className="mt-1 text-[14px] text-ink-3">Valider chaque commission, faire le virement, puis la marquer payée.</p>

@@ -44,6 +44,25 @@ describe('section Closers de l’admin', () => {
     }
   })
 
+  it('la section entière est masquée dans les enregistrements de session (Amplitude et Sentry)', () => {
+    const vue = lire('src/components/admin/closers/AdminClosersView.jsx')
+    expect(vue).toMatch(/return \(\s*<div className="amp-mask sentry-mask [^"]*" data-amp-mask="true" data-sentry-mask="true">/)
+  })
+
+  it('l’IBAN révélé porte son propre masque d’enregistrement', () => {
+    const code = lire('src/components/admin/closers/CommissionsAPayer.jsx')
+    expect(code).toMatch(/<p className="amp-mask sentry-mask [^"]*" data-amp-mask="true" data-sentry-mask="true">\s*\{iban\.iban\}/)
+  })
+
+  it.each(FICHIERS)('%s ne met aucune donnée personnelle dans un attribut (non masqué)', (fichier) => {
+    expect(lire(fichier)).not.toMatch(/(title|aria-label|placeholder|alt)=\{[^}]*(email|iban|telephone|siret)/i)
+  })
+
+  it('aucune configuration globale ne démasque ce que la section masque', () => {
+    expect(lire('src/main.jsx')).not.toMatch(/unmask/i)
+    expect(lire('src/lib/analytics.ts')).not.toMatch(/unmask/i)
+  })
+
   it('l’admin route /admin/closers et l’affiche dans la barre latérale', () => {
     const admin = lire('src/pages/AdminDashboard.jsx')
     expect(admin).toMatch(/if \(route === "\/admin\/closers"\) return "closers";/)

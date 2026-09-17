@@ -5,7 +5,12 @@ import { montant } from '../../../lib/affichage-closer'
 import { Chargement, ErreurChargement } from '../../closer/ui'
 import { useToast } from '../../ui/Toast'
 
-/** Révèle l'IBAN d'un closer à la demande ; chaque lecture est journalisée côté serveur. */
+/**
+ * Révèle l'IBAN d'un closer à la demande ; chaque lecture est journalisée côté
+ * serveur. L'IBAN révélé porte son propre masque d'enregistrement, en plus de
+ * celui de la section (AdminClosersView) : il reste masqué si ce bloc est
+ * affiché ailleurs.
+ */
 function IbanARevele({ closerId }) {
   const toast = useToast()
   const [iban, setIban] = useState(null)
@@ -22,7 +27,7 @@ function IbanARevele({ closerId }) {
   }
   if (iban) {
     return (
-      <p className="font-mono text-[14px] text-ink break-all">
+      <p className="amp-mask sentry-mask font-mono text-[14px] text-ink break-all" data-amp-mask="true" data-sentry-mask="true">
         {iban.iban} <span className="font-sans text-ink-3">· {iban.titulaire}</span>
       </p>
     )
