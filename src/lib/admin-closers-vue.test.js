@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { FileCommissions } from '../components/admin/closers/FileCommissions'
 import { CommissionsAPayer } from '../components/admin/closers/CommissionsAPayer'
+import { Historique } from '../components/admin/closers/Historique'
 import {
   alerteRemboursement, appelAdmin, lignesDeNote, messageDErreur, moisLisible, rejouerFacturesStripe, resumeRejeu,
 } from './admin-closers'
@@ -25,9 +26,9 @@ const FICHIERS = readdirSync(DOSSIER).filter((f) => /\.jsx?$/.test(f)).map((f) =
 const VUES = FICHIERS.filter((f) => /^[A-Z].*\.jsx$/.test(f.split('/').pop()))
 
 describe('section Closers de l’admin', () => {
-  it('ses six vues existent', () => {
+  it('ses sept vues existent', () => {
     expect(VUES.map((f) => f.split('/').pop()).sort()).toEqual([
-      'AdminClosersView.jsx', 'Attributions.jsx', 'CommissionsAPayer.jsx', 'FileCommissions.jsx', 'ListeClosers.jsx', 'SaisieManuelle.jsx',
+      'AdminClosersView.jsx', 'Attributions.jsx', 'CommissionsAPayer.jsx', 'FileCommissions.jsx', 'Historique.jsx', 'ListeClosers.jsx', 'SaisieManuelle.jsx',
     ])
   })
 
@@ -256,5 +257,46 @@ describe('files « À valider » et « À payer » (rendu)', () => {
     }]])
     expect(texte).not.toContain('Alerte avant virement')
     expect(texte).toContain('Révéler l’IBAN')
+  })
+})
+
+describe('onglet « Historique » (rendu)', () => {
+  const historique = (payees, refusees, annulees) => [
+    [['admin-closer-commissions', 'payee'], payees],
+    [['admin-closer-commissions', 'refusee'], refusees],
+    [['admin-closer-commissions', 'annulee'], annulees],
+  ]
+
+  it('réunit payées, refusées et annulées, la plus récente d’abord, avec la note complète et la coupure', () => {
+    const { texte } = rendre(Historique, historique(
+      { commissions: [commission({ id: 'p1', statut: 'payee', boutique: 'Boutique Payée', payee_at: '2026-09-10T09:00:00Z', note: 'Saisie Shopify\nFacture remboursée après paiement', signaux: [] })], tronque: true },
+      { commissions: [commission({ id: 'r1', statut: 'refusee', boutique: 'Boutique Refusée', created_at: '2026-09-12T09:00:00Z', note: 'Première note\nClient parti au bout d’une semaine', montant_facture_centimes: null })], tronque: false },
+      { commissions: [commission({ id: 'a1', statut: 'annulee', boutique: 'Boutique Annulée', created_at: '2026-08-01T09:00:00Z', note: 'Facture remboursée par le client' })], tronque: false },
+    ))
+    expect(texte).toContain('Facture remboursée après paiement')
+    expect(texte).toContain('Client parti au bout d’une semaine')
+    expect(texte).toContain('Première note')
+    expect(texte).toContain('Plus de 500 commissions « Payée »')
+    expect(texte).toMatch(/Tout 3 .*Payées 1 .*Refusées 1 .*Annulées 1/)
+    expect(texte).toContain('Total : 300 €')
+    const ordre = ['Boutique Refusée', 'Boutique Payée', 'Boutique Annulée'].map((b) => texte.indexOf(b))
+    expect(ordre).toEqual([...ordre].sort((a, b) => a - b))
+    expect(texte).toContain('Payée le 10 sept. 2026')
+    expect(texte).toContain('Créée le 12 sept. 2026')
+  })
+
+  it('le badge de remboursement ne marque que la commission payée puis remboursée', () => {
+    const { html } = rendre(Historique, historique(
+      { commissions: [commission({ id: 'p1', statut: 'payee', note: 'Remboursement partiel de 10,00 € par le client' }), commission({ id: 'p2', statut: 'payee', note: 'RAS' })], tronque: false },
+      { commissions: [], tronque: false },
+      { commissions: [commission({ id: 'a1', statut: 'annulee', note: 'Facture remboursée par le client' })], tronque: false },
+    ))
+    expect(html.match(/bg-red-50/g)).toHaveLength(1)
+    expect(html).toContain('Facture remboursée en partie')
+  })
+
+  it('un historique vide le dit', () => {
+    const vide = { commissions: [], tronque: false }
+    expect(rendre(Historique, historique(vide, vide, vide)).texte).toContain('Aucune commission dans l’historique.')
   })
 })

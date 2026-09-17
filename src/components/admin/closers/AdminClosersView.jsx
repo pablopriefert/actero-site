@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ListeClosers } from './ListeClosers'
 import { FileCommissions } from './FileCommissions'
 import { CommissionsAPayer } from './CommissionsAPayer'
+import { Historique } from './Historique'
 import { SaisieManuelle } from './SaisieManuelle'
 import { Attributions } from './Attributions'
 
@@ -9,6 +10,7 @@ const ONGLETS = [
   { id: 'closers', libelle: 'Closers' },
   { id: 'a-valider', libelle: 'À valider' },
   { id: 'a-payer', libelle: 'À payer' },
+  { id: 'historique', libelle: 'Historique' },
   { id: 'saisie', libelle: 'Saisie manuelle' },
   { id: 'attributions', libelle: 'Attributions' },
 ]
@@ -50,6 +52,7 @@ export function AdminClosersView() {
       {onglet === 'closers' && <ListeClosers />}
       {onglet === 'a-valider' && <FileCommissions />}
       {onglet === 'a-payer' && <CommissionsAPayer />}
+      {onglet === 'historique' && <Historique />}
       {onglet === 'saisie' && <SaisieManuelle />}
       {onglet === 'attributions' && <Attributions />}
     </div>
