@@ -1,6 +1,6 @@
 import { decryptToken } from './crypto.js'
 import { genererCodeCloser } from './code-closer.js'
-import { ibanMasque } from './iban.js'
+import { ibanMasque, normaliserIban } from './iban.js'
 
 /**
  * La fiche d'un closer : qui appelle, sa création, ce qu'il en voit.
@@ -22,7 +22,7 @@ import { ibanMasque } from './iban.js'
  */
 export const STATUT_CLOSER_A_L_INSCRIPTION = 'actif'
 
-export const COLONNES_FICHE = 'id, user_id, prenom, nom, email, telephone, siret, titulaire_iban, iban_chiffre, code, statut, created_at'
+export const COLONNES_FICHE = 'id, user_id, prenom, nom, email, telephone, siret, titulaire_iban, iban_chiffre, iban_modifie_le, code, statut, created_at'
 
 /** Un prénom ou un nom propre (1 à 80 caractères, contrainte SQL), ou null. */
 export function nettoyerNom(brut) {
@@ -59,10 +59,87 @@ export function ficheVisible(fiche) {
     siret: fiche.siret ?? null,
     titulaire_iban: fiche.titulaire_iban ?? null,
     iban_masque: fiche.iban_chiffre ? ibanMasque(decryptToken(fiche.iban_chiffre)) : null,
+    iban_modifie_le: fiche.iban_modifie_le ?? null,
     code: fiche.code,
     statut: fiche.statut,
     profil_complet: profilComplet(fiche),
     inscrit_le: fiche.created_at ?? null,
+  }
+}
+
+/**
+ * L'IBAN enregistré (chiffré) est-il celui-ci ? La comparaison se fait en
+ * clair, ici seulement : aucune route de api/closer/ ne déchiffre l'IBAN. Un
+ * IBAN enregistré illisible ne vaut pas « le même ».
+ */
+export function memeIban(ibanChiffre, iban) {
+  if (!ibanChiffre) return false
+  try {
+    const actuel = decryptToken(ibanChiffre)
+    return !!actuel && normaliserIban(actuel) === normaliserIban(iban)
+  } catch {
+    return false
+  }
+}
+
+const echapper = (texte) => String(texte ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
+
+function courrielIban({ prenom, fin, premier }) {
+  const titre = premier ? 'Votre IBAN a été enregistré' : 'Votre IBAN a été modifié'
+  const phrase = premier
+    ? 'un IBAN vient d’être enregistré sur votre espace closer Actero.'
+    : 'l’IBAN de votre espace closer Actero vient d’être modifié.'
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:40px 20px;background:#ffffff;font-family:'Inter Tight',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#1A1A1A">
+  <div style="max-width:480px;margin:0 auto">
+    <p style="font-size:15px;margin:0 0 24px">Actero</p>
+    <h1 style="font-size:24px;font-weight:400;margin:0 0 12px">${titre}</h1>
+    <p style="font-size:15px;line-height:1.6;color:#3A3A3A;margin:0 0 24px">Bonjour ${echapper(prenom)}, ${phrase} Vos commissions seront versées sur le compte qui se termine par :</p>
+    <p style="font-family:'DM Mono',ui-monospace,monospace;font-size:22px;letter-spacing:2px;margin:0 0 24px">${echapper(fin)}</p>
+    <p style="font-size:15px;line-height:1.6;color:#3A3A3A;margin:0 0 24px">Si ce n’est pas vous, écrivez-nous tout de suite à <a href="mailto:contact@actero.fr" style="color:#13804A">contact@actero.fr</a>.</p>
+    <p style="font-size:13px;line-height:1.6;color:#8B8070;margin:0">Cet e-mail part à chaque changement d’IBAN de votre espace closer.</p>
+  </div>
+</body>
+</html>`
+}
+
+/**
+ * Prévient le closer que son IBAN vient de changer : un IBAN changé par un
+ * tiers (compte volé) détournerait ses commissions. L'e-mail ne montre que les
+ * quatre derniers caractères du nouvel IBAN.
+ *
+ * Ne lève jamais : un e-mail qui ne part pas n'annule pas l'enregistrement.
+ * L'échec est journalisé sans donnée personnelle (ni adresse, ni nom, ni
+ * IBAN, ni message d'erreur du fournisseur, qui peut citer l'adresse).
+ *
+ * Même expéditeur et même style que le code d'inscription
+ * (api/closer/envoyer-code.js) ; Resend 6 rend `{ data, error }` sans lever.
+ *
+ * @returns {Promise<{ envoye: boolean }>}
+ */
+export async function prevenirChangementIban({ closerId, email, prenom, iban, premier = false }) {
+  const echec = (raison) => {
+    console.error(`[closer/alerte-iban] alerte de changement d’IBAN non envoyée (closer ${closerId}) :`, raison)
+    return { envoye: false }
+  }
+  if (!process.env.RESEND_API_KEY) return echec('RESEND_API_KEY absente')
+  const fin = ibanMasque(iban)
+  if (!email || !fin) return echec('adresse ou IBAN manquant')
+  try {
+    const { Resend } = await import('resend')
+    const { error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
+      from: 'Actero <contact@actero.fr>',
+      to: email,
+      subject: premier ? 'Votre IBAN a été enregistré — espace closer Actero' : 'Votre IBAN a été modifié — espace closer Actero',
+      html: courrielIban({ prenom, fin, premier }),
+      replyTo: 'contact@actero.fr',
+    }) ?? {}
+    if (error) return echec(error.name || 'erreur Resend')
+    return { envoye: true }
+  } catch (err) {
+    return echec(err?.name || 'exception')
   }
 }
 

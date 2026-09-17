@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { creerFauxSupabase, appeler } from './faux-supabase.js'
 import { encryptToken, decryptToken } from './crypto.js'
@@ -12,11 +12,24 @@ import { encryptToken, decryptToken } from './crypto.js'
  * L'IBAN n'est jamais écrit ni renvoyé en clair.
  */
 
-const h = vi.hoisted(() => ({ supabase: null }))
+const h = vi.hoisted(() => ({ supabase: null, courriels: [], envoi: null }))
 
 vi.mock('./sentry.js', () => ({ withSentry: (fn) => fn, captureError: () => {} }))
 vi.mock('@supabase/supabase-js', () => ({
   createClient: () => new Proxy({}, { get: (_, cle) => h.supabase[cle] }),
+}))
+// Resend 6 rend { data, error } ; `h.envoi` simule une panne.
+vi.mock('resend', () => ({
+  Resend: function Resend() {
+    return {
+      emails: {
+        send: async (courriel) => {
+          h.courriels.push(courriel)
+          return h.envoi ? h.envoi(courriel) : { data: { id: 'e1' }, error: null }
+        },
+      },
+    }
+  },
 }))
 
 const ROUTES = {
@@ -62,6 +75,13 @@ const TRACES_DE_B = ['k-b', 'u-b', 'Bruno', 'bruno@ex.com', 'ACT-BBBBB', 'c-b', 
 
 beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {})
+  h.courriels = []
+  h.envoi = null
+  process.env.RESEND_API_KEY = 're_test'
+})
+
+afterEach(() => {
+  delete process.env.RESEND_API_KEY
 })
 
 describe('étanchéité — un closer ne lit rien d’un autre', () => {
@@ -188,5 +208,82 @@ describe('IBAN — jamais écrit ni renvoyé en clair', () => {
       }
       expect(source, fichier).not.toMatch(/decryptToken\([^)]*iban/)
     }
+  })
+})
+
+describe('IBAN modifié — la date est posée, et le closer prévenu', () => {
+  const IBAN_NOUVEAU = 'GB82WEST12345698765432'
+  const AVANT = '2026-09-01T00:00:00.000Z'
+  const ficheA = (sb) => sb.base.closers.find((c) => c.id === 'k-a')
+  const avecIban = (sb) => Object.assign(ficheA(sb), { iban_chiffre: encryptToken(IBAN_A), iban_modifie_le: AVANT })
+  const changer = (iban, autres = {}) => appeler(ROUTES.profil, { methode: 'PATCH', jeton: 'jeton-a', corps: { iban, ...autres } })
+
+  it('un premier IBAN : date posée, closer prévenu à son adresse', async () => {
+    const sb = monde()
+    const res = await changer(IBAN_A)
+    expect(res.statusCode).toBe(200)
+    const date = ficheA(sb).iban_modifie_le
+    expect(Math.abs(Date.parse(date) - Date.now())).toBeLessThan(5_000)
+    expect(res.body.fiche.iban_modifie_le).toBe(date)
+    expect(h.courriels).toHaveLength(1)
+    expect(h.courriels[0]).toMatchObject({ from: 'Actero <contact@actero.fr>', to: 'alice@ex.com', replyTo: 'contact@actero.fr' })
+    expect(h.courriels[0].html).toContain('0189')
+  })
+
+  it('un autre IBAN : nouvelle date, et l’e-mail ne montre que ses 4 derniers caractères', async () => {
+    const sb = monde()
+    avecIban(sb)
+    const res = await changer('gb82 west 1234 5698 7654 32')
+    expect(res.statusCode).toBe(200)
+    expect(decryptToken(ficheA(sb).iban_chiffre)).toBe(IBAN_NOUVEAU)
+    expect(Date.parse(ficheA(sb).iban_modifie_le)).toBeGreaterThan(Date.parse(AVANT))
+    expect(h.courriels).toHaveLength(1)
+    const { subject, html } = h.courriels[0]
+    expect(subject).toMatch(/IBAN/)
+    expect(html).toMatch(/modifié/)
+    expect(html).toContain('contact@actero.fr')
+    expect(html).toContain('5432')
+    // Rien d'autre de l'IBAN : ni le nouveau, ni l'ancien.
+    const texte = `${subject} ${html}`.replace(/\s+/g, '')
+    for (const morceau of ['GB82', 'WEST', '1234569876', IBAN_A.slice(0, 8), '0189']) expect(texte).not.toContain(morceau)
+  })
+
+  it('le même IBAN ressaisi : ni réécriture, ni nouvelle date, ni e-mail', async () => {
+    const sb = monde()
+    const chiffreAvant = avecIban(sb).iban_chiffre
+    const res = await changer('fr76 3000 6000 0112 3456 7890 189', { telephone: '0611111111' })
+    expect(res.statusCode).toBe(200)
+    expect(ficheA(sb)).toMatchObject({ iban_chiffre: chiffreAvant, iban_modifie_le: AVANT, telephone: '0611111111' })
+    const [ecriture] = sb.journal.filter((j) => j.table === 'closers' && j.operation === 'update')
+    expect(ecriture.charge).not.toHaveProperty('iban_chiffre')
+    expect(ecriture.charge).not.toHaveProperty('iban_modifie_le')
+    expect(h.courriels).toEqual([])
+    expect(res.body.fiche.iban_modifie_le).toBe(AVANT)
+  })
+
+  it.each([
+    ['Resend lève', () => { throw new Error('connect ECONNREFUSED pour alice@ex.com') }],
+    ['Resend rend une erreur', () => ({ data: null, error: { name: 'validation_error', message: 'Invalid `to` field: alice@ex.com' } })],
+    ['pas de clé Resend', null],
+  ])('e-mail impossible (%s) : profil enregistré, échec journalisé sans donnée personnelle', async (_, panne) => {
+    const sb = monde()
+    if (panne) h.envoi = panne
+    else delete process.env.RESEND_API_KEY
+    const res = await changer(IBAN_A, { titulaire_iban: 'Alice Aubert' })
+    expect(res.statusCode).toBe(200)
+    expect(decryptToken(ficheA(sb).iban_chiffre)).toBe(IBAN_A)
+    expect(ficheA(sb).iban_modifie_le).not.toBeNull()
+    expect(res.body.fiche).toMatchObject({ iban_masque: '•••• 0189', titulaire_iban: 'Alice Aubert' })
+    const journal = console.error.mock.calls.map((args) => args.join(' ')).join('\n')
+    expect(journal).toMatch(/IBAN/)
+    for (const personnel of ['alice', 'Alice', 'Aubert', IBAN_A, '0189']) expect(journal).not.toContain(personnel)
+  })
+
+  it('/moi rend la date du changement, jamais l’IBAN', async () => {
+    const sb = monde()
+    avecIban(sb)
+    const res = await appeler(ROUTES.moi, { jeton: 'jeton-a' })
+    expect(res.body.fiche.iban_modifie_le).toBe(AVANT)
+    expect(JSON.stringify(res.body)).not.toContain(IBAN_A)
   })
 })

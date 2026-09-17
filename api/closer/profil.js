@@ -1,7 +1,7 @@
 import { withSentry } from '../lib/sentry.js'
 import { createClient } from '@supabase/supabase-js'
 import { encryptToken } from '../lib/crypto.js'
-import { COLONNES_FICHE, ficheDuCompte, ficheVisible } from '../lib/fiche-closer.js'
+import { COLONNES_FICHE, ficheDuCompte, ficheVisible, memeIban, prevenirChangementIban } from '../lib/fiche-closer.js'
 import { ibanValide, normaliserIban, normaliserSiret, siretValide, telephoneValide, titulaireValide } from '../lib/iban.js'
 
 const supabase = createClient(
@@ -20,6 +20,14 @@ const NOMS_DES_CHAMPS = { telephone: 'téléphone', siret: 'SIRET', titulaire_ib
  *
  * L'IBAN est chiffré ici, avant toute écriture, et ne ressort jamais : la
  * réponse n'en montre que les quatre derniers caractères.
+ *
+ * Un IBAN différent de l'actuel (comparé en clair par memeIban) pose
+ * `iban_modifie_le`, que l'admin voit avant de virer, et le closer en est
+ * prévenu par e-mail. Le même IBAN ressaisi ne change rien.
+ *
+ * Réponses : 200 { fiche } (dont iban_masque et iban_modifie_le) ;
+ * 400 champs_invalides { champs } ; 401 non_authentifie ; 404 pas_de_fiche ;
+ * 405 ; 500 erreur_interne ; 503 indisponible.
  */
 async function handler(req, res) {
   if (req.method !== 'PATCH') return res.status(405).json({ error: 'methode_non_autorisee' })
@@ -50,16 +58,19 @@ async function handler(req, res) {
     else if (titulaireValide(v)) maj.titulaire_iban = v
     else refuses.push('titulaire_iban')
   }
+  let ibanChange = null
   if (texte(corps.iban)) {
     const iban = normaliserIban(corps.iban)
     if (!ibanValide(iban)) refuses.push('iban')
-    else {
+    else if (!memeIban(closer.iban_chiffre, iban)) {
       try {
         maj.iban_chiffre = encryptToken(iban)
       } catch (err) {
         console.error('[closer/profil] chiffrement impossible :', err.message)
         return res.status(500).json({ error: 'erreur_interne', message: 'Enregistrement impossible pour le moment.' })
       }
+      maj.iban_modifie_le = new Date().toISOString()
+      ibanChange = { iban, premier: !closer.iban_chiffre }
     }
   }
 
@@ -81,6 +92,10 @@ async function handler(req, res) {
   if (error) {
     console.error('[closer/profil] écriture :', error.message)
     return res.status(500).json({ error: 'erreur_interne', message: 'Enregistrement impossible pour le moment.' })
+  }
+  // Après l'écriture, et sans la remettre en cause si l'e-mail ne part pas.
+  if (ibanChange) {
+    await prevenirChangementIban({ closerId: closer.id, email: ecrite.email, prenom: ecrite.prenom, ...ibanChange })
   }
   return res.status(200).json({ fiche: ficheVisible(ecrite) })
 }
