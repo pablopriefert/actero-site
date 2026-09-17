@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
 import {
-  empreinteCode, estCodeCloser, ESSAIS_MAX,
+  empreinteCode, TYPE_CODE_CLOSER, COLONNE_TYPE_CODE, ESSAIS_MAX,
   UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
 } from '../lib/code-verification.js'
 import { creerFiche, nettoyerNom } from '../lib/fiche-closer.js'
@@ -43,18 +43,20 @@ async function handler(req, res) {
   const limiteAdresse = await checkRateLimit(cleVerificationsParAdresse(adresse), VERIFICATIONS_PAR_ADRESSE, UNE_HEURE_MS)
   if (!limiteAdresse.allowed) return res.status(429).json(TROP_DE_TENTATIVES)
 
+  // Seul un code envoyé par l'inscription CLOSER est accepté ici — filtré par
+  // la base, avant la limite (voir api/lib/code-verification.js).
   const { data: lignes, error: erreurLecture } = await supabase
     .from('email_verification_codes')
     .select('id, code_hash, attempts, payload')
     .eq('email', adresse)
+    .eq(COLONNE_TYPE_CODE, TYPE_CODE_CLOSER)
     .is('used_at', null)
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(1)
   if (erreurLecture) return res.status(503).json({ error: 'indisponible', message: 'Service momentanément indisponible.' })
 
-  // Seul un code envoyé par l'inscription CLOSER est accepté ici.
-  const ligne = (lignes || []).find((l) => estCodeCloser(l.payload))
+  const ligne = lignes?.[0]
   if (!ligne) return res.status(400).json({ error: 'code_expire', message: 'Code expiré ou inexistant. Demandez un nouveau code.' })
   if (ligne.attempts >= ESSAIS_MAX) {
     return res.status(429).json({ error: 'trop_d_essais', message: 'Trop de tentatives incorrectes. Demandez un nouveau code.' })

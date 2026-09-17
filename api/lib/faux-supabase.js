@@ -31,7 +31,14 @@ export function creerFauxSupabase({ tables = {}, comptes = {}, uniques = {}, err
   const utilisateurs = Object.values(comptes).map((u) => ({ ...u }))
   let compteur = 0
 
-  const valeur = (ligne, colonne) => ligne[colonne] ?? null
+  const valeur = (ligne, colonne) => {
+    // `payload->>kind` : la clé `kind` du JSON `payload`, en texte, comme PostgREST.
+    const [racine, cle] = colonne.split('->>')
+    if (cle === undefined) return ligne[colonne] ?? null
+    const v = ligne[racine]?.[cle]
+    if (v == null) return null
+    return typeof v === 'object' ? JSON.stringify(v) : String(v)
+  }
 
   const projeter = (ligne, colonnes) => {
     if (!colonnes || colonnes.trim() === '*') return { ...ligne }

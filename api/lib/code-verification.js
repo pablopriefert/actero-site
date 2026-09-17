@@ -8,9 +8,16 @@ import crypto from 'node:crypto'
  * closer (closers). `payload.kind` les distingue, et CHAQUE vérification
  * refuse le code de l'autre — sans quoi un code d'inscription closer créerait
  * un compte marchand, et inversement (spec closers, « Données »).
+ *
+ * Le tri se fait dans la requête (`COLONNE_TYPE_CODE`), pas après : filtrer
+ * en JavaScript derrière un `.limit(5)` laissait cinq codes récents de
+ * l'autre parcours masquer le bon. Les codes marchands n'ont pas de type :
+ * leur route demande `payload->>kind IS NULL` — et non `<> 'closer'`, qui
+ * vaut NULL, donc faux, pour une ligne sans type.
  */
 
 export const TYPE_CODE_CLOSER = 'closer'
+export const COLONNE_TYPE_CODE = 'payload->>kind'
 export const DUREE_CODE_MS = 15 * 60 * 1000
 export const ESSAIS_MAX = 5
 
@@ -37,9 +44,4 @@ export function genererCodeVerification() {
 /** Le code n'est jamais stocké : seulement son empreinte. */
 export function empreinteCode(code) {
   return crypto.createHash('sha256').update(String(code)).digest('hex')
-}
-
-/** Ce code a-t-il été envoyé par l'inscription closer ? */
-export function estCodeCloser(payload) {
-  return payload?.kind === TYPE_CODE_CLOSER
 }

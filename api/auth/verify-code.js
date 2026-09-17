@@ -17,7 +17,7 @@ import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
 import { appliquerCampagne } from '../lib/campagne.js'
 import {
-  estCodeCloser, UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
+  COLONNE_TYPE_CODE, UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
 } from '../lib/code-verification.js'
 
 const supabase = createClient(
@@ -50,19 +50,21 @@ async function handler(req, res) {
   const rlAdresse = await checkRateLimit(cleVerificationsParAdresse(normalizedEmail), VERIFICATIONS_PAR_ADRESSE, UNE_HEURE_MS)
   if (!rlAdresse.allowed) return res.status(429).json(TROP_DE_TENTATIVES)
 
-  // Fetch the most recent valid verification rows
+  // Le code valide le plus récent de l'inscription MARCHAND. Un code envoyé
+  // par l'inscription closer ne crée jamais de compte marchand (spec
+  // closers) : les codes marchands n'ont pas de type, et la base écarte les
+  // autres avant la limite (voir api/lib/code-verification.js).
   const { data: rows } = await supabase
     .from('email_verification_codes')
     .select('*')
     .eq('email', normalizedEmail)
+    .is(COLONNE_TYPE_CODE, null)
     .is('used_at', null)
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(1)
 
-  // Un code envoyé par l'inscription CLOSER ne crée jamais de compte marchand
-  // (spec closers) : seuls comptent les codes de l'inscription marchand.
-  const record = rows?.find((r) => !estCodeCloser(r.payload))
+  const record = rows?.[0]
   if (!record) {
     return res.status(400).json({ error: 'Code expiré ou inexistant. Demandez un nouveau code.' })
   }

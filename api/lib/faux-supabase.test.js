@@ -32,6 +32,22 @@ describe('faux Supabase', () => {
     expect((await sb.from('clients').select('id').in('id', ['c2', 'c3'])).data.map((c) => c.id)).toEqual(['c2', 'c3'])
   })
 
+  it('lit une clé JSON (`payload->>kind`) en texte, et filtre avant la limite', async () => {
+    const sb = creerFauxSupabase({
+      tables: {
+        codes: [
+          { id: 'a', payload: { kind: 'closer', n: 1 }, created_at: '3' },
+          { id: 'b', payload: { brand_name: 'X' }, created_at: '2' },
+          { id: 'c', payload: null, created_at: '1' },
+        ],
+      },
+    })
+    const tries = () => sb.from('codes').select('id').order('created_at', { ascending: false })
+    expect((await tries().eq('payload->>kind', 'closer').limit(1)).data).toEqual([{ id: 'a' }])
+    expect((await tries().is('payload->>kind', null).limit(1)).data).toEqual([{ id: 'b' }])
+    expect((await tries().eq('payload->>n', '1')).data).toEqual([{ id: 'a' }])
+  })
+
   it('maybeSingle : null sans ligne, erreur au-delà d’une', async () => {
     const sb = faux()
     expect((await sb.from('clients').select('id').eq('id', 'zz').maybeSingle()).data).toBeNull()

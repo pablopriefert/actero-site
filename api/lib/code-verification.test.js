@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { creerFauxSupabase, appeler } from './faux-supabase.js'
+import { encryptToken } from './crypto.js'
+import { empreinteCode, TYPE_CODE_CLOSER } from './code-verification.js'
 
 /**
  * Codes à 6 chiffres envoyés par e-mail — les défenses communes aux deux
@@ -43,6 +45,17 @@ const corpsEnvoi = {
   closer: { prenom: 'Jeanne', nom: 'Martin', email: ' Cible@Ex.com ', password: 'motdepasse-closer' },
   marchand: { email: 'Cible@Ex.com', password: 'motdepasse-marchand', brand_name: 'Boutique Jeanne' },
 }
+
+const DANS_UNE_HEURE = () => new Date(Date.now() + 3600_000).toISOString()
+
+function ligneDeCode({ id, parcours, code = '123456', cree = '2026-09-17T10:00:00Z', attempts = 0 }) {
+  const payload = parcours === 'closer'
+    ? { kind: TYPE_CODE_CLOSER, prenom: 'Jeanne', nom: 'Martin', password_enc: encryptToken('motdepasse-closer') }
+    : { password_enc: encryptToken('motdepasse-marchand'), brand_name: 'Boutique Jeanne', shopify_url: null, referral_code: null, acquisition_source: null }
+  return { id, email: EMAIL, code_hash: empreinteCode(code), payload, expires_at: DANS_UNE_HEURE(), attempts, used_at: null, created_at: cree }
+}
+
+const autre = (parcours) => (parcours === 'closer' ? 'marchand' : 'closer')
 
 function monde({ codes = [] } = {}) {
   h.supabase = creerFauxSupabase({
@@ -142,5 +155,37 @@ describe.each(['closer', 'marchand'])('limites par adresse — parcours %s', (pa
     // Refusée avant toute lecture en base.
     expect(lecturesDeCodes(sb).length - lecturesAvant).toBe(10)
     expect(seaux.get(`verif:${EMAIL}`)).toBe(12)
+  })
+})
+
+describe.each(['closer', 'marchand'])('le type du code est filtré par la base — parcours %s', (parcours) => {
+  it('cinq codes plus récents de l’autre parcours ne masquent pas le bon', async () => {
+    const sb = monde({
+      codes: [
+        ligneDeCode({ id: 'bon', parcours, code: '654321', cree: '2026-09-17T10:00:00Z' }),
+        ...[1, 2, 3, 4, 5].map((i) => ligneDeCode({ id: `autre-${i}`, parcours: autre(parcours), code: '111111', cree: `2026-09-17T10:0${i}:00Z` })),
+      ],
+    })
+    const res = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '654321' } })
+    expect(res.statusCode).toBe(200)
+    expect(sb.base.email_verification_codes.find((l) => l.id === 'bon').used_at).not.toBeNull()
+    expect(sb.base.email_verification_codes.filter((l) => l.id !== 'bon').every((l) => l.used_at === null && l.attempts === 0)).toBe(true)
+  })
+
+  it('le filtre est dans la requête, pas dans le code qui lit sa réponse', async () => {
+    const sb = monde({ codes: [ligneDeCode({ id: 'bon', parcours })] })
+    await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '123456' } })
+    const [lecture] = lecturesDeCodes(sb)
+    const filtreType = lecture.filtres.find(([, colonne]) => colonne === 'payload->>kind')
+    // Closer : le type vaut « closer ». Marchand : pas de type — ces codes n'en ont jamais eu.
+    expect(filtreType).toEqual(parcours === 'closer' ? ['eq', 'payload->>kind', TYPE_CODE_CLOSER] : ['is', 'payload->>kind', null])
+  })
+
+  it('un code de l’autre parcours reste refusé, sans essai compté', async () => {
+    const sb = monde({ codes: [ligneDeCode({ id: 'autre', parcours: autre(parcours) })] })
+    const res = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '123456' } })
+    expect(res.statusCode).toBe(400)
+    expect(sb.base.email_verification_codes[0]).toMatchObject({ attempts: 0, used_at: null })
+    expect(sb.journal.filter((j) => j.operation === 'createUser')).toEqual([])
   })
 })
