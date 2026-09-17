@@ -52,27 +52,26 @@ function facture({ id = 'in_100', billing_reason = 'subscription_cycle', amount_
   }
 }
 
-function lignes(prix) {
+function ligne(prix, { id = 'il_100', proration = false } = {}) {
   return {
-    object: 'list',
-    has_more: false,
-    data: [{
-      id: 'il_100',
-      object: 'line_item',
-      amount: prix.unit_amount,
-      currency: 'eur',
-      invoice: 'in_100',
-      parent: {
-        type: 'subscription_item_details',
-        invoice_item_details: null,
-        subscription_item_details: { invoice_item: null, proration: false, proration_details: { credited_items: null }, subscription: 'sub_100', subscription_item: 'si_100' },
-      },
-      pricing: { type: 'price_details', unit_amount_decimal: String(prix.unit_amount), price_details: { price: prix, product: 'prod_100' } },
-      quantity: 1,
-      subscription: 'sub_100',
-    }],
+    id,
+    object: 'line_item',
+    amount: prix.unit_amount,
+    currency: 'eur',
+    invoice: 'in_100',
+    parent: {
+      type: 'subscription_item_details',
+      invoice_item_details: null,
+      subscription_item_details: { invoice_item: null, proration, proration_details: { credited_items: null }, subscription: 'sub_100', subscription_item: 'si_100' },
+    },
+    pricing: { type: 'price_details', unit_amount_decimal: String(prix.unit_amount), price_details: { price: prix, product: 'prod_100' } },
+    quantity: 1,
+    subscription: 'sub_100',
   }
 }
+
+const page = (data, has_more = false) => ({ object: 'list', has_more, data, url: '/v1/invoices/in_100/lines' })
+const lignes = (prix) => page([ligne(prix)])
 
 const CHARGE = { id: 'ch_100', object: 'charge', amount: 39900, amount_refunded: 39900, refunded: true, payment_intent: 'pi_100', customer: 'cus_100', status: 'succeeded' }
 const PAIEMENTS = { object: 'list', has_more: false, data: [{ id: 'inpay_100', object: 'invoice_payment', invoice: 'in_100', is_default: true, status: 'paid', payment: { type: 'payment_intent', payment_intent: 'pi_100' } }] }
@@ -84,16 +83,22 @@ function fauxStripe({ factures = {}, lignesParFacture = {}, charge = CHARGE, pai
         if (!factures[id]) throw Object.assign(new Error(`No such invoice: '${id}'`), { statusCode: 404 })
         return factures[id]
       }),
-      listLineItems: vi.fn(async (id) => lignesParFacture[id]),
+      // Une liste simple, ou des pages : la suivante est celle qui suit `starting_after`.
+      listLineItems: vi.fn(async (id, params) => {
+        const pages = lignesParFacture[id]
+        if (!Array.isArray(pages)) return pages
+        if (!params?.starting_after) return pages[0]
+        return pages[pages.findIndex((p) => p.data.at(-1)?.id === params.starting_after) + 1]
+      }),
     },
     charges: { retrieve: vi.fn(async () => charge) },
     invoicePayments: { list: vi.fn(async () => paiements) },
   }
 }
 
-const fauxSupabase = ({ commissions = [], closerId = 'k1', erreurs } = {}) => creerFauxSupabase({
+const fauxSupabase = ({ commissions = [], closerId = 'k1', erreurs, clients } = {}) => creerFauxSupabase({
   tables: {
-    clients: [{ id: CLIENT_ID, closer_id: closerId, stripe_subscription_id: 'sub_100' }],
+    clients: clients ?? [{ id: CLIENT_ID, closer_id: closerId, stripe_subscription_id: 'sub_100', contact_email: 'marchand@boutique.fr', brand_name: 'Boutique' }],
     closer_commissions: commissions,
   },
   uniques: { closer_commissions: ['source_key'] },
@@ -139,6 +144,19 @@ describe('invoice.paid → commission', () => {
     expect(sb.base.closer_commissions[0]).toMatchObject({
       closer_id: 'k1', client_id: CLIENT_ID, montant_centimes: 10000, type: 'mensuelle', statut: 'a_valider',
       stripe_invoice_id: 'in_100', payee_par_client_le: new Date(1_789_000_100 * 1000).toISOString(),
+      montant_facture_centimes: 39900, note: null,
+    })
+  })
+
+  it('un code promo qui fait payer moins que la commission : montant payé écrit, et une note à vérifier', async () => {
+    const sb = fauxSupabase()
+    const stripe = fauxStripe({ factures: { in_100: facture({ amount_paid: 3990 }) }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
+    expect((await traiterFacturePayee(stripe, sb, 'in_100')).cree).toBe(true)
+    expect(sb.base.closer_commissions[0]).toMatchObject({
+      montant_centimes: 10000,
+      montant_facture_centimes: 3990,
+      statut: 'a_valider',
+      note: 'Commission supérieure au montant payé (39,90 €) : à vérifier',
     })
   })
 
@@ -157,7 +175,7 @@ describe('invoice.paid → commission', () => {
       lignesParFacture: { in_1: lignes(PRIX_STARTER_ANNUEL), in_2: lignes(PRIX_STARTER_ANNUEL) },
     })
     expect(await traiterFacturePayee(stripe, sb, 'in_1')).toEqual({ cree: true, source_key: `unique:${CLIENT_ID}` })
-    expect(await traiterFacturePayee(stripe, sb, 'in_2')).toEqual({ cree: false, raison: 'hors_grille' })
+    expect(await traiterFacturePayee(stripe, sb, 'in_2')).toEqual({ cree: false, raison: 'unique_deja_versee' })
     expect(sb.base.closer_commissions).toHaveLength(1)
     expect(sb.base.closer_commissions[0]).toMatchObject({ montant_centimes: 25000, type: 'unique' })
   })
@@ -166,6 +184,114 @@ describe('invoice.paid → commission', () => {
     const sb = fauxSupabase()
     const stripe = fauxStripe({ factures: { in_100: facture({ metadata: {} }) }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
     expect((await traiterFacturePayee(stripe, sb, 'in_100')).cree).toBe(true)
+  })
+
+  it('le client se retrouve par l’identifiant des métadonnées, même quand l’abonnement enregistré a changé', async () => {
+    const sb = fauxSupabase({ clients: [{ id: CLIENT_ID, closer_id: 'k1', stripe_subscription_id: 'sub_nouveau' }] })
+    const stripe = fauxStripe({ factures: { in_100: facture() }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
+    expect((await traiterFacturePayee(stripe, sb, 'in_100')).cree).toBe(true)
+    expect(sb.base.closer_commissions[0]).toMatchObject({ client_id: CLIENT_ID, closer_id: 'k1' })
+  })
+
+  it('un identifiant de métadonnées sans client : repli sur l’abonnement', async () => {
+    const sb = fauxSupabase()
+    const stripe = fauxStripe({
+      factures: { in_100: facture({ metadata: { client_id: '22222222-2222-4222-8222-222222222222' } }) },
+      lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) },
+    })
+    expect(await traiterFacturePayee(stripe, sb, 'in_100')).toEqual({ cree: true, source_key: 'stripe:in_100' })
+    expect(sb.base.closer_commissions[0].client_id).toBe(CLIENT_ID)
+  })
+
+  it('deux clients sur le même abonnement : rien, raison client_ambigu journalisée, sans lever', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const sb = fauxSupabase({
+      clients: [
+        { id: CLIENT_ID, closer_id: 'k1', stripe_subscription_id: 'sub_100' },
+        { id: '33333333-3333-4333-8333-333333333333', closer_id: 'k2', stripe_subscription_id: 'sub_100' },
+      ],
+    })
+    const stripe = fauxStripe({ factures: { in_100: facture({ metadata: {} }) }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
+    expect(await traiterFacturePayee(stripe, sb, 'in_100')).toEqual({ cree: false, raison: 'client_ambigu' })
+    expect(sb.base.closer_commissions).toEqual([])
+    expect(stripe.invoices.listLineItems).not.toHaveBeenCalled()
+    expect(warn).toHaveBeenCalledWith('[CLOSER] facture sans commission', { facture: 'in_100', client: null, abonnement: 'sub_100', raison: 'client_ambigu' })
+    warn.mockRestore()
+  })
+
+  describe('un client rattaché sans commission : un avertissement, avec des identifiants seulement', () => {
+    let warn
+    beforeEach(() => { warn = vi.spyOn(console, 'warn').mockImplementation(() => {}) })
+    afterEach(() => warn.mockRestore())
+
+    const PRIX_SUR_MESURE = { ...PRIX_PRO_MENSUEL, id: 'price_sur_mesure', lookup_key: 'actero_enterprise_acme', unit_amount: 99900 }
+
+    it.each([
+      ['hors_grille', () => fauxStripe({ factures: { in_100: facture() }, lignesParFacture: { in_100: lignes(PRIX_SUR_MESURE) } })],
+      ['devise', () => fauxStripe({ factures: { in_100: { ...facture(), currency: 'usd' } }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })],
+    ])('%s', async (raison, monStripe) => {
+      const sb = fauxSupabase()
+      expect(await traiterFacturePayee(monStripe(), sb, 'in_100')).toEqual({ cree: false, raison })
+      expect(sb.base.closer_commissions).toEqual([])
+      expect(warn).toHaveBeenCalledTimes(1)
+      expect(warn).toHaveBeenCalledWith('[CLOSER] facture sans commission', { facture: 'in_100', client: CLIENT_ID, raison })
+      expect(JSON.stringify(warn.mock.calls)).not.toMatch(/marchand@boutique\.fr|Boutique/)
+    })
+
+    it('unique_deja_versee', async () => {
+      const sb = fauxSupabase({ commissions: [{ id: 'kc0', source_key: `unique:${CLIENT_ID}`, statut: 'payee' }] })
+      const stripe = fauxStripe({ factures: { in_100: facture({ amount_paid: 98010 }) }, lignesParFacture: { in_100: lignes(PRIX_STARTER_ANNUEL) } })
+      expect(await traiterFacturePayee(stripe, sb, 'in_100')).toEqual({ cree: false, raison: 'unique_deja_versee' })
+      expect(warn).toHaveBeenCalledWith('[CLOSER] facture sans commission', { facture: 'in_100', client: CLIENT_ID, raison: 'unique_deja_versee' })
+    })
+
+    it('une devise étrangère ne fait même pas lire les lignes', async () => {
+      const stripe = fauxStripe({ factures: { in_100: { ...facture(), currency: 'usd' } }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
+      await traiterFacturePayee(stripe, fauxSupabase(), 'in_100')
+      expect(stripe.invoices.listLineItems).not.toHaveBeenCalled()
+    })
+
+    it('rien pour un client sans closer, un client inconnu, ou une commission déjà créée', async () => {
+      const stripe = fauxStripe({ factures: { in_100: facture() }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
+      await traiterFacturePayee(stripe, fauxSupabase({ closerId: null }), 'in_100')
+      await traiterFacturePayee(stripe, fauxSupabase({ clients: [] }), 'in_100')
+      const sb = fauxSupabase()
+      await traiterFacturePayee(stripe, sb, 'in_100')
+      expect(await traiterFacturePayee(stripe, sb, 'in_100')).toEqual({ cree: false, raison: 'deja_creee' })
+      expect(warn).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('toutes les lignes de la facture sont lues', () => {
+    const PRIX_STARTER_MENSUEL = { ...PRIX_PRO_MENSUEL, id: 'price_st_m', lookup_key: 'actero_starter_mensuel', unit_amount: 9900 }
+
+    it('la ligne d’abonnement en seconde page compte', async () => {
+      const sb = fauxSupabase()
+      const stripe = fauxStripe({
+        factures: { in_100: facture() },
+        lignesParFacture: { in_100: [page([ligne(PRIX_STARTER_MENSUEL, { id: 'il_1', proration: true })], true), page([ligne(PRIX_PRO_MENSUEL, { id: 'il_2' })])] },
+      })
+      expect(await traiterFacturePayee(stripe, sb, 'in_100')).toEqual({ cree: true, source_key: 'stripe:in_100' })
+      expect(sb.base.closer_commissions[0].montant_centimes).toBe(10000)
+      expect(stripe.invoices.listLineItems).toHaveBeenCalledTimes(2)
+      expect(stripe.invoices.listLineItems).toHaveBeenLastCalledWith(
+        'in_100',
+        { limit: 100, expand: ['data.pricing.price_details.price'], starting_after: 'il_1' },
+        OPTIONS_STRIPE_COMMISSIONS,
+      )
+    })
+
+    it('une seconde page qui porte une autre formule : rien, on ne devine pas', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const sb = fauxSupabase()
+      const stripe = fauxStripe({
+        factures: { in_100: facture() },
+        lignesParFacture: { in_100: [page([ligne(PRIX_PRO_MENSUEL, { id: 'il_1' })], true), page([ligne(PRIX_STARTER_MENSUEL, { id: 'il_2' })])] },
+      })
+      expect(await traiterFacturePayee(stripe, sb, 'in_100')).toEqual({ cree: false, raison: 'hors_grille' })
+      expect(sb.base.closer_commissions).toEqual([])
+      warn.mockRestore()
+    })
   })
 
   it('facture à 0 €, client sans closer : rien, et les lignes ne sont même pas lues pour 0 €', async () => {

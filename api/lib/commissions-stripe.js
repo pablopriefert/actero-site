@@ -1,5 +1,5 @@
 import { OPTIONS_REQUETE_COURTE } from './stripe-customer.js'
-import { commissionPourFacture, effetRemboursement, cleUnique } from './commissions-closer.js'
+import { evaluerFacture, effetRemboursement, cleUnique, DEVISE_COMMISSIONS } from './commissions-closer.js'
 
 /**
  * Les commissions des closers côté webhook Stripe : lire, appeler le calcul
@@ -27,10 +27,22 @@ export const OPTIONS_STRIPE_COMMISSIONS = Object.freeze({ ...OPTIONS_REQUETE_COU
 
 const FORMAT_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+// Quatre niveaux d'expansion au plus : `data.pricing.price_details.price`
+// en compte quatre. Sur la facture elle-même, il en faudrait cinq.
+const EXPANSION_LIGNES = Object.freeze(['data.pricing.price_details.price'])
+// 20 pages de 100 lignes : bien au-delà d'une facture d'abonnement réelle.
+const PAGES_DE_LIGNES_MAX = 20
+
 /**
  * Le client Actero d'une facture d'abonnement : par l'identifiant posé dans
  * les métadonnées de l'abonnement à sa création (api/lib/checkout-formule.js),
  * sinon par l'abonnement enregistré sur le client.
+ *
+ * Deux clients sur le même abonnement : on ne choisit pas. `ambigu` le dit, et
+ * l'appelant termine sans lever — lever ferait réessayer Stripe pendant des
+ * jours sur une donnée qu'aucun réessai ne corrigera.
+ *
+ * @returns {Promise<{ client: { id: string, closer_id: string|null } | null, ambigu?: true, abonnement?: string }>}
  */
 async function clientDeLaFacture(supabase, facture) {
   const details = facture.parent?.subscription_details
@@ -41,18 +53,59 @@ async function clientDeLaFacture(supabase, facture) {
   if (typeof clientId === 'string' && FORMAT_UUID.test(clientId)) {
     const { data, error } = await supabase.from('clients').select(colonnes).eq('id', clientId).maybeSingle()
     if (error) throw new Error(`clients illisible : ${error.message}`)
-    if (data) return data
+    if (data) return { client: data }
   }
   if (abonnement) {
-    const { data, error } = await supabase.from('clients').select(colonnes).eq('stripe_subscription_id', abonnement).maybeSingle()
+    const { data, error } = await supabase.from('clients').select(colonnes).eq('stripe_subscription_id', abonnement).limit(2)
     if (error) throw new Error(`clients illisible : ${error.message}`)
-    return data
+    if ((data ?? []).length > 1) return { client: null, ambigu: true, abonnement }
+    return { client: data?.[0] ?? null }
   }
-  return null
+  return { client: null }
+}
+
+/**
+ * Toutes les lignes de la facture, page après page (`has_more`). Une formule
+ * se juge sur toutes ses lignes : une seconde page peut porter un autre prix.
+ */
+async function lignesDeLaFacture(stripe, factureId) {
+  const lignes = []
+  let apres = null
+  for (let n = 0; n < PAGES_DE_LIGNES_MAX; n += 1) {
+    const params = { limit: 100, expand: [...EXPANSION_LIGNES] }
+    if (apres) params.starting_after = apres
+    const liste = await stripe.invoices.listLineItems(factureId, params, OPTIONS_STRIPE_COMMISSIONS)
+    const data = liste?.data ?? []
+    lignes.push(...data)
+    if (!liste?.has_more) return lignes
+    apres = data.at(-1)?.id
+    // Une page vide qui annonce une suite : Stripe répond mal, on ne boucle pas.
+    if (!apres) break
+  }
+  throw new Error(`lignes de la facture ${factureId} illisibles en entier`)
+}
+
+/**
+ * Un client rattaché dont la facture ne crée rien : on le dit dans les
+ * journaux, avec des identifiants seulement (ni nom, ni e-mail, ni montant).
+ */
+function sansCommission(raison, { facture, client = null, abonnement }) {
+  console.warn('[CLOSER] facture sans commission', {
+    facture,
+    client,
+    ...(abonnement ? { abonnement } : {}),
+    raison,
+  })
+  return { cree: false, raison }
 }
 
 /**
  * `invoice.paid` : crée la commission de la facture, s'il y en a une.
+ *
+ * Raisons d'une absence : sans_facture, rien_encaisse, hors_abonnement,
+ * client_inconnu, sans_closer, deja_creee, et, journalisées parce qu'un closer
+ * attendait peut-être une commission : client_ambigu, devise, hors_grille,
+ * unique_deja_versee.
  *
  * @param {import('stripe').Stripe} stripe
  * @param {any} supabase — client service_role
@@ -66,24 +119,21 @@ export async function traiterFacturePayee(stripe, supabase, factureId) {
   if (facture.status !== 'paid' || !(facture.amount_paid > 0)) return { cree: false, raison: 'rien_encaisse' }
   if (facture.parent?.type !== 'subscription_details') return { cree: false, raison: 'hors_abonnement' }
 
-  const client = await clientDeLaFacture(supabase, facture)
+  const { client, ambigu, abonnement } = await clientDeLaFacture(supabase, facture)
+  if (ambigu) return sansCommission('client_ambigu', { facture: facture.id, abonnement })
   if (!client) return { cree: false, raison: 'client_inconnu' }
   if (!client.closer_id) return { cree: false, raison: 'sans_closer' }
+  const reperes = { facture: facture.id, client: client.id }
+  if (facture.currency !== DEVISE_COMMISSIONS) return sansCommission('devise', reperes)
 
-  // Quatre niveaux d'expansion au plus : `data.pricing.price_details.price`
-  // en compte quatre. Sur la facture elle-même, il en faudrait cinq.
-  const lignes = await stripe.invoices.listLineItems(
-    facture.id,
-    { limit: 100, expand: ['data.pricing.price_details.price'] },
-    OPTIONS_STRIPE_COMMISSIONS,
-  )
+  const lignes = await lignesDeLaFacture(stripe, facture.id)
 
   const { data: unique, error: erreurUnique } = await supabase
     .from('closer_commissions').select('id').eq('source_key', cleUnique(client.id)).maybeSingle()
   if (erreurUnique) throw new Error(`closer_commissions illisible : ${erreurUnique.message}`)
 
-  const commission = commissionPourFacture({ facture, lignes: lignes?.data ?? [], client, uniqueDejaVersee: !!unique })
-  if (!commission) return { cree: false, raison: 'hors_grille' }
+  const { commission, raison } = evaluerFacture({ facture, lignes, client, uniqueDejaVersee: !!unique })
+  if (!commission) return sansCommission(raison, reperes)
 
   const { error } = await supabase.from('closer_commissions').insert(commission)
   // 23505 : la clé existe déjà — Stripe a renvoyé l'événement, ou un second
