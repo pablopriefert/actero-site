@@ -4,7 +4,7 @@
  * Pourquoi un faux qui filtre : un faux qui renvoie la même ligne à toutes les
  * requêtes laisse passer exactement le défaut que ces tests cherchent, une
  * route qui lit les données d'un autre closer (api/billing/upgrade.test.js a
- * fait le même constat). Ici chaque `.eq()`, `.in()`, `.is()` compte, une
+ * fait le même constat). Ici chaque `.eq()`, `.in()`, `.is()`, `.lt()` compte, une
  * lecture ne rend que les colonnes de son `.select()`, et une colonne déclarée
  * unique refuse un doublon avec le code d'erreur de Postgres (23505).
  *
@@ -53,6 +53,9 @@ export function creerFauxSupabase({ tables = {}, comptes = {}, uniques = {}, err
       case 'not_is': return v !== attendu
       case 'in': return attendu.includes(v)
       case 'gt': return v !== null && v > attendu
+      case 'gte': return v !== null && v >= attendu
+      case 'lt': return v !== null && v < attendu
+      case 'lte': return v !== null && v <= attendu
       case 'ilike': return String(v ?? '').toLowerCase().includes(String(attendu).replace(/%/g, '').toLowerCase())
       default: throw new Error(`faux Supabase : filtre ${op} non géré`)
     }
@@ -66,6 +69,8 @@ export function creerFauxSupabase({ tables = {}, comptes = {}, uniques = {}, err
     let rendre = false
     let tri = null
     let limite = null
+    let compter = false
+    let tete = false
 
     function executer() {
       const regle = erreurs[table]
@@ -114,6 +119,9 @@ export function creerFauxSupabase({ tables = {}, comptes = {}, uniques = {}, err
       }
       if (limite !== null) resultat = resultat.slice(0, limite)
       journal.push({ table, operation, colonnes, filtres: [...filtres] })
+      // `select(c, { count: 'exact', head: true })` : le nombre de lignes filtrées,
+      // avant la limite, comme PostgREST ; `head` ne rend aucune ligne.
+      if (compter) return { data: tete ? null : resultat.map((l) => projeter(l, colonnes)), count: touchees.length, error: null }
       return { data: resultat.map((l) => projeter(l, colonnes)), error: null }
     }
 
@@ -127,7 +135,13 @@ export function creerFauxSupabase({ tables = {}, comptes = {}, uniques = {}, err
     }
 
     const b = {
-      select(c = '*') { colonnes = c; if (operation !== 'select') rendre = true; return b },
+      select(c = '*', { count, head } = {}) {
+        colonnes = c
+        compter = count === 'exact'
+        tete = head === true
+        if (operation !== 'select') rendre = true
+        return b
+      },
       insert(v) { operation = 'insert'; charge = v; return b },
       update(v) { operation = 'update'; charge = v; return b },
       delete() { operation = 'delete'; return b },
@@ -140,6 +154,9 @@ export function creerFauxSupabase({ tables = {}, comptes = {}, uniques = {}, err
       },
       in(c, v) { filtres.push(['in', c, v]); return b },
       gt(c, v) { filtres.push(['gt', c, v]); return b },
+      gte(c, v) { filtres.push(['gte', c, v]); return b },
+      lt(c, v) { filtres.push(['lt', c, v]); return b },
+      lte(c, v) { filtres.push(['lte', c, v]); return b },
       ilike(c, v) { filtres.push(['ilike', c, v]); return b },
       order(c, { ascending = true } = {}) { tri = [c, ascending]; return b },
       limit(n) { limite = n; return b },

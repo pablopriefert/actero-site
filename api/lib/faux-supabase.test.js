@@ -48,6 +48,34 @@ describe('faux Supabase', () => {
     expect((await tries().eq('payload->>n', '1')).data).toEqual([{ id: 'a' }])
   })
 
+  it('gt, gte, lt, lte comparent des dates ISO ; une ligne sans valeur ne passe jamais', async () => {
+    const sb = creerFauxSupabase({
+      tables: {
+        evenements: [
+          { id: 'a', survenu_le: '2026-09-10T00:00:00.000Z' },
+          { id: 'b', survenu_le: '2026-09-12T00:00:00.000Z' },
+          { id: 'c', survenu_le: '2026-09-14T00:00:00.000Z' },
+          { id: 'd', survenu_le: null },
+        ],
+      },
+    })
+    const ids = async (requete) => (await requete).data.map((l) => l.id)
+    const lire = () => sb.from('evenements').select('id')
+    expect(await ids(lire().lt('survenu_le', '2026-09-12T00:00:00.000Z'))).toEqual(['a'])
+    expect(await ids(lire().lte('survenu_le', '2026-09-12T00:00:00.000Z'))).toEqual(['a', 'b'])
+    expect(await ids(lire().gte('survenu_le', '2026-09-12T00:00:00.000Z'))).toEqual(['b', 'c'])
+    expect(await ids(lire().gt('survenu_le', '2026-09-12T00:00:00.000Z'))).toEqual(['c'])
+  })
+
+  it('count exact : le nombre de lignes filtrées, avant la limite ; head ne rend aucune ligne', async () => {
+    const sb = faux()
+    expect(await sb.from('clients').select('id', { count: 'exact', head: true }).eq('plan', 'free'))
+      .toEqual({ data: null, count: 2, error: null })
+    expect(await sb.from('clients').select('id', { count: 'exact' }).eq('plan', 'free').limit(1))
+      .toEqual({ data: [{ id: 'c2' }], count: 2, error: null })
+    expect(await sb.from('clients').select('id').eq('plan', 'free')).not.toHaveProperty('count')
+  })
+
   it('maybeSingle : null sans ligne, erreur au-delà d’une', async () => {
     const sb = faux()
     expect((await sb.from('clients').select('id').eq('id', 'zz').maybeSingle()).data).toBeNull()
