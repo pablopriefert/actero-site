@@ -145,6 +145,13 @@ export const PlanSelectionPage = ({ onNavigate }) => {
   // visiteur jusqu'ici. Avant, la page codait « monthly » en dur : choisir
   // l'annuel sur /tarifs menait à un paiement mensuel.
   const [periode, setPeriode] = useState(() => lireFormuleChoisie(urlParams).periode);
+  // Le plan de l'offre convenue (lien d'un closer, `?plan=`) prend la place
+  // de la carte « populaire » : c'est lui que le prospect vient prendre.
+  // Seulement un plan payant : ni Free, ni Enterprise sur devis.
+  const planConvenu = useMemo(() => {
+    const { plan } = lireFormuleChoisie(urlParams);
+    return PLAN_ORDER.includes(plan) && PLANS[plan].price.monthly > 0 ? plan : null;
+  }, [urlParams]);
   // Une boutique Shopify s'abonne chez Shopify (App Store 1.2.1), qui ne
   // connaît pas le trimestriel : on ne le lui propose pas.
   const [boutiqueShopify, setBoutiqueShopify] = useState(false);
@@ -404,7 +411,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
             {PLAN_ORDER.map((planId, index) => {
               const plan = PLANS[planId];
-              const isPopular = plan.popular;
+              const isPopular = planConvenu ? planId === planConvenu : plan.popular;
               const precedent = index > 0 ? PLAN_ORDER[index - 1] : null;
               const { visibles, reste } = apports(planId, precedent);
 
@@ -463,7 +470,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                 >
                   {isPopular && (
                     <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 bg-cta text-white text-[10px] font-bold uppercase tracking-[0.14em] px-3 py-1 rounded-full whitespace-nowrap">
-                      Le plus choisi
+                      {planConvenu ? "Offre convenue" : "Le plus choisi"}
                     </div>
                   )}
 
