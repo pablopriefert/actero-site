@@ -35,6 +35,7 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
 })
 
 let ActiviteCloser
+let ClientsCloser
 let CloserEspacePage
 let conteneur
 let racine
@@ -65,6 +66,7 @@ const PAGE_2 = {
 beforeAll(async () => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
   ;({ ActiviteCloser } = await import('./ActiviteCloser.jsx'))
+  ;({ ClientsCloser } = await import('./ClientsCloser.jsx'))
   ;({ CloserEspacePage } = await import('../../pages/closer/CloserEspacePage.jsx'))
 })
 
@@ -209,5 +211,101 @@ describe('ActiviteCloser', () => {
     await monter(React.createElement(ActiviteCloser))
     expect(h.optionsFil).toMatchObject({ refetchInterval: 60_000, refetchIntervalInBackground: false })
     expect(h.optionsFil.queryKey).toEqual(['closer-activite', 'tout'])
+  })
+})
+
+describe('ClientsCloser — le parcours de chaque client', () => {
+  const CLIENTS = [
+    { id: CLIENT_1, boutique: 'Maison Ambre', plan: 'pro', formule: 'annuel', rattache_le: '2026-09-12T08:00:00Z', etat: 'actif' },
+    { id: CLIENT_2, boutique: 'Atelier Alma', plan: 'starter', formule: 'mensuel', rattache_le: '2026-09-15T08:00:00Z', etat: 'inscrit' },
+  ]
+  const PARCOURS = {
+    [CLIENT_1]: [
+      etape('c1-3', 'abonnement_demarre', '2026-09-17T11:00:00Z', { details: { plan: 'pro', formule: 'annuel' } }),
+      etape('c1-2', 'paiement_ouvert', '2026-09-16T12:05:00Z', { details: { plan: 'pro', formule: 'annuel' } }),
+      etape('c1-1', 'inscription', '2026-09-12T08:00:00Z', { famille: 'inscription' }),
+    ],
+    [CLIENT_2]: [
+      etape('c2-2', 'paiement_echoue', '2026-09-17T11:55:00Z', { client_id: CLIENT_2, boutique: 'Atelier Alma' }),
+      etape('c2-1', 'inscription', '2026-09-15T08:00:00Z', { client_id: CLIENT_2, boutique: 'Atelier Alma', famille: 'inscription' }),
+    ],
+  }
+
+  beforeEach(() => {
+    h.appelCloser = vi.fn(async () => ({ clients: CLIENTS }))
+    h.lireActivite = vi.fn(async ({ client }) => ({ evenements: PARCOURS[client] ?? [], suivant: null, resume: null }))
+  })
+
+  const depliants = () => [...conteneur.querySelectorAll('tbody button[aria-expanded]')]
+  // La ligne du client, pas celle de son parcours (qui porte l'id visé par aria-controls).
+  const badges = () => [...conteneur.querySelectorAll('tbody tr:not([id]) > td > div')].map((d) => d.textContent)
+
+  it('replié par défaut : rien n’est lu, aucun badge', async () => {
+    await monter(React.createElement(ClientsCloser))
+    expect(depliants().map((b) => [b.textContent, b.getAttribute('aria-expanded')]))
+      .toEqual([['Maison Ambre', 'false'], ['Atelier Alma', 'false']])
+    expect(h.lireActivite).not.toHaveBeenCalled()
+    expect(badges()).toEqual([])
+    const parcours = document.getElementById(depliants()[0].getAttribute('aria-controls'))
+    expect(parcours.hidden).toBe(true)
+  })
+
+  it('déplié : le parcours du plus ancien au plus récent, et le badge de la dernière étape', async () => {
+    await monter(React.createElement(ClientsCloser))
+    await cliquer(depliants()[0])
+    expect(depliants()[0].getAttribute('aria-expanded')).toBe('true')
+    expect(h.lireActivite).toHaveBeenCalledTimes(1)
+    expect(h.lireActivite).toHaveBeenCalledWith({ client: CLIENT_1 })
+
+    const parcours = document.getElementById(depliants()[0].getAttribute('aria-controls'))
+    expect(parcours.hidden).toBe(false)
+    expect([...parcours.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
+      'S’est inscritle 12 septembre',
+      'A choisi Pro annuel et ouvert le paiementhier à 14 h 05',
+      'S’est abonné (Pro annuel)il y a 1 h',
+    ])
+    expect(badges()).toEqual(['Dernière étape : S’est abonné (Pro annuel)'])
+    const badge = conteneur.querySelector('tbody tr:not([id]) > td > div > span:not(.sr-only)')
+    expect(badge.dataset.alerte).toBeUndefined()
+    expect(badge.className).not.toContain('bg-warn')
+  })
+
+  it('le badge est orange quand la dernière étape est à surveiller', async () => {
+    await monter(React.createElement(ClientsCloser))
+    await cliquer(depliants()[1])
+    expect(h.lireActivite).toHaveBeenCalledWith({ client: CLIENT_2 })
+    expect(h.lireActivite).not.toHaveBeenCalledWith({ client: CLIENT_1 })
+    expect(badges()).toEqual(['Dernière étape : Paiement échoué'])
+    const badge = conteneur.querySelector('tbody tr:not([id]) > td > div > span[data-alerte]')
+    expect(badge.textContent).toBe('Paiement échoué')
+    expect(badge.className).toContain('bg-warn-bg')
+    expect(badge.querySelector('span').className).toContain('bg-warn')
+  })
+
+  it('replié à nouveau : le parcours se cache, le badge reste', async () => {
+    await monter(React.createElement(ClientsCloser))
+    await cliquer(depliants()[0])
+    await cliquer(depliants()[0])
+    expect(depliants()[0].getAttribute('aria-expanded')).toBe('false')
+    expect(document.getElementById(depliants()[0].getAttribute('aria-controls')).hidden).toBe(true)
+    expect(badges()).toEqual(['Dernière étape : S’est abonné (Pro annuel)'])
+  })
+
+  it('un client sans étape enregistrée', async () => {
+    h.lireActivite = vi.fn(async () => ({ evenements: [], suivant: null, resume: null }))
+    await monter(React.createElement(ClientsCloser))
+    await cliquer(depliants()[0])
+    expect(conteneur.textContent).toContain('Aucune étape enregistrée : le suivi a commencé le 17 septembre 2026.')
+    expect(badges()).toEqual([])
+  })
+
+  it('un parcours illisible : le message et « Réessayer »', async () => {
+    h.lireActivite = vi.fn(async () => {
+      throw Object.assign(new Error('Espace momentanément indisponible. Réessayez.'), { status: 503 })
+    })
+    await monter(React.createElement(ClientsCloser))
+    await cliquer(depliants()[0])
+    expect(conteneur.querySelector('[role="alert"]').textContent).toContain('Espace momentanément indisponible. Réessayez.')
+    expect(bouton('Réessayer')).toBeTruthy()
   })
 })

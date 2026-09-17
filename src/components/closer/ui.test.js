@@ -15,7 +15,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
  *     recours par e-mail), sur l'accueil et sur la liste des clients.
  */
 
-vi.mock('../../lib/espace-closer', () => ({ appelCloser: async () => ({ clients: [] }) }))
+vi.mock('../../lib/espace-closer', () => ({
+  appelCloser: async () => ({ clients: [] }),
+  lireActivite: async () => ({ evenements: [], suivant: null, resume: null }),
+}))
 
 let ui
 let AccueilCloser
