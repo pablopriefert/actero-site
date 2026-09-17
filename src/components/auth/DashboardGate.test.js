@@ -55,7 +55,8 @@ beforeEach(() => {
   globalThis.fetch = vi.fn(async (url) => ({
     status: String(url) === '/api/closer/moi' ? h.reponseCloser : 404,
     ok: false,
-    json: async () => ({}),
+    // Les corps de la vraie route (api/closer/moi.js, api/lib/fiche-closer.js).
+    json: async () => ({ 200: { fiche: { code: 'ACT-AAAAA' } }, 404: { error: 'pas_de_fiche' } }[h.reponseCloser] ?? { error: 'indisponible' }),
   }))
 })
 

@@ -48,8 +48,8 @@ describe('resolveOrCreateClientId', () => {
   })
 
   it('un compte closer sans boutique : aucune création', async () => {
-    // La séparation des espaces (spec closers) : /api/closer/moi répond 200.
-    globalThis.fetch = vi.fn(async () => ({ status: 200 }))
+    // La séparation des espaces (spec closers) : /api/closer/moi rend la fiche.
+    globalThis.fetch = vi.fn(async () => ({ status: 200, json: async () => ({ fiche: { code: 'ACT-AAAAA' } }) }))
     const sb = makeSupabase()
     await expect(resolveOrCreateClientId(sb, { ...session, access_token: 'jeton-closer' })).rejects.toThrow('compte_closer')
     expect(sb._inserts).toHaveLength(0)

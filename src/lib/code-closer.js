@@ -144,17 +144,24 @@ export async function presenterCodeCloser(supabase) {
 }
 
 /**
- * Le compte connecté a-t-il une fiche closer ? `true`, `false`, ou `null`
- * quand on ne sait pas (pas de jeton, panne) : un « je ne sais pas » ne doit
- * jamais bloquer un marchand.
+ * Le compte connecté a-t-il une fiche closer ? Réponse de GET /api/closer/moi :
+ *
+ *   true   seulement un corps JSON qui porte la fiche ;
+ *   false  seulement le 404 `pas_de_fiche` de api/lib/fiche-closer.js ;
+ *   null   on ne sait pas : pas de jeton, réponse qui n'est pas du JSON (une
+ *          page HTML servie à la place de la route), autre statut, coupure.
+ *
+ * Le statut seul ne suffit pas : un 200 ou un 404 venu d'ailleurs que la
+ * route aurait classé un compte à tort.
  */
 export async function estCompteCloser(jeton) {
   if (!jeton) return null
   try {
     const res = await fetch('/api/closer/moi', { headers: { Authorization: `Bearer ${jeton}` } })
-    if (res?.status === 200) return true
-    if (res?.status === 404) return false
-    return null
+    if (res?.status !== 200 && res?.status !== 404) return null
+    const corps = await res.json().catch(() => null)
+    if (res.status === 200) return corps?.fiche && typeof corps.fiche === 'object' ? true : null
+    return corps?.error === 'pas_de_fiche' ? false : null
   } catch {
     return null
   }

@@ -260,13 +260,35 @@ describe('le navigateur et api/closer/attribuer.js s’accordent', () => {
 })
 
 describe('compte closer ou pas', () => {
-  it('200 : oui ; 404 : non ; autre chose : on ne sait pas', async () => {
-    repond(200)
+  it('oui : seulement une réponse qui porte la fiche', async () => {
+    repond(200, { fiche: { code: 'ACT-AAAAA' }, totaux: {} })
     expect(await estCompteCloser('jeton')).toBe(true)
     expect(globalThis.fetch.mock.calls[0]).toEqual(['/api/closer/moi', { headers: { Authorization: 'Bearer jeton' } }])
-    repond(404)
+  })
+
+  it('non : seulement le 404 « pas_de_fiche » de api/lib/fiche-closer.js', async () => {
+    repond(404, { error: 'pas_de_fiche', message: 'Ce compte n’a pas encore d’espace closer.' })
     expect(await estCompteCloser('jeton')).toBe(false)
-    repond(500)
+    const route = readFileSync('api/lib/fiche-closer.js', 'utf8')
+    expect(route).toMatch(/status\(404\)\.json\(\{ error: 'pas_de_fiche'/)
+  })
+
+  it.each([
+    ['un 200 sans fiche', 200, {}],
+    ['un 200 dont la fiche n’est pas un objet', 200, { fiche: 'oui' }],
+    ['un 404 d’une autre origine', 404, { error: 'introuvable' }],
+    ['un 404 sans corps', 404, null],
+    ['un 401', 401, { error: 'non_authentifie' }],
+    ['un 503', 503, { error: 'indisponible' }],
+  ])('on ne sait pas : %s', async (_, status, corps) => {
+    repond(status, corps)
+    expect(await estCompteCloser('jeton')).toBeNull()
+  })
+
+  it('on ne sait pas : une réponse qui n’est pas du JSON (page HTML), ou une coupure', async () => {
+    globalThis.fetch = vi.fn(async () => ({ status: 200, ok: true, json: async () => { throw new SyntaxError('Unexpected token <') } }))
+    expect(await estCompteCloser('jeton')).toBeNull()
+    globalThis.fetch = vi.fn(async () => ({ status: 404, ok: false, json: async () => { throw new SyntaxError('Unexpected token <') } }))
     expect(await estCompteCloser('jeton')).toBeNull()
     globalThis.fetch = vi.fn(async () => { throw new TypeError('Failed to fetch') })
     expect(await estCompteCloser('jeton')).toBeNull()
