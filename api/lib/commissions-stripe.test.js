@@ -200,6 +200,29 @@ describe('invoice.paid → commission', () => {
     expect(sb.base.closer_commissions[0]).toMatchObject({ montant_centimes: 25000, type: 'unique' })
   })
 
+  it('passage du mensuel à l’annuel facturé tout de suite : la commission unique ; un pur prorata : rien', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const PRIX_PRO_ANNUEL = { ...PRIX_STARTER_ANNUEL, id: 'price_pro_a', lookup_key: 'actero_pro_annuel', unit_amount: 395010 }
+    const sb = fauxSupabase()
+    const stripe = fauxStripe({
+      factures: {
+        in_bascule: facture({ id: 'in_bascule', billing_reason: 'subscription_update', amount_paid: 381710 }),
+        in_prorata: facture({ id: 'in_prorata', billing_reason: 'subscription_update', amount_paid: 20000 }),
+      },
+      lignesParFacture: {
+        in_bascule: page([{ ...ligne(PRIX_PRO_MENSUEL, { id: 'il_credit', proration: true }), amount: -13300 }, ligne(PRIX_PRO_ANNUEL, { id: 'il_annee' })]),
+        in_prorata: page([ligne(PRIX_PRO_MENSUEL, { id: 'il_p1', proration: true }), ligne(PRIX_PRO_MENSUEL, { id: 'il_p2', proration: true })]),
+      },
+    })
+    expect(await traiterFacturePayee(stripe, sb, 'in_bascule')).toEqual({ cree: true, source_key: `unique:${CLIENT_ID}` })
+    expect(sb.base.closer_commissions[0]).toMatchObject({ type: 'unique', formule: 'annuel', montant_centimes: 60000, stripe_invoice_id: 'in_bascule' })
+    expect(await traiterFacturePayee(stripe, sb, 'in_prorata')).toEqual({ cree: false, raison: 'hors_grille' })
+    // Rejouée, la bascule ne crée pas une seconde commission unique.
+    expect(await traiterFacturePayee(stripe, sb, 'in_bascule')).toEqual({ cree: false, raison: 'unique_deja_versee' })
+    expect(sb.base.closer_commissions).toHaveLength(1)
+    warn.mockRestore()
+  })
+
   it('le client se retrouve par l’abonnement si les métadonnées n’ont pas son identifiant', async () => {
     const sb = fauxSupabase()
     const stripe = fauxStripe({ factures: { in_100: facture({ metadata: {} }) }, lignesParFacture: { in_100: lignes(PRIX_PRO_MENSUEL) } })
