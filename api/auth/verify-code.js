@@ -16,7 +16,7 @@ import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
 import { appliquerCampagne } from '../lib/campagne.js'
 import {
-  codeCorrespond, COLONNE_TYPE_CODE, UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
+  codeCorrespond, compterEssai, COLONNE_TYPE_CODE, UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
 } from '../lib/code-verification.js'
 
 const supabase = createClient(
@@ -66,26 +66,21 @@ async function handler(req, res) {
     return res.status(400).json(CODE_EXPIRE)
   }
 
-  if (record.attempts >= MAX_ATTEMPTS) {
+  const essaisLus = record.attempts ?? 0
+  if (essaisLus >= MAX_ATTEMPTS) {
     return res.status(429).json({ error: 'Trop de tentatives incorrectes. Demandez un nouveau code.' })
   }
 
-  // L'essai est compté AVANT la comparaison, et seulement si le compteur vaut
-  // encore ce qu'on a lu : de N essais simultanés, un seul passe cette
-  // écriture, donc un seul code est comparé. Les autres reçoivent la réponse
-  // d'un mauvais code, sans que le leur ait été regardé.
-  const { data: essaiCompte, error: erreurEssai } = await supabase
-    .from('email_verification_codes')
-    .update({ attempts: record.attempts + 1 })
-    .eq('id', record.id)
-    .eq('attempts', record.attempts)
-    .select('id')
-  if (erreurEssai) return res.status(503).json(INDISPONIBLE)
-  // Comparaison en temps constant (voir api/lib/code-verification.js).
-  if (!essaiCompte?.length || !codeCorrespond(codeStr, record.code_hash)) {
+  // L'essai est compté AVANT la comparaison, de façon atomique (voir
+  // compterEssai). Un essai devancé par une requête simultanée reçoit la
+  // réponse d'un mauvais code, sans que le sien ait été regardé. La
+  // comparaison est en temps constant (codeCorrespond).
+  const essai = await compterEssai(supabase, record.id, record.attempts)
+  if (essai.error) return res.status(503).json(INDISPONIBLE)
+  if (!essai.compte || !codeCorrespond(codeStr, record.code_hash)) {
     return res.status(400).json({
       error: 'Code incorrect.',
-      attempts_left: Math.max(0, MAX_ATTEMPTS - record.attempts - 1),
+      attempts_left: Math.max(0, MAX_ATTEMPTS - essaisLus - 1),
     })
   }
 

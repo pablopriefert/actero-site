@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { checkRateLimit, getClientIp } from '../lib/rate-limit.js'
 import { decryptToken } from '../lib/crypto.js'
 import {
-  codeCorrespond, TYPE_CODE_CLOSER, COLONNE_TYPE_CODE, ESSAIS_MAX,
+  codeCorrespond, compterEssai, TYPE_CODE_CLOSER, COLONNE_TYPE_CODE, ESSAIS_MAX,
   UNE_HEURE_MS, VERIFICATIONS_PAR_ADRESSE, cleVerificationsParAdresse,
 } from '../lib/code-verification.js'
 import { creerFiche, nettoyerNom } from '../lib/fiche-closer.js'
@@ -60,26 +60,21 @@ async function handler(req, res) {
 
   const ligne = lignes?.[0]
   if (!ligne) return res.status(400).json(CODE_EXPIRE)
-  if (ligne.attempts >= ESSAIS_MAX) {
+  const essaisLus = ligne.attempts ?? 0
+  if (essaisLus >= ESSAIS_MAX) {
     return res.status(429).json({ error: 'trop_d_essais', message: 'Trop de tentatives incorrectes. Demandez un nouveau code.' })
   }
 
-  // L'essai est compté AVANT la comparaison, et seulement si le compteur vaut
-  // encore ce qu'on a lu : de N essais simultanés, un seul passe cette
-  // écriture, donc un seul code est comparé. Les autres reçoivent la réponse
-  // d'un mauvais code, sans que le leur ait été regardé.
-  const { data: essaiCompte, error: erreurEssai } = await supabase
-    .from('email_verification_codes')
-    .update({ attempts: ligne.attempts + 1 })
-    .eq('id', ligne.id)
-    .eq('attempts', ligne.attempts)
-    .select('id')
-  if (erreurEssai) return res.status(503).json(INDISPONIBLE)
-  if (!essaiCompte?.length || !codeCorrespond(saisi, ligne.code_hash)) {
+  // L'essai est compté AVANT la comparaison, de façon atomique (voir
+  // compterEssai). Un essai devancé par une requête simultanée reçoit la
+  // réponse d'un mauvais code, sans que le sien ait été regardé.
+  const essai = await compterEssai(supabase, ligne.id, ligne.attempts)
+  if (essai.error) return res.status(503).json(INDISPONIBLE)
+  if (!essai.compte || !codeCorrespond(saisi, ligne.code_hash)) {
     return res.status(400).json({
       error: 'code_incorrect',
       message: 'Code incorrect.',
-      essais_restants: Math.max(0, ESSAIS_MAX - ligne.attempts - 1),
+      essais_restants: Math.max(0, ESSAIS_MAX - essaisLus - 1),
     })
   }
 

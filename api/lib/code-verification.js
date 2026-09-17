@@ -47,6 +47,27 @@ export function empreinteCode(code) {
 }
 
 /**
+ * Compte un essai sur un code, AVANT de le comparer, et seulement si son
+ * compteur vaut encore `lu`, la valeur lue juste avant : de N essais
+ * simultanés, un seul est compté — donc un seul code comparé.
+ *
+ * `lu` peut être NULL (les routes d'envoi laissent la base remplir la
+ * colonne) : PostgREST ne compare pas à NULL avec `eq`, c'est `is`.
+ *
+ * @returns {Promise<{ compte: boolean, error?: object }>} `compte: false` si une
+ *          requête concurrente a compté son essai la première.
+ */
+export async function compterEssai(supabase, id, lu) {
+  const requete = supabase
+    .from('email_verification_codes')
+    .update({ attempts: (lu ?? 0) + 1 })
+    .eq('id', id)
+  const { data, error } = await (lu == null ? requete.is('attempts', null) : requete.eq('attempts', lu)).select('id')
+  if (error) return { compte: false, error }
+  return { compte: (data?.length ?? 0) > 0 }
+}
+
+/**
  * Le code saisi correspond-il à l'empreinte enregistrée ? Comparaison en
  * temps constant : un `===` s'arrête au premier caractère différent, et sa
  * durée renseigne sur l'empreinte. `timingSafeEqual` exige deux tampons de

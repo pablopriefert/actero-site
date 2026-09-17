@@ -270,6 +270,26 @@ describe.each(['closer', 'marchand'])('compteur d’essais atomique — parcours
   })
 })
 
+describe.each(['closer', 'marchand'])('compteur d’essais absent ou NULL — parcours %s', (parcours) => {
+  // Les routes d'envoi n'écrivent pas `attempts` : la valeur vient de la base.
+  it.each([['NULL', null], ['absent', undefined]])('compteur %s : le premier essai est compté, puis le bon code passe', async (_, attempts) => {
+    const ligne = ligneDeCode({ id: 'v', parcours })
+    if (attempts === undefined) delete ligne.attempts
+    else ligne.attempts = attempts
+    const sb = monde({ codes: [ligne] })
+
+    const faux = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '999999' } })
+    expect(faux.body).toEqual(echecHabituel(parcours))
+    expect(sb.base.email_verification_codes[0].attempts).toBe(1)
+    // PostgREST ne compare pas à NULL avec `eq` : c'est `is`.
+    const [compteur] = sb.journal.filter((j) => j.operation === 'update' && 'attempts' in j.charge)
+    expect(compteur.filtres).toContainEqual(['is', 'attempts', null])
+
+    const bon = await appeler(routes[parcours].verifier, { methode: 'POST', corps: { email: EMAIL, code: '123456' } })
+    expect(bon.statusCode).toBe(200)
+  })
+})
+
 describe.each(['closer', 'marchand'])('le mot de passe chiffré ne survit pas au code — parcours %s', (parcours) => {
   const MOT_DE_PASSE = parcours === 'closer' ? 'motdepasse-closer' : 'motdepasse-marchand'
   const RESTE = parcours === 'closer'
