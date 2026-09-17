@@ -7,7 +7,7 @@ import { createRoot } from 'react-dom/client'
  * /signup/plan — l'offre convenue avec un closer est la carte mise en avant.
  *
  * Le prospect arrive avec `?plan=&formule=` (ou la formule mémorisée par le
- * lien /c/:code). La carte de ce plan porte « Offre convenue » à la place de
+ * lien /c/:code). La carte de ce plan porte « Offre choisie » à la place de
  * la carte « Le plus choisi », et la formule reste présélectionnée.
  *
  * La vraie page est montée ; Supabase (sans session) et la création de client
@@ -63,7 +63,7 @@ const formuleActive = () => conteneur.querySelector('[aria-label="Formule de pai
 describe('PlanSelectionPage — offre convenue', () => {
   it('le plan du lien est mis en avant à la place de la carte populaire, formule présélectionnée', async () => {
     await ouvrir('?plan=starter&formule=annuel')
-    expect(plansAvecBadge('Offre convenue')).toEqual(['Starter'])
+    expect(plansAvecBadge('Offre choisie')).toEqual(['Starter'])
     expect(plansAvecBadge('Le plus choisi')).toEqual([])
     expect(formuleActive()).toMatch(/^Annuel/)
   })
@@ -71,7 +71,7 @@ describe('PlanSelectionPage — offre convenue', () => {
   it('la formule mémorisée par le lien /c/:code suffit, sans paramètre d’URL', async () => {
     memoriserFormuleChoisie({ plan: 'pro', periode: 'trimestriel' })
     await ouvrir()
-    expect(plansAvecBadge('Offre convenue')).toEqual(['Pro'])
+    expect(plansAvecBadge('Offre choisie')).toEqual(['Pro'])
     expect(plansAvecBadge('Le plus choisi')).toEqual([])
     expect(formuleActive()).toMatch(/^Trimestriel/)
   })
@@ -79,13 +79,13 @@ describe('PlanSelectionPage — offre convenue', () => {
   it('sans offre convenue, la carte populaire garde son badge', async () => {
     await ouvrir()
     expect(plansAvecBadge('Le plus choisi')).toEqual(['Pro'])
-    expect(plansAvecBadge('Offre convenue')).toEqual([])
+    expect(plansAvecBadge('Offre choisie')).toEqual([])
     expect(formuleActive()).toMatch(/^Mensuel/)
   })
 
   it('un plan non payant dans l’URL ne remplace pas la carte populaire', async () => {
     await ouvrir('?plan=enterprise&formule=annuel')
-    expect(plansAvecBadge('Offre convenue')).toEqual([])
+    expect(plansAvecBadge('Offre choisie')).toEqual([])
     expect(plansAvecBadge('Le plus choisi')).toEqual(['Pro'])
     expect(formuleActive()).toMatch(/^Annuel/)
   })

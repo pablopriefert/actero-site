@@ -70,3 +70,18 @@ describe('pages closer — ni indexées, ni listées', () => {
     }
   })
 })
+
+describe('une intention Google closer restée en mémoire ne détourne pas un marchand', () => {
+  // Les deux entrées Google marchandes repartent par /auth/callback, qui suit
+  // le parcours closer si l'intention est posée. Elles doivent donc l'effacer
+  // avant de partir chez Google.
+  it.each(['src/pages/SignupPage.jsx', 'src/components/auth/LoginPage.jsx'])('%s efface l’intention avant signInWithOAuth', (fichier) => {
+    const code = lire(fichier)
+    const depart = code.indexOf('signInWithOAuth(')
+    expect(depart).toBeGreaterThan(-1)
+    const effacement = code.lastIndexOf('oublierIntentionGoogle()', depart)
+    expect(effacement).toBeGreaterThan(-1)
+    // Dans le même gestionnaire : rien d'autre qu'une poignée de lignes entre les deux.
+    expect(code.slice(effacement, depart).split('\n').length).toBeLessThan(12)
+  })
+})

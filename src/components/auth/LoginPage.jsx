@@ -4,6 +4,7 @@ import { Mail, Lock } from 'lucide-react'
 import { Logo } from '../layout/Logo'
 import { ButtonColorful } from '../ui/button-colorful'
 import { supabase } from '../../lib/supabase'
+import { oublierIntentionGoogle } from '../../lib/espace-closer'
 
 export const LoginPage = ({ onNavigate }) => {
   const [email, setEmail] = useState("");
@@ -58,6 +59,9 @@ export const LoginPage = ({ onNavigate }) => {
     try {
       setLoading(true);
       setError("");
+      // /auth/callback suit le parcours closer si une intention Google closer
+      // traîne encore : une connexion marchande part toujours sans.
+      oublierIntentionGoogle();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {

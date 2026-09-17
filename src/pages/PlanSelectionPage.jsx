@@ -470,7 +470,7 @@ export const PlanSelectionPage = ({ onNavigate }) => {
                 >
                   {isPopular && (
                     <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 bg-cta text-white text-[10px] font-bold uppercase tracking-[0.14em] px-3 py-1 rounded-full whitespace-nowrap">
-                      {planConvenu ? "Offre convenue" : "Le plus choisi"}
+                      {planConvenu ? "Offre choisie" : "Le plus choisi"}
                     </div>
                   )}
 
